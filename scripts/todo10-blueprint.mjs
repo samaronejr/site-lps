@@ -52,7 +52,10 @@ const blueprint = {
     { step: "activatePlugin", pluginPath: "/wordpress/wp-content/plugins/lps-content-model" },
     { step: "activatePlugin", pluginPath: "/wordpress/wp-content/plugins/polylang" },
     { step: "activatePlugin", pluginPath: "/wordpress/wp-content/plugins/two-factor" },
-    { step: "defineWpConfigConsts", consts: { WP_DEBUG: true, WP_DEBUG_LOG: true, WP_ENVIRONMENT_TYPE: "local" } },
+    {
+      step: "defineWpConfigConsts",
+      consts: { WP_DEBUG: true, WP_DEBUG_LOG: true, WP_ENVIRONMENT_TYPE: "local" },
+    },
     { step: "runPHP", code: { filename: "todo10-provision.php", content: fixture } },
   ],
 };

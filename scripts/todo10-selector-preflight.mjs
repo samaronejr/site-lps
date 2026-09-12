@@ -121,10 +121,9 @@ try {
       response.request().method() === "POST" &&
       new URL(response.url()).pathname === "/wp-admin/profile.php",
   );
-  const enrollmentProfileUrl = page.waitForURL(
-    (url) => url.pathname === "/wp-admin/profile.php",
-    { waitUntil: "domcontentloaded" },
-  );
+  const enrollmentProfileUrl = page.waitForURL((url) => url.pathname === "/wp-admin/profile.php", {
+    waitUntil: "domcontentloaded",
+  });
   await page.locator("#submit").click();
   const [enrollmentSave] = await Promise.all([enrollmentSaveResponse, enrollmentProfileUrl]);
   receipt.enrollment.enrollmentSave = {
@@ -162,10 +161,9 @@ try {
       response.request().method() === "POST" &&
       new URL(response.url()).pathname === "/wp-admin/profile.php",
   );
-  const primaryProfileUrl = page.waitForURL(
-    (url) => url.pathname === "/wp-admin/profile.php",
-    { waitUntil: "domcontentloaded" },
-  );
+  const primaryProfileUrl = page.waitForURL((url) => url.pathname === "/wp-admin/profile.php", {
+    waitUntil: "domcontentloaded",
+  });
   await page.locator("#submit").click();
   const [primarySave] = await Promise.all([primarySaveResponse, primaryProfileUrl]);
   await assertSession(page, "preflight-primary-provider-save");

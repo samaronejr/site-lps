@@ -30,7 +30,7 @@ describe("research-first homepage integration", () => {
     ];
     let cursor = -1;
     for (const section of sequence) {
-      const next = homepage.indexOf(`data-home-section=\"${section}\"`);
+      const next = homepage.indexOf(`data-home-section="${section}"`);
       expect(next).toBeGreaterThan(cursor);
       cursor = next;
     }
