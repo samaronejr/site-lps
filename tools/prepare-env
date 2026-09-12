@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+readonly ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+readonly CACHE="$ROOT/.cache/wp-plugins"
+readonly PLAYGROUND_RUNTIME="$ROOT/node_modules/@wordpress/env/lib/runtime/playground/index.js"
+
+# wp-env 11.14.0 enables Playground's experimental multi-worker mode unconditionally. The worker
+# can outlive its supervising process and make wp-env report a failed start while port 8888 is live.
+# Keep the stable single-process runtime until upstream exposes this as an opt-in setting.
+perl -0pi -e "s/\n\t\t\t'--experimental-multi-worker',//" "$PLAYGROUND_RUNTIME"
+
+readonly PLAYGROUND_WORDPRESS="$ROOT/node_modules/@wp-playground/wordpress/index.js"
+
+# Playground injects a shared mu-plugin that unconditionally 301s /sitemap.xml to
+# /wp-sitemap.xml before WordPress boots. The LPS site owns /sitemap.xml as its
+# locale sitemap index, so neutralize the runtime-only redirect. Real hosts never
+# load this file.
+perl -0pi -e "s/\\\$request_uri === \\\$base_path \\. '\\/sitemap\\.xml'/false/" "$PLAYGROUND_WORDPRESS"
+
+mkdir -p "$CACHE"
+
+if [[ ! -d "$ROOT/.cache/wordpress" ]]; then
+  curl -fsSL "https://wordpress.org/wordpress-6.9.7.zip" -o "$ROOT/.cache/wordpress-6.9.7.zip"
+  unzip -q "$ROOT/.cache/wordpress-6.9.7.zip" -d "$ROOT/.cache"
+fi
+
+install_plugin() {
+  local slug="$1"
+  local version="$2"
+  local archive="$CACHE/$slug.$version.zip"
+
+  if [[ ! -d "$CACHE/$slug" ]]; then
+    curl -fsSL "https://downloads.wordpress.org/plugin/$slug.$version.zip" -o "$archive"
+    unzip -q "$archive" -d "$CACHE"
+  fi
+}
+
+install_plugin polylang 3.8.7
+install_plugin two-factor 0.16.0

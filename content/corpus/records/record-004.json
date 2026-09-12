@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "inventoryRecord": "record-004",
+  "collection": "page",
+  "postType": "page",
+  "recordKey": "people",
+  "disposition": "migrate",
+  "governance": {
+    "ownerRole": "section-editor",
+    "namedOwner": null,
+    "ownerCandidate": "LPS academic leadership",
+    "reviewCadence": "P180D",
+    "lastReviewedAt": "2026-09-06",
+    "nextReviewDate": "2027-03-05",
+    "reviewState": "candidate",
+    "editorialState": "draft",
+    "publishGate": {
+      "state": "draft",
+      "blockers": [
+        "named-role-and-collection-assignments",
+        "translation-review-pending",
+        "person-photo-rights-and-privacy-review-unresolved"
+      ]
+    },
+    "rights": {
+      "state": "public-record",
+      "basis": "Public institutional faculty index published by LPS/COPPE. The portrait images linked from this index are inventoried as public-record-no-copy and are not migrated.",
+      "assetsIncluded": [],
+      "personalDataPublished": false
+    },
+    "provenance": {
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/lps/professores",
+      "inventoryProvenance": "live-http",
+      "inventoryCapturedAt": "2026-08-30T23:03:43Z",
+      "inventoryChecksum": "sha256:6270b06b00299d3ef91cd6c9f738246995e92e71e429c10eff421f794e5bbd13",
+      "reverification": {
+        "method": "anonymous public HTTP GET",
+        "evidenceFile": "content/corpus/evidence/record-004.txt"
+      }
+    },
+    "relationships": [
+      { "type": "related_record", "target": "record-008", "role": "related", "order": 1 },
+      { "type": "related_record", "target": "record-010", "role": "related", "order": 2 },
+      { "type": "related_record", "target": "record-011", "role": "related", "order": 3 },
+      { "type": "related_record", "target": "record-009", "role": "related", "order": 4 },
+      { "type": "related_record", "target": "record-007", "role": "related", "order": 5 }
+    ]
+  },
+  "meta": {
+    "_lps_page_key": "people"
+  },
+  "locales": {
+    "pt-br": {
+      "title": "Professores",
+      "slug": "professores",
+      "excerpt": "Índice do corpo docente do LPS conforme registrado na página institucional atual.",
+      "content": [
+        "A página institucional atual do LPS lista o seguinte corpo docente: Prof. Luiz Pereira Calôba, Prof. José Manoel de Seixas, Prof. Natanael de Moura Junior, Prof. João Victor da Fonseca Pinto e Prof. Antônio Carlos Moreirão de Queiroz (in memoriam).",
+        "Cada docente listado tem um registro individual migrado a partir da sua própria página pública, com fonte, data de captura e estado de revisão próprios.",
+        "As fotografias associadas a este índice na fonte original não foram copiadas. Elas constam do inventário como material de acesso público sem licença de reuso documentada e dependem de revisão de direitos e de privacidade antes de qualquer publicação."
+      ]
+    },
+    "en": {
+      "title": "Faculty",
+      "slug": "people",
+      "excerpt": "Index of the LPS faculty as recorded on the current institutional page.",
+      "content": [
+        "The current LPS institutional page lists the following faculty: Prof. Luiz Pereira Calôba, Prof. José Manoel de Seixas, Prof. Natanael de Moura Junior, Prof. João Victor da Fonseca Pinto and Prof. Antônio Carlos Moreirão de Queiroz (in memoriam).",
+        "Each listed member has an individual migrated record derived from their own public page, with its own source, capture date and review state.",
+        "The portrait photographs attached to this index in the original source were not copied. They are inventoried as publicly reachable material without a documented reuse licence and require rights and privacy review before any publication."
+      ],
+      "translation": {
+        "authoritativeLocale": "pt-br",
+        "method": "editorial-translation-by-migration-agent",
+        "machineTranslated": false,
+        "translatorRole": "translator",
+        "reviewerRole": "section-editor",
+        "reviewedBy": null,
+        "reviewState": "pending-independent-review"
+      }
+    }
+  },
+  "claims": [
+    {
+      "statement": "The faculty index lists five names, one of them in memoriam.",
+      "evidenceQuote": "Prof. Luiz Pereira Calôba Prof. José Manoel de Seixas Prof. Natanael de Moura Junior Prof. João Victor da Fonseca Pinto Prof. Antônio Carlos Moreirão de Queiroz (in memoriam)",
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/lps/professores"
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "inventoryRecord": "record-014",
+  "collection": "redirect",
+  "disposition": "301",
+  "freshness": "historical-archive-only",
+  "governance": {
+    "ownerRole": "administrator",
+    "namedOwner": null,
+    "ownerCandidate": "LPS publication editor",
+    "reviewCadence": "P365D",
+    "lastReviewedAt": "2026-09-06",
+    "nextReviewDate": "2027-09-06",
+    "reviewState": "reviewed",
+    "editorialState": "archived",
+    "rights": {
+      "state": "public-record",
+      "basis": "Legacy public index recorded only through Internet Archive CDX evidence.",
+      "assetsIncluded": [],
+      "personalDataPublished": false
+    },
+    "provenance": {
+      "sourceUrl": "http://www.lps.ufrj.br/publications/publications.html",
+      "inventoryProvenance": "archive-cdx",
+      "inventoryCapturedAt": "2002-03-02T02:32:14Z",
+      "inventoryChecksum": "sha256:f21ddeb66333bc150127e99521ac0f635faccd918b6d8bc7402afcb383480b01"
+    }
+  },
+  "archive": {
+    "archivedAt": "2026-09-06",
+    "state": "archived",
+    "reason": "The legacy publication index is historical-archive-only evidence captured in 2002. Its content is not migrated and is not eligible for active listings.",
+    "hardDeleted": false,
+    "successorDecision": {
+      "kind": "gone-410",
+      "source": "/publications/publications.html",
+      "target": null,
+      "status": 410,
+      "reason": "No current publication surface exists. The public source inventory records that the current site exposes no dedicated publication feed, so no successor URL can be asserted; a deliberate 410 is recorded instead of an invented redirect target.",
+      "provenance": "http://www.lps.ufrj.br/publications/publications.html",
+      "evidence": "content/inventory/sources.md"
+    }
+  }
+}

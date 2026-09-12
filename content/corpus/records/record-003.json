@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "inventoryRecord": "record-003",
+  "collection": "page",
+  "postType": "page",
+  "recordKey": "visual-identity",
+  "disposition": "migrate",
+  "governance": {
+    "ownerRole": "section-editor",
+    "namedOwner": null,
+    "ownerCandidate": "LPS communications",
+    "reviewCadence": "P180D",
+    "lastReviewedAt": "2026-09-06",
+    "nextReviewDate": "2027-03-05",
+    "reviewState": "candidate",
+    "editorialState": "draft",
+    "publishGate": {
+      "state": "draft",
+      "blockers": [
+        "named-role-and-collection-assignments",
+        "translation-review-pending",
+        "brand-asset-rights-and-accessible-format-unresolved"
+      ]
+    },
+    "rights": {
+      "state": "public-record",
+      "basis": "Public institutional page published by LPS/COPPE. The linked brand files themselves are not migrated: their licence, rights holder and accessible-format review are undocumented.",
+      "assetsIncluded": [],
+      "personalDataPublished": false
+    },
+    "provenance": {
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/lps/sobre/identidade-visual",
+      "inventoryProvenance": "live-http",
+      "inventoryCapturedAt": "2026-08-30T23:03:43Z",
+      "inventoryChecksum": "sha256:eb059e05ef8ab2cb8181d0fec440039c42d9227cd89f2ef0f7cd9ca187285151",
+      "reverification": {
+        "method": "anonymous public HTTP GET",
+        "evidenceFile": "content/corpus/evidence/record-003.txt"
+      }
+    },
+    "relationships": [
+      { "type": "related_record", "target": "record-002", "role": "context", "order": 1 }
+    ]
+  },
+  "meta": {
+    "_lps_page_key": "visual-identity"
+  },
+  "locales": {
+    "pt-br": {
+      "title": "Identidade visual",
+      "slug": "identidade-visual",
+      "excerpt": "Registro da identidade visual do LPS conforme publicado na página institucional atual; os arquivos de marca ainda não têm licença e formato acessível documentados.",
+      "content": [
+        "A página institucional atual do LPS publica um conjunto de arquivos de identidade visual: o sinal isolado em branco e em azul, a marca completa em branco e em azul, e um pacote completo da marca. Os formatos oferecidos na fonte são PDF e PNG.",
+        "Esses arquivos não foram migrados nesta etapa. A fonte pública não documenta titular de direitos, licença de uso, condições de reprodução nem alternativa acessível equivalente, e a política editorial do projeto não permite republicar material cujo estado de direitos seja desconhecido.",
+        "Enquanto o titular dos direitos e as condições de uso não forem confirmados por evidência documental, esta página permanece em rascunho e o material de marca é tratado como pendência de lançamento, e não como conteúdo público."
+      ]
+    },
+    "en": {
+      "title": "Visual identity",
+      "slug": "visual-identity",
+      "excerpt": "Record of the LPS visual identity as published on the current institutional page; the brand files still lack a documented licence and accessible format.",
+      "content": [
+        "The current LPS institutional page publishes a set of visual identity files: the mark alone in white and in blue, the full logotype in white and in blue, and a complete brand package. The formats offered by the source are PDF and PNG.",
+        "Those files were not migrated at this stage. The public source documents no rights holder, licence, reproduction conditions or equivalent accessible alternative, and the project's editorial policy does not allow republishing material whose rights status is unknown.",
+        "Until the rights holder and the conditions of use are confirmed by documentary evidence, this page remains a draft and the brand material is treated as a launch blocker rather than as public content."
+      ],
+      "translation": {
+        "authoritativeLocale": "pt-br",
+        "method": "editorial-translation-by-migration-agent",
+        "machineTranslated": false,
+        "translatorRole": "translator",
+        "reviewerRole": "section-editor",
+        "reviewedBy": null,
+        "reviewState": "pending-independent-review"
+      }
+    }
+  },
+  "claims": [
+    {
+      "statement": "The source page offers the LPS mark in white and blue variants as PDF and PNG.",
+      "evidenceQuote": "LPS (Apenas Sinal em Azul ) : PDF e PNG",
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/lps/sobre/identidade-visual"
+    },
+    {
+      "statement": "The source page offers a complete brand package.",
+      "evidenceQuote": "Pacote Completo da Marca.",
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/lps/sobre/identidade-visual"
+    }
+  ]
+}

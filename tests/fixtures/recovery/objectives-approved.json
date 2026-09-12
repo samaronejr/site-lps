@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "policySource": "fixture-only: hypothetical approved objectives, not an LPS approval receipt",
+  "encryption": {
+    "algorithm": "age-x25519",
+    "recipientKeyId": "fixture-recipient-key",
+    "keyCustodianRole": "administrator",
+    "status": "confirmed",
+    "evidence": "fixture recipient key"
+  },
+  "retention": {
+    "dailySnapshots": 14,
+    "weeklySnapshots": 8,
+    "monthlySnapshots": 12,
+    "offsiteCopies": 1,
+    "status": "approved",
+    "approverRole": "administrator",
+    "approvedBy": "fixture-administrator",
+    "evidence": "fixture approval receipt"
+  },
+  "owners": {
+    "backupOperatorRole": "deployer",
+    "restoreVerifierRole": "administrator",
+    "contentRollbackRole": "publisher",
+    "cutoverApproverRole": "administrator",
+    "assignees": {
+      "deployer": "fixture-deployer",
+      "administrator": "fixture-administrator",
+      "publisher": "fixture-publisher"
+    }
+  },
+  "objectives": [
+    {
+      "id": "application-rollback",
+      "scope": "Deployed application release",
+      "rpoMinutes": 60,
+      "rtoMinutes": 30,
+      "approval": {
+        "status": "approved",
+        "approverRole": "administrator",
+        "approvedBy": "fixture-administrator",
+        "approvedAt": "2026-09-01T00:00:00.000Z"
+      },
+      "evidence": "fixture approval receipt"
+    },
+    {
+      "id": "content-revision-rollback",
+      "scope": "Published content revision",
+      "rpoMinutes": 15,
+      "rtoMinutes": 10,
+      "approval": {
+        "status": "approved",
+        "approverRole": "publisher",
+        "approvedBy": "fixture-publisher",
+        "approvedAt": "2026-09-01T00:00:00.000Z"
+      },
+      "evidence": "fixture approval receipt"
+    }
+  ]
+}

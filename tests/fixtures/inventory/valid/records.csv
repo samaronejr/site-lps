@@ -1,0 +1,2 @@
+id,kind,title,source_url,captured_at,provenance,owner_candidate,locale,freshness,rights_privacy_state,checksum,disposition,notes
+record-1,page,Legacy page,https://example.org/legacy/,2026-08-30T00:00:00Z,live-http,LPS web maintainers,pt-BR,current,public-record,sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,migrate,fixture

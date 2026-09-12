@@ -1,0 +1,78 @@
+{
+  "checkedAt": "2026-08-30T12:00:00.000Z",
+  "canonicalHost": "expired.example",
+  "alternateHost": "www.expired.example",
+  "hosts": [
+    {
+      "hostname": "expired.example",
+      "role": "canonical",
+      "dns": {
+        "status": "confirmed",
+        "records": {
+          "A": { "status": "confirmed", "records": ["192.0.2.20"], "evidence": "fixture A" },
+          "AAAA": { "status": "confirmed", "records": [], "evidence": "fixture no AAAA" },
+          "CNAME": { "status": "confirmed", "records": [], "evidence": "fixture no CNAME" }
+        },
+        "evidence": "fixture DNS"
+      },
+      "tls": {
+        "status": "confirmed",
+        "subject": "CN=expired.example",
+        "san": ["expired.example"],
+        "issuer": "CN=Fixture CA",
+        "validFrom": "2024-01-01T00:00:00.000Z",
+        "validTo": "2025-01-01T00:00:00.000Z",
+        "fingerprint256": "AA:BB",
+        "authorizationError": null,
+        "evidence": "fixture raw certificate"
+      },
+      "http": {
+        "status": "confirmed",
+        "chain": [{ "url": "https://expired.example/", "statusCode": 200, "location": null }],
+        "finalUrl": "https://expired.example/",
+        "evidence": "fixture HTTP 200"
+      }
+    },
+    {
+      "hostname": "www.expired.example",
+      "role": "alternate",
+      "dns": {
+        "status": "confirmed",
+        "records": {
+          "A": { "status": "confirmed", "records": ["192.0.2.20"], "evidence": "fixture A" },
+          "AAAA": { "status": "confirmed", "records": [], "evidence": "fixture no AAAA" },
+          "CNAME": {
+            "status": "confirmed",
+            "records": ["expired.example"],
+            "evidence": "fixture CNAME"
+          }
+        },
+        "evidence": "fixture DNS"
+      },
+      "tls": {
+        "status": "confirmed",
+        "subject": "CN=expired.example",
+        "san": ["expired.example", "www.expired.example"],
+        "issuer": "CN=Fixture CA",
+        "validFrom": "2024-01-01T00:00:00.000Z",
+        "validTo": "2025-01-01T00:00:00.000Z",
+        "fingerprint256": "AA:BB",
+        "authorizationError": null,
+        "evidence": "fixture raw certificate"
+      },
+      "http": {
+        "status": "confirmed",
+        "chain": [
+          {
+            "url": "https://www.expired.example/",
+            "statusCode": 301,
+            "location": "https://expired.example/"
+          },
+          { "url": "https://expired.example/", "statusCode": 200, "location": null }
+        ],
+        "finalUrl": "https://expired.example/",
+        "evidence": "fixture canonical redirect"
+      }
+    }
+  ]
+}

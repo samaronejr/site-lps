@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "inventoryRecord": "record-015",
+  "collection": "redirect",
+  "disposition": "301",
+  "freshness": "historical-archive-only",
+  "governance": {
+    "ownerRole": "administrator",
+    "namedOwner": null,
+    "ownerCandidate": "LPS project owners",
+    "reviewCadence": "P365D",
+    "lastReviewedAt": "2026-09-06",
+    "nextReviewDate": "2027-09-06",
+    "reviewState": "reviewed",
+    "editorialState": "archived",
+    "rights": {
+      "state": "public-record",
+      "basis": "Legacy public index recorded only through Internet Archive CDX evidence.",
+      "assetsIncluded": [],
+      "personalDataPublished": false
+    },
+    "provenance": {
+      "sourceUrl": "http://www.lps.ufrj.br/projetos/research.html",
+      "inventoryProvenance": "archive-cdx",
+      "inventoryCapturedAt": "2006-07-16T02:18:11Z",
+      "inventoryChecksum": "sha256:7864014eaf5dff013ba0872e8eb8d92c5f50fb6476db008ef0b1fdff071575ab"
+    }
+  },
+  "archive": {
+    "archivedAt": "2026-09-06",
+    "state": "archived",
+    "reason": "The legacy project index is historical-archive-only evidence captured in 2006. Its content is not migrated and is not eligible for active listings.",
+    "hardDeleted": false,
+    "successorDecision": {
+      "kind": "redirect-301",
+      "source": "/projetos/research.html",
+      "target": "/pt-br/projetos/",
+      "status": 301,
+      "reason": "The current institutional site publishes a project index, migrated in this corpus as record-005. The legacy path is redirected once to that successor route; no chain is created.",
+      "provenance": "http://www.lps.ufrj.br/projetos/research.html",
+      "successorRecord": "record-005"
+    }
+  }
+}

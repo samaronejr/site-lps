@@ -1,0 +1,10 @@
+/node_modules/
+/vendor/
+/dist/
+/.wp-env/
+/.cache/
+/test-results/
+/playwright-report/
+/.phpunit.cache/
+.DS_Store
+

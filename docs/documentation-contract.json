@@ -1,0 +1,812 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": ".omo/evidence/task-29/qa/build-documentation-contract.py",
+  "note": "Coverage items are verified against their declared source before use; a fabricated item fails generation.",
+  "documentSet": [
+    "README.md",
+    "docs/architecture/decision-record.md",
+    "docs/content/data-dictionary.md",
+    "docs/design/design-system-guide.md",
+    "docs/handbook/editorial-quick-start.md",
+    "docs/handbook/role-workflows.md",
+    "docs/handbook/translation-freshness.md",
+    "docs/handbook/publication-import-guide.md",
+    "docs/handbook/accessibility-authoring-checklist.md",
+    "docs/handbook/role-acceptance-simulations.md",
+    "docs/operations/privacy-security-operations.md",
+    "docs/operations/plugin-update-policy.md",
+    "docs/operations/release-runbook-index.md",
+    "docs/operations/troubleshooting.md",
+    "docs/operations/evidence-retention.md"
+  ],
+  "referenceDocuments": [
+    "docs/content/governance.md",
+    "docs/content/editorial-workflow.md",
+    "docs/content/source-priority.md",
+    "docs/content/information-architecture.md",
+    "docs/architecture/runtime.md",
+    "docs/architecture/workspace-inventory.md",
+    "docs/operations/security-policy.md",
+    "docs/operations/performance-hosting.md",
+    "docs/operations/infrastructure-preflight.md",
+    "docs/operations/migration-rehearsal.md",
+    "docs/operations/migration-reconciliation-workbook.md",
+    "docs/operations/backup-restore.md",
+    "docs/operations/cutover-runbook.md",
+    "docs/quality/accessibility-conformance.md"
+  ],
+  "commandSurfaces": {
+    "packageJson": "package.json",
+    "composerJson": "composer.json",
+    "composerWrapper": "tools/composer",
+    "cliRegistration": "wp-content/plugins/lps-content-model/includes/class-commandregistration.php",
+    "cliClassDirectory": "wp-content/plugins/lps-content-model/includes"
+  },
+  "policySource": "wp-content/plugins/lps-content-model/includes/class-securitypolicy.php",
+  "prerequisites": [
+    {
+      "doc": "README.md",
+      "tokens": ["npm ci", "npm run env:start", "tools/composer install"]
+    },
+    {
+      "doc": "docs/handbook/editorial-quick-start.md",
+      "tokens": ["_lps_assigned_collections", "Two-Factor"]
+    },
+    {
+      "doc": "docs/handbook/role-workflows.md",
+      "tokens": ["npm run test", "tools/composer test"]
+    },
+    {
+      "doc": "docs/handbook/translation-freshness.md",
+      "tokens": ["_lps_source_hash"]
+    },
+    {
+      "doc": "docs/handbook/publication-import-guide.md",
+      "tokens": [
+        "npm run qa:inventory",
+        "npm run qa:content",
+        "node scripts/build-import-package.mjs"
+      ]
+    },
+    {
+      "doc": "docs/handbook/role-acceptance-simulations.md",
+      "tokens": ["npx playwright test --list"]
+    },
+    {
+      "doc": "docs/operations/privacy-security-operations.md",
+      "tokens": ["npm run build"]
+    },
+    {
+      "doc": "docs/operations/plugin-update-policy.md",
+      "tokens": ["npm ci", "tools/composer install"]
+    },
+    {
+      "doc": "docs/operations/release-runbook-index.md",
+      "tokens": ["npm run build"]
+    },
+    {
+      "doc": "docs/operations/troubleshooting.md",
+      "tokens": ["npm ci", "npm run env:start"]
+    },
+    {
+      "doc": "docs/operations/evidence-retention.md",
+      "tokens": [".omo/evidence/"]
+    }
+  ],
+  "freshness": [
+    {
+      "id": "content-model-contract",
+      "kind": "source",
+      "doc": "docs/content/data-dictionary.md",
+      "reviewedAt": "2026-09-06",
+      "maxAgeDays": 180,
+      "sources": [
+        {
+          "path": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
+          "sha256": "fd24b4726d612fb72f107523478100e2f45a8a2e71cb2ef6dae1ff55b0434759"
+        }
+      ]
+    },
+    {
+      "id": "role-policy-matrix",
+      "kind": "source",
+      "doc": "docs/handbook/role-workflows.md",
+      "reviewedAt": "2026-09-06",
+      "maxAgeDays": 180,
+      "sources": [
+        {
+          "path": "wp-content/plugins/lps-content-model/includes/class-securitypolicy.php",
+          "sha256": "23ee1be58ac9c5ef1671fed3fa2462b135dd1e1d613da0c330948e968e431a84"
+        }
+      ]
+    },
+    {
+      "id": "translation-en-editorial-fields",
+      "kind": "translation",
+      "doc": "docs/handbook/translation-freshness.md",
+      "reviewedAt": "2026-09-06",
+      "maxAgeDays": 180,
+      "sources": [
+        {
+          "path": "wp-content/plugins/lps-content-model/includes/class-translationpolicy.php",
+          "sha256": "418dcb111c238b4cbc103782d82ef673df5f87f5c567e1729a37bd662238c0d6"
+        }
+      ]
+    },
+    {
+      "id": "design-tokens",
+      "kind": "source",
+      "doc": "docs/design/design-system-guide.md",
+      "reviewedAt": "2026-09-08",
+      "maxAgeDays": 180,
+      "sources": [
+        {
+          "path": "wp-content/themes/lps-theme/theme.json",
+          "sha256": "73f4d650f719c3cc33b1980799a96e6337808ea13b583d4b4631b75a8878e1d5"
+        },
+        {
+          "path": "DESIGN.md",
+          "sha256": "a9f7e11e98cd95bbc32976f86ab982e7392af3554efe328f9f3db7e11261cd74"
+        }
+      ]
+    },
+    {
+      "id": "governance-matrix",
+      "kind": "source",
+      "doc": "docs/handbook/editorial-quick-start.md",
+      "reviewedAt": "2026-09-06",
+      "maxAgeDays": 180,
+      "sources": [
+        {
+          "path": "tests/fixtures/governance/role-collection-matrix.json",
+          "sha256": "37b65f0aae8a28524dc3b8a3363eb1c0f2dc2aa1bfe5284eaadfb83c02581227"
+        }
+      ]
+    },
+    {
+      "id": "recovery-objectives",
+      "kind": "source",
+      "doc": "docs/operations/release-runbook-index.md",
+      "reviewedAt": "2026-09-06",
+      "maxAgeDays": 180,
+      "sources": [
+        {
+          "path": "docs/operations/recovery-objectives.json",
+          "sha256": "daf9619f4374c7b346977362798bd74258351b364c6af469552f5986c1f007f9"
+        }
+      ]
+    }
+  ],
+  "coverage": [
+    {
+      "id": "setting-official_name",
+      "category": "production-setting",
+      "token": "official_name",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
+        "mustContain": "'official_name'"
+      }
+    },
+    {
+      "id": "setting-acronym",
+      "category": "production-setting",
+      "token": "acronym",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
+        "mustContain": "'acronym'"
+      }
+    },
+    {
+      "id": "setting-parent_ufrj",
+      "category": "production-setting",
+      "token": "parent_ufrj",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
+        "mustContain": "'parent_ufrj'"
+      }
+    },
+    {
+      "id": "setting-parent_coppe",
+      "category": "production-setting",
+      "token": "parent_coppe",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
+        "mustContain": "'parent_coppe'"
+      }
+    },
+    {
+      "id": "setting-founded_year",
+      "category": "production-setting",
+      "token": "founded_year",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
+        "mustContain": "'founded_year'"
+      }
+    },
+    {
+      "id": "setting-address",
+      "category": "production-setting",
+      "token": "address",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
+        "mustContain": "'address'"
+      }
+    },
+    {
+      "id": "setting-public_contact",
+      "category": "production-setting",
+      "token": "public_contact",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
+        "mustContain": "'public_contact'"
+      }
+    },
+    {
+      "id": "setting-timezone",
+      "category": "production-setting",
+      "token": "timezone",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
+        "mustContain": "'timezone'"
+      }
+    },
+    {
+      "id": "setting-official_website",
+      "category": "production-setting",
+      "token": "official_website",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
+        "mustContain": "'official_website'"
+      }
+    },
+    {
+      "id": "setting-orcid_organization",
+      "category": "production-setting",
+      "token": "orcid_organization",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
+        "mustContain": "'orcid_organization'"
+      }
+    },
+    {
+      "id": "setting-logo_id",
+      "category": "production-setting",
+      "token": "logo_id",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
+        "mustContain": "'logo_id'"
+      }
+    },
+    {
+      "id": "setting-privacy_contact",
+      "category": "production-setting",
+      "token": "privacy_contact",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
+        "mustContain": "'privacy_contact'"
+      }
+    },
+    {
+      "id": "setting-accessibility_contact",
+      "category": "production-setting",
+      "token": "accessibility_contact",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
+        "mustContain": "'accessibility_contact'"
+      }
+    },
+    {
+      "id": "setting-title_pt_br",
+      "category": "production-setting",
+      "token": "title_pt_br",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
+        "mustContain": "'title_pt_br'"
+      }
+    },
+    {
+      "id": "setting-title_en",
+      "category": "production-setting",
+      "token": "title_en",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
+        "mustContain": "'title_en'"
+      }
+    },
+    {
+      "id": "setting-tagline_pt_br",
+      "category": "production-setting",
+      "token": "tagline_pt_br",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
+        "mustContain": "'tagline_pt_br'"
+      }
+    },
+    {
+      "id": "setting-tagline_en",
+      "category": "production-setting",
+      "token": "tagline_en",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
+        "mustContain": "'tagline_en'"
+      }
+    },
+    {
+      "id": "setting-footer_pt_br",
+      "category": "production-setting",
+      "token": "footer_pt_br",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
+        "mustContain": "'footer_pt_br'"
+      }
+    },
+    {
+      "id": "setting-footer_en",
+      "category": "production-setting",
+      "token": "footer_en",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
+        "mustContain": "'footer_en'"
+      }
+    },
+    {
+      "id": "setting-WP_ENVIRONMENT_TYPE",
+      "category": "production-setting",
+      "token": "WP_ENVIRONMENT_TYPE",
+      "source": {
+        "file": "docs/operations/security-policy.md",
+        "mustContain": "WP_ENVIRONMENT_TYPE"
+      }
+    },
+    {
+      "id": "setting-WP_DEBUG_DISPLAY",
+      "category": "production-setting",
+      "token": "WP_DEBUG_DISPLAY",
+      "source": {
+        "file": "docs/operations/security-policy.md",
+        "mustContain": "WP_DEBUG_DISPLAY"
+      }
+    },
+    {
+      "id": "setting-DISALLOW_FILE_EDIT",
+      "category": "production-setting",
+      "token": "DISALLOW_FILE_EDIT",
+      "source": {
+        "file": "docs/operations/security-policy.md",
+        "mustContain": "DISALLOW_FILE_EDIT"
+      }
+    },
+    {
+      "id": "setting-DISALLOW_FILE_MODS",
+      "category": "production-setting",
+      "token": "DISALLOW_FILE_MODS",
+      "source": {
+        "file": "docs/operations/security-policy.md",
+        "mustContain": "DISALLOW_FILE_MODS"
+      }
+    },
+    {
+      "id": "setting-LPS_EDGE_SECURITY_VERIFIED",
+      "category": "production-setting",
+      "token": "LPS_EDGE_SECURITY_VERIFIED",
+      "source": {
+        "file": "docs/operations/security-policy.md",
+        "mustContain": "LPS_EDGE_SECURITY_VERIFIED"
+      }
+    },
+    {
+      "id": "collection-site-settings",
+      "category": "collection",
+      "token": "site-settings",
+      "source": {
+        "file": "tests/fixtures/governance/role-collection-matrix.json",
+        "mustContain": "\"id\": \"site-settings\""
+      }
+    },
+    {
+      "id": "collection-page",
+      "category": "collection",
+      "token": "page",
+      "source": {
+        "file": "tests/fixtures/governance/role-collection-matrix.json",
+        "mustContain": "\"id\": \"page\""
+      }
+    },
+    {
+      "id": "collection-person",
+      "category": "collection",
+      "token": "person",
+      "source": {
+        "file": "tests/fixtures/governance/role-collection-matrix.json",
+        "mustContain": "\"id\": \"person\""
+      }
+    },
+    {
+      "id": "collection-organization",
+      "category": "collection",
+      "token": "organization",
+      "source": {
+        "file": "tests/fixtures/governance/role-collection-matrix.json",
+        "mustContain": "\"id\": \"organization\""
+      }
+    },
+    {
+      "id": "collection-research-area",
+      "category": "collection",
+      "token": "research-area",
+      "source": {
+        "file": "tests/fixtures/governance/role-collection-matrix.json",
+        "mustContain": "\"id\": \"research-area\""
+      }
+    },
+    {
+      "id": "collection-project",
+      "category": "collection",
+      "token": "project",
+      "source": {
+        "file": "tests/fixtures/governance/role-collection-matrix.json",
+        "mustContain": "\"id\": \"project\""
+      }
+    },
+    {
+      "id": "collection-publication",
+      "category": "collection",
+      "token": "publication",
+      "source": {
+        "file": "tests/fixtures/governance/role-collection-matrix.json",
+        "mustContain": "\"id\": \"publication\""
+      }
+    },
+    {
+      "id": "collection-opportunity",
+      "category": "collection",
+      "token": "opportunity",
+      "source": {
+        "file": "tests/fixtures/governance/role-collection-matrix.json",
+        "mustContain": "\"id\": \"opportunity\""
+      }
+    },
+    {
+      "id": "collection-news",
+      "category": "collection",
+      "token": "news",
+      "source": {
+        "file": "tests/fixtures/governance/role-collection-matrix.json",
+        "mustContain": "\"id\": \"news\""
+      }
+    },
+    {
+      "id": "collection-event",
+      "category": "collection",
+      "token": "event",
+      "source": {
+        "file": "tests/fixtures/governance/role-collection-matrix.json",
+        "mustContain": "\"id\": \"event\""
+      }
+    },
+    {
+      "id": "collection-media-asset",
+      "category": "collection",
+      "token": "media-asset",
+      "source": {
+        "file": "tests/fixtures/governance/role-collection-matrix.json",
+        "mustContain": "\"id\": \"media-asset\""
+      }
+    },
+    {
+      "id": "collection-redirect",
+      "category": "collection",
+      "token": "redirect",
+      "source": {
+        "file": "tests/fixtures/governance/role-collection-matrix.json",
+        "mustContain": "\"id\": \"redirect\""
+      }
+    },
+    {
+      "id": "role-contributor",
+      "category": "role",
+      "token": "contributor",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-securitypolicy.php",
+        "mustContain": "'contributor'"
+      }
+    },
+    {
+      "id": "role-translator",
+      "category": "role",
+      "token": "translator",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-securitypolicy.php",
+        "mustContain": "'translator'"
+      }
+    },
+    {
+      "id": "role-section-editor",
+      "category": "role",
+      "token": "section-editor",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-securitypolicy.php",
+        "mustContain": "'section-editor'"
+      }
+    },
+    {
+      "id": "role-publisher",
+      "category": "role",
+      "token": "publisher",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-securitypolicy.php",
+        "mustContain": "'publisher'"
+      }
+    },
+    {
+      "id": "role-administrator",
+      "category": "role",
+      "token": "administrator",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-securitypolicy.php",
+        "mustContain": "'administrator'"
+      }
+    },
+    {
+      "id": "role-privacy-auditor",
+      "category": "role",
+      "token": "privacy-auditor",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-securitypolicy.php",
+        "mustContain": "'privacy-auditor'"
+      }
+    },
+    {
+      "id": "role-deployer",
+      "category": "role",
+      "token": "deployer",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-securitypolicy.php",
+        "mustContain": "'deployer'"
+      }
+    },
+    {
+      "id": "review-cadence-monthly",
+      "category": "recurring-task",
+      "token": "P30D",
+      "source": {
+        "file": "tests/fixtures/governance/role-collection-matrix.json",
+        "mustContain": "\"reviewCadence\": \"P30D\""
+      }
+    },
+    {
+      "id": "review-cadence-quarterly",
+      "category": "recurring-task",
+      "token": "P90D",
+      "source": {
+        "file": "tests/fixtures/governance/role-collection-matrix.json",
+        "mustContain": "\"reviewCadence\": \"P90D\""
+      }
+    },
+    {
+      "id": "review-cadence-semiannual",
+      "category": "recurring-task",
+      "token": "P180D",
+      "source": {
+        "file": "tests/fixtures/governance/role-collection-matrix.json",
+        "mustContain": "\"reviewCadence\": \"P180D\""
+      }
+    },
+    {
+      "id": "review-cadence-annual",
+      "category": "recurring-task",
+      "token": "P365D",
+      "source": {
+        "file": "tests/fixtures/governance/role-collection-matrix.json",
+        "mustContain": "\"reviewCadence\": \"P365D\""
+      }
+    },
+    {
+      "id": "vendor-advisory-review",
+      "category": "recurring-task",
+      "token": "Review vendor advisories weekly",
+      "source": {
+        "file": "docs/operations/security-policy.md",
+        "mustContain": "Review vendor advisories weekly"
+      }
+    },
+    {
+      "id": "critical-patch-window",
+      "category": "recurring-task",
+      "token": "patch within 24 hours",
+      "source": {
+        "file": "docs/operations/security-policy.md",
+        "mustContain": "patch within 24 hours"
+      }
+    },
+    {
+      "id": "high-patch-window",
+      "category": "recurring-task",
+      "token": "high within 72 hours",
+      "source": {
+        "file": "docs/operations/security-policy.md",
+        "mustContain": "high within 72 hours"
+      }
+    },
+    {
+      "id": "routine-update-window",
+      "category": "recurring-task",
+      "token": "other supported updates monthly",
+      "source": {
+        "file": "docs/operations/security-policy.md",
+        "mustContain": "other supported updates monthly"
+      }
+    },
+    {
+      "id": "log-expiry",
+      "category": "recurring-task",
+      "token": "30 days",
+      "source": {
+        "file": "docs/operations/security-policy.md",
+        "mustContain": "expire within 30 days"
+      }
+    },
+    {
+      "id": "closed-opportunity-noindex",
+      "category": "recurring-task",
+      "token": "noindex after 90 days",
+      "source": {
+        "file": "docs/content/editorial-workflow.md",
+        "mustContain": "noindex after 90 days"
+      }
+    },
+    {
+      "id": "wordpress-core",
+      "category": "update-path",
+      "token": "6.9.7",
+      "source": {
+        "file": "docs/architecture/runtime.md",
+        "mustContain": "6.9.7"
+      }
+    },
+    {
+      "id": "php-runtime",
+      "category": "update-path",
+      "token": "8.3",
+      "source": {
+        "file": "docs/architecture/runtime.md",
+        "mustContain": "8.3"
+      }
+    },
+    {
+      "id": "polylang",
+      "category": "update-path",
+      "token": "3.8.7",
+      "source": {
+        "file": "docs/architecture/runtime.md",
+        "mustContain": "3.8.7"
+      }
+    },
+    {
+      "id": "two-factor",
+      "category": "update-path",
+      "token": "0.16.0",
+      "source": {
+        "file": "docs/architecture/runtime.md",
+        "mustContain": "0.16.0"
+      }
+    },
+    {
+      "id": "node",
+      "category": "update-path",
+      "token": "24.20.0",
+      "source": {
+        "file": "docs/architecture/runtime.md",
+        "mustContain": "24.20.0"
+      }
+    },
+    {
+      "id": "npm",
+      "category": "update-path",
+      "token": "11.19.0",
+      "source": {
+        "file": "docs/architecture/runtime.md",
+        "mustContain": "11.19.0"
+      }
+    },
+    {
+      "id": "database",
+      "category": "update-path",
+      "token": "10.11",
+      "source": {
+        "file": "docs/architecture/runtime.md",
+        "mustContain": "10.11"
+      }
+    },
+    {
+      "id": "qs-override",
+      "category": "update-path",
+      "token": "6.16.0",
+      "source": {
+        "file": "package.json",
+        "mustContain": "\"qs\": \"6.16.0\""
+      }
+    },
+    {
+      "id": "application-rollback",
+      "category": "recovery-action",
+      "token": "application-rollback",
+      "source": {
+        "file": "docs/operations/recovery-objectives.json",
+        "mustContain": "\"id\": \"application-rollback\""
+      }
+    },
+    {
+      "id": "content-revision-rollback",
+      "category": "recovery-action",
+      "token": "content-revision-rollback",
+      "source": {
+        "file": "docs/operations/recovery-objectives.json",
+        "mustContain": "\"id\": \"content-revision-rollback\""
+      }
+    },
+    {
+      "id": "backup-plan",
+      "category": "recovery-action",
+      "token": "recovery.mjs plan",
+      "source": {
+        "file": "docs/operations/backup-restore.md",
+        "mustContain": "recovery.mjs plan"
+      }
+    },
+    {
+      "id": "backup-create",
+      "category": "recovery-action",
+      "token": "recovery.mjs backup",
+      "source": {
+        "file": "docs/operations/backup-restore.md",
+        "mustContain": "recovery.mjs backup"
+      }
+    },
+    {
+      "id": "restore-verify",
+      "category": "recovery-action",
+      "token": "restore-verify",
+      "source": {
+        "file": "docs/operations/backup-restore.md",
+        "mustContain": "restore-verify"
+      }
+    },
+    {
+      "id": "rollback-rehearsal",
+      "category": "recovery-action",
+      "token": "rollback-rehearsal",
+      "source": {
+        "file": "docs/operations/backup-restore.md",
+        "mustContain": "rollback-rehearsal"
+      }
+    },
+    {
+      "id": "dns-tls-check",
+      "category": "recovery-action",
+      "token": "dns-tls.mjs check",
+      "source": {
+        "file": "docs/operations/cutover-runbook.md",
+        "mustContain": "dns-tls.mjs check"
+      }
+    },
+    {
+      "id": "dns-tls-rollback",
+      "category": "recovery-action",
+      "token": "dns-tls.mjs rollback",
+      "source": {
+        "file": "docs/operations/cutover-runbook.md",
+        "mustContain": "dns-tls.mjs rollback"
+      }
+    },
+    {
+      "id": "migration-rehearsal-plan",
+      "category": "recovery-action",
+      "token": "rehearsal.mjs plan",
+      "source": {
+        "file": "docs/operations/migration-rehearsal.md",
+        "mustContain": "rehearsal.mjs plan"
+      }
+    }
+  ]
+}

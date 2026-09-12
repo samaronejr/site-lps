@@ -1,0 +1,32 @@
+{
+  "plugins": ["lps-content-model", "polylang", "two-factor"],
+  "public_cookies": [],
+  "public_storage": [],
+  "third_party_runtime": [],
+  "notices": [
+    {
+      "en": "This institutional website publishes reviewed research, people, projects, publications, opportunities, events and news. Public profiles contain approved professional information; private ownership, account, review and audit fields are not published through pages, search, structured data or public APIs.",
+      "pt": "Este site institucional publica informações revisadas sobre pesquisa, pessoas, projetos, publicações, oportunidades, eventos e notícias. Perfis públicos contêm informações profissionais aprovadas; campos privados de responsáveis, contas, revisão e auditoria não são publicados em páginas, busca, dados estruturados ou APIs públicas."
+    },
+    {
+      "en": "Public browsing uses no analytics, advertising, fingerprinting, forms for collecting personal data, chatbot, social embeds or consent banner. Fonts, images, scripts, media and search are self-hosted. Public pages do not set cookies or use local or session storage. Language is selected in the URL. Search terms are sent to this site's server and appear in shareable URLs; do not enter confidential information.",
+      "pt": "A navegação pública não utiliza análise de audiência, publicidade, identificação digital, formulários de coleta de dados pessoais, chatbot, conteúdo incorporado de redes sociais ou banner de consentimento. Fontes, imagens, scripts, mídia e busca são hospedados no próprio site. Páginas públicas não criam cookies nem utilizam armazenamento local ou de sessão. O idioma é selecionado na URL. Termos de busca são enviados ao servidor deste site e aparecem em URLs compartilháveis; não informe dados confidenciais."
+    },
+    {
+      "en": "The software is WordPress with the LPS Content Model, Polylang and Two-Factor plugins. These components do not receive visitors' data as external services. There are no third-party runtime service providers. External scholarly links, application destinations and email links are explicit handoffs: data is sent to those destinations only when you choose to follow a link or send email, under their own policies.",
+      "pt": "O software é WordPress com os plugins LPS Content Model, Polylang e Two-Factor. Esses componentes não recebem dados de visitantes como serviços externos. Não há fornecedores externos de serviços durante a navegação. Links acadêmicos, destinos de inscrição e links de e-mail são encaminhamentos explícitos: dados são enviados a esses destinos apenas quando você escolhe seguir um link ou enviar e-mail, conforme as políticas deles."
+    },
+    {
+      "en": "Authorized editors use individual accounts. WordPress login/test and preference cookies support authentication and editing, not public tracking. Two-Factor protects privileged accounts. Account identifiers, password hashes, MFA configuration, revisions and audit events are restricted to authorized administration. These records support access control, attribution and correction, not marketing.",
+      "pt": "Editores autorizados utilizam contas individuais. Cookies de login, teste e preferências do WordPress permitem autenticação e edição, não rastreamento público. Two-Factor protege contas privilegiadas. Identificadores de contas, hashes de senha, configuração MFA, revisões e eventos de auditoria são restritos à administração autorizada. Esses registros permitem controle de acesso, atribuição e correção, não marketing."
+    },
+    {
+      "en": "The hosting infrastructure processes network addresses and request metadata to deliver pages and prevent abuse. Deployment policy excludes query strings, credentials and message content from access/security logs and sets a maximum 30-day routine retention, with separately authorized incident preservation. Production hosting/operator identity, retention implementation and the responsible privacy contact require institutional confirmation before launch; this notice does not assert that an unconfirmed provider has been appointed.",
+      "pt": "A infraestrutura de hospedagem processa endereços de rede e metadados de requisição para entregar páginas e prevenir abuso. A política de implantação exclui termos de consulta, credenciais e conteúdo de mensagens dos registros de acesso e segurança e limita a retenção rotineira a 30 dias, com preservação de incidentes autorizada separadamente. A identidade do operador e da hospedagem de produção, a implementação da retenção e o contato responsável por privacidade exigem confirmação institucional antes do lançamento; este aviso não afirma a nomeação de um fornecedor não confirmado."
+    },
+    {
+      "en": "For access, correction, removal or other privacy requests concerning published information, use the institutionally approved privacy reporting contact shown on this page. Do not send sensitive documents through public search or publish them as media. Unconfirmed contacts and legal-basis/retention decisions for the launch corpus block production publication until reviewed by the institution under the LGPD.",
+      "pt": "Para solicitações de acesso, correção, remoção ou outras questões de privacidade sobre informações publicadas, utilize o contato institucional aprovado para privacidade apresentado nesta página. Não envie documentos sensíveis pela busca pública nem os publique como mídia. Contatos não confirmados e decisões sobre base legal e retenção do acervo de lançamento bloqueiam a publicação em produção até revisão institucional conforme a LGPD."
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "extends": "../baseline",
+  "documents": [
+    {
+      "path": "/lps/velho.html",
+      "status": 301,
+      "location": "https://lps.ufrj.br/lps/antigo.html",
+      "file": "documents/lps-velho.txt"
+    }
+  ]
+}

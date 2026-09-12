@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <title>Mídia acessível - LPS</title>
+    <link rel="stylesheet" href="/wp-content/themes/lps-theme/assets/css/theme.css">
+  </head>
+  <body>
+    <a class="lps-skip-link" href="#lps-main">Pular para o conteúdo</a>
+    <header class="lps-site-header">
+      <div class="lps-affiliation lps-page-grid">
+        <p lang="pt-BR">Laboratório de Processamento de Sinais <span aria-hidden="true">/</span> UFRJ</p>
+      </div>
+      <details class="lps-shell-disclosure" open>
+        <summary>Menu e ferramentas do site</summary>
+        <div class="lps-nav-panel">
+          <nav class="lps-primary-nav" aria-label="Navegação principal">
+            <ul>
+              <li><a href="/pt-br/pesquisa/">Pesquisa</a></li>
+            </ul>
+          </nav>
+          <form class="lps-search" role="search" action="/pt-br/" method="get">
+            <label for="lps-search-input">Buscar no site do LPS</label>
+            <div><input id="lps-search-input" name="s" type="search"><button type="submit">Buscar</button></div>
+          </form>
+          <nav class="lps-locale" aria-label="Idioma">
+            <ul>
+              <li><a aria-current="page" hreflang="pt-BR" lang="pt-BR" href="/pt-br/">PT</a></li>
+              <li><a hreflang="en" lang="en" href="/en/">EN</a></li>
+            </ul>
+          </nav>
+        </div>
+      </details>
+    </header>
+    <main id="lps-main" class="lps-main-content">
+      <h1>Mídia acessível</h1>
+      <p class="lps-search-count" role="status">3 registros</p>
+      <h2>Figura documentada</h2>
+      <figure>
+        <img src="/wp-content/uploads/bancada.jpg" alt="Bancada de instrumentação do laboratório com osciloscópio em uso.">
+        <figcaption>Bancada de instrumentação, 2026.</figcaption>
+      </figure>
+      <img src="/wp-content/uploads/rule.svg" alt="" role="presentation">
+      <h2>Tabela de equipamentos</h2>
+      <div class="lps-table-scroll" tabindex="0" role="region" aria-label="Tabela de equipamentos, rolagem horizontal">
+        <table>
+          <caption>Equipamentos do laboratório</caption>
+          <thead>
+            <tr><th scope="col">Equipamento</th><th scope="col">Situação</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Osciloscópio</th><td>Em operação</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h2>Documentos</h2>
+      <p>
+        <a href="/wp-content/uploads/relatorio.pdf" data-html-alternative="/pt-br/relatorio/">Relatório anual (PDF, 1,2 MB)</a>
+        <a data-html-alternative="/pt-br/relatorio/" href="/pt-br/relatorio/">Relatório anual em HTML</a>
+      </p>
+      <h2>Vídeo institucional</h2>
+      <video controls aria-describedby="video-transcript">
+        <source src="/wp-content/uploads/lps.mp4" type="video/mp4">
+        <track kind="captions" src="/wp-content/uploads/lps.vtt" srclang="pt-BR" label="Legendas em português">
+      </video>
+      <div id="video-transcript"><h3>Transcrição</h3><p>Transcrição completa do vídeo institucional.</p></div>
+      <h2>Termo em outro idioma</h2>
+      <p>O laboratório publica um <span lang="en">signal processing laboratory</span> em inglês.</p>
+    </main>
+    <footer class="lps-site-footer">
+      <nav aria-label="Informações institucionais">
+        <ul><li><a href="/pt-br/acessibilidade/">Acessibilidade</a></li></ul>
+      </nav>
+    </footer>
+  </body>
+</html>

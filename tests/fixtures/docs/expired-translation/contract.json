@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "documentSet": ["tests/fixtures/docs/expired-translation/guide.md"],
+  "referenceDocuments": [],
+  "commandSurfaces": {
+    "packageJson": "package.json",
+    "composerJson": "composer.json",
+    "composerWrapper": "tools/composer",
+    "cliRegistration": "wp-content/plugins/lps-content-model/includes/class-commandregistration.php",
+    "cliClassDirectory": "wp-content/plugins/lps-content-model/includes"
+  },
+  "policySource": "wp-content/plugins/lps-content-model/includes/class-securitypolicy.php",
+  "prerequisites": [
+    {
+      "doc": "tests/fixtures/docs/expired-translation/guide.md",
+      "tokens": ["npm ci", "npm run env:start"]
+    }
+  ],
+  "freshness": [
+    {
+      "id": "translation-en-editorial-fields",
+      "kind": "translation",
+      "doc": "tests/fixtures/docs/expired-translation/guide.md",
+      "reviewedAt": "2024-01-01",
+      "maxAgeDays": 180,
+      "sources": [
+        {
+          "path": "wp-content/plugins/lps-content-model/includes/class-translationpolicy.php",
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      ]
+    }
+  ],
+  "coverage": [
+    {
+      "id": "setting-accessibility-contact",
+      "category": "production-setting",
+      "token": "accessibility_contact",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
+        "mustContain": "'accessibility_contact'"
+      }
+    }
+  ]
+}

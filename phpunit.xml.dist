@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd"
+         bootstrap="tests/php/bootstrap.php"
+         cacheDirectory=".phpunit.cache"
+         colors="true"
+         failOnWarning="true"
+         failOnRisky="true">
+    <testsuites>
+        <testsuite name="foundation">
+            <directory suffix="Test.php">tests/php</directory>
+        </testsuite>
+        <testsuite name="lps-content-model">
+            <directory suffix="Test.php">wp-content/plugins/lps-content-model/tests</directory>
+        </testsuite>
+        <testsuite name="lps-theme">
+            <directory suffix="Test.php">wp-content/themes/lps-theme/tests</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>
+

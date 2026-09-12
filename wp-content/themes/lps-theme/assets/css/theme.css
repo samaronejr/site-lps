@@ -1,0 +1,1117 @@
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("../fonts/source-serif-4-regular.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("../fonts/source-serif-4-semibold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 600 700;
+  font-display: swap;
+}
+
+:root {
+  --color-paper: #f7f4ec;
+  --color-paper-raised: #fffefa;
+  --color-paper-muted: #ece8de;
+  --color-ink: #141a1f;
+  --color-ink-soft: #46515a;
+  --color-navy: #003b5c;
+  --color-navy-hover: #002b44;
+  --color-signal: #007a87;
+  --color-signal-hover: #005f69;
+  --color-rule: #c9cdd1;
+  --color-rule-strong: #6f7a82;
+  --color-success: #216e4e;
+  --color-warning: #7a4a00;
+  --color-error: #a12622;
+  --color-info-wash: #ddecef;
+  --color-success-wash: #e0ece5;
+  --color-warning-wash: #f2e8d2;
+  --color-error-wash: #f2deda;
+  --color-focus-offset: #f7f4ec;
+  --font-editorial: "Source Serif 4", "Noto Serif", "Noto Serif CJK SC", "Noto Serif CJK JP", Georgia, serif;
+  --font-interface: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
+  --type-display: clamp(2.75rem, 7vw, 5.75rem);
+  --type-h1: clamp(2.25rem, 5vw, 4rem);
+  --type-h2: clamp(1.75rem, 3.5vw, 2.75rem);
+  --type-h3: clamp(1.375rem, 2vw, 1.75rem);
+  --type-h4: 1.125rem;
+  --type-lead: clamp(1.25rem, 2vw, 1.5rem);
+  --type-body: 1rem;
+  --type-reading: 1.125rem;
+  --type-small: 0.875rem;
+  --type-meta: 0.75rem;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+  --grid-max: 80rem;
+  --grid-gutter: var(--space-4);
+  --control-min: 2.75rem;
+  --rule-thin: 0.0625rem;
+  --rule-medium: 0.125rem;
+  --rule-focus: 0.1875rem;
+  --focus-offset: 0.1875rem;
+  --press-shift: 0.0625rem;
+  --motion-fast: 120ms;
+  --ease-state: cubic-bezier(0.2, 0, 0, 1);
+  --radius-square: 0;
+  --shadow-none: none;
+  --measure-reading: 68ch;
+  --measure-interface: 72ch;
+  --measure-lead: 62ch;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  min-inline-size: 0;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-interface);
+  font-size: var(--type-body);
+  scroll-behavior: auto;
+}
+
+body {
+  min-inline-size: 0;
+  margin: 0;
+  overflow-wrap: break-word;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  line-height: 1.65;
+}
+
+img,
+svg,
+video,
+canvas {
+  display: block;
+  max-inline-size: 100%;
+  block-size: auto;
+}
+
+button,
+input,
+select,
+textarea {
+  color: inherit;
+  font: inherit;
+}
+
+button,
+select,
+summary,
+a {
+  touch-action: manipulation;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+ol,
+ul,
+dl,
+figure {
+  margin-block-start: 0;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  color: var(--color-ink);
+  font-family: var(--font-editorial);
+  font-weight: 600;
+  text-wrap: balance;
+}
+
+h1 {
+  margin-block-end: var(--space-6);
+  font-size: var(--type-h1);
+  letter-spacing: -0.025em;
+  line-height: 1.04;
+}
+
+h2 {
+  margin-block-end: var(--space-6);
+  font-size: var(--type-h2);
+  letter-spacing: -0.018em;
+  line-height: 1.12;
+}
+
+h3 {
+  margin-block-end: var(--space-3);
+  font-size: var(--type-h3);
+  letter-spacing: -0.01em;
+  line-height: 1.18;
+}
+
+h4 {
+  font-size: var(--type-h4);
+  line-height: 1.3;
+}
+
+p,
+li,
+dd {
+  max-inline-size: var(--measure-interface);
+}
+
+:where(a) {
+  color: var(--color-signal-hover);
+  text-decoration-line: underline;
+  text-decoration-thickness: var(--rule-thin);
+  text-underline-offset: var(--space-1);
+  transition: color var(--motion-fast) var(--ease-state), text-decoration-thickness var(--motion-fast) var(--ease-state);
+}
+
+:where(a):hover {
+  color: var(--color-navy-hover);
+  text-decoration-thickness: var(--rule-medium);
+}
+
+:where(a):active {
+  color: var(--color-navy);
+}
+
+:where(a, button, input, select, textarea, summary, [tabindex], video[controls]):focus-visible {
+  outline: var(--rule-focus) solid var(--color-signal);
+  outline-offset: var(--focus-offset);
+}
+
+.lps-visually-hidden {
+  position: absolute;
+  inline-size: var(--rule-thin);
+  block-size: var(--rule-thin);
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.lps-page-grid {
+  display: grid;
+  inline-size: min(100%, var(--grid-max));
+  margin-inline: auto;
+  padding-inline: clamp(var(--space-4), 4vw, var(--space-10));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: var(--grid-gutter);
+}
+
+.lps-page-grid > * {
+  min-inline-size: 0;
+}
+
+.lps-main-content > * {
+  grid-column: 1 / -1;
+}
+
+.lps-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.lps-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.lps-content-limiter {
+  max-inline-size: var(--measure-reading);
+}
+
+.lps-reading {
+  max-inline-size: var(--measure-reading);
+  font-family: var(--font-editorial);
+  font-size: var(--type-reading);
+  line-height: 1.72;
+}
+
+.lps-lead {
+  max-inline-size: var(--measure-lead);
+  color: var(--color-ink-soft);
+  font-family: var(--font-editorial);
+  font-size: var(--type-lead);
+  line-height: 1.5;
+}
+
+.lps-meta,
+.lps-kicker,
+.lps-status,
+.wp-block-post-date,
+.wp-block-post-terms {
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  letter-spacing: 0.075em;
+  line-height: 1.4;
+}
+
+.lps-meta {
+  color: var(--color-ink-soft);
+}
+
+.lps-kicker {
+  color: var(--color-signal-hover);
+}
+
+.lps-skip-link {
+  position: fixed;
+  inset-block-start: var(--space-2);
+  inset-inline-start: var(--space-2);
+  z-index: 20;
+  padding: var(--space-3) var(--space-4);
+  transform: translateY(-200%);
+  background: var(--color-paper-raised);
+  color: var(--color-navy);
+  font-weight: 700;
+}
+
+.lps-skip-link:focus {
+  transform: translateY(0);
+}
+
+.lps-site-header {
+  border-block-end: var(--rule-medium) solid var(--color-navy);
+}
+
+.lps-affiliation {
+  max-inline-size: none;
+  padding-block: var(--space-2);
+  background: var(--color-navy);
+  color: var(--color-paper-raised);
+  font-size: var(--type-small);
+}
+
+.lps-affiliation p {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: inherit;
+}
+
+.lps-affiliation .lps-meta {
+  display: none;
+}
+
+.lps-masthead {
+  align-items: end;
+  padding-block: var(--space-6);
+}
+
+.lps-masthead > * {
+  grid-column: 1 / -1;
+}
+
+.lps-masthead p {
+  margin: var(--space-2) 0 0;
+  color: var(--color-ink-soft);
+}
+
+.lps-wordmark {
+  color: var(--color-navy);
+  font-family: var(--font-editorial);
+  font-size: var(--type-h1);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 0.9;
+  text-decoration: none;
+}
+
+.lps-shell-disclosure {
+  border-block-start: var(--rule-thin) solid var(--color-rule);
+}
+
+.lps-shell-disclosure > summary {
+  display: flex;
+  min-block-size: var(--control-min);
+  align-items: center;
+  justify-content: space-between;
+  padding-inline: var(--space-4);
+  color: var(--color-navy);
+  cursor: pointer;
+  font-weight: 700;
+  list-style: none;
+}
+
+.lps-shell-disclosure > summary::after {
+  content: "+";
+  font-family: var(--font-mono);
+}
+
+.lps-shell-disclosure[open] > summary::after {
+  content: "−";
+}
+
+.lps-nav-panel {
+  padding-block: var(--space-4) var(--space-6);
+  row-gap: var(--space-6);
+}
+
+.lps-primary-nav,
+.lps-shell-tools {
+  grid-column: 1 / -1;
+}
+
+.lps-primary-nav ul,
+.lps-locale ul,
+.lps-site-footer ul,
+.lps-breadcrumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lps-primary-nav a,
+.lps-locale a,
+.lps-locale span,
+.lps-site-footer a {
+  display: inline-flex;
+  min-block-size: var(--control-min);
+  align-items: center;
+}
+
+.lps-primary-nav a {
+  color: var(--color-ink);
+  font-size: var(--type-small);
+  font-weight: 650;
+  text-decoration: none;
+}
+
+/*
+ * Record rows place a link beside its metadata. Inline elements with no spacing
+ * render as a single run of text ("seminarPast"), so every listing row lays its
+ * parts out on the spacing scale and lets long rows wrap.
+ */
+.lps-event-listing li,
+.lps-opportunity-listing li,
+.lps-news-listing li,
+.lps-members li,
+.lps-publications li,
+.lps-people li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-4);
+}
+
+.lps-event-listing li > p,
+.lps-opportunity-listing li > p,
+.lps-news-listing li > p,
+.lps-members li > p,
+.lps-publications li > p,
+.lps-people li > p {
+  flex-basis: 100%;
+  margin-block: var(--space-1) 0;
+}
+
+.lps-primary-nav a:hover {
+  color: var(--color-navy-hover);
+  text-decoration-line: underline;
+  text-decoration-thickness: var(--rule-medium);
+  text-underline-offset: var(--space-1);
+}
+
+.lps-primary-nav a:active {
+  color: var(--color-navy);
+}
+
+.lps-primary-nav a[aria-current="page"],
+.lps-locale a[aria-current="page"] {
+  border-block-end: var(--rule-focus) solid var(--color-signal);
+  color: var(--color-navy);
+  font-weight: 750;
+}
+
+.lps-shell-tools {
+  display: grid;
+  gap: var(--space-4);
+  align-items: end;
+}
+
+.lps-search label {
+  display: block;
+  margin-block-end: var(--space-2);
+  font-size: var(--type-small);
+  font-weight: 700;
+}
+
+.lps-search > div {
+  display: flex;
+  min-inline-size: 0;
+}
+
+.lps-search input {
+  min-block-size: var(--control-min);
+  min-inline-size: 0;
+  inline-size: 100%;
+  padding: var(--space-3);
+  border: var(--rule-medium) solid var(--color-rule-strong);
+  border-radius: var(--radius-square);
+  background: var(--color-paper-raised);
+}
+
+.lps-search button,
+.lps-button,
+.wp-element-button,
+.wp-block-button__link {
+  display: inline-flex;
+  min-block-size: var(--control-min);
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3) var(--space-5);
+  border: var(--rule-medium) solid var(--color-navy);
+  border-radius: var(--radius-square);
+  box-shadow: var(--shadow-none);
+  background: var(--color-paper);
+  color: var(--color-navy);
+  cursor: pointer;
+  font-family: var(--font-interface);
+  font-size: var(--type-small);
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+  transition: background-color var(--motion-fast) var(--ease-state), color var(--motion-fast) var(--ease-state), border-color var(--motion-fast) var(--ease-state), transform var(--motion-fast) var(--ease-state);
+}
+
+.lps-search button,
+.lps-button-primary,
+.wp-block-button:not(.is-style-outline) .wp-block-button__link {
+  background: var(--color-navy);
+  color: var(--color-paper-raised);
+}
+
+.lps-search button:hover,
+.lps-button:hover,
+.wp-element-button:hover,
+.wp-block-button__link:hover {
+  border-color: var(--color-navy-hover);
+  background: var(--color-navy-hover);
+  color: var(--color-paper-raised);
+}
+
+.lps-search button:active,
+.lps-button:active,
+.wp-element-button:active,
+.wp-block-button__link:active {
+  transform: translateY(var(--press-shift));
+}
+
+.lps-locale a,
+.lps-locale span {
+  padding-inline: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--type-small);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.lps-locale span[aria-disabled="true"] {
+  color: var(--color-ink-soft);
+  text-decoration: line-through;
+}
+
+.lps-breadcrumbs {
+  padding-block: var(--space-4);
+  border-block-end: var(--rule-thin) solid var(--color-rule);
+}
+
+.lps-breadcrumbs ol {
+  grid-column: 1 / -1;
+  gap: var(--space-2);
+  font-size: var(--type-small);
+}
+
+.lps-breadcrumbs li + li::before {
+  content: "/";
+  margin-inline-end: var(--space-2);
+  color: var(--color-rule-strong);
+}
+
+.lps-main-content {
+  padding-block: var(--space-12) var(--space-20);
+}
+
+.lps-main-content > .wp-block-post-title,
+.lps-main-content > .wp-block-query-title,
+.lps-main-content > .wp-block-post-content,
+.lps-main-content > .wp-block-query,
+.lps-main-content > .lps-not-found {
+  grid-column: 1 / -1;
+}
+
+.wp-block-post-content {
+  font-family: var(--font-editorial);
+  font-size: var(--type-reading);
+  line-height: 1.72;
+}
+
+.wp-block-post-content > :where(p, ul, ol, h2, h3, h4, blockquote) {
+  max-inline-size: var(--measure-reading);
+}
+
+.wp-block-post-content :where(code, pre),
+.lps-breakable {
+  overflow-wrap: anywhere;
+  font-family: var(--font-mono);
+}
+
+.lps-home-section {
+  display: grid;
+  grid-template-columns: subgrid;
+  padding-block: var(--space-12);
+  border-block-start: var(--rule-thin) solid var(--color-rule);
+}
+
+.lps-home-section > * {
+  grid-column: 1 / -1;
+  min-inline-size: 0;
+}
+
+.lps-home-section[data-home-section="mission"] {
+  border-block-start: var(--rule-medium) solid var(--color-navy);
+}
+
+.lps-home-section[data-home-section="mission"] h1 {
+  max-inline-size: var(--measure-lead);
+  font-size: var(--type-display);
+}
+
+.lps-home-section:where([data-home-section="mission"]) :where(.lps-record) {
+  border: 0;
+  font-family: var(--font-editorial);
+  font-size: var(--type-lead);
+}
+
+.lps-home-journeys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lps-home-journeys > li {
+  flex: 1 1 0;
+  min-inline-size: min(100%, var(--measure-lead));
+}
+
+@media (min-width: 64rem) {
+  .lps-home-section > h2 {
+    grid-column: 1 / 5;
+    grid-row: 1;
+  }
+
+  .lps-home-section > :not(h1, h2) {
+    grid-column: 5 / -1;
+  }
+
+  .lps-home-section[data-home-section="mission"] > * {
+    grid-column: 1 / 11;
+  }
+}
+
+.lps-editorial-section {
+  padding-block: var(--space-12);
+  border-block-start: var(--rule-thin) solid var(--color-rule);
+}
+
+.lps-editorial-section > * {
+  grid-column: 1 / -1;
+}
+
+.wp-block-post-template {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wp-block-post-template > li,
+.lps-record {
+  padding-block: var(--space-6);
+  border-block-start: var(--rule-thin) solid var(--color-rule);
+}
+
+.wp-block-post-template .wp-block-post-title {
+  font-size: var(--type-h3);
+}
+
+figure,
+.wp-block-image,
+.wp-block-gallery {
+  margin-block: var(--space-8);
+}
+
+figcaption,
+.wp-element-caption {
+  max-inline-size: var(--measure-interface);
+  margin-block-start: var(--space-3);
+  color: var(--color-ink-soft);
+  font-family: var(--font-editorial);
+  font-size: var(--type-small);
+  line-height: 1.5;
+}
+
+.lps-table-scroll,
+.wp-block-table {
+  max-inline-size: 100%;
+  overflow-x: auto;
+  border-block-start: var(--rule-medium) solid var(--color-navy);
+}
+
+.lps-table-scroll:focus-visible,
+.wp-block-table:focus-within {
+  outline: var(--rule-focus) solid var(--color-signal);
+  outline-offset: var(--focus-offset);
+}
+
+table {
+  inline-size: 100%;
+  min-inline-size: 50rem;
+  border-collapse: collapse;
+  font-size: var(--type-small);
+}
+
+caption {
+  padding-block: var(--space-4);
+  font-family: var(--font-editorial);
+  font-size: var(--type-h4);
+  font-weight: 600;
+  text-align: start;
+}
+
+th,
+td {
+  padding: var(--space-3) var(--space-4);
+  border-block-end: var(--rule-thin) solid var(--color-rule);
+  text-align: start;
+  vertical-align: top;
+}
+
+thead th {
+  color: var(--color-ink-soft);
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  letter-spacing: 0.04em;
+}
+
+tbody tr:hover,
+tbody tr:focus-within {
+  background: var(--color-paper-raised);
+}
+
+.lps-status {
+  display: inline-block;
+  padding-inline-start: var(--space-3);
+  border-inline-start: var(--rule-focus) solid currentColor;
+}
+
+.lps-status-success {
+  color: var(--color-success);
+}
+
+.lps-status-warning {
+  color: var(--color-warning);
+}
+
+.lps-status-error {
+  color: var(--color-error);
+}
+
+.lps-alert {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border-inline-start: var(--rule-focus) solid currentColor;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.lps-alert-info {
+  color: var(--color-navy);
+  background: var(--color-info-wash);
+}
+
+.lps-alert-success {
+  color: var(--color-success);
+  background: var(--color-success-wash);
+}
+
+.lps-alert-warning {
+  color: var(--color-warning);
+  background: var(--color-warning-wash);
+}
+
+.lps-alert-error {
+  color: var(--color-error);
+  background: var(--color-error-wash);
+}
+
+:where(input:not([type="checkbox"], [type="radio"]), select, textarea) {
+  min-block-size: var(--control-min);
+  inline-size: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: var(--rule-medium) solid var(--color-rule-strong);
+  border-radius: var(--radius-square);
+  background: var(--color-paper-raised);
+}
+
+:where(input, select, textarea)[aria-invalid="true"] {
+  border-color: var(--color-error);
+}
+
+:where(input, select, textarea):disabled {
+  background: var(--color-paper-muted);
+  color: var(--color-ink-soft);
+}
+
+/* Target size, WCAG 2.2 SC 2.5.8. A control inside a link cluster, a pagination
+   list, or a filter row is not inline in a sentence, so it carries its own target
+   instead of inheriting the line box of surrounding text. */
+.lps-search-pagination ul,
+.lps-listing nav ul,
+.wp-block-query-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lps-search-pagination a,
+.lps-search-pagination li > span,
+.lps-listing nav a,
+.lps-listing nav li > span,
+.wp-block-query-pagination a {
+  display: inline-flex;
+  min-inline-size: var(--control-min);
+  min-block-size: var(--control-min);
+  align-items: center;
+  justify-content: center;
+  padding-inline: var(--space-2);
+}
+
+/* A link that is the whole paragraph is not inline in a sentence, so it also
+   carries its own 44px target instead of the bare line box. */
+.lps-main-content p > a:only-child,
+.lps-citation-downloads a,
+.lps-handoff a,
+.lps-report-contact a {
+  display: inline-flex;
+  min-block-size: var(--control-min);
+  align-items: center;
+}
+
+.lps-citation-downloads {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.lps-search-facet-value {
+  display: flex;
+  min-block-size: var(--control-min);
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.lps-search-facet-value input[type="checkbox"] {
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  margin: 0;
+}
+
+details:not(.lps-shell-disclosure) {
+  padding-block: var(--space-4);
+  border-block: var(--rule-thin) solid var(--color-rule);
+}
+
+details:not(.lps-shell-disclosure) > summary {
+  min-block-size: var(--control-min);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.lps-empty-state,
+.lps-not-found {
+  max-inline-size: var(--measure-lead);
+  padding-block: var(--space-12);
+  border-block: var(--rule-medium) solid var(--color-navy);
+}
+
+.lps-site-footer {
+  padding-block: var(--space-12);
+  background: var(--color-navy-hover);
+  color: var(--color-paper-raised);
+}
+
+.lps-footer-grid {
+  align-items: start;
+  row-gap: var(--space-6);
+}
+
+.lps-footer-grid > * {
+  grid-column: 1 / -1;
+}
+
+.lps-wordmark-light,
+.lps-site-footer a,
+.lps-site-footer .lps-meta {
+  color: var(--color-paper-raised);
+}
+
+.lps-site-footer p {
+  margin-block-end: var(--space-2);
+}
+
+[lang="zh-Hans"],
+[lang="ja"],
+[lang="ko"] {
+  word-break: normal;
+  line-break: strict;
+  letter-spacing: normal;
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --grid-gutter: var(--space-6);
+  }
+
+  .lps-page-grid {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+
+  .lps-affiliation p:first-child {
+    grid-column: 1 / 6;
+  }
+
+  .lps-affiliation .lps-meta {
+    display: block;
+    grid-column: 6 / -1;
+    text-align: end;
+  }
+
+  .lps-masthead .lps-wordmark {
+    grid-column: 1 / 3;
+  }
+
+  .lps-masthead p {
+    grid-column: 4 / -1;
+    margin: 0;
+  }
+
+  .lps-shell-tools {
+    grid-template-columns: minmax(16rem, 1fr) auto auto;
+  }
+
+  .lps-main-content > .wp-block-post-title,
+  .lps-main-content > .wp-block-query-title,
+  .lps-main-content > .wp-block-post-content,
+  .lps-main-content > .wp-block-query,
+  .lps-main-content > .lps-not-found {
+    grid-column: 2 / 8;
+  }
+
+  .lps-editorial-section > :first-child {
+    grid-column: 1 / 3;
+  }
+
+  .lps-editorial-section > :not(:first-child) {
+    grid-column: 3 / -1;
+  }
+
+  .lps-footer-grid .lps-wordmark {
+    grid-column: 1 / 3;
+  }
+
+  .lps-footer-grid > div {
+    grid-column: 3 / 6;
+  }
+
+  .lps-footer-grid nav {
+    grid-column: 6 / -1;
+  }
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --grid-gutter: var(--space-8);
+  }
+
+  .lps-page-grid {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+
+  .lps-affiliation p:first-child {
+    grid-column: 1 / 9;
+  }
+
+  .lps-affiliation .lps-meta {
+    grid-column: 9 / -1;
+  }
+
+  .lps-masthead .lps-wordmark {
+    grid-column: 1 / 4;
+  }
+
+  .lps-masthead p {
+    grid-column: 7 / -1;
+  }
+
+  .lps-shell-disclosure > summary {
+    display: none;
+  }
+
+  .lps-shell-disclosure:not([open]) > .lps-nav-panel,
+  .lps-nav-panel {
+    display: grid;
+  }
+
+  .lps-primary-nav {
+    grid-column: 1 / 9;
+  }
+
+  .lps-shell-tools {
+    grid-column: 9 / -1;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .lps-search {
+    grid-column: 1 / -1;
+  }
+
+  .lps-main-content {
+    padding-block: var(--space-16) var(--space-24);
+  }
+
+  .lps-main-content > .wp-block-post-title,
+  .lps-main-content > .wp-block-query-title,
+  .lps-main-content > .wp-block-post-content,
+  .lps-main-content > .wp-block-query,
+  .lps-main-content > .lps-not-found {
+    grid-column: 3 / 10;
+  }
+
+  .lps-editorial-section > :first-child {
+    grid-column: 1 / 4;
+  }
+
+  .lps-editorial-section > :not(:first-child) {
+    grid-column: 4 / 11;
+  }
+
+  .lps-footer-grid .lps-wordmark {
+    grid-column: 1 / 3;
+  }
+
+  .lps-footer-grid > div {
+    grid-column: 3 / 9;
+  }
+
+  .lps-footer-grid nav {
+    grid-column: 9 / -1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Declared at the same specificity as the component rules that set a duration,
+     and after them, so the cascade neutralizes motion without `!important`. A
+     zero-specificity `:where()` block was overridden by the button rules. */
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  summary,
+  .lps-search button,
+  .lps-button,
+  .wp-element-button,
+  .wp-block-button__link {
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+    scroll-behavior: auto;
+    transition-duration: 0.01ms;
+  }
+
+  .lps-search button:active,
+  .lps-button:active,
+  .wp-element-button:active,
+  .wp-block-button__link:active {
+    transform: none;
+  }
+}
+
+@media print {
+  :root {
+    --color-paper: #ffffff;
+    --color-paper-raised: #ffffff;
+    --color-ink: #000000;
+  }
+
+  .lps-skip-link,
+  .lps-shell-disclosure,
+  .lps-breadcrumbs,
+  .lps-site-footer,
+  .wp-block-button,
+  form {
+    display: none;
+  }
+
+  .lps-affiliation {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    border-block-end: var(--rule-medium) solid var(--color-ink);
+  }
+
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+  }
+
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    overflow-wrap: anywhere;
+    font-family: var(--font-mono);
+    font-size: var(--type-meta);
+  }
+
+  figure,
+  table,
+  .lps-alert,
+  .lps-empty-state,
+  .lps-not-found {
+    break-inside: avoid;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+}

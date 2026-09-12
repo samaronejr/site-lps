@@ -1,0 +1,46 @@
+{
+  "name": "lps-institutional-website",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Reproducible WordPress development workspace for the LPS institutional website.",
+  "engines": {
+    "node": "24.20.0",
+    "npm": "11.19.0"
+  },
+  "scripts": {
+    "env:start": "tools/prepare-env && wp-env start --runtime=playground",
+    "env:stop": "wp-env stop",
+    "env:clean": "wp-env clean all",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "test": "vitest run",
+    "build": "node scripts/build.mjs",
+    "test:e2e": "playwright test",
+    "qa": "node scripts/run-qa.mjs workspace",
+    "qa:content": "node scripts/run-qa.mjs content",
+    "qa:links": "node scripts/run-qa.mjs links",
+    "qa:schema": "node scripts/run-qa.mjs schema",
+    "qa:seo": "node scripts/run-qa.mjs seo",
+    "qa:a11y": "node scripts/run-qa.mjs a11y",
+    "qa:visual": "node scripts/run-qa.mjs visual",
+    "qa:security": "node scripts/run-qa.mjs security",
+    "qa:infrastructure": "node scripts/run-qa.mjs infrastructure",
+    "qa:inventory": "node scripts/run-qa.mjs inventory",
+    "qa:governance": "node scripts/run-qa.mjs governance",
+    "qa:ia": "node scripts/run-qa.mjs ia",
+    "qa:design-system": "node scripts/run-qa.mjs design-system",
+    "ci": "npm run lint && npm run test && npm run build && npm run test:e2e -- --list"
+  },
+  "overrides": {
+    "qs": "6.16.0"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "@biomejs/biome": "2.5.11",
+    "@playwright/test": "1.62.1",
+    "@wordpress/env": "11.14.0",
+    "pa11y": "^10.0.0",
+    "parse5": "^8.0.0",
+    "vitest": "4.1.11"
+  }
+}

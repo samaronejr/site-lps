@@ -1,0 +1,31 @@
+# Source evidence capture
+# inventory_record: record-016
+# source_url: https://www.embrapii.coppe.ufrj.br/laboratorios/1228/lps-laboratorio-de-processamento-de-sinais
+# captured_at: 2026-09-06T10:52:50.808Z
+# capture_method: anonymous public HTTP GET (curl), full response body
+# response_sha256: 8549d40a257534fd4c3140bf82135059ed6300615641430d34032603d6a4f222
+# note: visible-text extraction of the public page; retained only as editorial evidence.
+
+Laboratórios | Coppe Emprapii
+Embrapii-COPPE
+
+
+principal
+Quem Somos
+Linhas de Pesquisa
+Como Funciona
+Laboratórios
+Parceiros e Projetos
+Submeter Projeto
+Contato
+Laboratórios
+LPS - Laboratório de Processamento de Sinais
+Programa de Engenharia Elétrica
+Coordenador:
+Prof. José Manoel de Seixas
+Tel. (21) 3938-8205
+seixas@lps.ufrj.br
+As principais áreas de atuação são a instrumentação eletrônica, processamento analógico e digital de sinais, engenharia de software e inteligência computacional. Empresas de base tecnológica têm sido criadas no âmbito do LPS, o que mostra a vocação do laboratório para a inovação em engenharia elétrica e computação.
+Uma outra importante característica do LPS é o seu contato com empresas, realizando projetos de alta relevância, avançando a capacidade de produção da indústria nacional com inovação. Os alunos egressos do LPS também participam deste esforço direcionado à indústria, fazendo com que as empresas contem com pessoal altamente qualificado. Petrobras, Eletrobras, Embraer, Inmetro, Empresa de Pesquisa Energética, OLX, National Instruments, Samsung e Murabei estão entre elas.
+Ocupando amplas instalações de 310 m2, o LPS é um laboratório bem equipado. Além de uma sala para apresentação de palestras, trabalhos e para reuniões virtuais via Web e uma sala acústica, tem cerca de 40 computadores pessoais, interconectados no domínio LPS, software para o desenvolvimento de dispositivos programáveis e equipamentos de instrumentação no estado-da-arte para desenvolvimento e análise de sistemas.
+2015 © Todos os direitos reservados à COPPE e Embrapii

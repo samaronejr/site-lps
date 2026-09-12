@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<ruleset name="LPS WordPress">
+	<description>WordPress coding standards for LPS-owned PHP.</description>
+	<file>wp-content/plugins/lps-content-model</file>
+	<file>wp-content/themes/lps-theme</file>
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<arg name="extensions" value="php" />
+	<arg name="basepath" value="." />
+	<config name="installed_paths" value="vendor/wp-coding-standards/wpcs,vendor/phpcsstandards/phpcsextra,vendor/phpcsstandards/phpcsutils" />
+	<rule ref="WordPress">
+		<!-- PHP.wasm cannot spawn the external `php -l` process; PHPStan performs syntax analysis. -->
+		<exclude name="Generic.PHP.Syntax" />
+	</rule>
+</ruleset>
+

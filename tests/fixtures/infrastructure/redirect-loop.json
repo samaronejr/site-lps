@@ -1,0 +1,103 @@
+{
+  "checkedAt": "2026-08-30T12:00:00.000Z",
+  "canonicalHost": "loop.example",
+  "alternateHost": "www.loop.example",
+  "hosts": [
+    {
+      "hostname": "loop.example",
+      "role": "canonical",
+      "dns": {
+        "status": "confirmed",
+        "records": {
+          "A": { "status": "confirmed", "records": ["192.0.2.30"], "evidence": "fixture A" },
+          "AAAA": { "status": "confirmed", "records": [], "evidence": "fixture no AAAA" },
+          "CNAME": { "status": "confirmed", "records": [], "evidence": "fixture no CNAME" }
+        },
+        "evidence": "fixture DNS"
+      },
+      "tls": {
+        "status": "confirmed",
+        "subject": "CN=loop.example",
+        "san": ["loop.example", "www.loop.example"],
+        "issuer": "CN=Fixture CA",
+        "validFrom": "2026-01-01T00:00:00.000Z",
+        "validTo": "2027-01-01T00:00:00.000Z",
+        "fingerprint256": "CC:DD",
+        "authorizationError": null,
+        "evidence": "fixture trusted certificate"
+      },
+      "http": {
+        "status": "confirmed",
+        "chain": [
+          {
+            "url": "https://loop.example/",
+            "statusCode": 301,
+            "location": "https://www.loop.example/"
+          },
+          {
+            "url": "https://www.loop.example/",
+            "statusCode": 301,
+            "location": "https://loop.example/"
+          },
+          {
+            "url": "https://loop.example/",
+            "statusCode": 301,
+            "location": "https://www.loop.example/"
+          }
+        ],
+        "finalUrl": "https://loop.example/",
+        "evidence": "fixture raw redirect chain"
+      }
+    },
+    {
+      "hostname": "www.loop.example",
+      "role": "alternate",
+      "dns": {
+        "status": "confirmed",
+        "records": {
+          "A": { "status": "confirmed", "records": ["192.0.2.30"], "evidence": "fixture A" },
+          "AAAA": { "status": "confirmed", "records": [], "evidence": "fixture no AAAA" },
+          "CNAME": {
+            "status": "confirmed",
+            "records": ["loop.example"],
+            "evidence": "fixture CNAME"
+          }
+        },
+        "evidence": "fixture DNS"
+      },
+      "tls": {
+        "status": "confirmed",
+        "subject": "CN=loop.example",
+        "san": ["loop.example", "www.loop.example"],
+        "issuer": "CN=Fixture CA",
+        "validFrom": "2026-01-01T00:00:00.000Z",
+        "validTo": "2027-01-01T00:00:00.000Z",
+        "fingerprint256": "CC:DD",
+        "authorizationError": null,
+        "evidence": "fixture trusted certificate"
+      },
+      "http": {
+        "status": "confirmed",
+        "chain": [
+          {
+            "url": "https://www.loop.example/",
+            "statusCode": 301,
+            "location": "https://loop.example/"
+          },
+          {
+            "url": "https://loop.example/",
+            "statusCode": 301,
+            "location": "https://www.loop.example/"
+          },
+          {
+            "url": "https://www.loop.example/",
+            "statusCode": 301,
+            "location": "https://loop.example/"
+          }
+        ],
+        "finalUrl": "https://www.loop.example/",
+        "evidence": "fixture raw redirect chain"
+      }
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "inventoryRecord": "record-001",
+  "collection": "page",
+  "postType": "page",
+  "recordKey": "home",
+  "disposition": "migrate",
+  "governance": {
+    "ownerRole": "section-editor",
+    "namedOwner": null,
+    "ownerCandidate": "LPS leadership",
+    "reviewCadence": "P180D",
+    "lastReviewedAt": "2026-09-06",
+    "nextReviewDate": "2027-03-05",
+    "reviewState": "candidate",
+    "editorialState": "draft",
+    "publishGate": {
+      "state": "draft",
+      "blockers": ["named-role-and-collection-assignments", "translation-review-pending"]
+    },
+    "rights": {
+      "state": "public-record",
+      "basis": "Public institutional page published by LPS/COPPE at its own domain-scoped Google Site.",
+      "assetsIncluded": [],
+      "personalDataPublished": false
+    },
+    "provenance": {
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/lps/in%C3%ADcio",
+      "inventoryProvenance": "live-http",
+      "inventoryCapturedAt": "2026-08-30T23:03:43Z",
+      "inventoryChecksum": "sha256:8f9399357a5f2eaf86be5627c08f1eaf44e7d64f7371f277f578e02c268a184e",
+      "reverification": {
+        "method": "anonymous public HTTP GET",
+        "evidenceFile": "content/corpus/evidence/record-001.txt"
+      }
+    },
+    "relationships": [
+      { "type": "related_record", "target": "record-002", "role": "related", "order": 1 },
+      { "type": "related_record", "target": "record-004", "role": "related", "order": 2 },
+      { "type": "related_record", "target": "record-005", "role": "related", "order": 3 },
+      { "type": "related_record", "target": "record-006", "role": "featured", "order": 4 },
+      { "type": "related_record", "target": "record-016", "role": "context", "order": 5 }
+    ]
+  },
+  "meta": {
+    "_lps_page_key": "home",
+    "_lps_affiliation": "COPPE/UFRJ - Programa de Engenharia Elétrica",
+    "_lps_location": "Av. Athos da Silveira Ramos, 149, Cidade Universitária da UFRJ, Ilha do Fundão, Centro de Tecnologia, Bloco H, Sala 220, CEP 21941-914, Rio de Janeiro - RJ"
+  },
+  "locales": {
+    "pt-br": {
+      "title": "Laboratório de Processamento de Sinais",
+      "slug": "inicio",
+      "excerpt": "O Laboratório de Processamento de Sinais (LPS) da UFRJ reúne ensino, pesquisa e extensão em processamento de sinais e inteligência computacional.",
+      "content": [
+        "O Laboratório de Processamento de Sinais (LPS) foi fundado em 1996 na Universidade Federal do Rio de Janeiro (UFRJ) e dedica-se a atividades de ensino, pesquisa e extensão.",
+        "A atuação do laboratório abrange diversos níveis de formação acadêmica, da iniciação científica júnior com estudantes do ensino médio e técnico ao pós-doutorado, passando pela graduação na Escola Politécnica (Poli/UFRJ) e pela pós-graduação no Instituto Alberto Luiz Coimbra de Pós-Graduação e Pesquisa de Engenharia (COPPE/UFRJ).",
+        "As parcerias nacionais e internacionais são uma característica central do LPS. Elas envolvem pesquisadores das áreas de energia (elétrica, nuclear, óleo e gás), física experimental de altas energias, computação quântica, defesa, medicina e qualidade de dados, além de um vínculo próximo com o setor empresarial.",
+        "A equipe permanente registrada na fonte institucional é composta por quatro professores em tempo integral, dos quais dois são titulares, com a participação de pesquisadores de pós-doutorado e de estudantes de pós-graduação e graduação.",
+        "O laboratório está sediado na Av. Athos da Silveira Ramos, 149, Cidade Universitária da UFRJ, Ilha do Fundão, Centro de Tecnologia, Bloco H, Sala 220, CEP 21941-914, Rio de Janeiro - RJ."
+      ]
+    },
+    "en": {
+      "title": "Signal Processing Laboratory",
+      "slug": "home",
+      "excerpt": "The Signal Processing Laboratory (LPS) at UFRJ combines teaching, research and outreach in signal processing and computational intelligence.",
+      "content": [
+        "The Signal Processing Laboratory (Laboratório de Processamento de Sinais, LPS) was founded in 1996 at the Federal University of Rio de Janeiro (UFRJ) and works across teaching, research and outreach.",
+        "Its activity spans several levels of academic training, from junior scientific initiation with secondary and technical school students through to postdoctoral research, including undergraduate teaching at the Polytechnic School (Poli/UFRJ) and graduate programmes at the Alberto Luiz Coimbra Institute for Graduate Studies and Research in Engineering (COPPE/UFRJ).",
+        "National and international partnerships are a defining feature of the laboratory. They involve researchers in energy (electrical, nuclear, oil and gas), experimental high-energy physics, quantum computing, defence, medicine and data quality, alongside a close working relationship with industry.",
+        "The permanent team recorded in the institutional source consists of four full-time professors, two of whom hold full professorships, together with postdoctoral researchers and graduate and undergraduate students.",
+        "The laboratory is located at Av. Athos da Silveira Ramos, 149, Cidade Universitária da UFRJ, Ilha do Fundão, Centro de Tecnologia, Bloco H, Room 220, CEP 21941-914, Rio de Janeiro - RJ, Brazil."
+      ],
+      "translation": {
+        "authoritativeLocale": "pt-br",
+        "method": "editorial-translation-by-migration-agent",
+        "machineTranslated": false,
+        "translatorRole": "translator",
+        "reviewerRole": "section-editor",
+        "reviewedBy": null,
+        "reviewState": "pending-independent-review"
+      }
+    }
+  },
+  "claims": [
+    {
+      "statement": "LPS was founded in 1996 at UFRJ.",
+      "evidenceQuote": "fundado em 1996 na Universidade Federal do Rio de Janeiro (UFRJ)",
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/lps/in%C3%ADcio"
+    },
+    {
+      "statement": "The permanent team is four full-time professors, two of them full professors.",
+      "evidenceQuote": "uma equipe de 4 professores (dos quais 2 são titulares) em tempo integral",
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/lps/in%C3%ADcio"
+    },
+    {
+      "statement": "Partnership areas include energy, high-energy physics, quantum computing, defence, medicine and data quality.",
+      "evidenceQuote": "energia (elétrica, nuclear, óleo e gás), física experimental de altas energias, computação quântica",
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/lps/in%C3%ADcio"
+    },
+    {
+      "statement": "Postal address of the laboratory.",
+      "evidenceQuote": "Av Athos da Silveira Ramos, 149",
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/lps/in%C3%ADcio"
+    }
+  ]
+}

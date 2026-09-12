@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+readonly ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+readonly COMPOSER_PHAR="${TMPDIR:-/tmp}/lps-composer-2.8.12.phar"
+readonly COMPOSER_URL="https://getcomposer.org/download/2.8.12/composer.phar"
+readonly COMPOSER_SHA384="775c2cb66251416185caf0b2b3e063241986beac7bf8149957ee507d5b8db98c02f2ef4bb6d186026658f8ac2f61fb89"
+
+if [[ ! -f "$COMPOSER_PHAR" ]] || [[ "$(sha384sum "$COMPOSER_PHAR" | cut -d ' ' -f 1)" != "$COMPOSER_SHA384" ]]; then
+  curl -fsSL "$COMPOSER_URL" -o "$COMPOSER_PHAR"
+fi
+
+case "${1:-}" in
+  lint)
+    shift
+    exec "$ROOT/node_modules/.bin/wp-playground-cli" php --php=8.3 \
+      --wordpress-install-mode=do-not-attempt-installing --mount="$ROOT:/workspace" \
+      -- /workspace/vendor/bin/phpcs --runtime-set installed_paths \
+      /workspace/vendor/wp-coding-standards/wpcs,/workspace/vendor/phpcsstandards/phpcsextra,/workspace/vendor/phpcsstandards/phpcsutils \
+      --standard=/workspace/phpcs.xml.dist "$@"
+    ;;
+  analyse)
+    shift
+    exec "$ROOT/node_modules/.bin/wp-playground-cli" php --php=8.3 \
+      --wordpress-install-mode=do-not-attempt-installing --mount="$ROOT:/workspace" \
+      -- /workspace/vendor/bin/phpstan analyse --configuration=/workspace/phpstan.neon.dist \
+      --no-progress --debug "$@"
+    ;;
+  test)
+    shift
+    exec "$ROOT/node_modules/.bin/wp-playground-cli" php --php=8.3 \
+      --wordpress-install-mode=do-not-attempt-installing --mount="$ROOT:/workspace" \
+      -- /workspace/vendor/bin/phpunit --configuration=/workspace/phpunit.xml.dist "$@"
+    ;;
+  *)
+    exec "$ROOT/node_modules/.bin/wp-playground-cli" php --php=8.3 \
+      --wordpress-install-mode=do-not-attempt-installing --mount="$ROOT:/workspace" \
+      --mount="${TMPDIR:-/tmp}:/tmp" -- /tmp/"$(basename "$COMPOSER_PHAR")" \
+      --working-dir=/workspace "$@"
+    ;;
+esac

@@ -1,0 +1,9 @@
+# Source evidence capture
+# inventory_record: record-010
+# source_url: https://sites.google.com/lps.ufrj.br/seixas/in%C3%ADcio
+# captured_at: 2026-09-06T10:52:50.808Z
+# capture_method: anonymous public HTTP GET (curl), full response body
+# response_sha256: 22d25f9c80c6122f3f42e0b3a18e0093eedfe61852ffd6b9eb3f6a560c6297b5
+# note: visible-text extraction of the public page; retained only as editorial evidence.
+
+seixas Search this site Embedded Files Skip to main content Skip to navigation seixas Início LPS seixas Início LPS More Início LPS Principal Prof. Dr. José Manoel de Seixas - Lattes Possui graduação em Matemática pela Pontifícia Universidade Católica do Rio de Janeiro (1979), graduação em Engenharia Elétrica pela Pontifícia Universidade Católica do Rio de Janeiro (1979), mestrado em Engenharia Elétrica pela Universidade Federal do Rio de Janeiro (1983) e doutorado em Engenharia Elétrica pela Universidade Federal do Rio de Janeiro (1994). Atualmente é Professor Titular da Universidade Federal do Rio de Janeiro. Tem experiência na área de Engenharia Elétrica, com ênfase em Circuitos Elétricos, Magnéticos e Eletrônicos, atuando principalmente nos seguintes temas: inteligência computacional, calorimetria de altas energias, tecnologia sonar, processamento de sinais e instrumentação eletrônica. Laboratório de Processamento de Sinais (LPS) / UFRJ / COPPE, Inteligência Computacional. Inovação Av Athos da Silveira Ramos, 149 Cidade Universitária da UFRJ llha do Fundão, Centro de Tecnologia CEP 21.941-914 – Rio de Janeiro – RJ Bloco H, Sala 220, Gabinete 4 Report abuse Page details Page updated Report abuse

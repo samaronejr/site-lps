@@ -1,0 +1,2 @@
+id,url,normalized_url,source_url,discovered_at,provenance,owner_candidate,locale,freshness,rights_privacy_state,checksum,disposition,evidence_date,notes
+url-1,https://example.org/legacy/,https://example.org/legacy,https://example.org/,2026-08-30T00:00:00Z,live-http,LPS web maintainers,pt-BR,current,public-record,sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb,301,2026-08-30,fixture

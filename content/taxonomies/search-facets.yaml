@@ -1,0 +1,29 @@
+schemaVersion: 1
+searchFacets:
+  - id: content-type
+    labels: {pt-br: Tipo de conteúdo, en: Content type}
+    source: record-type
+  - id: research-area
+    labels: {pt-br: Área de pesquisa, en: Research area}
+    source: research-area
+  - id: application-domain
+    labels: {pt-br: Domínio de aplicação, en: Application domain}
+    source: application-domain
+  - id: project-status
+    labels: {pt-br: Status do projeto, en: Project status}
+    source: project-status
+  - id: publication-type
+    labels: {pt-br: Tipo de publicação, en: Publication type}
+    source: publication-type
+  - id: publication-year
+    labels: {pt-br: Ano de publicação, en: Publication year}
+    source: publication-year
+  - id: person-role
+    labels: {pt-br: Função da pessoa, en: Person role}
+    source: person-role
+  - id: person-status
+    labels: {pt-br: Vínculo da pessoa, en: Person status}
+    source: person-status
+  - id: opportunity-type
+    labels: {pt-br: Tipo de oportunidade, en: Opportunity type}
+    source: opportunity-type

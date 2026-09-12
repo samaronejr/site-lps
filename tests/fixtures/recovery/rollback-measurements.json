@@ -1,0 +1,14 @@
+[
+  {
+    "objectiveId": "application-rollback",
+    "dataLossMinutes": 12,
+    "recoveryMinutes": 18,
+    "evidence": "fixture rehearsal measurement; no live rollback has been executed"
+  },
+  {
+    "objectiveId": "content-revision-rollback",
+    "dataLossMinutes": 3,
+    "recoveryMinutes": 6,
+    "evidence": "fixture rehearsal measurement; no live rollback has been executed"
+  }
+]

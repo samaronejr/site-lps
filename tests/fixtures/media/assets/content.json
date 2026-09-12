@@ -1,0 +1,34 @@
+{
+  "pt-br": {
+    "title": "Ficha de mídia para teste de QA",
+    "paragraphs": [
+      "Este documento é uma fixture local de garantia da qualidade (QA). Não é um relatório institucional, uma publicação científica nem uma declaração sobre atividades do LPS. Os exemplos desta página são apenas dados de teste.",
+      "Objetivo: verificar a entrega de um PDF e a equivalência do seu conteúdo com o texto HTML da página de mídia acessível. O link informa o tamanho exato do arquivo em bytes; a alternativa HTML permite ler o mesmo conteúdo sem um leitor de PDF.",
+      "O vídeo de demonstração é silencioso e dura 12 segundos. Ele apresenta três cartões numerados, em ordem: 1, 2 e 3. Cada cartão permanece visível por quatro segundos. Os cartões exibem os rótulos QA fixture e Teste de QA. Não há fala, música ou filmagem de pessoas e instalações.",
+      "Use os controles nativos para reproduzir, pausar e avançar o vídeo. As legendas descrevem o cartão visível e a ausência de áudio. A transcrição ao lado do vídeo reproduz essas descrições com seus intervalos de tempo.",
+      "Conteúdo e cartões criados localmente para testes deste repositório, disponibilizados sob CC0-1.0. Não contêm marcas, fotografias ou material institucional de terceiros."
+    ],
+    "videoTitle": "Vídeo silencioso de teste de QA",
+    "cues": [
+      "[Sem áudio] Teste de QA. Cartão 1 de 3.",
+      "[Sem áudio] Teste de QA. Cartão 2 de 3.",
+      "[Sem áudio] Teste de QA. Cartão 3 de 3."
+    ]
+  },
+  "en": {
+    "title": "QA media test sheet",
+    "paragraphs": [
+      "This document is a local quality assurance (QA) fixture. It is not an institutional report, a scientific publication or a statement about LPS activities. The examples on this page are test data only.",
+      "Purpose: verify PDF delivery and the equivalence of its content with the HTML text on the accessible media page. The link states the exact file size in bytes; the HTML alternative provides the same content without requiring a PDF reader.",
+      "The demonstration video is silent and lasts 12 seconds. It presents three numbered cards in order: 1, 2 and 3. Each card remains visible for four seconds. The cards display the labels QA fixture and Teste de QA. There is no speech, music or footage of people or facilities.",
+      "Use the native controls to play, pause and seek the video. Captions describe the visible card and the absence of audio. The transcript beside the video repeats these descriptions with their time intervals.",
+      "Content and cards were authored locally for this repository's tests and released under CC0-1.0. They contain no third-party institutional marks, photographs or media."
+    ],
+    "videoTitle": "Silent QA test video",
+    "cues": [
+      "[No audio] QA fixture. Card 1 of 3.",
+      "[No audio] QA fixture. Card 2 of 3.",
+      "[No audio] QA fixture. Card 3 of 3."
+    ]
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "inventoryRecord": "record-002",
+  "collection": "page",
+  "postType": "page",
+  "recordKey": "about",
+  "disposition": "migrate",
+  "governance": {
+    "ownerRole": "section-editor",
+    "namedOwner": null,
+    "ownerCandidate": "LPS web maintainers",
+    "reviewCadence": "P180D",
+    "lastReviewedAt": "2026-09-06",
+    "nextReviewDate": "2027-03-05",
+    "reviewState": "candidate",
+    "editorialState": "draft",
+    "publishGate": {
+      "state": "draft",
+      "blockers": ["named-role-and-collection-assignments", "translation-review-pending"]
+    },
+    "rights": {
+      "state": "public-record",
+      "basis": "Public institutional page published by LPS/COPPE at its own domain-scoped Google Site.",
+      "assetsIncluded": [],
+      "personalDataPublished": false
+    },
+    "provenance": {
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/lps/sobre/sobre",
+      "inventoryProvenance": "live-http",
+      "inventoryCapturedAt": "2026-08-30T23:03:43Z",
+      "inventoryChecksum": "sha256:3ffc3d32d0a46971db37e7406439ca68c58ffba556db7dcc56ea8aa57701a465",
+      "reverification": {
+        "method": "anonymous public HTTP GET",
+        "evidenceFile": "content/corpus/evidence/record-002.txt"
+      }
+    },
+    "relationships": [
+      { "type": "related_record", "target": "record-003", "role": "related", "order": 1 },
+      { "type": "related_record", "target": "record-004", "role": "related", "order": 2 },
+      { "type": "related_record", "target": "record-016", "role": "context", "order": 3 }
+    ]
+  },
+  "meta": {
+    "_lps_page_key": "about",
+    "_lps_affiliation": "COPPE/UFRJ - Programa de Engenharia Elétrica"
+  },
+  "locales": {
+    "pt-br": {
+      "title": "Sobre o LPS",
+      "slug": "sobre",
+      "excerpt": "Missão, visão e valores registrados pelo Laboratório de Processamento de Sinais na sua página institucional atual.",
+      "content": [
+        "O Laboratório de Processamento de Sinais (LPS) foi fundado em 1996 na Universidade Federal do Rio de Janeiro (UFRJ) e dedica-se a atividades de ensino, pesquisa e extensão, da iniciação científica júnior ao pós-doutorado, com atuação na graduação da Escola Politécnica (Poli/UFRJ) e na pós-graduação da COPPE/UFRJ.",
+        "Missão: gerar conhecimento e inovação tecnológica por meio de atividades de ensino, pesquisa e extensão, formando profissionais altamente qualificados em todos os níveis, do ensino médio ao pós-doutorado, e estabelecendo parcerias estratégicas com os setores público e privado.",
+        "Visão: ser um laboratório de referência nacional e internacional no desenvolvimento de soluções inovadoras em engenharia, com foco em inteligência computacional, processamento de sinais e desenvolvimento de software, aplicando modelos de aprendizado de máquina em ambientes complexos que exigem robustez e interpretabilidade.",
+        "Valores registrados na fonte institucional: inovação, com vocação para a criação de empresas de base tecnológica; colaboração, por meio de parcerias nacionais e internacionais; excelência técnica, científica e de inovação; e formação de profissionais qualificados para a academia e para a indústria."
+      ]
+    },
+    "en": {
+      "title": "About LPS",
+      "slug": "about",
+      "excerpt": "Mission, vision and values as recorded by the Signal Processing Laboratory on its current institutional page.",
+      "content": [
+        "The Signal Processing Laboratory (LPS) was founded in 1996 at the Federal University of Rio de Janeiro (UFRJ). It works across teaching, research and outreach, from junior scientific initiation to postdoctoral research, covering undergraduate teaching at the Polytechnic School (Poli/UFRJ) and graduate programmes at COPPE/UFRJ.",
+        "Mission: to generate knowledge and technological innovation through teaching, research and outreach, training highly qualified professionals at every level from secondary school to postdoctoral research, and building strategic partnerships with the public and private sectors.",
+        "Vision: to be a national and international reference laboratory for innovative engineering solutions, focused on computational intelligence, signal processing and software development, applying machine-learning models in complex settings that demand robustness and interpretability.",
+        "Values recorded in the institutional source: innovation, including the creation of technology-based companies; collaboration through national and international partnerships; technical, scientific and innovation excellence; and the training of professionals prepared for both academia and industry."
+      ],
+      "translation": {
+        "authoritativeLocale": "pt-br",
+        "method": "editorial-translation-by-migration-agent",
+        "machineTranslated": false,
+        "translatorRole": "translator",
+        "reviewerRole": "section-editor",
+        "reviewedBy": null,
+        "reviewState": "pending-independent-review"
+      }
+    }
+  },
+  "claims": [
+    {
+      "statement": "The laboratory states a mission of generating knowledge and technological innovation through teaching, research and outreach.",
+      "evidenceQuote": "tem como missão gerar conhecimento e inovação tecnológica por meio de atividades de ensino, pesquisa e extensão",
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/lps/sobre/sobre"
+    },
+    {
+      "statement": "The stated vision focuses on computational intelligence, signal processing and software development.",
+      "evidenceQuote": "com foco em inteligência computacional , processamento de sinais e desenvolvimento de software",
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/lps/sobre/sobre"
+    },
+    {
+      "statement": "Stated values include innovation, collaboration, excellence and training.",
+      "evidenceQuote": "Excelência: Busca a excelência técnica, científica e de inovação em todas as suas atividades.",
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/lps/sobre/sobre"
+    }
+  ]
+}

@@ -1,0 +1,111 @@
+{
+  "corpusId": "lps-failure-changed-checksum",
+  "records": [
+    {
+      "sourceId": "lps-source-0001",
+      "locale": "pt-br",
+      "type": "page",
+      "slug": "sobre",
+      "checksum": "36b04802308eb38a78f9a57191ad44dfb7dcd5227994176ecb3f891a753de5ff",
+      "assets": [
+        {
+          "id": "asset-lps-source-0001",
+          "available": true
+        }
+      ],
+      "authors": [
+        {
+          "name": "Autor Exemplo",
+          "matches": ["person-lps-source-0001"]
+        }
+      ]
+    },
+    {
+      "sourceId": "lps-source-0002",
+      "locale": "en",
+      "type": "page",
+      "slug": "about",
+      "checksum": "796e09cc15832311433713a7e5c658b926808863165f17ea00f5d4fdb1657aa5",
+      "assets": [
+        {
+          "id": "asset-lps-source-0002",
+          "available": true
+        }
+      ],
+      "authors": [
+        {
+          "name": "Autor Exemplo",
+          "matches": ["person-lps-source-0002"]
+        }
+      ]
+    },
+    {
+      "sourceId": "lps-source-0003",
+      "locale": "pt-br",
+      "type": "lps_news",
+      "slug": "novo-laboratorio",
+      "checksum": "2cc6f53534cf74ac8b01f0dd574d75cd253aa02e86e4d47702984cb5b5b39802",
+      "assets": [
+        {
+          "id": "asset-lps-source-0003",
+          "available": true
+        }
+      ],
+      "authors": [
+        {
+          "name": "Autor Exemplo",
+          "matches": ["person-lps-source-0003"]
+        }
+      ]
+    },
+    {
+      "sourceId": "lps-source-0004",
+      "locale": "en",
+      "type": "lps_news",
+      "slug": "new-laboratory",
+      "checksum": "f296be53d6d159b0d3c6da06708e085dc93df5390ae016c452da9b9bc1160017",
+      "assets": [
+        {
+          "id": "asset-lps-source-0004",
+          "available": true
+        }
+      ],
+      "authors": [
+        {
+          "name": "Autor Exemplo",
+          "matches": ["person-lps-source-0004"]
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "from": "/pt/sobre-o-lps",
+      "to": "/sobre"
+    },
+    {
+      "from": "/en/about-lps",
+      "to": "/about"
+    }
+  ],
+  "target": {
+    "records": {
+      "lps-source-0001": {
+        "importedChecksum": "b4f7b98ef16f82ae3ac7700641f33f674ae32e0fd62d6ab7ecb0e369cd28e0b7",
+        "slug": "sobre"
+      },
+      "lps-source-0002": {
+        "importedChecksum": "796e09cc15832311433713a7e5c658b926808863165f17ea00f5d4fdb1657aa5",
+        "slug": "about"
+      },
+      "lps-source-0003": {
+        "importedChecksum": "2cc6f53534cf74ac8b01f0dd574d75cd253aa02e86e4d47702984cb5b5b39802",
+        "slug": "novo-laboratorio"
+      },
+      "lps-source-0004": {
+        "importedChecksum": "f296be53d6d159b0d3c6da06708e085dc93df5390ae016c452da9b9bc1160017",
+        "slug": "new-laboratory"
+      }
+    }
+  }
+}

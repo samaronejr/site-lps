@@ -1,0 +1,14 @@
+parameters:
+    level: max
+    paths:
+        - wp-content/plugins/lps-content-model
+        - wp-content/themes/lps-theme
+        - tests/php
+    scanFiles:
+        - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
+        - tests/php/WpCliStub.php
+    excludePaths:
+        analyse:
+            - tests/php/bootstrap.php
+    reportUnmatchedIgnoredErrors: true
+

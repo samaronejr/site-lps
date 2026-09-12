@@ -1,0 +1,70 @@
+{
+  "planId": "cutover-current-live-risk",
+  "note": "Models the risk recorded in .omo/drafts/lps-institutional-website.md: lps.ufrj.br:443 timed out and www.lps.ufrj.br served an expired certificate on 2026-08-30. This fixture MUST fail readiness.",
+  "referenceTime": "2026-09-06T00:00:00.000Z",
+  "canonicalHost": "lps.ufrj.br",
+  "alternateHost": "www.lps.ufrj.br",
+  "dns": {
+    "ttlSeconds": 3600,
+    "changeApproval": { "status": "pending", "approverRole": "administrator" },
+    "records": [
+      { "host": "lps.ufrj.br", "type": "A", "value": "146.164.147.40", "ttlSeconds": 3600 },
+      {
+        "host": "www.lps.ufrj.br",
+        "type": "CNAME",
+        "value": "proxy-server.lps.ufrj.br",
+        "ttlSeconds": 3600
+      }
+    ]
+  },
+  "tls": [
+    {
+      "host": "lps.ufrj.br",
+      "san": [],
+      "notBefore": null,
+      "notAfter": null,
+      "reachable": false,
+      "stableSinceDays": 0,
+      "issuance": { "method": null, "ownerRole": null },
+      "renewal": { "method": null, "leadTimeDays": null, "ownerRole": null }
+    },
+    {
+      "host": "www.lps.ufrj.br",
+      "san": ["lps.ufrj.br", "www.lps.ufrj.br"],
+      "notBefore": "2025-09-28T18:30:38.000Z",
+      "notAfter": "2025-12-27T18:30:37.000Z",
+      "reachable": true,
+      "stableSinceDays": 0,
+      "issuance": { "method": "acme-http-01", "ownerRole": null },
+      "renewal": { "method": null, "leadTimeDays": null, "ownerRole": null }
+    }
+  ],
+  "redirects": [
+    {
+      "from": "https://www.lps.ufrj.br/",
+      "to": "https://sites.google.com/lps.ufrj.br/lps/inicio/",
+      "status": 301
+    }
+  ],
+  "hsts": {
+    "enabled": false,
+    "maxAgeSeconds": 0,
+    "preload": false,
+    "requiredStableTlsDays": 30,
+    "plannedEnableAfterStableDays": 30
+  },
+  "healthChecks": [
+    {
+      "id": "canonical-root",
+      "url": "https://lps.ufrj.br/",
+      "expectStatus": 200,
+      "intervalSeconds": 60,
+      "failureThreshold": 3,
+      "lastResult": "fail"
+    }
+  ],
+  "rollback": {
+    "command": [],
+    "thresholds": []
+  }
+}

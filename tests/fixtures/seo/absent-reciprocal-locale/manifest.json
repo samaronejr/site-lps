@@ -1,0 +1,9 @@
+{
+  "extends": "../baseline",
+  "documents": [
+    {
+      "path": "/en/publications/paper-a/",
+      "file": "documents/en-paper-a.html"
+    }
+  ]
+}

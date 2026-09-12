@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "policySource": "docs/content/governance.md",
+  "note": "Owners are role identifiers from docs/content/governance.md, never invented names. A null assignee or an unapproved objective is a launch blocker, not a default.",
+  "encryption": {
+    "algorithm": "age-x25519",
+    "recipientKeyId": null,
+    "keyCustodianRole": "administrator",
+    "status": "owner-unconfirmed",
+    "evidence": "No institutional recipient key has been provided by the administrator role."
+  },
+  "retention": {
+    "dailySnapshots": 14,
+    "weeklySnapshots": 8,
+    "monthlySnapshots": 12,
+    "offsiteCopies": 1,
+    "status": "proposed",
+    "approverRole": "administrator",
+    "approvedBy": null,
+    "evidence": "Retention window proposed by this repository; no owner approval receipt exists yet."
+  },
+  "owners": {
+    "backupOperatorRole": "deployer",
+    "restoreVerifierRole": "administrator",
+    "contentRollbackRole": "publisher",
+    "cutoverApproverRole": "administrator",
+    "assignees": {
+      "deployer": null,
+      "administrator": null,
+      "publisher": null
+    }
+  },
+  "objectives": [
+    {
+      "id": "application-rollback",
+      "scope": "Deployed application release (code, theme, plugin, configuration)",
+      "rpoMinutes": null,
+      "rtoMinutes": null,
+      "approval": {
+        "status": "unapproved",
+        "approverRole": "administrator",
+        "approvedBy": null,
+        "approvedAt": null
+      },
+      "evidence": "No owner-approved RPO/RTO exists for application rollback."
+    },
+    {
+      "id": "content-revision-rollback",
+      "scope": "Published content revision restored to the previous approved revision",
+      "rpoMinutes": null,
+      "rtoMinutes": null,
+      "approval": {
+        "status": "unapproved",
+        "approverRole": "publisher",
+        "approvedBy": null,
+        "approvedAt": null
+      },
+      "evidence": "No owner-approved RPO/RTO exists for content-revision rollback."
+    }
+  ]
+}

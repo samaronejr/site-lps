@@ -1,0 +1,17 @@
+{
+  "treeId": "lps-staging-baseline",
+  "records": {
+    "lps-source-0001": "{\"slug\":\"sobre\",\"locale\":\"pt-BR\",\"title\":\"Sobre o LPS\"}",
+    "lps-source-0002": "{\"slug\":\"about\",\"locale\":\"en\",\"title\":\"About LPS\"}",
+    "lps-source-0003": "{\"slug\":\"novo-laboratorio\",\"locale\":\"pt-BR\",\"title\":\"Novo laboratorio\"}"
+  },
+  "files": {
+    "uploads/2026/03/lps-lab.jpg": "fixture-bytes-lab-photo",
+    "uploads/2026/03/lps-seminar.jpg": "fixture-bytes-seminar-photo"
+  },
+  "config": {
+    "canonical_host": "lps.ufrj.br",
+    "locale_roots": "/pt-br/,/en/",
+    "active_theme": "lps-theme"
+  }
+}

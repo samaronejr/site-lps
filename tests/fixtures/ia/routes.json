@@ -1,0 +1,197 @@
+{
+  "schemaVersion": 1,
+  "locales": ["pt-br", "en"],
+  "audiences": [
+    "prospective-researcher",
+    "academic-peer",
+    "industry-government-funder",
+    "current-lps-community",
+    "journalist-public",
+    "site-visitor"
+  ],
+  "primaryNavigation": [
+    { "key": "about", "labels": { "pt-br": "Sobre", "en": "About" } },
+    { "key": "research", "labels": { "pt-br": "Pesquisa", "en": "Research" } },
+    { "key": "people", "labels": { "pt-br": "Pessoas", "en": "People" } },
+    { "key": "publications", "labels": { "pt-br": "Publicações", "en": "Publications" } },
+    { "key": "infrastructure", "labels": { "pt-br": "Infraestrutura", "en": "Infrastructure" } },
+    { "key": "opportunities", "labels": { "pt-br": "Oportunidades", "en": "Opportunities" } },
+    { "key": "news", "labels": { "pt-br": "Notícias", "en": "News" } }
+  ],
+  "footer": [
+    { "key": "contact", "labels": { "pt-br": "Contato", "en": "Contact" } },
+    { "key": "events", "labels": { "pt-br": "Eventos", "en": "Events" } },
+    { "key": "privacy", "labels": { "pt-br": "Privacidade", "en": "Privacy" } },
+    { "key": "accessibility", "labels": { "pt-br": "Acessibilidade", "en": "Accessibility" } }
+  ],
+  "homepageSequence": [
+    "institutional-mission-and-proof",
+    "research-themes",
+    "validated-evidence-and-outputs",
+    "featured-projects",
+    "join-collaborate-partner-journeys",
+    "people-and-research-participation",
+    "infrastructure-and-capabilities",
+    "latest-publications-news-and-events",
+    "partners-and-funders",
+    "collaboration-and-contact-close"
+  ],
+  "pages": [
+    {
+      "key": "home",
+      "parent": null,
+      "routes": { "pt-br": "/pt-br/", "en": "/en/" },
+      "primaryAudience": "site-visitor",
+      "canonicalTask": "understand-lps"
+    },
+    {
+      "key": "about",
+      "parent": null,
+      "routes": { "pt-br": "/pt-br/sobre/", "en": "/en/about/" },
+      "primaryAudience": "site-visitor",
+      "canonicalTask": "understand-institutional-mission"
+    },
+    {
+      "key": "research",
+      "parent": null,
+      "routes": { "pt-br": "/pt-br/pesquisa/", "en": "/en/research/" },
+      "primaryAudience": "academic-peer",
+      "canonicalTask": "find-research-themes"
+    },
+    {
+      "key": "research-area-detail",
+      "parent": "research",
+      "routes": {
+        "pt-br": "/pt-br/pesquisa/:research-area/",
+        "en": "/en/research/:research-area/"
+      },
+      "primaryAudience": "academic-peer",
+      "canonicalTask": "understand-research-area"
+    },
+    {
+      "key": "projects",
+      "parent": null,
+      "routes": { "pt-br": "/pt-br/projetos/", "en": "/en/projects/" },
+      "primaryAudience": "industry-government-funder",
+      "canonicalTask": "find-projects"
+    },
+    {
+      "key": "project-detail",
+      "parent": "projects",
+      "routes": { "pt-br": "/pt-br/projetos/:project/", "en": "/en/projects/:project/" },
+      "primaryAudience": "industry-government-funder",
+      "canonicalTask": "understand-project"
+    },
+    {
+      "key": "people",
+      "parent": null,
+      "routes": { "pt-br": "/pt-br/pessoas/", "en": "/en/people/" },
+      "primaryAudience": "prospective-researcher",
+      "canonicalTask": "find-people"
+    },
+    {
+      "key": "person-detail",
+      "parent": "people",
+      "routes": { "pt-br": "/pt-br/pessoas/:person/", "en": "/en/people/:person/" },
+      "primaryAudience": "prospective-researcher",
+      "canonicalTask": "understand-person"
+    },
+    {
+      "key": "publications",
+      "parent": null,
+      "routes": { "pt-br": "/pt-br/publicacoes/", "en": "/en/publications/" },
+      "primaryAudience": "academic-peer",
+      "canonicalTask": "find-publications"
+    },
+    {
+      "key": "publication-detail",
+      "parent": "publications",
+      "routes": {
+        "pt-br": "/pt-br/publicacoes/:publication/",
+        "en": "/en/publications/:publication/"
+      },
+      "primaryAudience": "academic-peer",
+      "canonicalTask": "read-publication-record"
+    },
+    {
+      "key": "infrastructure",
+      "parent": null,
+      "routes": { "pt-br": "/pt-br/infraestrutura/", "en": "/en/infrastructure/" },
+      "primaryAudience": "industry-government-funder",
+      "canonicalTask": "assess-capabilities"
+    },
+    {
+      "key": "opportunities",
+      "parent": null,
+      "routes": { "pt-br": "/pt-br/oportunidades/", "en": "/en/opportunities/" },
+      "primaryAudience": "prospective-researcher",
+      "canonicalTask": "find-opportunities"
+    },
+    {
+      "key": "opportunity-detail",
+      "parent": "opportunities",
+      "routes": {
+        "pt-br": "/pt-br/oportunidades/:opportunity/",
+        "en": "/en/opportunities/:opportunity/"
+      },
+      "primaryAudience": "prospective-researcher",
+      "canonicalTask": "apply-to-opportunity"
+    },
+    {
+      "key": "news",
+      "parent": null,
+      "routes": { "pt-br": "/pt-br/noticias/", "en": "/en/news/" },
+      "primaryAudience": "journalist-public",
+      "canonicalTask": "read-news"
+    },
+    {
+      "key": "news-detail",
+      "parent": "news",
+      "routes": { "pt-br": "/pt-br/noticias/:news/", "en": "/en/news/:news/" },
+      "primaryAudience": "journalist-public",
+      "canonicalTask": "read-news-item"
+    },
+    {
+      "key": "events",
+      "parent": null,
+      "routes": { "pt-br": "/pt-br/eventos/", "en": "/en/events/" },
+      "primaryAudience": "current-lps-community",
+      "canonicalTask": "find-events"
+    },
+    {
+      "key": "event-detail",
+      "parent": "events",
+      "routes": { "pt-br": "/pt-br/eventos/:event/", "en": "/en/events/:event/" },
+      "primaryAudience": "current-lps-community",
+      "canonicalTask": "attend-event"
+    },
+    {
+      "key": "collaborate",
+      "parent": null,
+      "routes": { "pt-br": "/pt-br/colabore/", "en": "/en/collaborate/" },
+      "primaryAudience": "industry-government-funder",
+      "canonicalTask": "start-collaboration"
+    },
+    {
+      "key": "contact",
+      "parent": null,
+      "routes": { "pt-br": "/pt-br/contato/", "en": "/en/contact/" },
+      "primaryAudience": "site-visitor",
+      "canonicalTask": "find-approved-contact-route"
+    },
+    {
+      "key": "privacy",
+      "parent": null,
+      "routes": { "pt-br": "/pt-br/privacidade/", "en": "/en/privacy/" },
+      "primaryAudience": "site-visitor",
+      "canonicalTask": "understand-privacy-notice"
+    },
+    {
+      "key": "accessibility",
+      "parent": null,
+      "routes": { "pt-br": "/pt-br/acessibilidade/", "en": "/en/accessibility/" },
+      "primaryAudience": "site-visitor",
+      "canonicalTask": "understand-accessibility-notice"
+    }
+  ]
+}

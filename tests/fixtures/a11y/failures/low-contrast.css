@@ -1,0 +1,23 @@
+:root {
+  --color-paper: #f7f4ec;
+  --color-paper-raised: #fffefa;
+  --color-ink: #141a1f;
+  --color-ink-soft: #b6bcc2;
+  --color-navy: #003b5c;
+  --color-navy-hover: #002b44;
+  --color-signal: #007a87;
+  --color-signal-hover: #58b7bf;
+  --color-rule-strong: #6f7a82;
+  --color-success: #216e4e;
+  --color-warning: #7a4a00;
+  --color-error: #a12622;
+  --color-info-wash: #ddecef;
+  --color-success-wash: #e0ece5;
+  --color-warning-wash: #f2e8d2;
+  --color-error-wash: #f2deda;
+  --control-min: 2.75rem;
+  --rule-focus: 0.1875rem;
+}
+:where(a, button):focus-visible { outline: 3px solid var(--color-signal); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; } }
+@media print { body { background: #fff; } }

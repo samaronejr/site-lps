@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "inventoryRecord": "record-011",
+  "collection": "person",
+  "postType": "lps_person",
+  "recordKey": "natanael-nunes-de-moura-junior",
+  "disposition": "migrate",
+  "governance": {
+    "ownerRole": "section-editor",
+    "namedOwner": null,
+    "ownerCandidate": "Person or LPS academic leadership",
+    "reviewCadence": "P90D",
+    "lastReviewedAt": "2026-09-06",
+    "nextReviewDate": "2026-12-05",
+    "reviewState": "candidate",
+    "editorialState": "draft",
+    "publishGate": {
+      "state": "draft",
+      "blockers": [
+        "named-role-and-collection-assignments",
+        "translation-review-pending",
+        "privacy-legal-bases",
+        "person-photo-rights-and-privacy-review-unresolved"
+      ]
+    },
+    "rights": {
+      "state": "public-record",
+      "basis": "Public institutional profile page published under the lps.ufrj.br site. Personal contact details and portraits are excluded: no documentary evidence identifies them as intended public contact or cleared media.",
+      "assetsIncluded": [],
+      "personalDataPublished": false
+    },
+    "provenance": {
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/namourajr/in%C3%ADcio",
+      "inventoryProvenance": "live-http",
+      "inventoryCapturedAt": "2026-08-30T23:03:43Z",
+      "inventoryChecksum": "sha256:bea94b6b455e66166e586905c8e89dab4a32f4deca4803745ee80f7432028539",
+      "reverification": {
+        "method": "anonymous public HTTP GET",
+        "evidenceFile": "content/corpus/evidence/record-011.txt"
+      }
+    },
+    "relationships": []
+  },
+  "meta": {
+    "_lps_canonical_name": "Natanael Nunes de Moura Junior",
+    "_lps_sort_name": "Moura Junior, Natanael Nunes de",
+    "_lps_person_status": "active",
+    "_lps_roles": ["professor", "coordenador-lps"],
+    "_lps_affiliations": [
+      "Universidade Federal do Rio de Janeiro",
+      "Programa de Engenharia Elétrica, COPPE/UFRJ"
+    ],
+    "_lps_photo_rights": "not-cleared",
+    "_lps_privacy_reviewed": false
+  },
+  "locales": {
+    "pt-br": {
+      "title": "Natanael Nunes de Moura Junior",
+      "slug": "natanael-nunes-de-moura-junior",
+      "excerpt": "Professor da UFRJ e coordenador do Laboratório de Processamento de Sinais, com pesquisa em processamento de sinais, inteligência computacional e aprendizado de máquina.",
+      "content": [
+        "Natanael Nunes de Moura Junior é professor da Universidade Federal do Rio de Janeiro, com formação integral na instituição: graduação em Engenharia Eletrônica e de Computação, mestrado em Engenharia Elétrica e doutorado em Engenharia Elétrica. Sua trajetória está ligada ao Laboratório de Processamento de Sinais, onde desenvolve pesquisas em processamento de sinais, inteligência computacional e aprendizado de máquina.",
+        "Participa do experimento ATLAS/CERN em pesquisas de filtragem e estimação de sinais em ambientes de altas taxas, com aplicações em física de partículas, incluindo métodos computacionais para estimação de energia e identificação de partículas.",
+        "Em defesa e engenharia naval, atua no desenvolvimento de tecnologia para sonar rebocado em parceria com o Instituto de Pesquisas da Marinha, além de pesquisas de classificação de sinais, acompanhamento de alvos e síntese de dados acústicos submarinos. Na área de óleo e gás, participa de projetos de monitoramento sísmico passivo, de modelagem probabilística de acidentes de segurança de processos com o CENPES/Petrobras e de prototipagem de gêmeo digital industrial para segurança de processo em planta offshore.",
+        "No ensino, atua na graduação e na pós-graduação da UFRJ, com disciplinas como Sistemas Lineares I e II, Teoria Eletromagnética II, Instrumentação e Técnicas de Medidas, Aprendizado Profundo, Aprendizado por Kernel e Compactação de Sinais.",
+        "Atualmente é Coordenador do Laboratório de Processamento de Sinais e do Laboratório de Tecnologia Sonar e chefe da área de Inteligência Computacional do Programa de Engenharia Elétrica da COPPE/UFRJ."
+      ]
+    },
+    "en": {
+      "title": "Natanael Nunes de Moura Junior",
+      "slug": "natanael-nunes-de-moura-junior",
+      "excerpt": "Professor at UFRJ and coordinator of the Signal Processing Laboratory, researching signal processing, computational intelligence and machine learning.",
+      "content": [
+        "Natanael Nunes de Moura Junior is a professor at the Federal University of Rio de Janeiro, where he completed his entire academic training: an undergraduate degree in Electronic and Computer Engineering and master's and doctoral degrees in Electrical Engineering. His career is tied to the Signal Processing Laboratory, where he researches signal processing, computational intelligence and machine learning.",
+        "He takes part in the ATLAS/CERN experiment, working on signal filtering and estimation in high-rate environments for particle physics, including computational methods for energy estimation and particle identification.",
+        "In defence and naval engineering he works on towed sonar technology in partnership with the Brazilian Navy Research Institute, alongside research on signal classification, target tracking and underwater acoustic data synthesis. In oil and gas he contributes to passive seismic reservoir monitoring, probabilistic modelling of process-safety incidents with CENPES/Petrobras, and an industrial digital-twin prototype for process safety on an offshore plant.",
+        "In teaching he works at both undergraduate and graduate level at UFRJ, with courses including Linear Systems I and II, Electromagnetic Theory II, Instrumentation and Measurement Techniques, Deep Learning, Kernel Learning and Signal Compression.",
+        "He is currently coordinator of the Signal Processing Laboratory and of the Sonar Technology Laboratory, and head of the Computational Intelligence area of the COPPE/UFRJ Electrical Engineering Programme."
+      ],
+      "translation": {
+        "authoritativeLocale": "pt-br",
+        "method": "editorial-translation-by-migration-agent",
+        "machineTranslated": false,
+        "translatorRole": "translator",
+        "reviewerRole": "section-editor",
+        "reviewedBy": null,
+        "reviewState": "pending-independent-review"
+      }
+    }
+  },
+  "claims": [
+    {
+      "statement": "Professor at UFRJ with all degrees from the same institution.",
+      "evidenceQuote": "Natanael Nunes de Moura Junior é professor da Universidade Federal do Rio de Janeiro (UFRJ), com formação integral na instituição: graduação em Engenharia Eletrônica e de Computação, mestrado em Engenharia Elétrica e doutorado em Engenharia Elétrica.",
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/namourajr/in%C3%ADcio"
+    },
+    {
+      "statement": "Towed sonar technology developed with the Navy Research Institute.",
+      "evidenceQuote": "em parceria com o Instituto de Pesquisas da Marinha",
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/namourajr/in%C3%ADcio"
+    },
+    {
+      "statement": "Currently coordinator of LPS and of the Sonar Technology Laboratory and head of the Computational Intelligence area at COPPE/UFRJ.",
+      "evidenceQuote": "Atualmente, Natanael é o Coordenador do Laboratório de Processamento de Sinais e do Laboratório de Tecnologia Sonar, Chefe da área de Inteligência Computacional do Programa de Engenharia Elétrica da Coppe/UFRJ",
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/namourajr/in%C3%ADcio"
+    }
+  ]
+}

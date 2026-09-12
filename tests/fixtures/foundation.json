@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "wordpressVersion": "6.9.7",
+  "phpVersion": "8.3",
+  "plugin": {
+    "slug": "lps-content-model",
+    "entry": "wp-content/plugins/lps-content-model/lps-content-model.php"
+  },
+  "theme": {
+    "slug": "lps-theme",
+    "entry": "wp-content/themes/lps-theme/theme.json"
+  },
+  "locales": ["pt-BR", "en"]
+}

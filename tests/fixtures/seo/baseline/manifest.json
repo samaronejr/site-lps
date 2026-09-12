@@ -1,0 +1,110 @@
+{
+  "siteUrl": "https://lps.ufrj.br",
+  "documents": [
+    {
+      "path": "/pt-br/",
+      "status": 200,
+      "contentType": "text/html",
+      "location": "",
+      "file": "documents/pt-br-home.html"
+    },
+    {
+      "path": "/en/",
+      "status": 200,
+      "contentType": "text/html",
+      "location": "",
+      "file": "documents/en-home.html"
+    },
+    {
+      "path": "/pt-br/publicacoes/artigo-a/",
+      "status": 200,
+      "contentType": "text/html",
+      "location": "",
+      "file": "documents/pt-br-artigo-a.html"
+    },
+    {
+      "path": "/en/publications/paper-a/",
+      "status": 200,
+      "contentType": "text/html",
+      "location": "",
+      "file": "documents/en-paper-a.html"
+    },
+    {
+      "path": "/pt-br/oportunidades/bolsa-doutorado/",
+      "status": 200,
+      "contentType": "text/html",
+      "location": "",
+      "file": "documents/pt-br-bolsa-doutorado.html"
+    },
+    {
+      "path": "/en/opportunities/doctoral-scholarship/",
+      "status": 200,
+      "contentType": "text/html",
+      "location": "",
+      "file": "documents/en-doctoral-scholarship.html"
+    },
+    {
+      "path": "/pt-br/busca/",
+      "status": 200,
+      "contentType": "text/html",
+      "location": "",
+      "file": "documents/pt-br-busca.html"
+    },
+    {
+      "path": "/sitemap.xml",
+      "status": 200,
+      "contentType": "application/xml",
+      "location": "",
+      "file": "documents/sitemap.xml"
+    },
+    {
+      "path": "/sitemap-pt-br.xml",
+      "status": 200,
+      "contentType": "application/xml",
+      "location": "",
+      "file": "documents/sitemap-pt-br.xml"
+    },
+    {
+      "path": "/sitemap-en.xml",
+      "status": 200,
+      "contentType": "application/xml",
+      "location": "",
+      "file": "documents/sitemap-en.xml"
+    },
+    {
+      "path": "/pt-br/noticias/feed/",
+      "status": 200,
+      "contentType": "application/xml",
+      "location": "",
+      "file": "documents/pt-br-noticias-feed.xml"
+    },
+    {
+      "path": "/en/news/feed/",
+      "status": 200,
+      "contentType": "application/xml",
+      "location": "",
+      "file": "documents/en-news-feed.xml"
+    },
+    {
+      "path": "/robots.txt",
+      "status": 200,
+      "contentType": "text/plain",
+      "location": "",
+      "file": "documents/robots.txt"
+    },
+    {
+      "path": "/lps/antigo.html",
+      "status": 301,
+      "contentType": "text/html",
+      "location": "https://lps.ufrj.br/pt-br/publicacoes/artigo-a/",
+      "file": "documents/lps-antigo.txt"
+    },
+    {
+      "path": "/lps/removido.html",
+      "status": 410,
+      "contentType": "text/plain",
+      "location": "",
+      "file": "documents/lps-removido.txt"
+    }
+  ]
+}

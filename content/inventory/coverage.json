@@ -1,0 +1,47 @@
+{
+  "lane": "inventory",
+  "status": "passed",
+  "errors": [],
+  "counts": {
+    "records": 16,
+    "urls": 729,
+    "assets": 6
+  },
+  "coverage": {
+    "discovered": 729,
+    "classified": 729,
+    "unclassified": 0
+  },
+  "dimensions": {
+    "source": {
+      "live-http": 38,
+      "institutional-profile": 3,
+      "github-api": 9,
+      "archive-cdx": 677,
+      "live-http-timeout": 1,
+      "live-http-redirect": 1,
+      "live-http-auth-wall": 3,
+      "live-page-link": 13,
+      "live-public-asset-response": 6
+    },
+    "disposition": {
+      "301": 185,
+      "410": 491,
+      "migrate": 18,
+      "link": 51,
+      "private-excluded": 6
+    },
+    "locale": {
+      "pt-BR": 67,
+      "und": 678,
+      "zxx": 6
+    },
+    "rights": {
+      "public-record": 715,
+      "externally-maintained": 24,
+      "private-excluded": 6,
+      "public-record-no-copy": 6
+    }
+  },
+  "duplicateAssets": []
+}

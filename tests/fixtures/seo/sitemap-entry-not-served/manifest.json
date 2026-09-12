@@ -1,0 +1,15 @@
+{
+  "extends": "../baseline",
+  "documents": [
+    {
+      "path": "/sitemap-pt-br.xml",
+      "contentType": "application/xml",
+      "file": "documents/sitemap-pt-br.xml"
+    },
+    {
+      "path": "/pt-br/infraestrutura/",
+      "status": 404,
+      "file": "documents/pt-br-infraestrutura.html"
+    }
+  ]
+}

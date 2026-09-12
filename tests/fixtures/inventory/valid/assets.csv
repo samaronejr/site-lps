@@ -1,0 +1,2 @@
+id,asset_url,media_type,source_url,captured_at,provenance,owner_candidate,locale,freshness,rights_privacy_state,checksum,disposition,notes
+asset-1,https://example.org/photo.jpg,image/jpeg,https://example.org/legacy/,2026-08-30T00:00:00Z,live-http,LPS web maintainers,zxx,current,public-record-no-copy,sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc,link,fixture

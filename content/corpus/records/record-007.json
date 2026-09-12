@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "inventoryRecord": "record-007",
+  "collection": "person",
+  "postType": "lps_person",
+  "recordKey": "antonio-carlos-moreirao-de-queiroz",
+  "disposition": "migrate",
+  "governance": {
+    "ownerRole": "section-editor",
+    "namedOwner": null,
+    "ownerCandidate": "Person or LPS academic leadership",
+    "reviewCadence": "P90D",
+    "lastReviewedAt": "2026-09-06",
+    "nextReviewDate": "2026-12-05",
+    "reviewState": "candidate",
+    "editorialState": "draft",
+    "publishGate": {
+      "state": "draft",
+      "blockers": [
+        "named-role-and-collection-assignments",
+        "translation-review-pending",
+        "privacy-legal-bases",
+        "person-photo-rights-and-privacy-review-unresolved"
+      ]
+    },
+    "rights": {
+      "state": "public-record",
+      "basis": "Public institutional profile page published under the lps.ufrj.br site. Personal contact details and portraits are excluded: no documentary evidence identifies them as intended public contact or cleared media.",
+      "assetsIncluded": [],
+      "personalDataPublished": false
+    },
+    "provenance": {
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/acmq/in%C3%ADcio",
+      "inventoryProvenance": "live-http",
+      "inventoryCapturedAt": "2026-08-30T23:03:43Z",
+      "inventoryChecksum": "sha256:c2c8d36f461504c3e9be3ab03ef3bc4d167a1d8d79edd354a202460d7b56822d",
+      "reverification": {
+        "method": "anonymous public HTTP GET",
+        "evidenceFile": "content/corpus/evidence/record-007.txt"
+      }
+    },
+    "relationships": []
+  },
+  "meta": {
+    "_lps_canonical_name": "Antônio Carlos Moreirão de Queiroz",
+    "_lps_sort_name": "Queiroz, Antônio Carlos Moreirão de",
+    "_lps_person_status": "in-memoriam",
+    "_lps_roles": ["professor-titular"],
+    "_lps_affiliations": [
+      "Departamento de Engenharia Eletrônica e de Computação, Escola Politécnica, UFRJ",
+      "Programa de Engenharia Elétrica, COPPE/UFRJ"
+    ],
+    "_lps_photo_rights": "not-cleared",
+    "_lps_privacy_reviewed": false
+  },
+  "locales": {
+    "pt-br": {
+      "title": "Antônio Carlos Moreirão de Queiroz (in memoriam)",
+      "slug": "antonio-carlos-moreirao-de-queiroz",
+      "excerpt": "Professor Titular do Departamento de Engenharia Eletrônica e de Computação da Escola Politécnica e do Programa de Engenharia Elétrica da COPPE/UFRJ (in memoriam).",
+      "content": [
+        "O Prof. Dr. Antônio Carlos Moreirão de Queiroz foi Professor Titular do Departamento de Engenharia Eletrônica e de Computação da Escola Politécnica e do Programa de Engenharia Elétrica da COPPE, na Universidade Federal do Rio de Janeiro (UFRJ).",
+        "Obteve o título de Bacharel em Engenharia Eletrônica pela UFRJ em 1979 e os títulos de Mestre (1984) e Doutor (1990) em Engenharia Elétrica pela COPPE/UFRJ.",
+        "Seus interesses de pesquisa incluíam captação de energia com geradores eletrostáticos, teoria de circuitos, teoria eletromagnética, estruturas de filtros de corrente chaveada e métodos de análise, técnicas de projeto de filtros de tempo contínuo de alta frequência, técnicas de aproximação para filtros de propósito geral, análise e simulação de circuitos eletrônicos, redes de ressonância múltipla, microeletrônica analógica, circuitos de radiofrequência e história da ciência.",
+        "Este registro é mantido como memória institucional. Nenhum endereço de contato pessoal e nenhuma fotografia foram migrados."
+      ]
+    },
+    "en": {
+      "title": "Antônio Carlos Moreirão de Queiroz (in memoriam)",
+      "slug": "antonio-carlos-moreirao-de-queiroz",
+      "excerpt": "Full professor in the Department of Electronic and Computer Engineering at the Polytechnic School and in the Electrical Engineering Programme at COPPE/UFRJ (in memoriam).",
+      "content": [
+        "Prof. Dr. Antônio Carlos Moreirão de Queiroz was a full professor in the Department of Electronic and Computer Engineering at the Polytechnic School and in the Electrical Engineering Programme at COPPE, Federal University of Rio de Janeiro (UFRJ).",
+        "He received his bachelor's degree in Electronic Engineering from UFRJ in 1979 and his master's (1984) and doctoral (1990) degrees in Electrical Engineering from COPPE/UFRJ.",
+        "His research interests included energy harvesting with electrostatic generators, circuit theory, electromagnetic theory, switched-current filter structures and analysis methods, design techniques for high-frequency continuous-time filters, approximation techniques for general-purpose filters, electronic circuit analysis and simulation, multiple-resonance networks, analogue microelectronics, radio-frequency circuits and the history of science.",
+        "This record is kept as institutional memory. No personal contact address and no photograph were migrated."
+      ],
+      "translation": {
+        "authoritativeLocale": "pt-br",
+        "method": "editorial-translation-by-migration-agent",
+        "machineTranslated": false,
+        "translatorRole": "translator",
+        "reviewerRole": "section-editor",
+        "reviewedBy": null,
+        "reviewState": "pending-independent-review"
+      }
+    }
+  },
+  "claims": [
+    {
+      "statement": "He was a full professor at the Polytechnic School and COPPE Electrical Engineering Programme, UFRJ.",
+      "evidenceQuote": "foi Professor Titular do Departamento de Engenharia Eletrônica e de Computação da Escola Politécnica e do Programa de Engenharia Elétrica da COPPE",
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/acmq/in%C3%ADcio"
+    },
+    {
+      "statement": "Degrees: bachelor 1979 (UFRJ), master 1984 and doctorate 1990 (COPPE/UFRJ).",
+      "evidenceQuote": "Bacharel em Engenharia Eletrônica (1979) pela UFRJ e os títulos de Mestre (1984) e Doutor (1990) em Engenharia Elétrica pela COPPE/UFRJ",
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/acmq/in%C3%ADcio"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "documentSet": ["tests/fixtures/docs/passing/guide.md"],
+  "referenceDocuments": [],
+  "commandSurfaces": {
+    "packageJson": "package.json",
+    "composerJson": "composer.json",
+    "composerWrapper": "tools/composer",
+    "cliRegistration": "wp-content/plugins/lps-content-model/includes/class-commandregistration.php",
+    "cliClassDirectory": "wp-content/plugins/lps-content-model/includes"
+  },
+  "policySource": "wp-content/plugins/lps-content-model/includes/class-securitypolicy.php",
+  "prerequisites": [
+    {
+      "doc": "tests/fixtures/docs/passing/guide.md",
+      "tokens": ["npm ci", "npm run env:start"]
+    }
+  ],
+  "freshness": [],
+  "coverage": [
+    {
+      "id": "setting-accessibility-contact",
+      "category": "production-setting",
+      "token": "accessibility_contact",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
+        "mustContain": "'accessibility_contact'"
+      }
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "inventoryRecord": "record-009",
+  "collection": "person",
+  "postType": "lps_person",
+  "recordKey": "joao-victor-da-fonseca-pinto",
+  "disposition": "migrate",
+  "governance": {
+    "ownerRole": "section-editor",
+    "namedOwner": null,
+    "ownerCandidate": "Person or LPS academic leadership",
+    "reviewCadence": "P90D",
+    "lastReviewedAt": "2026-09-06",
+    "nextReviewDate": "2026-12-05",
+    "reviewState": "candidate",
+    "editorialState": "draft",
+    "publishGate": {
+      "state": "draft",
+      "blockers": [
+        "named-role-and-collection-assignments",
+        "translation-review-pending",
+        "privacy-legal-bases",
+        "person-photo-rights-and-privacy-review-unresolved"
+      ]
+    },
+    "rights": {
+      "state": "public-record",
+      "basis": "Public institutional profile page published under the lps.ufrj.br site. Personal contact details and portraits are excluded: no documentary evidence identifies them as intended public contact or cleared media.",
+      "assetsIncluded": [],
+      "personalDataPublished": false
+    },
+    "provenance": {
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/jodafons/in%C3%ADcio",
+      "inventoryProvenance": "live-http",
+      "inventoryCapturedAt": "2026-08-30T23:03:43Z",
+      "inventoryChecksum": "sha256:a7ad280643261433d0279a812ce1f500b69a1b1f175f0fd89a8776c4e0869af3",
+      "reverification": {
+        "method": "anonymous public HTTP GET",
+        "evidenceFile": "content/corpus/evidence/record-009.txt"
+      }
+    },
+    "relationships": []
+  },
+  "meta": {
+    "_lps_canonical_name": "João Victor da Fonseca Pinto",
+    "_lps_sort_name": "Pinto, João Victor da Fonseca",
+    "_lps_person_status": "active",
+    "_lps_roles": ["professor-adjunto", "pesquisador-permanente-lps"],
+    "_lps_affiliations": [
+      "Departamento de Engenharia Eletrônica e de Computação, UFRJ",
+      "Laboratório de Processamento de Sinais, COPPE/UFRJ"
+    ],
+    "_lps_photo_rights": "not-cleared",
+    "_lps_privacy_reviewed": false
+  },
+  "locales": {
+    "pt-br": {
+      "title": "João Victor da Fonseca Pinto",
+      "slug": "joao-victor-da-fonseca-pinto",
+      "excerpt": "Professor adjunto do Departamento de Engenharia Eletrônica e de Computação da UFRJ e professor/pesquisador permanente do LPS.",
+      "content": [
+        "João Victor da Fonseca Pinto é graduado (2016) em Engenharia Eletrônica e de Computação pela Universidade Federal do Rio de Janeiro e doutor (2022) em Inteligência Computacional pelo Programa de Engenharia Elétrica da COPPE. É membro da RENAFAE desde 2015.",
+        "Desde 2018 é autor de publicações do experimento ATLAS (CERN, Genebra), no qual colabora por meio do Laboratório de Processamento de Sinais da COPPE, nas áreas de inteligência computacional, filtragem online de eventos em física de partículas e simulação de eventos. Participou do esforço colaborativo que atualizou a classificação online de elétrons baseada em redes neurais artificiais no experimento.",
+        "Foi coordenador (2021-2022) do grupo internacional de pesquisa de filtragem online para elétrons e fótons do ATLAS. Atualmente atua como pesquisador associado no experimento ATLAS, professor adjunto do Departamento de Engenharia Eletrônica e de Computação da UFRJ (2025) e professor/pesquisador permanente no LPS.",
+        "Áreas de interesse registradas na fonte: simulação e reconstrução de eventos em física de altas energias, orquestração de cargas de trabalho, inteligência artificial (redes neurais rasas e profundas, IA generativa) e computação quântica."
+      ]
+    },
+    "en": {
+      "title": "João Victor da Fonseca Pinto",
+      "slug": "joao-victor-da-fonseca-pinto",
+      "excerpt": "Adjunct professor in the Department of Electronic and Computer Engineering at UFRJ and permanent professor and researcher at LPS.",
+      "content": [
+        "João Victor da Fonseca Pinto graduated in Electronic and Computer Engineering from the Federal University of Rio de Janeiro in 2016 and received a doctorate in Computational Intelligence from the COPPE Electrical Engineering Programme in 2022. He has been a member of RENAFAE since 2015.",
+        "Since 2018 he has been an author on publications of the ATLAS experiment (CERN, Geneva), collaborating through the Signal Processing Laboratory at COPPE in computational intelligence, online event filtering for particle physics and event simulation. He took part in the collaborative effort that updated the neural-network-based online electron classification used by the experiment.",
+        "He coordinated the ATLAS international research group for electron and photon online filtering in 2021-2022. He currently works as an associate researcher on the ATLAS experiment, as an adjunct professor in the Department of Electronic and Computer Engineering at UFRJ (2025) and as a permanent professor and researcher at LPS.",
+        "Research interests recorded in the source: simulation and reconstruction of high-energy physics events, workload orchestration, artificial intelligence (shallow and deep neural networks, generative AI) and quantum computing."
+      ],
+      "translation": {
+        "authoritativeLocale": "pt-br",
+        "method": "editorial-translation-by-migration-agent",
+        "machineTranslated": false,
+        "translatorRole": "translator",
+        "reviewerRole": "section-editor",
+        "reviewedBy": null,
+        "reviewState": "pending-independent-review"
+      }
+    }
+  },
+  "claims": [
+    {
+      "statement": "Undergraduate degree 2016 at UFRJ; doctorate 2022 in Computational Intelligence at COPPE.",
+      "evidenceQuote": "Possui graduação (2016) em Engenharia Eletrônica e de Computação pela Universidade Federal do Rio de Janeiro. Doutor (2022) em Inteligência Computacional pelo Programa de Engenharia Elétrica da COPPE.",
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/jodafons/in%C3%ADcio"
+    },
+    {
+      "statement": "Coordinated the ATLAS electron and photon online filtering group in 2021-2022.",
+      "evidenceQuote": "Foi coordenador (2021-2022) do grupo internacional de pesquisa na área de filtragem online para elétrons e fótons do ATLAS",
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/jodafons/in%C3%ADcio"
+    },
+    {
+      "statement": "Current roles: ATLAS associate researcher, UFRJ adjunct professor (2025), permanent LPS professor and researcher.",
+      "evidenceQuote": "atualmente atua como pesquisador associado no experimento ATLAS",
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/jodafons/in%C3%ADcio"
+    }
+  ]
+}

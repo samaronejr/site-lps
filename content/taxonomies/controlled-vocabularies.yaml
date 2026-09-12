@@ -1,0 +1,52 @@
+schemaVersion: 1
+taxonomies:
+  - id: research-area
+    allowFreeTags: false
+    terms:
+      - key: instrumentation
+        labels: {pt-br: Instrumentação, en: Instrumentation}
+        synonyms: {pt-br: [instrumentacao, tecnicas-de-medidas], en: [instrumentation, measurement-techniques]}
+        evidence: {type: plan-approved-seed, citation: .omo/plans/lps-institutional-website.md}
+      - key: signal-processing
+        labels: {pt-br: Processamento de sinais, en: Signal processing}
+        synonyms: {pt-br: [processamento-de-sinais], en: [signal-processing]}
+        evidence: {type: plan-approved-seed, citation: .omo/plans/lps-institutional-website.md}
+      - key: computational-intelligence
+        labels: {pt-br: Inteligência computacional, en: Computational intelligence}
+        synonyms: {pt-br: [inteligencia-computacional], en: [computational-intelligence]}
+        evidence: {type: plan-approved-seed, citation: .omo/plans/lps-institutional-website.md}
+      - key: software-engineering
+        labels: {pt-br: Engenharia de software, en: Software engineering}
+        synonyms: {pt-br: [engenharia-de-software], en: [software-engineering]}
+        evidence: {type: plan-approved-seed, citation: .omo/plans/lps-institutional-website.md}
+  - id: application-domain
+    allowFreeTags: false
+    terms:
+      - key: electrical-nuclear-energy
+        labels: {pt-br: Energia elétrica e nuclear, en: Electrical and nuclear energy}
+        synonyms: {pt-br: [energia-eletrica, energia-nuclear], en: [electric-power, nuclear-power]}
+        evidence: {type: plan-approved-seed, citation: .omo/plans/lps-institutional-website.md}
+      - key: oil-and-gas
+        labels: {pt-br: Petróleo e gás, en: Oil and gas}
+        synonyms: {pt-br: [petroleo-e-gas], en: [oil-gas]}
+        evidence: {type: plan-approved-seed, citation: .omo/plans/lps-institutional-website.md}
+      - key: high-energy-physics
+        labels: {pt-br: Física de altas energias, en: High-energy physics}
+        synonyms: {pt-br: [fisica-de-altas-energias], en: [high-energy-physics]}
+        evidence: {type: plan-approved-seed, citation: .omo/plans/lps-institutional-website.md}
+      - key: defense
+        labels: {pt-br: Defesa, en: Defense}
+        synonyms: {pt-br: [defesa], en: [defence]}
+        evidence: {type: plan-approved-seed, citation: .omo/plans/lps-institutional-website.md}
+      - key: medicine
+        labels: {pt-br: Medicina, en: Medicine}
+        synonyms: {pt-br: [medicina], en: [healthcare]}
+        evidence: {type: plan-approved-seed, citation: .omo/plans/lps-institutional-website.md}
+      - key: veterinary-science
+        labels: {pt-br: Ciência veterinária, en: Veterinary science}
+        synonyms: {pt-br: [ciencia-veterinaria], en: [veterinary]}
+        evidence: {type: plan-approved-seed, citation: .omo/plans/lps-institutional-website.md}
+      - key: data-quality
+        labels: {pt-br: Qualidade de dados, en: Data quality}
+        synonyms: {pt-br: [qualidade-de-dados], en: [data-quality]}
+        evidence: {type: plan-approved-seed, citation: .omo/plans/lps-institutional-website.md}

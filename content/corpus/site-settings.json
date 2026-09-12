@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "collection": "site-settings",
+  "governance": {
+    "ownerRole": "administrator",
+    "namedOwner": null,
+    "reviewCadence": "P90D",
+    "lastReviewedAt": "2026-09-06",
+    "nextReviewDate": "2026-12-05",
+    "reviewState": "candidate",
+    "editorialState": "draft",
+    "publishGate": {
+      "state": "draft",
+      "blockers": [
+        "named-role-and-collection-assignments",
+        "public-correction-and-takedown-contact",
+        "accessibility-contact",
+        "privacy-contact-unresolved",
+        "no-import-surface-for-site-settings-option"
+      ]
+    },
+    "provenance": {
+      "sourceUrls": [
+        "https://sites.google.com/lps.ufrj.br/lps/in%C3%ADcio",
+        "https://sites.google.com/lps.ufrj.br/lps/sobre/sobre",
+        "https://www.embrapii.coppe.ufrj.br/laboratorios/1228/lps-laboratorio-de-processamento-de-sinais"
+      ],
+      "evidenceFiles": [
+        "content/corpus/evidence/record-001.txt",
+        "content/corpus/evidence/record-002.txt",
+        "content/corpus/evidence/record-016.txt"
+      ]
+    },
+    "applicationBoundary": "The plugin exposes no WP-CLI or import-package surface for the lps_site_settings option in this build. These reviewed values are held in the corpus and recorded as a launch blocker rather than written by the migration run."
+  },
+  "settings": {
+    "official_name": "Laboratório de Processamento de Sinais",
+    "acronym": "LPS",
+    "parent_ufrj": "Universidade Federal do Rio de Janeiro",
+    "parent_coppe": "Instituto Alberto Luiz Coimbra de Pós-Graduação e Pesquisa de Engenharia (COPPE/UFRJ)",
+    "founded_year": 1996,
+    "address": "Av. Athos da Silveira Ramos, 149, Cidade Universitária da UFRJ, Ilha do Fundão, Centro de Tecnologia, Bloco H, Sala 220, CEP 21941-914, Rio de Janeiro - RJ",
+    "official_website": "https://sites.google.com/lps.ufrj.br/lps/in%C3%ADcio",
+    "timezone": "America/Sao_Paulo",
+    "public_contact": null,
+    "privacy_contact": null,
+    "accessibility_contact": null,
+    "orcid_organization": null,
+    "logo_id": null,
+    "title_pt_br": "Laboratório de Processamento de Sinais",
+    "title_en": "Signal Processing Laboratory",
+    "tagline_pt_br": "Processamento de sinais e inteligência computacional na COPPE/UFRJ",
+    "tagline_en": "Signal processing and computational intelligence at COPPE/UFRJ",
+    "footer_pt_br": "Laboratório de Processamento de Sinais (LPS) / UFRJ / COPPE - Av. Athos da Silveira Ramos, 149, Centro de Tecnologia, Bloco H, Sala 220, Ilha do Fundão, Rio de Janeiro - RJ, CEP 21941-914.",
+    "footer_en": "Signal Processing Laboratory (LPS) / UFRJ / COPPE - Av. Athos da Silveira Ramos, 149, Centro de Tecnologia, Bloco H, Room 220, Ilha do Fundão, Rio de Janeiro - RJ, 21941-914, Brazil."
+  },
+  "nullFieldReasons": {
+    "public_contact": "No owned public contact route is documented. A directory listing on a third-party profile is not evidence of an approved public contact.",
+    "privacy_contact": "No privacy contact has been named; recorded as an unresolved launch blocker.",
+    "accessibility_contact": "No accessibility reporting contact has been named; recorded as an unresolved launch blocker.",
+    "orcid_organization": "No organisational ORCID identifier was found in the bounded public sources.",
+    "logo_id": "The brand files published by the source have no documented licence or rights holder, so no logo asset was migrated."
+  },
+  "claims": [
+    {
+      "statement": "The laboratory was founded in 1996 at UFRJ.",
+      "evidenceQuote": "fundado em 1996 na Universidade Federal do Rio de Janeiro (UFRJ)",
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/lps/in%C3%ADcio",
+      "evidenceFile": "content/corpus/evidence/record-001.txt"
+    },
+    {
+      "statement": "Postal address published in the institutional site footer.",
+      "evidenceQuote": "Av Athos da Silveira Ramos, 149",
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/lps/in%C3%ADcio",
+      "evidenceFile": "content/corpus/evidence/record-001.txt"
+    },
+    {
+      "statement": "Graduate affiliation with COPPE/UFRJ.",
+      "evidenceQuote": "Instituto Alberto Luiz Coimbra de Pós-Graduação e Pesquisa de Engenharia (COPPE/UFRJ)",
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/lps/sobre/sobre",
+      "evidenceFile": "content/corpus/evidence/record-002.txt"
+    }
+  ]
+}

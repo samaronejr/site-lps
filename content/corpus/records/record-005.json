@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "inventoryRecord": "record-005",
+  "collection": "page",
+  "postType": "page",
+  "recordKey": "projects",
+  "disposition": "migrate",
+  "governance": {
+    "ownerRole": "section-editor",
+    "namedOwner": null,
+    "ownerCandidate": "LPS project owners",
+    "reviewCadence": "P180D",
+    "lastReviewedAt": "2026-09-06",
+    "nextReviewDate": "2027-03-05",
+    "reviewState": "candidate",
+    "editorialState": "draft",
+    "publishGate": {
+      "state": "draft",
+      "blockers": [
+        "named-role-and-collection-assignments",
+        "translation-review-pending",
+        "individual-project-records-not-sourced"
+      ]
+    },
+    "rights": {
+      "state": "public-record",
+      "basis": "Public institutional project index published by LPS/COPPE.",
+      "assetsIncluded": [],
+      "personalDataPublished": false
+    },
+    "provenance": {
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/lps/projetos",
+      "inventoryProvenance": "live-http",
+      "inventoryCapturedAt": "2026-08-30T23:03:43Z",
+      "inventoryChecksum": "sha256:cff462d0d4bab3f2701e8854ae8805065e3906234e2ab587f95acba3bf6892c0",
+      "reverification": {
+        "method": "anonymous public HTTP GET",
+        "evidenceFile": "content/corpus/evidence/record-005.txt"
+      }
+    },
+    "relationships": [
+      { "type": "related_record", "target": "record-001", "role": "context", "order": 1 }
+    ]
+  },
+  "meta": {
+    "_lps_page_key": "projects"
+  },
+  "locales": {
+    "pt-br": {
+      "title": "Projetos",
+      "slug": "projetos",
+      "excerpt": "Índice de projetos do LPS conforme registrado na página institucional atual.",
+      "content": [
+        "A página institucional atual do LPS apresenta dois projetos em seu índice: \"Simulação de eventos em HEP\" e \"Sistema de Filtragem Online do ATLAS\".",
+        "A fonte pública consultada não publica escopo, período de execução, equipe, financiadores nem situação atual desses projetos. Por isso, esta página migra o índice como registro de origem e não afirma estado corrente, resultados ou métricas.",
+        "Os registros individuais de projeto só serão criados quando o responsável pela coleção fornecer fonte documental para escopo, datas, equipe e financiamento. Até lá, a lacuna é registrada como pendência de lançamento."
+      ]
+    },
+    "en": {
+      "title": "Projects",
+      "slug": "projects",
+      "excerpt": "Index of LPS projects as recorded on the current institutional page.",
+      "content": [
+        "The current LPS institutional page lists two projects in its index: event simulation in high-energy physics (\"Simulação de eventos em HEP\") and the ATLAS online filtering system (\"Sistema de Filtragem Online do ATLAS\").",
+        "The public source consulted publishes no scope, running period, team, funders or current status for these projects. This page therefore migrates the index as a source record and asserts no current status, outcome or metric.",
+        "Individual project records will only be created once the collection owner supplies documentary sources for scope, dates, team and funding. Until then the gap is recorded as a launch blocker."
+      ],
+      "translation": {
+        "authoritativeLocale": "pt-br",
+        "method": "editorial-translation-by-migration-agent",
+        "machineTranslated": false,
+        "translatorRole": "translator",
+        "reviewerRole": "section-editor",
+        "reviewedBy": null,
+        "reviewState": "pending-independent-review"
+      }
+    }
+  },
+  "claims": [
+    {
+      "statement": "The project index lists event simulation in HEP and the ATLAS online filtering system.",
+      "evidenceQuote": "Projetos Simulação de eventos em HEP Sistema de FIltragem Online do ATLAS",
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/lps/projetos"
+    }
+  ]
+}

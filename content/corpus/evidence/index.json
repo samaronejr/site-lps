@@ -1,0 +1,102 @@
+{
+  "capture_method": "anonymous public HTTP GET",
+  "captured_at": "2026-09-06T10:52:50.808Z",
+  "items": [
+    {
+      "inventory_record": "record-001",
+      "source_url": "https://sites.google.com/lps.ufrj.br/lps/in%C3%ADcio",
+      "captured_at": "2026-09-06T10:52:50.808Z",
+      "response_sha256": "c2251e7475e24d0fe017aaf83b4a5e3a2afe7ba5162f02354f121d867a854a4f",
+      "evidence_file": "content/corpus/evidence/record-001.txt",
+      "bytes": 2956
+    },
+    {
+      "inventory_record": "record-002",
+      "source_url": "https://sites.google.com/lps.ufrj.br/lps/sobre/sobre",
+      "captured_at": "2026-09-06T10:52:50.808Z",
+      "response_sha256": "c2991c71fbb3a04e10ef9ef8ffc1c0eb6f2695e55a4383bfcf77133674b88abc",
+      "evidence_file": "content/corpus/evidence/record-002.txt",
+      "bytes": 4400
+    },
+    {
+      "inventory_record": "record-003",
+      "source_url": "https://sites.google.com/lps.ufrj.br/lps/sobre/identidade-visual",
+      "captured_at": "2026-09-06T10:52:50.808Z",
+      "response_sha256": "a808bb2369963d02287e8e0cc8b736a4e106e28fd54aeac3bbabe57f2fb357ff",
+      "evidence_file": "content/corpus/evidence/record-003.txt",
+      "bytes": 1745
+    },
+    {
+      "inventory_record": "record-004",
+      "source_url": "https://sites.google.com/lps.ufrj.br/lps/professores",
+      "captured_at": "2026-09-06T10:52:50.808Z",
+      "response_sha256": "894aa8961721bdfd1fc3584d74eefdb89b57876328eea53a2b60dca0b0b74b6b",
+      "evidence_file": "content/corpus/evidence/record-004.txt",
+      "bytes": 1745
+    },
+    {
+      "inventory_record": "record-005",
+      "source_url": "https://sites.google.com/lps.ufrj.br/lps/projetos",
+      "captured_at": "2026-09-06T10:52:50.808Z",
+      "response_sha256": "8a8d1c93d417626624c95becff0c8b48dc530101b393c5f93d1f337578b9dee6",
+      "evidence_file": "content/corpus/evidence/record-005.txt",
+      "bytes": 1616
+    },
+    {
+      "inventory_record": "record-006",
+      "source_url": "https://sites.google.com/lps.ufrj.br/lps/not%C3%ADcias/oportunidades-de-bolsa",
+      "captured_at": "2026-09-06T10:52:50.808Z",
+      "response_sha256": "fe679f0e2086a7335654ef381404694b8562fda3c972cd61909c3f162c48a4e4",
+      "evidence_file": "content/corpus/evidence/record-006.txt",
+      "bytes": 1589
+    },
+    {
+      "inventory_record": "record-007",
+      "source_url": "https://sites.google.com/lps.ufrj.br/acmq/in%C3%ADcio",
+      "captured_at": "2026-09-06T10:52:50.808Z",
+      "response_sha256": "f6a9be58960e1c876c48d531deeeed5d3df3a286e3b3d896bfb4a5d86fd101a6",
+      "evidence_file": "content/corpus/evidence/record-007.txt",
+      "bytes": 1619
+    },
+    {
+      "inventory_record": "record-008",
+      "source_url": "https://sites.google.com/lps.ufrj.br/caloba/in%C3%ADcio",
+      "captured_at": "2026-09-06T10:52:50.808Z",
+      "response_sha256": "74a000d497c4b59c0e2164615ce1f4b0991bf06047ab6da3050a71faa4d360cf",
+      "evidence_file": "content/corpus/evidence/record-008.txt",
+      "bytes": 3523
+    },
+    {
+      "inventory_record": "record-009",
+      "source_url": "https://sites.google.com/lps.ufrj.br/jodafons/in%C3%ADcio",
+      "captured_at": "2026-09-06T10:52:50.808Z",
+      "response_sha256": "9cc4d461c7746f5c3505349d68854f3d5f34be7af544c1a2f396d07f9e482501",
+      "evidence_file": "content/corpus/evidence/record-009.txt",
+      "bytes": 2443
+    },
+    {
+      "inventory_record": "record-010",
+      "source_url": "https://sites.google.com/lps.ufrj.br/seixas/in%C3%ADcio",
+      "captured_at": "2026-09-06T10:52:50.808Z",
+      "response_sha256": "22d25f9c80c6122f3f42e0b3a18e0093eedfe61852ffd6b9eb3f6a560c6297b5",
+      "evidence_file": "content/corpus/evidence/record-010.txt",
+      "bytes": 1240
+    },
+    {
+      "inventory_record": "record-011",
+      "source_url": "https://sites.google.com/lps.ufrj.br/namourajr/in%C3%ADcio",
+      "captured_at": "2026-09-06T10:52:50.808Z",
+      "response_sha256": "672ee7af47215e1108d6c1da1c165482272fa4d505103501ec671bd2b9fa542e",
+      "evidence_file": "content/corpus/evidence/record-011.txt",
+      "bytes": 5770
+    },
+    {
+      "inventory_record": "record-016",
+      "source_url": "https://www.embrapii.coppe.ufrj.br/laboratorios/1228/lps-laboratorio-de-processamento-de-sinais",
+      "captured_at": "2026-09-06T10:52:50.808Z",
+      "response_sha256": "8549d40a257534fd4c3140bf82135059ed6300615641430d34032603d6a4f222",
+      "evidence_file": "content/corpus/evidence/record-016.txt",
+      "bytes": 1592
+    }
+  ]
+}

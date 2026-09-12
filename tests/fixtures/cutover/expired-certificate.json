@@ -1,0 +1,93 @@
+{
+  "planId": "cutover-expired-certificate",
+  "referenceTime": "2026-09-06T00:00:00.000Z",
+  "canonicalHost": "canonical.example",
+  "alternateHost": "www.canonical.example",
+  "dns": {
+    "ttlSeconds": 300,
+    "changeApproval": { "status": "approved", "approverRole": "administrator" },
+    "records": [
+      { "host": "canonical.example", "type": "A", "value": "192.0.2.10", "ttlSeconds": 300 },
+      {
+        "host": "www.canonical.example",
+        "type": "CNAME",
+        "value": "canonical.example",
+        "ttlSeconds": 300
+      }
+    ]
+  },
+  "tls": [
+    {
+      "host": "canonical.example",
+      "san": ["canonical.example", "www.canonical.example"],
+      "notBefore": "2025-01-01T00:00:00.000Z",
+      "notAfter": "2026-04-01T00:00:00.000Z",
+      "reachable": true,
+      "stableSinceDays": 45,
+      "issuance": { "method": "acme-http-01", "ownerRole": "administrator" },
+      "renewal": {
+        "method": "certbot-systemd-timer",
+        "leadTimeDays": 30,
+        "ownerRole": "administrator"
+      }
+    },
+    {
+      "host": "www.canonical.example",
+      "san": ["canonical.example", "www.canonical.example"],
+      "notBefore": "2026-08-01T00:00:00.000Z",
+      "notAfter": "2026-11-01T00:00:00.000Z",
+      "reachable": true,
+      "stableSinceDays": 45,
+      "issuance": { "method": "acme-http-01", "ownerRole": "administrator" },
+      "renewal": {
+        "method": "certbot-systemd-timer",
+        "leadTimeDays": 30,
+        "ownerRole": "administrator"
+      }
+    }
+  ],
+  "redirects": [
+    {
+      "from": "https://www.canonical.example/",
+      "to": "https://canonical.example/",
+      "status": 301
+    }
+  ],
+  "hsts": {
+    "enabled": false,
+    "maxAgeSeconds": 0,
+    "preload": false,
+    "requiredStableTlsDays": 30,
+    "plannedEnableAfterStableDays": 30
+  },
+  "healthChecks": [
+    {
+      "id": "canonical-root",
+      "url": "https://canonical.example/",
+      "expectStatus": 200,
+      "intervalSeconds": 60,
+      "failureThreshold": 3,
+      "lastResult": "pass"
+    },
+    {
+      "id": "alternate-root",
+      "url": "https://www.canonical.example/",
+      "expectStatus": 301,
+      "intervalSeconds": 60,
+      "failureThreshold": 3,
+      "lastResult": "pass"
+    }
+  ],
+  "rollback": {
+    "command": [
+      "node",
+      "scripts/cutover/dns-tls.mjs",
+      "rollback",
+      "--plan=<plan>",
+      "--confirm-mutates-dns"
+    ],
+    "thresholds": [
+      { "id": "tls-invalid", "condition": "Either host serves an invalid or expired certificate" }
+    ]
+  }
+}

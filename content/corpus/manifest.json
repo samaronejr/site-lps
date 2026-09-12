@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "corpusId": "lps-launch-corpus",
+  "generatedFor": "Todo 22 - populate, review and translate the launch corpus",
+  "authoritativeLocale": "pt-br",
+  "requiredLocales": ["pt-br", "en"],
+  "governancePolicy": "docs/content/governance.md",
+  "editorialWorkflow": "docs/content/editorial-workflow.md",
+  "roleCollectionMatrix": "tests/fixtures/governance/role-collection-matrix.json",
+  "inventory": {
+    "directory": "content/inventory",
+    "recordsFile": "content/inventory/records.csv",
+    "migrateRows": 12,
+    "archivedRows": 2,
+    "linkOnlyRows": 2
+  },
+  "sourceReverification": {
+    "method": "anonymous public HTTP GET of every migrated source URL",
+    "index": "content/corpus/evidence/index.json",
+    "note": "Inventory checksums are preserved verbatim in the import package. The reverification capture is separate editorial evidence and does not overwrite the inventory checksum."
+  },
+  "translation": {
+    "authority": "Portuguese is authoritative; English is an independently authored variant.",
+    "method": "editorial-translation-by-migration-agent",
+    "machineTranslated": false,
+    "reviewerRole": "section-editor",
+    "reviewState": "pending-independent-review",
+    "note": "No English variant is published until an independent reviewer who did not author the translation records a review. This is declared, not silent."
+  },
+  "editorialState": {
+    "allRecords": "draft",
+    "reason": "No named collection owner, publisher, translation reviewer, privacy contact or accessibility contact exists. Governance requires records to stay draft while required approval evidence is absent."
+  },
+  "linkOnlyRows": [
+    {
+      "inventoryRecord": "record-012",
+      "reason": "COPPE EMBRAPII LPS profile is externally maintained; linked, not copied."
+    },
+    {
+      "inventoryRecord": "record-013",
+      "reason": "LPS GitHub organization is externally maintained and NOASSERTION-licensed; linked, not copied."
+    }
+  ],
+  "mediaPolicy": {
+    "migratedAssets": 0,
+    "reason": "Every asset in content/inventory/assets.csv is classified public-record-no-copy with undocumented rights and privacy state, so no media is staged by this import."
+  },
+  "launchBlockers": [
+    {
+      "id": "named-role-and-collection-assignments",
+      "status": "unresolved",
+      "effect": "Every corpus record stays draft; no publisher or collection owner can approve publication."
+    },
+    {
+      "id": "privacy-legal-bases",
+      "status": "unresolved",
+      "effect": "Person records publish no contact data or photographs."
+    },
+    {
+      "id": "public-correction-and-takedown-contact",
+      "status": "unresolved",
+      "effect": "Site settings carry no public contact route."
+    },
+    {
+      "id": "accessibility-contact",
+      "status": "unresolved",
+      "effect": "Site settings carry no accessibility reporting route."
+    },
+    {
+      "id": "translation-review-pending",
+      "status": "unresolved",
+      "effect": "English variants exist and are complete, but no independent reviewer has approved them."
+    },
+    {
+      "id": "brand-asset-rights-and-accessible-format-unresolved",
+      "status": "unresolved",
+      "effect": "Visual identity files are described but not republished."
+    },
+    {
+      "id": "individual-project-records-not-sourced",
+      "status": "unresolved",
+      "effect": "The project index is migrated; per-project records await sourced scope, dates, team and funding."
+    },
+    {
+      "id": "third-party-infrastructure-claims-require-lps-owner-confirmation",
+      "status": "unresolved",
+      "effect": "Infrastructure figures are attributed to the EMBRAPII/COPPE profile and are not asserted as current LPS facts."
+    },
+    {
+      "id": "no-import-surface-for-site-settings-option",
+      "status": "unresolved",
+      "effect": "Reviewed site settings are held in the corpus; the current build exposes no CLI or package surface that writes the lps_site_settings option."
+    }
+  ]
+}

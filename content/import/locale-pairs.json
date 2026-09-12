@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "pairs": [
+    {
+      "record": "record-001",
+      "pt-br": "lps:page:bc5c6a60-da88-4cda-8271-f84cfa452de2",
+      "en": "lps:page:b28a3af3-a274-477e-8020-09df6cf74e0f"
+    },
+    {
+      "record": "record-002",
+      "pt-br": "lps:page:71cbda57-b067-4c3d-8aad-c9235216e1f1",
+      "en": "lps:page:02d8a6f5-a744-452c-8625-51ea0eae8d2f"
+    },
+    {
+      "record": "record-003",
+      "pt-br": "lps:page:4a1bca19-973a-4531-845e-d7d254fd52a3",
+      "en": "lps:page:a102b606-9ae5-476b-891a-f10666a08248"
+    },
+    {
+      "record": "record-004",
+      "pt-br": "lps:page:38c4774c-bce1-4aca-84dc-af4a58e75b33",
+      "en": "lps:page:10cbbdb9-1fe6-41bc-8ec0-dc0276853641"
+    },
+    {
+      "record": "record-005",
+      "pt-br": "lps:page:334107af-a9d2-44aa-8a44-4bd9d0f50eb9",
+      "en": "lps:page:1bca3806-487d-46b7-8458-f854488dd78a"
+    },
+    {
+      "record": "record-006",
+      "pt-br": "lps:opportunity:84b2da95-6775-47c1-895f-800763d3d170",
+      "en": "lps:opportunity:0faa0591-c089-4351-8462-9ade76e62895"
+    },
+    {
+      "record": "record-007",
+      "pt-br": "lps:person:1390d8d6-4e03-4833-8d0b-c65c1e04abfd",
+      "en": "lps:person:b0dff7e8-b728-4073-8fca-7faa69a68156"
+    },
+    {
+      "record": "record-008",
+      "pt-br": "lps:person:78f4ddb3-f5eb-4bee-80b6-5bf5ca95a1d0",
+      "en": "lps:person:05068c1c-6acb-4eee-8f82-6f5c6c7270ce"
+    },
+    {
+      "record": "record-009",
+      "pt-br": "lps:person:72eef29d-328e-4e8b-8885-6f8153194583",
+      "en": "lps:person:2715046e-7a56-47a1-8eaf-a7e87e58b8b2"
+    },
+    {
+      "record": "record-010",
+      "pt-br": "lps:person:2b6c06bb-ea4a-48ba-8055-0cd6a5d3aedc",
+      "en": "lps:person:a67b26ce-a757-441d-8bd5-40d130d8540f"
+    },
+    {
+      "record": "record-011",
+      "pt-br": "lps:person:b8dd423a-311e-490a-8b83-2a16177dd8e4",
+      "en": "lps:person:97eca212-6211-42a4-84ca-fdf44cb8ebb8"
+    },
+    {
+      "record": "record-016",
+      "pt-br": "lps:page:4e691edc-a238-4f11-88cf-e93447191b33",
+      "en": "lps:page:41360937-d74c-4299-8030-d8e1ba4e96a1"
+    }
+  ]
+}

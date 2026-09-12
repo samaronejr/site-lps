@@ -1,0 +1,91 @@
+{
+  "corpusId": "lps-failure-ambiguous-author",
+  "records": [
+    {
+      "sourceId": "lps-source-0001",
+      "locale": "pt-br",
+      "type": "page",
+      "slug": "sobre",
+      "checksum": "b4f7b98ef16f82ae3ac7700641f33f674ae32e0fd62d6ab7ecb0e369cd28e0b7",
+      "assets": [
+        {
+          "id": "asset-lps-source-0001",
+          "available": true
+        }
+      ],
+      "authors": [
+        {
+          "name": "Autor Exemplo",
+          "matches": ["person-lps-source-0001"]
+        }
+      ]
+    },
+    {
+      "sourceId": "lps-source-0002",
+      "locale": "en",
+      "type": "page",
+      "slug": "about",
+      "checksum": "796e09cc15832311433713a7e5c658b926808863165f17ea00f5d4fdb1657aa5",
+      "assets": [
+        {
+          "id": "asset-lps-source-0002",
+          "available": true
+        }
+      ],
+      "authors": [
+        {
+          "name": "Autor Exemplo",
+          "matches": ["person-lps-source-0002"]
+        }
+      ]
+    },
+    {
+      "sourceId": "lps-source-0003",
+      "locale": "pt-br",
+      "type": "lps_news",
+      "slug": "novo-laboratorio",
+      "checksum": "2cc6f53534cf74ac8b01f0dd574d75cd253aa02e86e4d47702984cb5b5b39802",
+      "assets": [
+        {
+          "id": "asset-lps-source-0003",
+          "available": true
+        }
+      ],
+      "authors": [
+        {
+          "name": "J. Silva",
+          "matches": ["person-0031", "person-0074"]
+        }
+      ]
+    },
+    {
+      "sourceId": "lps-source-0004",
+      "locale": "en",
+      "type": "lps_news",
+      "slug": "new-laboratory",
+      "checksum": "f296be53d6d159b0d3c6da06708e085dc93df5390ae016c452da9b9bc1160017",
+      "assets": [
+        {
+          "id": "asset-lps-source-0004",
+          "available": true
+        }
+      ],
+      "authors": [
+        {
+          "name": "Autor Exemplo",
+          "matches": ["person-lps-source-0004"]
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "from": "/pt/sobre-o-lps",
+      "to": "/sobre"
+    },
+    {
+      "from": "/en/about-lps",
+      "to": "/about"
+    }
+  ]
+}

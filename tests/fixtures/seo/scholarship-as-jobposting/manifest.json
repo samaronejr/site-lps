@@ -1,0 +1,9 @@
+{
+  "extends": "../baseline",
+  "documents": [
+    {
+      "path": "/pt-br/oportunidades/bolsa-doutorado/",
+      "file": "documents/pt-br-bolsa-doutorado.html"
+    }
+  ]
+}

@@ -1,0 +1,209 @@
+# Content model and data dictionary
+
+Authoritative source: `wp-content/plugins/lps-content-model/includes/class-contracts.php`
+(records, fields, sanitizers, REST exposure), `class-importcontracts.php` (provenance fields),
+`class-relationships.php` (relationship storage and reverse lookups),
+`class-taxonomies.php` (controlled vocabularies) and `class-policy.php` (state machine). This
+document describes what those files implement; when they change, this document is reported stale by
+`node tests/docs/docs-checker.mjs`.
+
+Field names are WordPress post-meta keys. Two keys are never exposed through REST:
+`_lps_owner_user_id` and `_lps_translation_reviewer_id`.
+
+## Collections
+
+The governance collections, their owner roles and review cadences are the executable matrix
+`tests/fixtures/governance/role-collection-matrix.json` (printed by `npm run qa:governance`):
+
+| Collection | Post type | Owner role | Review cadence |
+| --- | --- | --- | --- |
+| `site-settings` | option `lps_site_settings` | administrator | `P90D` |
+| `page` | `page` | section-editor | `P180D` |
+| `person` | `lps_person` | section-editor | `P90D` |
+| `organization` | `lps_organization` | section-editor | `P180D` |
+| `research-area` | `lps_research_area` | section-editor | `P180D` |
+| `project` | `lps_project` | section-editor | `P90D` |
+| `publication` | `lps_publication` | section-editor | `P365D` |
+| `opportunity` | `lps_opportunity` | section-editor | `P30D` |
+| `news` | `lps_news` | section-editor | `P365D` |
+| `event` | `lps_event` | section-editor | `P30D` |
+| `media-asset` | attachment | section-editor | `P365D` |
+| `redirect` | `lps_redirect` | publisher | `P365D` |
+
+`Roles::collection_for_post_type()` maps a post type to its collection key; per-account collection
+assignment is stored in the user meta `_lps_assigned_collections`.
+
+## Editorial state machine
+
+`_lps_state` moves only along the transitions implemented in `class-policy.php`:
+
+| From | To |
+| --- | --- |
+| `draft` | `draft`, `in_review`, `published`, `archived` |
+| `in_review` | `draft`, `in_review`, `published`, `archived` |
+| `published` | `in_review`, `published`, `archived` |
+| `archived` | `archived` |
+
+Archived is terminal: a referenced record is archived, never hard-deleted.
+
+## Fields present on every record
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `_lps_record_id` | record id | Immutable internal record identifier. |
+| `_lps_locale` | locale | Record locale (`pt-br` authoritative, `en` reviewed variant). |
+| `_lps_state` | state | Editorial state (see the state machine). |
+| `_lps_owner_user_id` | integer, private | Accountable owner account. |
+| `_lps_review_date` | date | Next review date driven by the collection cadence. |
+| `_lps_created_at`, `_lps_updated_at`, `_lps_archived_at` | datetime | Lifecycle timestamps. |
+| `_lps_published_slug` | slug | Immutable first published slug. |
+| `_lps_claim_verified`, `_lps_claim_source_url`, `_lps_claim_reviewed_at` | boolean, url, date | Institutional claim verification and its source. |
+| `_lps_source_revision`, `_lps_source_hash` | integer, text | Current authoritative Portuguese revision and its hash. |
+| `_lps_reviewed_source_hash` | text | Last reviewer-approved Portuguese hash; drives stale-translation detection. |
+| `_lps_translation_reviewed_at` | datetime | Translation review timestamp. |
+| `_lps_translation_reviewer_id` | integer, private | Independent translation reviewer. |
+
+## Migration provenance fields (every record)
+
+| Field | Meaning |
+| --- | --- |
+| `_lps_import_source_id` | Migration source identifier from `content/inventory/records.csv`. |
+| `_lps_import_source_url` | Legacy source URL. |
+| `_lps_import_captured_at` | Capture timestamp of the source snapshot. |
+| `_lps_import_checksum` | Source checksum used for change detection. |
+| `_lps_import_rights` | Rights state recorded at import. |
+| `_lps_import_review_state` | Review state recorded at import. |
+| `_lps_import_fingerprint` | Normalized fingerprint for duplicate detection. |
+| `_lps_import_reviewed_fields` | Fields protected from silent import overwrite. |
+| `_lps_crossref_fields`, `_lps_crossref_cache_key`, `_lps_crossref_cached_at` | Fields derived from the deterministic Crossref cache and its identity. |
+
+## Site settings
+
+Single typed option `lps_site_settings` (`Contracts::site_settings_schema()`):
+
+| Setting | Type | Notes |
+| --- | --- | --- |
+| `official_name` | string | Official laboratory name. |
+| `acronym` | string | `LPS`. |
+| `parent_ufrj` | string | UFRJ parent institution. |
+| `parent_coppe` | string | COPPE parent institution. |
+| `founded_year` | integer | Founding year. |
+| `address` | string | Public postal address. |
+| `public_contact` | email | Public role contact; never a personal address. |
+| `timezone` | string | Site timezone. |
+| `official_website` | url | Canonical institutional URL. |
+| `orcid_organization` | string | Organisation identifier where applicable. |
+| `logo_id` | integer | Attachment ID of the approved logo. |
+| `privacy_contact` | email | Privacy contact role address. |
+| `accessibility_contact` | email | Accessibility/barrier reporting role address. |
+| `title_pt_br`, `title_en` | string | Localized site titles. |
+| `tagline_pt_br`, `tagline_en` | string | Localized taglines. |
+| `footer_pt_br`, `footer_en` | string | Localized footer statements. |
+
+`public_contact`, `privacy_contact` and `accessibility_contact` are unresolved launch blockers: no
+owned public route has been confirmed, so they must not be filled with a personal address.
+
+## Page
+
+`_lps_page_key`, `_lps_primary_audience`, `_lps_canonical_task`, `_lps_affiliation`,
+`_lps_governance`, `_lps_location`, `_lps_funding`, `_lps_report_contact`, `_lps_claims`,
+`_lps_role_contacts`, `_lps_journeys`.
+
+## Person
+
+`_lps_canonical_name`, `_lps_sort_name`, `_lps_person_status`, `_lps_roles`, `_lps_affiliations`,
+`_lps_start_date`, `_lps_end_date`, `_lps_public_email`, `_lps_orcid`, `_lps_lattes_url`,
+`_lps_scholar_url`, `_lps_website_url`, `_lps_research_area_ids`, `_lps_credentials`,
+`_lps_photo_rights`, `_lps_privacy_reviewed`.
+
+`_lps_public_email` requires documentary evidence that the address is an intended public contact;
+`_lps_photo_rights` plus `_lps_privacy_reviewed` gate any published photograph.
+
+## Organization
+
+`_lps_organization_name`, `_lps_acronym`, `_lps_organization_kind`, `_lps_country_code`,
+`_lps_canonical_url`, `_lps_ror_id`, `_lps_logo_asset_id`, `_lps_public_profile`.
+
+A profile is public only when `_lps_public_profile` is true.
+
+## Research area
+
+`_lps_stable_key` (language-neutral, never translated), `_lps_sort_order`, `_lps_label`,
+`_lps_localized_slug`, `_lps_synonyms`.
+
+## Project
+
+`_lps_project_status`, `_lps_start_date`, `_lps_end_date`, `_lps_member_ids`, `_lps_funder_ids`,
+`_lps_partner_ids`, `_lps_grant_ids`, `_lps_research_area_ids`, `_lps_application_domains`,
+`_lps_asset_ids`, `_lps_links`.
+
+## Publication
+
+`_lps_publication_type`, `_lps_publication_status`, `_lps_authoritative_title`, `_lps_language`,
+`_lps_publication_date`, `_lps_date_precision`, `_lps_doi`, `_lps_isbn`, `_lps_issn`,
+`_lps_arxiv_id`, `_lps_venue`, `_lps_citation`, `_lps_author_ids`, `_lps_license`,
+`_lps_canonical_url`, `_lps_open_access_url`, `_lps_pdf_url`, `_lps_code_url`, `_lps_data_url`,
+`_lps_project_ids`, `_lps_research_area_ids`.
+
+Author order is authoritative and preserved; a duplicate DOI is rejected with `lps_duplicate_doi`.
+
+## Opportunity
+
+`_lps_opportunity_type`, `_lps_audiences`, `_lps_opens_at`, `_lps_closes_at`, `_lps_positions`,
+`_lps_stipend`, `_lps_project_ids`, `_lps_supervisor_ids`, `_lps_funder_ids`, `_lps_location`,
+`_lps_mode`, `_lps_contact`, `_lps_contact_is_role`, `_lps_application_url`,
+`_lps_application_url_approved`, `_lps_eligibility`, `_lps_application_instructions`.
+
+Public state is derived from `_lps_opens_at` and `_lps_closes_at`; a closed opportunity keeps a
+stable page and becomes noindex after 90 days.
+
+## News and Event
+
+News: `_lps_canonical_date`, `_lps_news_status`, `_lps_related_record_ids`, `_lps_featured_until`.
+
+Event: `_lps_starts_at`, `_lps_ends_at`, `_lps_event_status`, `_lps_related_record_ids`,
+`_lps_speaker_ids`, `_lps_organizer_ids`, `_lps_venue`, `_lps_online_url`, `_lps_registration_url`,
+`_lps_recording_url`.
+
+## Redirect
+
+`_lps_redirect_source` (unique normalized path), `_lps_redirect_target`, `_lps_redirect_gone`
+(HTTP 410), `_lps_redirect_status`, `_lps_redirect_reason`, `_lps_redirect_provenance`,
+`_lps_verified_at`. Verify the graph with `wp lps redirects verify`.
+
+## Media assets
+
+Attachments carry credit, rights holder, license, source, checksum, focal point, dimensions or
+duration, privacy review, transcript/caption status and accessible-document status
+(`class-mediacontracts.php`, `class-mediapolicy.php`). Alternative text is per usage; a decorative
+image must be explicitly marked decorative. Rights-unknown or essential inaccessible assets cannot
+be published.
+
+## Relationships
+
+Relationships are stored as typed rows through `Relationships::replace()` with reverse lookups
+(`reverse_for()`), plus dedicated helpers for ordered publication authorship
+(`replace_authors()`) and controlled project application domains
+(`replace_application_domains()`). Referenced records cannot be deleted while
+`Relationships::is_referenced()` is true. Project publish gates require a project lead
+(`lps_project_lead_required`).
+
+## Controlled vocabularies
+
+`lps_research_area_key` (people, projects, publications): `instrumentation`, `signal-processing`,
+`computational-intelligence`, `software-engineering`.
+
+`lps_application_domain` (projects): `electrical-nuclear-energy`, `oil-and-gas`,
+`high-energy-physics`, `defense`, `medicine`, `veterinary-science`, `data-quality`.
+
+Both are seeded from `content/taxonomies/controlled-vocabularies.yaml`; the nine server-rendered
+search facets are frozen in `content/taxonomies/search-facets.yaml`. An unapproved term is rejected,
+not created.
+
+## Validation
+
+- `npm run qa:governance` prints the role/collection matrix and validates the contract.
+- `npm run qa:ia` validates routes, vocabularies and facets.
+- `npm run qa:content` reconciles the corpus in `content/corpus/` against the inventory.
+- `tools/composer test` runs the PHP contract suites, including
+  `wp-content/plugins/lps-content-model/tests/ContentContractsTest.php`.

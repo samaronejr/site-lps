@@ -1,0 +1,78 @@
+{
+  "checkedAt": "2026-08-30T12:00:00.000Z",
+  "canonicalHost": "canonical.example",
+  "alternateHost": "www.canonical.example",
+  "hosts": [
+    {
+      "hostname": "canonical.example",
+      "role": "canonical",
+      "dns": {
+        "status": "confirmed",
+        "records": {
+          "A": { "status": "confirmed", "records": ["192.0.2.10"], "evidence": "fixture A" },
+          "AAAA": { "status": "confirmed", "records": [], "evidence": "fixture no AAAA" },
+          "CNAME": { "status": "confirmed", "records": [], "evidence": "fixture no CNAME" }
+        },
+        "evidence": "fixture DNS"
+      },
+      "tls": {
+        "status": "confirmed",
+        "subject": "CN=canonical.example",
+        "san": ["canonical.example", "www.canonical.example"],
+        "issuer": "CN=Fixture CA",
+        "validFrom": "2026-01-01T00:00:00.000Z",
+        "validTo": "2027-01-01T00:00:00.000Z",
+        "fingerprint256": "00:11",
+        "authorizationError": null,
+        "evidence": "fixture trusted certificate"
+      },
+      "http": {
+        "status": "confirmed",
+        "chain": [{ "url": "https://canonical.example/", "statusCode": 200, "location": null }],
+        "finalUrl": "https://canonical.example/",
+        "evidence": "fixture HTTP 200"
+      }
+    },
+    {
+      "hostname": "www.canonical.example",
+      "role": "alternate",
+      "dns": {
+        "status": "confirmed",
+        "records": {
+          "A": { "status": "confirmed", "records": ["192.0.2.10"], "evidence": "fixture A" },
+          "AAAA": { "status": "confirmed", "records": [], "evidence": "fixture no AAAA" },
+          "CNAME": {
+            "status": "confirmed",
+            "records": ["canonical.example"],
+            "evidence": "fixture CNAME"
+          }
+        },
+        "evidence": "fixture DNS"
+      },
+      "tls": {
+        "status": "confirmed",
+        "subject": "CN=canonical.example",
+        "san": ["canonical.example", "www.canonical.example"],
+        "issuer": "CN=Fixture CA",
+        "validFrom": "2026-01-01T00:00:00.000Z",
+        "validTo": "2027-01-01T00:00:00.000Z",
+        "fingerprint256": "00:11",
+        "authorizationError": null,
+        "evidence": "fixture trusted certificate"
+      },
+      "http": {
+        "status": "confirmed",
+        "chain": [
+          {
+            "url": "https://www.canonical.example/",
+            "statusCode": 301,
+            "location": "https://canonical.example/"
+          },
+          { "url": "https://canonical.example/", "statusCode": 200, "location": null }
+        ],
+        "finalUrl": "https://canonical.example/",
+        "evidence": "fixture one-hop canonical redirect"
+      }
+    }
+  ]
+}

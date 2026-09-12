@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "inventoryRecord": "record-901",
+  "collection": "page",
+  "postType": "page",
+  "recordKey": "a11y-failure-fixture",
+  "disposition": "migrate",
+  "locales": {
+    "pt-br": {
+      "title": "Fixture de falha de acessibilidade",
+      "slug": "fixture-falha-acessibilidade",
+      "content": [
+        "O edital completo está disponível em https://example.test/edital-2026.pdf e não há versão em HTML."
+      ],
+      "media": [
+        { "kind": "image", "file": "bancada.jpg" },
+        { "kind": "video", "file": "seminario.mp4", "alt": "Gravação do seminário." }
+      ]
+    }
+  }
+}

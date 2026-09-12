@@ -1,0 +1,70 @@
+{
+  "backupId": "lps-backup-fixture-missing-media",
+  "createdAt": "2026-09-01T02:00:00.000Z",
+  "treeId": "lps-staging-baseline",
+  "encryption": {
+    "algorithm": "age-x25519",
+    "recipientKeyId": "fixture-recipient-key",
+    "status": "encrypted"
+  },
+  "retention": {
+    "dailySnapshots": 14,
+    "weeklySnapshots": 8,
+    "monthlySnapshots": 12,
+    "offsiteCopies": 1
+  },
+  "owner": {
+    "role": "deployer",
+    "assignee": null
+  },
+  "components": {
+    "database": {
+      "items": {
+        "lps-source-0001": {
+          "sha256": "5b5eef296b9a9943a4995beda92bd98d28862959e45e33314f2e399c24aaff42",
+          "payload": "{\"slug\":\"sobre\",\"locale\":\"pt-BR\",\"title\":\"Sobre o LPS\"}"
+        },
+        "lps-source-0002": {
+          "sha256": "72812518436a50b141ef8c8c433e161a60ca154791caf027e7d8487cc534348c",
+          "payload": "{\"slug\":\"about\",\"locale\":\"en\",\"title\":\"About LPS\"}"
+        },
+        "lps-source-0003": {
+          "sha256": "ea7779dbc71d0b68607e7f227be12e40bac6e4b93fc6cf88b2046ae021a9c5b1",
+          "payload": "{\"slug\":\"novo-laboratorio\",\"locale\":\"pt-BR\",\"title\":\"Novo laboratorio\"}"
+        }
+      },
+      "digest": "5eae99efb3cdfb9da79e6cb6f9fc00d97395e71e91d95505640d062c2020a0db"
+    },
+    "media": {
+      "items": {
+        "uploads/2026/03/lps-lab.jpg": {
+          "sha256": "643f22a5df34fd4255d79acbe2b49f38419f531b2530d75b02986ea3dd5a1b0e",
+          "payload": "fixture-bytes-lab-photo"
+        },
+        "uploads/2026/03/lps-seminar.jpg": {
+          "sha256": "91ffb1951d586afe53dd77f488a6801274aee5661da21390f0e6292ac4215a2e",
+          "payload": null
+        }
+      },
+      "digest": "c2fdea5a5ece81c698ce25ad9a7a40ef9479746dad633b55bf69a105cac5f15c"
+    },
+    "config": {
+      "items": {
+        "canonical_host": {
+          "sha256": "21825409f2dd6241f10ef48fe4e7246ae2ec4747569b680fa3dc37f48121bf04",
+          "payload": "lps.ufrj.br"
+        },
+        "locale_roots": {
+          "sha256": "e88a38f0a19ba3c957afae0ad74bfcb83717b4ea9348d5938e79d3fddd970dcd",
+          "payload": "/pt-br/,/en/"
+        },
+        "active_theme": {
+          "sha256": "230e1f819a9bbf84462d8271bbed2760973dcabb5612bc3ffb194e8db691f44c",
+          "payload": "lps-theme"
+        }
+      },
+      "digest": "bcedd25c808549a6f5d093f8763b5d9873f62965bd5bc27122f6af525aec8aed"
+    }
+  },
+  "manifestDigest": "16e15d260377872c7698b7b32e0f8405838c0b2875dffa75550d55106ac40ecb"
+}

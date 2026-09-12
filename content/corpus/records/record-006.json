@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "inventoryRecord": "record-006",
+  "collection": "opportunity",
+  "postType": "lps_opportunity",
+  "recordKey": "scholarship-opportunities",
+  "disposition": "migrate",
+  "governance": {
+    "ownerRole": "section-editor",
+    "namedOwner": null,
+    "ownerCandidate": "LPS opportunity owner",
+    "reviewCadence": "P30D",
+    "lastReviewedAt": "2026-09-06",
+    "nextReviewDate": "2026-10-06",
+    "reviewState": "candidate",
+    "editorialState": "draft",
+    "publishGate": {
+      "state": "draft",
+      "blockers": [
+        "named-role-and-collection-assignments",
+        "translation-review-pending",
+        "no-open-call-published-at-source",
+        "public-application-contact-unresolved"
+      ]
+    },
+    "rights": {
+      "state": "public-record",
+      "basis": "Public institutional opportunities page published by LPS/COPPE.",
+      "assetsIncluded": [],
+      "personalDataPublished": false
+    },
+    "provenance": {
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/lps/not%C3%ADcias/oportunidades-de-bolsa",
+      "inventoryProvenance": "live-http",
+      "inventoryCapturedAt": "2026-08-30T23:03:43Z",
+      "inventoryChecksum": "sha256:b717661a63d041e7ead1fe9d2b603530de6e822b270c137612a0cd4bcb602e8b",
+      "reverification": {
+        "method": "anonymous public HTTP GET",
+        "evidenceFile": "content/corpus/evidence/record-006.txt"
+      }
+    },
+    "relationships": []
+  },
+  "meta": {
+    "_lps_opportunity_type": "scholarship",
+    "_lps_audiences": ["undergraduate", "graduate"]
+  },
+  "locales": {
+    "pt-br": {
+      "title": "Oportunidades de bolsa",
+      "slug": "oportunidades-de-bolsa",
+      "excerpt": "Registro da página de oportunidades de bolsa do LPS; na captura, nenhuma chamada aberta estava publicada.",
+      "content": [
+        "Esta é a página institucional do LPS destinada a oportunidades de bolsa.",
+        "Na captura da fonte pública, a página não publicava nenhuma chamada aberta: o único conteúdo editorial exibido era o aviso de que novas oportunidades seriam divulgadas em breve. Nenhum edital, prazo, valor de bolsa, número de vagas, requisito de elegibilidade ou canal de inscrição estava disponível.",
+        "Por isso este registro não afirma existir bolsa aberta. Ele permanece em rascunho até que o responsável pela coleção forneça o edital, as datas de abertura e encerramento, os requisitos e um canal público de inscrição verificado."
+      ]
+    },
+    "en": {
+      "title": "Scholarship opportunities",
+      "slug": "scholarship-opportunities",
+      "excerpt": "Record of the LPS scholarship opportunities page; no open call was published at the time of capture.",
+      "content": [
+        "This is the LPS institutional page dedicated to scholarship opportunities.",
+        "At the time the public source was captured, the page published no open call: the only editorial content shown was a notice that further opportunities were coming soon. No call document, deadline, stipend value, number of positions, eligibility requirement or application channel was available.",
+        "This record therefore asserts no open scholarship. It stays in draft until the collection owner supplies the call document, opening and closing dates, requirements and a verified public application channel."
+      ],
+      "translation": {
+        "authoritativeLocale": "pt-br",
+        "method": "editorial-translation-by-migration-agent",
+        "machineTranslated": false,
+        "translatorRole": "translator",
+        "reviewerRole": "section-editor",
+        "reviewedBy": null,
+        "reviewState": "pending-independent-review"
+      }
+    }
+  },
+  "claims": [
+    {
+      "statement": "The scholarship opportunities page published only a 'coming soon' notice at capture time.",
+      "evidenceQuote": "Oportunidades de Bolsas Em breve",
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/lps/not%C3%ADcias/oportunidades-de-bolsa"
+    }
+  ]
+}

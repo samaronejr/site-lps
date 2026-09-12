@@ -1,0 +1,1234 @@
+{
+ "records": [
+  {
+   "post_id": 1001,
+   "locale": "pt-br",
+   "post_type": "lps_person",
+   "title": "José Álvarez Nogueira",
+   "acronym": "",
+   "doi": "",
+   "orcid": "0000-0002-1825-0097",
+   "summary": "Pesquisador em instrumentação nuclear e detecção de anomalias",
+   "body": "Atua no laboratório desde 2011.",
+   "taxonomy": [],
+   "facets": {
+    "status": [
+     "active"
+    ],
+    "area": [
+     "instrumentation"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/pt-br/registro-1001/"
+  },
+  {
+   "post_id": 1002,
+   "locale": "pt-br",
+   "post_type": "lps_person",
+   "title": "José Álvarez Nogueira",
+   "acronym": "",
+   "doi": "",
+   "orcid": "0000-0002-1825-0097",
+   "summary": "Pesquisador em instrumentação nuclear",
+   "body": "Perfil institucional.",
+   "taxonomy": [],
+   "facets": {
+    "status": [
+     "active"
+    ],
+    "area": [
+     "instrumentation"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/pt-br/registro-1002/"
+  },
+  {
+   "post_id": 1003,
+   "locale": "pt-br",
+   "post_type": "lps_publication",
+   "title": "Detecção de falhas em instrumentação nuclear",
+   "acronym": "",
+   "doi": "10.1000/lps.falhas",
+   "orcid": "",
+   "summary": "Processamento de sinais aplicado à detecção de falhas",
+   "body": "Metodologia completa.",
+   "taxonomy": [],
+   "facets": {
+    "year": [
+     "2025"
+    ],
+    "area": [
+     "signal-processing"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/pt-br/registro-1003/"
+  },
+  {
+   "post_id": 1004,
+   "locale": "pt-br",
+   "post_type": "lps_project",
+   "title": "Sistema Integrado de Gestão e Monitoramento Analítico",
+   "acronym": "SIGMA",
+   "doi": "",
+   "orcid": "",
+   "summary": "Plataforma de monitoramento analítico para plantas industriais",
+   "body": "Descrição técnica.",
+   "taxonomy": [],
+   "facets": {
+    "status": [
+     "active"
+    ],
+    "area": [
+     "instrumentation"
+    ],
+    "domain": [
+     "oil-and-gas"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/pt-br/registro-1004/"
+  },
+  {
+   "post_id": 1005,
+   "locale": "pt-br",
+   "post_type": "lps_publication",
+   "title": "Classificação de sinais sísmicos com redes profundas",
+   "acronym": "",
+   "doi": "10.1000/lps.sismico",
+   "orcid": "",
+   "summary": "Redes neurais profundas aplicadas a sinais sísmicos",
+   "body": "Corpo do artigo.",
+   "taxonomy": [],
+   "facets": {
+    "year": [
+     "2025"
+    ],
+    "area": [
+     "signal-processing"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/pt-br/registro-1005/"
+  },
+  {
+   "post_id": 1006,
+   "locale": "pt-br",
+   "post_type": "lps_project",
+   "title": "Monitoramento de dutos de petróleo",
+   "acronym": "DUTOS",
+   "doi": "",
+   "orcid": "",
+   "summary": "Inspeção contínua de dutos com sensores acústicos",
+   "body": "Relatório técnico.",
+   "taxonomy": [],
+   "facets": {
+    "status": [
+     "active"
+    ],
+    "area": [
+     "instrumentation"
+    ],
+    "domain": [
+     "oil-and-gas"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/pt-br/registro-1006/"
+  },
+  {
+   "post_id": 1007,
+   "locale": "pt-br",
+   "post_type": "lps_person",
+   "title": "Ana Cláudia Sá",
+   "acronym": "",
+   "doi": "",
+   "orcid": "0000-0001-2345-6789",
+   "summary": "Engenheira de software científica",
+   "body": "Perfil.",
+   "taxonomy": [],
+   "facets": {
+    "status": [
+     "active"
+    ],
+    "area": [
+     "instrumentation"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/pt-br/registro-1007/"
+  },
+  {
+   "post_id": 1008,
+   "locale": "pt-br",
+   "post_type": "lps_publication",
+   "title": "Calibração de detectores de radiação",
+   "acronym": "",
+   "doi": "10.1000/lps.calibra",
+   "orcid": "",
+   "summary": "Procedimento de calibração de detectores",
+   "body": "Texto.",
+   "taxonomy": [],
+   "facets": {
+    "year": [
+     "2025"
+    ],
+    "area": [
+     "signal-processing"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/pt-br/registro-1008/"
+  },
+  {
+   "post_id": 1009,
+   "locale": "pt-br",
+   "post_type": "lps_project",
+   "title": "Rede de Análise Termográfica",
+   "acronym": "RATE",
+   "doi": "",
+   "orcid": "",
+   "summary": "Termografia aplicada à manutenção preditiva",
+   "body": "Texto.",
+   "taxonomy": [],
+   "facets": {
+    "status": [
+     "active"
+    ],
+    "area": [
+     "instrumentation"
+    ],
+    "domain": [
+     "oil-and-gas"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/pt-br/registro-1009/"
+  },
+  {
+   "post_id": 1010,
+   "locale": "pt-br",
+   "post_type": "lps_publication",
+   "title": "Inteligência computacional para diagnóstico veterinário",
+   "acronym": "",
+   "doi": "10.1000/lps.vet",
+   "orcid": "",
+   "summary": "Diagnóstico veterinário assistido por inteligência computacional",
+   "body": "Texto.",
+   "taxonomy": [],
+   "facets": {
+    "year": [
+     "2025"
+    ],
+    "area": [
+     "signal-processing"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/pt-br/registro-1010/"
+  },
+  {
+   "post_id": 1011,
+   "locale": "pt-br",
+   "post_type": "lps_person",
+   "title": "Márcio Fontes",
+   "acronym": "",
+   "doi": "",
+   "orcid": "0000-0003-1111-2222",
+   "summary": "Coordenador de instrumentação",
+   "body": "Perfil.",
+   "taxonomy": [],
+   "facets": {
+    "status": [
+     "active"
+    ],
+    "area": [
+     "instrumentation"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/pt-br/registro-1011/"
+  },
+  {
+   "post_id": 1012,
+   "locale": "pt-br",
+   "post_type": "lps_publication",
+   "title": "Reconstrução tomográfica em física de altas energias",
+   "acronym": "",
+   "doi": "10.1000/lps.tomo",
+   "orcid": "",
+   "summary": "Tomografia aplicada a experimentos de altas energias",
+   "body": "Texto.",
+   "taxonomy": [],
+   "facets": {
+    "year": [
+     "2025"
+    ],
+    "area": [
+     "signal-processing"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/pt-br/registro-1012/"
+  },
+  {
+   "post_id": 1013,
+   "locale": "pt-br",
+   "post_type": "lps_project",
+   "title": "Qualidade de Dados Industriais",
+   "acronym": "QDI",
+   "doi": "",
+   "orcid": "",
+   "summary": "Governança e qualidade de dados de processo",
+   "body": "Texto.",
+   "taxonomy": [],
+   "facets": {
+    "status": [
+     "active"
+    ],
+    "area": [
+     "instrumentation"
+    ],
+    "domain": [
+     "oil-and-gas"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/pt-br/registro-1013/"
+  },
+  {
+   "post_id": 1014,
+   "locale": "pt-br",
+   "post_type": "lps_news",
+   "title": "Laboratório inaugura bancada de ensaios acústicos",
+   "acronym": "",
+   "doi": "",
+   "orcid": "",
+   "summary": "Nova bancada de ensaios acústicos entra em operação",
+   "body": "Texto.",
+   "taxonomy": [],
+   "facets": {
+    "year": [
+     "2025"
+    ],
+    "category": [
+     "institucional"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/pt-br/registro-1014/"
+  },
+  {
+   "post_id": 1015,
+   "locale": "pt-br",
+   "post_type": "lps_event",
+   "title": "Seminário de Processamento Digital de Sinais",
+   "acronym": "SPDS",
+   "doi": "",
+   "orcid": "",
+   "summary": "Seminário anual sobre processamento digital de sinais",
+   "body": "Programação.",
+   "taxonomy": [],
+   "facets": {
+    "date": [
+     "2025"
+    ],
+    "type": [
+     "seminar"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/pt-br/registro-1015/"
+  },
+  {
+   "post_id": 1016,
+   "locale": "pt-br",
+   "post_type": "lps_opportunity",
+   "title": "Bolsa de mestrado em aprendizado de máquina",
+   "acronym": "",
+   "doi": "",
+   "orcid": "",
+   "summary": "Vaga de mestrado em aprendizado de máquina aplicado",
+   "body": "Texto.",
+   "taxonomy": [],
+   "facets": {
+    "state": [
+     "open"
+    ],
+    "type": [
+     "scholarship"
+    ],
+    "audience": [
+     "students"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/pt-br/registro-1016/"
+  },
+  {
+   "post_id": 1017,
+   "locale": "pt-br",
+   "post_type": "lps_publication",
+   "title": "Análise espectral de vibrações mecânicas",
+   "acronym": "",
+   "doi": "10.1000/lps.vibra",
+   "orcid": "",
+   "summary": "Análise espectral aplicada a vibrações mecânicas",
+   "body": "Texto.",
+   "taxonomy": [],
+   "facets": {
+    "year": [
+     "2025"
+    ],
+    "area": [
+     "signal-processing"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/pt-br/registro-1017/"
+  },
+  {
+   "post_id": 1018,
+   "locale": "pt-br",
+   "post_type": "lps_person",
+   "title": "Renata Guimarães",
+   "acronym": "",
+   "doi": "",
+   "orcid": "0000-0004-5555-6666",
+   "summary": "Pesquisadora em óptica aplicada",
+   "body": "Perfil.",
+   "taxonomy": [],
+   "facets": {
+    "status": [
+     "active"
+    ],
+    "area": [
+     "instrumentation"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/pt-br/registro-1018/"
+  },
+  {
+   "post_id": 1019,
+   "locale": "pt-br",
+   "post_type": "lps_project",
+   "title": "Ensaios Não Destrutivos Avançados",
+   "acronym": "ENDA",
+   "doi": "",
+   "orcid": "",
+   "summary": "Ensaios não destrutivos com ultrassom avançado",
+   "body": "Texto.",
+   "taxonomy": [],
+   "facets": {
+    "status": [
+     "active"
+    ],
+    "area": [
+     "instrumentation"
+    ],
+    "domain": [
+     "oil-and-gas"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/pt-br/registro-1019/"
+  },
+  {
+   "post_id": 1020,
+   "locale": "pt-br",
+   "post_type": "lps_publication",
+   "title": "Modelagem de reatores nucleares compactos",
+   "acronym": "",
+   "doi": "10.1000/lps.reator",
+   "orcid": "",
+   "summary": "Modelagem térmica de reatores compactos",
+   "body": "Texto.",
+   "taxonomy": [],
+   "facets": {
+    "year": [
+     "2025"
+    ],
+    "area": [
+     "signal-processing"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/pt-br/registro-1020/"
+  },
+  {
+   "post_id": 1021,
+   "locale": "pt-br",
+   "post_type": "lps_research_area",
+   "title": "Instrumentação e Confiabilidade",
+   "acronym": "",
+   "doi": "",
+   "orcid": "",
+   "summary": "Linha de pesquisa em instrumentação e confiabilidade",
+   "body": "Texto.",
+   "taxonomy": [],
+   "facets": {},
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/pt-br/registro-1021/"
+  },
+  {
+   "post_id": 1022,
+   "locale": "pt-br",
+   "post_type": "lps_publication",
+   "title": "Fusão de sensores para navegação submarina",
+   "acronym": "",
+   "doi": "10.1000/lps.subm",
+   "orcid": "",
+   "summary": "Fusão de sensores aplicada à navegação submarina",
+   "body": "Texto.",
+   "taxonomy": [],
+   "facets": {
+    "year": [
+     "2025"
+    ],
+    "area": [
+     "signal-processing"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/pt-br/registro-1022/"
+  },
+  {
+   "post_id": 1023,
+   "locale": "pt-br",
+   "post_type": "lps_news",
+   "title": "Convênio com a Marinha do Brasil",
+   "acronym": "",
+   "doi": "",
+   "orcid": "",
+   "summary": "Novo convênio de cooperação técnica com a Marinha",
+   "body": "Texto.",
+   "taxonomy": [],
+   "facets": {
+    "year": [
+     "2025"
+    ],
+    "category": [
+     "institucional"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/pt-br/registro-1023/"
+  },
+  {
+   "post_id": 1024,
+   "locale": "pt-br",
+   "post_type": "lps_project",
+   "title": "Plataforma Aberta de Telemetria",
+   "acronym": "PATEL",
+   "doi": "",
+   "orcid": "",
+   "summary": "Telemetria aberta para experimentos de campo",
+   "body": "Texto.",
+   "taxonomy": [],
+   "facets": {
+    "status": [
+     "active"
+    ],
+    "area": [
+     "instrumentation"
+    ],
+    "domain": [
+     "oil-and-gas"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/pt-br/registro-1024/"
+  },
+  {
+   "post_id": 9000,
+   "locale": "en",
+   "post_type": "lps_person",
+   "title": "José Álvarez Nogueira",
+   "acronym": "",
+   "doi": "",
+   "orcid": "0000-0002-1825-0097",
+   "summary": "Pesquisador em instrumentação nuclear e detecção de anomalias",
+   "body": "Atua no laboratório desde 2011.",
+   "taxonomy": [],
+   "facets": {
+    "status": [
+     "active"
+    ],
+    "area": [
+     "instrumentation"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/en/record-9000/"
+  },
+  {
+   "post_id": 9001,
+   "locale": "en",
+   "post_type": "lps_person",
+   "title": "José Álvarez Nogueira",
+   "acronym": "",
+   "doi": "",
+   "orcid": "0000-0002-1825-0097",
+   "summary": "Pesquisador em instrumentação nuclear",
+   "body": "Perfil institucional.",
+   "taxonomy": [],
+   "facets": {
+    "status": [
+     "active"
+    ],
+    "area": [
+     "instrumentation"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/en/record-9001/"
+  },
+  {
+   "post_id": 9002,
+   "locale": "en",
+   "post_type": "lps_publication",
+   "title": "Detecção de falhas em instrumentação nuclear",
+   "acronym": "",
+   "doi": "10.1000/lps.falhas",
+   "orcid": "",
+   "summary": "Processamento de sinais aplicado à detecção de falhas",
+   "body": "Metodologia completa.",
+   "taxonomy": [],
+   "facets": {
+    "year": [
+     "2025"
+    ],
+    "area": [
+     "signal-processing"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/en/record-9002/"
+  },
+  {
+   "post_id": 9003,
+   "locale": "en",
+   "post_type": "lps_project",
+   "title": "Sistema Integrado de Gestão e Monitoramento Analítico",
+   "acronym": "SIGMA",
+   "doi": "",
+   "orcid": "",
+   "summary": "Plataforma de monitoramento analítico para plantas industriais",
+   "body": "Descrição técnica.",
+   "taxonomy": [],
+   "facets": {
+    "status": [
+     "active"
+    ],
+    "area": [
+     "instrumentation"
+    ],
+    "domain": [
+     "oil-and-gas"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/en/record-9003/"
+  },
+  {
+   "post_id": 9004,
+   "locale": "en",
+   "post_type": "lps_publication",
+   "title": "Classificação de sinais sísmicos com redes profundas",
+   "acronym": "",
+   "doi": "10.1000/lps.sismico",
+   "orcid": "",
+   "summary": "Redes neurais profundas aplicadas a sinais sísmicos",
+   "body": "Corpo do artigo.",
+   "taxonomy": [],
+   "facets": {
+    "year": [
+     "2025"
+    ],
+    "area": [
+     "signal-processing"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/en/record-9004/"
+  },
+  {
+   "post_id": 9005,
+   "locale": "en",
+   "post_type": "lps_project",
+   "title": "Monitoramento de dutos de petróleo",
+   "acronym": "DUTOS",
+   "doi": "",
+   "orcid": "",
+   "summary": "Inspeção contínua de dutos com sensores acústicos",
+   "body": "Relatório técnico.",
+   "taxonomy": [],
+   "facets": {
+    "status": [
+     "active"
+    ],
+    "area": [
+     "instrumentation"
+    ],
+    "domain": [
+     "oil-and-gas"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/en/record-9005/"
+  },
+  {
+   "post_id": 9006,
+   "locale": "en",
+   "post_type": "lps_person",
+   "title": "Ana Cláudia Sá",
+   "acronym": "",
+   "doi": "",
+   "orcid": "0000-0001-2345-6789",
+   "summary": "Engenheira de software científica",
+   "body": "Perfil.",
+   "taxonomy": [],
+   "facets": {
+    "status": [
+     "active"
+    ],
+    "area": [
+     "instrumentation"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/en/record-9006/"
+  },
+  {
+   "post_id": 9007,
+   "locale": "en",
+   "post_type": "lps_publication",
+   "title": "Calibração de detectores de radiação",
+   "acronym": "",
+   "doi": "10.1000/lps.calibra",
+   "orcid": "",
+   "summary": "Procedimento de calibração de detectores",
+   "body": "Texto.",
+   "taxonomy": [],
+   "facets": {
+    "year": [
+     "2025"
+    ],
+    "area": [
+     "signal-processing"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/en/record-9007/"
+  },
+  {
+   "post_id": 9008,
+   "locale": "en",
+   "post_type": "lps_project",
+   "title": "Rede de Análise Termográfica",
+   "acronym": "RATE",
+   "doi": "",
+   "orcid": "",
+   "summary": "Termografia aplicada à manutenção preditiva",
+   "body": "Texto.",
+   "taxonomy": [],
+   "facets": {
+    "status": [
+     "active"
+    ],
+    "area": [
+     "instrumentation"
+    ],
+    "domain": [
+     "oil-and-gas"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/en/record-9008/"
+  },
+  {
+   "post_id": 9009,
+   "locale": "en",
+   "post_type": "lps_publication",
+   "title": "Inteligência computacional para diagnóstico veterinário",
+   "acronym": "",
+   "doi": "10.1000/lps.vet",
+   "orcid": "",
+   "summary": "Diagnóstico veterinário assistido por inteligência computacional",
+   "body": "Texto.",
+   "taxonomy": [],
+   "facets": {
+    "year": [
+     "2025"
+    ],
+    "area": [
+     "signal-processing"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/en/record-9009/"
+  },
+  {
+   "post_id": 9010,
+   "locale": "en",
+   "post_type": "lps_person",
+   "title": "Márcio Fontes",
+   "acronym": "",
+   "doi": "",
+   "orcid": "0000-0003-1111-2222",
+   "summary": "Coordenador de instrumentação",
+   "body": "Perfil.",
+   "taxonomy": [],
+   "facets": {
+    "status": [
+     "active"
+    ],
+    "area": [
+     "instrumentation"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/en/record-9010/"
+  },
+  {
+   "post_id": 9011,
+   "locale": "en",
+   "post_type": "lps_publication",
+   "title": "Reconstrução tomográfica em física de altas energias",
+   "acronym": "",
+   "doi": "10.1000/lps.tomo",
+   "orcid": "",
+   "summary": "Tomografia aplicada a experimentos de altas energias",
+   "body": "Texto.",
+   "taxonomy": [],
+   "facets": {
+    "year": [
+     "2025"
+    ],
+    "area": [
+     "signal-processing"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/en/record-9011/"
+  },
+  {
+   "post_id": 9012,
+   "locale": "en",
+   "post_type": "lps_project",
+   "title": "Qualidade de Dados Industriais",
+   "acronym": "QDI",
+   "doi": "",
+   "orcid": "",
+   "summary": "Governança e qualidade de dados de processo",
+   "body": "Texto.",
+   "taxonomy": [],
+   "facets": {
+    "status": [
+     "active"
+    ],
+    "area": [
+     "instrumentation"
+    ],
+    "domain": [
+     "oil-and-gas"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/en/record-9012/"
+  },
+  {
+   "post_id": 9013,
+   "locale": "en",
+   "post_type": "lps_news",
+   "title": "Laboratório inaugura bancada de ensaios acústicos",
+   "acronym": "",
+   "doi": "",
+   "orcid": "",
+   "summary": "Nova bancada de ensaios acústicos entra em operação",
+   "body": "Texto.",
+   "taxonomy": [],
+   "facets": {
+    "year": [
+     "2025"
+    ],
+    "category": [
+     "institucional"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/en/record-9013/"
+  },
+  {
+   "post_id": 9014,
+   "locale": "en",
+   "post_type": "lps_event",
+   "title": "Seminário de Processamento Digital de Sinais",
+   "acronym": "SPDS",
+   "doi": "",
+   "orcid": "",
+   "summary": "Seminário anual sobre processamento digital de sinais",
+   "body": "Programação.",
+   "taxonomy": [],
+   "facets": {
+    "date": [
+     "2025"
+    ],
+    "type": [
+     "seminar"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/en/record-9014/"
+  },
+  {
+   "post_id": 9015,
+   "locale": "en",
+   "post_type": "lps_opportunity",
+   "title": "Bolsa de mestrado em aprendizado de máquina",
+   "acronym": "",
+   "doi": "",
+   "orcid": "",
+   "summary": "Vaga de mestrado em aprendizado de máquina aplicado",
+   "body": "Texto.",
+   "taxonomy": [],
+   "facets": {
+    "state": [
+     "open"
+    ],
+    "type": [
+     "scholarship"
+    ],
+    "audience": [
+     "students"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/en/record-9015/"
+  },
+  {
+   "post_id": 9016,
+   "locale": "en",
+   "post_type": "lps_publication",
+   "title": "Análise espectral de vibrações mecânicas",
+   "acronym": "",
+   "doi": "10.1000/lps.vibra",
+   "orcid": "",
+   "summary": "Análise espectral aplicada a vibrações mecânicas",
+   "body": "Texto.",
+   "taxonomy": [],
+   "facets": {
+    "year": [
+     "2025"
+    ],
+    "area": [
+     "signal-processing"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/en/record-9016/"
+  },
+  {
+   "post_id": 9017,
+   "locale": "en",
+   "post_type": "lps_person",
+   "title": "Renata Guimarães",
+   "acronym": "",
+   "doi": "",
+   "orcid": "0000-0004-5555-6666",
+   "summary": "Pesquisadora em óptica aplicada",
+   "body": "Perfil.",
+   "taxonomy": [],
+   "facets": {
+    "status": [
+     "active"
+    ],
+    "area": [
+     "instrumentation"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/en/record-9017/"
+  },
+  {
+   "post_id": 9018,
+   "locale": "en",
+   "post_type": "lps_project",
+   "title": "Ensaios Não Destrutivos Avançados",
+   "acronym": "ENDA",
+   "doi": "",
+   "orcid": "",
+   "summary": "Ensaios não destrutivos com ultrassom avançado",
+   "body": "Texto.",
+   "taxonomy": [],
+   "facets": {
+    "status": [
+     "active"
+    ],
+    "area": [
+     "instrumentation"
+    ],
+    "domain": [
+     "oil-and-gas"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/en/record-9018/"
+  },
+  {
+   "post_id": 9019,
+   "locale": "en",
+   "post_type": "lps_publication",
+   "title": "Modelagem de reatores nucleares compactos",
+   "acronym": "",
+   "doi": "10.1000/lps.reator",
+   "orcid": "",
+   "summary": "Modelagem térmica de reatores compactos",
+   "body": "Texto.",
+   "taxonomy": [],
+   "facets": {
+    "year": [
+     "2025"
+    ],
+    "area": [
+     "signal-processing"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/en/record-9019/"
+  },
+  {
+   "post_id": 9020,
+   "locale": "en",
+   "post_type": "lps_research_area",
+   "title": "Instrumentação e Confiabilidade",
+   "acronym": "",
+   "doi": "",
+   "orcid": "",
+   "summary": "Linha de pesquisa em instrumentação e confiabilidade",
+   "body": "Texto.",
+   "taxonomy": [],
+   "facets": {},
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/en/record-9020/"
+  },
+  {
+   "post_id": 9021,
+   "locale": "en",
+   "post_type": "lps_publication",
+   "title": "Fusão de sensores para navegação submarina",
+   "acronym": "",
+   "doi": "10.1000/lps.subm",
+   "orcid": "",
+   "summary": "Fusão de sensores aplicada à navegação submarina",
+   "body": "Texto.",
+   "taxonomy": [],
+   "facets": {
+    "year": [
+     "2025"
+    ],
+    "area": [
+     "signal-processing"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/en/record-9021/"
+  },
+  {
+   "post_id": 9022,
+   "locale": "en",
+   "post_type": "lps_news",
+   "title": "Convênio com a Marinha do Brasil",
+   "acronym": "",
+   "doi": "",
+   "orcid": "",
+   "summary": "Novo convênio de cooperação técnica com a Marinha",
+   "body": "Texto.",
+   "taxonomy": [],
+   "facets": {
+    "year": [
+     "2025"
+    ],
+    "category": [
+     "institucional"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/en/record-9022/"
+  },
+  {
+   "post_id": 9023,
+   "locale": "en",
+   "post_type": "lps_project",
+   "title": "Plataforma Aberta de Telemetria",
+   "acronym": "PATEL",
+   "doi": "",
+   "orcid": "",
+   "summary": "Telemetria aberta para experimentos de campo",
+   "body": "Texto.",
+   "taxonomy": [],
+   "facets": {
+    "status": [
+     "active"
+    ],
+    "area": [
+     "instrumentation"
+    ],
+    "domain": [
+     "oil-and-gas"
+    ]
+   },
+   "published_at": "2025-03-01 00:00:00",
+   "url": "/en/record-9023/"
+  }
+ ],
+ "queries": [
+  {
+   "query": "Jose Alvarez",
+   "locale": "pt-br",
+   "expected_post_id": 1001,
+   "channel": "name without accents"
+  },
+  {
+   "query": "0000-0002-1825-0097",
+   "locale": "pt-br",
+   "expected_post_id": 1002,
+   "channel": "orcid"
+  },
+  {
+   "query": "10.1000/lps.falhas",
+   "locale": "pt-br",
+   "expected_post_id": 1003,
+   "channel": "doi"
+  },
+  {
+   "query": "SIGMA",
+   "locale": "pt-br",
+   "expected_post_id": 1004,
+   "channel": "acronym"
+  },
+  {
+   "query": "sinais sismicos",
+   "locale": "pt-br",
+   "expected_post_id": 1005,
+   "channel": "plain concept"
+  },
+  {
+   "query": "dutos de petroleo",
+   "locale": "pt-br",
+   "expected_post_id": 1006,
+   "channel": "plain concept"
+  },
+  {
+   "query": "Ana Claudia Sa",
+   "locale": "pt-br",
+   "expected_post_id": 1007,
+   "channel": "name without accents"
+  },
+  {
+   "query": "calibracao de detectores",
+   "locale": "pt-br",
+   "expected_post_id": 1008,
+   "channel": "plain concept"
+  },
+  {
+   "query": "termografia",
+   "locale": "pt-br",
+   "expected_post_id": 1009,
+   "channel": "concept"
+  },
+  {
+   "query": "diagnostico veterinario",
+   "locale": "pt-br",
+   "expected_post_id": 1010,
+   "channel": "concept"
+  },
+  {
+   "query": "Marcio Fontes",
+   "locale": "pt-br",
+   "expected_post_id": 1011,
+   "channel": "name without accents"
+  },
+  {
+   "query": "reconstrucao tomografica",
+   "locale": "pt-br",
+   "expected_post_id": 1012,
+   "channel": "concept"
+  },
+  {
+   "query": "qualidade de dados",
+   "locale": "pt-br",
+   "expected_post_id": 1013,
+   "channel": "concept"
+  },
+  {
+   "query": "bancada de ensaios acusticos",
+   "locale": "pt-br",
+   "expected_post_id": 1014,
+   "channel": "concept"
+  },
+  {
+   "query": "SPDS",
+   "locale": "pt-br",
+   "expected_post_id": 1015,
+   "channel": "acronym"
+  },
+  {
+   "query": "bolsa de mestrado",
+   "locale": "pt-br",
+   "expected_post_id": 1016,
+   "channel": "concept"
+  },
+  {
+   "query": "vibracoes mecanicas",
+   "locale": "pt-br",
+   "expected_post_id": 1017,
+   "channel": "concept"
+  },
+  {
+   "query": "Renata Guimaraes",
+   "locale": "pt-br",
+   "expected_post_id": 1018,
+   "channel": "name without accents"
+  },
+  {
+   "query": "ultrassom",
+   "locale": "pt-br",
+   "expected_post_id": 1019,
+   "channel": "concept"
+  },
+  {
+   "query": "reatores nucleares",
+   "locale": "pt-br",
+   "expected_post_id": 1020,
+   "channel": "concept"
+  },
+  {
+   "query": "confiabilidade",
+   "locale": "pt-br",
+   "expected_post_id": 1021,
+   "channel": "concept"
+  },
+  {
+   "query": "navegacao submarina",
+   "locale": "pt-br",
+   "expected_post_id": 1022,
+   "channel": "concept"
+  },
+  {
+   "query": "convenio Marinha",
+   "locale": "pt-br",
+   "expected_post_id": 1023,
+   "channel": "concept"
+  },
+  {
+   "query": "PATEL",
+   "locale": "pt-br",
+   "expected_post_id": 1024,
+   "channel": "acronym"
+  }
+ ]
+}

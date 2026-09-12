@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "inventoryRecord": "record-010",
+  "collection": "person",
+  "postType": "lps_person",
+  "recordKey": "jose-manoel-de-seixas",
+  "disposition": "migrate",
+  "governance": {
+    "ownerRole": "section-editor",
+    "namedOwner": null,
+    "ownerCandidate": "Person or LPS academic leadership",
+    "reviewCadence": "P90D",
+    "lastReviewedAt": "2026-09-06",
+    "nextReviewDate": "2026-12-05",
+    "reviewState": "candidate",
+    "editorialState": "draft",
+    "publishGate": {
+      "state": "draft",
+      "blockers": [
+        "named-role-and-collection-assignments",
+        "translation-review-pending",
+        "privacy-legal-bases",
+        "person-photo-rights-and-privacy-review-unresolved",
+        "third-party-listed-email-not-approved-for-publication"
+      ]
+    },
+    "rights": {
+      "state": "public-record",
+      "basis": "Public institutional profile page published under the lps.ufrj.br site. An email address and telephone number appear on a third-party EMBRAPII/COPPE directory listing; a directory listing is not evidence of an intended public contact route, so neither was migrated.",
+      "assetsIncluded": [],
+      "personalDataPublished": false
+    },
+    "provenance": {
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/seixas/in%C3%ADcio",
+      "inventoryProvenance": "live-http",
+      "inventoryCapturedAt": "2026-08-30T23:03:43Z",
+      "inventoryChecksum": "sha256:fa3adb8a8fa2030d63c21f76b60cae9c5ff754466175d4bf947f1c532c9fae09",
+      "reverification": {
+        "method": "anonymous public HTTP GET",
+        "evidenceFile": "content/corpus/evidence/record-010.txt"
+      }
+    },
+    "relationships": []
+  },
+  "meta": {
+    "_lps_canonical_name": "José Manoel de Seixas",
+    "_lps_sort_name": "Seixas, José Manoel de",
+    "_lps_person_status": "active",
+    "_lps_roles": ["professor-titular"],
+    "_lps_affiliations": ["Universidade Federal do Rio de Janeiro"],
+    "_lps_photo_rights": "not-cleared",
+    "_lps_privacy_reviewed": false
+  },
+  "locales": {
+    "pt-br": {
+      "title": "José Manoel de Seixas",
+      "slug": "jose-manoel-de-seixas",
+      "excerpt": "Professor Titular da UFRJ, com atuação em inteligência computacional, calorimetria de altas energias, tecnologia sonar, processamento de sinais e instrumentação eletrônica.",
+      "content": [
+        "José Manoel de Seixas é graduado em Matemática (1979) e em Engenharia Elétrica (1979) pela Pontifícia Universidade Católica do Rio de Janeiro, mestre em Engenharia Elétrica (1983) e doutor em Engenharia Elétrica (1994) pela Universidade Federal do Rio de Janeiro.",
+        "Atualmente é Professor Titular da Universidade Federal do Rio de Janeiro.",
+        "Tem experiência na área de Engenharia Elétrica, com ênfase em circuitos elétricos, magnéticos e eletrônicos, atuando principalmente em inteligência computacional, calorimetria de altas energias, tecnologia sonar, processamento de sinais e instrumentação eletrônica.",
+        "Um perfil institucional de terceiros publica telefone e endereço de e-mail associados a este docente. Esses dados não foram migrados: uma listagem de diretório não constitui evidência de canal público de contato autorizado."
+      ]
+    },
+    "en": {
+      "title": "José Manoel de Seixas",
+      "slug": "jose-manoel-de-seixas",
+      "excerpt": "Full professor at UFRJ working on computational intelligence, high-energy calorimetry, sonar technology, signal processing and electronic instrumentation.",
+      "content": [
+        "José Manoel de Seixas holds undergraduate degrees in Mathematics (1979) and Electrical Engineering (1979) from the Pontifical Catholic University of Rio de Janeiro, a master's degree in Electrical Engineering (1983) and a doctorate in Electrical Engineering (1994) from the Federal University of Rio de Janeiro.",
+        "He is currently a full professor at the Federal University of Rio de Janeiro.",
+        "His experience is in Electrical Engineering, with emphasis on electrical, magnetic and electronic circuits, working mainly on computational intelligence, high-energy calorimetry, sonar technology, signal processing and electronic instrumentation.",
+        "A third-party institutional profile publishes a telephone number and an email address associated with this professor. Neither was migrated: a directory listing is not evidence of an authorised public contact route."
+      ],
+      "translation": {
+        "authoritativeLocale": "pt-br",
+        "method": "editorial-translation-by-migration-agent",
+        "machineTranslated": false,
+        "translatorRole": "translator",
+        "reviewerRole": "section-editor",
+        "reviewedBy": null,
+        "reviewState": "pending-independent-review"
+      }
+    }
+  },
+  "claims": [
+    {
+      "statement": "Degrees in Mathematics and Electrical Engineering (PUC-Rio, 1979), master's (1983) and doctorate (1994) at UFRJ.",
+      "evidenceQuote": "Possui graduação em Matemática pela Pontifícia Universidade Católica do Rio de Janeiro (1979), graduação em Engenharia Elétrica pela Pontifícia Universidade Católica do Rio de Janeiro (1979), mestrado em Engenharia Elétrica pela Universidade Federal do Rio de Janeiro (1983) e doutorado em Engenharia Elétrica pela Universidade Federal do Rio de Janeiro (1994).",
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/seixas/in%C3%ADcio"
+    },
+    {
+      "statement": "Currently a full professor at UFRJ with the listed research emphases.",
+      "evidenceQuote": "Atualmente é Professor Titular da Universidade Federal do Rio de Janeiro.",
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/seixas/in%C3%ADcio"
+    }
+  ]
+}

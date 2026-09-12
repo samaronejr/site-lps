@@ -1,0 +1,304 @@
+{
+  "schemaVersion": 1,
+  "policyVersion": "governance-v1",
+  "roles": [
+    "contributor",
+    "translator",
+    "section-editor",
+    "publisher",
+    "administrator",
+    "privacy-auditor",
+    "deployer"
+  ],
+  "staffing": {
+    "minimumAccounts": {
+      "contributor": 1,
+      "publisher": 2,
+      "administrator": 1,
+      "section-editor": 1,
+      "translator": 1,
+      "privacy-auditor": 1,
+      "deployer": 1
+    },
+    "mfaRoles": ["publisher", "administrator"],
+    "sharedAccountsForbidden": true,
+    "contributorSelfPublishingForbidden": true,
+    "independentTranslationReviewRequired": true
+  },
+  "launchBlockers": [
+    {
+      "id": "named-role-and-collection-assignments",
+      "status": "unresolved",
+      "condition": "No people have been named to the required roles or collection-owner assignments."
+    },
+    {
+      "id": "privacy-legal-bases",
+      "status": "unresolved",
+      "condition": "No legal basis for public personal-data processing has been documented."
+    },
+    {
+      "id": "public-correction-and-takedown-contact",
+      "status": "unresolved",
+      "condition": "No owned public correction or takedown contact route has been confirmed."
+    },
+    {
+      "id": "accessibility-contact",
+      "status": "unresolved",
+      "condition": "No accessibility reporting contact has been named."
+    }
+  ],
+  "collections": [
+    {
+      "id": "site-settings",
+      "ownerRole": "administrator",
+      "sourcePriority": ["official-lps-record", "official-ufrj-coppe-record"],
+      "reviewCadence": "P90D",
+      "expiryRule": "Review immediately after an official institutional change.",
+      "translation": {
+        "obligation": "required",
+        "reviewerRole": "section-editor",
+        "reviewRequired": true
+      },
+      "archiveRule": "Supersede through a revision; retain the revision history.",
+      "correctionPath": {
+        "correction": "section-editor-to-publisher",
+        "takedown": "publisher-and-privacy-auditor",
+        "publicRoute": "unresolved"
+      }
+    },
+    {
+      "id": "page",
+      "ownerRole": "section-editor",
+      "sourcePriority": [
+        "official-lps-record",
+        "official-ufrj-coppe-record",
+        "verified-primary-source"
+      ],
+      "reviewCadence": "P180D",
+      "expiryRule": "Withdraw or revise when its scoped claim is no longer current.",
+      "translation": {
+        "obligation": "required",
+        "reviewerRole": "section-editor",
+        "reviewRequired": true
+      },
+      "archiveRule": "Archive superseded pages with provenance and a replacement or deliberate retirement decision.",
+      "correctionPath": {
+        "correction": "section-editor-to-publisher",
+        "takedown": "publisher-and-privacy-auditor",
+        "publicRoute": "unresolved"
+      }
+    },
+    {
+      "id": "person",
+      "ownerRole": "section-editor",
+      "sourcePriority": [
+        "official-lps-record",
+        "official-ufrj-coppe-record",
+        "verified-primary-source"
+      ],
+      "reviewCadence": "P90D",
+      "expiryRule": "Review immediately on affiliation, role, public-contact, or privacy-status change.",
+      "translation": {
+        "obligation": "required",
+        "reviewerRole": "section-editor",
+        "reviewRequired": true
+      },
+      "archiveRule": "Archive departed profiles while retaining attributable historical relationships.",
+      "correctionPath": {
+        "correction": "section-editor-to-publisher",
+        "takedown": "publisher-and-privacy-auditor",
+        "publicRoute": "unresolved"
+      }
+    },
+    {
+      "id": "organization",
+      "ownerRole": "section-editor",
+      "sourcePriority": [
+        "official-organization-record",
+        "official-lps-record",
+        "official-ufrj-coppe-record"
+      ],
+      "reviewCadence": "P180D",
+      "expiryRule": "Review immediately when public-profile status, affiliation, or canonical URL changes.",
+      "translation": {
+        "obligation": "required",
+        "reviewerRole": "section-editor",
+        "reviewRequired": true
+      },
+      "archiveRule": "Archive ended relationships and preserve sourced historical context.",
+      "correctionPath": {
+        "correction": "section-editor-to-publisher",
+        "takedown": "publisher-and-privacy-auditor",
+        "publicRoute": "unresolved"
+      }
+    },
+    {
+      "id": "research-area",
+      "ownerRole": "section-editor",
+      "sourcePriority": ["official-lps-record", "official-ufrj-coppe-record"],
+      "reviewCadence": "P180D",
+      "expiryRule": "Revise only after the controlled vocabulary is approved or superseded.",
+      "translation": {
+        "obligation": "required",
+        "reviewerRole": "section-editor",
+        "reviewRequired": true
+      },
+      "archiveRule": "Retire a superseded term from navigation while preserving mapped historical records.",
+      "correctionPath": {
+        "correction": "section-editor-to-publisher",
+        "takedown": "publisher-and-privacy-auditor",
+        "publicRoute": "unresolved"
+      }
+    },
+    {
+      "id": "project",
+      "ownerRole": "section-editor",
+      "sourcePriority": [
+        "official-lps-record",
+        "official-funder-or-partner-record",
+        "verified-primary-source"
+      ],
+      "reviewCadence": "P90D",
+      "expiryRule": "Review immediately on status, dates, funding, partner, or participant change.",
+      "translation": {
+        "obligation": "required",
+        "reviewerRole": "section-editor",
+        "reviewRequired": true
+      },
+      "archiveRule": "Archive completed projects with dates, provenance, and stable relationships.",
+      "correctionPath": {
+        "correction": "section-editor-to-publisher",
+        "takedown": "publisher-and-privacy-auditor",
+        "publicRoute": "unresolved"
+      }
+    },
+    {
+      "id": "publication",
+      "ownerRole": "section-editor",
+      "sourcePriority": [
+        "authoritative-identifier-registry",
+        "official-publisher-record",
+        "official-lps-record"
+      ],
+      "reviewCadence": "P365D",
+      "expiryRule": "Correct bibliographic metadata when an authoritative source changes it.",
+      "translation": {
+        "obligation": "required",
+        "reviewerRole": "section-editor",
+        "reviewRequired": true
+      },
+      "archiveRule": "Retain publication records and correct them by revision rather than removal where possible.",
+      "correctionPath": {
+        "correction": "section-editor-to-publisher",
+        "takedown": "publisher-and-privacy-auditor",
+        "publicRoute": "unresolved"
+      }
+    },
+    {
+      "id": "opportunity",
+      "ownerRole": "section-editor",
+      "sourcePriority": [
+        "official-lps-record",
+        "official-ufrj-coppe-record",
+        "official-funder-or-partner-record"
+      ],
+      "reviewCadence": "P30D",
+      "expiryRule": "Derive open or closed state from recorded dates and review immediately when dates change.",
+      "translation": {
+        "obligation": "required",
+        "reviewerRole": "section-editor",
+        "reviewRequired": true
+      },
+      "archiveRule": "Keep closed opportunities stable and noindex after 90 days; retain provenance.",
+      "correctionPath": {
+        "correction": "section-editor-to-publisher",
+        "takedown": "publisher-and-privacy-auditor",
+        "publicRoute": "unresolved"
+      }
+    },
+    {
+      "id": "news",
+      "ownerRole": "section-editor",
+      "sourcePriority": [
+        "official-lps-record",
+        "official-ufrj-coppe-record",
+        "verified-primary-source"
+      ],
+      "reviewCadence": "P365D",
+      "expiryRule": "Correct or annotate time-sensitive claims when they become inaccurate.",
+      "translation": {
+        "obligation": "optional",
+        "reviewerRole": "section-editor",
+        "reviewRequired": true
+      },
+      "archiveRule": "Archive as a dated record; do not present it as current news.",
+      "correctionPath": {
+        "correction": "section-editor-to-publisher",
+        "takedown": "publisher-and-privacy-auditor",
+        "publicRoute": "unresolved"
+      }
+    },
+    {
+      "id": "event",
+      "ownerRole": "section-editor",
+      "sourcePriority": [
+        "official-lps-record",
+        "official-ufrj-coppe-record",
+        "official-organizer-record"
+      ],
+      "reviewCadence": "P30D",
+      "expiryRule": "Derive status from dates and publish cancellation or postponement as an explicit status.",
+      "translation": {
+        "obligation": "optional",
+        "reviewerRole": "section-editor",
+        "reviewRequired": true
+      },
+      "archiveRule": "Archive past events with recorded status, dates, and provenance.",
+      "correctionPath": {
+        "correction": "section-editor-to-publisher",
+        "takedown": "publisher-and-privacy-auditor",
+        "publicRoute": "unresolved"
+      }
+    },
+    {
+      "id": "media-asset",
+      "ownerRole": "privacy-auditor",
+      "sourcePriority": [
+        "rights-holder-record",
+        "official-lps-record",
+        "official-ufrj-coppe-record"
+      ],
+      "reviewCadence": "P365D",
+      "expiryRule": "Review immediately when rights, privacy, accessibility, or usage context changes.",
+      "translation": {
+        "obligation": "localized-per-use",
+        "reviewerRole": "section-editor",
+        "reviewRequired": true
+      },
+      "archiveRule": "Restrict unpublishable assets; retain provenance and review evidence without public reuse.",
+      "correctionPath": {
+        "correction": "section-editor-to-publisher",
+        "takedown": "publisher-and-privacy-auditor",
+        "publicRoute": "unresolved"
+      }
+    },
+    {
+      "id": "redirect",
+      "ownerRole": "administrator",
+      "sourcePriority": ["migration-inventory-record", "official-lps-record"],
+      "reviewCadence": "P365D",
+      "expiryRule": "Review after destination, canonical URL, or retirement status changes.",
+      "translation": {
+        "obligation": "not-localized",
+        "reviewerRole": "not-applicable",
+        "reviewRequired": false
+      },
+      "archiveRule": "Retain redirect or deliberate 410 history and prevent redirect chains.",
+      "correctionPath": {
+        "correction": "section-editor-to-publisher",
+        "takedown": "publisher-and-privacy-auditor",
+        "publicRoute": "unresolved"
+      }
+    }
+  ]
+}

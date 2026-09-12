@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "inventoryRecord": "record-016",
+  "collection": "page",
+  "postType": "page",
+  "recordKey": "infrastructure",
+  "disposition": "migrate",
+  "governance": {
+    "ownerRole": "section-editor",
+    "namedOwner": null,
+    "ownerCandidate": "LPS infrastructure owner",
+    "reviewCadence": "P180D",
+    "lastReviewedAt": "2026-09-06",
+    "nextReviewDate": "2027-03-05",
+    "reviewState": "current-review-required",
+    "editorialState": "draft",
+    "publishGate": {
+      "state": "draft",
+      "blockers": [
+        "named-role-and-collection-assignments",
+        "translation-review-pending",
+        "third-party-infrastructure-claims-require-lps-owner-confirmation",
+        "third-party-listed-email-not-approved-for-publication"
+      ]
+    },
+    "rights": {
+      "state": "public-record",
+      "basis": "Public EMBRAPII/COPPE laboratory directory profile. The page is externally maintained: its figures describe the laboratory as recorded by a third party and are attributed as such rather than asserted as current LPS facts.",
+      "assetsIncluded": [],
+      "personalDataPublished": false
+    },
+    "provenance": {
+      "sourceUrl": "https://www.embrapii.coppe.ufrj.br/laboratorios/1228/lps-laboratorio-de-processamento-de-sinais",
+      "inventoryProvenance": "institutional-profile",
+      "inventoryCapturedAt": "2026-08-30T23:03:43Z",
+      "inventoryChecksum": "sha256:f6c79f56fef01178a2a6d2466c2b67f76e19da4b97372326b6931c1ae91cbb24",
+      "reverification": {
+        "method": "anonymous public HTTP GET",
+        "evidenceFile": "content/corpus/evidence/record-016.txt"
+      }
+    },
+    "relationships": [
+      { "type": "related_record", "target": "record-001", "role": "context", "order": 1 }
+    ]
+  },
+  "meta": {
+    "_lps_page_key": "infrastructure",
+    "_lps_affiliation": "Programa de Engenharia Elétrica, COPPE/UFRJ"
+  },
+  "locales": {
+    "pt-br": {
+      "title": "Infraestrutura",
+      "slug": "infraestrutura",
+      "excerpt": "Descrição da infraestrutura do LPS registrada no perfil público EMBRAPII/COPPE, pendente de confirmação pelo responsável do laboratório.",
+      "content": [
+        "Segundo o perfil público de laboratórios da EMBRAPII/COPPE, as principais áreas de atuação do LPS, vinculado ao Programa de Engenharia Elétrica, são instrumentação eletrônica, processamento analógico e digital de sinais, engenharia de software e inteligência computacional.",
+        "O mesmo perfil registra que empresas de base tecnológica foram criadas no âmbito do laboratório e que o LPS mantém contato com empresas em projetos de alta relevância; entre as organizações citadas estão Petrobras, Eletrobras, Embraer, Inmetro, Empresa de Pesquisa Energética, OLX, National Instruments, Samsung e Murabei.",
+        "Quanto às instalações, o perfil descreve uma ocupação de 310 m², com sala para apresentação de palestras e reuniões virtuais, sala acústica, cerca de 40 computadores pessoais interconectados no domínio LPS, software para desenvolvimento de dispositivos programáveis e equipamentos de instrumentação para desenvolvimento e análise de sistemas.",
+        "Estas informações são atribuídas ao perfil de terceiros e mantidas com atribuição explícita. A fonte não indica data de atualização, por isso os números permanecem sujeitos à confirmação do responsável pela infraestrutura do LPS antes de qualquer publicação. Os dados de contato exibidos naquele perfil não foram migrados."
+      ]
+    },
+    "en": {
+      "title": "Infrastructure",
+      "slug": "infrastructure",
+      "excerpt": "Description of the LPS infrastructure recorded on the public EMBRAPII/COPPE profile, pending confirmation by the laboratory owner.",
+      "content": [
+        "According to the public EMBRAPII/COPPE laboratory directory, the main areas of activity of LPS, which is attached to the Electrical Engineering Programme, are electronic instrumentation, analogue and digital signal processing, software engineering and computational intelligence.",
+        "The same profile records that technology-based companies have been created within the laboratory and that LPS maintains contact with industry on high-relevance projects; the organisations it names include Petrobras, Eletrobras, Embraer, Inmetro, Empresa de Pesquisa Energética, OLX, National Instruments, Samsung and Murabei.",
+        "On facilities, the profile describes 310 m² of space with a room for talks and virtual meetings, an acoustic room, around 40 personal computers interconnected in the LPS domain, software for programmable device development and instrumentation equipment for system development and analysis.",
+        "This information is attributed to the third-party profile and is kept with that attribution. The source carries no update date, so the figures remain subject to confirmation by the LPS infrastructure owner before any publication. The contact details shown on that profile were not migrated."
+      ],
+      "translation": {
+        "authoritativeLocale": "pt-br",
+        "method": "editorial-translation-by-migration-agent",
+        "machineTranslated": false,
+        "translatorRole": "translator",
+        "reviewerRole": "section-editor",
+        "reviewedBy": null,
+        "reviewState": "pending-independent-review"
+      }
+    }
+  },
+  "claims": [
+    {
+      "statement": "The EMBRAPII/COPPE profile lists electronic instrumentation, analogue and digital signal processing, software engineering and computational intelligence as the main areas.",
+      "evidenceQuote": "As principais áreas de atuação são a instrumentação eletrônica, processamento analógico e digital de sinais, engenharia de software e inteligência computacional.",
+      "sourceUrl": "https://www.embrapii.coppe.ufrj.br/laboratorios/1228/lps-laboratorio-de-processamento-de-sinais"
+    },
+    {
+      "statement": "The profile records 310 m² of facilities and about 40 interconnected personal computers.",
+      "evidenceQuote": "Ocupando amplas instalações de 310 m2",
+      "sourceUrl": "https://www.embrapii.coppe.ufrj.br/laboratorios/1228/lps-laboratorio-de-processamento-de-sinais"
+    },
+    {
+      "statement": "The profile names partner companies.",
+      "evidenceQuote": "Petrobras, Eletrobras, Embraer, Inmetro, Empresa de Pesquisa Energética, OLX, National Instruments, Samsung e Murabei",
+      "sourceUrl": "https://www.embrapii.coppe.ufrj.br/laboratorios/1228/lps-laboratorio-de-processamento-de-sinais"
+    }
+  ]
+}

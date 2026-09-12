@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "inventoryRecord": "record-008",
+  "collection": "person",
+  "postType": "lps_person",
+  "recordKey": "luiz-pereira-caloba",
+  "disposition": "migrate",
+  "governance": {
+    "ownerRole": "section-editor",
+    "namedOwner": null,
+    "ownerCandidate": "Person or LPS academic leadership",
+    "reviewCadence": "P90D",
+    "lastReviewedAt": "2026-09-06",
+    "nextReviewDate": "2026-12-05",
+    "reviewState": "candidate",
+    "editorialState": "draft",
+    "publishGate": {
+      "state": "draft",
+      "blockers": [
+        "named-role-and-collection-assignments",
+        "translation-review-pending",
+        "privacy-legal-bases",
+        "person-photo-rights-and-privacy-review-unresolved"
+      ]
+    },
+    "rights": {
+      "state": "public-record",
+      "basis": "Public institutional profile page published under the lps.ufrj.br site. Personal contact details and portraits are excluded: no documentary evidence identifies them as intended public contact or cleared media.",
+      "assetsIncluded": [],
+      "personalDataPublished": false
+    },
+    "provenance": {
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/caloba/in%C3%ADcio",
+      "inventoryProvenance": "live-http",
+      "inventoryCapturedAt": "2026-08-30T23:03:43Z",
+      "inventoryChecksum": "sha256:c316314857c3025d03edf5e8676af440d55ee4d4947623c36a49607af45c9e91",
+      "reverification": {
+        "method": "anonymous public HTTP GET",
+        "evidenceFile": "content/corpus/evidence/record-008.txt"
+      }
+    },
+    "relationships": []
+  },
+  "meta": {
+    "_lps_canonical_name": "Luiz Pereira Calôba",
+    "_lps_sort_name": "Calôba, Luiz Pereira",
+    "_lps_person_status": "active",
+    "_lps_roles": ["professor-titular-emerito"],
+    "_lps_affiliations": ["COPPE/UFRJ", "Escola Politécnica, UFRJ"],
+    "_lps_photo_rights": "not-cleared",
+    "_lps_privacy_reviewed": false
+  },
+  "locales": {
+    "pt-br": {
+      "title": "Luiz Pereira Calôba",
+      "slug": "luiz-pereira-caloba",
+      "excerpt": "Professor Titular (Emérito) da UFRJ, atuando na COPPE e na Escola Politécnica, com pesquisa em processamento de sinais e redes neurais.",
+      "content": [
+        "Luiz Pereira Calôba nasceu em 1944 no Rio de Janeiro. É Engenheiro Eletrônico pela UFRJ (1969), M.Sc.EE pela UFRJ (1970), Dr. Ing. pela Universidade de Grenoble I (1974) e Livre Docente pela UFRJ (1987). Ingressou como docente na UFRJ em 1974, onde é Professor Titular (Emérito), atuando na COPPE e na Escola Politécnica.",
+        "Na UFRJ foi Vice-Diretor da Escola Politécnica, Coordenador da COPPETEC, Coordenador do Programa de Engenharia Elétrica da COPPE e membro do Conselho de Pesquisas e Ensino para Graduados e do Conselho Universitário. Atuou como consultor ad-hoc de agências de fomento e foi Coordenador (Representante) das Engenharias IV e membro do Conselho Técnico Científico da CAPES entre 1995 e 1999.",
+        "Após o doutoramento atuou inicialmente em filtros ativos. Em 1988 iniciou e coordenou por dez anos a colaboração entre a UFRJ e o CERN na área de processamento de sinais para física de altas energias, colaboração na qual segue atuando. Sua área principal de pesquisa é processamento de sinais e aplicações, com interesse especial em redes neurais; seus cursos iniciados em 1989 contribuíram para a difusão da área nas engenharias no Brasil.",
+        "Orientou ou coorientou 18 teses de doutorado e 60 dissertações de mestrado e tem cerca de 300 trabalhos completos publicados, mais da metade em periódicos internacionais. Presidiu o Conselho Nacional de Redes Neurais (1995-1999) e a Sociedade Brasileira de Automática (1999-2001). Recebeu em 2007 a comenda da Ordem Nacional do Mérito Científico, foi escolhido Honorary Chairman do IEEE International Symposium on Circuits and Systems em 2011 e foi eleito membro da Academia Nacional de Engenharia em 2013."
+      ]
+    },
+    "en": {
+      "title": "Luiz Pereira Calôba",
+      "slug": "luiz-pereira-caloba",
+      "excerpt": "Emeritus full professor at UFRJ, active at COPPE and the Polytechnic School, researching signal processing and neural networks.",
+      "content": [
+        "Luiz Pereira Calôba was born in Rio de Janeiro in 1944. He holds an Electronic Engineering degree from UFRJ (1969), an M.Sc.EE from UFRJ (1970), a Dr. Ing. from the University of Grenoble I (1974) and the Livre Docente qualification from UFRJ (1987). He joined UFRJ as a lecturer in 1974 and is an emeritus full professor there, working at COPPE and the Polytechnic School.",
+        "At UFRJ he served as Deputy Director of the Polytechnic School, Coordinator of COPPETEC, Coordinator of the COPPE Electrical Engineering Programme, and member of the Graduate Research and Teaching Council and of the University Council. He acted as an ad-hoc consultant for funding agencies and was area representative for Engineering IV and a member of the CAPES Scientific and Technical Council between 1995 and 1999.",
+        "After his doctorate he first worked on active filters. In 1988 he initiated and then coordinated for ten years the collaboration between UFRJ and CERN on signal processing for high-energy physics, in which he remains active. His main research area is signal processing and its applications, with a particular interest in neural networks; the courses he began in 1989 helped establish the field within Brazilian engineering.",
+        "He has supervised or co-supervised 18 doctoral theses and 60 master's dissertations and has around 300 full published works, more than half of them in international journals. He chaired the Brazilian National Neural Network Council (1995-1999) and the Brazilian Society of Automatics (1999-2001). In 2007 he received the National Order of Scientific Merit, in 2011 he was named Honorary Chairman of the IEEE International Symposium on Circuits and Systems, and in 2013 he was elected a member of the National Academy of Engineering."
+      ],
+      "translation": {
+        "authoritativeLocale": "pt-br",
+        "method": "editorial-translation-by-migration-agent",
+        "machineTranslated": false,
+        "translatorRole": "translator",
+        "reviewerRole": "section-editor",
+        "reviewedBy": null,
+        "reviewState": "pending-independent-review"
+      }
+    }
+  },
+  "claims": [
+    {
+      "statement": "Born 1944 in Rio de Janeiro; degrees from UFRJ and Grenoble I.",
+      "evidenceQuote": "Luiz Pereira Calôba nasceu em 1944 no Rio de Janeiro. É Eng. Eletrônico (UFRJ, 1969), M.Sc.EE (UFRJ, 1970), Dr. Ing. (U.Grenoble I, 1974) e Livre Docente (UFRJ, 1987).",
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/caloba/in%C3%ADcio"
+    },
+    {
+      "statement": "In 1988 he initiated and coordinated the UFRJ-CERN signal processing collaboration for ten years.",
+      "evidenceQuote": "Em 1988 foi o iniciador e coordenador por dez anos da colaboração entre a UFRJ e o CERN na área de processamento de sinais para física de altas energias",
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/caloba/in%C3%ADcio"
+    },
+    {
+      "statement": "Supervision and publication record: 18 doctoral theses, 60 master's dissertations, about 300 full published works.",
+      "evidenceQuote": "orientou ou co-orientou 18 teses de doutorado e 60 de mestrado e tem cerca de 300 trabalhos completos publicados",
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/caloba/in%C3%ADcio"
+    },
+    {
+      "statement": "Distinctions in 2007, 2011 and 2013.",
+      "evidenceQuote": "Em 2007 recebeu a comenda da Ordem Nacional do Mérito Científico",
+      "sourceUrl": "https://sites.google.com/lps.ufrj.br/caloba/in%C3%ADcio"
+    }
+  ]
+}
