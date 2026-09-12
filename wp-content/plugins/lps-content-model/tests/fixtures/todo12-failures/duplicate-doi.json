@@ -1,1 +1,23 @@
-{"schema_version":"1.0","records":[{"source_id":"p1","type":"lps_publication","record_id":"lps:publication:10000000-0000-4000-8000-000000000001","title":"One","locale":"en","state":"draft","meta":{"_lps_doi":"10.5555/duplicate"}},{"source_id":"p2","type":"lps_publication","record_id":"lps:publication:10000000-0000-4000-8000-000000000002","title":"Two","locale":"en","state":"draft","meta":{"_lps_doi":"https://doi.org/10.5555/DUPLICATE"}}]}
+{
+  "schema_version": "1.0",
+  "records": [
+    {
+      "source_id": "p1",
+      "type": "lps_publication",
+      "record_id": "lps:publication:10000000-0000-4000-8000-000000000001",
+      "title": "One",
+      "locale": "en",
+      "state": "draft",
+      "meta": { "_lps_doi": "10.5555/duplicate" }
+    },
+    {
+      "source_id": "p2",
+      "type": "lps_publication",
+      "record_id": "lps:publication:10000000-0000-4000-8000-000000000002",
+      "title": "Two",
+      "locale": "en",
+      "state": "draft",
+      "meta": { "_lps_doi": "https://doi.org/10.5555/DUPLICATE" }
+    }
+  ]
+}

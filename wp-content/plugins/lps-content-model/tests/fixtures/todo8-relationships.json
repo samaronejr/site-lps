@@ -4,17 +4,83 @@
     {
       "publication_id": 16001,
       "rows": [
-        {"author_kind": "collective", "author_post_id": 0, "display_name": "LPS Collaboration", "orcid": "", "affiliation": "LPS", "author_role": "group-author", "sort_order": 3, "start_date": "", "end_date": "", "public_visibility": true},
-        {"author_kind": "internal", "author_post_id": 2001, "display_name": "", "orcid": "", "affiliation": "", "author_role": "author", "sort_order": 1, "start_date": "", "end_date": "", "public_visibility": true},
-        {"author_kind": "external", "author_post_id": 0, "display_name": "Ada External", "orcid": "https://orcid.org/0000-0002-1825-0097", "affiliation": "External University", "author_role": "author", "sort_order": 2, "start_date": "", "end_date": "", "public_visibility": true}
+        {
+          "author_kind": "collective",
+          "author_post_id": 0,
+          "display_name": "LPS Collaboration",
+          "orcid": "",
+          "affiliation": "LPS",
+          "author_role": "group-author",
+          "sort_order": 3,
+          "start_date": "",
+          "end_date": "",
+          "public_visibility": true
+        },
+        {
+          "author_kind": "internal",
+          "author_post_id": 2001,
+          "display_name": "",
+          "orcid": "",
+          "affiliation": "",
+          "author_role": "author",
+          "sort_order": 1,
+          "start_date": "",
+          "end_date": "",
+          "public_visibility": true
+        },
+        {
+          "author_kind": "external",
+          "author_post_id": 0,
+          "display_name": "Ada External",
+          "orcid": "https://orcid.org/0000-0002-1825-0097",
+          "affiliation": "External University",
+          "author_role": "author",
+          "sort_order": 2,
+          "start_date": "",
+          "end_date": "",
+          "public_visibility": true
+        }
       ]
     },
     {
       "publication_id": 18001,
       "rows": [
-        {"author_kind": "external", "author_post_id": 0, "display_name": "Ada External", "orcid": "0000-0002-1825-0097", "affiliation": "External University", "author_role": "author", "sort_order": 2, "start_date": "", "end_date": "", "public_visibility": true},
-        {"author_kind": "collective", "author_post_id": 0, "display_name": "LPS Collaboration", "orcid": "", "affiliation": "LPS", "author_role": "group-author", "sort_order": 3, "start_date": "", "end_date": "", "public_visibility": true},
-        {"author_kind": "internal", "author_post_id": 2001, "display_name": "", "orcid": "", "affiliation": "", "author_role": "author", "sort_order": 1, "start_date": "", "end_date": "", "public_visibility": true}
+        {
+          "author_kind": "external",
+          "author_post_id": 0,
+          "display_name": "Ada External",
+          "orcid": "0000-0002-1825-0097",
+          "affiliation": "External University",
+          "author_role": "author",
+          "sort_order": 2,
+          "start_date": "",
+          "end_date": "",
+          "public_visibility": true
+        },
+        {
+          "author_kind": "collective",
+          "author_post_id": 0,
+          "display_name": "LPS Collaboration",
+          "orcid": "",
+          "affiliation": "LPS",
+          "author_role": "group-author",
+          "sort_order": 3,
+          "start_date": "",
+          "end_date": "",
+          "public_visibility": true
+        },
+        {
+          "author_kind": "internal",
+          "author_post_id": 2001,
+          "display_name": "",
+          "orcid": "",
+          "affiliation": "",
+          "author_role": "author",
+          "sort_order": 1,
+          "start_date": "",
+          "end_date": "",
+          "public_visibility": true
+        }
       ]
     }
   ],
@@ -23,78 +89,169 @@
       "source_post_id": 14001,
       "relationship_type": "project_member",
       "rows": [
-        {"target_post_id": 6001, "relationship_role": "collaborator", "sort_order": 3, "start_date": "2020-01-01", "end_date": "2022-08-31", "public_visibility": true},
-        {"target_post_id": 2001, "relationship_role": "lead", "sort_order": 1, "start_date": "2019-01-01", "end_date": "", "public_visibility": true},
-        {"target_post_id": 4001, "relationship_role": "member", "sort_order": 2, "start_date": "2021-03-01", "end_date": "2024-12-31", "public_visibility": true}
+        {
+          "target_post_id": 6001,
+          "relationship_role": "collaborator",
+          "sort_order": 3,
+          "start_date": "2020-01-01",
+          "end_date": "2022-08-31",
+          "public_visibility": true
+        },
+        {
+          "target_post_id": 2001,
+          "relationship_role": "lead",
+          "sort_order": 1,
+          "start_date": "2019-01-01",
+          "end_date": "",
+          "public_visibility": true
+        },
+        {
+          "target_post_id": 4001,
+          "relationship_role": "member",
+          "sort_order": 2,
+          "start_date": "2021-03-01",
+          "end_date": "2024-12-31",
+          "public_visibility": true
+        }
       ]
     },
     {
       "source_post_id": 14001,
       "relationship_type": "project_funder",
       "rows": [
-        {"target_post_id": 10001, "relationship_role": "co-funder", "sort_order": 2, "start_date": "2022-01-01", "end_date": "", "public_visibility": true},
-        {"target_post_id": 8001, "relationship_role": "funder", "sort_order": 1, "start_date": "2020-01-01", "end_date": "", "public_visibility": true}
+        {
+          "target_post_id": 10001,
+          "relationship_role": "co-funder",
+          "sort_order": 2,
+          "start_date": "2022-01-01",
+          "end_date": "",
+          "public_visibility": true
+        },
+        {
+          "target_post_id": 8001,
+          "relationship_role": "funder",
+          "sort_order": 1,
+          "start_date": "2020-01-01",
+          "end_date": "",
+          "public_visibility": true
+        }
       ]
     },
     {
       "source_post_id": 14001,
       "relationship_type": "project_partner",
       "rows": [
-        {"target_post_id": 8001, "relationship_role": "partner", "sort_order": 1, "start_date": "2020-01-01", "end_date": "", "public_visibility": true}
+        {
+          "target_post_id": 8001,
+          "relationship_role": "partner",
+          "sort_order": 1,
+          "start_date": "2020-01-01",
+          "end_date": "",
+          "public_visibility": true
+        }
       ]
     },
     {
       "source_post_id": 14001,
       "relationship_type": "research_area",
       "rows": [
-        {"target_post_id": 12001, "relationship_role": "primary", "sort_order": 1, "start_date": "", "end_date": "", "public_visibility": true}
+        {
+          "target_post_id": 12001,
+          "relationship_role": "primary",
+          "sort_order": 1,
+          "start_date": "",
+          "end_date": "",
+          "public_visibility": true
+        }
       ]
     },
     {
       "source_post_id": 16001,
       "relationship_type": "research_area",
       "rows": [
-        {"target_post_id": 12001, "relationship_role": "primary", "sort_order": 1, "start_date": "", "end_date": "", "public_visibility": true}
+        {
+          "target_post_id": 12001,
+          "relationship_role": "primary",
+          "sort_order": 1,
+          "start_date": "",
+          "end_date": "",
+          "public_visibility": true
+        }
       ]
     },
     {
       "source_post_id": 18001,
       "relationship_type": "research_area",
       "rows": [
-        {"target_post_id": 12001, "relationship_role": "primary", "sort_order": 1, "start_date": "", "end_date": "", "public_visibility": true}
+        {
+          "target_post_id": 12001,
+          "relationship_role": "primary",
+          "sort_order": 1,
+          "start_date": "",
+          "end_date": "",
+          "public_visibility": true
+        }
       ]
     },
     {
       "source_post_id": 2001,
       "relationship_type": "research_area",
       "rows": [
-        {"target_post_id": 12001, "relationship_role": "primary", "sort_order": 1, "start_date": "", "end_date": "", "public_visibility": true}
+        {
+          "target_post_id": 12001,
+          "relationship_role": "primary",
+          "sort_order": 1,
+          "start_date": "",
+          "end_date": "",
+          "public_visibility": true
+        }
       ]
     },
     {
       "source_post_id": 16001,
       "relationship_type": "publication_project",
       "rows": [
-        {"target_post_id": 14001, "relationship_role": "output-of", "sort_order": 1, "start_date": "", "end_date": "", "public_visibility": true}
+        {
+          "target_post_id": 14001,
+          "relationship_role": "output-of",
+          "sort_order": 1,
+          "start_date": "",
+          "end_date": "",
+          "public_visibility": true
+        }
       ]
     },
     {
       "source_post_id": 18001,
       "relationship_type": "publication_project",
       "rows": [
-        {"target_post_id": 14001, "relationship_role": "output-of", "sort_order": 1, "start_date": "", "end_date": "", "public_visibility": true}
+        {
+          "target_post_id": 14001,
+          "relationship_role": "output-of",
+          "sort_order": 1,
+          "start_date": "",
+          "end_date": "",
+          "public_visibility": true
+        }
       ]
     },
     {
       "source_post_id": 16001,
       "relationship_type": "publication_relation",
       "rows": [
-        {"target_post_id": 18001, "relationship_role": "preprint-of", "sort_order": 1, "start_date": "2025-01-15", "end_date": "", "public_visibility": true}
+        {
+          "target_post_id": 18001,
+          "relationship_role": "preprint-of",
+          "sort_order": 1,
+          "start_date": "2025-01-15",
+          "end_date": "",
+          "public_visibility": true
+        }
       ]
     }
   ],
   "dois": [
-    {"publication_id": 16001, "normalized_doi": "doi:10.5555/LPS.Preprint"},
-    {"publication_id": 18001, "normalized_doi": "https://doi.org/10.5555/LPS.Final"}
+    { "publication_id": 16001, "normalized_doi": "doi:10.5555/LPS.Preprint" },
+    { "publication_id": 18001, "normalized_doi": "https://doi.org/10.5555/LPS.Final" }
   ]
 }

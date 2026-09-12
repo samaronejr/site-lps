@@ -1,1 +1,14 @@
-{"schema_version":"1.0","records":[{"source_id":"publication","type":"lps_publication","record_id":"lps:publication:30000000-0000-4000-8000-000000000001","title":"Impossible date","locale":"en","state":"draft","meta":{"_lps_publication_date":"2024-02-30","_lps_date_precision":"day"}}]}
+{
+  "schema_version": "1.0",
+  "records": [
+    {
+      "source_id": "publication",
+      "type": "lps_publication",
+      "record_id": "lps:publication:30000000-0000-4000-8000-000000000001",
+      "title": "Impossible date",
+      "locale": "en",
+      "state": "draft",
+      "meta": { "_lps_publication_date": "2024-02-30", "_lps_date_precision": "day" }
+    }
+  ]
+}
