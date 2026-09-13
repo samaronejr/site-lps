@@ -7,6 +7,7 @@ parameters:
     scanFiles:
         - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
         - tests/php/WpCliStub.php
+        - tests/fixtures/wp/lps-trust-seed.php
     excludePaths:
         analyse:
             - tests/php/bootstrap.php
