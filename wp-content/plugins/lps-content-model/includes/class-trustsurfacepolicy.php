@@ -172,13 +172,19 @@ final class TrustSurfacePolicy {
 		if ( '' === $trimmed ) {
 			return false;
 		}
-		$scheme = strtolower( (string) wp_parse_url( $trimmed, PHP_URL_SCHEME ) );
+		$scheme = wp_parse_url( $trimmed, PHP_URL_SCHEME );
+		if ( ! is_string( $scheme ) ) {
+			return false;
+		}
+		$scheme = strtolower( $scheme );
 		if ( ! in_array( $scheme, self::SAFE_URL_SCHEMES, true ) ) {
 			return false;
 		}
 		if ( 'mailto' === $scheme ) {
-			return self::is_email( (string) wp_parse_url( $trimmed, PHP_URL_PATH ) );
+			$path = wp_parse_url( $trimmed, PHP_URL_PATH );
+			return is_string( $path ) && self::is_email( $path );
 		}
-		return '' !== (string) wp_parse_url( $trimmed, PHP_URL_HOST );
+		$host = wp_parse_url( $trimmed, PHP_URL_HOST );
+		return is_string( $host ) && '' !== $host;
 	}
 }

@@ -137,7 +137,7 @@ final class Taxonomies {
 					++$created;
 					$term_id = (int) $result['term_id'];
 				} else {
-					$term_id = is_array( $existing ) ? (int) $existing['term_id'] : (int) $existing;
+					$term_id = (int) $existing['term_id'];
 					$term    = get_term( $term_id, $taxonomy );
 					if ( $term instanceof WP_Term && ( $key !== $term->name || $key !== $term->slug || '' !== $term->description ) ) {
 						wp_update_term(
