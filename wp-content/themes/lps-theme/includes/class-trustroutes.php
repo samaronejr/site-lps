@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace LPS\Theme;
 
 use DateTimeImmutable;
+use LPS\ContentModel\Policy;
 use LPS\ContentModel\TranslationPolicy;
 use LPS\ContentModel\Translations;
 use LPS\ContentModel\TrustSurfacePolicy;
@@ -132,7 +133,7 @@ final class TrustRoutes {
 			return null;
 		}
 		foreach ( self::SEGMENTS as $post_type => $segments ) {
-			if ( ( $segments[ $parts[1] ] ?? '' ) === $parts[2] ) {
+			if ( $segments[ $parts[1] ] === $parts[2] ) {
 				return array(
 					'post_type' => $post_type,
 					'locale'    => $parts[1],
@@ -204,7 +205,8 @@ final class TrustRoutes {
 	 * @param string       $requested_url Originally requested URL.
 	 */
 	public static function keep_locale_route( string|false $redirect_url, string $requested_url ): string|false {
-		$path = (string) wp_parse_url( $requested_url, PHP_URL_PATH );
+		$path = wp_parse_url( $requested_url, PHP_URL_PATH );
+		$path = is_string( $path ) ? $path : '';
 		return null === self::match_path( $path ) ? $redirect_url : false;
 	}
 
@@ -231,7 +233,7 @@ final class TrustRoutes {
 			: $post->ID;
 		$directive = self::robots_directive(
 			'lps_opportunity',
-			(string) get_post_meta( $source_id, '_lps_closes_at', true ),
+			Policy::scalar_string( get_post_meta( $source_id, '_lps_closes_at', true ) ),
 			self::now()
 		);
 		if ( '' === $directive ) {
@@ -324,7 +326,7 @@ final class TrustRoutes {
 		$source_id = Translations::source_id( $post->ID ) ?? $post->ID;
 		$meta      = static function ( string $key ) use ( $post, $shared, $source_id ): string {
 			$id = in_array( $key, $shared, true ) ? $source_id : $post->ID;
-			return (string) get_post_meta( $id, $key, true );
+			return Policy::scalar_string( get_post_meta( $id, $key, true ) );
 		};
 		return array(
 			'slug'                 => $post->post_name,
@@ -350,22 +352,22 @@ final class TrustRoutes {
 	 * Builds the institutional page view model from stored metadata.
 	 *
 	 * @param WP_Post $post Institutional page record.
-	 * @return array<string, mixed>
+	 * @return array{key: string, title: string, summary: string, affiliation: string, governance: string, location: string, funding: string, report_contact: string, reviewed_at: string, claims: array<int, mixed>, role_contacts: array<int, mixed>, journeys: array<int, mixed>}
 	 */
 	private static function institutional_page( WP_Post $post ): array {
 		$shared    = TranslationPolicy::shared_meta_keys( $post->post_type );
 		$source_id = Translations::source_id( $post->ID ) ?? $post->ID;
 		$meta      = static function ( string $key ) use ( $post, $shared, $source_id ): string {
 			$id = in_array( $key, $shared, true ) ? $source_id : $post->ID;
-			return (string) get_post_meta( $id, $key, true );
+			return Policy::scalar_string( get_post_meta( $id, $key, true ) );
 		};
 		$list      = static function ( string $key ) use ( $post ): array {
 			$value = get_post_meta( $post->ID, $key, true );
 			if ( is_array( $value ) ) {
-				return $value;
+				return array_values( $value );
 			}
 			$decoded = is_string( $value ) && '' !== $value ? json_decode( $value, true ) : null;
-			return is_array( $decoded ) ? $decoded : array();
+			return is_array( $decoded ) ? array_values( $decoded ) : array();
 		};
 		return array(
 			'key'            => $meta( '_lps_page_key' ),
@@ -393,7 +395,7 @@ final class TrustRoutes {
 				return '';
 			}
 			$page = self::institutional_page( $post );
-			if ( '' === self::page_path( (string) $page['key'], $locale ) ) {
+			if ( '' === self::page_path( $page['key'], $locale ) ) {
 				return '';
 			}
 			$html = TrustSurfaces::render_institutional_page( $page, $locale, $now );
@@ -438,7 +440,7 @@ final class TrustRoutes {
 	 * @return array<int, WP_Post>
 	 */
 	private static function query_records( string $post_type, string $locale ): array {
-		$posts = get_posts(
+		return get_posts(
 			array(
 				'post_type'        => $post_type,
 				'post_status'      => 'publish',
@@ -455,7 +457,6 @@ final class TrustRoutes {
 				),
 			)
 		);
-		return is_array( $posts ) ? $posts : array();
 	}
 
 	/**
