@@ -2,6 +2,19 @@
 set -euo pipefail
 
 readonly ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+if [[ -f "$ROOT/.omo/runtime/php-native/ready" ]]; then
+  case "${1:-}" in
+    lint|analyse|test)
+      script="$1"
+      shift
+      exec "$ROOT/tools/php" "$ROOT/.omo/runtime/php-native/composer.phar" \
+        --working-dir="$ROOT" run-script "$script" -- "$@"
+      ;;
+  esac
+  exec "$ROOT/tools/php" "$ROOT/.omo/runtime/php-native/composer.phar" \
+    --working-dir="$ROOT" "$@"
+fi
+
 readonly COMPOSER_PHAR="${TMPDIR:-/tmp}/lps-composer-2.8.12.phar"
 readonly COMPOSER_URL="https://getcomposer.org/download/2.8.12/composer.phar"
 readonly COMPOSER_SHA384="775c2cb66251416185caf0b2b3e063241986beac7bf8149957ee507d5b8db98c02f2ef4bb6d186026658f8ac2f61fb89"

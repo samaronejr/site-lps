@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Ubuntu Noble / Linux Mint 22, amd64. No sudo, package install, or vendor writes.
+# Run under the worktree's heavy-qa.lock; activate with PATH="$PWD/tools:$PATH".
+set -euo pipefail
+readonly ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+readonly RUNTIME="$ROOT/.omo/runtime/php-native"
+if [[ "$(uname -m)" != x86_64 ]]; then
+  echo 'This runtime requires Ubuntu Noble-compatible amd64 libraries.' >&2
+  exit 1
+fi
+mkdir -p "$RUNTIME"
+readonly DOWNLOADS="$(mktemp -d "$RUNTIME/downloads.XXXXXX")"
+trap 'rm -rf -- "$DOWNLOADS"' EXIT
+# Hashes originate in Ubuntu's signed noble/noble-updates package indexes.
+while read -r digest package; do
+  archive="$DOWNLOADS/$(basename "$package")"
+  curl --fail --silent --show-error --location --proto '=https' --tlsv1.2     --connect-timeout 20 --max-time 180 "https://archive.ubuntu.com/ubuntu/$package" -o "$archive"
+  printf '%s  %s\n' "$digest" "$archive" | sha256sum --check --strict
+  dpkg-deb --extract "$archive" "$RUNTIME"
+done < "$ROOT/tools/php-native-packages.sha256"
+readonly COMPOSER_SHA384='775c2cb66251416185caf0b2b3e063241986beac7bf8149957ee507d5b8db98c02f2ef4bb6d186026658f8ac2f61fb89'
+curl --fail --silent --show-error --location --proto '=https' --tlsv1.2   --connect-timeout 20 --max-time 180 https://getcomposer.org/download/2.8.12/composer.phar   -o "$DOWNLOADS/composer.phar"
+printf '%s  %s\n' "$COMPOSER_SHA384" "$DOWNLOADS/composer.phar" | sha384sum --check --strict
+mv "$DOWNLOADS/composer.phar" "$RUNTIME/composer.phar"
+"$ROOT/tools/php" --version
+"$ROOT/tools/php" -r 'foreach (["ctype", "curl", "dom", "fileinfo", "iconv", "mbstring", "Phar", "SimpleXML", "tokenizer", "xml", "xmlreader", "xmlwriter", "zip"] as $extension) { if (!extension_loaded($extension)) { fwrite(STDERR, "Missing extension: $extension\n"); exit(1); } }'
+"$ROOT/tools/php" "$RUNTIME/composer.phar" --version
+touch "$RUNTIME/ready"
+printf 'Activate: export PATH="%s/tools:$PATH"\n' "$ROOT"

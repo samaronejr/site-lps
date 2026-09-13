@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+readonly ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+export LPS_PHP_NATIVE_ROOT="$ROOT/.omo/runtime/php-native"
+export LD_LIBRARY_PATH="$LPS_PHP_NATIVE_ROOT/usr/lib/x86_64-linux-gnu${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+export PHPRC="$ROOT/tools/php-native.ini"
+export PHP_INI_SCAN_DIR=''
+exec "$LPS_PHP_NATIVE_ROOT/usr/bin/php8.3" "$@"
