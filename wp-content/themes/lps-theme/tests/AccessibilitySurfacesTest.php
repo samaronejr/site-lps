@@ -30,7 +30,7 @@ final class AccessibilitySurfacesTest extends \PHPUnit\Framework\TestCase {
 		// Then: every Portuguese fragment declares its own language.
 		self::assertStringContainsString( '<p lang="pt-BR">Laboratório de Processamento de Sinais', $header );
 		self::assertStringContainsString( '<p class="lps-meta" lang="pt-BR">Universidade Federal do Rio de Janeiro</p>', $header );
-		self::assertStringContainsString( 'Signal Processing Laboratory', $header );
+		self::assertStringContainsString( '<p>Signal Processing Laboratory</p>', $header );
 		self::assertStringNotContainsString( '<p lang="pt-BR">Signal Processing Laboratory', $header );
 	}
 
