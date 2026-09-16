@@ -1,3 +1,11 @@
+/*
+ * Public primitives for the light institutional system (DESIGN.md replacement
+ * contract). The token layer below mirrors the theme.json slugs verbatim —
+ * palette, families, sizes and spacing — and every visual value in this file
+ * resolves through these variables. Geometry stays square and flat:
+ * border-radius is always 0 and box-shadow is always none.
+ */
+
 @font-face {
   font-family: "Source Serif 4";
   src: url("../fonts/source-serif-4-regular.woff2") format("woff2");
@@ -15,9 +23,10 @@
 }
 
 :root {
-  --color-paper: #f7f4ec;
-  --color-paper-raised: #fffefa;
-  --color-paper-muted: #ece8de;
+  /* Color — theme.json settings.color.palette, 18 slugs. */
+  --color-paper: #ffffff;
+  --color-paper-raised: #ffffff;
+  --color-paper-muted: #eff1f4;
   --color-ink: #141a1f;
   --color-ink-soft: #46515a;
   --color-navy: #003b5c;
@@ -33,9 +42,13 @@
   --color-success-wash: #e0ece5;
   --color-warning-wash: #f2e8d2;
   --color-error-wash: #f2deda;
-  --color-focus-offset: #f7f4ec;
-  --font-editorial: "Source Serif 4", "Noto Serif", "Noto Serif CJK SC", "Noto Serif CJK JP", Georgia, serif;
+  /* Focus-ring separation on dark fills; not a palette entry. */
+  --color-focus-offset: #ffffff;
+
+  /* Type roles — interface-led. The serif is scoped to reading containers. */
   --font-interface: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-editorial:
+    "Source Serif 4", "Noto Serif", "Noto Serif CJK SC", "Noto Serif CJK JP", Georgia, serif;
   --font-mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
   --type-display: clamp(2.75rem, 7vw, 5.75rem);
   --type-h1: clamp(2.25rem, 5vw, 4rem);
@@ -47,6 +60,8 @@
   --type-reading: 1.125rem;
   --type-small: 0.875rem;
   --type-meta: 0.75rem;
+
+  /* Spacing — theme.json settings.spacing.spacingSizes. */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -59,21 +74,27 @@
   --space-16: 4rem;
   --space-20: 5rem;
   --space-24: 6rem;
+
+  /* Grid and geometry. */
   --grid-max: 80rem;
   --grid-gutter: var(--space-4);
+  --grid-padding: clamp(var(--space-4), 4vw, var(--space-10));
   --control-min: 2.75rem;
   --rule-thin: 0.0625rem;
   --rule-medium: 0.125rem;
   --rule-focus: 0.1875rem;
   --focus-offset: 0.1875rem;
   --press-shift: 0.0625rem;
-  --motion-fast: 120ms;
-  --ease-state: cubic-bezier(0.2, 0, 0, 1);
   --radius-square: 0;
   --shadow-none: none;
   --measure-reading: 68ch;
   --measure-interface: 72ch;
   --measure-lead: 62ch;
+
+  /* Motion — state response only, never layout. */
+  --motion-fast: 120ms;
+  --motion-standard: 180ms;
+  --ease-state: cubic-bezier(0.2, 0, 0, 1);
 }
 
 *,
@@ -84,6 +105,7 @@
 
 html {
   min-inline-size: 0;
+  overflow-x: clip;
   background: var(--color-paper);
   color: var(--color-ink);
   font-family: var(--font-interface);
@@ -136,19 +158,21 @@ figure {
   margin-block-start: 0;
 }
 
+/* Sans-led hierarchy: display, headings, navigation and controls use the
+   interface stack (DESIGN.md §4 role table). */
 h1,
 h2,
 h3,
 h4 {
   color: var(--color-ink);
-  font-family: var(--font-editorial);
-  font-weight: 600;
+  font-family: var(--font-interface);
   text-wrap: balance;
 }
 
 h1 {
   margin-block-end: var(--space-6);
   font-size: var(--type-h1);
+  font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 1.04;
 }
@@ -156,6 +180,7 @@ h1 {
 h2 {
   margin-block-end: var(--space-6);
   font-size: var(--type-h2);
+  font-weight: 700;
   letter-spacing: -0.018em;
   line-height: 1.12;
 }
@@ -163,12 +188,14 @@ h2 {
 h3 {
   margin-block-end: var(--space-3);
   font-size: var(--type-h3);
+  font-weight: 650;
   letter-spacing: -0.01em;
-  line-height: 1.18;
+  line-height: 1.2;
 }
 
 h4 {
   font-size: var(--type-h4);
+  font-weight: 650;
   line-height: 1.3;
 }
 
@@ -183,7 +210,9 @@ dd {
   text-decoration-line: underline;
   text-decoration-thickness: var(--rule-thin);
   text-underline-offset: var(--space-1);
-  transition: color var(--motion-fast) var(--ease-state), text-decoration-thickness var(--motion-fast) var(--ease-state);
+  transition:
+    color var(--motion-fast) var(--ease-state),
+    text-decoration-thickness var(--motion-fast) var(--ease-state);
 }
 
 :where(a):hover {
@@ -195,9 +224,18 @@ dd {
   color: var(--color-navy);
 }
 
+/* Focus is a 3px signal outline with a 3px offset on every interactive
+   element; it is never clipped or covered. */
 :where(a, button, input, select, textarea, summary, [tabindex], video[controls]):focus-visible {
   outline: var(--rule-focus) solid var(--color-signal);
   outline-offset: var(--focus-offset);
+}
+
+/* On navy fills the signal outline falls under the 3:1 graphic floor, so dark
+   bands switch the outline to the documented separation token. */
+:where(.lps-site-footer, .lps-affiliation, .lps-home-section[data-home-section="journeys"])
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline-color: var(--color-focus-offset);
 }
 
 .lps-visually-hidden {
@@ -210,11 +248,12 @@ dd {
   white-space: nowrap;
 }
 
+/* 4/8/12-column page grid, max 80rem, gutters on the spacing scale. */
 .lps-page-grid {
   display: grid;
   inline-size: min(100%, var(--grid-max));
   margin-inline: auto;
-  padding-inline: clamp(var(--space-4), 4vw, var(--space-10));
+  padding-inline: var(--grid-padding);
   grid-template-columns: repeat(4, minmax(0, 1fr));
   column-gap: var(--grid-gutter);
 }
@@ -244,6 +283,8 @@ dd {
   max-inline-size: var(--measure-reading);
 }
 
+/* The reading serif owns .lps-reading and .wp-block-post-content only: body
+   text and headings inside those containers. */
 .lps-reading {
   max-inline-size: var(--measure-reading);
   font-family: var(--font-editorial);
@@ -251,17 +292,34 @@ dd {
   line-height: 1.72;
 }
 
+:where(.lps-reading, .wp-block-post-content) :where(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--font-editorial);
+}
+
 .lps-lead {
   max-inline-size: var(--measure-lead);
   color: var(--color-ink-soft);
-  font-family: var(--font-editorial);
   font-size: var(--type-lead);
   line-height: 1.5;
+}
+
+.lps-summary {
+  max-inline-size: var(--measure-lead);
+  color: var(--color-ink-soft);
 }
 
 .lps-meta,
 .lps-kicker,
 .lps-status,
+.lps-event-date,
+.lps-event-venue,
+.lps-deadline,
+.lps-reviewed-at,
+.lps-journey-label,
+.lps-claim-source,
+.lps-listing-count,
+.lps-opportunity-state,
+.lps-event-state,
 .wp-block-post-date,
 .wp-block-post-terms {
   font-family: var(--font-mono);
@@ -272,11 +330,18 @@ dd {
   line-height: 1.4;
 }
 
-.lps-meta {
+.lps-meta,
+.lps-listing-count,
+.lps-event-date,
+.lps-event-venue,
+.lps-deadline,
+.lps-reviewed-at,
+.lps-claim-source {
   color: var(--color-ink-soft);
 }
 
-.lps-kicker {
+.lps-kicker,
+.lps-journey-label {
   color: var(--color-signal-hover);
 }
 
@@ -300,6 +365,7 @@ dd {
   border-block-end: var(--rule-medium) solid var(--color-navy);
 }
 
+/* Institutional affiliation strip: identity surface, not a page band. */
 .lps-affiliation {
   max-inline-size: none;
   padding-block: var(--space-2);
@@ -334,9 +400,9 @@ dd {
 
 .lps-wordmark {
   color: var(--color-navy);
-  font-family: var(--font-editorial);
+  font-family: var(--font-interface);
   font-size: var(--type-h1);
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -0.04em;
   line-height: 0.9;
   text-decoration: none;
@@ -405,33 +471,6 @@ dd {
   text-decoration: none;
 }
 
-/*
- * Record rows place a link beside its metadata. Inline elements with no spacing
- * render as a single run of text ("seminarPast"), so every listing row lays its
- * parts out on the spacing scale and lets long rows wrap.
- */
-.lps-event-listing li,
-.lps-opportunity-listing li,
-.lps-news-listing li,
-.lps-members li,
-.lps-publications li,
-.lps-people li {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--space-1) var(--space-4);
-}
-
-.lps-event-listing li > p,
-.lps-opportunity-listing li > p,
-.lps-news-listing li > p,
-.lps-members li > p,
-.lps-publications li > p,
-.lps-people li > p {
-  flex-basis: 100%;
-  margin-block: var(--space-1) 0;
-}
-
 .lps-primary-nav a:hover {
   color: var(--color-navy-hover);
   text-decoration-line: underline;
@@ -443,6 +482,7 @@ dd {
   color: var(--color-navy);
 }
 
+/* Current page is a 3px signal rule plus weight 750, never color alone. */
 .lps-primary-nav a[aria-current="page"],
 .lps-locale a[aria-current="page"] {
   border-block-end: var(--rule-focus) solid var(--color-signal);
@@ -466,62 +506,6 @@ dd {
 .lps-search > div {
   display: flex;
   min-inline-size: 0;
-}
-
-.lps-search input {
-  min-block-size: var(--control-min);
-  min-inline-size: 0;
-  inline-size: 100%;
-  padding: var(--space-3);
-  border: var(--rule-medium) solid var(--color-rule-strong);
-  border-radius: var(--radius-square);
-  background: var(--color-paper-raised);
-}
-
-.lps-search button,
-.lps-button,
-.wp-element-button,
-.wp-block-button__link {
-  display: inline-flex;
-  min-block-size: var(--control-min);
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-3) var(--space-5);
-  border: var(--rule-medium) solid var(--color-navy);
-  border-radius: var(--radius-square);
-  box-shadow: var(--shadow-none);
-  background: var(--color-paper);
-  color: var(--color-navy);
-  cursor: pointer;
-  font-family: var(--font-interface);
-  font-size: var(--type-small);
-  font-weight: 700;
-  line-height: 1.2;
-  text-decoration: none;
-  transition: background-color var(--motion-fast) var(--ease-state), color var(--motion-fast) var(--ease-state), border-color var(--motion-fast) var(--ease-state), transform var(--motion-fast) var(--ease-state);
-}
-
-.lps-search button,
-.lps-button-primary,
-.wp-block-button:not(.is-style-outline) .wp-block-button__link {
-  background: var(--color-navy);
-  color: var(--color-paper-raised);
-}
-
-.lps-search button:hover,
-.lps-button:hover,
-.wp-element-button:hover,
-.wp-block-button__link:hover {
-  border-color: var(--color-navy-hover);
-  background: var(--color-navy-hover);
-  color: var(--color-paper-raised);
-}
-
-.lps-search button:active,
-.lps-button:active,
-.wp-element-button:active,
-.wp-block-button__link:active {
-  transform: translateY(var(--press-shift));
 }
 
 .lps-locale a,
@@ -559,14 +543,6 @@ dd {
   padding-block: var(--space-12) var(--space-20);
 }
 
-.lps-main-content > .wp-block-post-title,
-.lps-main-content > .wp-block-query-title,
-.lps-main-content > .wp-block-post-content,
-.lps-main-content > .wp-block-query,
-.lps-main-content > .lps-not-found {
-  grid-column: 1 / -1;
-}
-
 .wp-block-post-content {
   font-family: var(--font-editorial);
   font-size: var(--type-reading);
@@ -583,69 +559,49 @@ dd {
   font-family: var(--font-mono);
 }
 
-.lps-home-section {
-  display: grid;
-  grid-template-columns: subgrid;
-  padding-block: var(--space-12);
-  border-block-start: var(--rule-thin) solid var(--color-rule);
-}
-
-.lps-home-section > * {
-  grid-column: 1 / -1;
-  min-inline-size: 0;
-}
-
-.lps-home-section[data-home-section="mission"] {
-  border-block-start: var(--rule-medium) solid var(--color-navy);
-}
-
-.lps-home-section[data-home-section="mission"] h1 {
-  max-inline-size: var(--measure-lead);
-  font-size: var(--type-display);
-}
-
-.lps-home-section:where([data-home-section="mission"]) :where(.lps-record) {
-  border: 0;
-  font-family: var(--font-editorial);
-  font-size: var(--type-lead);
-}
-
-.lps-home-journeys {
+/* Metadata-forward record rows: the row lays its parts on the spacing scale
+   and lets long rows wrap; metadata carries the mono tabular treatment. */
+.lps-event-listing li,
+.lps-opportunity-listing li,
+.lps-news-listing li,
+.lps-members li,
+.lps-publications li,
+.lps-people li,
+.lps-relations li,
+.lps-area-projects li,
+.lps-authors li,
+.lps-funders li,
+.lps-contact-roles li,
+.lps-claims li {
   display: flex;
   flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-4);
+}
+
+.lps-event-listing li > p,
+.lps-opportunity-listing li > p,
+.lps-news-listing li > p,
+.lps-members li > p,
+.lps-publications li > p,
+.lps-people li > p,
+.lps-relations li > p,
+.lps-area-projects li > p,
+.lps-authors li > p,
+.lps-funders li > p,
+.lps-contact-roles li > p,
+.lps-claims li > p {
+  flex-basis: 100%;
+  margin-block: var(--space-1) 0;
+}
+
+.lps-listing {
+  display: grid;
   gap: var(--space-6);
-  margin: 0;
-  padding: 0;
-  list-style: none;
 }
 
-.lps-home-journeys > li {
-  flex: 1 1 0;
-  min-inline-size: min(100%, var(--measure-lead));
-}
-
-@media (min-width: 64rem) {
-  .lps-home-section > h2 {
-    grid-column: 1 / 5;
-    grid-row: 1;
-  }
-
-  .lps-home-section > :not(h1, h2) {
-    grid-column: 5 / -1;
-  }
-
-  .lps-home-section[data-home-section="mission"] > * {
-    grid-column: 1 / 11;
-  }
-}
-
-.lps-editorial-section {
-  padding-block: var(--space-12);
-  border-block-start: var(--rule-thin) solid var(--color-rule);
-}
-
-.lps-editorial-section > * {
-  grid-column: 1 / -1;
+.lps-empty {
+  color: var(--color-ink-soft);
 }
 
 .wp-block-post-template {
@@ -660,14 +616,30 @@ dd {
   border-block-start: var(--rule-thin) solid var(--color-rule);
 }
 
+.lps-record h3 {
+  margin-block-end: var(--space-2);
+}
+
+.lps-record p {
+  margin-block: 0;
+  color: var(--color-ink-soft);
+}
+
 .wp-block-post-template .wp-block-post-title {
   font-size: var(--type-h3);
 }
 
 figure,
 .wp-block-image,
-.wp-block-gallery {
+.wp-block-gallery,
+.lps-feature-media {
   margin-block: var(--space-8);
+}
+
+.lps-feature-media-fallback {
+  padding: var(--space-8);
+  background: var(--color-paper-muted);
+  color: var(--color-ink-soft);
 }
 
 figcaption,
@@ -675,11 +647,102 @@ figcaption,
   max-inline-size: var(--measure-interface);
   margin-block-start: var(--space-3);
   color: var(--color-ink-soft);
-  font-family: var(--font-editorial);
   font-size: var(--type-small);
   line-height: 1.5;
 }
 
+/* Homepage modules are differentiated bands, not uniform text rows. Each band
+   bleeds to the viewport edge while its content stays on the page grid: the
+   section is centered on its parent and padded by exactly the distance to the
+   parent's content edge plus the grid gutter. */
+.lps-main-content.lps-home {
+  padding-block: 0;
+}
+
+.lps-home-section {
+  position: relative;
+  left: 50%;
+  display: grid;
+  inline-size: 100vw;
+  padding-block: var(--space-16);
+  padding-inline: calc((100vw - 100%) / 2 + var(--grid-padding));
+  transform: translateX(-50%);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: var(--grid-gutter);
+}
+
+.lps-home-section > * {
+  grid-column: 1 / -1;
+  min-inline-size: 0;
+}
+
+/* Band rhythm: white canvas and section gray alternate; adjacent modules never
+   share a band color. Journeys is the single interior navy band. */
+.lps-home-section[data-home-section="research"],
+.lps-home-section[data-home-section="projects"],
+.lps-home-section[data-home-section="infrastructure"],
+.lps-home-section[data-home-section="partners"] {
+  background: var(--color-paper-muted);
+}
+
+.lps-home-section[data-home-section="journeys"] {
+  background: var(--color-navy);
+  color: var(--color-paper-raised);
+}
+
+.lps-home-section[data-home-section="journeys"] :where(h2, p, li) {
+  color: inherit;
+}
+
+.lps-home-section[data-home-section="journeys"] a {
+  color: var(--color-paper-raised);
+}
+
+.lps-home-section[data-home-section="journeys"] span[aria-disabled="true"] {
+  color: var(--color-rule);
+}
+
+.lps-home-section[data-home-section="mission"] h1 {
+  max-inline-size: var(--measure-lead);
+  font-size: var(--type-display);
+}
+
+.lps-home-section[data-home-section="mission"] .lps-record {
+  max-inline-size: var(--measure-lead);
+  padding-block: 0;
+  border: 0;
+  font-size: var(--type-lead);
+}
+
+.lps-home-journeys {
+  display: grid;
+  gap: var(--space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lps-home-journeys > li {
+  padding-block-start: var(--space-4);
+  border-block-start: var(--rule-thin) solid var(--color-rule);
+}
+
+.lps-editorial-section {
+  padding-block: var(--space-12);
+  border-block-start: var(--rule-thin) solid var(--color-rule);
+}
+
+.lps-editorial-section > * {
+  grid-column: 1 / -1;
+}
+
+.lps-handoff {
+  padding-block: var(--space-8);
+  border-block-start: var(--rule-thin) solid var(--color-rule);
+}
+
+/* Tables: caption names the purpose; the wrapper alone owns horizontal scroll
+   on narrow viewports and takes keyboard focus. */
 .lps-table-scroll,
 .wp-block-table {
   max-inline-size: 100%;
@@ -702,9 +765,8 @@ table {
 
 caption {
   padding-block: var(--space-4);
-  font-family: var(--font-editorial);
   font-size: var(--type-h4);
-  font-weight: 600;
+  font-weight: 650;
   text-align: start;
 }
 
@@ -725,7 +787,7 @@ thead th {
 
 tbody tr:hover,
 tbody tr:focus-within {
-  background: var(--color-paper-raised);
+  background: var(--color-paper-muted);
 }
 
 .lps-status {
@@ -746,38 +808,62 @@ tbody tr:focus-within {
   color: var(--color-error);
 }
 
+/* Alerts: left signal rule over a semantic wash; never a floating toast. */
 .lps-alert {
   display: grid;
   gap: var(--space-4);
   padding: var(--space-5);
-  border-inline-start: var(--rule-focus) solid currentColor;
+  border-inline-start: var(--rule-focus) solid var(--color-signal);
+  color: var(--color-ink);
   grid-template-columns: minmax(0, 1fr);
 }
 
 .lps-alert-info {
-  color: var(--color-navy);
   background: var(--color-info-wash);
 }
 
 .lps-alert-success {
-  color: var(--color-success);
   background: var(--color-success-wash);
 }
 
-.lps-alert-warning {
-  color: var(--color-warning);
+.lps-alert-warning,
+.lps-event-notice,
+.lps-contact-unavailable {
   background: var(--color-warning-wash);
 }
 
 .lps-alert-error {
-  color: var(--color-error);
   background: var(--color-error-wash);
+}
+
+.lps-event-notice,
+.lps-contact-unavailable {
+  padding: var(--space-4) var(--space-5);
+  border-inline-start: var(--rule-focus) solid var(--color-signal);
+}
+
+.lps-alert :where(h2, h3, h4) {
+  margin-block-end: 0;
+}
+
+.lps-alert p {
+  margin-block: 0;
 }
 
 :where(input:not([type="checkbox"], [type="radio"]), select, textarea) {
   min-block-size: var(--control-min);
   inline-size: 100%;
   padding: var(--space-3) var(--space-4);
+  border: var(--rule-medium) solid var(--color-rule-strong);
+  border-radius: var(--radius-square);
+  background: var(--color-paper-raised);
+}
+
+.lps-search input {
+  min-block-size: var(--control-min);
+  min-inline-size: 0;
+  inline-size: 100%;
+  padding: var(--space-3);
   border: var(--rule-medium) solid var(--color-rule-strong);
   border-radius: var(--radius-square);
   background: var(--color-paper-raised);
@@ -790,6 +876,82 @@ tbody tr:focus-within {
 :where(input, select, textarea):disabled {
   background: var(--color-paper-muted);
   color: var(--color-ink-soft);
+}
+
+/* Buttons: square geometry, navy fill for primary, 2px navy rule for
+   secondary; the only spatial response is a 1px press. */
+.lps-search button,
+.lps-button,
+.wp-element-button,
+.wp-block-button__link {
+  display: inline-flex;
+  min-block-size: var(--control-min);
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3) var(--space-5);
+  border: var(--rule-medium) solid var(--color-navy);
+  border-radius: var(--radius-square);
+  box-shadow: var(--shadow-none);
+  background: var(--color-paper);
+  color: var(--color-navy);
+  cursor: pointer;
+  font-family: var(--font-interface);
+  font-size: var(--type-small);
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+  transition:
+    background-color var(--motion-fast) var(--ease-state),
+    color var(--motion-fast) var(--ease-state),
+    border-color var(--motion-fast) var(--ease-state),
+    transform var(--motion-fast) var(--ease-state);
+}
+
+.lps-search button,
+.lps-button-primary,
+.wp-block-button:not(.is-style-outline) .wp-block-button__link {
+  background: var(--color-navy);
+  color: var(--color-paper-raised);
+}
+
+.lps-search button:hover,
+.lps-button:hover,
+.wp-element-button:hover,
+.wp-block-button__link:hover {
+  border-color: var(--color-navy-hover);
+  background: var(--color-navy-hover);
+  color: var(--color-paper-raised);
+}
+
+.lps-search button:active,
+.lps-button:active,
+.wp-element-button:active,
+.wp-block-button__link:active {
+  transform: translateY(var(--press-shift));
+}
+
+.lps-button:disabled,
+.lps-button[aria-disabled="true"],
+.wp-element-button:disabled,
+.wp-block-button__link[aria-disabled="true"] {
+  border-color: var(--color-rule);
+  background: var(--color-paper-muted);
+  color: var(--color-ink-soft);
+  cursor: default;
+}
+
+/* On the navy journeys band the button inverts to a paper fill; declared after
+   the base button rules so the cascade order matches the specificity order. */
+.lps-home-section[data-home-section="journeys"] .lps-button {
+  border-color: var(--color-paper-raised);
+  background: var(--color-paper-raised);
+  color: var(--color-navy);
+}
+
+.lps-home-section[data-home-section="journeys"] .lps-button:hover {
+  border-color: var(--color-paper);
+  background: var(--color-paper);
+  color: var(--color-navy-hover);
 }
 
 /* Target size, WCAG 2.2 SC 2.5.8. A control inside a link cluster, a pagination
@@ -860,6 +1022,7 @@ details:not(.lps-shell-disclosure) > summary {
   font-weight: 700;
 }
 
+/* Documented empty/error states, never a blank region. */
 .lps-empty-state,
 .lps-not-found {
   max-inline-size: var(--measure-lead);
@@ -867,8 +1030,18 @@ details:not(.lps-shell-disclosure) > summary {
   border-block: var(--rule-medium) solid var(--color-navy);
 }
 
+.lps-main-content > .wp-block-post-title,
+.lps-main-content > .wp-block-query-title,
+.lps-main-content > .wp-block-post-content,
+.lps-main-content > .wp-block-query,
+.lps-main-content > .lps-not-found {
+  grid-column: 1 / -1;
+}
+
+/* Footer: compact navy band carrying affiliation, utility routes and the
+   reporting contact. */
 .lps-site-footer {
-  padding-block: var(--space-12);
+  padding-block: var(--space-8);
   background: var(--color-navy-hover);
   color: var(--color-paper-raised);
 }
@@ -905,7 +1078,8 @@ details:not(.lps-shell-disclosure) > summary {
     --grid-gutter: var(--space-6);
   }
 
-  .lps-page-grid {
+  .lps-page-grid,
+  .lps-home-section {
     grid-template-columns: repeat(8, minmax(0, 1fr));
   }
 
@@ -930,6 +1104,15 @@ details:not(.lps-shell-disclosure) > summary {
 
   .lps-shell-tools {
     grid-template-columns: minmax(16rem, 1fr) auto auto;
+  }
+
+  .lps-home-journeys {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .lps-home-section[data-home-section="projects"] > .lps-record,
+  .lps-home-section[data-home-section="latest"] > .lps-record {
+    grid-column: span 4;
   }
 
   .lps-main-content > .wp-block-post-title,
@@ -966,7 +1149,8 @@ details:not(.lps-shell-disclosure) > summary {
     --grid-gutter: var(--space-8);
   }
 
-  .lps-page-grid {
+  .lps-page-grid,
+  .lps-home-section {
     grid-template-columns: repeat(12, minmax(0, 1fr));
   }
 
@@ -1012,6 +1196,38 @@ details:not(.lps-shell-disclosure) > summary {
     padding-block: var(--space-16) var(--space-24);
   }
 
+  .lps-main-content.lps-home {
+    padding-block: 0;
+  }
+
+  /* Section label owns three columns at the subsection scale — the spec's
+     two-column label cannot hold a Portuguese h2 without mid-word wrapping;
+     primary content owns seven, leaving two for notes. */
+  .lps-home-section > h2 {
+    grid-column: 1 / 4;
+    grid-row: 1;
+    font-size: var(--type-h3);
+  }
+
+  .lps-home-section > :not(h1, h2) {
+    grid-column: 4 / 11;
+  }
+
+  .lps-home-section[data-home-section="mission"] > * {
+    grid-column: 1 / 11;
+  }
+
+  /* ram-grid: dated record cards repeat across the band below the label. */
+  .lps-home-section[data-home-section="projects"] > h2,
+  .lps-home-section[data-home-section="latest"] > h2 {
+    grid-column: 1 / -1;
+  }
+
+  .lps-home-section[data-home-section="projects"] > .lps-record,
+  .lps-home-section[data-home-section="latest"] > .lps-record {
+    grid-column: span 3;
+  }
+
   .lps-main-content > .wp-block-post-title,
   .lps-main-content > .wp-block-query-title,
   .lps-main-content > .wp-block-post-content,
@@ -1044,7 +1260,9 @@ details:not(.lps-shell-disclosure) > summary {
 @media (prefers-reduced-motion: reduce) {
   /* Declared at the same specificity as the component rules that set a duration,
      and after them, so the cascade neutralizes motion without `!important`. A
-     zero-specificity `:where()` block was overridden by the button rules. */
+     zero-specificity `:where()` block was overridden by the button rules. The
+     band-centering transform on .lps-home-section is layout, not motion, and is
+     deliberately not zeroed. */
   a,
   button,
   input,
@@ -1070,29 +1288,49 @@ details:not(.lps-shell-disclosure) > summary {
 }
 
 @media print {
-  :root {
-    --color-paper: #ffffff;
-    --color-paper-raised: #ffffff;
-    --color-ink: #000000;
-  }
-
   .lps-skip-link,
   .lps-shell-disclosure,
   .lps-breadcrumbs,
-  .lps-site-footer,
+  .lps-site-footer nav,
   .wp-block-button,
   form {
     display: none;
   }
 
   .lps-affiliation {
+    border-block-end: var(--rule-medium) solid var(--color-ink);
     background: var(--color-paper);
     color: var(--color-ink);
-    border-block-end: var(--rule-medium) solid var(--color-ink);
   }
 
-  body {
+  /* The footer keeps its affiliation context in print; only its navigation is
+     stripped as an interaction-only control. */
+  .lps-site-footer {
+    border-block-start: var(--rule-medium) solid var(--color-ink);
     background: var(--color-paper);
+    color: var(--color-ink);
+  }
+
+  .lps-site-footer a,
+  .lps-site-footer .lps-meta,
+  .lps-wordmark-light {
+    color: var(--color-ink);
+  }
+
+  .lps-home-section {
+    position: static;
+    inline-size: auto;
+    padding-inline: 0;
+    transform: none;
+  }
+
+  .lps-home-section[data-home-section="journeys"] {
+    background: var(--color-paper);
+    color: var(--color-ink);
+  }
+
+  .lps-home-section[data-home-section="journeys"] :where(h2, p, li),
+  .lps-home-section[data-home-section="journeys"] a {
     color: var(--color-ink);
   }
 
@@ -1107,7 +1345,7 @@ details:not(.lps-shell-disclosure) > summary {
   table,
   .lps-alert,
   .lps-empty-state,
-  .lps-not-found {
+  .lps-main-content > .lps-not-found {
     break-inside: avoid;
   }
 
