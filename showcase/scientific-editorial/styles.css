@@ -34,6 +34,13 @@
   --color-warning-wash: #f2e8d2;
   --color-error-wash: #f2deda;
   --color-focus-offset: #f7f4ec;
+  /* Mark-only brand values (DESIGN.md 2/9): they exist so the mark artwork
+     can be reproduced faithfully and are forbidden on text, links, controls,
+     focus rings, rules, borders, icons, backgrounds, and surfaces. The
+     showcase ships no mark artwork; the declarations mirror the theme token
+     contract only. */
+  --color-brand-deep: #094c92;
+  --color-brand-accent: #00aff1;
   --font-editorial:
     "Source Serif 4", "Noto Serif", "Noto Serif CJK SC", "Noto Serif CJK JP", Georgia, serif;
   --font-interface: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
