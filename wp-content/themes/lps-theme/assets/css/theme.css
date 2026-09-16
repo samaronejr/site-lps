@@ -342,6 +342,30 @@ dd {
   color: var(--color-ink-soft);
 }
 
+/*
+ * Masthead logo slot: the full lockup is a wide ~6.8:1 artwork, so the
+ * wordmark claims a wider grid span than the old text mark and the image
+ * fills the slot at its intrinsic aspect - never cropped, never a fixed
+ * width+height pair. The 24rem ceiling keeps the lockup from dominating the
+ * masthead on wide grids; the 16rem floor, capped by the track itself so a
+ * narrow column can never overflow, keeps the lettering legible.
+ */
+.lps-masthead .lps-wordmark {
+  min-inline-size: min(16rem, 100%);
+  max-inline-size: 24rem;
+}
+
+.lps-wordmark img {
+  inline-size: 100%;
+  block-size: auto;
+  max-inline-size: 100%;
+}
+
+.lps-masthead .lps-wordmark:focus-visible {
+  outline: var(--rule-focus) solid var(--color-signal);
+  outline-offset: var(--focus-offset);
+}
+
 .lps-wordmark {
   display: inline-flex;
   flex-wrap: wrap;
@@ -1082,11 +1106,11 @@ details:not(.lps-shell-disclosure) > summary {
   }
 
   .lps-masthead .lps-wordmark {
-    grid-column: 1 / 3;
+    grid-column: 1 / 5;
   }
 
   .lps-masthead p {
-    grid-column: 4 / -1;
+    grid-column: 5 / -1;
     margin: 0;
   }
 
@@ -1143,11 +1167,11 @@ details:not(.lps-shell-disclosure) > summary {
   }
 
   .lps-masthead .lps-wordmark {
-    grid-column: 1 / 4;
+    grid-column: 1 / 6;
   }
 
   .lps-masthead p {
-    grid-column: 7 / -1;
+    grid-column: 6 / -1;
   }
 
   .lps-shell-disclosure > summary {

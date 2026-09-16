@@ -170,8 +170,13 @@ final class ThemeShellTest extends \PHPUnit\Framework\TestCase {
 		self::assertStringContainsString( '<form', $header );
 		self::assertStringContainsString( 'name="s"', $header );
 		self::assertStringContainsString( 'hreflang="en"', $header );
-		self::assertStringNotContainsString( '<img', $header );
+		self::assertSame( 1, substr_count( $header, '<img' ) );
+		self::assertStringContainsString( 'alt=""', $header );
+		self::assertStringContainsString( 'width="2052"', $header );
+		self::assertStringContainsString( 'height="301"', $header );
+		self::assertStringContainsString( '/assets/images/lps-logo.svg', $header );
 		self::assertStringContainsString( '<footer', $footer );
+		self::assertStringNotContainsString( '<img', $footer );
 		self::assertStringContainsString( '/pt-br/acessibilidade/', $footer );
 	}
 
