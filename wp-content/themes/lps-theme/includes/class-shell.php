@@ -209,33 +209,50 @@ final class Shell {
 	 * name. The file is shipped chrome-ready; the only runtime work is a read.
 	 */
 	private static function mark_symbol(): string {
-		static $mark = null;
-		if ( null !== $mark ) {
-			return $mark;
+		if ( null === self::$mark_symbol ) {
+			self::$mark_symbol = self::load_mark_symbol();
 		}
+		return self::$mark_symbol;
+	}
+
+	/**
+	 * Cached monochrome mark symbol markup.
+	 *
+	 * @var string|null
+	 */
+	private static $mark_symbol = null;
+
+	/**
+	 * Reads and sanitizes the monochrome mark symbol for inline chrome use.
+	 *
+	 * @return string The sanitized SVG markup, or an empty string when the
+	 *                asset is missing or malformed.
+	 */
+	private static function load_mark_symbol(): string {
 		$path = dirname( __DIR__ ) . '/assets/img/mark/lps-mark-mono-symbol.svg';
-		$svg  = is_readable( $path ) ? file_get_contents( $path ) : false;
+		$svg  = is_readable( $path ) ? file_get_contents( $path ) : false; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local theme asset, not a remote URL.
 		if ( ! is_string( $svg ) || ! str_starts_with( $svg, '<svg ' ) ) {
-			$mark = '';
-			return $mark;
+			return '';
 		}
-		$mark = preg_replace(
+		$replaced = preg_replace(
 			'/^<svg /',
 			'<svg class="lps-mark" aria-hidden="true" focusable="false" ',
 			trim( $svg ),
 			1
 		);
-		if ( ! is_string( $mark ) ) {
+		if ( ! is_string( $replaced ) ) {
 			return '';
 		}
 		// The symbol is inlined once per chrome surface, so document-scoped
 		// identifiers would repeat on every page (WCAG 4.1.1). The instance is
 		// decorative and aria-hidden, so its title, description, and labelling
 		// attributes are stripped along with every id.
-		$mark = preg_replace( '#<title\b[^>]*>.*?</title>#su', '', $mark );
-		$mark = preg_replace( '#<desc\b[^>]*>.*?</desc>#su', '', (string) $mark );
-		$mark = preg_replace( '/\s(?:id|role|aria-labelledby)="[^"]*"/', '', (string) $mark );
-		return is_string( $mark ) ? $mark : '';
+		$stripped = preg_replace( '#<title\b[^>]*>.*?</title>#su', '', $replaced );
+		$stripped = is_string( $stripped ) ? $stripped : $replaced;
+		$stripped = preg_replace( '#<desc\b[^>]*>.*?</desc>#su', '', $stripped );
+		$stripped = is_string( $stripped ) ? $stripped : $replaced;
+		$stripped = preg_replace( '/\s(?:id|role|aria-labelledby)="[^"]*"/', '', $stripped );
+		return is_string( $stripped ) ? $stripped : $replaced;
 	}
 
 	/**
