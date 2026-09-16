@@ -34,7 +34,15 @@
   --color-warning-wash: #f2e8d2;
   --color-error-wash: #f2deda;
   --color-focus-offset: #f7f4ec;
-  --font-editorial: "Source Serif 4", "Noto Serif", "Noto Serif CJK SC", "Noto Serif CJK JP", Georgia, serif;
+  /* Mark-only brand values (DESIGN.md 2/9): they exist so the mark artwork
+     can be reproduced faithfully and are forbidden on text, links, controls,
+     focus rings, rules, borders, icons, backgrounds, and surfaces. They are
+     declared here and in theme.json settings.custom only - never in
+     settings.color.palette, so no editor colour control can offer them. */
+  --color-brand-deep: #094c92;
+  --color-brand-accent: #00aff1;
+  --font-editorial:
+    "Source Serif 4", "Noto Serif", "Noto Serif CJK SC", "Noto Serif CJK JP", Georgia, serif;
   --font-interface: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
   --type-display: clamp(2.75rem, 7vw, 5.75rem);
@@ -183,7 +191,9 @@ dd {
   text-decoration-line: underline;
   text-decoration-thickness: var(--rule-thin);
   text-underline-offset: var(--space-1);
-  transition: color var(--motion-fast) var(--ease-state), text-decoration-thickness var(--motion-fast) var(--ease-state);
+  transition:
+    color var(--motion-fast) var(--ease-state),
+    text-decoration-thickness var(--motion-fast) var(--ease-state);
 }
 
 :where(a):hover {
@@ -333,6 +343,10 @@ dd {
 }
 
 .lps-wordmark {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
   color: var(--color-navy);
   font-family: var(--font-editorial);
   font-size: var(--type-h1);
@@ -340,6 +354,22 @@ dd {
   letter-spacing: -0.04em;
   line-height: 0.9;
   text-decoration: none;
+}
+
+/*
+ * Institutional mark (DESIGN.md 9). Only the monochrome symbol derivative ever
+ * appears inside UI chrome: it takes its colour from the surrounding token
+ * through currentColor, never from a brand token, and it carries no lettering,
+ * so it has no legibility floor to step down from. The width is expressed in
+ * em so the artwork tracks the wordmark's fluid type size; flex-wrap on the
+ * wordmark plus min-inline-size: 0 here let the mark shrink or wrap instead of
+ * overflowing at 320 CSS px or 200% zoom.
+ */
+.lps-mark {
+  inline-size: 2.95em;
+  min-inline-size: 0;
+  block-size: auto;
+  flex-shrink: 1;
 }
 
 .lps-shell-disclosure {
@@ -351,7 +381,11 @@ dd {
   min-block-size: var(--control-min);
   align-items: center;
   justify-content: space-between;
-  padding-inline: var(--space-4);
+  /* The disclosure is full-bleed, so the summary insets to the page grid: the
+     3px focus outline plus its 3px offset then always render inside the
+     viewport instead of clipping at the edges. */
+  margin-inline: clamp(var(--space-4), 4vw, var(--space-10));
+  padding-inline: 0;
   color: var(--color-navy);
   cursor: pointer;
   font-weight: 700;
@@ -432,6 +466,14 @@ dd {
   margin-block: var(--space-1) 0;
 }
 
+/* Listing and publication titles are display text: balance their wrap so a
+   short trailing word never lands alone on the last line. The balance lives on
+   the row because the listing title link itself is inline. */
+.lps-listing > ul > li,
+.lps-publications > li {
+  text-wrap: balance;
+}
+
 .lps-primary-nav a:hover {
   color: var(--color-navy-hover);
   text-decoration-line: underline;
@@ -498,7 +540,11 @@ dd {
   font-weight: 700;
   line-height: 1.2;
   text-decoration: none;
-  transition: background-color var(--motion-fast) var(--ease-state), color var(--motion-fast) var(--ease-state), border-color var(--motion-fast) var(--ease-state), transform var(--motion-fast) var(--ease-state);
+  transition:
+    background-color var(--motion-fast) var(--ease-state),
+    color var(--motion-fast) var(--ease-state),
+    border-color var(--motion-fast) var(--ease-state),
+    transform var(--motion-fast) var(--ease-state);
 }
 
 .lps-search button,
@@ -595,8 +641,24 @@ dd {
   min-inline-size: 0;
 }
 
+/*
+ * The signal rule (DESIGN.md 1): the homepage's primary structural boundary is
+ * the deep-blue line above the mission, interrupted by a short signal segment
+ * at the document edge. It is a solid border, not a gradient, and it marks the
+ * transition into the page's primary content - never decoration.
+ */
 .lps-home-section[data-home-section="mission"] {
+  position: relative;
   border-block-start: var(--rule-medium) solid var(--color-navy);
+}
+
+.lps-home-section[data-home-section="mission"]::before {
+  content: "";
+  position: absolute;
+  inset-block-start: calc(-1 * var(--rule-medium));
+  inset-inline-start: 0;
+  inline-size: var(--space-24);
+  border-block-start: var(--rule-medium) solid var(--color-signal);
 }
 
 .lps-home-section[data-home-section="mission"] h1 {
@@ -610,18 +672,80 @@ dd {
   font-size: var(--type-lead);
 }
 
-.lps-home-journeys {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-6);
+/*
+ * Journeys are record rows, not cards (DESIGN.md 5 Editorial Record Card):
+ * each entry is a hairline-separated stack pairing the journey name with its
+ * reviewed call to action or its documented unavailable state.
+ */
+.lps-home-journeys,
+.lps-collaboration-journeys {
+  display: grid;
+  gap: 0;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.lps-home-journeys > li {
-  flex: 1 1 0;
-  min-inline-size: min(100%, var(--measure-lead));
+.lps-home-journeys > li,
+.lps-collaboration-journeys > li {
+  display: grid;
+  gap: var(--space-2) var(--grid-gutter);
+  align-items: baseline;
+  padding-block: var(--space-4);
+  border-block-start: var(--rule-thin) solid var(--color-rule);
+}
+
+.lps-journey-label {
+  margin-block-end: 0;
+}
+
+.lps-journey-note,
+.lps-collaboration-journeys .lps-contact-unavailable {
+  color: var(--color-ink-soft);
+  font-size: var(--type-small);
+}
+
+.lps-journeys .lps-handoff,
+.lps-home-journeys .lps-journey-note,
+.lps-collaboration-journeys .lps-contact-unavailable {
+  margin-block-end: 0;
+}
+
+/*
+ * The journeys block on the collaboration page is a named section inside the
+ * reading column, matching the post title and content placement (DESIGN.md 4).
+ */
+.lps-journeys {
+  padding-block: var(--space-8);
+  border-block-start: var(--rule-thin) solid var(--color-rule);
+}
+
+.lps-journeys > h2 {
+  margin-block-end: var(--space-4);
+}
+
+/*
+ * The collaboration page's institutional article and its journeys block join
+ * the reading column instead of spanning the full grid, so the page reads as
+ * one composed column under its title.
+ */
+.lps-institutional[data-page="collaboration"],
+.lps-journeys {
+  grid-column: 1 / -1;
+}
+
+/*
+ * Record groups: a plain single-column stack by default; the mixed-type
+ * "latest" list uses the contract's ram-grid so heterogeneous records tile
+ * instead of forming one long undifferentiated column (DESIGN.md 5).
+ */
+.lps-records {
+  display: grid;
+}
+
+.lps-home-section[data-home-section="latest"] .lps-records {
+  grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
+  column-gap: var(--grid-gutter);
 }
 
 @media (min-width: 64rem) {
@@ -636,6 +760,36 @@ dd {
 
   .lps-home-section[data-home-section="mission"] > * {
     grid-column: 1 / 11;
+  }
+
+  /*
+   * The journeys section is its own layout family: the heading spans the full
+   * measure and each row mirrors the page grid, name beside action.
+   */
+  .lps-home-section[data-home-section="journeys"] > h2 {
+    grid-column: 1 / -1;
+  }
+
+  .lps-home-section[data-home-section="journeys"] > .lps-home-journeys {
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+  }
+
+  .lps-home-journeys > li {
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+  }
+
+  .lps-home-journeys > li > .lps-journey-label {
+    grid-column: 1 / 5;
+  }
+
+  .lps-home-journeys > li > :not(.lps-journey-label) {
+    grid-column: 5 / -1;
+  }
+
+  .lps-collaboration-journeys > li {
+    grid-template-columns: minmax(0, 1fr) auto;
   }
 }
 
@@ -685,6 +839,14 @@ figcaption,
   max-inline-size: 100%;
   overflow-x: auto;
   border-block-start: var(--rule-medium) solid var(--color-navy);
+}
+
+/* Inside a named scroll wrapper the figure must not scroll itself: axe
+   scrollable-region-focusable requires every scrollable region to be
+   keyboard-focusable, and the wrapper already owns that contract. */
+.lps-table-scroll > .wp-block-table {
+  overflow-x: visible;
+  border-block-start: none;
 }
 
 .lps-table-scroll:focus-visible,
@@ -936,7 +1098,9 @@ details:not(.lps-shell-disclosure) > summary {
   .lps-main-content > .wp-block-query-title,
   .lps-main-content > .wp-block-post-content,
   .lps-main-content > .wp-block-query,
-  .lps-main-content > .lps-not-found {
+  .lps-main-content > .lps-not-found,
+  .lps-main-content > .lps-institutional[data-page="collaboration"],
+  .lps-main-content > .lps-journeys {
     grid-column: 2 / 8;
   }
 
@@ -1016,7 +1180,9 @@ details:not(.lps-shell-disclosure) > summary {
   .lps-main-content > .wp-block-query-title,
   .lps-main-content > .wp-block-post-content,
   .lps-main-content > .wp-block-query,
-  .lps-main-content > .lps-not-found {
+  .lps-main-content > .lps-not-found,
+  .lps-main-content > .lps-institutional[data-page="collaboration"],
+  .lps-main-content > .lps-journeys {
     grid-column: 3 / 10;
   }
 

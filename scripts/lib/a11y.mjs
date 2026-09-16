@@ -571,11 +571,20 @@ export function auditDocument(page) {
         );
       }
     }
-    const wrapper = element.parentNode;
-    const wrapperClass = wrapper?.tagName ? attr(wrapper, "class") : "";
-    const scrollable =
-      wrapperClass.includes("lps-table-scroll") || wrapperClass.includes("wp-block-table");
-    if (scrollable) {
+    // The scrollable region is the outermost contiguous ancestor carrying a
+    // scroll class: a bare .wp-block-table scrolls itself, while a wrapped
+    // table delegates scrolling to the enclosing .lps-table-scroll region.
+    let wrapper = null;
+    let ancestor = element.parentNode;
+    while (ancestor?.tagName) {
+      const cls = attr(ancestor, "class");
+      if (!cls.includes("lps-table-scroll") && !cls.includes("wp-block-table")) {
+        break;
+      }
+      wrapper = ancestor;
+      ancestor = ancestor.parentNode;
+    }
+    if (wrapper) {
       if (attr(wrapper, "tabindex") !== "0") {
         add(
           "lps_a11y_table_scroll_not_focusable",

@@ -391,19 +391,25 @@ final class SeoRoutes {
 		}
 
 		return array(
-			'site_url'    => $site_url,
-			'site_name'   => 'LPS/UFRJ',
-			'locale'      => $locale,
-			'path'        => $path,
-			'title'       => SeoPolicy::document_title( $title, $section, $locale ),
-			'description' => SeoPolicy::meta_description( self::description( $summary, $post, $title, $section, $locale ) ),
-			'og_type'     => $og_type,
-			'state'       => $state,
-			'robots'      => false,
-			'title_tag'   => false,
-			'record'      => self::record_marker( $post ),
-			'variants'    => self::variants( $post, $path, $locale ),
-			'graph'       => StructuredData::graph( $nodes ),
+			'site_url'     => $site_url,
+			'site_name'    => 'LPS/UFRJ',
+			'locale'       => $locale,
+			'path'         => $path,
+			'title'        => SeoPolicy::document_title( $title, $section, $locale ),
+			'description'  => SeoPolicy::meta_description( self::description( $summary, $post, $title, $section, $locale ) ),
+			'og_type'      => $og_type,
+			'state'        => $state,
+			'robots'       => false,
+			'title_tag'    => false,
+			'record'       => self::record_marker( $post ),
+			'variants'     => self::variants( $post, $path, $locale ),
+			'graph'        => StructuredData::graph( $nodes ),
+			'image'        => $site_url . '/wp-content/themes/lps-theme/assets/img/mark/lps-mark-social.png',
+			'image_width'  => '1200',
+			'image_height' => '630',
+			'image_alt'    => 'en' === $locale
+				? 'LPS — Signal Processing Laboratory'
+				: 'LPS — Laboratório de Processamento de Sinais',
 		);
 	}
 
@@ -1064,6 +1070,11 @@ final class SeoRoutes {
 			'parents'  => array( 'COPPE', 'UFRJ' ),
 			'locale'   => $locale,
 			'address'  => 'Rio de Janeiro, RJ, Brasil',
+			'logo'     => array(
+				'url'    => self::site_url() . '/wp-content/themes/lps-theme/assets/img/mark/lps-mark-social.png',
+				'width'  => 1200,
+				'height' => 630,
+			),
 		);
 	}
 

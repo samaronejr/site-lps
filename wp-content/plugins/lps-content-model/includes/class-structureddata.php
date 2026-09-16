@@ -117,6 +117,42 @@ final class StructuredData {
 		if ( '' !== $contact ) {
 			$node['email'] = $contact;
 		}
+		$logo = self::logo( $site['logo'] ?? null );
+		if ( array() !== $logo ) {
+			$node['logo'] = $logo;
+		}
+		return $node;
+	}
+
+	/**
+	 * Builds the organization's logo as an ImageObject.
+	 *
+	 * The logo is the laboratory's own cleared mark (DESIGN.md §9): a local,
+	 * self-hosted asset whose rights record lives in the theme's mark directory.
+	 * Only a descriptor with a URL is emitted; dimensions ride along when the
+	 * site identity supplies them.
+	 *
+	 * @param mixed $value Site-identity logo descriptor.
+	 * @return array<string, mixed>
+	 */
+	private static function logo( mixed $value ): array {
+		if ( ! is_array( $value ) ) {
+			return array();
+		}
+		$url = self::text( $value['url'] ?? '' );
+		if ( '' === $url ) {
+			return array();
+		}
+		$node = array(
+			'@type' => 'ImageObject',
+			'url'   => $url,
+		);
+		foreach ( array( 'width', 'height' ) as $key ) {
+			$dimension = $value[ $key ] ?? null;
+			if ( is_numeric( $dimension ) && (int) $dimension > 0 ) {
+				$node[ $key ] = (int) $dimension;
+			}
+		}
 		return $node;
 	}
 

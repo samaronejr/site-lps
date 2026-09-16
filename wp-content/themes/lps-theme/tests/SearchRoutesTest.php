@@ -245,7 +245,7 @@ final class SearchRoutesTest extends TestCase {
 
 		self::assertStringNotContainsString( '<script', $html );
 		self::assertStringNotContainsString( 'onclick', $html );
-		self::assertStringContainsString( '<form class="lps-search-form" method="get" action="/pt-br/busca/" role="search">', $html );
+		self::assertStringContainsString( '<form class="lps-search-form" method="get" action="/pt-br/busca/" role="search" aria-label="Buscar no site">', $html );
 		self::assertStringContainsString( 'type="checkbox"', $html );
 		self::assertStringContainsString( '<button class="lps-button lps-button-primary" type="submit">', $html );
 	}

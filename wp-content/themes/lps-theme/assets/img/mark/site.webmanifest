@@ -1,0 +1,26 @@
+{
+  "name": "LPS — Laboratório de Processamento de Sinais",
+  "short_name": "LPS",
+  "start_url": "/pt-br/",
+  "display": "browser",
+  "background_color": "#f7f4ec",
+  "theme_color": "#003b5c",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

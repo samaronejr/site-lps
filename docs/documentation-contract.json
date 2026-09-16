@@ -142,11 +142,11 @@
       "sources": [
         {
           "path": "wp-content/themes/lps-theme/theme.json",
-          "sha256": "73f4d650f719c3cc33b1980799a96e6337808ea13b583d4b4631b75a8878e1d5"
+          "sha256": "11cac45d5155c45ac882b39f96c33616093926f3e12c40ec336ec70991333a6d"
         },
         {
           "path": "DESIGN.md",
-          "sha256": "a9f7e11e98cd95bbc32976f86ab982e7392af3554efe328f9f3db7e11261cd74"
+          "sha256": "0bae724aeb44ce0a87c68db46d08e058128d41222bb28ce82a2a9dd79311a5b2"
         }
       ]
     },

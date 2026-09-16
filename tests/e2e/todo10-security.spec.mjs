@@ -68,10 +68,10 @@ async function enrollTotp(page, journey) {
       new URL(response.url()).pathname === "/wp-admin/profile.php",
     { timeout: 30_000 },
   );
-  const enrollmentProfileUrl = page.waitForURL(
-    (url) => url.pathname === "/wp-admin/profile.php",
-    { waitUntil: "domcontentloaded", timeout: 30_000 },
-  );
+  const enrollmentProfileUrl = page.waitForURL((url) => url.pathname === "/wp-admin/profile.php", {
+    waitUntil: "domcontentloaded",
+    timeout: 30_000,
+  });
   await page.locator("#submit").click();
   await Promise.all([enrollmentSaveResponse, enrollmentProfileUrl]);
 
@@ -87,10 +87,10 @@ async function enrollTotp(page, journey) {
       new URL(response.url()).pathname === "/wp-admin/profile.php",
     { timeout: 30_000 },
   );
-  const primaryProfileUrl = page.waitForURL(
-    (url) => url.pathname === "/wp-admin/profile.php",
-    { waitUntil: "domcontentloaded", timeout: 30_000 },
-  );
+  const primaryProfileUrl = page.waitForURL((url) => url.pathname === "/wp-admin/profile.php", {
+    waitUntil: "domcontentloaded",
+    timeout: 30_000,
+  });
   await page.locator("#submit").click();
   await Promise.all([primarySaveResponse, primaryProfileUrl]);
 

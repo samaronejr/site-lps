@@ -1,0 +1,6 @@
+/* VIOLATION (DESIGN.md §7): a gradient on a card surface. Written the way a
+   competent implementer would write it, so every colour already resolves to a token
+   and no raw-hex rule can see it. */
+.lps-record-card {
+  background-image: linear-gradient(180deg, var(--color-paper), var(--color-paper-muted));
+}
