@@ -26,10 +26,11 @@ exact versions; a different major will produce lockfile churn that the gates rej
 (`tools/composer install`, `tools/composer lint`, `tools/composer test`).
 
 **`tools/composer analyse` runs out of memory.**
-Known pre-existing condition: PHPStan exhausts 512M on the untouched
-`wp-content/plugins/lps-content-model/includes/class-importer.php`. Do not raise the memory limit and
-do not run it repeatedly on a shared host; run the targeted suites you need with
-`tools/composer test` instead.
+That was the PHP.wasm fallback runtime, whose allocator could not finish the level-max analysis at
+512M, 1G or 1536M. Provision the native runtime once with `tools/setup-php-native`; `tools/composer`
+then runs PHPStan through `tools/php` under the 1536M limit in `tools/php-native.ini`, and the full
+analysis completes (measured 2026-09-13: 31 s wall clock, 727 MiB peak resident set). Do not raise the
+memory limit to work around the wasm ceiling, and do not run the analysis repeatedly on a shared host.
 
 ## Gates
 

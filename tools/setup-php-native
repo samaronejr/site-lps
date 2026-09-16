@@ -23,7 +23,7 @@ curl --fail --silent --show-error --location --proto '=https' --tlsv1.2   --conn
 printf '%s  %s\n' "$COMPOSER_SHA384" "$DOWNLOADS/composer.phar" | sha384sum --check --strict
 mv "$DOWNLOADS/composer.phar" "$RUNTIME/composer.phar"
 "$ROOT/tools/php" --version
-"$ROOT/tools/php" -r 'foreach (["ctype", "curl", "dom", "fileinfo", "iconv", "mbstring", "Phar", "SimpleXML", "tokenizer", "xml", "xmlreader", "xmlwriter", "zip"] as $extension) { if (!extension_loaded($extension)) { fwrite(STDERR, "Missing extension: $extension\n"); exit(1); } }'
+"$ROOT/tools/php" -r 'foreach (["ctype", "curl", "dom", "fileinfo", "iconv", "mbstring", "Phar", "posix", "SimpleXML", "tokenizer", "xml", "xmlreader", "xmlwriter", "zip"] as $extension) { if (!extension_loaded($extension)) { fwrite(STDERR, "Missing extension: $extension\n"); exit(1); } }'
 "$ROOT/tools/php" "$RUNTIME/composer.phar" --version
 touch "$RUNTIME/ready"
 printf 'Activate: export PATH="%s/tools:$PATH"\n' "$ROOT"

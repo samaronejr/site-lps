@@ -306,6 +306,48 @@ final class Shell {
 		return self::footer_markup( self::current_locale( $path ) );
 	}
 
+	/** Renders core-post metadata through the public shell's locale path. */
+	public static function render_post_metadata(): string {
+		$raw_date = get_the_date( 'Y-m-d' );
+		$raw_time = get_the_date( 'c' );
+		// WordPress can return false without a post, or a non-string from date filters.
+		if ( ! is_string( $raw_date ) || ! is_string( $raw_time ) ) {
+			return '';
+		}
+		$locale           = self::current_locale( self::request_path() );
+		$labels           = array();
+		$default_category = get_option( 'default_category' );
+		foreach ( get_the_category() as $category ) {
+			// Default CMS taxonomy is a missing-category state, not a public archive.
+			$labels[] = is_numeric( $default_category ) && (int) $default_category === $category->term_id
+				? ( 'en' === $locale ? 'Uncategorized' : 'Sem categoria' )
+				: $category->name;
+		}
+		return self::post_metadata_markup( $raw_date, $raw_time, $labels, $locale );
+	}
+
+	/**
+	 * Builds the localized core-post metadata markup.
+	 *
+	 * @param string             $raw_date   Stored publication date.
+	 * @param string             $raw_time   Stored publication timestamp.
+	 * @param array<int, string> $categories Public category labels, as stored by WordPress.
+	 * @param string             $locale     Supported locale slug.
+	 */
+	public static function post_metadata_markup( string $raw_date, string $raw_time, array $categories, string $locale ): string {
+		$date   = DiscoverySurfaces::format_date( $raw_date, 'day', $locale );
+		$html   = '<div class="wp-block-post-date"><time datetime="' . esc_attr( $raw_time ) . '">' . self::escape( $date ) . '</time></div>';
+		$labels = array();
+		foreach ( $categories as $category ) {
+			// WordPress stores term names entity-encoded, like titles; decode before output escaping.
+			$labels[] = html_entity_decode( $category, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+		}
+		if ( array() !== $labels ) {
+			$html .= '<div class="wp-block-post-terms">' . self::escape( implode( ', ', $labels ) ) . '</div>';
+		}
+		return $html;
+	}
+
 	/** Renders breadcrumbs outside front-page and 404 contexts. */
 	public static function render_breadcrumbs(): string {
 		if ( ! function_exists( 'is_front_page' ) || is_front_page() || is_404() ) {
@@ -343,7 +385,8 @@ final class Shell {
 			$archive,
 			$locale
 		);
-		return '<nav class="lps-breadcrumbs lps-page-grid" aria-label="' . self::escape( $label ) . '"><ol><li><a href="' . $home . '">' . ( $english ? 'Home' : 'Início' ) . '</a></li><li aria-current="page">' . self::escape( $title ) . '</li></ol></nav>';
+		// WordPress title filters already encode entities; decode before output escaping.
+		return '<nav class="lps-breadcrumbs lps-page-grid" aria-label="' . self::escape( $label ) . '"><ol><li><a href="' . $home . '">' . ( $english ? 'Home' : 'Início' ) . '</a></li><li aria-current="page">' . self::escape( html_entity_decode( $title, ENT_QUOTES | ENT_HTML5, 'UTF-8' ) ) . '</li></ol></nav>';
 	}
 
 	/**

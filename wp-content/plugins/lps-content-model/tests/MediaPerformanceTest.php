@@ -9,15 +9,19 @@ declare(strict_types=1);
 
 namespace LPS\ContentModel\Tests;
 
-require_once __DIR__ . '/MediaTestFixtures.php';
+require_once __DIR__ . '/trait-mediatestfixtures.php';
 
 use LPS\ContentModel\MediaPolicy;
-use PHPUnit\Framework\TestCase;
 
-final class MediaPerformanceTest extends TestCase {
+/** Todo 21 media delivery tests: modern formats, dimensions, and single LCP priority. */
+final class MediaPerformanceTest extends \PHPUnit\Framework\TestCase {
 	use MediaTestFixtures;
 
-	/** @return array<string, mixed> */
+	/**
+	 * Provides modern asset.
+	 *
+	 * @return array<string, mixed>
+	 */
 	private static function modern_asset(): array {
 		return array_merge(
 			self::valid_image_asset(),
@@ -30,6 +34,9 @@ final class MediaPerformanceTest extends TestCase {
 		);
 	}
 
+	/**
+	 * Verifies that hero renders avif then webp with a legacy fallback and dimensions.
+	 */
 	public function test_hero_renders_avif_then_webp_with_a_legacy_fallback_and_dimensions(): void {
 		// Given: a governed hero asset with modern derivatives.
 		$html = MediaPolicy::render_image(
@@ -58,6 +65,9 @@ final class MediaPerformanceTest extends TestCase {
 		self::assertStringContainsString( 'loading="eager" fetchpriority="high"', $html );
 	}
 
+	/**
+	 * Verifies that below fold media keeps modern formats but never claims priority.
+	 */
 	public function test_below_fold_media_keeps_modern_formats_but_never_claims_priority(): void {
 		$html = MediaPolicy::render_image(
 			self::image_usage( 'Detalhe do arranjo experimental', false, 'article-body', 'content' ),
@@ -70,6 +80,9 @@ final class MediaPerformanceTest extends TestCase {
 		self::assertStringContainsString( 'width="2400" height="1600"', $html );
 	}
 
+	/**
+	 * Verifies that assets without modern derivatives render a plain sized image.
+	 */
 	public function test_assets_without_modern_derivatives_render_a_plain_sized_image(): void {
 		// Given: a legacy asset with no AVIF/WebP derivative.
 		$html = MediaPolicy::render_image(
@@ -84,6 +97,9 @@ final class MediaPerformanceTest extends TestCase {
 		self::assertStringContainsString( 'loading="lazy"', $html );
 	}
 
+	/**
+	 * Verifies that modern source markup is escaped and never hotlinked.
+	 */
 	public function test_modern_source_markup_is_escaped_and_never_hotlinked(): void {
 		$asset = array_merge(
 			self::valid_image_asset(),
@@ -96,6 +112,9 @@ final class MediaPerformanceTest extends TestCase {
 		self::assertStringContainsString( '&lt;script&gt;', $html );
 	}
 
+	/**
+	 * Verifies that unapproved source formats are dropped.
+	 */
 	public function test_unapproved_source_formats_are_dropped(): void {
 		$asset = array_merge(
 			self::valid_image_asset(),

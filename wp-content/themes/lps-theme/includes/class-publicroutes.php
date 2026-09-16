@@ -594,34 +594,46 @@ final class PublicRoutes {
 	/**
 	 * Returns published records of one type and locale.
 	 *
+	 * The set is read one bounded page at a time so a single query never asks
+	 * the database for more rows than a pagination limit allows; the pages are
+	 * appended in query order, so the listing sees the same records a single
+	 * wide query would have returned.
+	 *
 	 * @param string $post_type Record type.
 	 * @param string $locale    Supported locale slug.
 	 * @return array<int, WP_Post>
 	 */
 	private static function records( string $post_type, string $locale ): array {
-		$query = new WP_Query(
-			array(
-				'post_type'              => $post_type,
-				'post_status'            => 'publish',
-				'posts_per_page'         => 200,
-				'orderby'                => 'title',
-				'order'                  => 'ASC',
-				'no_found_rows'          => true,
-				'update_post_term_cache' => false,
-				'meta_query'             => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- locale is the routing key of this surface.
-					array(
-						'key'   => '_lps_locale',
-						'value' => $locale,
+		$posts  = array();
+		$offset = 0;
+		do {
+			$query = new WP_Query(
+				array(
+					'post_type'              => $post_type,
+					'post_status'            => 'publish',
+					'posts_per_page'         => 100,
+					'offset'                 => $offset,
+					'orderby'                => 'title',
+					'order'                  => 'ASC',
+					'no_found_rows'          => true,
+					'update_post_term_cache' => false,
+					'meta_query'             => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- locale is the routing key of this surface.
+						array(
+							'key'   => '_lps_locale',
+							'value' => $locale,
+						),
 					),
-				),
-			)
-		);
-		$posts = array();
-		foreach ( $query->posts as $post ) {
-			if ( $post instanceof WP_Post ) {
-				$posts[] = $post;
+				)
+			);
+			$batch = count( $query->posts );
+			foreach ( $query->posts as $post ) {
+				if ( $post instanceof WP_Post ) {
+					$posts[] = $post;
+				}
 			}
-		}
+			$offset += $batch;
+			$kept    = count( $posts );
+		} while ( 100 <= $batch && $kept < 200 );
 		return $posts;
 	}
 
@@ -668,13 +680,19 @@ final class PublicRoutes {
 	/**
 	 * Returns the sanitized listing filters of the current request.
 	 *
+	 * A facet is read only when the request actually submitted a string or an
+	 * array for it, and every value it carries is reduced to a key while it is
+	 * read, so nothing unsanitized exists past this line. Anything else - an
+	 * absent facet, a nested array, a value of another type - contributes no
+	 * filter at all, exactly as an empty submission does.
+	 *
 	 * @return array<string, array<int, string>>
 	 */
 	private static function filters(): array {
 		$filters = array();
 		foreach ( array( 'role', 'status', 'area' ) as $name ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only public listing facet.
-			$raw = isset( $_GET[ $name ] ) ? wp_unslash( $_GET[ $name ] ) : array();
+			$raw = isset( $_GET[ $name ] ) && ( is_string( $_GET[ $name ] ) || is_array( $_GET[ $name ] ) ) ? map_deep( wp_unslash( $_GET[ $name ] ), 'sanitize_key' ) : array();
 			if ( is_string( $raw ) ) {
 				$raw = array( $raw );
 			}
@@ -682,7 +700,7 @@ final class PublicRoutes {
 			if ( is_array( $raw ) ) {
 				foreach ( $raw as $value ) {
 					if ( is_string( $value ) && '' !== $value ) {
-						$values[] = sanitize_key( $value );
+						$values[] = $value;
 					}
 				}
 			}

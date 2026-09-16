@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace LPS\Theme;
 
+use Generator;
 use LPS\ContentModel\SeoPolicy;
 use LPS\ContentModel\StructuredData;
 use LPS\ContentModel\TrustSurfacePolicy;
@@ -103,22 +104,22 @@ final class SeoRoutes {
 	 * @var array<string, array<string, string>>
 	 */
 	private const FEEDS = array(
-		'/pt-br/noticias/feed/'      => array(
+		'/pt-br/noticias/feed/' => array(
 			'locale'    => 'pt-br',
 			'post_type' => 'lps_news',
 			'title'     => 'Notícias do LPS',
 		),
-		'/en/news/feed/'             => array(
+		'/en/news/feed/'        => array(
 			'locale'    => 'en',
 			'post_type' => 'lps_news',
 			'title'     => 'LPS news',
 		),
-		'/pt-br/eventos/feed/'       => array(
+		'/pt-br/eventos/feed/'  => array(
 			'locale'    => 'pt-br',
 			'post_type' => 'lps_event',
 			'title'     => 'Eventos do LPS',
 		),
-		'/en/events/feed/'           => array(
+		'/en/events/feed/'      => array(
 			'locale'    => 'en',
 			'post_type' => 'lps_event',
 			'title'     => 'LPS events',
@@ -166,7 +167,7 @@ final class SeoRoutes {
 	 */
 	public static function rewrite_rules(): array {
 		$rules = array(
-			'^sitemap\.xml$'          => 'index.php?' . self::DOCUMENT_QUERY_VAR . '=sitemap-index',
+			'^sitemap\.xml$'            => 'index.php?' . self::DOCUMENT_QUERY_VAR . '=sitemap-index',
 			'^sitemap-(pt-br|en)\.xml$' => 'index.php?' . self::DOCUMENT_QUERY_VAR . '=sitemap-$matches[1]',
 		);
 		foreach ( array_keys( self::FEEDS ) as $path ) {
@@ -217,12 +218,12 @@ final class SeoRoutes {
 	/**
 	 * Replaces robots.txt with the canonical institutional directives.
 	 *
-	 * @param string $output Proposed robots.txt body.
-	 * @param string $public Whether the site is public.
+	 * @param string $output    Proposed robots.txt body.
+	 * @param string $is_public Whether the site is public.
 	 */
-	public static function filter_robots_txt( string $output, string $public ): string {
+	public static function filter_robots_txt( string $output, string $is_public ): string {
 		unset( $output );
-		if ( '1' !== (string) $public ) {
+		if ( '1' !== (string) $is_public ) {
 			return "User-agent: *\nDisallow: /\n";
 		}
 		return SeoSurfaces::robots_txt( self::site_url() );
@@ -966,8 +967,8 @@ final class SeoRoutes {
 			if ( '' === $path ) {
 				continue;
 			}
-			$source = self::source_id( $post );
-			$date   = 'lps_event' === $post_type
+			$source  = self::source_id( $post );
+			$date    = 'lps_event' === $post_type
 				? self::text( get_post_meta( $source, '_lps_starts_at', true ) )
 				: self::text( get_post_meta( $source, '_lps_canonical_date', true ) );
 			$items[] = array(
@@ -983,36 +984,61 @@ final class SeoRoutes {
 	/**
 	 * Returns every published record of the given types in one locale.
 	 *
+	 * The rows are read one bounded page at a time and the locale is matched on
+	 * the loaded records, so no single query asks the database for more rows
+	 * than a pagination limit allows and none of them joins the meta table. The
+	 * pages are appended in query order and the same ceiling still applies, so
+	 * callers observe the record set a single wide query would have returned.
+	 *
 	 * @param array<int, string> $post_types Record types.
 	 * @param string             $locale     Locale slug.
 	 * @return array<int, WP_Post>
 	 */
 	private static function published_records( array $post_types, string $locale ): array {
-		$query = new WP_Query(
+		$posts  = array();
+		$stream = self::streamed_posts(
 			array(
 				'post_type'              => $post_types,
 				'post_status'            => 'publish',
-				'posts_per_page'         => 500,
 				'orderby'                => 'date',
 				'order'                  => 'DESC',
 				'no_found_rows'          => true,
 				'update_post_term_cache' => false,
 				'lang'                   => $locale,
-				'meta_query'             => array(
-					array(
-						'key'   => '_lps_locale',
-						'value' => $locale,
-					),
-				),
 			)
 		);
-		$posts = array();
-		foreach ( $query->posts as $post ) {
-			if ( $post instanceof WP_Post ) {
-				$posts[] = $post;
+		foreach ( $stream as $post ) {
+			if ( self::text( get_post_meta( $post->ID, '_lps_locale', true ) ) !== $locale ) {
+				continue;
+			}
+			$posts[] = $post;
+			if ( count( $posts ) >= 500 ) {
+				break;
 			}
 		}
 		return $posts;
+	}
+
+	/**
+	 * Streams the records of a query one bounded page at a time.
+	 *
+	 * @param array<string, mixed> $args Query arguments without pagination.
+	 * @return Generator<int, WP_Post>
+	 */
+	private static function streamed_posts( array $args ): Generator {
+		$offset = 0;
+		do {
+			$args['posts_per_page'] = 100;
+			$args['offset']         = $offset;
+			$query                  = new WP_Query( $args );
+			$batch                  = count( $query->posts );
+			foreach ( $query->posts as $post ) {
+				if ( $post instanceof WP_Post ) {
+					yield $post;
+				}
+			}
+			$offset += $batch;
+		} while ( 100 <= $batch );
 	}
 
 	/**
@@ -1021,25 +1047,26 @@ final class SeoRoutes {
 	 * @return array<string, array<string, mixed>>
 	 */
 	public static function redirect_graph(): array {
-		$query = new WP_Query(
+		$graph  = array();
+		$read   = 0;
+		$stream = self::streamed_posts(
 			array(
 				'post_type'              => 'lps_redirect',
 				'post_status'            => 'publish',
-				'posts_per_page'         => 500,
 				'no_found_rows'          => true,
 				'update_post_term_cache' => false,
 			)
 		);
-		$graph = array();
-		foreach ( $query->posts as $post ) {
-			if ( ! $post instanceof WP_Post ) {
-				continue;
+		foreach ( $stream as $post ) {
+			++$read;
+			if ( $read > 500 ) {
+				break;
 			}
 			$source = SeoPolicy::canonical_path( self::text( get_post_meta( $post->ID, '_lps_redirect_source', true ) ) );
 			if ( '/' === $source ) {
 				continue;
 			}
-			$gone            = (bool) get_post_meta( $post->ID, '_lps_redirect_gone', true );
+			$gone             = (bool) get_post_meta( $post->ID, '_lps_redirect_gone', true );
 			$graph[ $source ] = $gone
 				? array( 'status' => 410 )
 				: array(

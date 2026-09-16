@@ -17,7 +17,7 @@ require_once __DIR__ . '/class-importcontracts.php';
  * This canonical typed schema data table is intentionally kept together.
  *
  * @phpstan-type TypeDefinition array{labels: array{name: string, singular_name: string}, public: bool, builtin: bool, show_in_rest: bool, rest_base: string, supports: list<string>}
- * @phpstan-type FieldDefinition array{type: string, single: bool, description: string, show_in_rest: bool, sanitize_callback: callable(mixed): mixed, auth_callback: callable(): bool}
+ * @phpstan-type FieldDefinition array{type: string, single: bool, description: string, show_in_rest: bool, sanitize_callback: callable(mixed): mixed, auth_callback: callable(mixed, string, int, int): bool}
  * @phpstan-type PropertyDefinition array{type: string, minimum?: int, maximum?: int, format?: string}
  */
 final class Contracts {

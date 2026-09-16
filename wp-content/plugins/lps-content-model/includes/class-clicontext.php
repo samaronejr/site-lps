@@ -23,10 +23,11 @@ final class CliContext {
 	 * Loads command context.
 	 *
 	 * @param array<string, string|bool> $assoc_args Named arguments.
+	 * @param array<int, string>         $args       Positional arguments.
 	 * @return CliContextShape
 	 */
-	public static function load( array $assoc_args ): array {
-		$input     = self::argument( $assoc_args, 'input', 'LPS_IMPORT_INPUT', dirname( __DIR__ ) . '/tests/fixtures/todo12-migration.json' );
+	public static function load( array $assoc_args, array $args = array() ): array {
+		$input     = self::input_path( $assoc_args, $args );
 		$assets    = self::argument( $assoc_args, 'assets-dir', 'LPS_IMPORT_ASSETS_DIR', dirname( __DIR__ ) . '/tests/fixtures' );
 		$inventory = self::argument( $assoc_args, 'inventory', 'LPS_INVENTORY_DIR', dirname( __DIR__, 4 ) . '/content/inventory' );
 		try {
@@ -92,6 +93,25 @@ final class CliContext {
 	}
 
 	/**
+	 * Resolves the package path from --input, a positional argument, the
+	 * environment constant, or the bundled fixture fallback.
+	 *
+	 * @param array<string, string|bool> $assoc_args Named arguments.
+	 * @param array<int, string>         $args       Positional arguments.
+	 */
+	public static function input_path( array $assoc_args, array $args = array() ): string {
+		$named = self::argument( $assoc_args, 'input', 'LPS_IMPORT_INPUT', '' );
+		if ( '' !== $named ) {
+			return $named;
+		}
+		$positional = self::text( $args[0] ?? '' );
+		if ( '' !== $positional ) {
+			return $positional;
+		}
+		return dirname( __DIR__ ) . '/tests/fixtures/todo12-migration.json';
+	}
+
+	/**
 	 * Resolves one argument.
 	 *
 	 * @param array<string, string|bool> $args     Arguments.
@@ -106,5 +126,14 @@ final class CliContext {
 		}
 		$constant_value = defined( $constant ) ? constant( $constant ) : false;
 		return is_string( $constant_value ) ? $constant_value : $fallback;
+	}
+
+	/**
+	 * Converts a boundary scalar to text.
+	 *
+	 * @param mixed $value Value.
+	 */
+	private static function text( mixed $value ): string {
+		return is_scalar( $value ) ? trim( (string) $value ) : '';
 	}
 }

@@ -1,36 +1,42 @@
-# Role acceptance simulations (runnable specs — live execution PENDING)
+# Role acceptance simulations (runnable specs — executed on the local staging runtime)
 
 Each simulation starts from a clean account and fixture, completes one routine end-to-end cycle for
 one role, and attempts one forbidden action. Every step below is written as an agent-executable
 instruction with an observable assertion, because the acceptance criterion is that a fresh agent can
 follow the role guide with no hidden context.
 
-**Execution status: PENDING for every simulation.** They require the institution-managed staging host
-(Todo 27) and a live CMS with provisioned accounts. Nothing in this document has been executed
-against a live environment, and no simulation may be reported as passed until it runs there. The
-statically verifiable parts — the policy matrix, publish gates, translation staleness, import
-determinism and redirect graph — are already covered by
-`tools/composer test` and `npm run test`.
+**Execution status: RUNNABLE and executed against the local staging runtime** built by
+`scripts/deploy/` (see [the staging deployment runbook](../operations/deploy.md)). The runner is
+`node scripts/acceptance/simulate.mjs`; it provisions clean accounts and fixtures, drives every role
+through the real REST/capability surface inside `wp eval-file` probes, performs a real build, deploy
+and rollback for the deployer, asserts public URLs over the TLS edge, and removes every trace it
+created. The latest run's per-check transcript, per-command exit codes and cleanup receipt live under
+`.omo/evidence/task-29/acceptance/` (`results.json`, `commands.jsonl`, `s1..s7` transcripts,
+`cleanup.json`). Execution on the institution-managed staging host remains pending with that host;
+the simulations are written so the same runner works there unchanged.
+
+The statically verifiable parts — the policy matrix, publish gates, translation staleness, import
+determinism and redirect graph — are also covered by `tools/composer test` and `npm run test`.
 
 ## Prerequisites
 
-- A staging site from `docs/operations/infrastructure-preflight.md` with `npm run env:start`-shaped
-  parity, reachable over HTTPS.
-- Seven provisioned accounts, one per policy role, each individual and named, created by an
-  administrator with collection assignments recorded.
-- Two-Factor enrolled for the publisher and administrator accounts.
-- A clean fixture corpus applied with `wp lps import apply --input=<package.json>` and verified with
-  `wp lps import verify --input=<package.json>`.
+- A running staging runtime: `node scripts/deploy/staging.mjs serve` (or an equivalent deployed
+  release) reachable over HTTPS at the edge port. The runner refuses to run anywhere but a loopback
+  staging host.
+- Nothing else: accounts, MFA enrollment, fixtures and secrets are provisioned per run by
+  `scripts/acceptance/probes/provision.php` and deleted by `scripts/acceptance/probes/cleanup.php`.
+  Provisioning sweeps prior simulation residue first, so a run always starts from a clean account
+  and fixture even after an interrupted run.
 - Playwright available: `npx playwright test --list` succeeds.
 
 ## Common harness
 
 | Element | Value |
 | --- | --- |
-| Runner | `npx playwright test tests/e2e/todo20-authenticated.spec.mjs` is the existing authenticated-journey harness the simulations extend. |
-| Waiting | Subscribe to the exact navigation, response or state event before triggering it; bounded timeouts only. No fixed sleep, no polling. |
-| Evidence per run | Full transcript, HTTP status list, audit-ledger rows for the acted-on record, and a screenshot per asserted state. |
-| Reset between runs | Restore the clean fixture; never continue from a previous simulation's residue. |
+| Runner | `node scripts/acceptance/simulate.mjs` — copies the probes into the staging ops volume, writes a per-run secrets file (mode 0600, deleted on cleanup), runs each probe through `wp eval-file`, and records every command's real exit code in `commands.jsonl`. |
+| Waiting | Subscribe to the exact state change before triggering the action where a signal exists; where none exists (release health after a flip), bounded polling with a hard deadline. No unbounded waits. |
+| Evidence per run | Full per-check transcript (`T29JSON` line per probe), HTTP status list asserted through the TLS edge, audit-ledger rows for the acted-on record, and the hash-chain verification. |
+| Reset between runs | `cleanup.php` removes every `t29`-marked record in any status (including `lps_archived` and `trash`, which `WP_Query` 'any' cannot see), both directions of relationship rows, every `t29.*` account, staged uploads and the fixture option; `provision.php` sweeps again before creating fixtures. |
 
 ## S1 — Contributor: create and submit
 
@@ -98,13 +104,16 @@ determinism and redirect graph — are already covered by
 
 ## S7 — Deployer: deploy and roll back
 
-1. Build from a clean checkout: `npm ci`, `tools/composer install`, `npm run build`.
-2. Deploy the `dist/` artifacts to staging per
-   [the release runbook index](../operations/release-runbook-index.md).
-3. Assert the deployed version answers health checks and that no content drift is introduced.
-4. Roll back the release artifact and assert the prior version is restored.
-5. Forbidden action: attempt to edit public content or approve an editorial revision with the deploy
-   credential. Assert denial.
+1. Prove the credential boundary first: the deployer account gets 403 on create, edit, review and
+   publish, and writes no audit rows (`s7-deployer.php`).
+2. Build the release artifacts: `npm run build`.
+3. Deploy a probe release to staging per
+   [the release runbook index](../operations/release-runbook-index.md):
+   `node scripts/deploy/staging.mjs deploy --release=<id>`.
+4. Assert the deployed release answers `/lps-ops/health` with its own release id and that
+   `wp lps import verify --input=<package.json> --inventory=<dir>` reports no content drift.
+5. Roll back: `node scripts/deploy/staging.mjs rollback --to=<prior>`; assert health returns and
+   `current` points at the prior release again.
 
 ## Reporting
 

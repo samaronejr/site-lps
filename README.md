@@ -44,7 +44,7 @@ governance has not named one, the document states the **role** and records a lau
 | `npm run ci` | Lint, test, build and the Playwright test listing in one pass. |
 | `tools/composer lint` | PHPCS (WordPress Coding Standards). |
 | `tools/composer test` | PHPUnit contract and integration tests. |
-| `tools/composer analyse` | PHPStan. Known pre-existing condition: it exhausts memory at 512M on the untouched importer; do not raise the limit to work around it. |
+| `tools/composer analyse` | PHPStan at level max. Provision the native PHP 8.3 runtime once with `tools/setup-php-native`; the full analysis then completes inside the 1536M limit in `tools/php-native.ini`. The recorded 512M exhaustion belonged to the PHP.wasm fallback; do not raise memory limits to work around it. |
 | `node tests/docs/docs-checker.mjs` | Documentation checker: broken links, missing referenced files, unknown commands, removed prerequisites, denied capability claims, stale/expired documentation, and coverage of every setting, collection, role, recurring task, update path and recovery action. |
 
 QA lanes: `npm run qa`, `npm run qa:content`, `npm run qa:links`, `npm run qa:schema`,
@@ -106,8 +106,10 @@ executable contracts:
 - No accessibility reporting contact is named (`accessibility-contact`).
 - No backup encryption recipient key, retention approval or approved RPO/RTO exists
   (`docs/operations/recovery-objectives.json`).
-- The institution-managed staging host is not provisioned, so every live deployment, migration
-  rehearsal, cutover and per-role end-to-end acceptance run remains **PENDING**.
+- The institution-managed staging host is not provisioned, so production cutover and the hosted
+  migration rehearsal remain **PENDING**. The per-role end-to-end acceptance simulations run against
+  the local staging runtime instead: `node scripts/acceptance/simulate.mjs` (see
+  [role acceptance simulations](docs/handbook/role-acceptance-simulations.md)).
 
 Do not resolve a blocker by inventing a name, an address or an approval. Record the documentary
 source, or leave the blocker open.

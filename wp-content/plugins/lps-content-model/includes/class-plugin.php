@@ -262,7 +262,7 @@ final class Plugin {
 		$role      = Roles::policy_role();
 		$action    = 0 < $post_id ? 'edit' : 'create';
 		if ( '' !== $role && ! Roles::current_user_can_action( $action, Roles::collection_for_post_type( $post_type ) ) ) {
-			return self::error( 'lps_collection_scope_forbidden', 'This account is not assigned to this collection or action.', 'type' );
+			return self::error( 'lps_collection_scope_forbidden', 'This account is not assigned to this collection or action.', 'type', array(), 403 );
 		}
 		$incoming = $request->get_param( 'meta' );
 		$incoming = is_array( $incoming ) ? $incoming : array();
@@ -274,7 +274,7 @@ final class Plugin {
 		$locale = Policy::scalar_string( $incoming['_lps_locale'] ?? get_post_meta( $post_id, '_lps_locale', true ) );
 		foreach ( array_keys( $incoming ) as $field ) {
 			if ( ! SecurityPolicy::can_write_field( $role, (string) $field, $locale ) ) {
-				return self::error( 'lps_translator_shared_field_forbidden', 'Translators may change only localized English editorial fields.', (string) $field );
+				return self::error( 'lps_translator_shared_field_forbidden', 'Translators may change only localized English editorial fields.', (string) $field, array(), 403 );
 			}
 		}
 		$meta          = self::merged_meta( $post_type, $post_id, $incoming );
@@ -646,13 +646,14 @@ final class Plugin {
 	 * @param string                $message Human-readable message.
 	 * @param string                $field   Machine field key.
 	 * @param array<string, string> $errors  All field violations.
+	 * @param int                   $status  HTTP status; 403 for authorization denials.
 	 */
-	private static function error( string $code, string $message, string $field, array $errors = array() ): WP_Error {
+	private static function error( string $code, string $message, string $field, array $errors = array(), int $status = 400 ): WP_Error {
 		return new WP_Error(
 			$code,
 			$message,
 			array(
-				'status' => 400,
+				'status' => $status,
 				'field'  => $field,
 				'errors' => $errors,
 			)

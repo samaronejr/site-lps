@@ -34,7 +34,7 @@ namespace LPS\Tests {
 		/**
 		 * Posts table keyed by identifier.
 		 *
-		 * @var array<int, array{ID: int, post_type: string, post_name: string, post_status: string, post_parent: int, post_title: string}>
+		 * @var array<int, array{ID: int, post_type: string, post_name: string, post_status: string, post_parent: int, post_title: string, post_content: string}>
 		 */
 		private static array $posts = array();
 
@@ -55,6 +55,15 @@ namespace LPS\Tests {
 
 		private static int $rewrite_flushes = 0;
 
+		private static int $deletes = 0;
+
+		/**
+		 * Identifiers deleted since the last reset, in deletion order.
+		 *
+		 * @var array<int, int>
+		 */
+		private static array $deleted = array();
+
 		/** Clears database state while keeping the mu-plugin hook registry. */
 		public static function reset(): void {
 			self::$options         = array();
@@ -65,6 +74,8 @@ namespace LPS\Tests {
 			self::$post_updates    = 0;
 			self::$meta_writes     = 0;
 			self::$rewrite_flushes = 0;
+			self::$deletes         = 0;
+			self::$deleted         = array();
 		}
 
 		/** Clears only the write counters, so one request can be measured alone. */
@@ -73,6 +84,7 @@ namespace LPS\Tests {
 			self::$post_updates    = 0;
 			self::$meta_writes     = 0;
 			self::$rewrite_flushes = 0;
+			self::$deletes         = 0;
 		}
 
 		/**
@@ -160,12 +172,13 @@ namespace LPS\Tests {
 			++self::$next_id;
 			++self::$inserts;
 			self::$posts[ $id ] = array(
-				'ID'          => $id,
-				'post_type'   => is_string( $postarr['post_type'] ?? null ) ? $postarr['post_type'] : 'post',
-				'post_name'   => is_string( $postarr['post_name'] ?? null ) ? $postarr['post_name'] : '',
-				'post_status' => is_string( $postarr['post_status'] ?? null ) ? $postarr['post_status'] : 'draft',
-				'post_parent' => is_int( $postarr['post_parent'] ?? null ) ? $postarr['post_parent'] : 0,
-				'post_title'  => is_string( $postarr['post_title'] ?? null ) ? $postarr['post_title'] : '',
+				'ID'           => $id,
+				'post_type'    => is_string( $postarr['post_type'] ?? null ) ? $postarr['post_type'] : 'post',
+				'post_name'    => is_string( $postarr['post_name'] ?? null ) ? $postarr['post_name'] : '',
+				'post_status'  => is_string( $postarr['post_status'] ?? null ) ? $postarr['post_status'] : 'draft',
+				'post_parent'  => is_int( $postarr['post_parent'] ?? null ) ? $postarr['post_parent'] : 0,
+				'post_title'   => is_string( $postarr['post_title'] ?? null ) ? $postarr['post_title'] : '',
+				'post_content' => is_string( $postarr['post_content'] ?? null ) ? $postarr['post_content'] : '',
 			);
 			$meta_input         = $postarr['meta_input'] ?? array();
 			if ( is_array( $meta_input ) ) {
@@ -195,9 +208,40 @@ namespace LPS\Tests {
 		}
 
 		/**
+		 * Deletes one post and its meta, mirroring a forced WordPress deletion.
+		 *
+		 * @return array{ID: int, post_type: string, post_name: string, post_status: string, post_parent: int, post_title: string, post_content: string}|null Deleted row, or null when absent.
+		 */
+		public static function delete_post( int $post_id ): ?array {
+			if ( ! isset( self::$posts[ $post_id ] ) ) {
+				return null;
+			}
+			$row = self::$posts[ $post_id ];
+			unset( self::$posts[ $post_id ], self::$meta[ $post_id ] );
+			++self::$deletes;
+			self::$deleted[] = $post_id;
+			return $row;
+		}
+
+		/**
+		 * Stored rows whose parent is the given record.
+		 *
+		 * @return array<int, array{ID: int, post_type: string, post_name: string, post_status: string, post_parent: int, post_title: string, post_content: string}>
+		 */
+		public static function children( int $parent_id ): array {
+			$children = array();
+			foreach ( self::$posts as $id => $post ) {
+				if ( $post['post_parent'] === $parent_id ) {
+					$children[ $id ] = $post;
+				}
+			}
+			return $children;
+		}
+
+		/**
 		 * Finds one post by slug and type.
 		 *
-		 * @return array{ID: int, post_type: string, post_name: string, post_status: string, post_parent: int, post_title: string}|null
+		 * @return array{ID: int, post_type: string, post_name: string, post_status: string, post_parent: int, post_title: string, post_content: string}|null
 		 */
 		public static function find_post( string $slug, string $post_type ): ?array {
 			foreach ( self::$posts as $post ) {
@@ -252,6 +296,20 @@ namespace LPS\Tests {
 			return self::$rewrite_flushes;
 		}
 
+		/** Total number of post deletions performed since the last counter reset. */
+		public static function deletes(): int {
+			return self::$deletes;
+		}
+
+		/**
+		 * Identifiers deleted since the last reset, in deletion order.
+		 *
+		 * @return array<int, int>
+		 */
+		public static function deleted(): array {
+			return self::$deleted;
+		}
+
 		/** Every write kind combined. */
 		public static function writes(): int {
 			return self::$inserts + self::$post_updates + self::$meta_writes;
@@ -265,7 +323,7 @@ namespace LPS\Tests {
 		/**
 		 * All stored posts.
 		 *
-		 * @return array<int, array{ID: int, post_type: string, post_name: string, post_status: string, post_parent: int, post_title: string}>
+		 * @return array<int, array{ID: int, post_type: string, post_name: string, post_status: string, post_parent: int, post_title: string, post_content: string}>
 		 */
 		public static function posts(): array {
 			return self::$posts;
@@ -293,17 +351,23 @@ namespace LPS\Tests {
 
 		public int $post_parent;
 
+		public string $post_title;
+
+		public string $post_content;
+
 		/**
 		 * Builds the object from a stored row.
 		 *
-		 * @param array{ID: int, post_type: string, post_name: string, post_status: string, post_parent: int, post_title: string} $row Stored post row.
+		 * @param array{ID: int, post_type: string, post_name: string, post_status: string, post_parent: int, post_title: string, post_content: string} $row Stored post row.
 		 */
 		public function __construct( array $row ) {
-			$this->ID          = $row['ID'];
-			$this->post_type   = $row['post_type'];
-			$this->post_name   = $row['post_name'];
-			$this->post_status = $row['post_status'];
-			$this->post_parent = $row['post_parent'];
+			$this->ID           = $row['ID'];
+			$this->post_type    = $row['post_type'];
+			$this->post_name    = $row['post_name'];
+			$this->post_status  = $row['post_status'];
+			$this->post_parent  = $row['post_parent'];
+			$this->post_title   = $row['post_title'];
+			$this->post_content = $row['post_content'];
 		}
 	}
 
@@ -419,6 +483,60 @@ namespace {
 		function wp_update_post( array $postarr, bool $wp_error = false ): int {
 			unset( $wp_error );
 			return \LPS\Tests\WpSeedRuntime::update_post( $postarr );
+		}
+	}
+
+	if ( ! function_exists( 'wp_delete_post' ) ) {
+		/**
+		 * Deletes one post from the seed runtime.
+		 *
+		 * @param bool $force_delete Unused force flag: the runtime has no trash.
+		 * @return \LPS\Tests\SeedPost|false Deleted record, or false when absent.
+		 */
+		function wp_delete_post( int $postid, bool $force_delete = false ): \LPS\Tests\SeedPost|false {
+			unset( $force_delete );
+			$row = \LPS\Tests\WpSeedRuntime::delete_post( $postid );
+			return null === $row ? false : new \LPS\Tests\SeedPost( $row );
+		}
+	}
+
+	if ( ! function_exists( 'get_children' ) ) {
+		/**
+		 * Lists child records of one post in the seed runtime.
+		 *
+		 * @param array<string, mixed> $args   Query arguments; only post_parent is honoured.
+		 * @param string               $output Unused output format.
+		 * @return array<int, \LPS\Tests\SeedPost> Child records keyed by identifier.
+		 */
+		function get_children( array $args = array(), string $output = 'OBJECT' ): array {
+			unset( $output );
+			$parent   = is_int( $args['post_parent'] ?? null ) ? $args['post_parent'] : 0;
+			$children = array();
+			foreach ( \LPS\Tests\WpSeedRuntime::children( $parent ) as $id => $row ) {
+				$children[ $id ] = new \LPS\Tests\SeedPost( $row );
+			}
+			return $children;
+		}
+	}
+
+	if ( ! function_exists( 'get_permalink' ) ) {
+		/**
+		 * Builds the public URL of one record in the seed runtime.
+		 *
+		 * @param \LPS\Tests\SeedPost|int $post      Record or identifier.
+		 * @param bool                    $leavename Unused name-placeholder flag.
+		 * @return string|false Permalink, or false when the record is absent.
+		 */
+		function get_permalink( \LPS\Tests\SeedPost|int $post = 0, bool $leavename = false ): string|false {
+			unset( $leavename );
+			if ( is_int( $post ) ) {
+				$row = \LPS\Tests\WpSeedRuntime::posts()[ $post ] ?? null;
+				if ( null === $row ) {
+					return false;
+				}
+				$post = new \LPS\Tests\SeedPost( $row );
+			}
+			return 'https://lps.test/' . $post->post_name . '/';
 		}
 	}
 

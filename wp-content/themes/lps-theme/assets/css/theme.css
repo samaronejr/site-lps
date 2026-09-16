@@ -34,7 +34,8 @@
   --color-warning-wash: #f2e8d2;
   --color-error-wash: #f2deda;
   --color-focus-offset: #f7f4ec;
-  --font-editorial: "Source Serif 4", "Noto Serif", "Noto Serif CJK SC", "Noto Serif CJK JP", Georgia, serif;
+  --font-editorial:
+    "Source Serif 4", "Noto Serif", "Noto Serif CJK SC", "Noto Serif CJK JP", Georgia, serif;
   --font-interface: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
   --type-display: clamp(2.75rem, 7vw, 5.75rem);
@@ -183,7 +184,9 @@ dd {
   text-decoration-line: underline;
   text-decoration-thickness: var(--rule-thin);
   text-underline-offset: var(--space-1);
-  transition: color var(--motion-fast) var(--ease-state), text-decoration-thickness var(--motion-fast) var(--ease-state);
+  transition:
+    color var(--motion-fast) var(--ease-state),
+    text-decoration-thickness var(--motion-fast) var(--ease-state);
 }
 
 :where(a):hover {
@@ -198,6 +201,14 @@ dd {
 :where(a, button, input, select, textarea, summary, [tabindex], video[controls]):focus-visible {
   outline: var(--rule-focus) solid var(--color-signal);
   outline-offset: var(--focus-offset);
+}
+
+/* Keyboard-landing clearance for the native video host: the browser's
+   scroll-into-view on Tab must account for the full focus-ring width
+   (outline width + offset) so no ring edge lands outside the viewport.
+   Ring size is unchanged; this only reserves landing clearance. */
+:where(video[controls]) {
+  scroll-margin: calc(var(--rule-focus) + var(--focus-offset) + 2px);
 }
 
 .lps-visually-hidden {
@@ -348,6 +359,7 @@ dd {
 
 .lps-shell-disclosure > summary {
   display: flex;
+  margin-inline: var(--space-2);
   min-block-size: var(--control-min);
   align-items: center;
   justify-content: space-between;
@@ -498,7 +510,11 @@ dd {
   font-weight: 700;
   line-height: 1.2;
   text-decoration: none;
-  transition: background-color var(--motion-fast) var(--ease-state), color var(--motion-fast) var(--ease-state), border-color var(--motion-fast) var(--ease-state), transform var(--motion-fast) var(--ease-state);
+  transition:
+    background-color var(--motion-fast) var(--ease-state),
+    color var(--motion-fast) var(--ease-state),
+    border-color var(--motion-fast) var(--ease-state),
+    transform var(--motion-fast) var(--ease-state);
 }
 
 .lps-search button,
@@ -557,14 +573,6 @@ dd {
 
 .lps-main-content {
   padding-block: var(--space-12) var(--space-20);
-}
-
-.lps-main-content > .wp-block-post-title,
-.lps-main-content > .wp-block-query-title,
-.lps-main-content > .wp-block-post-content,
-.lps-main-content > .wp-block-query,
-.lps-main-content > .lps-not-found {
-  grid-column: 1 / -1;
 }
 
 .wp-block-post-content {
@@ -790,6 +798,13 @@ tbody tr:focus-within {
 :where(input, select, textarea):disabled {
   background: var(--color-paper-muted);
   color: var(--color-ink-soft);
+}
+
+/* Balance each complete record title inside its own line-formatting context. */
+.lps-listing > ul > li > a,
+.lps-publications > li > a {
+  display: block;
+  text-wrap: balance;
 }
 
 /* Target size, WCAG 2.2 SC 2.5.8. A control inside a link cluster, a pagination

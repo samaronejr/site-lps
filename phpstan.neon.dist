@@ -8,6 +8,8 @@ parameters:
         - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
         - tests/php/WpCliStub.php
         - tests/fixtures/wp/lps-trust-seed.php
+        - tests/fixtures/wp/lps-wordpress-default-content.php
+        - tests/fixtures/wp/lps-development-bootstrap.php
     excludePaths:
         analyse:
             - tests/php/bootstrap.php

@@ -76,7 +76,7 @@ final class SeoSurfaces {
 		}
 		$markup .= '<meta property="og:site_name" content="' . self::escape( $site_name ) . '">';
 		$markup .= '<meta property="og:locale" content="' . self::escape( SeoPolicy::open_graph_locale( $locale ) ) . '">';
-		$image = self::text( $document['image'] ?? '' );
+		$image   = self::text( $document['image'] ?? '' );
 		if ( '' !== $image ) {
 			$markup .= '<meta property="og:image" content="' . self::escape( $image ) . '">';
 		}

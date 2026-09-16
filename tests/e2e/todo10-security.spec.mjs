@@ -2,10 +2,30 @@ import { createHmac } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
 
-const password = process.env.LPS_TASK10_PASSWORD;
-if (!password) throw new Error("LPS_TASK10_PASSWORD is required");
-const receiptPath = process.env.LPS_TASK10_FIXTURE_RECEIPT;
-if (!receiptPath) throw new Error("LPS_TASK10_FIXTURE_RECEIPT is required");
+/**
+ * Disposable Task 10 runtime inputs are resolved at execution time so that
+ * `playwright --list` (spec discovery) never depends on a disposable site.
+ * Every journey below still fails loudly when the inputs are absent:
+ * `requireTask10Password()` / `requireTask10ReceiptPath()` throw inside the
+ * test body and `login()` re-validates before submitting.
+ */
+function requireTask10Password() {
+  const password = process.env.LPS_TASK10_PASSWORD;
+  if (!password)
+    throw new Error(
+      "LPS_TASK10_PASSWORD is required (set it to the disposable site password at execution time)",
+    );
+  return password;
+}
+
+function requireTask10ReceiptPath() {
+  const receiptPath = process.env.LPS_TASK10_FIXTURE_RECEIPT;
+  if (!receiptPath)
+    throw new Error(
+      "LPS_TASK10_FIXTURE_RECEIPT is required (set it to the disposable provisioner receipt at execution time)",
+    );
+  return receiptPath;
+}
 
 async function assertAuthenticatedSession(page, journey) {
   await page.goto("/wp-admin/profile.php", { waitUntil: "domcontentloaded", timeout: 30_000 });
@@ -20,57 +40,119 @@ async function assertAuthenticatedSession(page, journey) {
 }
 
 async function login(page, loginName, journey) {
+  const password = requireTask10Password();
   await page.context().clearCookies();
   await page.goto("/wp-login.php", { waitUntil: "domcontentloaded" });
   await page.locator("#user_login").fill(loginName);
   await page.locator("#user_pass").fill(password);
   const passwordPost = page.waitForResponse(
     (response) => response.request().method() === "POST" && /wp-login\.php/.test(response.url()),
-    { timeout: 30_000 },
+    { timeout: 60_000 },
   );
   await page.locator("#wp-submit").click();
   await passwordPost;
+  // Bounded outcome contract: after the login POST, exactly one of the MFA
+  // challenge, the authenticated admin bar, or a login error must become
+  // visible. The previous immediate `isVisible()` raced the challenge render.
+  await expect(page.locator("#authcode, body.wp-admin #wpadminbar, #login_error").first())
+    .toBeVisible({ timeout: 15_000 });
   if (await page.locator("#authcode").isVisible()) return "mfa-challenge";
   await assertAuthenticatedSession(page, journey);
   return "authenticated";
 }
 
-function totp(base32) {
+function totpAt(base32, at) {
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
   let bits = "";
   for (const char of base32.replace(/\s/g, "").toUpperCase())
     bits += alphabet.indexOf(char).toString(2).padStart(5, "0");
   const key = Buffer.from((bits.match(/.{8}/g) ?? []).map((byte) => Number.parseInt(byte, 2)));
   const counter = Buffer.alloc(8);
-  counter.writeBigUInt64BE(BigInt(Math.floor(Date.now() / 1000 / 30)));
+  counter.writeBigUInt64BE(BigInt(Math.floor(at / 1000 / 30)));
   const digest = createHmac("sha1", key).update(counter).digest();
   const offset = digest[digest.length - 1] & 15;
   return ((digest.readUInt32BE(offset) & 0x7fffffff) % 1_000_000).toString().padStart(6, "0");
 }
 
+/**
+ * Deterministic TOTP clock policy: never emit a code within the rollover
+ * boundary, and never reuse a 30-second window. Two-Factor records the
+ * timestamp of every code it accepts (`_two_factor_totp_last_successful_login`)
+ * and rejects the same or an older window on the next attempt, so consecutive
+ * challenges (enrollment revalidation, then the login challenge) must each
+ * draw a strictly newer window. Waits a computed (not fixed) interval until
+ * at least 7 seconds remain in a fresh step, bounded by `timeoutMs`.
+ */
+let lastTotpWindow = -1;
+async function stableTotp(base32, { timeoutMs = 35_000 } = {}) {
+  const started = Date.now();
+  for (;;) {
+    const now = Date.now();
+    if (now - started > timeoutMs)
+      throw new Error(`stableTotp: no safe 30-second TOTP window within ${timeoutMs}ms`);
+    const step = Math.floor(now / 30_000);
+    const msIntoStep = now % 30_000;
+    if (step > lastTotpWindow && msIntoStep >= 2_000 && msIntoStep <= 23_000) {
+      lastTotpWindow = step;
+      return totpAt(base32, now);
+    }
+    const waitMs =
+      msIntoStep < 2_000 ? 2_000 - msIntoStep + 250 : 30_000 - msIntoStep + 2_250;
+    await new Promise((resolve) =>
+      setTimeout(resolve, Math.min(waitMs, Math.max(0, timeoutMs - (Date.now() - started)))),
+    );
+  }
+}
+
 async function enrollTotp(page, journey) {
   await assertAuthenticatedSession(page, `${journey}:before-enrollment`);
   const secret = await page.locator("#two-factor-totp-key").inputValue();
-  await page.locator("#two-factor-totp-authcode").fill(totp(secret));
+  await page.locator("#two-factor-totp-authcode").fill(await stableTotp(secret));
   const verificationResponse = page.waitForResponse(
     (response) =>
       /\/wp-json\/two-factor\/.*\/totp/.test(response.url()) &&
       response.request().method() === "POST",
-    { timeout: 30_000 },
+    { timeout: 60_000 },
   );
   await page.locator('input[name="two-factor-totp-submit"]').click();
   expect((await verificationResponse).status()).toBe(200);
   await expect(page.locator("#enabled-Two_Factor_Totp")).toBeChecked();
 
+  // The REST enrollment enables the provider but leaves this session
+  // unauthenticated for two-factor, so the plugin disables the primary-provider
+  // option until the revalidation flow marks the session. Revalidate through
+  // the real wp-login.php?action=revalidate_2fa form before saving the profile.
+  await page.goto(
+    "/wp-login.php?action=revalidate_2fa&redirect_to=" +
+      encodeURIComponent("/wp-admin/profile.php"),
+    { waitUntil: "domcontentloaded" },
+  );
+  // The waiters are registered before the fill, so their timeouts must exceed
+  // stableTotp's bounded wait for a fresh 30-second window (~30s) plus the
+  // POST/redirect round trip; 60s keeps the contract bounded without racing.
+  const revalidateResponse = page.waitForResponse(
+    (response) =>
+      response.request().method() === "POST" && /revalidate_2fa/.test(response.url()),
+    { timeout: 60_000 },
+  );
+  const revalidatedUrl = page.waitForURL((url) => url.pathname === "/wp-admin/profile.php", {
+    waitUntil: "domcontentloaded",
+    timeout: 60_000,
+  });
+  await page.locator("#authcode").fill(await stableTotp(secret));
+  const revalidated = await revalidateResponse;
+  expect([200, 302]).toContain(revalidated.status());
+  await revalidatedUrl;
+
   const enrollmentSaveResponse = page.waitForResponse(
     (response) =>
       response.request().method() === "POST" &&
       new URL(response.url()).pathname === "/wp-admin/profile.php",
-    { timeout: 30_000 },
+    { timeout: 60_000 },
   );
   const enrollmentProfileUrl = page.waitForURL(
     (url) => url.pathname === "/wp-admin/profile.php",
-    { waitUntil: "domcontentloaded", timeout: 30_000 },
+    { waitUntil: "domcontentloaded", timeout: 60_000 },
   );
   await page.locator("#submit").click();
   await Promise.all([enrollmentSaveResponse, enrollmentProfileUrl]);
@@ -85,11 +167,11 @@ async function enrollTotp(page, journey) {
     (response) =>
       response.request().method() === "POST" &&
       new URL(response.url()).pathname === "/wp-admin/profile.php",
-    { timeout: 30_000 },
+    { timeout: 60_000 },
   );
   const primaryProfileUrl = page.waitForURL(
     (url) => url.pathname === "/wp-admin/profile.php",
-    { waitUntil: "domcontentloaded", timeout: 30_000 },
+    { waitUntil: "domcontentloaded", timeout: 60_000 },
   );
   await page.locator("#submit").click();
   await Promise.all([primarySaveResponse, primaryProfileUrl]);
@@ -101,16 +183,21 @@ async function enrollTotp(page, journey) {
 
 async function loginWithTotp(page, loginName, secret, journey) {
   expect(await login(page, loginName, `${journey}:password-stage`)).toBe("mfa-challenge");
-  await expect(page.locator("#authcode")).toBeVisible();
-  await page.locator("#authcode").fill(totp(secret));
+  await expect(page.locator("#authcode")).toBeVisible({ timeout: 15_000 });
+  const code = await stableTotp(secret);
   const authPost = page.waitForResponse(
     (response) =>
       response.request().method() === "POST" &&
       /wp-login\.php.*action=validate_2fa/.test(response.url()),
-    { timeout: 30_000 },
+    { timeout: 60_000 },
   );
-  await page.locator("#submit").click();
+  // Two-Factor auto-submits the challenge on the sixth digit and disables the
+  // submit control, so the POST and the admin navigation are registered before
+  // the fill and no click follows it.
+  const submitted = page.waitForURL(/wp-admin/, { timeout: 60_000 });
+  await page.locator("#authcode").fill(code);
   await authPost;
+  await submitted;
   await assertAuthenticatedSession(page, journey);
 }
 
@@ -147,7 +234,18 @@ test("Todo 10 real role, MFA, denial, and immutable-audit journeys", async ({
   browser,
 }, testInfo) => {
   test.setTimeout(900_000);
-  const fixture = JSON.parse(await readFile(receiptPath, "utf8"));
+  // Execution-time hard failure: discovery stays green without inputs, but a
+  // real journey without the disposable receipt fails here, loudly.
+  const receiptPath = requireTask10ReceiptPath();
+  requireTask10Password();
+  let fixture;
+  try {
+    fixture = JSON.parse(await readFile(receiptPath, "utf8"));
+  } catch (error) {
+    throw new Error(
+      `LPS_TASK10_FIXTURE_RECEIPT unreadable or malformed at ${receiptPath}: ${error.message}`,
+    );
+  }
   expect(fixture.result).toBe("pass");
   expect(fixture.accounts).toHaveLength(7);
   const ids = Object.fromEntries(fixture.accounts.map((account) => [account.login, account.id]));
@@ -188,7 +286,6 @@ test("Todo 10 real role, MFA, denial, and immutable-audit journeys", async ({
   try {
     context = await browser.newContext();
     contexts.push(context);
-    await context.tracing.start({ screenshots: true, snapshots: true, sources: true });
     page = await context.newPage();
     page.setDefaultTimeout(15_000);
     page.setDefaultNavigationTimeout(30_000);
@@ -590,8 +687,6 @@ test("Todo 10 real role, MFA, denial, and immutable-audit journeys", async ({
     }
     throw error;
   } finally {
-    if (context)
-      await context.tracing.stop({ path: testInfo.outputPath("matrix-trace.zip") }).catch(() => {});
     for (const openContext of contexts) await openContext.close().catch(() => {});
   }
 });

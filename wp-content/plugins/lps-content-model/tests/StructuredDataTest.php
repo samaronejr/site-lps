@@ -12,10 +12,9 @@ namespace LPS\ContentModel\Tests;
 require_once dirname( __DIR__ ) . '/includes/class-structureddata.php';
 
 use LPS\ContentModel\StructuredData;
-use PHPUnit\Framework\TestCase;
 
 /** Contract tests for the structured-data boundary. */
-final class StructuredDataTest extends TestCase {
+final class StructuredDataTest extends \PHPUnit\Framework\TestCase {
 	private const SITE = 'https://lps.ufrj.br';
 
 	/**
@@ -339,13 +338,13 @@ final class StructuredDataTest extends TestCase {
 	/**
 	 * Returns one entry of a list branch, proving it is an array first.
 	 *
-	 * @param array<mixed> $list  List branch.
+	 * @param array<mixed> $entries  List branch.
 	 * @param int          $index Entry offset.
 	 * @return array<mixed>
 	 */
-	private static function entry( array $list, int $index ): array {
-		self::assertArrayHasKey( $index, $list );
-		$entry = $list[ $index ];
+	private static function entry( array $entries, int $index ): array {
+		self::assertArrayHasKey( $index, $entries );
+		$entry = $entries[ $index ];
 		self::assertIsArray( $entry );
 		return $entry;
 	}

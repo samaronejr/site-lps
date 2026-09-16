@@ -13,10 +13,9 @@ require_once dirname( __DIR__ ) . '/includes/class-trustsurfaces.php';
 
 use DateTimeImmutable;
 use LPS\Theme\TrustSurfaces;
-use PHPUnit\Framework\TestCase;
 
 /** Contract tests for the trust surface rendering library. */
-final class TrustSurfacesTest extends TestCase {
+final class TrustSurfacesTest extends \PHPUnit\Framework\TestCase {
 	/** A record detail page titles itself once, at H1, never repeating the page title. */
 	public function test_record_detail_headings_are_a_single_h1(): void {
 		// Given: the opportunity and event detail surfaces.
@@ -47,7 +46,7 @@ final class TrustSurfacesTest extends TestCase {
 	/**
 	 * Returns a currently open opportunity fixture.
 	 *
-	 * @return array<string, mixed>
+	 * @return array<string, string|bool>&array{title: string}
 	 */
 	private static function open_opportunity(): array {
 		return array(

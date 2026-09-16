@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedBy": ".omo/evidence/task-29/qa/build-documentation-contract.py",
+  "generatedBy": "tests/docs/build-documentation-contract.py",
   "note": "Coverage items are verified against their declared source before use; a fabricated item fails generation.",
   "documentSet": [
     "README.md",
@@ -46,19 +46,31 @@
   "prerequisites": [
     {
       "doc": "README.md",
-      "tokens": ["npm ci", "npm run env:start", "tools/composer install"]
+      "tokens": [
+        "npm ci",
+        "npm run env:start",
+        "tools/composer install"
+      ]
     },
     {
       "doc": "docs/handbook/editorial-quick-start.md",
-      "tokens": ["_lps_assigned_collections", "Two-Factor"]
+      "tokens": [
+        "_lps_assigned_collections",
+        "Two-Factor"
+      ]
     },
     {
       "doc": "docs/handbook/role-workflows.md",
-      "tokens": ["npm run test", "tools/composer test"]
+      "tokens": [
+        "npm run test",
+        "tools/composer test"
+      ]
     },
     {
       "doc": "docs/handbook/translation-freshness.md",
-      "tokens": ["_lps_source_hash"]
+      "tokens": [
+        "_lps_source_hash"
+      ]
     },
     {
       "doc": "docs/handbook/publication-import-guide.md",
@@ -70,27 +82,41 @@
     },
     {
       "doc": "docs/handbook/role-acceptance-simulations.md",
-      "tokens": ["npx playwright test --list"]
+      "tokens": [
+        "npx playwright test --list"
+      ]
     },
     {
       "doc": "docs/operations/privacy-security-operations.md",
-      "tokens": ["npm run build"]
+      "tokens": [
+        "npm run build"
+      ]
     },
     {
       "doc": "docs/operations/plugin-update-policy.md",
-      "tokens": ["npm ci", "tools/composer install"]
+      "tokens": [
+        "npm ci",
+        "tools/composer install"
+      ]
     },
     {
       "doc": "docs/operations/release-runbook-index.md",
-      "tokens": ["npm run build"]
+      "tokens": [
+        "npm run build"
+      ]
     },
     {
       "doc": "docs/operations/troubleshooting.md",
-      "tokens": ["npm ci", "npm run env:start"]
+      "tokens": [
+        "npm ci",
+        "npm run env:start"
+      ]
     },
     {
       "doc": "docs/operations/evidence-retention.md",
-      "tokens": [".omo/evidence/"]
+      "tokens": [
+        ".omo/evidence/"
+      ]
     }
   ],
   "freshness": [
@@ -98,12 +124,12 @@
       "id": "content-model-contract",
       "kind": "source",
       "doc": "docs/content/data-dictionary.md",
-      "reviewedAt": "2026-09-06",
+      "reviewedAt": "2026-09-15",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
-          "sha256": "fd24b4726d612fb72f107523478100e2f45a8a2e71cb2ef6dae1ff55b0434759"
+          "sha256": "f09d4d7deead3c2f952b83608838958bcb58845a16e2202eebf5a883c0a9a056"
         }
       ]
     },
@@ -111,7 +137,7 @@
       "id": "role-policy-matrix",
       "kind": "source",
       "doc": "docs/handbook/role-workflows.md",
-      "reviewedAt": "2026-09-06",
+      "reviewedAt": "2026-09-15",
       "maxAgeDays": 180,
       "sources": [
         {
@@ -124,7 +150,7 @@
       "id": "translation-en-editorial-fields",
       "kind": "translation",
       "doc": "docs/handbook/translation-freshness.md",
-      "reviewedAt": "2026-09-06",
+      "reviewedAt": "2026-09-15",
       "maxAgeDays": 180,
       "sources": [
         {
@@ -137,12 +163,12 @@
       "id": "design-tokens",
       "kind": "source",
       "doc": "docs/design/design-system-guide.md",
-      "reviewedAt": "2026-09-08",
+      "reviewedAt": "2026-09-15",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "wp-content/themes/lps-theme/theme.json",
-          "sha256": "73f4d650f719c3cc33b1980799a96e6337808ea13b583d4b4631b75a8878e1d5"
+          "sha256": "cb25500067852c4bf34bb2fdc851ee7285c3ad5d2a9ea94b48752f948f2a23ab"
         },
         {
           "path": "DESIGN.md",
@@ -154,7 +180,7 @@
       "id": "governance-matrix",
       "kind": "source",
       "doc": "docs/handbook/editorial-quick-start.md",
-      "reviewedAt": "2026-09-06",
+      "reviewedAt": "2026-09-15",
       "maxAgeDays": 180,
       "sources": [
         {
@@ -167,7 +193,7 @@
       "id": "recovery-objectives",
       "kind": "source",
       "doc": "docs/operations/release-runbook-index.md",
-      "reviewedAt": "2026-09-06",
+      "reviewedAt": "2026-09-15",
       "maxAgeDays": 180,
       "sources": [
         {

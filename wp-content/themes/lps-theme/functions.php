@@ -74,6 +74,7 @@ add_action(
 			'lps-theme/trust'           => array( TrustRoutes::class, 'render_block' ),
 			'lps-theme/header'          => array( Shell::class, 'render_header' ),
 			'lps-theme/breadcrumbs'     => array( Shell::class, 'render_breadcrumbs' ),
+			'lps-theme/post-metadata'   => array( Shell::class, 'render_post_metadata' ),
 			'lps-theme/footer'          => array( Shell::class, 'render_footer' ),
 			'lps-theme/empty-state'     => array( Shell::class, 'render_empty_state' ),
 			'lps-theme/index-title'     => array( Shell::class, 'render_index_title' ),

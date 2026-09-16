@@ -245,10 +245,18 @@ final class Translations {
 		if ( '' === $locale && isset( TranslationPolicy::locales()[ Policy::scalar_string( $incoming['lang'] ?? '' ) ] ) ) {
 			$locale = Policy::scalar_string( $incoming['lang'] );
 		}
-		foreach ( array_keys( $incoming ) as $meta_key ) {
-			$write_error = TranslationPolicy::shared_write_error( $locale, (string) $meta_key, $post_type );
-			if ( null !== $write_error ) {
-				return self::error( $write_error, 'Shared identifiers, dates, and status are owned by the Portuguese authority.', (string) $meta_key );
+		// The Portuguese-authority rule protects only associated translation
+		// variants: their shared fields are owned by the pt-br source and merged
+		// at read time. A standalone English record has no source, so it is its
+		// own authority and must accept its shared fields (the publish contract
+		// requires them, e.g. _lps_canonical_date on lps_news).
+		$source_id = self::source_id( $post_id );
+		if ( null !== $source_id && $source_id !== $post_id ) {
+			foreach ( array_keys( $incoming ) as $meta_key ) {
+				$write_error = TranslationPolicy::shared_write_error( $locale, (string) $meta_key, $post_type );
+				if ( null !== $write_error ) {
+					return self::error( $write_error, 'Shared identifiers, dates, and status are owned by the Portuguese authority.', (string) $meta_key );
+				}
 			}
 		}
 		if ( 'publish' !== $requested_status ) {
@@ -379,7 +387,13 @@ final class Translations {
 			return $check;
 		}
 		$post = get_post( $object_id );
-		if ( $post instanceof WP_Post && null !== TranslationPolicy::shared_write_error( self::locale( $object_id ), $meta_key, $post->post_type ) ) {
+		if ( ! $post instanceof WP_Post ) {
+			return $check;
+		}
+		// Only an associated English variant defers to the Portuguese authority;
+		// a standalone record owns its shared fields.
+		$source_id = self::source_id( $object_id );
+		if ( null !== $source_id && $source_id !== $object_id && null !== TranslationPolicy::shared_write_error( self::locale( $object_id ), $meta_key, $post->post_type ) ) {
 			return false;
 		}
 		return $check;

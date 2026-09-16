@@ -28,7 +28,11 @@ export async function runPa11y({ baseUrl, outputDir }) {
       includeNotices: false,
       includeWarnings: true,
       runners: ["htmlcs"],
-      chromeLaunchConfig: { executablePath, args: ["--no-sandbox"] },
+      chromeLaunchConfig: {
+        executablePath,
+        // Staging terminates TLS with a locally issued certificate.
+        args: ["--no-sandbox", "--ignore-certificate-errors"],
+      },
       timeout: 60000,
       viewport: { width: 1280, height: 900 },
     });

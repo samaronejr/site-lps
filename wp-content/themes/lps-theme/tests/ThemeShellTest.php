@@ -11,12 +11,16 @@ namespace LPS\Theme\Tests;
 
 use LPS\Theme\Shell;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 
 require_once dirname( __DIR__ ) . '/includes/class-shell.php';
 
-final class ThemeShellTest extends TestCase {
-	/** @return array<string, array{string, string}> */
+/** Theme shell contract tests. */
+final class ThemeShellTest extends \PHPUnit\Framework\TestCase {
+	/**
+	 * Provides locale paths.
+	 *
+	 * @return array<string, array{string, string}>
+	 */
 	public static function locale_paths(): array {
 		return array(
 			'portuguese root'                          => array( '/pt-br/', 'pt-br' ),
@@ -25,6 +29,12 @@ final class ThemeShellTest extends TestCase {
 		);
 	}
 
+	/**
+	 * Verifies that detects supported locale from public path.
+	 *
+	 * @param string $path Public request path.
+	 * @param string $expected Expected result.
+	 */
 	#[DataProvider( 'locale_paths' )]
 	public function test_detects_supported_locale_from_public_path( string $path, string $expected ): void {
 		// Given: a public request path.
@@ -35,6 +45,9 @@ final class ThemeShellTest extends TestCase {
 		self::assertSame( $expected, $locale );
 	}
 
+	/**
+	 * Verifies that navigation uses frozen locale routes.
+	 */
 	public function test_navigation_uses_frozen_locale_routes(): void {
 		// Given: the frozen bilingual shell contract.
 		// When: both navigation maps are requested.
@@ -139,6 +152,9 @@ final class ThemeShellTest extends TestCase {
 		self::assertStringContainsString( 'href="' . $external . '"', $header );
 	}
 
+	/**
+	 * Verifies that shell markup exposes server rendered global controls.
+	 */
 	public function test_shell_markup_exposes_server_rendered_global_controls(): void {
 		// Given: a Portuguese shell rendered without client JavaScript.
 		// When: the header and footer markup are built.
@@ -159,6 +175,9 @@ final class ThemeShellTest extends TestCase {
 		self::assertStringContainsString( '/pt-br/acessibilidade/', $footer );
 	}
 
+	/**
+	 * Verifies that absent locale variant is rendered as an unavailable state.
+	 */
 	public function test_absent_locale_variant_is_rendered_as_an_unavailable_state(): void {
 		// Given: a record with no published English variant.
 		// When: the locale control is rendered with only Portuguese available.

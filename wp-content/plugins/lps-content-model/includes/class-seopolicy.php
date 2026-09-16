@@ -296,7 +296,7 @@ final class SeoPolicy {
 		if ( mb_strlen( $clean ) <= $maximum ) {
 			return $clean;
 		}
-		$cut     = mb_substr( $clean, 0, $maximum - 1 );
+		$cut      = mb_substr( $clean, 0, $maximum - 1 );
 		$boundary = mb_strrpos( $cut, ' ' );
 		if ( false !== $boundary && $boundary > 0 ) {
 			$cut = mb_substr( $cut, 0, $boundary );
@@ -310,7 +310,7 @@ final class SeoPolicy {
 	 * @param string $value Untrusted text.
 	 */
 	private static function collapse( string $value ): string {
-		$stripped = wp_strip_all_tags( $value );
+		$stripped  = wp_strip_all_tags( $value );
 		$collapsed = preg_replace( '/\s+/u', ' ', $stripped );
 		return trim( is_string( $collapsed ) ? $collapsed : $stripped );
 	}

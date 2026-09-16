@@ -12,10 +12,9 @@ namespace LPS\ContentModel\Tests;
 require_once dirname( __DIR__ ) . '/includes/class-seopolicy.php';
 
 use LPS\ContentModel\SeoPolicy;
-use PHPUnit\Framework\TestCase;
 
 /** Contract tests for the SEO policy boundary. */
-final class SeoPolicyTest extends TestCase {
+final class SeoPolicyTest extends \PHPUnit\Framework\TestCase {
 	private const SITE = 'https://lps.ufrj.br';
 
 	/** Locale slugs resolve to BCP47 tags. */
@@ -144,7 +143,7 @@ final class SeoPolicyTest extends TestCase {
 	/** A legacy source resolves in exactly one hop even when the graph chains. */
 	public function test_redirect_chain_is_flattened_to_a_single_hop(): void {
 		$graph = array(
-			'/lps/antigo.html' => array(
+			'/lps/antigo.html'      => array(
 				'target' => '/pt-br/intermediario/',
 				'status' => 301,
 			),

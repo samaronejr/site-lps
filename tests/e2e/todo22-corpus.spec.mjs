@@ -5,16 +5,51 @@ import { expect, test } from "@playwright/test";
 const targetsPath =
   process.env.LPS_CORPUS_TARGETS ?? ".omo/evidence/task-22/live/spot-check-targets.json";
 const evidenceDir = process.env.LPS_CORPUS_EVIDENCE_DIR ?? ".omo/evidence/task-22/browser";
-const {
-  targets,
-  totp_secret: totpSecret,
-  editor: sectionEditor,
-} = JSON.parse(readFileSync(targetsPath, "utf8"));
-const spotChecks = ["record-001", "record-008", "record-006"].map((id) =>
-  targets.find((entry) => entry.record === id),
-);
 
-function totp(base32) {
+/**
+ * Disposable corpus targets are loaded at execution time so that
+ * `playwright --list` never depends on a disposable live import. Each journey
+ * calls `loadCorpusTargets()` first and fails loudly when the file is absent,
+ * unreadable, malformed, or missing the required spot-check records.
+ */
+function loadCorpusTargets() {
+  let raw;
+  try {
+    raw = readFileSync(targetsPath, "utf8");
+  } catch (error) {
+    throw new Error(
+      `LPS_CORPUS_TARGETS unreadable at ${targetsPath}: ${error.message} (provision disposable corpus targets at execution time)`,
+    );
+  }
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch (error) {
+    throw new Error(`LPS_CORPUS_TARGETS malformed JSON at ${targetsPath}: ${error.message}`);
+  }
+  const { targets, totp_secret: totpSecret, editor: sectionEditor } = parsed;
+  if (!Array.isArray(targets) || targets.length === 0)
+    throw new Error(`LPS_CORPUS_TARGETS at ${targetsPath} must contain a non-empty targets array`);
+  if (!totpSecret || typeof totpSecret !== "string")
+    throw new Error(`LPS_CORPUS_TARGETS at ${targetsPath} must contain a totp_secret string`);
+  if (!sectionEditor?.login || !sectionEditor?.password)
+    throw new Error(
+      `LPS_CORPUS_TARGETS at ${targetsPath} must contain editor.login and editor.password`,
+    );
+  const spotChecks = ["record-001", "record-008", "record-006"].map((id) =>
+    targets.find((entry) => entry.record === id),
+  );
+  const missing = ["record-001", "record-008", "record-006"].filter(
+    (_, index) => !spotChecks[index],
+  );
+  if (missing.length > 0)
+    throw new Error(
+      `LPS_CORPUS_TARGETS at ${targetsPath} is missing spot-check records: ${missing.join(", ")}`,
+    );
+  return { targets, totpSecret, sectionEditor, spotChecks };
+}
+
+function totpAt(base32, at) {
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
   let bits = "";
   for (const char of base32.replace(/\s/g, "").toUpperCase()) {
@@ -22,13 +57,43 @@ function totp(base32) {
   }
   const key = Buffer.from((bits.match(/.{8}/g) ?? []).map((byte) => Number.parseInt(byte, 2)));
   const counter = Buffer.alloc(8);
-  counter.writeBigUInt64BE(BigInt(Math.floor(Date.now() / 1000 / 30)));
+  counter.writeBigUInt64BE(BigInt(Math.floor(at / 1000 / 30)));
   const digest = createHmac("sha1", key).update(counter).digest();
   const offset = digest[digest.length - 1] & 15;
   return ((digest.readUInt32BE(offset) & 0x7fffffff) % 1_000_000).toString().padStart(6, "0");
 }
 
-async function login(page) {
+/**
+ * Deterministic TOTP clock policy: never emit a code within the rollover
+ * boundary, and never reuse a 30-second window. Two-Factor records the
+ * timestamp of every code it accepts (`_two_factor_totp_last_successful_login`)
+ * and rejects the same or an older window on the next attempt, so the serial
+ * admin logins below must each draw a strictly newer window. Waits a computed
+ * (not fixed) interval until at least 7 seconds remain in a fresh step,
+ * bounded by `timeoutMs`.
+ */
+let lastTotpWindow = -1;
+async function stableTotp(base32, { timeoutMs = 35_000 } = {}) {
+  const started = Date.now();
+  for (;;) {
+    const now = Date.now();
+    if (now - started > timeoutMs)
+      throw new Error(`stableTotp: no safe 30-second TOTP window within ${timeoutMs}ms`);
+    const step = Math.floor(now / 30_000);
+    const msIntoStep = now % 30_000;
+    if (step > lastTotpWindow && msIntoStep >= 2_000 && msIntoStep <= 23_000) {
+      lastTotpWindow = step;
+      return totpAt(base32, now);
+    }
+    const waitMs =
+      msIntoStep < 2_000 ? 2_000 - msIntoStep + 250 : 30_000 - msIntoStep + 2_250;
+    await new Promise((resolve) =>
+      setTimeout(resolve, Math.min(waitMs, Math.max(0, timeoutMs - (Date.now() - started)))),
+    );
+  }
+}
+
+async function login(page, totpSecret) {
   await page.goto("/wp-admin/profile.php", { waitUntil: "domcontentloaded" });
   if (!/wp-login\.php/.test(page.url())) {
     return;
@@ -42,15 +107,21 @@ async function login(page) {
   await page.locator("#wp-submit").click();
   await passwordPost;
   await expect(page.locator("#authcode")).toBeVisible({ timeout: 30_000 });
-  await page.locator("#authcode").fill(totp(totpSecret));
+  // Register the 2FA POST before filling so the bounded `stableTotp` code
+  // cannot miss its validation window on a 30-second rollover.
   const authPost = page.waitForResponse(
     (response) =>
       response.request().method() === "POST" &&
       /wp-login\.php.*action=validate_2fa/.test(response.url()),
     { timeout: 60_000 },
   );
-  await page.locator("#submit").click();
+  // Two-Factor auto-submits the challenge on the sixth digit and disables the
+  // submit control, so the admin navigation is registered before the fill and
+  // no click follows it.
+  const submitted = page.waitForURL(/wp-admin/, { timeout: 60_000 });
+  await page.locator("#authcode").fill(await stableTotp(totpSecret));
   await authPost;
+  await submitted;
   await page.goto("/wp-admin/profile.php", { waitUntil: "domcontentloaded" });
   await expect(page.locator("#wpadminbar")).toBeVisible({ timeout: 30_000 });
 }
@@ -95,6 +166,7 @@ test.describe("@task-22 migrated launch corpus", () => {
   test.describe.configure({ mode: "serial", timeout: 120_000 });
 
   test("draft records are not publicly exposed in either locale", async ({ page }) => {
+    const { spotChecks } = loadCorpusTargets();
     const observed = [];
     for (const target of spotChecks) {
       for (const [locale, slug] of [
@@ -111,7 +183,8 @@ test.describe("@task-22 migrated launch corpus", () => {
   });
 
   test("the Portuguese authority variants are present in the editor", async ({ page }) => {
-    await login(page);
+    const { spotChecks, totpSecret } = loadCorpusTargets();
+    await login(page, totpSecret);
     await page.goto("/wp-admin/edit.php?post_type=page&post_status=draft&lang=pt-br", {
       waitUntil: "domcontentloaded",
     });
@@ -135,7 +208,8 @@ test.describe("@task-22 migrated launch corpus", () => {
   });
 
   test("the English variants are independent and present in the editor", async ({ page }) => {
-    await login(page);
+    const { spotChecks, totpSecret } = loadCorpusTargets();
+    await login(page, totpSecret);
     await page.goto("/wp-admin/edit.php?post_type=page&post_status=draft&lang=en", {
       waitUntil: "domcontentloaded",
     });
@@ -163,7 +237,8 @@ test.describe("@task-22 migrated launch corpus", () => {
   test("an administrator without a collection assignment cannot edit editorial records", async ({
     page,
   }) => {
-    await login(page);
+    const { totpSecret } = loadCorpusTargets();
+    await login(page, totpSecret);
     await page.goto("/wp-admin/edit.php?post_type=lps_person&post_status=draft&lang=pt-br", {
       waitUntil: "domcontentloaded",
     });
@@ -174,6 +249,7 @@ test.describe("@task-22 migrated launch corpus", () => {
   test("the assigned section editor sees both locale variants of person and opportunity records", async ({
     page,
   }) => {
+    const { targets, sectionEditor } = loadCorpusTargets();
     await loginAs(page, sectionEditor.login, sectionEditor.password);
     const person = targets.find((entry) => entry.record === "record-008");
     const opportunity = targets.find((entry) => entry.record === "record-006");
@@ -210,7 +286,8 @@ test.describe("@task-22 migrated launch corpus", () => {
   test("the translation freshness dashboard reports the unreviewed English variants", async ({
     page,
   }) => {
-    await login(page);
+    const { totpSecret } = loadCorpusTargets();
+    await login(page, totpSecret);
     await page.goto("/wp-admin/tools.php?page=lps-translation-freshness", {
       waitUntil: "domcontentloaded",
     });

@@ -113,9 +113,23 @@ final class Policy {
 		return false !== filter_var( $value, FILTER_VALIDATE_EMAIL ) ? $value : '';
 	}
 
-	/** Checks the metadata edit capability. */
-	public static function can_edit_meta(): bool {
-		return function_exists( 'current_user_can' ) && current_user_can( 'edit_posts' );
+	/**
+	 * Checks the metadata edit capability for the record being written.
+	 *
+	 * The generic `edit_posts` primitive is never granted to the LPS roles: they
+	 * hold the per-type `edit_lps_*` primitives instead, so a blanket
+	 * `edit_posts` check would deny every governed meta write. Authorization is
+	 * evaluated against the specific record through `edit_post`, which maps to
+	 * the per-type primitive and the collection/MFA filters.
+	 *
+	 * @param mixed  $allowed   Current authorization result.
+	 * @param string $meta_key  Metadata key being written.
+	 * @param int    $object_id Record the metadata belongs to.
+	 * @param int    $user_id   Account performing the write.
+	 */
+	public static function can_edit_meta( mixed $allowed, string $meta_key, int $object_id, int $user_id ): bool {
+		unset( $allowed, $meta_key );
+		return function_exists( 'user_can' ) && user_can( $user_id, 'edit_post', $object_id );
 	}
 
 	/**

@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Expected identity of every task-24k fixture provisioning input. scripts/qa/task24/prepare.mjs refuses to provision when an input is absent or does not match these hashes. Hashes are content identities only; no account, credential or snapshot material is published here.",
+  "recompute": "node scripts/qa/task24/identity-inputs.mjs prints the observed values. Updating a value here is an explicit, reviewed change of the accepted input identity.",
+  "archive": {
+    "note": "Read-only historical inputs under LPS_TASK24_HISTORY. wp-content/upgrade, wp-content/cache, wp-content/database, wp-content/themes, wp-content/mu-plugins, wp-content/uploads/lps-qa-media and *.log are excluded from the imported tree: they are rebuilt or replaced by the durable inputs below.",
+    "wordpress": {
+      "path": "repair-attempt-4/live/wordpress",
+      "fileCount": 3961,
+      "treeHash": "7beb9ab9e2e94d0950ff035477413d39b5fe8a85775aad6f31f69a56d9e92a50"
+    },
+    "database": {
+      "path": "repair-attempt-4/live/wordpress/wp-content/database/.ht.sqlite",
+      "sha256": "c7553addc17e1b064b043f2716a89169bca8a05ada7071a36182a39ee2e68e1e"
+    },
+    "historicalFixedDatabase": {
+      "path": "repair-attempt-5/manifests/fixture-fixed.sqlite",
+      "sha256": "6ac32b1477b73d5645a4e040e08f8c623ef1474924c86036fc5c04c3b2d3a915"
+    }
+  },
+  "durable": {
+    "note": "In-repository inputs, resolved from the worktree root. The archive is never a fallback for any of them. Every declared mu-plugin must exist and carry bytes or provisioning fails. Entries with a sha256 are frozen QA recoveries owned by this contract and are pinned to it; entries without one are live fixtures owned by their own lane, and the provisioner records their observed hashes in manifests/identity.json for each run.",
+    "media": {
+      "path": "tests/fixtures/media/assets",
+      "fileCount": 7,
+      "treeHash": "560dbd74aa7841d6e86268935704c80457f857e4fbd794d738bf780195ea3d8b"
+    },
+    "muPlugins": [
+      {
+        "target": "lps-0-content-model-loader.php",
+        "source": "tests/fixtures/wp/lps-0-content-model-loader.php",
+        "sha256": "f87b814b2004650f1da69d358bf6953cd9b3076b8020e8a7fefeb4016697578f",
+        "essential": "Loads the content-model plugin before the seed fixtures run; without it the first boot fatals in the seeds."
+      },
+      {
+        "target": "lps-a11y-seed.php",
+        "source": "tests/fixtures/wp/lps-a11y-seed.php"
+      },
+      {
+        "target": "lps-development-bootstrap.php",
+        "source": "tests/fixtures/wp/lps-development-bootstrap.php"
+      },
+      {
+        "target": "lps-discovery-seed.php",
+        "source": "tests/fixtures/wp/lps-discovery-seed.php"
+      },
+      {
+        "target": "lps-people-seed.php",
+        "source": "tests/fixtures/wp/lps-people-seed.php"
+      },
+      {
+        "target": "lps-search-seed.php",
+        "source": "tests/fixtures/wp/lps-search-seed.php"
+      },
+      {
+        "target": "lps-security.php",
+        "source": "wp-content/mu-plugins/lps-security.php"
+      },
+      {
+        "target": "lps-seo-seed.php",
+        "source": "tests/fixtures/wp/lps-seo-seed.php"
+      },
+      {
+        "target": "lps-trust-seed.php",
+        "source": "tests/fixtures/wp/lps-trust-seed.php"
+      },
+      {
+        "target": "lps-wordpress-default-content.php",
+        "source": "tests/fixtures/wp/lps-wordpress-default-content.php",
+        "note": "Required by lps-development-bootstrap.php and mapped as a mu-plugin in .wp-env.json; the provisioned runtime mirrors that declared set.",
+        "essential": "Shared identity of WordPress install-default placeholder content: the bootstrap removes it before any locale adoption, and inspect.php reports the signature so no provision can reintroduce Sample Page or Hello world! as ordinary records."
+      },
+      {
+        "target": "lps-zz-t24-harness.php",
+        "source": "tests/fixtures/wp/lps-zz-t24-harness.php",
+        "sha256": "494b9b9c6237e7cf51455251cbaf87ed3f1303ad2f24936a5ba3580652a639f9",
+        "essential": "Serves the ?lps_t24=populate|expired|reset|flush|status fixture states that crosscheck.mjs and the capture matrix require."
+      }
+    ]
+  },
+  "administrator": {
+    "note": "Required input of the imported fixture database, validated by ID and granted role only. No login, e-mail address or password material is read or recorded.",
+    "id": 1,
+    "role": "administrator"
+  }
+}

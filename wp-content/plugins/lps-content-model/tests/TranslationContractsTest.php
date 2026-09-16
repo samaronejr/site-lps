@@ -12,24 +12,47 @@ namespace LPS\ContentModel\Tests;
 require_once dirname( __DIR__ ) . '/includes/class-translationpolicy.php';
 
 use LPS\ContentModel\TranslationPolicy;
-use PHPUnit\Framework\TestCase;
 
-final class TranslationContractsTest extends TestCase {
+/** Controlled bilingual publishing and translation freshness tests. */
+final class TranslationContractsTest extends \PHPUnit\Framework\TestCase {
+	/**
+	 * Verifies that declares exact locales and prefixed route contract.
+	 */
 	public function test_declares_exact_locales_and_prefixed_route_contract(): void {
 		self::assertSame(
 			array(
-				'pt-br' => array( 'locale' => 'pt_BR', 'w3c' => 'pt-BR', 'name' => 'Portugues do Brasil' ),
-				'en'    => array( 'locale' => 'en_US', 'w3c' => 'en', 'name' => 'English' ),
+				'pt-br' => array(
+					'locale' => 'pt_BR',
+					'w3c'    => 'pt-BR',
+					'name'   => 'Portugues do Brasil',
+				),
+				'en'    => array(
+					'locale' => 'en_US',
+					'w3c'    => 'en',
+					'name'   => 'English',
+				),
 			),
 			TranslationPolicy::locales()
 		);
-		self::assertSame( array( 'force_lang' => 1, 'hide_default' => 0, 'rewrite' => 1, 'default_lang' => 'pt-br', 'browser' => 0 ), TranslationPolicy::route_options() );
+		self::assertSame(
+			array(
+				'force_lang'   => 1,
+				'hide_default' => 0,
+				'rewrite'      => 1,
+				'default_lang' => 'pt-br',
+				'browser'      => 0,
+			),
+			TranslationPolicy::route_options()
+		);
 		self::assertTrue( TranslationPolicy::route_is_locale_prefixed( '/pt-br/projects/example/' ) );
 		self::assertTrue( TranslationPolicy::route_is_locale_prefixed( '/en/projects/example/' ) );
 		self::assertFalse( TranslationPolicy::route_is_locale_prefixed( '/projects/example/' ) );
 		self::assertFalse( TranslationPolicy::route_is_locale_prefixed( '/fr/projects/example/' ) );
 	}
 
+	/**
+	 * Verifies that required english matrix is explicit and news events are optional.
+	 */
 	public function test_required_english_matrix_is_explicit_and_news_events_are_optional(): void {
 		$required_types = array( 'lps_person', 'lps_research_area', 'lps_project', 'lps_publication', 'lps_opportunity' );
 		foreach ( $required_types as $post_type ) {
@@ -44,8 +67,11 @@ final class TranslationContractsTest extends TestCase {
 		self::assertFalse( TranslationPolicy::requires_english( 'page', 'news' ) );
 	}
 
+	/**
+	 * Verifies that relevant portuguese changes make reviewed english stale.
+	 */
 	public function test_relevant_portuguese_changes_make_reviewed_english_stale(): void {
-		$source = array(
+		$source     = array(
 			'post_title'            => 'Projeto',
 			'post_excerpt'          => 'Resumo',
 			'post_content'          => 'Corpo inicial',
@@ -63,6 +89,9 @@ final class TranslationContractsTest extends TestCase {
 		self::assertSame( $second_hash, TranslationPolicy::source_hash( 'lps_project', $source ) );
 	}
 
+	/**
+	 * Verifies that shared and material fields are not translation owned.
+	 */
 	public function test_shared_and_material_fields_are_not_translation_owned(): void {
 		self::assertContains( '_lps_record_id', TranslationPolicy::shared_meta_keys( 'lps_project' ) );
 		self::assertContains( '_lps_start_date', TranslationPolicy::shared_meta_keys( 'lps_project' ) );
@@ -73,6 +102,9 @@ final class TranslationContractsTest extends TestCase {
 		self::assertNull( TranslationPolicy::shared_write_error( 'pt-br', '_lps_start_date', 'lps_project' ) );
 	}
 
+	/**
+	 * Verifies that publish decisions preserve independent drafts and no fallback.
+	 */
 	public function test_publish_decisions_preserve_independent_drafts_and_no_fallback(): void {
 		self::assertSame( 'lps_required_english_variant_missing', TranslationPolicy::publish_error( 'lps_project', '', 'pt-br', 'publish', null, null ) );
 		self::assertSame( 'lps_required_english_variant_unpublished', TranslationPolicy::publish_error( 'lps_project', '', 'pt-br', 'publish', 'draft', null ) );
@@ -83,20 +115,52 @@ final class TranslationContractsTest extends TestCase {
 		self::assertNull( TranslationPolicy::fallback_post_id( array( 'pt-br' => 10 ), 'en' ) );
 	}
 
+	/**
+	 * Verifies that dashboard rows are missing before stale then type title and id.
+	 */
 	public function test_dashboard_rows_are_missing_before_stale_then_type_title_and_id(): void {
 		$rows = array(
-			array( 'state' => 'stale', 'post_type' => 'lps_project', 'title' => 'Zulu', 'source_id' => 9 ),
-			array( 'state' => 'missing', 'post_type' => 'lps_person', 'title' => 'Ana', 'source_id' => 4 ),
-			array( 'state' => 'missing', 'post_type' => 'lps_person', 'title' => 'Ana', 'source_id' => 2 ),
-			array( 'state' => 'stale', 'post_type' => 'lps_person', 'title' => 'Beta', 'source_id' => 3 ),
+			array(
+				'state'     => 'stale',
+				'post_type' => 'lps_project',
+				'title'     => 'Zulu',
+				'source_id' => 9,
+			),
+			array(
+				'state'     => 'missing',
+				'post_type' => 'lps_person',
+				'title'     => 'Ana',
+				'source_id' => 4,
+			),
+			array(
+				'state'     => 'missing',
+				'post_type' => 'lps_person',
+				'title'     => 'Ana',
+				'source_id' => 2,
+			),
+			array(
+				'state'     => 'stale',
+				'post_type' => 'lps_person',
+				'title'     => 'Beta',
+				'source_id' => 3,
+			),
 		);
 		self::assertSame( array( 2, 4, 3, 9 ), array_column( TranslationPolicy::sort_report( $rows ), 'source_id' ) );
 	}
 
+	/**
+	 * Verifies that only published real variants produce hreflang.
+	 */
 	public function test_only_published_real_variants_produce_hreflang(): void {
 		$variants = array(
-			'pt-br' => array( 'status' => 'publish', 'url' => 'https://example.test/pt-br/projetos/x/' ),
-			'en'    => array( 'status' => 'draft', 'url' => 'https://example.test/en/projects/x/' ),
+			'pt-br' => array(
+				'status' => 'publish',
+				'url'    => 'https://example.test/pt-br/projetos/x/',
+			),
+			'en'    => array(
+				'status' => 'draft',
+				'url'    => 'https://example.test/en/projects/x/',
+			),
 		);
 		self::assertSame( array( 'pt-BR' => 'https://example.test/pt-br/projetos/x/' ), TranslationPolicy::hreflangs( $variants ) );
 		self::assertSame( 'en', TranslationPolicy::html_lang( 'en' ) );

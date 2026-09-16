@@ -1,5 +1,10 @@
 <?php
-/** Todo 10 table-driven authorization fixture. */
+/**
+ * Todo 10 table-driven authorization fixture.
+ *
+ * @package LPS\ContentModel\Tests
+ */
+
 return array(
 	'contributor'     => array(
 		'allow' => array( 'create', 'edit', 'submit' ),

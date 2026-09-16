@@ -12,10 +12,9 @@ namespace LPS\Theme\Tests;
 require_once dirname( __DIR__ ) . '/includes/class-seosurfaces.php';
 
 use LPS\Theme\SeoSurfaces;
-use PHPUnit\Framework\TestCase;
 
 /** Contract tests for the SEO rendering library. */
-final class SeoSurfacesTest extends TestCase {
+final class SeoSurfacesTest extends \PHPUnit\Framework\TestCase {
 	private const SITE = 'https://lps.ufrj.br';
 
 	/**
@@ -80,8 +79,8 @@ final class SeoSurfacesTest extends TestCase {
 
 	/** A page whose counterpart is unpublished emits no alternate at all. */
 	public function test_head_omits_alternates_when_the_counterpart_is_unpublished(): void {
-		$document             = self::document();
-		$variants             = $document['variants'];
+		$document = self::document();
+		$variants = $document['variants'];
 		self::assertIsArray( $variants );
 		$variants['en']       = array(
 			'path'      => '/en/news/new-test-bench/',

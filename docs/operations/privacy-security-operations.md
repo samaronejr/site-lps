@@ -102,8 +102,10 @@ Details and the test matrix for updates are in [the plugin and update policy](pl
 | `npm run test` | JavaScript-side contracts, including the security and recovery fixtures. |
 | `npx playwright test tests/e2e/todo20-privacy.spec.mjs` | Network, cookie and storage audit in a real browser. |
 
-`tools/composer analyse` (PHPStan) is a known pre-existing failure: it exhausts memory at 512M on the
-untouched importer. Do not raise the limit as a workaround; the condition is recorded, not hidden.
+`tools/composer analyse` (PHPStan) runs on the native PHP 8.3 runtime provisioned by
+`tools/setup-php-native`; the recorded 512M exhaustion belonged to the PHP.wasm fallback. On the
+native runtime the full analysis completes inside the 1536M limit in `tools/php-native.ini`. Do not
+raise the limit as a workaround.
 
 ## Incidents
 

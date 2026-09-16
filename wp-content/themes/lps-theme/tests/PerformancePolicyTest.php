@@ -12,13 +12,15 @@ namespace LPS\Theme\Tests;
 use LPS\Theme\AssetPolicy;
 use LPS\Theme\CachePolicy;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 
 require_once dirname( __DIR__ ) . '/includes/class-assetpolicy.php';
 require_once dirname( __DIR__ ) . '/includes/class-cachepolicy.php';
 
-final class PerformancePolicyTest extends TestCase {
+/** Todo 21 delivery policy tests: asset trimming and safe anonymous caching. */
+final class PerformancePolicyTest extends \PHPUnit\Framework\TestCase {
 	/**
+	 * Builds a normalized anonymous public request.
+	 *
 	 * @param array<string, mixed> $overrides Request overrides.
 	 *
 	 * @return array{method: string, path: string, status: int, query: array<string, mixed>, cookies: list<string>, is_admin: bool, logged_in: bool}
@@ -60,6 +62,9 @@ final class PerformancePolicyTest extends TestCase {
 		);
 	}
 
+	/**
+	 * Verifies that public requests drop unused core front end assets.
+	 */
 	public function test_public_requests_drop_unused_core_front_end_assets(): void {
 		// Given: a public page that renders only LPS blocks.
 		$plan = AssetPolicy::dequeue_plan(
@@ -82,7 +87,11 @@ final class PerformancePolicyTest extends TestCase {
 		self::assertNotContains( 'global-styles', $plan['styles'], 'theme.json presets carry the approved design tokens.' );
 	}
 
-	/** @return array<string, array{array<int, string>, bool}> */
+	/**
+	 * Provides block sets.
+	 *
+	 * @return array<string, array{array<int, string>, bool}>
+	 */
 	public static function block_sets(): array {
 		return array(
 			'layout-only blocks need no core CSS' => array( array( 'core/group', 'core/columns', 'lps-theme/header' ), false ),
@@ -95,6 +104,8 @@ final class PerformancePolicyTest extends TestCase {
 	}
 
 	/**
+	 * Retains core styles exactly when rendered blocks require them.
+	 *
 	 * @param array<int, string> $blocks   Rendered block names.
 	 * @param bool               $expected Whether core block CSS is still required.
 	 */
@@ -112,6 +123,9 @@ final class PerformancePolicyTest extends TestCase {
 		self::assertSame( ! $expected, in_array( 'wp-block-library', $plan['styles'], true ) );
 	}
 
+	/**
+	 * Verifies that admin and block editor assets are never stripped.
+	 */
 	public function test_admin_and_block_editor_assets_are_never_stripped(): void {
 		foreach ( array( array( 'is_admin' => true ), array( 'block_editor' => true ) ) as $context ) {
 			$plan = AssetPolicy::dequeue_plan(
@@ -130,10 +144,16 @@ final class PerformancePolicyTest extends TestCase {
 		}
 	}
 
+	/**
+	 * Verifies that the theme ships no render blocking front end javascript.
+	 */
 	public function test_the_theme_ships_no_render_blocking_front_end_javascript(): void {
 		self::assertSame( array(), AssetPolicy::front_end_scripts() );
 	}
 
+	/**
+	 * Verifies that only the two subset faces are preloaded as woff2.
+	 */
 	public function test_only_the_two_subset_faces_are_preloaded_as_woff2(): void {
 		$preloads = AssetPolicy::font_preloads( 'https://lps.example/wp-content/themes/lps-theme' );
 
@@ -146,6 +166,9 @@ final class PerformancePolicyTest extends TestCase {
 		}
 	}
 
+	/**
+	 * Verifies that anonymous html is cacheable with shared ttl and encoding vary.
+	 */
 	public function test_anonymous_html_is_cacheable_with_shared_ttl_and_encoding_vary(): void {
 		$decision = CachePolicy::decide( self::public_request() );
 
@@ -158,6 +181,9 @@ final class PerformancePolicyTest extends TestCase {
 		self::assertContains( 'lps-locale-pt-br', $decision['surrogate_keys'] );
 	}
 
+	/**
+	 * Verifies that allowlisted search and facet queries are cacheable with a short ttl.
+	 */
 	public function test_allowlisted_search_and_facet_queries_are_cacheable_with_a_short_ttl(): void {
 		$decision = CachePolicy::decide(
 			self::public_request(
@@ -179,6 +205,9 @@ final class PerformancePolicyTest extends TestCase {
 		self::assertGreaterThan( 0, $decision['ttl'] );
 	}
 
+	/**
+	 * Verifies that unapproved query parameters are never cached.
+	 */
 	public function test_unapproved_query_parameters_are_never_cached(): void {
 		$decision = CachePolicy::decide(
 			self::public_request(
@@ -197,7 +226,11 @@ final class PerformancePolicyTest extends TestCase {
 		self::assertStringContainsString( 'no-store', $decision['headers']['Cache-Control'] );
 	}
 
-	/** @return array<string, array{array<string, mixed>, string}> */
+	/**
+	 * Provides uncacheable requests.
+	 *
+	 * @return array<string, array{array<string, mixed>, string}>
+	 */
 	public static function uncacheable_requests(): array {
 		return array(
 			'admin screen'          => array(
@@ -233,6 +266,8 @@ final class PerformancePolicyTest extends TestCase {
 	}
 
 	/**
+	 * Refuses shared caching for personalized or unsafe responses.
+	 *
 	 * @param array<string, mixed> $overrides Request overrides.
 	 * @param string               $reason    Expected refusal reason.
 	 */
@@ -248,6 +283,9 @@ final class PerformancePolicyTest extends TestCase {
 		self::assertSame( 0, $decision['ttl'] );
 	}
 
+	/**
+	 * Verifies that a missing page is cacheable only briefly.
+	 */
 	public function test_a_missing_page_is_cacheable_only_briefly(): void {
 		$decision = CachePolicy::decide( self::public_request( array( 'status' => 404 ) ) );
 
@@ -256,6 +294,9 @@ final class PerformancePolicyTest extends TestCase {
 		self::assertSame( CachePolicy::NOT_FOUND_TTL, $decision['ttl'] );
 	}
 
+	/**
+	 * Verifies that publishing a record purges exactly its affected public urls.
+	 */
 	public function test_publishing_a_record_purges_exactly_its_affected_public_urls(): void {
 		// Given: a published Portuguese news record with an English variant and one taxonomy term.
 		$targets = CachePolicy::purge_targets(
@@ -286,6 +327,9 @@ final class PerformancePolicyTest extends TestCase {
 		);
 	}
 
+	/**
+	 * Verifies that purge never touches unrelated records or admin urls.
+	 */
 	public function test_purge_never_touches_unrelated_records_or_admin_urls(): void {
 		$targets = CachePolicy::purge_targets(
 			array(
@@ -305,6 +349,9 @@ final class PerformancePolicyTest extends TestCase {
 		}
 	}
 
+	/**
+	 * Verifies that a draft or unchanged record purges nothing.
+	 */
 	public function test_a_draft_or_unchanged_record_purges_nothing(): void {
 		self::assertSame(
 			array(),

@@ -11,12 +11,11 @@ namespace LPS\Theme\Tests;
 
 use LPS\Theme\PublicRoutes;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 
 require_once dirname( __DIR__ ) . '/includes/class-publicroutes.php';
 
 /** Contract tests for the public people, organization, and infrastructure routes. */
-final class PublicRoutesTest extends TestCase {
+final class PublicRoutesTest extends \PHPUnit\Framework\TestCase {
 	/**
 	 * Provides the frozen locale route for each public record type.
 	 *
@@ -149,7 +148,7 @@ final class PublicRoutesTest extends TestCase {
 		self::assertSame( '/uploads/ana.jpg', $record['photo_url'] );
 		self::assertSame( array( 'student', 'researcher' ), $record['roles'] );
 
-		$encoded = var_export( $record, true );
+		$encoded = (string) wp_json_encode( $record, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES );
 		self::assertStringNotContainsString( 'ana.privada@example.org', $encoded );
 		self::assertStringNotContainsString( 'Rua Privada 10', $encoded );
 		self::assertStringNotContainsString( '+55 21 0000-0000', $encoded );
@@ -235,7 +234,7 @@ final class PublicRoutesTest extends TestCase {
 			)
 		);
 		self::assertFalse( $hidden['public_profile'] );
-		self::assertStringNotContainsString( 'oculto.example', var_export( $hidden, true ) );
+		self::assertStringNotContainsString( 'oculto.example', (string) wp_json_encode( $hidden, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) );
 
 		$visible = PublicRoutes::organization_record(
 			'parceiro-publico',
@@ -274,9 +273,11 @@ final class PublicRoutesTest extends TestCase {
 			)
 		);
 
+		self::assertIsArray( $record['claims'] );
 		self::assertCount( 1, $record['claims'] );
+		self::assertIsArray( $record['claims'][0] );
 		self::assertSame( 'Suporta experimentos reprodutíveis.', $record['claims'][0]['text'] );
-		self::assertStringNotContainsString( 'mais rápido', var_export( $record, true ) );
+		self::assertStringNotContainsString( 'mais rápido', (string) wp_json_encode( $record, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) );
 	}
 
 	/** English variants inherit the Portuguese authority fields they cannot own. */

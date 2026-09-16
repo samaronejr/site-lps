@@ -52,7 +52,7 @@ for (const locale of locales) {
       const projects = await page.goto(locale.projects);
       expect(projects?.status()).toBe(200);
       await page.locator(`a[href="${locale.projects}${locale.projectSlug}/"]`).first().click();
-      await expect(page.locator("article.lps-project")).toBeVisible();
+      await expect(page.locator("article.lps-project")).toBeVisible({ timeout: 15_000 });
 
       // Then: the plain-language summary precedes the technical body.
       const project = await page.locator("article.lps-project").innerHTML();
@@ -63,19 +63,20 @@ for (const locale of locales) {
       await expect(archived).toBeVisible();
       await expect(archived.locator("a")).toHaveCount(0);
 
-      // And: an active member can be followed to a person profile.
+      // And: an active member link is captured for the profile visit below.
       const person = page.locator(`ul.lps-members a[href^="${locale.personPath}"]`).first();
       const personHref = await person.getAttribute("href");
-      const personResponse = await page.goto(personHref);
-      expect(personResponse?.status()).toBe(200);
 
-      // And: the related publication can be followed from the project.
-      await page.goto(`${locale.projects}${locale.projectSlug}/`);
+      // And: the related publication can be followed from the project. The
+      // person profile is visited last instead of revisiting this project URL:
+      // a second visit is served from the browser cache, and the background
+      // stale-while-revalidate revalidation it triggers is tracked as a pending
+      // navigation that never clears, stalling the next locator assertion.
       await page
         .locator(`ul.lps-publications a[href="${locale.publications}${locale.publicationSlug}/"]`)
         .first()
         .click();
-      await expect(page.locator("article.lps-publication")).toBeVisible();
+      await expect(page.locator("article.lps-publication")).toBeVisible({ timeout: 15_000 });
       await expect(page.locator("nav.lps-breadcrumbs")).toBeVisible();
 
       // And: both citation formats download with real payloads and content types.
@@ -98,6 +99,10 @@ for (const locale of locales) {
       );
       const decoded = JSON.parse(await csl.text());
       expect(Array.isArray(decoded.author)).toBe(true);
+
+      // And: the active member can still be followed to a person profile.
+      const personResponse = await page.goto(personHref);
+      expect(personResponse?.status()).toBe(200);
     });
 
     test("keeps the 3000-author export complete", async ({ request }) => {

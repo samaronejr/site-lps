@@ -45,6 +45,10 @@ final class Hardening {
 		// Core re-sends weaker frame/referrer headers on the credential and editor surfaces after `init`.
 		add_action( 'login_init', array( self::class, 'send_headers' ), PHP_INT_MAX );
 		add_action( 'admin_init', array( self::class, 'send_headers' ), PHP_INT_MAX );
+		// The CSP denies core's raw inline `ajaxurl`/`pagenow` script in
+		// admin-header.php, so the same globals are re-emitted through the
+		// nonced inline-script API where the policy can see them.
+		add_action( 'admin_head', array( self::class, 'admin_globals' ), -100 );
 		add_action( 'init', array( self::class, 'production_gate' ), 0 );
 		add_action( 'init', array( self::class, 'remove_unused_features' ) );
 		add_action( 'init', array( self::class, 'register_public_rest' ), 20 );
@@ -174,6 +178,34 @@ final class Hardening {
 		foreach ( self::headers( is_admin(), is_ssl(), self::nonce() ) as $name => $value ) {
 			header( $name . ': ' . $value );
 		}
+	}
+
+	/**
+	 * Re-declares the admin globals core prints in a raw script tag.
+	 *
+	 * `admin-header.php` hardcodes `ajaxurl`, `pagenow`, `typenow`, `adminpage`,
+	 * the locale separators, `isRtl`, and `addLoadEvent` in a tag the CSP cannot
+	 * nonce, so under this policy that tag never executes and every admin script
+	 * that reads those globals (wp.apiRequest, Polylang, heartbeat) fails. The
+	 * same values are printed through `wp_print_inline_script_tag`, which applies
+	 * the `wp_inline_script_attributes` filter and therefore carries the nonce.
+	 */
+	public static function admin_globals(): void {
+		global $current_screen, $hook_suffix, $wp_locale;
+		$screen_id   = $current_screen instanceof \WP_Screen ? $current_screen->id : '';
+		$post_type   = $current_screen instanceof \WP_Screen ? $current_screen->post_type : '';
+		$admin_class = (string) preg_replace( '/[^a-z0-9_-]+/i', '-', is_string( $hook_suffix ) ? $hook_suffix : '' );
+		$thousands   = $wp_locale instanceof \WP_Locale && is_string( $wp_locale->number_format['thousands_sep'] ?? null ) ? $wp_locale->number_format['thousands_sep'] : '';
+		$decimal     = $wp_locale instanceof \WP_Locale && is_string( $wp_locale->number_format['decimal_point'] ?? null ) ? $wp_locale->number_format['decimal_point'] : '';
+		$script      = "addLoadEvent = function(func){if(typeof jQuery!=='undefined')jQuery(function(){func();});else if(typeof wpOnload!=='function'){wpOnload=func;}else{var oldonload=wpOnload;wpOnload=function(){oldonload();func();}}};"
+			. "var ajaxurl = '" . esc_js( admin_url( 'admin-ajax.php', 'relative' ) ) . "',"
+			. "pagenow = '" . esc_js( $screen_id ) . "',"
+			. "typenow = '" . esc_js( $post_type ) . "',"
+			. "adminpage = '" . esc_js( (string) $admin_class ) . "',"
+			. "thousandsSeparator = '" . esc_js( $thousands ) . "',"
+			. "decimalPoint = '" . esc_js( $decimal ) . "',"
+			. 'isRtl = ' . ( is_rtl() ? '1' : '0' ) . ';';
+		wp_print_inline_script_tag( $script );
 	}
 
 	/**
@@ -327,6 +359,12 @@ final class Hardening {
 	 */
 	public static function protect_accounts( mixed $result, mixed $server, \WP_REST_Request $request ): mixed {
 		unset( $server );
+		// Core's /wp/v2/users/me route is self-scoped (permission_callback __return_true,
+		// 401 when anonymous): an authenticated account may always read its own record,
+		// including the edit-context capabilities, without holding list_users.
+		if ( '/wp/v2/users/me' === $request->get_route() && is_user_logged_in() ) {
+			return $result;
+		}
 		if ( str_starts_with( $request->get_route(), '/wp/v2/users' ) && ! current_user_can( 'list_users' ) ) {
 			return new WP_Error( 'lps_accounts_private', 'Account information is restricted.', array( 'status' => 403 ) );
 		}
