@@ -1,0 +1,5 @@
+{
+  "comment": "VIOLATION (DESIGN.md §2, §9 Misuse): the indirect path. No CSS is touched at all. The brand colour enters settings.color.palette, where §2 says it must never be, and styles.elements.link then reaches it by preset reference instead of by literal.",
+  "addPaletteEntry": { "slug": "brand-accent", "name": "Brand accent", "color": "#00aff1" },
+  "setStyleElementLinkTextColor": "var:preset|color|brand-accent"
+}

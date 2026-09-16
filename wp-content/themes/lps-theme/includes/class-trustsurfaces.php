@@ -146,7 +146,7 @@ final class TrustSurfaces {
 		) as $key => $label ) {
 			$value = self::text( $record[ $key ] ?? '' );
 			if ( '' !== $value ) {
-				$html .= '<section class="lps-opportunity-' . self::esc( $key ) . '"><h3>' . self::esc( $label ) . '</h3><p>' . self::esc( $value ) . '</p></section>';
+				$html .= '<section class="lps-opportunity-' . self::esc( $key ) . '"><h2>' . self::esc( $label ) . '</h2><p>' . self::esc( $value ) . '</p></section>';
 			}
 		}
 
@@ -436,7 +436,7 @@ final class TrustSurfaces {
 				continue;
 			}
 			$items .= '<li data-journey="' . self::esc( self::text( $journey['key'] ?? '' ) ) . '">';
-			$items .= '<span class="lps-journey-label">' . self::esc( $label ) . '</span>';
+			$items .= '<h3 class="lps-journey-label">' . self::esc( $label ) . '</h3>';
 			$items .= self::handoff(
 				self::text( $journey['contact'] ?? '' ),
 				! empty( $journey['is_role'] ),
@@ -450,7 +450,10 @@ final class TrustSurfaces {
 		if ( '' === $items ) {
 			return '<p class="lps-empty">' . self::esc( $english ? 'No collaboration route is published yet' : 'Nenhuma rota de colaboração publicada' ) . '</p>';
 		}
-		return '<ul class="lps-collaboration-journeys">' . $items . '</ul>';
+		// The section heading reuses the homepage journeys label so the same
+		// participation intent carries one name across both surfaces.
+		$heading = $english ? 'Take part in LPS' : 'Participe do LPS';
+		return '<section class="lps-journeys" aria-labelledby="lps-journeys-heading"><h2 id="lps-journeys-heading">' . self::esc( $heading ) . '</h2><ul class="lps-collaboration-journeys">' . $items . '</ul></section>';
 	}
 
 	/**

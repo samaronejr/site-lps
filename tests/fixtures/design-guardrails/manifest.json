@@ -1,0 +1,49 @@
+{
+  "description": "Negative fixtures for the DESIGN.md §2/§7/§9 institutional-mark guardrails. Each fixture is an overlay applied on top of the real theme and the real showcase, so a fixture finding is demonstrably new rather than pre-existing noise.",
+  "fixtures": [
+    {
+      "id": "F0-brand-tokens-legal",
+      "title": "Legal control: the two mark-only brand tokens declared as tokens and never used",
+      "css": ["00-brand-tokens-legal.css"],
+      "lanes": ["theme", "showcase"],
+      "expect": []
+    },
+    {
+      "id": "F1-gradient-card",
+      "title": "Gradient on a card surface, written in tokenised form",
+      "css": ["00-brand-tokens-legal.css", "01-gradient-card.css"],
+      "lanes": ["theme", "showcase"],
+      "expect": ["GRADIENT_ON_SURFACE"]
+    },
+    {
+      "id": "F2-brand-link",
+      "title": "Brand-coloured body link, written in tokenised form",
+      "css": ["00-brand-tokens-legal.css", "02-brand-link.css"],
+      "lanes": ["theme", "showcase"],
+      "expect": ["BRAND_COLOR_IN_UI"]
+    },
+    {
+      "id": "F3-decorative-waveform",
+      "title": "Second decorative waveform graphic, neutrally named and monochrome",
+      "css": ["00-brand-tokens-legal.css", "03-decorative-waveform.css"],
+      "html": "03-decorative-waveform.html",
+      "lanes": ["theme", "showcase"],
+      "expect": ["WAVEFORM_ORNAMENT"]
+    },
+    {
+      "id": "F4-brand-focus-ring",
+      "title": "Brand-coloured focus ring, written in tokenised form",
+      "css": ["00-brand-tokens-legal.css", "04-brand-focus-ring.css"],
+      "lanes": ["theme", "showcase"],
+      "expect": ["BRAND_COLOR_IN_UI"]
+    },
+    {
+      "id": "F5-brand-palette-indirect",
+      "title": "Brand colour reached indirectly through theme.json palette plus styles.elements.link",
+      "css": ["00-brand-tokens-legal.css"],
+      "themeJsonOverlay": "05-brand-palette.overlay.json",
+      "lanes": ["theme"],
+      "expect": ["BRAND_COLOR_IN_PALETTE", "BRAND_COLOR_IN_UI"]
+    }
+  ]
+}

@@ -1,5 +1,11 @@
 import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
+import {
+  auditMarkup,
+  auditStylesheet,
+  auditSvgSource,
+  collectLocalSvgReferences,
+} from "../../../scripts/lib/design-guardrails.mjs";
 
 const root = resolve(new URL("../", import.meta.url).pathname);
 const cssArgument = process.argv.slice(2).find((argument) => argument.endsWith(".css"));
@@ -145,6 +151,29 @@ if (/\p{Extended_Pictographic}/u.test(html)) {
 if (!html.includes('name="viewport"'))
   add("MISSING_VIEWPORT", "Responsive viewport metadata is required.");
 if (!html.includes('class="skip-link"')) add("MISSING_SKIP_LINK", "A skip link is required.");
+
+// DESIGN.md 2/7/9 institutional-mark guardrails: gradients on any surface,
+// waveform ornament that is not the cleared mark, and mark-only brand colours
+// reaching a UI declaration.
+findings.push(...auditStylesheet({ source: css, file: cssPath }));
+findings.push(...auditMarkup({ source: html, file: htmlPath }));
+
+const scannedAssets = new Set();
+for (const [origin, source] of [
+  [cssPath, css],
+  [htmlPath, html],
+]) {
+  for (const reference of collectLocalSvgReferences(source)) {
+    const path = resolve(dirname(origin), reference);
+    if (scannedAssets.has(path)) continue;
+    scannedAssets.add(path);
+    try {
+      findings.push(...auditSvgSource({ source: await readFile(path, "utf8"), file: path }));
+    } catch {
+      // An asset the showcase does not ship cannot hide a waveform.
+    }
+  }
+}
 
 const result = {
   lane: "design-system",

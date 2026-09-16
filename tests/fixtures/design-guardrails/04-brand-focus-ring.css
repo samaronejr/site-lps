@@ -1,0 +1,6 @@
+/* VIOLATION (DESIGN.md §2, §9 Misuse): a brand token carrying a focus indicator.
+   `outline` is not a property any existing colour rule inspects. */
+.lps-entry-content a:focus-visible {
+  outline: 3px solid var(--color-brand-accent);
+  outline-offset: 2px;
+}

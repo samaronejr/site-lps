@@ -91,13 +91,14 @@ final class Shell {
 				'en'    => '/en/',
 			)
 		);
+		$mark           = self::mark_symbol();
 		return '<a class="lps-skip-link" href="#lps-main">' . self::escape( $skip ) . '</a>'
 			. '<header class="lps-site-header">'
 			. '<div class="lps-affiliation lps-page-grid"><p lang="pt-BR">Laboratório de Processamento de Sinais <span aria-hidden="true">/</span> UFRJ <span aria-hidden="true">/</span> COPPE</p><p class="lps-meta" lang="pt-BR">Universidade Federal do Rio de Janeiro</p></div>'
-			. '<div class="lps-masthead lps-page-grid"><a class="lps-wordmark" href="' . $home . '" aria-label="LPS — ' . ( $english ? 'home' : 'início' ) . '">LPS</a><p' . ( $english ? '' : ' lang="pt-BR"' ) . '>' . ( $english ? 'Signal Processing Laboratory' : 'Laboratório de Processamento de Sinais' ) . '</p></div>'
+			. '<div class="lps-masthead lps-page-grid"><a class="lps-wordmark" href="' . $home . '" aria-label="LPS - ' . ( $english ? 'home' : 'início' ) . '">' . $mark . 'LPS</a><p' . ( $english ? '' : ' lang="pt-BR"' ) . '>' . ( $english ? 'Signal Processing Laboratory' : 'Laboratório de Processamento de Sinais' ) . '</p></div>'
 			. '<details class="lps-shell-disclosure" open><summary>' . self::escape( $menu ) . '</summary><div class="lps-nav-panel lps-page-grid">'
 			. '<nav class="lps-primary-nav" aria-label="' . self::escape( $nav_label ) . '"><ul>' . $items . '</ul></nav>'
-			. '<div class="lps-shell-tools"><form class="lps-search" role="search" action="' . $home . '" method="get"><label for="lps-search-input">' . self::escape( $search_label ) . '</label><div><input id="lps-search-input" name="s" type="search" autocomplete="off"><button type="submit">' . self::escape( $search_button ) . '</button></div></form>'
+			. '<div class="lps-shell-tools"><form class="lps-search" role="search" aria-label="' . self::escape( $search_label ) . '" action="' . $home . '" method="get"><label for="lps-search-input">' . self::escape( $search_label ) . '</label><div><input id="lps-search-input" name="s" type="search" autocomplete="off"><button type="submit">' . self::escape( $search_button ) . '</button></div></form>'
 			. $locale_control . '<a class="lps-button lps-button-primary" href="' . $collaborate_url . '">' . self::escape( $collaborate ) . '</a></div></div></details></header>';
 	}
 
@@ -188,7 +189,53 @@ final class Shell {
 		}
 		$nav_label = $english ? 'Institutional information' : 'Informações institucionais';
 		$statement = $english ? 'Part of COPPE at the Federal University of Rio de Janeiro.' : 'Parte da COPPE na Universidade Federal do Rio de Janeiro.';
-		return '<footer class="lps-site-footer"><div class="lps-footer-grid lps-page-grid"><p class="lps-wordmark lps-wordmark-light">LPS</p><div><p>' . self::escape( $statement ) . '</p><p class="lps-meta">UFRJ <span aria-hidden="true">/</span> COPPE <span aria-hidden="true">/</span> LPS</p></div><nav aria-label="' . self::escape( $nav_label ) . '"><ul>' . $items . '</ul></nav></div></footer>';
+		$home      = $english ? '/en/' : '/pt-br/';
+		$home_name = $english ? 'LPS - home' : 'LPS - início';
+		return '<footer class="lps-site-footer"><div class="lps-footer-grid lps-page-grid"><a class="lps-wordmark lps-wordmark-light" href="' . $home . '" aria-label="' . self::escape( $home_name ) . '">' . self::mark_symbol() . 'LPS</a><div><p>' . self::escape( $statement ) . '</p><p class="lps-meta">UFRJ <span aria-hidden="true">/</span> COPPE <span aria-hidden="true">/</span> LPS</p></div><nav aria-label="' . self::escape( $nav_label ) . '"><ul>' . $items . '</ul></nav></div></footer>';
+	}
+
+	/**
+	 * Returns the monochrome symbol variant of the institutional mark for UI chrome.
+	 *
+	 * DESIGN.md §9: wherever the mark is itself an interactive affordance or sits in
+	 * UI chrome, only the monochrome derivative is used, coloured by `currentColor`
+	 * from the surrounding token — never a brand token. The symbol is the variant
+	 * without lettering, so it has no legibility floor and needs no step-down at
+	 * narrow widths; the compact and full lockups carry lettering and are reserved
+	 * for non-interactive identity surfaces.
+	 *
+	 * The instance is decorative: the adjacent wordmark already names the
+	 * institution, so the artwork is `aria-hidden` and contributes no accessible
+	 * name. The file is shipped chrome-ready; the only runtime work is a read.
+	 */
+	private static function mark_symbol(): string {
+		static $mark = null;
+		if ( null !== $mark ) {
+			return $mark;
+		}
+		$path = dirname( __DIR__ ) . '/assets/img/mark/lps-mark-mono-symbol.svg';
+		$svg  = is_readable( $path ) ? file_get_contents( $path ) : false;
+		if ( ! is_string( $svg ) || ! str_starts_with( $svg, '<svg ' ) ) {
+			$mark = '';
+			return $mark;
+		}
+		$mark = preg_replace(
+			'/^<svg /',
+			'<svg class="lps-mark" aria-hidden="true" focusable="false" ',
+			trim( $svg ),
+			1
+		);
+		if ( ! is_string( $mark ) ) {
+			return '';
+		}
+		// The symbol is inlined once per chrome surface, so document-scoped
+		// identifiers would repeat on every page (WCAG 4.1.1). The instance is
+		// decorative and aria-hidden, so its title, description, and labelling
+		// attributes are stripped along with every id.
+		$mark = preg_replace( '#<title\b[^>]*>.*?</title>#su', '', $mark );
+		$mark = preg_replace( '#<desc\b[^>]*>.*?</desc>#su', '', (string) $mark );
+		$mark = preg_replace( '/\s(?:id|role|aria-labelledby)="[^"]*"/', '', (string) $mark );
+		return is_string( $mark ) ? $mark : '';
 	}
 
 	/**
@@ -203,7 +250,7 @@ final class Shell {
 	 */
 	public static function make_tables_scrollable_by_keyboard( string $content, array $block ): string {
 		$name = isset( $block['blockName'] ) && is_string( $block['blockName'] ) ? $block['blockName'] : '';
-		if ( 'core/table' !== $name || ! str_contains( $content, 'wp-block-table' ) || str_contains( $content, 'role="region"' ) ) {
+		if ( 'core/table' !== $name || ! str_contains( $content, 'wp-block-table' ) || str_contains( $content, 'lps-table-scroll' ) ) {
 			return $content;
 		}
 		$english = 'en' === self::current_locale( self::request_path() );
@@ -213,10 +260,11 @@ final class Shell {
 		}
 		$hint  = $english ? 'table, scrollable horizontally' : 'tabela, rolagem horizontal';
 		$label = '' === $caption ? ucfirst( $hint ) : $caption . ' (' . $hint . ')';
-		$open  = '#<figure class="wp-block-table#';
+		// A figure that carries a figcaption may only take the doc-example role,
+		// so the named scroll region wraps the figure instead of claiming it.
 		$fixed = preg_replace(
-			$open,
-			'<figure tabindex="0" role="region" aria-label="' . esc_attr( $label ) . '" class="wp-block-table',
+			'#(<figure class="wp-block-table".*?</figure>)#su',
+			'<div class="lps-table-scroll" tabindex="0" role="region" aria-label="' . esc_attr( $label ) . '">$1</div>',
 			$content,
 			1
 		);

@@ -233,7 +233,7 @@ final class SearchSurfaces {
 	 * @param string                            $action       Route path the form submits to.
 	 */
 	private static function form( string $query, string $record, array $facets, array $facet_counts, array $definitions, string $locale, string $action ): string {
-		$html  = '<form class="lps-search-form" method="get" action="' . self::esc( $action ) . '" role="search">';
+		$html  = '<form class="lps-search-form" method="get" action="' . self::esc( $action ) . '" role="search" aria-label="' . self::esc( self::copy( 'legend', $locale ) ) . '">';
 		$html .= '<p><label for="lps-search-q">' . self::esc( self::copy( 'label', $locale ) ) . '</label>';
 		$html .= '<input type="search" id="lps-search-q" name="q" value="' . self::esc( $query ) . '" minlength="2" maxlength="100" aria-describedby="lps-search-hint">';
 		$html .= '<span class="lps-search-hint" id="lps-search-hint">' . self::esc( self::copy( 'hint', $locale ) ) . '</span></p>';

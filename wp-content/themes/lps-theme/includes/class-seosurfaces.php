@@ -64,6 +64,7 @@ final class SeoSurfaces {
 			$markup .= '<meta name="robots" content="' . self::escape( SeoPolicy::robots_directive( $state ) ) . '">';
 		}
 		$markup .= '<link rel="canonical" href="' . self::escape( $canonical ) . '">';
+		$markup .= self::icon_links();
 		foreach ( SeoPolicy::alternates( $site_url, $variants ) as $alternate ) {
 			$markup .= '<link rel="alternate" hreflang="' . self::escape( $alternate['hreflang'] )
 				. '" href="' . self::escape( $alternate['href'] ) . '">';
@@ -79,6 +80,12 @@ final class SeoSurfaces {
 		$image = self::text( $document['image'] ?? '' );
 		if ( '' !== $image ) {
 			$markup .= '<meta property="og:image" content="' . self::escape( $image ) . '">';
+			foreach ( array( 'width', 'height', 'alt' ) as $field ) {
+				$value = self::text( $document[ 'image_' . $field ] ?? '' );
+				if ( '' !== $value ) {
+					$markup .= '<meta property="og:image:' . $field . '" content="' . self::escape( $value ) . '">';
+				}
+			}
 		}
 		$record = is_array( $document['record'] ?? null ) ? $document['record'] : array();
 		foreach ( array( 'type', 'kind' ) as $key ) {
@@ -188,6 +195,21 @@ final class SeoSurfaces {
 		$lines[] = '';
 		$lines[] = 'Sitemap: ' . $origin . '/sitemap.xml';
 		return implode( "\n", $lines ) . "\n";
+	}
+
+	/**
+	 * Returns the browser and OS chrome icon links for the institutional mark.
+	 *
+	 * The favicon and app-icon variants are reserved for these slots alone
+	 * (DESIGN.md §9): they never appear in page content. Every URL is
+	 * root-relative so the head stays origin-agnostic like the rest of the shell.
+	 */
+	private static function icon_links(): string {
+		$base = '/wp-content/themes/lps-theme/assets/img/mark';
+		return '<link rel="icon" href="' . $base . '/lps-mark-favicon.svg" type="image/svg+xml">'
+			. '<link rel="icon" href="' . $base . '/favicon-32.png" type="image/png" sizes="32x32">'
+			. '<link rel="apple-touch-icon" href="' . $base . '/apple-touch-icon.png">'
+			. '<link rel="manifest" href="' . $base . '/site.webmanifest">';
 	}
 
 	/**

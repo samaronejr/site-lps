@@ -321,11 +321,12 @@ final class Homepage {
 			foreach ( self::journeys( $locale ) as $journey ) {
 				$matches = array_values( array_filter( $items, static fn( array $record ): bool => ( $record['page_key'] ?? '' ) === $journey['page_key'] && '' !== trim( self::text( $record['cta'] ?? '' ) ) ) );
 				$html   .= '<li>';
+				$html   .= '<h3 class="lps-journey-label">' . self::escape( $journey['label'] ) . '</h3>';
 				if ( isset( $matches[0] ) ) {
 					$record = $matches[0];
 					$html  .= '<a class="lps-button" data-home-journey="' . $journey['page_key'] . '" data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '" href="' . self::escape( self::text( $record['url'] ) ) . '">' . self::escape( self::text( $record['cta'] ) ) . '</a>';
 				} else {
-					$html .= '<span aria-disabled="true">' . self::escape( $journey['label'] ) . ' — ' . ( $english ? 'information not published' : 'informações não publicadas' ) . '</span>';
+					$html .= '<p class="lps-journey-note" aria-disabled="true">' . ( $english ? 'Information not published' : 'Informações não publicadas' ) . '</p>';
 				}
 				$html .= '</li>';
 			}
@@ -345,6 +346,7 @@ final class Homepage {
 		if ( array() === $items ) {
 			return $html . '<p data-home-empty="' . $section . '">' . ( $english ? 'Reviewed information has not been published for this section.' : 'Informações revisadas ainda não foram publicadas nesta seção.' ) . '</p></section>';
 		}
+		$html .= '<div class="lps-records">';
 		foreach ( $items as $record ) {
 			$html .= '<article class="lps-record" data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '" data-record-id="' . self::escape( self::text( $record['record_id'] ?? '' ) ) . '">';
 			if ( 'mission' !== $section ) {
@@ -352,7 +354,7 @@ final class Homepage {
 			}
 			$html .= '<p>' . self::escape( self::text( $record['summary'] ?? '' ) ) . '</p></article>';
 		}
-		return $html . '</section>';
+		return $html . '</div></section>';
 	}
 
 	/**

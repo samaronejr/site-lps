@@ -32,13 +32,19 @@ custom properties in `theme.css`.
 | `--color-error` | `#A12622` | Errors and destructive action text. |
 | `--color-info-wash`, `--color-success-wash`, `--color-warning-wash`, `--color-error-wash` | washes | Alert backgrounds only. |
 | `--color-focus-offset` | `#F7F4EC` | Focus-ring separation from dark fills. |
+| `--color-brand-deep` | `#094c92` | Mark artwork only; forbidden as text, link, button, control, focus, rule, or surface. |
+| `--color-brand-accent` | `#00aff1` | Mark artwork only; forbidden as text, link, button, control, focus, rule, or surface. |
 
 Rules that reviewers enforce: state is never encoded by colour alone; the signal teal appears only
 for interactive, selected, focused or data-key meaning; ordinary text meets 4.5:1 and large text and
 UI graphics meet 3:1; no gradient, glass, glow or decorative colour field. Official UFRJ/COPPE
 identity colours may replace navy or signal only with documented provenance and equal-or-better
 contrast — no official identity asset is present in this repository, so the documented fallback
-palette is in force.
+palette is in force. The brand-deep and brand-accent tokens are registered in `theme.json` under
+`settings.custom`, outside the editor colour palette, and are reserved exclusively for the
+institutional mark artwork (§9 Mark); they are never applied to text, links, buttons, controls,
+focus indicators, rules, borders, icons, backgrounds, or any surface in the theme, editor, or
+future templates.
 
 ## Typography
 
@@ -97,6 +103,51 @@ Templates live in `wp-content/themes/lps-theme/templates/` (front page, archives
 every record type, search, 404), parts in `wp-content/themes/lps-theme/parts/` and patterns in
 `wp-content/themes/lps-theme/patterns/` (`page-shell.php`, `editorial-section.php`,
 `empty-state.php`). Templates are locked so editors change content, not structure.
+
+## Mark (institutional identity)
+
+The institutional mark is `lps_logo_vector.svg`, the laboratory's own cleared artwork. It appears
+in two contexts and seven variants:
+
+### Full-colour lockup
+Used in non-interactive identity-only contexts: footer identity block, an identity/about
+page figure, press and download pages, and social share images. The lockup displays the wordmark
+with the waveform gradient and brand colours; it is never interactive, never focusable, never placed
+in navigation, and never used as an icon.
+
+### Monochrome derivative
+Used wherever the mark acts as UI chrome: home link in headers and footers, interactive
+navigation or control instances, or any focusable element. The monochrome variant takes a single
+`currentColor` fill, inheriting text colour from its surrounding context. It is never recoloured
+with a brand token. Wherever a lockup's lettering would fall under the legibility floor or
+duplicate an adjacent visible wordmark, the monochrome symbol (`lps-mark-mono-symbol.svg`,
+waveform and baseline rule only) is the chrome variant; the shell header and footer use it inside
+their home links, `aria-hidden` beside the visible wordmark.
+
+### Wave-gradient and ornament
+The `wave-gradient` exists only within the mark artwork itself. It is never extracted, repeated,
+mirrored, tiled, or reused as a divider, watermark, background, or decorative surface. No other
+waveform or gradient is permitted on cards, buttons, rules, focus rings, or any UI surface.
+
+### Clear space and minimum size
+The mark requires clear space on every side equal to at least the cap height of its lettering,
+measured from the artwork's bounding box. The minimum display width is determined by the smallest
+lettering in the variant; do not shrink below the legibility floor. On narrow screens, step down
+the matrix (full lockup → compact lockup → symbol only); never scale below the floor.
+
+### Brand colours are mark-only
+The brand tokens `--color-brand-deep` and `--color-brand-accent` are never applied to any UI
+surface. They exist only to render the mark artwork faithfully. Text, links, buttons, controls,
+focus indicators, rules, borders, icons, backgrounds, and surfaces all use the approved palette
+from the Colour tokens section, never the brand tokens. This restriction is enforced by registering
+the brand tokens in `theme.json` under `settings.custom`, outside the editor colour picker, so
+authors cannot accidentally apply them to content.
+
+### Rights and publication
+No mark variant is published until the rights record exists and is registered as cleared with a
+local asset path. Remote hosting and hotlinking remain forbidden. Until the variant set (Todo 32)
+registers the rights record and placement (Todo 33) integrates the mark, shipped surfaces remain
+text-only institutional identity.
 
 ## Motion and interaction
 

@@ -61,6 +61,7 @@ final class AccessibilitySurfacesTest extends TestCase {
 		self::assertStringContainsString( 'role="region"', $filtered );
 		self::assertStringContainsString( 'aria-label="Equipamentos do laboratório (tabela, rolagem horizontal)"', $filtered );
 		self::assertStringContainsString( 'class="wp-block-table"', $filtered );
+		self::assertStringContainsString( '<div class="lps-table-scroll"', $filtered );
 	}
 
 	/** Verifies that table filter is idempotent and ignores other blocks. */

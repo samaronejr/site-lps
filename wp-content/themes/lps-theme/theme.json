@@ -34,6 +34,10 @@
         { "slug": "success-wash", "name": "Success wash", "color": "#E0ECE5" }
       ]
     },
+    "custom": {
+      "colorBrandDeep": "#094c92",
+      "colorBrandAccent": "#00aff1"
+    },
     "spacing": {
       "customSpacingSize": false,
       "defaultSpacingSizes": false,
@@ -65,12 +69,30 @@
           "name": "Source Serif 4",
           "fontFamily": "\"Source Serif 4\", \"Noto Serif\", \"Noto Serif CJK SC\", \"Noto Serif CJK JP\", Georgia, serif",
           "fontFace": [
-            { "fontFamily": "Source Serif 4", "fontStyle": "normal", "fontWeight": "400", "src": ["file:./assets/fonts/source-serif-4-regular.woff2"] },
-            { "fontFamily": "Source Serif 4", "fontStyle": "normal", "fontWeight": "600 700", "src": ["file:./assets/fonts/source-serif-4-semibold.woff2"] }
+            {
+              "fontFamily": "Source Serif 4",
+              "fontStyle": "normal",
+              "fontWeight": "400",
+              "src": ["file:./assets/fonts/source-serif-4-regular.woff2"]
+            },
+            {
+              "fontFamily": "Source Serif 4",
+              "fontStyle": "normal",
+              "fontWeight": "600 700",
+              "src": ["file:./assets/fonts/source-serif-4-semibold.woff2"]
+            }
           ]
         },
-        { "slug": "interface", "name": "Interface", "fontFamily": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif" },
-        { "slug": "mono", "name": "Technical metadata", "fontFamily": "ui-monospace, \"Cascadia Mono\", \"Segoe UI Mono\", Menlo, Consolas, monospace" }
+        {
+          "slug": "interface",
+          "name": "Interface",
+          "fontFamily": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif"
+        },
+        {
+          "slug": "mono",
+          "name": "Technical metadata",
+          "fontFamily": "ui-monospace, \"Cascadia Mono\", \"Segoe UI Mono\", Menlo, Consolas, monospace"
+        }
       ],
       "fontSizes": [
         { "slug": "meta", "name": "Metadata", "size": "0.75rem" },
@@ -89,18 +111,39 @@
     "shadow": { "defaultPresets": false, "presets": [] },
     "blocks": {
       "core/button": { "border": { "radius": false }, "color": { "custom": false } },
-      "core/group": { "color": { "custom": false }, "spacing": { "padding": true, "margin": true } },
+      "core/group": {
+        "color": { "custom": false },
+        "spacing": { "padding": true, "margin": true }
+      },
       "core/image": { "border": { "radius": false } }
     }
   },
   "styles": {
     "color": { "background": "var:preset|color|paper", "text": "var:preset|color|ink" },
     "spacing": { "blockGap": "var:preset|spacing|6" },
-    "typography": { "fontFamily": "var:preset|font-family|interface", "fontSize": "var:preset|font-size|body", "lineHeight": "1.65" },
+    "typography": {
+      "fontFamily": "var:preset|font-family|interface",
+      "fontSize": "var:preset|font-size|body",
+      "lineHeight": "1.65"
+    },
     "elements": {
-      "heading": { "color": { "text": "var:preset|color|ink" }, "typography": { "fontFamily": "var:preset|font-family|editorial", "fontWeight": "600" } },
-      "link": { "color": { "text": "var:preset|color|signal-hover" }, "typography": { "textDecoration": "underline" } },
-      "button": { "border": { "radius": "0" }, "color": { "background": "var:preset|color|navy", "text": "var:preset|color|paper-raised" }, "typography": { "fontFamily": "var:preset|font-family|interface", "fontSize": "var:preset|font-size|small", "fontWeight": "700" } }
+      "heading": {
+        "color": { "text": "var:preset|color|ink" },
+        "typography": { "fontFamily": "var:preset|font-family|editorial", "fontWeight": "600" }
+      },
+      "link": {
+        "color": { "text": "var:preset|color|signal-hover" },
+        "typography": { "textDecoration": "underline" }
+      },
+      "button": {
+        "border": { "radius": "0" },
+        "color": { "background": "var:preset|color|navy", "text": "var:preset|color|paper-raised" },
+        "typography": {
+          "fontFamily": "var:preset|font-family|interface",
+          "fontSize": "var:preset|font-size|small",
+          "fontWeight": "700"
+        }
+      }
     }
   },
   "templateParts": [

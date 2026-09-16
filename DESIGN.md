@@ -22,6 +22,14 @@ Status: Binding contract for the public LPS theme and its editor-facing primitiv
 
 Content jobs follow the visitor's decision path: hook with mission, explain research, prove with outputs and methods, compare themes or opportunities, convert through Join/Collaborate/Partner actions, navigate records, and retain trust through provenance, dates, credits, and contacts.
 
+### Identity
+
+- The sole institutional mark of this contract is `lps_logo_vector.svg`, the laboratory's own cleared mark, vectorized as a derivative of the supplied logo. Nothing else is an institutional mark here: UFRJ and COPPE stay text-only until their own rights owners supply files and usage rules, and no third-party or reference brand asset is ever copied or hotlinked.
+- The mark supports the identity and never replaces it. It is never a heading, never a substitute for the institution name in running text, and never carries meaning the adjacent text does not already carry.
+- Mark treatment is dual and context-bound. The full-color lockup appears only in the non-interactive identity contexts §9 lists. Wherever the mark acts as UI chrome - any instance that is itself an interactive affordance, or that sits in navigation, in a control, or in a browser/OS slot - the monochrome derivative is used instead.
+- The mark is artwork, not a primitive. It contributes no token, no gradient, no waveform, and no geometry to the rest of the system. §2, §5, §7, and §9 state its carve-outs exactly, each one bounded to the mark artwork; nothing outside that artwork inherits any of them.
+- This section amends the contract only. The mark ships no earlier than its variant set (Todo 32) and its integration (Todo 33), and never while its rights record is unregistered (§9).
+
 ## 2. Color
 
 ### Palette
@@ -47,14 +55,18 @@ Content jobs follow the visitor's decision path: hook with mission, explain rese
 | Warning wash | `--color-warning-wash` | `#F2E8D2` | Warning alert background |
 | Error wash | `--color-error-wash` | `#F2DEDA` | Error alert background |
 | Focus offset | `--color-focus-offset` | `#F7F4EC` | Focus-ring separation from dark fills |
+| Brand deep (mark only) | `--color-brand-deep` | `#094c92` | Mark artwork only; never a UI color |
+| Brand accent (mark only) | `--color-brand-accent` | `#00aff1` | Mark artwork only; never a UI color |
 
 ### Color rules
 
 - Paper, graphite, and navy hold the page. Signal teal appears only where it communicates an interactive, selected, focused, or data-key state.
 - All text/background pairs meet WCAG 2.2 AA: 4.5:1 for ordinary text and 3:1 for large text and UI graphics. Primary body copy targets 7:1.
 - State is never encoded by color alone; pair it with text, weight, rule position, icon shape, or native control state.
-- Official identity colors may replace navy/signal only after documented provenance and contrast verification. Extend this table before code.
-- No gradients, alpha fog, glass, glows, or decorative color fields.
+- Official identity colors may replace navy/signal only after documented provenance and contrast verification. Extend this table before code. The two brand tokens are not such a replacement: they extend this table as mark-only values and replace nothing.
+- `--color-brand-deep` and `--color-brand-accent` are BRAND-ONLY. They exist to reproduce the mark artwork faithfully and for nothing else. They are forbidden as text, link, button, control, focus, rule, border, icon, background, or surface colors, in the theme, in the editor, and in every future template. They are registered in `theme.json` under `settings.custom`, deliberately outside `settings.color.palette`, so the editor color picker never offers them and no author can apply them to content.
+- Measured contrast (recorded in `.omo/drafts/lps-institutional-website.md`): `#00aff1` on Paper `#F7F4EC` is 2.27:1 and fails both 4.5:1 and 3:1, so it never carries text, an icon, a control, a focus indicator, or any other non-text meaning. `#094c92` on Paper is 7.77:1 but sits at only 1.38 against approved Navy `#003B5C`, so those two never appear as adjacent structural colors. Inside the mark artwork the WCAG 2.2 logotype exceptions to 1.4.3 and 1.4.11 apply; they stop at the edge of the artwork and never extend to a mark-derived UI control.
+- No gradients, alpha fog, glass, glows, or decorative color fields. The one exception is the mark's own `wave-gradient`, which exists only inside the mark artwork (§7, §9); no other gradient is permitted on any surface, in any state, anywhere.
 
 ## 3. Typography
 
@@ -235,7 +247,7 @@ Base unit: 4px. Intentional spacing uses only these tokens.
 - **Structure**: project-original or approved SVG using `currentColor`; text labels remain primary.
 - **Variants**: 16px inline, 20px control, 24px prominent; consistent 1.75px square-ended stroke.
 - **Accessibility**: decorative icons `aria-hidden`; standalone icons require a visible or accessible name and 44px target.
-- **Rules**: no emoji, raster UI icons, Lucide/Feather/Heroicons, mixed filled/outline families, or copied institutional marks.
+- **Rules**: no emoji, raster UI icons, Lucide/Feather/Heroicons, mixed filled/outline families, or copied institutional marks other than the laboratory's own cleared mark, which is not an icon and does not use `currentColor` in its full-color form. The cleared mark is governed by §9 and never by this primitive: it is never placed in an icon slot, never given an icon stroke or an icon size variant, and never redrawn as an icon. Only its monochrome derivative takes a single `currentColor` fill, and only where the mark acts as UI chrome. UFRJ, COPPE, and every third-party mark stay forbidden in every form.
 
 ## 6. Motion & Interaction
 
@@ -263,7 +275,7 @@ Strategy: **borders-only editorial depth**.
 | `--radius-square` | `0` | All rectangular surfaces |
 | `--shadow-none` | `none` | Every primitive |
 
-Paper-raised is a flat reading contrast, not elevation. No generic card chrome, rounded rectangle containers, box shadows, drop shadows, gradients, blur, glass, or faux depth. Photographs and technical figures provide material reality; rules establish hierarchy.
+Paper-raised is a flat reading contrast, not elevation. No generic card chrome, rounded rectangle containers, box shadows, drop shadows, blur, glass, or faux depth. No gradients in UI chrome, surfaces, or depth; the mark's own `wave-gradient` is the single permitted gradient and appears only inside the mark artwork. A gradient on a card, hero, header, footer, button, band, rule, focus indicator, or any other surface is rejected exactly as it was before this clause existed, and the mark lends its gradient to nothing outside itself. Decorative waveforms stay banned ornament: the cleared mark is the only waveform this contract permits, it appears once per surface as the mark, and it is never repeated, mirrored, tiled, extended, or reused as a divider, band, watermark, or background texture. Photographs and technical figures provide material reality; rules establish hierarchy.
 
 ## 8. Accessibility Constraints, Deviations & Accepted Debt
 
@@ -295,3 +307,54 @@ Paper-raised is a flat reading contrast, not elevation. No generic card chrome, 
 | Source Serif 4 CJK glyphs depend on platform fallback | Multilingual typography | Bundling full Noto CJK subsets would add substantial weight before final locale corpus is known | Todo 13 font packaging selects tested, subsetted open-source CJK fallback if target platforms show metric/tofu defects |
 | No human screen-reader session in this task | Standalone showcase | Linux harness supplies Chromium accessibility snapshots and keyboard/axe evidence, not a representative human AT study | Todo 24 runs plan-wide accessibility review and supported AT smoke evidence; any unsupported platform remains explicit |
 | No exact visual-reference image | Research log | Imagen tooling unavailable and FEEC/WIRED are hierarchy/atmosphere sources, not clone targets | Primitive browser captures are the contract; production pages receive fresh visual QA in Todo 24 |
+
+## 9. Mark
+
+The institutional mark is `lps_logo_vector.svg`: the laboratory's own cleared mark, a derivative vectorized from the supplied logo. Its source geometry is a `48 190 2052 301` viewBox (non-zero origin, 6.82:1), six outlined paths with no font or raster dependency, and one `linearGradient id="wave-gradient"`. It is artwork governed by this section alone. It is not an icon (§5), it is not a surface or a depth device (§7), and it grants no token, gradient, waveform, or geometry to anything outside its own bounding box.
+
+### Variant matrix
+
+| Variant | Color | Permitted contexts | Never |
+| --- | --- | --- | --- |
+| Full-color lockup | Brand deep plus `wave-gradient` | Non-interactive identity only: footer identity block, an identity/about page figure, press and download pages, the social share image | Any interactive or focusable instance, any navigation or control, any icon slot |
+| Compact lockup | Brand deep plus `wave-gradient` | The same non-interactive contexts, where the full lockup would fall under its legibility floor | As above |
+| Symbol only | Brand deep plus `wave-gradient` | Non-interactive contexts too narrow for any lockup | Standing in for the institution name in text |
+| Monochrome | A single `currentColor` fill | Every instance where the mark acts as UI chrome: home link, header mark, footer link, any interactive or focusable instance | Carrying a brand color |
+| Reversed on dark | Paper on an approved dark fill from §2 | Non-interactive identity on a surface §2 already approves | Introducing a new dark surface for its own sake |
+| Favicon and app icon | As shipped by the variant set | Browser and OS chrome slots | Any in-page icon slot |
+
+Variant files, byte sizes, optimisation tolerances, and the rights record are produced by Todo 32; placement is Todo 33. This section is the contract both must satisfy; it ships nothing on its own.
+
+### Monochrome in chrome
+
+Wherever the mark is itself an interactive affordance or sits inside UI chrome, the monochrome derivative is used, and it takes its color from the surrounding token through `currentColor`, never from a brand token. `#00aff1` measures 2.27:1 on Paper and fails 1.4.11 non-text contrast; the WCAG 2.2 logotype exception covers a logotype presented as content, not a mark reused as a control. A full-color mark is therefore never a home link, never a navigation target, and never a focusable element.
+
+### Clear space and minimum size
+
+- Clear space on every side is at least the cap height of the mark's lettering, measured from the artwork's true bounding box after the viewBox origin is normalised. Nothing - text, rule, control, image, or another mark - enters that space.
+- Minimum size is the width at which the smallest lettering in the variant still renders at or above the 16px body floor of §3. Below that width, step down the matrix (lockup, then compact, then symbol); never shrink a lockup past its floor.
+- The mark sits on Paper, Paper-raised, or an approved dark fill from §2. It never sits on a photograph, a pattern, a tinted panel, or any surface §2 does not already define.
+- Spacing around the mark uses the §4 scale only. The mark introduces no new spacing value, no radius, no shadow, and no blur.
+
+### Misuse
+
+Each of the following is rejected on its own, independently of the others:
+
+- Recoloring, regradienting, flattening, outlining, or otherwise altering the artwork's lettering, proportions, or colors.
+- Rotating, skewing, stretching, cropping, or distorting the mark, or giving it a shadow, glow, radius, blur, border, or container chrome. §7 forbids those primitives and the mark receives no exemption from them.
+- Extracting the `wave-gradient`, or any part of it, and applying it to a card, hero, header, footer, button, band, rule, focus indicator, or any other surface. The gradient is permitted inside the mark artwork and nowhere else.
+- Reusing, repeating, mirroring, tiling, extending, or redrawing the waveform as ornament, divider, watermark, or background texture. The cleared mark is the only waveform this contract permits; every other waveform graphic stays banned ornament exactly as it was before this section existed.
+- Placing a brand color on text, links, buttons, controls, focus rings, rules, borders, icons, backgrounds, or any surface. The brand tokens are mark-only (§2).
+- Using the mark as a heading, as a substitute for the institution name in running text, or as a second accessible name beside the visible wordmark.
+- Locking the mark up with a UFRJ, COPPE, or third-party mark, or producing any of those marks in any form.
+- Publishing any variant while its rights record is unregistered, or recording a clearance that the rights owner did not give.
+
+### Rights gate
+
+No variant is published until the provenance and rights record exists and `_lps_logo_rights` resolves to `cleared` with a local asset path; remote hosting and hotlinking stay forbidden. Until Todo 32 registers that record and Todo 33 places the mark, the §8 accepted-debt row stands unchanged and shipped surfaces remain text-only.
+
+### Accessibility
+
+- A decorative instance is `aria-hidden` and contributes no accessible name. An interactive instance carries exactly one accessible name per landmark, localised for `pt-BR` and `en`, and never duplicates an adjacent visible institution name.
+- The mark never introduces horizontal overflow at 320 CSS px or at 200% zoom. It reflows by stepping down the variant matrix, never by clipping and never by scaling below its floor.
+- The mark is static. §6 applies to it unchanged: no entrance animation, no hover motion, no gradient animation, no reveal.

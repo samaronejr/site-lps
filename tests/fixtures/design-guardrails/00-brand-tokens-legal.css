@@ -1,0 +1,6 @@
+/* LEGAL control: DESIGN.md §2 registers the two brand tokens as mark-only values.
+   Declaring them in :root is the one permitted appearance and must never fire a rule. */
+:root {
+  --color-brand-deep: #094c92;
+  --color-brand-accent: #00aff1;
+}

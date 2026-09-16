@@ -1,5 +1,12 @@
 import { access, readdir, readFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { dirname, relative, resolve } from "node:path";
+import {
+  auditMarkup,
+  auditStylesheet,
+  auditSvgSource,
+  auditThemeJson,
+  collectLocalSvgReferences,
+} from "../../../../scripts/lib/design-guardrails.mjs";
 
 const themeRoot = resolve(new URL("../", import.meta.url).pathname);
 
@@ -81,6 +88,42 @@ export async function checkTheme() {
   if (theme.settings.typography.customFontSize !== false) add("CUSTOM_TYPE_ENABLED", "theme.json");
   if (theme.settings.spacing.customSpacingSize !== false)
     add("CUSTOM_SPACING_ENABLED", "theme.json");
+
+  // DESIGN.md 2/7/9 institutional-mark guardrails, applied to every surface the
+  // theme actually ships: the stylesheet, theme.json, the block templates, and
+  // every SVG asset either of them can reach.
+  findings.push(...auditStylesheet({ source: css, file: "assets/css/theme.css" }));
+  findings.push(...auditThemeJson({ theme, file: "theme.json" }));
+
+  const scannedAssets = new Set();
+  const auditAsset = async (fromFile, reference) => {
+    const path = resolve(themeRoot, dirname(fromFile), reference);
+    const key = relative(themeRoot, path);
+    if (key.startsWith("..") || scannedAssets.has(key)) return;
+    scannedAssets.add(key);
+    try {
+      findings.push(...auditSvgSource({ source: await readFile(path, "utf8"), file: key }));
+    } catch {
+      // An asset the theme does not ship is the missing-asset rules' business.
+      // It cannot hide a waveform that is not on disk.
+    }
+  };
+
+  for (const reference of collectLocalSvgReferences(css)) {
+    await auditAsset("assets/css/theme.css", reference);
+  }
+  for (const name of templateNames) {
+    const file = `templates/${name}`;
+    const markup = await readFile(`${themeRoot}/${file}`, "utf8");
+    findings.push(...auditMarkup({ source: markup, file }));
+    for (const reference of collectLocalSvgReferences(markup)) await auditAsset(file, reference);
+  }
+  for (const entry of await readdir(themeRoot, { recursive: true })) {
+    if (!entry.endsWith(".svg") || scannedAssets.has(entry)) continue;
+    scannedAssets.add(entry);
+    const source = await readFile(`${themeRoot}/${entry}`, "utf8");
+    findings.push(...auditSvgSource({ source, file: entry }));
+  }
 
   return {
     lane: "theme-design-system",

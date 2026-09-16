@@ -1,0 +1,10 @@
+/* VIOLATION (DESIGN.md §7, §9 Misuse): a second waveform graphic used as a band.
+   Deliberately hostile to a name-matching rule: the class says nothing about waves,
+   the artwork is monochrome, and it carries no gradient and no brand colour. Only the
+   geometry of the path can give it away. */
+.section-band {
+  display: block;
+  width: 100%;
+  height: var(--space-16);
+  color: var(--color-rule);
+}

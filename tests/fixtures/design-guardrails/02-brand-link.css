@@ -1,0 +1,5 @@
+/* VIOLATION (DESIGN.md §2, §9 Misuse): a brand token carrying a body link colour.
+   Tokenised, so the value passes every "must resolve to a token" rule. */
+.lps-entry-content a {
+  color: var(--color-brand-accent);
+}
