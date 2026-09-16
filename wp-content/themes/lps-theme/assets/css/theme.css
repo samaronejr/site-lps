@@ -342,6 +342,20 @@ dd {
   color: var(--color-ink-soft);
 }
 
+.lps-wordmark {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  color: var(--color-navy);
+  font-family: var(--font-editorial);
+  font-size: var(--type-h1);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 0.9;
+  text-decoration: none;
+}
+
 /*
  * Masthead logo slot: the full lockup is a wide ~6.8:1 artwork, so the
  * wordmark claims a wider grid span than the old text mark and the image
@@ -364,20 +378,6 @@ dd {
 .lps-masthead .lps-wordmark:focus-visible {
   outline: var(--rule-focus) solid var(--color-signal);
   outline-offset: var(--focus-offset);
-}
-
-.lps-wordmark {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2) var(--space-4);
-  color: var(--color-navy);
-  font-family: var(--font-editorial);
-  font-size: var(--type-h1);
-  font-weight: 600;
-  letter-spacing: -0.04em;
-  line-height: 0.9;
-  text-decoration: none;
 }
 
 /*
