@@ -281,12 +281,14 @@ final class Delivery {
 	 * @return array<int, string>
 	 */
 	private static function archive_urls( \WP_Post $post ): array {
-		if ( ! function_exists( 'get_post_type_archive_link' ) ) {
-			return array();
+		$urls = array();
+		foreach ( array( 'pt-br', 'en' ) as $locale ) {
+			$path = SeoRoutes::archive_path( $post->post_type, $locale );
+			if ( '' !== $path ) {
+				$urls[] = $path;
+			}
 		}
-		$archive = get_post_type_archive_link( $post->post_type );
-
-		return is_string( $archive ) && '' !== $archive ? array( $archive ) : array();
+		return $urls;
 	}
 
 	/**
@@ -297,7 +299,7 @@ final class Delivery {
 	 * @return array<int, string>
 	 */
 	private static function translation_urls( \WP_Post $post ): array {
-		if ( ! function_exists( 'pll_get_post_translations' ) ) {
+		if ( ! function_exists( 'pll_get_post_translations' ) || ! function_exists( 'pll_get_post_language' ) ) {
 			return array();
 		}
 		$urls = array();
@@ -305,9 +307,13 @@ final class Delivery {
 			if ( ! is_numeric( $translated_id ) || (int) $translated_id === $post->ID ) {
 				continue;
 			}
-			$permalink = get_permalink( (int) $translated_id );
-			if ( is_string( $permalink ) && '' !== $permalink ) {
-				$urls[] = $permalink;
+			$translated = get_post( (int) $translated_id );
+			$locale     = $translated instanceof \WP_Post ? pll_get_post_language( $translated->ID, 'slug' ) : false;
+			if ( $translated instanceof \WP_Post && is_string( $locale ) && '' !== $locale ) {
+				$path = SeoRoutes::record_path( $translated, $locale );
+				if ( '' !== $path ) {
+					$urls[] = $path;
+				}
 			}
 		}
 
@@ -356,7 +362,17 @@ final class Delivery {
 	private static function record_urls( \WP_Post $post ): array {
 		$urls = array();
 		foreach ( array( 'pt-br', 'en' ) as $locale ) {
-			$path = SeoRoutes::record_path( $post, $locale );
+			$target = $post;
+			if ( function_exists( 'pll_get_post' ) ) {
+				$translated_id = pll_get_post( $post->ID, $locale );
+				if ( is_numeric( $translated_id ) && (int) $translated_id !== $post->ID ) {
+					$translated = get_post( (int) $translated_id );
+					if ( $translated instanceof \WP_Post ) {
+						$target = $translated;
+					}
+				}
+			}
+			$path = SeoRoutes::record_path( $target, $locale );
 			if ( '' !== $path ) {
 				$urls[] = $path;
 			}

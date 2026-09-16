@@ -1296,6 +1296,25 @@ async function verifyBattery() {
     check("purge-queue", false, String(error));
   }
 
+  // Governed-record localized route purge: the canonical URL the sitemap
+  // advertises must be in the batch, not just the native permalink.
+  try {
+    const wp = wpCli([
+      "eval",
+      "$p = get_posts(array('post_status'=>'any','numberposts'=>1,'post_type'=>'lps_news')); if(!$p){echo 'NO_RECORD';exit(1);} \\LPS\\Theme\\Delivery::purge_on_transition('publish','draft',$p[0]); $log = get_option('lps_cache_last_purge'); echo json_encode($log);",
+    ]);
+    const log = JSON.parse(wp.stdout || "{}");
+    const targets = Array.isArray(log.targets) ? log.targets : [];
+    const hasLocalizedRecord = targets.some((t) => /^\/(pt-br|en)\/noticias\//.test(t));
+    check(
+      "purge-record-route",
+      wp.exit === 0 && hasLocalizedRecord,
+      `wp=${wp.exit} targets=${targets.length} localized=${hasLocalizedRecord}`,
+    );
+  } catch (error) {
+    check("purge-record-route", false, String(error));
+  }
+
   // Static denials
   for (const [pathname, expect] of [
     ["/.env", 403],
