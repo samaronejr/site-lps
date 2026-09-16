@@ -11,7 +11,6 @@ namespace LPS\ContentModel\Tests;
 
 use LPS\ContentModel\Contracts;
 use LPS\ContentModel\Hardening;
-use PHPUnit\Framework\TestCase;
 
 require_once dirname( __DIR__ ) . '/includes/class-policy.php';
 require_once dirname( __DIR__ ) . '/includes/class-contracts.php';
@@ -19,7 +18,11 @@ if ( is_file( dirname( __DIR__ ) . '/includes/class-hardening.php' ) ) {
 	require_once dirname( __DIR__ ) . '/includes/class-hardening.php';
 }
 
-final class HardeningTest extends TestCase {
+/** Security regression contracts. */
+final class HardeningTest extends \PHPUnit\Framework\TestCase {
+	/**
+	 * Verifies that private metadata never enters the registered rest schema.
+	 */
 	public function test_private_metadata_never_enters_the_registered_rest_schema(): void {
 		foreach ( Contracts::meta_fields() as $fields ) {
 			self::assertFalse( $fields['_lps_owner_user_id']['show_in_rest'] );
@@ -28,6 +31,9 @@ final class HardeningTest extends TestCase {
 		}
 	}
 
+	/**
+	 * Verifies that forbidden plugins are removed before loading.
+	 */
 	public function test_forbidden_plugins_are_removed_before_loading(): void {
 		self::assertSame(
 			array( 'lps-content-model/lps-content-model.php', 'two-factor/two-factor.php' ),
@@ -35,6 +41,9 @@ final class HardeningTest extends TestCase {
 		);
 	}
 
+	/**
+	 * Verifies that headers have no external or unsafe script sources.
+	 */
 	public function test_headers_have_no_external_or_unsafe_script_sources(): void {
 		$headers = Hardening::headers( false, true, 'abc123' );
 		self::assertSame( 'nosniff', $headers['X-Content-Type-Options'] );
@@ -47,6 +56,9 @@ final class HardeningTest extends TestCase {
 		self::assertArrayNotHasKey( 'Strict-Transport-Security', Hardening::headers( false, false, 'abc123' ) );
 	}
 
+	/**
+	 * Verifies that upload content and double extensions are validated.
+	 */
 	public function test_upload_content_and_double_extensions_are_validated(): void {
 		foreach ( array( 'shell.php.jpg', 'shell.phtml.pdf', 'shell.PHP8.png', 'shell.svg', 'shell.html', 'shell.phar' ) as $name ) {
 			self::assertFalse( Hardening::safe_upload_name( $name ), $name );
@@ -59,12 +71,19 @@ final class HardeningTest extends TestCase {
 		self::assertTrue( Hardening::safe_document( 'text/vtt', "WEBVTT\n\n00:00.000 --> 00:01.000\nCaption" ) );
 	}
 
+	/**
+	 * Verifies that response policy omits the core version generator.
+	 */
 	public function test_response_policy_omits_the_core_version_generator(): void {
-		$source = (string) file_get_contents( dirname( __DIR__ ) . '/includes/class-hardening.php' );
+		$file   = new \SplFileObject( dirname( __DIR__ ) . '/includes/class-hardening.php', 'r' );
+		$source = (string) $file->fread( $file->getSize() );
 		self::assertStringContainsString( "remove_action( 'wp_head', 'wp_generator' );", $source );
 		self::assertStringContainsString( "add_filter( 'the_generator', '__return_empty_string' );", $source );
 	}
 
+	/**
+	 * Verifies that public inventory declares no runtime vendors or storage.
+	 */
 	public function test_public_inventory_declares_no_runtime_vendors_or_storage(): void {
 		$inventory = Hardening::inventory();
 		self::assertSame( array(), $inventory['public_cookies'] );
@@ -73,9 +92,12 @@ final class HardeningTest extends TestCase {
 		self::assertSame( array( 'lps-content-model', 'polylang', 'two-factor' ), $inventory['plugins'] );
 	}
 
+	/**
+	 * Verifies that production gate enforces only a positively declared production environment.
+	 */
 	public function test_production_gate_enforces_only_a_positively_declared_production_environment(): void {
 		$restore = getenv( 'WP_ENVIRONMENT_TYPE' );
-		putenv( 'WP_ENVIRONMENT_TYPE' );
+		putenv( 'WP_ENVIRONMENT_TYPE' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv -- the behavior under test reads the process environment via getenv(), so the test must clear it.
 		self::assertSame( '', Hardening::declared_environment(), 'A fresh install declares no environment.' );
 		self::assertFalse( Hardening::enforces_production( Hardening::declared_environment() ), 'A fresh install must never be treated as production.' );
 		foreach ( array( '', 'local', 'development', 'staging', 'productionish', 'pre-production' ) as $declared ) {
@@ -84,9 +106,9 @@ final class HardeningTest extends TestCase {
 		foreach ( array( 'production', 'PRODUCTION', ' production ' ) as $declared ) {
 			self::assertTrue( Hardening::enforces_production( $declared ), $declared );
 		}
-		putenv( 'WP_ENVIRONMENT_TYPE=production' );
+		putenv( 'WP_ENVIRONMENT_TYPE=production' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv -- the behavior under test reads the process environment via getenv(), so the test must set it.
 		self::assertSame( 'production', Hardening::declared_environment() );
 		self::assertTrue( Hardening::enforces_production( Hardening::declared_environment() ) );
-		putenv( is_string( $restore ) ? 'WP_ENVIRONMENT_TYPE=' . $restore : 'WP_ENVIRONMENT_TYPE' );
+		putenv( is_string( $restore ) ? 'WP_ENVIRONMENT_TYPE=' . $restore : 'WP_ENVIRONMENT_TYPE' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv -- restores the caller's environment mutated for the getenv() branch assertions.
 	}
 }

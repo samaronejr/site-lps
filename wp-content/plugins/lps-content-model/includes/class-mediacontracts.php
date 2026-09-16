@@ -14,7 +14,7 @@ final class MediaContracts {
 	/**
 	 * Returns attachment metadata definitions.
 	 *
-	 * @return array<string, array{type: string, single: bool, description: string, show_in_rest: bool, sanitize_callback: callable(mixed): mixed, auth_callback: callable(): bool}>
+	 * @return array<string, array{type: string, single: bool, description: string, show_in_rest: bool, sanitize_callback: callable(mixed): mixed, auth_callback: callable(mixed, string, int, int): bool}>
 	 */
 	public static function attachment_fields(): array {
 		return array(
@@ -46,7 +46,7 @@ final class MediaContracts {
 	 * @param string $type REST primitive type.
 	 * @param string $description Accessible description.
 	 * @param string $sanitizer Sanitizer selector.
-	 * @return array{type: string, single: bool, description: string, show_in_rest: bool, sanitize_callback: callable(mixed): mixed, auth_callback: callable(): bool}
+	 * @return array{type: string, single: bool, description: string, show_in_rest: bool, sanitize_callback: callable(mixed): mixed, auth_callback: callable(mixed, string, int, int): bool}
 	 */
 	private static function field( string $type, string $description, string $sanitizer ): array {
 		$callback = match ( $sanitizer ) {

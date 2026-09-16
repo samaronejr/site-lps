@@ -13,13 +13,21 @@ require_once dirname( __DIR__ ) . '/includes/class-securitypolicy.php';
 
 use LPS\ContentModel\SecurityPolicy;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 
-final class SecurityContractsTest extends TestCase {
-	/** @return iterable<string, array{string, string, bool}> */
+/** Least-privilege, MFA, audit, and account security contracts. */
+final class SecurityContractsTest extends \PHPUnit\Framework\TestCase {
+	/**
+	 * Provides role action matrix.
+	 *
+	 * @return iterable<string, array{string, string, bool}>
+	 */
 	public static function role_action_matrix(): iterable {
 		$fixture = require __DIR__ . '/fixtures/todo10-role-matrix.php';
-		/** @var array<string, array{allow: array<int, string>, deny: array<int, string>}> $matrix */
+		/**
+		 * Fixture matrix.
+		 *
+		 * @var array<string, array{allow: array<int, string>, deny: array<int, string>}> $matrix
+		 */
 		$matrix = is_array( $fixture ) ? $fixture : array();
 		foreach ( $matrix as $role => $expectations ) {
 			foreach ( $expectations['allow'] as $action ) {
@@ -31,11 +39,21 @@ final class SecurityContractsTest extends TestCase {
 		}
 	}
 
+	/**
+	 * Verifies that role action matrix.
+	 *
+	 * @param string $role Editorial role.
+	 * @param string $action Requested action.
+	 * @param bool   $expected Expected result.
+	 */
 	#[DataProvider( 'role_action_matrix' )]
 	public function test_role_action_matrix( string $role, string $action, bool $expected ): void {
 		self::assertSame( $expected, SecurityPolicy::allows( $role, $action ) );
 	}
 
+	/**
+	 * Verifies that assigned collection is a second mandatory boundary.
+	 */
 	public function test_assigned_collection_is_a_second_mandatory_boundary(): void {
 		self::assertTrue( SecurityPolicy::allows( 'section-editor', 'edit', 'project', array( 'project', 'publication' ) ) );
 		self::assertFalse( SecurityPolicy::allows( 'section-editor', 'edit', 'person', array( 'project', 'publication' ) ) );
@@ -43,6 +61,9 @@ final class SecurityContractsTest extends TestCase {
 		self::assertTrue( SecurityPolicy::allows( 'administrator', 'settings', 'site-settings', array() ) );
 	}
 
+	/**
+	 * Verifies that translator may only write localized fields.
+	 */
 	public function test_translator_may_only_write_localized_fields(): void {
 		self::assertTrue( SecurityPolicy::can_write_field( 'translator', 'post_title', 'en' ) );
 		self::assertTrue( SecurityPolicy::can_write_field( 'translator', '_lps_eligibility', 'en' ) );
@@ -52,6 +73,9 @@ final class SecurityContractsTest extends TestCase {
 		self::assertFalse( SecurityPolicy::can_write_field( 'translator', 'post_title', 'pt-br' ) );
 	}
 
+	/**
+	 * Verifies that mfa is required and bypass never grants privileged action.
+	 */
 	public function test_mfa_is_required_and_bypass_never_grants_privileged_action(): void {
 		self::assertTrue( SecurityPolicy::requires_mfa( 'publisher' ) );
 		self::assertTrue( SecurityPolicy::requires_mfa( 'administrator' ) );
@@ -61,6 +85,9 @@ final class SecurityContractsTest extends TestCase {
 		self::assertTrue( SecurityPolicy::privileged_session_allowed( 'publisher', true ) );
 	}
 
+	/**
+	 * Verifies that audit actions and hash chain are complete and immutable by contract.
+	 */
 	public function test_audit_actions_and_hash_chain_are_complete_and_immutable_by_contract(): void {
 		self::assertSame(
 			array( 'create', 'edit', 'submit', 'review', 'publish', 'unpublish', 'archive', 'import', 'redirect', 'settings' ),
@@ -75,6 +102,9 @@ final class SecurityContractsTest extends TestCase {
 		self::assertSame( array(), array_intersect( SecurityPolicy::public_fields(), SecurityPolicy::private_fields() ) );
 	}
 
+	/**
+	 * Verifies that dormant cutoff is deterministic and never uses person records.
+	 */
 	public function test_dormant_cutoff_is_deterministic_and_never_uses_person_records(): void {
 		self::assertSame( '2026-03-04T00:00:00+00:00', SecurityPolicy::dormant_cutoff( '2026-08-31T00:00:00+00:00', 180 ) );
 		self::assertFalse( SecurityPolicy::is_dormant( '2026-03-05T00:00:00+00:00', '2026-08-31T00:00:00+00:00', 180 ) );

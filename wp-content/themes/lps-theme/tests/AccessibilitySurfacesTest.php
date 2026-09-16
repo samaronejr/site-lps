@@ -12,7 +12,6 @@ namespace LPS\Theme\Tests;
 use LPS\Theme\DiscoverySurfaces;
 use LPS\Theme\PublicSurfaces;
 use LPS\Theme\Shell;
-use PHPUnit\Framework\TestCase;
 
 require_once dirname( __DIR__ ) . '/includes/class-shell.php';
 require_once dirname( __DIR__ ) . '/includes/class-publicsurfaces.php';
@@ -21,7 +20,7 @@ require_once dirname( __DIR__ ) . '/includes/class-trustsurfaces.php';
 
 
 /** Verifies the Todo 23 accessibility repairs in the public rendering seams. */
-final class AccessibilitySurfacesTest extends TestCase {
+final class AccessibilitySurfacesTest extends \PHPUnit\Framework\TestCase {
 	/** Verifies that english shell marks portuguese institutional text with a language change. */
 	public function test_english_shell_marks_portuguese_institutional_text_with_a_language_change(): void {
 		// Given: the English shell, whose affiliation line stays in Portuguese.

@@ -201,8 +201,8 @@ final class StructuredData {
 	 * @return array<string, mixed>
 	 */
 	public static function page( string $site_url, string $path, string $page_type, array $page ): array {
-		$canonical = SeoPolicy::canonical_url( $site_url, $path );
-		$node      = array(
+		$canonical   = SeoPolicy::canonical_url( $site_url, $path );
+		$node        = array(
 			'@type'      => '' === trim( $page_type ) ? 'WebPage' : $page_type,
 			'@id'        => $canonical . '#webpage',
 			'url'        => $canonical,
@@ -236,7 +236,7 @@ final class StructuredData {
 			'name'  => self::text( $person['name'] ?? '' ),
 			'url'   => $canonical,
 		);
-		$roles = self::strings( $person['roles'] ?? array() );
+		$roles     = self::strings( $person['roles'] ?? array() );
 		if ( array() !== $roles ) {
 			$node['jobTitle'] = $roles;
 		}
@@ -247,9 +247,9 @@ final class StructuredData {
 		$orcid = self::text( $person['orcid'] ?? '' );
 		$links = array();
 		if ( '' !== $orcid ) {
-			$orcid_url        = 'https://orcid.org/' . $orcid;
+			$orcid_url          = 'https://orcid.org/' . $orcid;
 			$node['identifier'] = $orcid_url;
-			$links[]          = $orcid_url;
+			$links[]            = $orcid_url;
 		}
 		foreach ( array( 'lattes_url', 'scholar_url', 'website_url' ) as $key ) {
 			$url = self::text( $person[ $key ] ?? '' );
@@ -290,7 +290,7 @@ final class StructuredData {
 			'url'   => $canonical,
 			'name'  => self::text( $project['name'] ?? '' ),
 		);
-		$summary = self::text( $project['summary'] ?? '' );
+		$summary   = self::text( $project['summary'] ?? '' );
 		if ( '' !== $summary ) {
 			$node['description'] = $summary;
 		}
@@ -343,7 +343,7 @@ final class StructuredData {
 			'url'   => $canonical,
 			'name'  => self::text( $publication['title'] ?? '' ),
 		);
-		$date = self::text( $publication['date'] ?? '' );
+		$date      = self::text( $publication['date'] ?? '' );
 		if ( '' !== $date ) {
 			$node['datePublished'] = $date;
 		}
@@ -411,7 +411,7 @@ final class StructuredData {
 			'headline'  => self::text( $news['title'] ?? '' ),
 			'publisher' => array( '@id' => rtrim( $site_url, '/' ) . '/#organization' ),
 		);
-		$summary = self::text( $news['summary'] ?? '' );
+		$summary   = self::text( $news['summary'] ?? '' );
 		if ( '' !== $summary ) {
 			$node['description'] = $summary;
 		}
@@ -442,7 +442,7 @@ final class StructuredData {
 			'url'   => $canonical,
 			'name'  => self::text( $event['title'] ?? '' ),
 		);
-		$summary = self::text( $event['summary'] ?? '' );
+		$summary   = self::text( $event['summary'] ?? '' );
 		if ( '' !== $summary ) {
 			$node['description'] = $summary;
 		}
@@ -488,22 +488,22 @@ final class StructuredData {
 	 */
 	public static function opportunity( string $site_url, string $path, array $opportunity, array $site ): array {
 		unset( $site );
-		$canonical    = SeoPolicy::canonical_url( $site_url, $path );
-		$type         = self::text( $opportunity['type'] ?? '' );
+		$canonical     = SeoPolicy::canonical_url( $site_url, $path );
+		$type          = self::text( $opportunity['type'] ?? '' );
 		$is_employment = in_array( $type, self::EMPLOYMENT_TYPES, true );
-		$title        = self::text( $opportunity['title'] ?? '' );
-		$summary      = self::text( $opportunity['summary'] ?? '' );
-		$opens        = self::text( $opportunity['opens_at'] ?? '' );
-		$closes       = self::text( $opportunity['closes_at'] ?? '' );
-		$location     = self::text( $opportunity['location'] ?? '' );
+		$title         = self::text( $opportunity['title'] ?? '' );
+		$summary       = self::text( $opportunity['summary'] ?? '' );
+		$opens         = self::text( $opportunity['opens_at'] ?? '' );
+		$closes        = self::text( $opportunity['closes_at'] ?? '' );
+		$location      = self::text( $opportunity['location'] ?? '' );
 
 		if ( ! $is_employment ) {
 			$node = array(
-				'@type'            => 'EducationalOccupationalProgram',
-				'@id'              => $canonical . '#program',
-				'url'              => $canonical,
-				'name'             => $title,
-				'provider'         => array( '@id' => rtrim( $site_url, '/' ) . '/#organization' ),
+				'@type'                => 'EducationalOccupationalProgram',
+				'@id'                  => $canonical . '#program',
+				'url'                  => $canonical,
+				'name'                 => $title,
+				'provider'             => array( '@id' => rtrim( $site_url, '/' ) . '/#organization' ),
 				'programPrerequisites' => self::text( $opportunity['eligibility'] ?? '' ),
 			);
 			if ( '' === $node['programPrerequisites'] ) {

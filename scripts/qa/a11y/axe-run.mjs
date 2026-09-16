@@ -32,6 +32,9 @@ export async function runAxe({ baseUrl, outputDir }) {
       for (const viewport of VIEWPORTS) {
         const context = await browser.newContext({
           viewport: { width: viewport.width, height: viewport.height },
+          // Staging terminates TLS with a locally issued certificate; the
+          // audited document is unchanged, so the browser may trust it.
+          ignoreHTTPSErrors: true,
         });
         const page = await context.newPage();
         await page.goto(url, { waitUntil: "domcontentloaded" });

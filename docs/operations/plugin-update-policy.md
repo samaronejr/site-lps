@@ -84,9 +84,11 @@ procedure itself is in [the release runbook index](release-runbook-index.md).
 
 ## Known pre-existing conditions
 
-- `tools/composer analyse` (PHPStan) exhausts memory at 512M on the untouched
-  `wp-content/plugins/lps-content-model/includes/class-importer.php`. This is recorded, not fixed by
-  raising the limit; do not run it repeatedly on a shared host.
+- `tools/composer analyse` (PHPStan) requires the native PHP 8.3 runtime from `tools/setup-php-native`.
+  The recorded 512M exhaustion belonged to the PHP.wasm fallback, which could not finish the level-max
+  analysis at any limit; on the native runtime the full analysis completes inside the 1536M limit in
+  `tools/php-native.ini` (measured 2026-09-13: 31 s wall clock, 727 MiB peak resident set). Do not
+  raise memory limits as a workaround, and do not run the analysis repeatedly on a shared host.
 - The staging host, backup encryption key, retention approval and RPO/RTO approvals are external
   preconditions and remain open. A dependency update can be prepared and tested locally, but its
   production application is blocked with them.

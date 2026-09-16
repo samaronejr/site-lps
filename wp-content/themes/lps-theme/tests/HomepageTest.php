@@ -11,11 +11,14 @@ namespace LPS\Theme\Tests;
 
 use LPS\Theme\Homepage;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 
 require_once dirname( __DIR__ ) . '/includes/class-homepage.php';
 
-final class HomepageTest extends TestCase {
+/** Research-first homepage contract tests. */
+final class HomepageTest extends \PHPUnit\Framework\TestCase {
+	/**
+	 * Verifies that three journeys are locale specific and unique.
+	 */
 	public function test_three_journeys_are_locale_specific_and_unique(): void {
 		$portuguese = Homepage::journeys( 'pt-br' );
 		$english    = Homepage::journeys( 'en' );
@@ -27,51 +30,136 @@ final class HomepageTest extends TestCase {
 		self::assertSame( array( 'Join LPS', 'Collaborate', 'Partner' ), array_column( $english, 'label' ) );
 	}
 
-	/** @return array<string, array{array<string, mixed>, string, bool}> */
+	/**
+	 * Provides feature states.
+	 *
+	 * @return array<string, array{array<string, mixed>, string, bool}>
+	 */
 	public static function feature_states(): array {
 		return array(
 			'published reviewed current feature' => array(
-				array( 'status' => 'publish', 'state' => 'published', 'locale' => 'en', 'source_id' => 'lps:project:1', 'feature_order' => 1, 'featured_until' => '2026-12-31', 'stale' => false ),
+				array(
+					'status'         => 'publish',
+					'state'          => 'published',
+					'locale'         => 'en',
+					'source_id'      => 'lps:project:1',
+					'feature_order'  => 1,
+					'featured_until' => '2026-12-31',
+					'stale'          => false,
+				),
 				'2026-09-03',
 				true,
 			),
-			'unpublished' => array(
-				array( 'status' => 'draft', 'state' => 'draft', 'locale' => 'en', 'source_id' => 'lps:project:1', 'feature_order' => 1, 'featured_until' => '2026-12-31', 'stale' => false ),
+			'unpublished'                        => array(
+				array(
+					'status'         => 'draft',
+					'state'          => 'draft',
+					'locale'         => 'en',
+					'source_id'      => 'lps:project:1',
+					'feature_order'  => 1,
+					'featured_until' => '2026-12-31',
+					'stale'          => false,
+				),
 				'2026-09-03',
 				false,
 			),
-			'stale English' => array(
-				array( 'status' => 'publish', 'state' => 'published', 'locale' => 'en', 'source_id' => 'lps:project:1', 'feature_order' => 1, 'featured_until' => '2026-12-31', 'stale' => true ),
+			'stale English'                      => array(
+				array(
+					'status'         => 'publish',
+					'state'          => 'published',
+					'locale'         => 'en',
+					'source_id'      => 'lps:project:1',
+					'feature_order'  => 1,
+					'featured_until' => '2026-12-31',
+					'stale'          => true,
+				),
 				'2026-09-03',
 				false,
 			),
-			'expired' => array(
-				array( 'status' => 'publish', 'state' => 'published', 'locale' => 'pt-br', 'source_id' => 'lps:project:1', 'feature_order' => 1, 'featured_until' => '2026-09-02', 'stale' => false ),
+			'expired'                            => array(
+				array(
+					'status'         => 'publish',
+					'state'          => 'published',
+					'locale'         => 'pt-br',
+					'source_id'      => 'lps:project:1',
+					'feature_order'  => 1,
+					'featured_until' => '2026-09-02',
+					'stale'          => false,
+				),
 				'2026-09-03',
 				false,
 			),
-			'missing source' => array(
-				array( 'status' => 'publish', 'state' => 'published', 'locale' => 'pt-br', 'source_id' => '', 'feature_order' => 1, 'featured_until' => '2026-12-31', 'stale' => false ),
+			'missing source'                     => array(
+				array(
+					'status'         => 'publish',
+					'state'          => 'published',
+					'locale'         => 'pt-br',
+					'source_id'      => '',
+					'feature_order'  => 1,
+					'featured_until' => '2026-12-31',
+					'stale'          => false,
+				),
 				'2026-09-03',
 				false,
 			),
 		);
 	}
 
-	/** @param array<string, mixed> $record */
+	/**
+	 * Verifies that feature eligibility rejects unpublishable or stale records.
+	 *
+	 * @param array<string, mixed> $record Candidate record.
+	 * @param string               $today Evaluation date.
+	 * @param bool                 $expected Expected result.
+	 */
 	#[DataProvider( 'feature_states' )]
 	public function test_feature_eligibility_rejects_unpublishable_or_stale_records( array $record, string $today, bool $expected ): void {
 		$raw_locale = $record['locale'] ?? 'en';
-		$locale = is_string( $raw_locale ) ? $raw_locale : 'en';
+		$locale     = is_string( $raw_locale ) ? $raw_locale : 'en';
 		self::assertSame( $expected, Homepage::eligible_feature( $record, $locale, $today ) );
 	}
 
+	/**
+	 * Verifies that feature selection is explicit bounded and ordered.
+	 */
 	public function test_feature_selection_is_explicit_bounded_and_ordered(): void {
 		$records = array(
-			array( 'status' => 'publish', 'state' => 'published', 'locale' => 'en', 'source_id' => 'lps:project:3', 'feature_order' => 3, 'featured_until' => '', 'stale' => false ),
-			array( 'status' => 'publish', 'state' => 'published', 'locale' => 'en', 'source_id' => 'lps:project:1', 'feature_order' => 1, 'featured_until' => '', 'stale' => false ),
-			array( 'status' => 'publish', 'state' => 'published', 'locale' => 'en', 'source_id' => 'lps:project:2', 'feature_order' => 2, 'featured_until' => '', 'stale' => false ),
-			array( 'status' => 'publish', 'state' => 'published', 'locale' => 'en', 'source_id' => 'lps:project:4', 'feature_order' => 4, 'featured_until' => '', 'stale' => false ),
+			array(
+				'status'         => 'publish',
+				'state'          => 'published',
+				'locale'         => 'en',
+				'source_id'      => 'lps:project:3',
+				'feature_order'  => 3,
+				'featured_until' => '',
+				'stale'          => false,
+			),
+			array(
+				'status'         => 'publish',
+				'state'          => 'published',
+				'locale'         => 'en',
+				'source_id'      => 'lps:project:1',
+				'feature_order'  => 1,
+				'featured_until' => '',
+				'stale'          => false,
+			),
+			array(
+				'status'         => 'publish',
+				'state'          => 'published',
+				'locale'         => 'en',
+				'source_id'      => 'lps:project:2',
+				'feature_order'  => 2,
+				'featured_until' => '',
+				'stale'          => false,
+			),
+			array(
+				'status'         => 'publish',
+				'state'          => 'published',
+				'locale'         => 'en',
+				'source_id'      => 'lps:project:4',
+				'feature_order'  => 4,
+				'featured_until' => '',
+				'stale'          => false,
+			),
 		);
 
 		self::assertSame(
@@ -80,8 +168,17 @@ final class HomepageTest extends TestCase {
 		);
 	}
 
+	/**
+	 * Verifies that image fallback is accessible and contains no placeholder image.
+	 */
 	public function test_image_fallback_is_accessible_and_contains_no_placeholder_image(): void {
-		$markup = Homepage::feature_media_markup( array( 'title' => 'Projeto validado', 'image' => null ), 'pt-br' );
+		$markup = Homepage::feature_media_markup(
+			array(
+				'title' => 'Projeto validado',
+				'image' => null,
+			),
+			'pt-br'
+		);
 
 		self::assertStringContainsString( 'role="img"', $markup );
 		self::assertStringContainsString( 'Imagem não publicada', $markup );
@@ -148,7 +245,14 @@ final class HomepageTest extends TestCase {
 				array( 'featured_from' => '2026-09-07' ),
 				array( 'url' => 'javascript:alert(1)' ),
 			) as $change ) {
-				$rejected = array_replace( $this->record( 'projects', $locale ), array( 'title' => 'REJECTED_RECORD', 'summary' => 'REJECTED_SUMMARY' ), $change );
+				$rejected = array_replace(
+					$this->record( 'projects', $locale ),
+					array(
+						'title'   => 'REJECTED_RECORD',
+						'summary' => 'REJECTED_SUMMARY',
+					),
+					$change
+				);
 				$valid    = array_replace( $this->record( 'projects', $locale ), array( 'source_id' => 'source:valid' ) );
 				$html     = Homepage::section_markup( 'projects', $locale, array( $rejected, $valid ), '2026-09-06' );
 				self::assertStringNotContainsString( 'REJECTED_RECORD', $html );
@@ -167,13 +271,29 @@ final class HomepageTest extends TestCase {
 	/** Three actual anchors use CMS task labels, source IDs and the intended routes. */
 	public function test_journeys_use_only_reviewed_destination_ctas_in_both_locales(): void {
 		$routes = array(
-			'pt-br' => array( 'opportunities' => '/pt-br/oportunidades/', 'collaborate' => '/pt-br/colabore/', 'infrastructure' => '/pt-br/infraestrutura/' ),
-			'en'    => array( 'opportunities' => '/en/opportunities/', 'collaborate' => '/en/collaborate/', 'infrastructure' => '/en/infrastructure/' ),
+			'pt-br' => array(
+				'opportunities'  => '/pt-br/oportunidades/',
+				'collaborate'    => '/pt-br/colabore/',
+				'infrastructure' => '/pt-br/infraestrutura/',
+			),
+			'en'    => array(
+				'opportunities'  => '/en/opportunities/',
+				'collaborate'    => '/en/collaborate/',
+				'infrastructure' => '/en/infrastructure/',
+			),
 		);
 		foreach ( $routes as $locale => $destinations ) {
 			$records = array();
 			foreach ( $destinations as $key => $url ) {
-				$records[] = array_replace( $this->record( 'journeys', $locale ), array( 'page_key' => $key, 'url' => $url, 'cta' => 'CMS_TASK_' . $key, 'source_id' => 'source:' . $key ) );
+				$records[] = array_replace(
+					$this->record( 'journeys', $locale ),
+					array(
+						'page_key'  => $key,
+						'url'       => $url,
+						'cta'       => 'CMS_TASK_' . $key,
+						'source_id' => 'source:' . $key,
+					)
+				);
 			}
 			$html = Homepage::section_markup( 'journeys', $locale, $records, '2026-09-06' );
 			self::assertSame( 3, substr_count( $html, '<a ' ) );
@@ -199,7 +319,13 @@ final class HomepageTest extends TestCase {
 		foreach ( array( 'pt-br', 'en' ) as $locale ) {
 			$records = array();
 			foreach ( array( 4, 2, 1, 5, 3 ) as $order ) {
-				$records[] = array_replace( $this->record( 'projects', $locale ), array( 'feature_order' => $order, 'source_id' => 'source:' . $order ) );
+				$records[] = array_replace(
+					$this->record( 'projects', $locale ),
+					array(
+						'feature_order' => $order,
+						'source_id'     => 'source:' . $order,
+					)
+				);
 			}
 			$html = Homepage::section_markup( 'projects', $locale, $records, '2026-09-06' );
 			self::assertSame( 3, substr_count( $html, '<article' ) );
@@ -216,7 +342,13 @@ final class HomepageTest extends TestCase {
 	public function test_empty_section_is_accessible_without_mixed_language(): void {
 		foreach ( array( 'pt-br', 'en' ) as $locale ) {
 			$foreign_locale = 'en' === $locale ? 'pt-br' : 'en';
-			$foreign        = array_replace( $this->record( 'projects', $foreign_locale ), array( 'title' => 'FOREIGN_TITLE', 'summary' => 'FOREIGN_SUMMARY' ) );
+			$foreign        = array_replace(
+				$this->record( 'projects', $foreign_locale ),
+				array(
+					'title'   => 'FOREIGN_TITLE',
+					'summary' => 'FOREIGN_SUMMARY',
+				)
+			);
 			$html           = Homepage::section_markup( 'projects', $locale, array( $foreign ), '2026-09-06' );
 			self::assertSame( Homepage::section_markup( 'projects', $locale, array(), '2026-09-06' ), $html );
 			self::assertStringContainsString( 'aria-labelledby="lps-home-projects"', $html );

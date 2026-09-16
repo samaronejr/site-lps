@@ -20,6 +20,36 @@ function totp(base32) {
   return ((digest.readUInt32BE(offset) & 0x7fffffff) % 1_000_000).toString().padStart(6, "0");
 }
 
+/**
+ * Deterministic TOTP clock policy: never emit a code within the rollover
+ * boundary, and never reuse a 30-second window. Two-Factor records the
+ * timestamp of every code it accepts (`_two_factor_totp_last_successful_login`)
+ * and rejects the same or an older window on the next attempt, so the
+ * enrollment revalidation and the login challenge below must each draw a
+ * strictly newer window. Waits a computed (not fixed) interval until at least
+ * 7 seconds remain in a fresh step, bounded by `timeoutMs`.
+ */
+let lastTotpWindow = -1;
+async function stableTotp(base32, { timeoutMs = 35_000 } = {}) {
+  const started = Date.now();
+  for (;;) {
+    const now = Date.now();
+    if (now - started > timeoutMs)
+      throw new Error(`stableTotp: no safe 30-second TOTP window within ${timeoutMs}ms`);
+    const step = Math.floor(now / 30_000);
+    const msIntoStep = now % 30_000;
+    if (step > lastTotpWindow && msIntoStep >= 2_000 && msIntoStep <= 23_000) {
+      lastTotpWindow = step;
+      return totp(base32);
+    }
+    const waitMs =
+      msIntoStep < 2_000 ? 2_000 - msIntoStep + 250 : 30_000 - msIntoStep + 2_250;
+    await new Promise((resolve) =>
+      setTimeout(resolve, Math.min(waitMs, Math.max(0, timeoutMs - (Date.now() - started)))),
+    );
+  }
+}
+
 async function assertSession(page, label) {
   await page.goto(`${baseURL}/wp-admin/profile.php`, {
     waitUntil: "domcontentloaded",
@@ -62,23 +92,6 @@ try {
     result: "pass",
   });
 
-  const nonce = await page.evaluate(async () =>
-    (await fetch("/wp-admin/admin-ajax.php?action=rest-nonce")).text(),
-  );
-  const users = await page.evaluate(async (nonceValue) => {
-    const response = await fetch("/wp-json/wp/v2/users?context=edit&per_page=100", {
-      headers: { "X-WP-Nonce": nonceValue },
-    });
-    if (!response.ok) throw new Error(`users receipt HTTP ${response.status}`);
-    return response.json();
-  }, nonce);
-  receipt.accounts = users
-    .filter((user) => user.slug.startsWith("task10-"))
-    .map((user) => ({ id: user.id, login: user.slug, role: user.roles[0] }))
-    .sort((left, right) => left.id - right.id);
-  if (receipt.accounts.length !== 7)
-    throw new Error(`fixture receipt expected 7 accounts, observed ${receipt.accounts.length}`);
-
   const setupSelectors = [
     "#two-factor-totp-key",
     "#two-factor-totp-authcode",
@@ -97,11 +110,12 @@ try {
   }
 
   const secret = await page.locator("#two-factor-totp-key").inputValue();
-  await page.locator("#two-factor-totp-authcode").fill(totp(secret));
+  await page.locator("#two-factor-totp-authcode").fill(await stableTotp(secret));
   const verificationResponse = page.waitForResponse(
     (response) =>
       response.request().method() === "POST" &&
       /\/wp-json\/two-factor\/.*\/totp/.test(response.url()),
+    { timeout: 60_000 },
   );
   await page.locator('input[name="two-factor-totp-submit"]').click();
   const verification = await verificationResponse;
@@ -113,6 +127,43 @@ try {
   receipt.enrollment.verification = {
     httpStatus: verification.status(),
     checkboxChecked: true,
+    result: "pass",
+  };
+
+  // The REST enrollment enables the provider but leaves this session
+  // unauthenticated for two-factor, so the plugin disables the options UI
+  // until the revalidation flow marks the session. Revalidate through the
+  // real wp-login.php?action=revalidate_2fa form before saving the profile.
+  await page.goto(
+    "/wp-login.php?action=revalidate_2fa&redirect_to=" +
+      encodeURIComponent("/wp-admin/profile.php"),
+    { waitUntil: "domcontentloaded" },
+  );
+  // The waiters are registered before the fill, so their timeouts must exceed
+  // stableTotp's bounded wait for a fresh 30-second window (~30s) plus the
+  // POST/redirect round trip; 60s keeps the contract bounded without racing.
+  const revalidateResponse = page.waitForResponse(
+    (response) =>
+      response.request().method() === "POST" &&
+      /revalidate_2fa/.test(response.url()),
+    { timeout: 60_000 },
+  );
+  // Two-Factor auto-submits the challenge on the sixth digit and disables the
+  // submit control, so the POST and the profile navigation are registered
+  // before the fill and no click follows it.
+  const revalidatedUrl = page.waitForURL(
+    (url) => url.pathname === "/wp-admin/profile.php",
+    { waitUntil: "domcontentloaded", timeout: 60_000 },
+  );
+  await page.locator("#authcode").fill(await stableTotp(secret));
+  const revalidated = await revalidateResponse;
+  if (revalidated.status() !== 302 && revalidated.status() !== 200)
+    throw new Error(
+      `TOTP selector preflight revalidation HTTP ${revalidated.status()}`,
+    );
+  await revalidatedUrl;
+  receipt.enrollment.revalidation = {
+    httpStatus: revalidated.status(),
     result: "pass",
   };
 
@@ -205,20 +256,44 @@ try {
     submitSelector: "#submit",
     result: "pass",
   };
-  await page.locator("#authcode").fill(totp(secret));
   const authPost = page.waitForResponse(
     (response) =>
       response.request().method() === "POST" &&
       /wp-login\.php.*action=validate_2fa/.test(response.url()),
+    { timeout: 60_000 },
   );
-  await page.locator("#submit").click();
+  const submitted = page.waitForURL(/wp-admin/, { timeout: 60_000 });
+  await page.locator("#authcode").fill(await stableTotp(secret));
   await authPost;
+  await submitted;
   await assertSession(page, "preflight-totp-login-submit");
   receipt.sessionSentinels.push({
     journey: "preflight-totp-login-submit",
     selector: "body.wp-admin #wpadminbar",
     result: "pass",
   });
+
+  // The account receipt is enumerated only after the administrator completes
+  // TOTP enrollment: the MFA policy strips every capability except read/exist
+  // from unenrolled privileged accounts, so `list_users` (and therefore the
+  // `users?context=edit` endpoint) is denied before this point by design.
+  const nonce = await page.evaluate(async () =>
+    (await fetch("/wp-admin/admin-ajax.php?action=rest-nonce")).text(),
+  );
+  const users = await page.evaluate(async (nonceValue) => {
+    const response = await fetch("/wp-json/wp/v2/users?context=edit&per_page=100", {
+      headers: { "X-WP-Nonce": nonceValue },
+    });
+    if (!response.ok) throw new Error(`users receipt HTTP ${response.status}`);
+    return response.json();
+  }, nonce);
+  receipt.accounts = users
+    .filter((user) => user.slug.startsWith("task10-"))
+    .map((user) => ({ id: user.id, login: user.slug, role: user.roles[0] }))
+    .sort((left, right) => left.id - right.id);
+  if (receipt.accounts.length !== 7)
+    throw new Error(`fixture receipt expected 7 accounts, observed ${receipt.accounts.length}`);
+
   receipt.result = "pass";
   await page.goto(`${baseURL}/wp-admin/`, { waitUntil: "domcontentloaded" });
   await page.screenshot({ path: `${outputDir}/selector-preflight.png`, fullPage: true });

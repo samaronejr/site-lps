@@ -14,12 +14,11 @@ use LPS\ContentModel\SearchPolicy;
 use LPS\Theme\SearchRoutes;
 use LPS\Theme\SearchSurfaces;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 
 require_once dirname( __DIR__ ) . '/includes/class-searchroutes.php';
 
 /** Contract tests for the server-rendered locale search surface. */
-final class SearchRoutesTest extends TestCase {
+final class SearchRoutesTest extends \PHPUnit\Framework\TestCase {
 	/**
 	 * Provides the frozen search route of each locale.
 	 *
@@ -92,11 +91,11 @@ final class SearchRoutesTest extends TestCase {
 	public function test_request_state_keeps_only_approved_query_record_facets_and_page(): void {
 		$state = SearchRoutes::state_from_request(
 			array(
-				'q'       => '  instrumentação  ',
-				'record'  => 'lps_project',
-				'status'  => array( 'active', 'completed' ),
-				'area'    => array( 'signal-processing', '<script>' ),
-				'unknown' => array( 'x' ),
+				'q'        => '  instrumentação  ',
+				'record'   => 'lps_project',
+				'status'   => array( 'active', 'completed' ),
+				'area'     => array( 'signal-processing', '<script>' ),
+				'unknown'  => array( 'x' ),
 				'lps_page' => '2',
 			),
 			'pt-br'
@@ -170,10 +169,10 @@ final class SearchRoutesTest extends TestCase {
 	public function test_canonical_urls_are_stable_shareable_and_order_independent(): void {
 		$first  = SearchRoutes::state_from_request(
 			array(
-				'q'      => 'sinais',
-				'record' => 'lps_project',
-				'area'   => array( 'signal-processing' ),
-				'status' => array( 'completed', 'active' ),
+				'q'        => 'sinais',
+				'record'   => 'lps_project',
+				'area'     => array( 'signal-processing' ),
+				'status'   => array( 'completed', 'active' ),
 				'lps_page' => '2',
 			),
 			'pt-br'
@@ -181,10 +180,10 @@ final class SearchRoutesTest extends TestCase {
 		$second = SearchRoutes::state_from_request(
 			array(
 				'lps_page' => '2',
-				'status' => array( 'active', 'completed' ),
-				'area'   => array( 'signal-processing' ),
-				'record' => 'lps_project',
-				'q'      => 'sinais',
+				'status'   => array( 'active', 'completed' ),
+				'area'     => array( 'signal-processing' ),
+				'record'   => 'lps_project',
+				'q'        => 'sinais',
 			),
 			'pt-br'
 		);

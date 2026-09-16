@@ -114,8 +114,9 @@ follow the institution-approved records schedule and restricted restore access.
 Review vendor advisories weekly and run Composer/npm audit in every release. Triage exploited or
 critical vulnerabilities immediately, isolate affected surfaces immediately, patch within 24 hours;
 high within 72 hours; other supported updates monthly. Test pinned updates on staging: clean installs,
-capability/nonce/upload/XSS/REST tests, PHPStan at 512M, lint, build, browser MFA/network/storage audit,
-passive scan, restore and rollback. No blanket scanner exclusions or forced major upgrades. Store
-before/after locks, checksums, rollback artifact and raw results. If compatibility blocks a critical
-patch, isolate rather than retaining an exposed unsupported component. Re-review inventory/notice
-and obtain a plan amendment before any future analytics, form, embed, vendor or data-processing change.
+capability/nonce/upload/XSS/REST tests, PHPStan on the native PHP 8.3 runtime, lint, build, browser
+MFA/network/storage audit, passive scan, restore and rollback. No blanket scanner exclusions or forced
+major upgrades. Store before/after locks, checksums, rollback artifact and raw results. If
+compatibility blocks a critical patch, isolate rather than retaining an exposed unsupported component.
+Re-review inventory/notice and obtain a plan amendment before any future analytics, form, embed,
+vendor or data-processing change.

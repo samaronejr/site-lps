@@ -10,13 +10,16 @@ declare(strict_types=1);
 namespace LPS\ContentModel\Tests;
 
 require_once dirname( __DIR__ ) . '/includes/class-policy.php';
-require_once dirname(__DIR__) . '/includes/class-contracts.php';
+require_once dirname( __DIR__ ) . '/includes/class-contracts.php';
 
 use LPS\ContentModel\Contracts;
 use LPS\ContentModel\Policy;
-use PHPUnit\Framework\TestCase;
 
-final class ContentContractsTest extends TestCase {
+/** Content-model contract tests. */
+final class ContentContractsTest extends \PHPUnit\Framework\TestCase {
+	/**
+	 * Verifies that registers every portable record type with rest support.
+	 */
 	public function test_registers_every_portable_record_type_with_rest_support(): void {
 		$types = Contracts::post_types();
 		self::assertSame(
@@ -29,11 +32,14 @@ final class ContentContractsTest extends TestCase {
 		}
 	}
 
+	/**
+	 * Verifies that declares typed rest metadata and one site settings schema.
+	 */
 	public function test_declares_typed_rest_metadata_and_one_site_settings_schema(): void {
 		$fields = Contracts::meta_fields();
 		self::assertGreaterThanOrEqual( 90, array_sum( array_map( 'count', $fields ) ) );
-		foreach ( $fields as $postType => $definitions ) {
-			self::assertNotEmpty( $definitions, $postType . ' must have metadata' );
+		foreach ( $fields as $post_type => $definitions ) {
+			self::assertNotEmpty( $definitions, $post_type . ' must have metadata' );
 			foreach ( $definitions as $key => $definition ) {
 				self::assertContains( $definition['type'], array( 'string', 'integer', 'number', 'boolean', 'array' ) );
 				self::assertSame( ! in_array( $key, array( '_lps_owner_user_id', '_lps_translation_reviewer_id' ), true ), $definition['show_in_rest'], $key . ' must respect REST privacy' );
@@ -44,6 +50,9 @@ final class ContentContractsTest extends TestCase {
 		self::assertCount( 19, $settings['properties'] );
 	}
 
+	/**
+	 * Verifies that identifier and metadata sanitization is strict.
+	 */
 	public function test_identifier_and_metadata_sanitization_is_strict(): void {
 		self::assertSame( '', Policy::sanitize_record_id( 'not-an-id<script>' ) );
 		self::assertSame( 'lps:person:018f21ce-7d7a-7abc-8a2f-2d6937f89a11', Policy::sanitize_record_id( 'lps:person:018F21CE-7D7A-7ABC-8A2F-2D6937F89A11' ) );
@@ -52,12 +61,18 @@ final class ContentContractsTest extends TestCase {
 		self::assertSame( 'https://example.org/profile', ( $person['_lps_website_url']['sanitize_callback'] )( 'javascript:alert(1) https://example.org/profile' ) );
 	}
 
+	/**
+	 * Verifies that record identity and published slug are immutable.
+	 */
 	public function test_record_identity_and_published_slug_are_immutable(): void {
 		self::assertTrue( Policy::can_change_identity( '', 'lps:person:018f21ce-7d7a-7abc-8a2f-2d6937f89a11' ) );
 		self::assertTrue( Policy::can_change_identity( 'alpha', 'alpha' ) );
 		self::assertFalse( Policy::can_change_identity( 'alpha', 'beta' ) );
 	}
 
+	/**
+	 * Verifies that state transitions and review dates are governed.
+	 */
 	public function test_state_transitions_and_review_dates_are_governed(): void {
 		self::assertTrue( Policy::valid_transition( 'draft', 'in_review' ) );
 		self::assertTrue( Policy::valid_transition( 'in_review', 'published' ) );
@@ -66,6 +81,9 @@ final class ContentContractsTest extends TestCase {
 		self::assertArrayHasKey( '_lps_review_date', Contracts::meta_fields()['lps_project'] );
 	}
 
+	/**
+	 * Verifies that publish validation denies missing localized and type required fields.
+	 */
 	public function test_publish_validation_denies_missing_localized_and_type_required_fields(): void {
 		$errors = Policy::publish_errors(
 			'lps_person',
@@ -83,6 +101,9 @@ final class ContentContractsTest extends TestCase {
 		self::assertSame( 'lps_required_canonical_name', $errors['_lps_canonical_name'] );
 	}
 
+	/**
+	 * Verifies that published or referenced records must be archived not deleted.
+	 */
 	public function test_published_or_referenced_records_must_be_archived_not_deleted(): void {
 		self::assertSame( 'lps_archive_required', Policy::deletion_error( true, false ) );
 		self::assertSame( 'lps_record_referenced', Policy::deletion_error( false, true ) );

@@ -15,8 +15,8 @@ final class ImportContracts {
 	 * Returns common migration metadata fields.
 	 *
 	 * @param callable $field Field factory.
-	 * @phpstan-param callable(string, string, string): array{type: string, single: bool, description: string, show_in_rest: bool, sanitize_callback: callable(mixed): mixed, auth_callback: callable(): bool} $field
-	 * @return array<string, array{type: string, single: bool, description: string, show_in_rest: bool, sanitize_callback: callable(mixed): mixed, auth_callback: callable(): bool}>
+	 * @phpstan-param callable(string, string, string): array{type: string, single: bool, description: string, show_in_rest: bool, sanitize_callback: callable(mixed): mixed, auth_callback: callable(mixed, string, int, int): bool} $field
+	 * @return array<string, array{type: string, single: bool, description: string, show_in_rest: bool, sanitize_callback: callable(mixed): mixed, auth_callback: callable(mixed, string, int, int): bool}>
 	 */
 	public static function fields( callable $field ): array {
 		return array(

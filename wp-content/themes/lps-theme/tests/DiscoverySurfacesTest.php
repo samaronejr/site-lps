@@ -11,12 +11,11 @@ namespace LPS\Theme\Tests;
 
 use LPS\Theme\DiscoverySurfaces;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 
 require_once dirname( __DIR__ ) . '/includes/class-discoverysurfaces.php';
 
 /** Contract tests for the discovery rendering library. */
-final class DiscoverySurfacesTest extends TestCase {
+final class DiscoverySurfacesTest extends \PHPUnit\Framework\TestCase {
 	/** Stored block markup must render as HTML, never as visible block comments. */
 	public function test_record_body_renders_html_instead_of_raw_block_markup(): void {
 		// Given: a record whose body is stored as WordPress block markup.

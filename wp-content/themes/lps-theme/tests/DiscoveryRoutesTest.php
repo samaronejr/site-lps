@@ -11,12 +11,11 @@ namespace LPS\Theme\Tests;
 
 use LPS\Theme\DiscoveryRoutes;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 
 require_once dirname( __DIR__ ) . '/includes/class-discoveryroutes.php';
 
 /** Contract tests for discovery locale routes and citation downloads. */
-final class DiscoveryRoutesTest extends TestCase {
+final class DiscoveryRoutesTest extends \PHPUnit\Framework\TestCase {
 	/**
 	 * Provides the frozen locale route for each discovery record type.
 	 *

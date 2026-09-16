@@ -11,13 +11,12 @@ namespace LPS\ContentModel\Tests;
 
 use LPS\ContentModel\SearchIndex;
 use LPS\ContentModel\SearchPolicy;
-use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
 require_once dirname( __DIR__ ) . '/includes/class-searchindex.php';
 
 /** Placement and latency contracts for the locale search index. */
-final class SearchRelevanceTest extends TestCase {
+final class SearchRelevanceTest extends \PHPUnit\Framework\TestCase {
 	/**
 	 * Representative queries place the expected record in the top three.
 	 */
@@ -106,11 +105,14 @@ final class SearchRelevanceTest extends TestCase {
 	/**
 	 * Loads the representative-query fixture.
 	 *
+	 * @throws RuntimeException When the fixture cannot be read or is malformed.
+	 *
 	 * @return array{records: array<int, array<string, mixed>>, queries: array<int, array<string, mixed>>}
 	 */
 	private static function fixture(): array {
 		$path = __DIR__ . '/fixtures/todo18-representative-queries.json';
-		$raw  = file_get_contents( $path );
+		$file = new \SplFileObject( $path, 'r' );
+		$raw  = $file->fread( $file->getSize() );
 		if ( false === $raw ) {
 			throw new RuntimeException( 'Representative-query fixture is unreadable.' );
 		}

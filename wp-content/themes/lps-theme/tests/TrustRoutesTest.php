@@ -14,10 +14,9 @@ require_once dirname( __DIR__ ) . '/includes/class-trustroutes.php';
 use DateTimeImmutable;
 use LPS\Theme\TrustRoutes;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 
 /** Route contract tests for trust and institutional surfaces. */
-final class TrustRoutesTest extends TestCase {
+final class TrustRoutesTest extends \PHPUnit\Framework\TestCase {
 	/**
 	 * Provides frozen archive routes per record type and locale.
 	 *

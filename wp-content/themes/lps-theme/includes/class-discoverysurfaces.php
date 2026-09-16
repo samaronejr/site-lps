@@ -278,8 +278,8 @@ final class DiscoverySurfaces {
 			'canonical_url'   => $english ? 'Canonical record' : 'Registro canônico',
 			'open_access_url' => $english ? 'Open-access copy' : 'Cópia em acesso aberto',
 			'pdf_url'         => 'PDF',
-			'code_url'        => 'Code',
-			'data_url'        => 'Data',
+			'code_url'        => $english ? 'Code' : 'Código',
+			'data_url'        => $english ? 'Data' : 'Dados',
 		);
 		$html_alternative = self::safe_url( self::text( $record['record_url'] ?? '' ) );
 		$has_html_text    = '' !== $summary || '' !== $abstract;

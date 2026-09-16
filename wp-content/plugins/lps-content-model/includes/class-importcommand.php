@@ -22,8 +22,7 @@ final class ImportCommand {
 	 * @param array<string, string|bool> $assoc_args Named arguments.
 	 */
 	public function plan( array $args, array $assoc_args ): void {
-		unset( $args );
-		$context             = CliContext::load( $assoc_args );
+		$context             = CliContext::load( $assoc_args, $args );
 		$result              = ImportPlanner::plan( $context['package'], $context['assets_dir'] );
 		$result['inventory'] = Reconciler::inventory( $context['inventory_dir'], $context['package'] );
 		CliContext::emit( $result );
@@ -37,8 +36,7 @@ final class ImportCommand {
 	 * @param array<string, string|bool> $assoc_args Named arguments.
 	 */
 	public function dry_run( array $args, array $assoc_args ): void {
-		unset( $args );
-		$context = CliContext::load( $assoc_args );
+		$context = CliContext::load( $assoc_args, $args );
 		$before  = CliContext::state_hash();
 		$plan    = ImportPlanner::plan( $context['package'], $context['assets_dir'] );
 		$after   = CliContext::state_hash();
@@ -63,8 +61,7 @@ final class ImportCommand {
 	 * @param array<string, string|bool> $assoc_args Named arguments.
 	 */
 	public function apply( array $args, array $assoc_args ): void {
-		unset( $args );
-		$context = CliContext::load( $assoc_args );
+		$context = CliContext::load( $assoc_args, $args );
 		$plan    = ImportPlanner::plan( $context['package'], $context['assets_dir'] );
 		$result  = Importer::apply( $context['package'], $context['assets_dir'] );
 		if ( $result instanceof WP_Error ) {
@@ -87,8 +84,7 @@ final class ImportCommand {
 	 * @param array<string, string|bool> $assoc_args Named arguments.
 	 */
 	public function verify( array $args, array $assoc_args ): void {
-		unset( $args );
-		$context             = CliContext::load( $assoc_args );
+		$context             = CliContext::load( $assoc_args, $args );
 		$result              = Reconciler::target( $context['package'], $context['assets_dir'] );
 		$result['inventory'] = Reconciler::inventory( $context['inventory_dir'], $context['package'] );
 		CliContext::emit( $result );

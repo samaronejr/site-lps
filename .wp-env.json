@@ -19,6 +19,7 @@
     "wp-content/mu-plugins/lps-security.php": "./wp-content/mu-plugins/lps-security.php",
     "wp-content/mu-plugins/lps-people-seed.php": "./tests/fixtures/wp/lps-people-seed.php",
     "wp-content/mu-plugins/lps-development-bootstrap.php": "./tests/fixtures/wp/lps-development-bootstrap.php",
+    "wp-content/mu-plugins/lps-wordpress-default-content.php": "./tests/fixtures/wp/lps-wordpress-default-content.php",
     "wp-content/mu-plugins/lps-discovery-seed.php": "./tests/fixtures/wp/lps-discovery-seed.php",
     "wp-content/mu-plugins/lps-search-seed.php": "./tests/fixtures/wp/lps-search-seed.php",
     "wp-content/mu-plugins/lps-trust-seed.php": "./tests/fixtures/wp/lps-trust-seed.php",

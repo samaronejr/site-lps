@@ -1,0 +1,826 @@
+{
+  "schemaVersion": 1,
+  "viewports": [
+    {
+      "viewport": "mobile-375",
+      "width": 375,
+      "height": 812
+    },
+    {
+      "viewport": "tablet-768",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "viewport": "desktop-1280",
+      "width": 1280,
+      "height": 800
+    }
+  ],
+  "routes": [
+    {
+      "id": "home-pt",
+      "path": "/pt-br/",
+      "template": "front-page.html",
+      "locale": "pt-br",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "home-en",
+      "path": "/en/",
+      "template": "front-page.html",
+      "locale": "en",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "about-pt",
+      "path": "/pt-br/sobre/",
+      "template": "page.html",
+      "locale": "pt-br",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "about-en",
+      "path": "/en/about/",
+      "template": "page.html",
+      "locale": "en",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "privacy-pt",
+      "path": "/pt-br/privacidade/",
+      "template": "page.html",
+      "locale": "pt-br",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "privacy-en",
+      "path": "/en/privacy/",
+      "template": "page.html",
+      "locale": "en",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "accessibility-pt",
+      "path": "/pt-br/acessibilidade/",
+      "template": "page.html",
+      "locale": "pt-br",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "accessibility-en",
+      "path": "/en/accessibility/",
+      "template": "page.html",
+      "locale": "en",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "contact-pt",
+      "path": "/pt-br/contato/",
+      "template": "page.html",
+      "locale": "pt-br",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "contact-en",
+      "path": "/en/contact/",
+      "template": "page.html",
+      "locale": "en",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "collaborate-pt",
+      "path": "/pt-br/colabore/",
+      "template": "page.html",
+      "locale": "pt-br",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "collaborate-en",
+      "path": "/en/collaborate/",
+      "template": "page.html",
+      "locale": "en",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "infrastructure-pt",
+      "path": "/pt-br/infraestrutura/",
+      "template": "page.html",
+      "locale": "pt-br",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "infrastructure-en",
+      "path": "/en/infrastructure/",
+      "template": "page.html",
+      "locale": "en",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "media-pt",
+      "path": "/pt-br/midia-acessivel/",
+      "template": "page.html",
+      "locale": "pt-br",
+      "state": "authored-media",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "media-en",
+      "path": "/en/accessible-media/",
+      "template": "page.html",
+      "locale": "en",
+      "state": "authored-media",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "search-prompt-pt",
+      "path": "/pt-br/busca/",
+      "template": "page-busca.html",
+      "locale": "pt-br",
+      "state": "prompt",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "search-results-pt",
+      "path": "/pt-br/busca/?q=sinais",
+      "template": "page-busca.html",
+      "locale": "pt-br",
+      "state": "results",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "search-empty-pt",
+      "path": "/pt-br/busca/?q=zzzznaoexistezzzz",
+      "template": "page-busca.html",
+      "locale": "pt-br",
+      "state": "empty",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "search-error-pt",
+      "path": "/pt-br/busca/?q=a",
+      "template": "page-busca.html",
+      "locale": "pt-br",
+      "state": "boundary-error",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "search-facet-pt",
+      "path": "/pt-br/busca/?q=sinais&record=lps_publication",
+      "template": "page-busca.html",
+      "locale": "pt-br",
+      "state": "faceted",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "search-prompt-en",
+      "path": "/en/search/",
+      "template": "page-search.html",
+      "locale": "en",
+      "state": "prompt",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "search-results-en",
+      "path": "/en/search/?q=signal",
+      "template": "page-search.html",
+      "locale": "en",
+      "state": "results",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "search-empty-en",
+      "path": "/en/search/?q=zzzznotfoundzzzz",
+      "template": "page-search.html",
+      "locale": "en",
+      "state": "empty",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "search-error-en",
+      "path": "/en/search/?q=a",
+      "template": "page-search.html",
+      "locale": "en",
+      "state": "boundary-error",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "core-search-pt",
+      "path": "/pt-br/?s=sinais",
+      "template": "search.html",
+      "locale": "pt-br",
+      "state": "results",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "core-search-en",
+      "path": "/en/?s=signal",
+      "template": "search.html",
+      "locale": "en",
+      "state": "results",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "core-archive-pt",
+      "path": "/pt-br/2026/",
+      "template": "archive.html",
+      "locale": "pt-br",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "core-single-pt",
+      "path": "/pt-br/nota-de-acessibilidade/",
+      "template": "single.html",
+      "locale": "pt-br",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "people-pt",
+      "path": "/pt-br/pessoas/",
+      "template": "archive-lps_person.html",
+      "locale": "pt-br",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "people-en",
+      "path": "/en/people/",
+      "template": "archive-lps_person.html",
+      "locale": "en",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "people-filtered-pt",
+      "path": "/pt-br/pessoas/?role%5B%5D=student",
+      "template": "archive-lps_person.html",
+      "locale": "pt-br",
+      "state": "filtered",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "people-empty-pt",
+      "path": "/pt-br/pessoas/?role%5B%5D=does-not-exist",
+      "template": "archive-lps_person.html",
+      "locale": "pt-br",
+      "state": "empty",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "projects-pt",
+      "path": "/pt-br/projetos/",
+      "template": "archive-lps_project.html",
+      "locale": "pt-br",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "projects-en",
+      "path": "/en/projects/",
+      "template": "archive-lps_project.html",
+      "locale": "en",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "publications-pt",
+      "path": "/pt-br/publicacoes/",
+      "template": "archive-lps_publication.html",
+      "locale": "pt-br",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "publications-en",
+      "path": "/en/publications/",
+      "template": "archive-lps_publication.html",
+      "locale": "en",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "research-pt",
+      "path": "/pt-br/pesquisa/",
+      "template": "archive-lps_research_area.html",
+      "locale": "pt-br",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "research-en",
+      "path": "/en/research/",
+      "template": "archive-lps_research_area.html",
+      "locale": "en",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "news-pt",
+      "path": "/pt-br/noticias/",
+      "template": "archive-lps_news.html",
+      "locale": "pt-br",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "news-en",
+      "path": "/en/news/",
+      "template": "archive-lps_news.html",
+      "locale": "en",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "events-pt",
+      "path": "/pt-br/eventos/",
+      "template": "archive-lps_event.html",
+      "locale": "pt-br",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "events-en",
+      "path": "/en/events/",
+      "template": "archive-lps_event.html",
+      "locale": "en",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "opportunities-pt",
+      "path": "/pt-br/oportunidades/",
+      "template": "archive-lps_opportunity.html",
+      "locale": "pt-br",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "opportunities-en",
+      "path": "/en/opportunities/",
+      "template": "archive-lps_opportunity.html",
+      "locale": "en",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "organizations-pt",
+      "path": "/pt-br/organizacoes/",
+      "template": "archive-lps_organization.html",
+      "locale": "pt-br",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "organizations-en",
+      "path": "/en/organizations/",
+      "template": "archive-lps_organization.html",
+      "locale": "en",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "person-pt",
+      "path": "/pt-br/pessoas/ana-alvares-fixture/",
+      "template": "single-lps_person.html",
+      "locale": "pt-br",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "person-en",
+      "path": "/en/people/fixture-technical-staff/",
+      "template": "single-lps_person.html",
+      "locale": "en",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "person-photo-withheld-pt",
+      "path": "/pt-br/pessoas/equipe-tecnica-fixture/",
+      "template": "single-lps_person.html",
+      "locale": "pt-br",
+      "state": "photo-withheld",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "project-pt",
+      "path": "/pt-br/projetos/projeto-demonstracao-fixture/",
+      "template": "single-lps_project.html",
+      "locale": "pt-br",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "project-en",
+      "path": "/en/projects/demonstration-project-fixture/",
+      "template": "single-lps_project.html",
+      "locale": "en",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "publication-pt",
+      "path": "/pt-br/publicacoes/publicacao-demonstracao-fixture/",
+      "template": "single-lps_publication.html",
+      "locale": "pt-br",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "publication-en",
+      "path": "/en/publications/demonstration-publication-fixture/",
+      "template": "single-lps_publication.html",
+      "locale": "en",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "research-area-pt",
+      "path": "/pt-br/pesquisa/processamento-de-sinais-fixture/",
+      "template": "single-lps_research_area.html",
+      "locale": "pt-br",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "news-single-pt",
+      "path": "/pt-br/noticias/novo-laboratorio/",
+      "template": "single-lps_news.html",
+      "locale": "pt-br",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "event-cancelled-pt",
+      "path": "/pt-br/eventos/workshop-cancelado/",
+      "template": "single-lps_event.html",
+      "locale": "pt-br",
+      "state": "cancelled",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "opportunity-open-pt",
+      "path": "/pt-br/oportunidades/bolsa-doutorado-sinais/",
+      "template": "single-lps_opportunity.html",
+      "locale": "pt-br",
+      "state": "open",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "opportunity-open-en",
+      "path": "/en/opportunities/doctoral-scholarship-signal-processing/",
+      "template": "single-lps_opportunity.html",
+      "locale": "en",
+      "state": "open",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "opportunity-closed-pt",
+      "path": "/pt-br/oportunidades/estagio-encerrado/",
+      "template": "single-lps_opportunity.html",
+      "locale": "pt-br",
+      "state": "closed",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "organization-pt",
+      "path": "/pt-br/organizacoes/parceiro-publico-fixture/",
+      "template": "single-lps_organization.html",
+      "locale": "pt-br",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "not-found-pt",
+      "path": "/pt-br/rota-inexistente-a11y/",
+      "template": "404.html",
+      "locale": "pt-br",
+      "state": "not-found",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "not-found-en",
+      "path": "/en/missing-route-a11y/",
+      "template": "404.html",
+      "locale": "en",
+      "state": "not-found",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "posts-index-pt",
+      "path": "/pt-br/registros-t24/",
+      "template": "index.html",
+      "locale": "pt-br",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "home-empty-pt",
+      "path": "/pt-br/",
+      "template": "front-page.html",
+      "locale": "pt-br",
+      "state": "empty",
+      "mode": "reset",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "home-empty-en",
+      "path": "/en/",
+      "template": "front-page.html",
+      "locale": "en",
+      "state": "empty",
+      "mode": "reset",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "home-expired-pt",
+      "path": "/pt-br/",
+      "template": "front-page.html",
+      "locale": "pt-br",
+      "state": "expired",
+      "mode": "expired",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "home-expired-en",
+      "path": "/en/",
+      "template": "front-page.html",
+      "locale": "en",
+      "state": "expired",
+      "mode": "expired",
+      "authority": "Inherited task-24 route/state requirement"
+    },
+    {
+      "id": "history-pt",
+      "path": "/pt-br/sobre/historia/",
+      "template": "page.html",
+      "locale": "pt-br",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "B5/A-E1 attempt-5 recovered requirements"
+    },
+    {
+      "id": "history-en",
+      "path": "/en/about/history/",
+      "template": "page.html",
+      "locale": "en",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "B5/A-E1 attempt-5 recovered requirements"
+    },
+    {
+      "id": "governance-pt",
+      "path": "/pt-br/sobre/governanca/",
+      "template": "page.html",
+      "locale": "pt-br",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "B5/A-E1 attempt-5 recovered requirements"
+    },
+    {
+      "id": "governance-en",
+      "path": "/en/about/governance/",
+      "template": "page.html",
+      "locale": "en",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "B5/A-E1 attempt-5 recovered requirements"
+    },
+    {
+      "id": "research-area-en",
+      "path": "/en/research/signal-processing-fixture/",
+      "template": "single-lps_research_area.html",
+      "locale": "en",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "B5/A-E1 attempt-5 recovered requirements"
+    },
+    {
+      "id": "organization-en",
+      "path": "/en/organizations/fixture-public-partner/",
+      "template": "single-lps_organization.html",
+      "locale": "en",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "B5/A-E1 attempt-5 recovered requirements"
+    },
+    {
+      "id": "news-single-en",
+      "path": "/en/news/news-t24-en/",
+      "template": "single-lps_news.html",
+      "locale": "en",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "B5/A-E1 attempt-5 recovered requirements"
+    },
+    {
+      "id": "event-single-en",
+      "path": "/en/events/event-t24-en/",
+      "template": "single-lps_event.html",
+      "locale": "en",
+      "state": "populated",
+      "mode": "populate",
+      "authority": "B5/A-E1 attempt-5 recovered requirements"
+    },
+    {
+      "id": "opportunity-closed-en",
+      "path": "/en/opportunities/closed-internship/",
+      "template": "single-lps_opportunity.html",
+      "locale": "en",
+      "state": "closed",
+      "mode": "populate",
+      "authority": "Todo 24 paired locale/state requirement; published fixture id 9, lps-trust-seed.php closed-internship"
+    },
+    {
+      "id": "publication-without-identifiers-pt",
+      "path": "/pt-br/publicacoes/registro-sem-identificadores-fixture/",
+      "template": "single-lps_publication.html",
+      "locale": "pt-br",
+      "state": "without-identifiers",
+      "mode": "populate",
+      "recordId": 182,
+      "recordState": "without-identifiers",
+      "authority": "Todo 24k-K2 distinct public state: a publication with no DOI/ISBN/ISSN/arXiv/canonical/open-access/PDF identifier renders no identifier block (DiscoveryRoutes::publication_record); published fixture id 182 registro-sem-identificadores-fixture"
+    },
+    {
+      "id": "publication-without-identifiers-en",
+      "path": "/en/publications/record-without-identifiers-fixture/",
+      "template": "single-lps_publication.html",
+      "locale": "en",
+      "state": "without-identifiers",
+      "mode": "populate",
+      "recordId": 183,
+      "recordState": "without-identifiers",
+      "authority": "Todo 24k-K2 distinct public state, English variant of the identifier-free publication; published fixture id 183 record-without-identifiers-fixture"
+    },
+    {
+      "id": "person-alumni-pt",
+      "path": "/pt-br/pessoas/pessoa-egressa-fixture/",
+      "template": "single-lps_person.html",
+      "locale": "pt-br",
+      "state": "alumni",
+      "mode": "populate",
+      "recordId": 210,
+      "recordState": "alumni",
+      "authority": "Todo 24k-K2 distinct public state: an alumni profile carries the alumni status and its end date (PublicRoutes::person_record); published fixture id 210 pessoa-egressa-fixture"
+    },
+    {
+      "id": "person-alumni-en",
+      "path": "/en/people/fixture-alumni-member/",
+      "template": "single-lps_person.html",
+      "locale": "en",
+      "state": "alumni",
+      "mode": "populate",
+      "recordId": 211,
+      "recordState": "alumni",
+      "authority": "Todo 24k-K2 distinct public state, English variant of the alumni profile; published fixture id 211 fixture-alumni-member"
+    },
+    {
+      "id": "person-in-memoriam-pt",
+      "path": "/pt-br/pessoas/pessoa-homenageada-fixture/",
+      "template": "single-lps_person.html",
+      "locale": "pt-br",
+      "state": "in-memoriam",
+      "mode": "populate",
+      "recordId": 214,
+      "recordState": "in-memoriam",
+      "authority": "Todo 24k-K2 distinct public state: a consent-approved in-memoriam profile is published with its memorial treatment (PublicRoutes::person_record); published fixture id 214 pessoa-homenageada-fixture"
+    },
+    {
+      "id": "person-in-memoriam-en",
+      "path": "/en/people/fixture-in-memoriam-member/",
+      "template": "single-lps_person.html",
+      "locale": "en",
+      "state": "in-memoriam",
+      "mode": "populate",
+      "recordId": 215,
+      "recordState": "in-memoriam",
+      "authority": "Todo 24k-K2 distinct public state, English variant of the consent-approved in-memoriam profile; published fixture id 215 fixture-in-memoriam-member"
+    },
+    {
+      "id": "event-upcoming-pt",
+      "path": "/pt-br/eventos/seminario-lps/",
+      "template": "single-lps_event.html",
+      "locale": "pt-br",
+      "state": "upcoming",
+      "mode": "populate",
+      "recordId": 16,
+      "recordState": "upcoming",
+      "authority": "Todo 24k-K2 distinct public state: a scheduled event before its start renders data-state=\"upcoming\" (TrustSurfacePolicy::event_state); published fixture id 16 seminario-lps"
+    },
+    {
+      "id": "event-past-pt",
+      "path": "/pt-br/eventos/evento-t24/",
+      "template": "single-lps_event.html",
+      "locale": "pt-br",
+      "state": "past",
+      "mode": "populate",
+      "recordId": 250,
+      "recordState": "past",
+      "authority": "Todo 24k-K2 distinct public state surfaced by the same classifier: the Portuguese past event had no cell while its English pair event-single-en did; published fixture id 250 evento-t24"
+    }
+  ],
+  "excludedStates": [
+    {
+      "type": "lps_person",
+      "state": "archived",
+      "reason": "An archived person has no public single address: the public record is not published and the address answers 404, so the state cannot carry a record cell of its own.",
+      "contract": "wp-content/themes/lps-theme/includes/class-publicroutes.php person_record() ('archived' !== _lps_state), is_addressable(), guard_withheld_records()",
+      "evidence": "Published fixture records 170 pessoa-arquivada-fixture and 171 archived-person-fixture"
+    },
+    {
+      "type": "lps_person",
+      "state": "consent-withheld",
+      "reason": "An in-memoriam profile without recorded consent approval is withheld from the public surface and its address answers 404, so the state cannot carry a record cell of its own.",
+      "contract": "wp-content/themes/lps-theme/includes/class-publicroutes.php person_record() (_lps_in_memoriam_approved), is_addressable(), guard_withheld_records()",
+      "evidence": "Published fixture records 218 pessoa-sem-consentimento-fixture and 219 fixture-member-awaiting-consent"
+    },
+    {
+      "type": "lps_organization",
+      "state": "hidden-profile",
+      "reason": "An organization without a public profile is never addressable: the single address answers 404, so the state cannot carry a record cell of its own.",
+      "contract": "wp-content/themes/lps-theme/includes/class-publicroutes.php organization_record() (_lps_public_profile), is_addressable(), guard_withheld_records()",
+      "evidence": "Published fixture records 257 parceiro-oculto-fixture and 258 fixture-hidden-partner"
+    }
+  ]
+}

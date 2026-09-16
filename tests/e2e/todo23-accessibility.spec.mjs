@@ -70,6 +70,25 @@ async function focused(page) {
         rect.right <= window.innerWidth,
       topmost: centre === element || element.contains(centre),
       documentOrder: [...document.querySelectorAll("*")].indexOf(element),
+      // Firefox parks document.activeElement on the last control when Tab is
+      // pressed past the end of the tab order (Chromium reports document.body
+      // instead). That end-of-order stop is not a trap, so the sweep below
+      // distinguishes it by whether the repeated element is the last
+      // focusable control in the document.
+      lastFocusable:
+        element ===
+        [
+          ...document.querySelectorAll(
+            "a[href], button, input, select, textarea, summary, [tabindex], [contenteditable]",
+          ),
+        ]
+          .filter(
+            (candidate) =>
+              !candidate.disabled &&
+              candidate.getAttribute("tabindex") !== "-1" &&
+              candidate.getClientRects().length > 0,
+          )
+          .at(-1),
       selector: element.id
         ? `#${element.id}`
         : `${element.tagName.toLowerCase()}${element.className ? `.${element.className.toString().split(" ")[0]}` : ""}`,
@@ -254,6 +273,10 @@ test.describe("Todo 23 keyboard journeys", () => {
         seen.push(entry.documentOrder);
         const window = seen.slice(-6);
         if (window.length === 6 && new Set(window).size === 1) {
+          // Firefox holds focus on the last control past the end of the tab
+          // order; a repeated last-focusable element is the end of the sweep,
+          // not a trap. A repeated element anywhere else is a real trap.
+          if (entry.lastFocusable) break;
           throw new Error(`Keyboard focus is trapped on ${entry.selector}`);
         }
       }

@@ -10,12 +10,16 @@ declare(strict_types=1);
 namespace LPS\Theme\Tests;
 
 use LPS\Theme\PublicSurfaces;
-use PHPUnit\Framework\TestCase;
 
 require_once dirname( __DIR__ ) . '/includes/class-publicsurfaces.php';
 
-final class PublicSurfacesTest extends TestCase {
-	/** @return array<int, array<string, mixed>> */
+/** People, organization, and infrastructure surface contracts. */
+final class PublicSurfacesTest extends \PHPUnit\Framework\TestCase {
+	/**
+	 * Provides people.
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
 	private function people(): array {
 		return array(
 			array(
@@ -114,6 +118,9 @@ final class PublicSurfacesTest extends TestCase {
 		self::assertStringContainsString( '<button class="lps-button lps-button-primary" type="submit">', $html );
 	}
 
+	/**
+	 * Verifies that people facets preserve distinct cohorts and stable urls.
+	 */
 	public function test_people_facets_preserve_distinct_cohorts_and_stable_urls(): void {
 		$html = PublicSurfaces::people_listing(
 			'pt-br',
@@ -133,6 +140,9 @@ final class PublicSurfacesTest extends TestCase {
 		self::assertStringNotContainsString( 'ana-alvares-2', $html );
 	}
 
+	/**
+	 * Verifies that profile exposes only reviewed public contact and rights cleared local photo.
+	 */
 	public function test_profile_exposes_only_reviewed_public_contact_and_rights_cleared_local_photo(): void {
 		$public  = PublicSurfaces::person_profile( 'pt-br', $this->people()[0] );
 		$private = PublicSurfaces::person_profile( 'pt-br', $this->people()[1] );
@@ -148,6 +158,9 @@ final class PublicSurfacesTest extends TestCase {
 		self::assertStringContainsString( 'Egresso', $private );
 	}
 
+	/**
+	 * Verifies that identifiers must validate before rendering.
+	 */
 	public function test_identifiers_must_validate_before_rendering(): void {
 		$person = $this->people()[0] + array(
 			'orcid'      => '0000-0002-1825-0097',
@@ -171,6 +184,9 @@ final class PublicSurfacesTest extends TestCase {
 		self::assertStringNotContainsString( 'example.org/lattes', $invalid );
 	}
 
+	/**
+	 * Verifies that hidden organizations never render or leak logo.
+	 */
 	public function test_hidden_organizations_never_render_or_leak_logo(): void {
 		$hidden = array(
 			'name'           => 'Hidden Partner',
@@ -193,6 +209,9 @@ final class PublicSurfacesTest extends TestCase {
 		self::assertStringNotContainsString( 'logo.svg', $html );
 	}
 
+	/**
+	 * Verifies that infrastructure omits unsourced claims and connects evidence and contacts.
+	 */
 	public function test_infrastructure_omits_unsourced_claims_and_connects_evidence_and_contacts(): void {
 		$html = PublicSurfaces::infrastructure_page(
 			'en',
