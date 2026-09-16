@@ -907,7 +907,21 @@ function ensureTls() {
 
 // --- HTTP helpers (TLS pinned to the deployed certificate) --------------------
 
-function edgeFetch(pathname, options = {}) {
+async function edgeFetch(pathname, options = {}) {
+  try {
+    return await edgeFetchOnce(pathname, options);
+  } catch (error) {
+    // A synchronous wpCli call can freeze the event loop past the edge's
+    // keepAliveTimeout, leaving a dead pooled socket for the next request.
+    // Retry once on a fresh socket rather than failing the check.
+    if (/socket hang up|ECONNRESET/i.test(String(error))) {
+      return await edgeFetchOnce(pathname, options);
+    }
+    throw error;
+  }
+}
+
+function edgeFetchOnce(pathname, options = {}) {
   return new Promise((resolve, reject) => {
     const cert = readCert(`${OPS}/tls/edge-cert.pem`);
     const req = httpsRequest(
