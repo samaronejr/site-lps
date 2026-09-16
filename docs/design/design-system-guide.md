@@ -111,23 +111,28 @@ in two contexts and seven variants:
 
 ### Full-colour lockup
 Used in non-interactive identity-only contexts: footer identity block, an identity/about
-page figure, press and download pages, and social share images. The lockup displays the wordmark
-with the waveform gradient and brand colours; it is never interactive, never focusable, never placed
-in navigation, and never used as an icon.
+page figure, press and download pages, and social share images, plus one scoped interactive
+exception: the production shell header home-link wordmark, where the lockup
+(`wp-content/themes/lps-theme/assets/images/lps-logo.svg`) renders once inside the anchor, the
+anchor's `aria-label` carries the accessible name and the image is `alt=""`. Beyond that single
+instance the lockup is never interactive, never focusable, never placed in navigation, and never
+used as an icon.
 
 ### Monochrome derivative
-Used wherever the mark acts as UI chrome: home link in headers and footers, interactive
-navigation or control instances, or any focusable element. The monochrome variant takes a single
-`currentColor` fill, inheriting text colour from its surrounding context. It is never recoloured
-with a brand token. Wherever a lockup's lettering would fall under the legibility floor or
-duplicate an adjacent visible wordmark, the monochrome symbol (`lps-mark-mono-symbol.svg`,
-waveform and baseline rule only) is the chrome variant; the shell header and footer use it inside
-their home links, `aria-hidden` beside the visible wordmark.
+Used wherever the mark acts as UI chrome: home links, interactive navigation or control
+instances, or any focusable element other than the single production-shell header wordmark
+exception. The monochrome variant takes a single `currentColor` fill, inheriting text colour
+from its surrounding context. It is never recoloured with a brand token. Wherever a lockup's
+lettering would fall under the legibility floor or duplicate an adjacent visible wordmark, the
+monochrome symbol (`lps-mark-mono-symbol.svg`, waveform and baseline rule only) is the chrome
+variant. The shell footer keeps it inside its home link, `aria-hidden` beside the visible "LPS"
+wordmark; the shell header home link carries the full-colour lockup instead.
 
-### Wave-gradient and ornament
-The `wave-gradient` exists only within the mark artwork itself. It is never extracted, repeated,
-mirrored, tiled, or reused as a divider, watermark, background, or decorative surface. No other
-waveform or gradient is permitted on cards, buttons, rules, focus rings, or any UI surface.
+### Mark gradients and ornament
+The mark's internal gradients (`wave-gradient`, `baseline-gradient`, `lps-gradient`) exist only
+within the mark artwork itself. They are never extracted, repeated, mirrored, tiled, or reused
+as a divider, watermark, background, or decorative surface. No other waveform or gradient is
+permitted on cards, buttons, rules, focus rings, or any UI surface.
 
 ### Clear space and minimum size
 The mark requires clear space on every side equal to at least the cap height of its lettering,
@@ -145,9 +150,10 @@ authors cannot accidentally apply them to content.
 
 ### Rights and publication
 No mark variant is published until the rights record exists and is registered as cleared with a
-local asset path. Remote hosting and hotlinking remain forbidden. Until the variant set (Todo 32)
-registers the rights record and placement (Todo 33) integrates the mark, shipped surfaces remain
-text-only institutional identity.
+local asset path. Remote hosting and hotlinking remain forbidden. That record is registered at
+`wp-content/themes/lps-theme/assets/img/mark/RIGHTS.md` and the mark is placed in the production
+shell header. The gate itself is unchanged: no new variant, no new placement, and no third-party
+mark ships without registered provenance.
 
 ## Motion and interaction
 
