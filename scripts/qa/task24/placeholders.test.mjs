@@ -5,8 +5,8 @@ import {
   PLACEHOLDER_GAP,
   probeGaps,
   probeTargets,
-  recordGaps,
   ROUTE_GAP,
+  recordGaps,
   TABLE_GAP,
   tableGaps,
 } from "./placeholders.mjs";
@@ -77,7 +77,10 @@ test("a published WordPress default is a gap, not an ordinary additional record"
 });
 
 test("authored records never produce a placeholder gap", () => {
-  assert.deepEqual(recordGaps([authoredPage, { ...authoredPage, id: 40, placeholder: undefined }]), []);
+  assert.deepEqual(
+    recordGaps([authoredPage, { ...authoredPage, id: 40, placeholder: undefined }]),
+    [],
+  );
 });
 
 test("a modified copy at a default slug is still reported for review", () => {
@@ -117,7 +120,9 @@ test("malformed identity entries are rejected field by field", () => {
 
 test("malformed inventory input fails loudly and never throws", () => {
   assert.deepEqual(recordGaps(undefined), [{ code: INVENTORY_GAP, reason: "posts-not-a-list" }]);
-  assert.deepEqual(recordGaps({ posts: [] }), [{ code: INVENTORY_GAP, reason: "posts-not-a-list" }]);
+  assert.deepEqual(recordGaps({ posts: [] }), [
+    { code: INVENTORY_GAP, reason: "posts-not-a-list" },
+  ]);
   assert.deepEqual(recordGaps([null, 7, "post", { placeholder: [] }, { placeholder: "yes" }]), []);
   const gaps = recordGaps([{ placeholder: { unmodified: "true" }, url: "not a url" }]);
   assert.equal(gaps.length, 1);
@@ -170,19 +175,35 @@ test("a receipt permalink keeps the query that identifies the record", () => {
     !targets.some((target) => target.path === "/pt-br/"),
     "The site root must never become a probe target.",
   );
-  assert.deepEqual(probeGaps([{ id: "s", path: "/pt-br/", status: 200, finalPath: "/pt-br/", markerHits: [] }]).length, 1);
+  assert.deepEqual(
+    probeGaps([{ id: "s", path: "/pt-br/", status: 200, finalPath: "/pt-br/", markerHits: [] }])
+      .length,
+    1,
+  );
 });
 
 test("a removed route passes only as a non-200 without placeholder copy", () => {
   assert.deepEqual(
     probeGaps([
-      { id: "sample", path: "/pt-br/sample-page/", status: 404, finalPath: "/pt-br/sample-page/", markerHits: [] },
+      {
+        id: "sample",
+        path: "/pt-br/sample-page/",
+        status: 404,
+        finalPath: "/pt-br/sample-page/",
+        markerHits: [],
+      },
       { id: "sample", path: "/sample-page/", status: 200, finalPath: "/pt-br/", markerHits: [] },
     ]),
     [],
   );
   const gaps = probeGaps([
-    { id: "sample", path: "/pt-br/sample-page/", status: 200, finalPath: "/pt-br/sample-page/", markerHits: [] },
+    {
+      id: "sample",
+      path: "/pt-br/sample-page/",
+      status: 200,
+      finalPath: "/pt-br/sample-page/",
+      markerHits: [],
+    },
     {
       id: "sample",
       path: "/en/sample-page/",

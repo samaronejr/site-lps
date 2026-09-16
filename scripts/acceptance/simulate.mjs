@@ -22,8 +22,9 @@
  */
 
 import { spawnSync } from "node:child_process";
-import { request as httpsRequest } from "node:https";
+import { randomBytes } from "node:crypto";
 import {
+  chmodSync,
   copyFileSync,
   existsSync,
   mkdirSync,
@@ -34,8 +35,7 @@ import {
   unlinkSync,
   writeFileSync,
 } from "node:fs";
-import { chmodSync } from "node:fs";
-import { randomBytes } from "node:crypto";
+import { request as httpsRequest } from "node:https";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -134,11 +134,15 @@ async function fetchEdge(pathname, attempts = 4) {
           );
           // A mid-response socket drop surfaces on res, not req; without this
           // listener the error is an uncaught exception that kills the run.
-          res.on("error", (error) => resolve({ status: 0, location: "", body: "", error: String(error) }));
+          res.on("error", (error) =>
+            resolve({ status: 0, location: "", body: "", error: String(error) }),
+          );
         },
       );
       req.on("timeout", () => req.destroy(new Error("timeout")));
-      req.on("error", (error) => resolve({ status: 0, location: "", body: "", error: String(error) }));
+      req.on("error", (error) =>
+        resolve({ status: 0, location: "", body: "", error: String(error) }),
+      );
       req.end();
     });
     if (last.status > 0) return last;
@@ -162,10 +166,7 @@ function finish(code) {
   results.exit = code;
   mkdirSync(OUT, { recursive: true });
   writeFileSync(`${OUT}/results.json`, `${JSON.stringify(results, null, 2)}\n`);
-  writeFileSync(
-    `${OUT}/commands.jsonl`,
-    commands.map((c) => JSON.stringify(c)).join("\n") + "\n",
-  );
+  writeFileSync(`${OUT}/commands.jsonl`, commands.map((c) => JSON.stringify(c)).join("\n") + "\n");
   process.exit(code);
 }
 
@@ -229,7 +230,13 @@ if (!provisioned.transcript) {
   failHard("provision probe produced no transcript");
 }
 writeFileSync(`${OUT}/provision.json`, `${JSON.stringify(provisioned.transcript, null, 2)}\n`);
-if (!check("provision:passed", provisioned.transcript.status === "passed", provisioned.transcript.failed)) {
+if (
+  !check(
+    "provision:passed",
+    provisioned.transcript.status === "passed",
+    provisioned.transcript.failed,
+  )
+) {
   finish(1);
 }
 const fixture = provisioned.transcript.fixtures;
@@ -241,8 +248,16 @@ const fixture = provisioned.transcript.fixtures;
 if (ONLY.length === 0 || ONLY.includes("s7")) {
   const s7 = { id: "s7-deployer", steps: [] };
   const boundary = probe("s7-deployer.php");
-  s7.steps.push({ step: "credential-boundary", exit: boundary.exit, transcript: boundary.transcript });
-  check("s7:credential-boundary", boundary.transcript?.status === "passed", boundary.transcript?.failed);
+  s7.steps.push({
+    step: "credential-boundary",
+    exit: boundary.exit,
+    transcript: boundary.transcript,
+  });
+  check(
+    "s7:credential-boundary",
+    boundary.transcript?.status === "passed",
+    boundary.transcript?.failed,
+  );
 
   const before = {
     current: readlinkSync(`${STAGING}/current`),
@@ -276,12 +291,17 @@ if (ONLY.length === 0 || ONLY.includes("s7")) {
     }
     await new Promise((r) => setTimeout(r, 1000));
   }
-  check(
-    "s7:health-after-deploy",
-    healthAfter.status === 200 && releaseId.release === release,
-    { status: healthAfter.status, release: releaseId.release },
-  );
-  const drift = wp(["lps", "import", "verify", "--input=/lps-import/launch-corpus.json", "--inventory=/lps-inventory"]);
+  check("s7:health-after-deploy", healthAfter.status === 200 && releaseId.release === release, {
+    status: healthAfter.status,
+    release: releaseId.release,
+  });
+  const drift = wp([
+    "lps",
+    "import",
+    "verify",
+    "--input=/lps-import/launch-corpus.json",
+    "--inventory=/lps-inventory",
+  ]);
   s7.steps.push({ step: "import verify (no content drift)", exit: drift.exit });
   check("s7:no-content-drift", drift.exit === 0, drift.exit);
 
@@ -291,7 +311,11 @@ if (ONLY.length === 0 || ONLY.includes("s7")) {
     ["scripts/deploy/staging.mjs", "rollback", `--to=${priorRelease}`],
     { timeoutMs: 600_000 },
   );
-  s7.steps.push({ step: `rollback to ${priorRelease}`, exit: rolled.exit, tail: rolled.stdout.slice(-400) });
+  s7.steps.push({
+    step: `rollback to ${priorRelease}`,
+    exit: rolled.exit,
+    tail: rolled.stdout.slice(-400),
+  });
   check("s7:rollback", rolled.exit === 0, rolled.exit);
   let healthRolled = { status: 0 };
   for (let i = 0; i < 30; i++) {
@@ -336,7 +360,11 @@ for (const [id, file] of probes) {
     sim.error = `no T29JSON transcript: ${result.stdout.slice(-500)} ${result.stderr.slice(-500)}`;
   }
   writeFileSync(`${OUT}/${id}.json`, `${JSON.stringify(sim, null, 2)}\n`);
-  check(`${id}:passed`, result.transcript?.status === "passed", result.transcript?.failed ?? sim.error);
+  check(
+    `${id}:passed`,
+    result.transcript?.status === "passed",
+    result.transcript?.failed ?? sim.error,
+  );
   results.simulations.push(sim);
 }
 
@@ -353,11 +381,10 @@ if (s4?.transcript?.status === "passed") {
   const en = await fetchEdge(pathOf(urls.en_area));
   check("s4:http-en-200", en.status === 200, en.status);
   const old = await fetchEdge(urls.old_path);
-  check(
-    "s4:http-one-hop-redirect",
-    old.status === 301 && old.location.endsWith(urls.new_path),
-    { status: old.status, location: old.location },
-  );
+  check("s4:http-one-hop-redirect", old.status === 301 && old.location.endsWith(urls.new_path), {
+    status: old.status,
+    location: old.location,
+  });
   const verifyRedirects = wp(["lps", "redirects", "verify"]);
   check("s4:redirects-verify", verifyRedirects.exit === 0, verifyRedirects.exit);
 }
@@ -371,11 +398,10 @@ if (s5?.transcript?.status === "passed") {
   try {
     guard = JSON.parse(dry.stdout).mutation_guard;
   } catch {}
-  check(
-    "s5:dry-run-mutation-guard",
-    dry.exit === 0 && guard?.unchanged === true,
-    { exit: dry.exit, guard },
-  );
+  check("s5:dry-run-mutation-guard", dry.exit === 0 && guard?.unchanged === true, {
+    exit: dry.exit,
+    guard,
+  });
   const apply = wp(["lps", "import", "apply", "--input=/lps-import/launch-corpus.json"], {
     timeoutMs: 300_000,
   });

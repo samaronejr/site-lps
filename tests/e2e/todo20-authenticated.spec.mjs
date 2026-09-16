@@ -30,9 +30,7 @@ function loadSecurityFixture() {
     throw new Error(`LPS_SECURITY_FIXTURE malformed JSON at ${fixturePath}: ${error.message}`);
   }
   if (!fixture?.password || !fixture?.secret)
-    throw new Error(
-      `LPS_SECURITY_FIXTURE at ${fixturePath} must contain password and secret`,
-    );
+    throw new Error(`LPS_SECURITY_FIXTURE at ${fixturePath} must contain password and secret`);
   return fixture;
 }
 const PRIVILEGED = "security.privileged";
@@ -70,8 +68,7 @@ async function stableTotp(secret, { timeoutMs = 35_000 } = {}) {
       throw new Error(`stableTotp: no safe 30-second TOTP window within ${timeoutMs}ms`);
     const msIntoStep = now % 30_000;
     if (msIntoStep >= 2_000 && msIntoStep <= 23_000) return totpAt(secret, now);
-    const waitMs =
-      msIntoStep < 2_000 ? 2_000 - msIntoStep + 250 : 30_000 - msIntoStep + 2_250;
+    const waitMs = msIntoStep < 2_000 ? 2_000 - msIntoStep + 250 : 30_000 - msIntoStep + 2_250;
     await new Promise((resolve) =>
       setTimeout(resolve, Math.min(waitMs, Math.max(0, timeoutMs - (Date.now() - started)))),
     );
@@ -93,8 +90,7 @@ async function awaitLoginOutcome(page, { timeout = 15_000 } = {}) {
 
 function awaitLoginPost(page, { timeout = 15_000 } = {}) {
   return page.waitForResponse(
-    (response) =>
-      response.request().method() === "POST" && /wp-login\.php/.test(response.url()),
+    (response) => response.request().method() === "POST" && /wp-login\.php/.test(response.url()),
     { timeout },
   );
 }

@@ -42,8 +42,7 @@ async function stableTotp(base32, { timeoutMs = 35_000 } = {}) {
       lastTotpWindow = step;
       return totp(base32);
     }
-    const waitMs =
-      msIntoStep < 2_000 ? 2_000 - msIntoStep + 250 : 30_000 - msIntoStep + 2_250;
+    const waitMs = msIntoStep < 2_000 ? 2_000 - msIntoStep + 250 : 30_000 - msIntoStep + 2_250;
     await new Promise((resolve) =>
       setTimeout(resolve, Math.min(waitMs, Math.max(0, timeoutMs - (Date.now() - started)))),
     );
@@ -143,24 +142,20 @@ try {
   // stableTotp's bounded wait for a fresh 30-second window (~30s) plus the
   // POST/redirect round trip; 60s keeps the contract bounded without racing.
   const revalidateResponse = page.waitForResponse(
-    (response) =>
-      response.request().method() === "POST" &&
-      /revalidate_2fa/.test(response.url()),
+    (response) => response.request().method() === "POST" && /revalidate_2fa/.test(response.url()),
     { timeout: 60_000 },
   );
   // Two-Factor auto-submits the challenge on the sixth digit and disables the
   // submit control, so the POST and the profile navigation are registered
   // before the fill and no click follows it.
-  const revalidatedUrl = page.waitForURL(
-    (url) => url.pathname === "/wp-admin/profile.php",
-    { waitUntil: "domcontentloaded", timeout: 60_000 },
-  );
+  const revalidatedUrl = page.waitForURL((url) => url.pathname === "/wp-admin/profile.php", {
+    waitUntil: "domcontentloaded",
+    timeout: 60_000,
+  });
   await page.locator("#authcode").fill(await stableTotp(secret));
   const revalidated = await revalidateResponse;
   if (revalidated.status() !== 302 && revalidated.status() !== 200)
-    throw new Error(
-      `TOTP selector preflight revalidation HTTP ${revalidated.status()}`,
-    );
+    throw new Error(`TOTP selector preflight revalidation HTTP ${revalidated.status()}`);
   await revalidatedUrl;
   receipt.enrollment.revalidation = {
     httpStatus: revalidated.status(),

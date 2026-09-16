@@ -85,8 +85,7 @@ async function stableTotp(base32, { timeoutMs = 35_000 } = {}) {
       lastTotpWindow = step;
       return totpAt(base32, now);
     }
-    const waitMs =
-      msIntoStep < 2_000 ? 2_000 - msIntoStep + 250 : 30_000 - msIntoStep + 2_250;
+    const waitMs = msIntoStep < 2_000 ? 2_000 - msIntoStep + 250 : 30_000 - msIntoStep + 2_250;
     await new Promise((resolve) =>
       setTimeout(resolve, Math.min(waitMs, Math.max(0, timeoutMs - (Date.now() - started)))),
     );

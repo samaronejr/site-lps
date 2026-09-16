@@ -54,8 +54,9 @@ async function login(page, loginName, journey) {
   // Bounded outcome contract: after the login POST, exactly one of the MFA
   // challenge, the authenticated admin bar, or a login error must become
   // visible. The previous immediate `isVisible()` raced the challenge render.
-  await expect(page.locator("#authcode, body.wp-admin #wpadminbar, #login_error").first())
-    .toBeVisible({ timeout: 15_000 });
+  await expect(
+    page.locator("#authcode, body.wp-admin #wpadminbar, #login_error").first(),
+  ).toBeVisible({ timeout: 15_000 });
   if (await page.locator("#authcode").isVisible()) return "mfa-challenge";
   await assertAuthenticatedSession(page, journey);
   return "authenticated";
@@ -96,8 +97,7 @@ async function stableTotp(base32, { timeoutMs = 35_000 } = {}) {
       lastTotpWindow = step;
       return totpAt(base32, now);
     }
-    const waitMs =
-      msIntoStep < 2_000 ? 2_000 - msIntoStep + 250 : 30_000 - msIntoStep + 2_250;
+    const waitMs = msIntoStep < 2_000 ? 2_000 - msIntoStep + 250 : 30_000 - msIntoStep + 2_250;
     await new Promise((resolve) =>
       setTimeout(resolve, Math.min(waitMs, Math.max(0, timeoutMs - (Date.now() - started)))),
     );
@@ -131,8 +131,7 @@ async function enrollTotp(page, journey) {
   // stableTotp's bounded wait for a fresh 30-second window (~30s) plus the
   // POST/redirect round trip; 60s keeps the contract bounded without racing.
   const revalidateResponse = page.waitForResponse(
-    (response) =>
-      response.request().method() === "POST" && /revalidate_2fa/.test(response.url()),
+    (response) => response.request().method() === "POST" && /revalidate_2fa/.test(response.url()),
     { timeout: 60_000 },
   );
   const revalidatedUrl = page.waitForURL((url) => url.pathname === "/wp-admin/profile.php", {
@@ -150,10 +149,10 @@ async function enrollTotp(page, journey) {
       new URL(response.url()).pathname === "/wp-admin/profile.php",
     { timeout: 60_000 },
   );
-  const enrollmentProfileUrl = page.waitForURL(
-    (url) => url.pathname === "/wp-admin/profile.php",
-    { waitUntil: "domcontentloaded", timeout: 60_000 },
-  );
+  const enrollmentProfileUrl = page.waitForURL((url) => url.pathname === "/wp-admin/profile.php", {
+    waitUntil: "domcontentloaded",
+    timeout: 60_000,
+  });
   await page.locator("#submit").click();
   await Promise.all([enrollmentSaveResponse, enrollmentProfileUrl]);
 
@@ -169,10 +168,10 @@ async function enrollTotp(page, journey) {
       new URL(response.url()).pathname === "/wp-admin/profile.php",
     { timeout: 60_000 },
   );
-  const primaryProfileUrl = page.waitForURL(
-    (url) => url.pathname === "/wp-admin/profile.php",
-    { waitUntil: "domcontentloaded", timeout: 60_000 },
-  );
+  const primaryProfileUrl = page.waitForURL((url) => url.pathname === "/wp-admin/profile.php", {
+    waitUntil: "domcontentloaded",
+    timeout: 60_000,
+  });
   await page.locator("#submit").click();
   await Promise.all([primarySaveResponse, primaryProfileUrl]);
 

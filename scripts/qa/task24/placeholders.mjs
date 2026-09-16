@@ -121,7 +121,8 @@ export function probeGaps(probes) {
     const reasons = [];
     const markerHits = list(probe?.markerHits);
     if (!Number.isInteger(probe?.status)) reasons.push("unreadable-status");
-    else if (probe.status === 200 && probe.finalPath === probe.path) reasons.push("route-answers-200");
+    else if (probe.status === 200 && probe.finalPath === probe.path)
+      reasons.push("route-answers-200");
     if (markerHits.length) reasons.push("placeholder-copy-served");
     if (reasons.length)
       gaps.push({
