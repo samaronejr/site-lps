@@ -244,6 +244,7 @@ final class Delivery {
 				'translations' => self::translation_urls( $post ),
 				'terms'        => self::term_urls( $post ),
 				'locales'      => array( 'pt-br', 'en' ),
+				'records'      => self::record_urls( $post ),
 			)
 		);
 
@@ -338,6 +339,28 @@ final class Delivery {
 			}
 		}
 
+		return $urls;
+	}
+
+	/**
+	 * Lists the localized public route URLs of a governed record.
+	 *
+	 * Governed records serve on frozen localized routes (e.g.
+	 * `/pt-br/noticias/<slug>/`) that never equal the native permalink, so the
+	 * canonical URL the sitemap advertises must be purged explicitly.
+	 *
+	 * @param \WP_Post $post Changed post.
+	 *
+	 * @return array<int, string>
+	 */
+	private static function record_urls( \WP_Post $post ): array {
+		$urls = array();
+		foreach ( array( 'pt-br', 'en' ) as $locale ) {
+			$path = SeoRoutes::record_path( $post, $locale );
+			if ( '' !== $path ) {
+				$urls[] = $path;
+			}
+		}
 		return $urls;
 	}
 

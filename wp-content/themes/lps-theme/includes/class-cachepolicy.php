@@ -111,7 +111,7 @@ final class CachePolicy {
 
 		$origin  = self::origin( $permalink );
 		$targets = array( $permalink );
-		foreach ( array( 'archives', 'translations', 'terms' ) as $group ) {
+		foreach ( array( 'archives', 'translations', 'terms', 'records' ) as $group ) {
 			foreach ( $record[ $group ] ?? array() as $url ) {
 				if ( '' !== trim( $url ) ) {
 					$targets[] = trim( $url );

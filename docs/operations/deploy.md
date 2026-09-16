@@ -131,7 +131,7 @@ freshness; secrets-scan of every receipt. Exit 0 only when all pass.
 - **Object cache** — `object-cache.php` drop-in, file-backed under
   `ops/cache/object/`. Persistent across requests within a release.
 - **Purge** — `POST /lps-ops/purge` with `Authorization: Bearer
-  $LPS_PURGE_TOKEN` and `{"all":true}` or `{"paths":[…]}`. Publish transitions
+  $LPS_PURGE_TOKEN` and `{"all":true}` or `{"urls":[…]}`. Publish transitions
   also enqueue purge targets through `ops/logs/purge-queue.jsonl`, which the
   edge watches. A deploy flushes the whole cache.
 
