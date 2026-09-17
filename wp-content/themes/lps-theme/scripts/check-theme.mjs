@@ -4,10 +4,11 @@ import { resolve } from "node:path";
 const themeRoot = resolve(new URL("../", import.meta.url).pathname);
 
 export async function checkTheme() {
-  const [css, themeSource, templateNames] = await Promise.all([
+  const [css, themeSource, templateNames, partNames] = await Promise.all([
     readFile(`${themeRoot}/assets/css/theme.css`, "utf8"),
     readFile(`${themeRoot}/theme.json`, "utf8"),
     readdir(`${themeRoot}/templates`),
+    readdir(`${themeRoot}/parts`),
   ]);
   const theme = JSON.parse(themeSource);
   const findings = [];
@@ -59,9 +60,18 @@ export async function checkTheme() {
   for (const name of requiredTemplates) {
     if (!templateNames.includes(name)) add("MISSING_TEMPLATE", name);
   }
-  for (const name of requiredTemplates.filter((name) => templateNames.includes(name))) {
+  // Every shipped template and template part must carry the structural lock;
+  // the required list above only proves presence, so the lock audit runs over
+  // the full directories rather than the six required names.
+  for (const name of templateNames) {
     const markup = await readFile(`${themeRoot}/templates/${name}`, "utf8");
-    if (!markup.includes('"lock":{"move":true,"remove":true}')) add("UNLOCKED_TEMPLATE", name);
+    if (!markup.includes('"lock":{"move":true,"remove":true}'))
+      add("UNLOCKED_TEMPLATE", `templates/${name}`);
+  }
+  for (const name of partNames) {
+    const markup = await readFile(`${themeRoot}/parts/${name}`, "utf8");
+    if (!markup.includes('"lock":{"move":true,"remove":true}'))
+      add("UNLOCKED_TEMPLATE", `parts/${name}`);
   }
   // The required font files are the ones the stylesheet actually references, so
   // repackaging the family (for example subsetting to woff2) cannot silently drop
