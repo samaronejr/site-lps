@@ -4,11 +4,12 @@ import { resolve } from "node:path";
 const themeRoot = resolve(new URL("../", import.meta.url).pathname);
 
 export async function checkTheme() {
-  const [css, themeSource, templateNames, partNames] = await Promise.all([
+  const [css, themeSource, templateNames, partNames, patternNames] = await Promise.all([
     readFile(`${themeRoot}/assets/css/theme.css`, "utf8"),
     readFile(`${themeRoot}/theme.json`, "utf8"),
     readdir(`${themeRoot}/templates`),
     readdir(`${themeRoot}/parts`),
+    readdir(`${themeRoot}/patterns`),
   ]);
   const theme = JSON.parse(themeSource);
   const findings = [];
@@ -22,7 +23,7 @@ export async function checkTheme() {
   for (const match of css.matchAll(/#[0-9a-f]{3,8}\b|\brgba?\([^)]*\)|\bhsla?\([^)]*\)/gi)) {
     if (!insideRoot(match.index)) add("UNTOKENIZED_COLOR", match[0]);
   }
-  for (const match of css.matchAll(/box-shadow\s*:\s*([^;]+);/gi)) {
+  for (const match of css.matchAll(/(?:box|text)-shadow\s*:\s*([^;]+);/gi)) {
     if (!/var\(--shadow-none\)/.test(match[1])) add("SHADOW_SURFACE", match[1].trim());
   }
   for (const match of css.matchAll(/border-radius\s*:\s*([^;]+);/gi)) {
@@ -60,18 +61,51 @@ export async function checkTheme() {
   for (const name of requiredTemplates) {
     if (!templateNames.includes(name)) add("MISSING_TEMPLATE", name);
   }
-  // Every shipped template and template part must carry the structural lock;
-  // the required list above only proves presence, so the lock audit runs over
-  // the full directories rather than the six required names.
-  for (const name of templateNames) {
-    const markup = await readFile(`${themeRoot}/templates/${name}`, "utf8");
-    if (!markup.includes('"lock":{"move":true,"remove":true}'))
-      add("UNLOCKED_TEMPLATE", `templates/${name}`);
-  }
-  for (const name of partNames) {
-    const markup = await readFile(`${themeRoot}/parts/${name}`, "utf8");
-    if (!markup.includes('"lock":{"move":true,"remove":true}'))
-      add("UNLOCKED_TEMPLATE", `parts/${name}`);
+  // Every shipped template, part and pattern must carry the structural lock
+  // on every block; the required list above only proves presence, so the lock
+  // audit runs over the full directories rather than the six required names,
+  // and a single locked block cannot mask an unlocked sibling. The same pass
+  // applies the color, shadow and radius bans to markup, which the CSS scan
+  // cannot see: fragment targets are stripped first so href="#main" and
+  // url(#gradient) are not mistaken for hex literals, and the block-JSON
+  // "radius" attribute is held to the same zero-or-token rule as the
+  // border-radius property.
+  const markupFiles = [
+    ...templateNames.map((name) => `templates/${name}`),
+    ...partNames.map((name) => `parts/${name}`),
+    ...patternNames.map((name) => `patterns/${name}`),
+  ];
+  for (const relative of markupFiles) {
+    const markup = await readFile(`${themeRoot}/${relative}`, "utf8");
+    const blocks = markup.match(/<!--\s*wp:(?!\/)[\s\S]*?-->/g) ?? [];
+    if (blocks.length === 0) add("UNLOCKED_TEMPLATE", `${relative}: no locked blocks`);
+    for (const block of blocks) {
+      if (!block.includes('"lock":{"move":true,"remove":true}')) {
+        const name = /wp:([a-z0-9-]+(?:\/[a-z0-9-]+)?)/.exec(block)?.[1] ?? "block";
+        add("UNLOCKED_TEMPLATE", `${relative}: ${name}`);
+      }
+    }
+    const colorScan = markup.replace(/(?:href|src)="#[^"]*"|url\(#[^)]*\)/g, "");
+    for (const match of colorScan.matchAll(
+      /#[0-9a-f]{3,8}\b|\brgba?\([^)]*\)|\bhsla?\([^)]*\)/gi,
+    )) {
+      add("UNTOKENIZED_COLOR", `${relative}: ${match[0]}`);
+    }
+    for (const match of markup.matchAll(/(?:box|text)-shadow\s*:\s*([^;"<]+)/gi)) {
+      if (!/var\(--shadow-none\)/.test(match[1])) {
+        add("SHADOW_SURFACE", `${relative}: ${match[1].trim()}`);
+      }
+    }
+    for (const match of markup.matchAll(/border-radius\s*:\s*([^;"<]+)/gi)) {
+      if (!/var\(--radius-square\)|^0$/i.test(match[1].trim())) {
+        add("ROUNDED_SURFACE", `${relative}: ${match[1].trim()}`);
+      }
+    }
+    for (const match of markup.matchAll(/"radius"\s*:\s*"([^"]*)"/g)) {
+      if (match[1] !== "" && match[1] !== "0") {
+        add("ROUNDED_SURFACE", `${relative}: "radius":"${match[1]}"`);
+      }
+    }
   }
   // The required font files are the ones the stylesheet actually references, so
   // repackaging the family (for example subsetting to woff2) cannot silently drop

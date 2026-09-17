@@ -22,11 +22,11 @@ for (const match of css.matchAll(/#[0-9a-f]{3,8}\b|\brgba?\([^)]*\)|\bhsla?\([^)
   }
 }
 
-for (const match of css.matchAll(/box-shadow\s*:\s*([^;]+);/gi)) {
+for (const match of css.matchAll(/(?:box|text)-shadow\s*:\s*([^;]+);/gi)) {
   if (!/var\(--shadow-none\)/.test(match[1])) {
     add(
       "SHADOW_SURFACE",
-      "Box shadows are forbidden by the borders-only depth contract.",
+      "Box and text shadows are forbidden by the borders-only depth contract.",
       match[1].trim(),
     );
   }
