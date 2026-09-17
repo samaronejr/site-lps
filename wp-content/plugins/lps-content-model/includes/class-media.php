@@ -88,6 +88,34 @@ final class Media {
 	}
 
 	/**
+	 * Resolves the first governed image usage declared in one record's content.
+	 *
+	 * Records expose homepage and surface imagery through the locked media
+	 * blocks (`lps/media`, `lps/figure`, `lps/gallery`), never through raw URL
+	 * fields. The returned pair is unvalidated on purpose: the caller re-checks
+	 * it through `MediaPolicy::usage_errors()` at render time so a rights or
+	 * privacy change after publication still fails closed.
+	 *
+	 * @param WP_Post $post Record whose content declares media usages.
+	 * @return array{usage: array<string, mixed>, asset: array<string, mixed>}|array{}
+	 */
+	public static function record_image( WP_Post $post ): array {
+		$usages = array();
+		$errors = array();
+		self::collect_blocks( parse_blocks( (string) $post->post_content ), $usages, $errors );
+		foreach ( $usages as $usage ) {
+			if ( ! in_array( $usage['block'] ?? '', array( 'image', 'figure', 'gallery' ), true ) ) {
+				continue;
+			}
+			return array(
+				'usage' => $usage,
+				'asset' => self::attachment_values( Policy::sanitize_integer( $usage['media_id'] ?? 0 ) ),
+			);
+		}
+		return array();
+	}
+
+	/**
 	 * Prevents direct publication when media use is invalid.
 	 *
 	 * @param array<string, mixed> $data Prepared database values.

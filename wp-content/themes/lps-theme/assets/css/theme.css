@@ -636,8 +636,7 @@ dd {
 
 figure,
 .wp-block-image,
-.wp-block-gallery,
-.lps-feature-media {
+.wp-block-gallery {
   margin-block: var(--space-8);
 }
 
@@ -645,6 +644,13 @@ figure,
   padding: var(--space-8);
   background: var(--color-paper-muted);
   color: var(--color-ink-soft);
+}
+
+/* Governed media inside a record row keeps a tighter rhythm than a standalone
+   figure so the row's hairline separation stays readable. */
+.lps-record .lps-media,
+.lps-record .lps-feature-media-fallback {
+  margin-block: 0 var(--space-4);
 }
 
 figcaption,
@@ -1316,7 +1322,7 @@ details:not(.lps-shell-disclosure) > summary {
     grid-column: 1 / 8;
   }
 
-  .lps-home-section[data-home-section="mission"] > .lps-feature-media,
+  .lps-home-section[data-home-section="mission"] > .lps-media,
   .lps-home-section[data-home-section="mission"] > .lps-feature-media-fallback {
     grid-column: 8 / -1;
     margin-block: 0;

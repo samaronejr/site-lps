@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace LPS\Theme;
 
+use LPS\ContentModel\Media;
+use LPS\ContentModel\MediaPolicy;
 use LPS\ContentModel\Translations;
 use WP_Post;
 
@@ -118,16 +120,32 @@ final class Homepage {
 	}
 
 	/**
-	 * Renders feature media or an accessible no-image fallback.
+	 * Renders a record's governed image or an accessible no-image fallback.
 	 *
-	 * @param array<string, mixed> $record Record with title and image.
-	 * @param string               $locale Supported locale slug.
+	 * Records expose imagery through the locked media blocks, resolved by
+	 * `Media::record_image()` into a usage/asset pair. The usage must still pass
+	 * `MediaPolicy::usage_errors()` — localized alt, caption, context, credit,
+	 * rights holder, license, checksum, cleared rights and privacy review — so
+	 * an attachment whose rights lapse after publication fails closed. The
+	 * homepage owns placement: the mission feature is the single hero (eager,
+	 * high priority) and every other slot renders as content (lazy), keeping
+	 * exactly one LCP candidate per page.
+	 *
+	 * @param array<string, mixed> $record    Record with a resolved media pair.
+	 * @param string               $locale    Supported locale slug.
+	 * @param string               $placement Slot placement: hero or content.
 	 */
-	public static function feature_media_markup( array $record, string $locale ): string {
-		$image = $record['image'] ?? null;
-		if ( is_string( $image ) && '' !== trim( $image ) ) {
-			$title = self::text( $record['title'] ?? '' );
-			return '<figure class="lps-feature-media"><img src="' . self::escape( $image ) . '" alt="' . self::escape( $title ) . '"></figure>';
+	public static function feature_media_markup( array $record, string $locale, string $placement = 'content' ): string {
+		$media = $record['media'] ?? array();
+		$usage = is_array( $media ) && is_array( $media['usage'] ?? null ) ? $media['usage'] : array();
+		$asset = is_array( $media ) && is_array( $media['asset'] ?? null ) ? $media['asset'] : array();
+		if ( array() !== $usage && class_exists( MediaPolicy::class ) ) {
+			$usage['locale']    = $locale;
+			$usage['placement'] = 'hero' === $placement ? 'hero' : 'content';
+			$usage['block']     = 'image';
+			if ( array() === MediaPolicy::usage_errors( $usage, $asset ) ) {
+				return MediaPolicy::render_image( $usage, $asset );
+			}
 		}
 		$english  = 'en' === $locale;
 		$fallback = $english ? 'Image not published' : 'Imagem não publicada';
@@ -245,6 +263,7 @@ final class Homepage {
 			'cta'            => $meta['_lps_canonical_task'],
 			'featured_until' => 'lps_event' === $post->post_type ? substr( self::text( $meta['_lps_ends_at'] ), 0, 10 ) : $meta['_lps_featured_until'],
 			'date'           => self::text( 'lps_publication' === $post->post_type ? $meta['_lps_publication_date'] : $meta['_lps_canonical_date'] ),
+			'media'          => Media::record_image( $post ),
 		);
 	}
 
@@ -339,9 +358,10 @@ final class Homepage {
 		if ( array() === $items ) {
 			return $html . self::empty_notice( $section, $locale ) . '</section>';
 		}
+		$media_slot = in_array( $section, array( 'projects', 'people', 'infrastructure' ), true );
 		foreach ( $items as $record ) {
 			$meta  = 'latest' === $section ? self::dated_meta( $record, $locale ) : '';
-			$html .= self::record_markup( $record, $meta );
+			$html .= self::record_markup( $record, $locale, $meta, 'h3', $media_slot );
 		}
 		return $html . '</section>';
 	}
@@ -370,7 +390,7 @@ final class Homepage {
 		if ( '' !== $cta ) {
 			$html .= '<p><a class="lps-button" href="' . self::escape( self::text( $record['url'] ) ) . '">' . self::escape( $cta ) . '</a></p>';
 		}
-		return $html . '</article>' . self::feature_media_markup( $record, $locale ) . '</section>';
+		return $html . '</article>' . self::feature_media_markup( $record, $locale, 'hero' ) . '</section>';
 	}
 
 	/**
@@ -415,7 +435,7 @@ final class Homepage {
 			$html .= self::empty_notice( 'research', $locale );
 		} else {
 			foreach ( $themes as $record ) {
-				$html .= self::record_markup( $record );
+				$html .= self::record_markup( $record, $locale );
 			}
 		}
 		$html .= '<section class="lps-home-stratum" data-home-section="evidence" aria-labelledby="lps-home-evidence"><h3 class="lps-kicker" id="lps-home-evidence">' . self::escape( $evidence_heading ) . '</h3>';
@@ -423,7 +443,7 @@ final class Homepage {
 			return $html . self::empty_notice( 'evidence', $locale ) . '</section></section>';
 		}
 		foreach ( $evidence as $record ) {
-			$html .= self::record_markup( $record, self::provenance_meta( $record, $locale ), 'h4' );
+			$html .= self::record_markup( $record, $locale, self::provenance_meta( $record, $locale ), 'h4' );
 		}
 		return $html . '</section></section>';
 	}
@@ -445,7 +465,7 @@ final class Homepage {
 			$html .= self::empty_notice( 'partners', $locale );
 		} else {
 			foreach ( $partners as $record ) {
-				$html .= self::record_markup( $record );
+				$html .= self::record_markup( $record, $locale );
 			}
 		}
 		$html .= '<section class="lps-home-stratum lps-home-handoff" data-home-section="contact" aria-labelledby="lps-home-contact"><h3 class="lps-kicker" id="lps-home-contact">' . self::escape( $contact_heading ) . '</h3>';
@@ -466,12 +486,22 @@ final class Homepage {
 	/**
 	 * Renders one record row with provenance attributes and optional metadata.
 	 *
-	 * @param array<string, mixed> $record CMS record.
-	 * @param string               $meta   Pre-built metadata markup.
-	 * @param string               $level  Heading level for the linked title.
+	 * Rows in the media-slot sections (projects, people, infrastructure) render
+	 * the record's governed image when one was referenced; a referenced image
+	 * that fails rights or accessibility review renders the labeled fallback,
+	 * while a record that references no image stays text-only.
+	 *
+	 * @param array<string, mixed> $record     CMS record.
+	 * @param string               $locale     Supported locale.
+	 * @param string               $meta       Pre-built metadata markup.
+	 * @param string               $level      Heading level for the linked title.
+	 * @param bool                 $media_slot Whether this row carries an image slot.
 	 */
-	private static function record_markup( array $record, string $meta = '', string $level = 'h3' ): string {
-		$html    = '<article class="lps-record" data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '" data-record-id="' . self::escape( self::text( $record['record_id'] ?? '' ) ) . '">';
+	private static function record_markup( array $record, string $locale, string $meta = '', string $level = 'h3', bool $media_slot = false ): string {
+		$html = '<article class="lps-record" data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '" data-record-id="' . self::escape( self::text( $record['record_id'] ?? '' ) ) . '">';
+		if ( $media_slot && ! empty( $record['media'] ) ) {
+			$html .= self::feature_media_markup( $record, $locale );
+		}
 		$html   .= $meta;
 		$html   .= '<' . $level . '><a href="' . self::escape( self::text( $record['url'] ) ) . '">' . self::escape( self::text( $record['title'] ) ) . '</a></' . $level . '>';
 		$summary = trim( self::text( $record['summary'] ?? '' ) );

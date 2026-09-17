@@ -14,6 +14,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 require_once dirname( __DIR__ ) . '/includes/class-homepage.php';
+require_once dirname( __DIR__, 3 ) . '/plugins/lps-content-model/includes/class-policy.php';
+require_once dirname( __DIR__, 3 ) . '/plugins/lps-content-model/includes/class-mediarenderer.php';
+require_once dirname( __DIR__, 3 ) . '/plugins/lps-content-model/includes/class-mediausagepolicy.php';
+require_once dirname( __DIR__, 3 ) . '/plugins/lps-content-model/includes/class-mediapolicy.php';
 
 final class HomepageTest extends TestCase {
 	public function test_three_journeys_are_locale_specific_and_unique(): void {
@@ -87,6 +91,112 @@ final class HomepageTest extends TestCase {
 		self::assertStringContainsString( 'Imagem não publicada', $markup );
 		self::assertStringNotContainsString( '<img', $markup );
 		self::assertStringNotContainsString( 'placeholder', strtolower( $markup ) );
+	}
+
+	/**
+	 * Returns one governed media pair that passes every rights and usage check.
+	 *
+	 * @return array{usage: array<string, mixed>, asset: array<string, mixed>}
+	 */
+	private function cleared_media(): array {
+		return array(
+			'usage' => array(
+				'block'   => 'image',
+				'alt'     => 'Conjunto de detectores na bancada do laboratório',
+				'caption' => 'Bancada de instrumentação do LPS.',
+				'context' => 'home-mission',
+			),
+			'asset' => array(
+				'id'             => 41,
+				'mime'           => 'image/jpeg',
+				'url'            => '/uploads/detectors.jpg',
+				'filename'       => 'detectors.jpg',
+				'width'          => 2400,
+				'height'         => 1600,
+				'credit'         => 'LPS archive',
+				'rights_holder'  => 'LPS',
+				'license'        => 'authorized-use',
+				'source_url'     => 'https://records.example/asset/41',
+				'checksum'       => 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+				'rights_status'  => 'cleared',
+				'privacy_status' => 'reviewed',
+				'srcset'         => '/uploads/detectors-640.jpg 640w, /uploads/detectors.jpg 2400w',
+			),
+		);
+	}
+
+	/** A rights-cleared attachment renders as a responsive governed figure. */
+	public function test_cleared_media_renders_responsive_figure_with_credit(): void {
+		$record = array_replace( $this->record( 'mission', 'pt-br' ), array( 'media' => $this->cleared_media() ) );
+		$markup = Homepage::feature_media_markup( $record, 'pt-br', 'hero' );
+
+		self::assertStringContainsString( '<figure class="lps-media lps-media--image">', $markup );
+		self::assertStringContainsString( 'src="/uploads/detectors.jpg"', $markup );
+		self::assertStringContainsString( 'srcset="/uploads/detectors-640.jpg 640w, /uploads/detectors.jpg 2400w"', $markup );
+		self::assertStringContainsString( 'width="2400" height="1600"', $markup );
+		self::assertStringContainsString( 'alt="Conjunto de detectores na bancada do laboratório"', $markup );
+		self::assertStringContainsString( 'loading="eager" fetchpriority="high"', $markup );
+		self::assertStringContainsString( '<figcaption>Bancada de instrumentação do LPS.', $markup );
+		self::assertStringContainsString( 'LPS archive - authorized-use', $markup );
+
+		$content = Homepage::feature_media_markup( $record, 'pt-br' );
+		self::assertStringContainsString( 'loading="lazy" fetchpriority="auto"', $content );
+		self::assertStringNotContainsString( 'fetchpriority="high"', $content );
+	}
+
+	/** An attachment without rights fields can never render, referenced or not. */
+	public function test_media_without_rights_fields_falls_back(): void {
+		$media          = $this->cleared_media();
+		$media['asset'] = array(
+			'id'     => 42,
+			'mime'   => 'image/jpeg',
+			'url'    => '/uploads/unreviewed.jpg',
+			'width'  => 800,
+			'height' => 600,
+		);
+		$record         = array_replace( $this->record( 'projects', 'en' ), array( 'media' => $media ) );
+		$markup         = Homepage::feature_media_markup( $record, 'en' );
+		self::assertStringNotContainsString( '<img', $markup );
+		self::assertStringContainsString( 'role="img"', $markup );
+		self::assertStringContainsString( 'Image not published', $markup );
+
+		$html = Homepage::section_markup( 'projects', 'en', array( $record ), '2026-09-06' );
+		self::assertStringNotContainsString( '<img', $html );
+		self::assertStringContainsString( 'lps-feature-media-fallback', $html );
+	}
+
+	/** The removed raw-URL path cannot smuggle an ungoverned image through. */
+	public function test_raw_image_url_is_never_rendered(): void {
+		$record = array_replace( $this->record( 'mission', 'en' ), array( 'image' => 'https://cdn.example/photo.jpg' ) );
+		$markup = Homepage::feature_media_markup( $record, 'en' );
+		self::assertStringNotContainsString( '<img', $markup );
+		self::assertStringNotContainsString( 'cdn.example', $markup );
+
+		$html = Homepage::section_markup( 'mission', 'en', array( $record ), '2026-09-06' );
+		self::assertStringNotContainsString( 'cdn.example', $html );
+	}
+
+	/** Media slots exist on projects/people/infrastructure rows, not elsewhere. */
+	public function test_media_slots_render_only_in_media_sections(): void {
+		$media   = $this->cleared_media();
+		$slotted = array_replace( $this->record( 'projects', 'en' ), array( 'media' => $media ) );
+		$html    = Homepage::section_markup( 'projects', 'en', array( $slotted ), '2026-09-06' );
+		self::assertStringContainsString( '<figure class="lps-media lps-media--image">', $html );
+
+		$plain = Homepage::section_markup( 'projects', 'en', array( $this->record( 'projects', 'en' ) ), '2026-09-06' );
+		self::assertStringNotContainsString( '<img', $plain );
+		self::assertStringNotContainsString( 'lps-feature-media-fallback', $plain );
+
+		$dated = array_replace(
+			$this->record( 'latest', 'en' ),
+			array(
+				'media' => $media,
+				'date'  => '2026-09-01',
+			)
+		);
+		$html  = Homepage::section_markup( 'latest', 'en', array( $dated ), '2026-09-06' );
+		self::assertStringNotContainsString( '<img', $html );
+		self::assertStringNotContainsString( 'lps-feature-media-fallback', $html );
 	}
 
 	/**
