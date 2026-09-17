@@ -3,7 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { chromium } from "playwright";
 
 const baseUrl = process.env.SHOWCASE_URL ?? "http://127.0.0.1:4176/";
-const evidenceRoot = ".omo/evidence/lps-feec-redesign/showcase";
+const evidenceRoot = ".omo/evidence/task-6";
 const viewports = [
   { name: "mobile-375", width: 375, height: 812 },
   { name: "tablet-768", width: 768, height: 1024 },

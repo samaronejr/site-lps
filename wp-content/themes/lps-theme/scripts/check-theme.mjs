@@ -82,6 +82,86 @@ export async function checkTheme() {
   if (theme.settings.spacing.customSpacingSize !== false)
     add("CUSTOM_SPACING_ENABLED", "theme.json");
 
+  // Required tokens of the light institutional system (DESIGN.md §3-§5, §8,
+  // §10): the 18-slug palette roles, the three font roles, the grid and
+  // geometry primitives, and the motion tokens. Absence fails the gate.
+  const requiredTokens = [
+    "--color-paper",
+    "--color-paper-muted",
+    "--color-ink",
+    "--color-ink-soft",
+    "--color-navy",
+    "--color-navy-hover",
+    "--color-signal",
+    "--color-signal-hover",
+    "--color-rule",
+    "--color-rule-strong",
+    "--color-focus-offset",
+    "--font-interface",
+    "--font-editorial",
+    "--font-mono",
+    "--grid-max",
+    "--grid-gutter",
+    "--motion-fast",
+    "--motion-standard",
+    "--ease-state",
+    "--radius-square",
+    "--shadow-none",
+  ];
+  for (const token of requiredTokens) {
+    if (!css.includes(`${token}:`)) add("MISSING_TOKEN", token);
+  }
+
+  // Sans-led hierarchy: the h1-h4 block must resolve to the interface stack,
+  // and no heading rule may reintroduce the serif outside reading containers.
+  if (
+    !/h1,\s*\n?\s*h2,\s*\n?\s*h3,\s*\n?\s*h4\s*\{[^}]*font-family:\s*var\(--font-interface\)/s.test(
+      css,
+    )
+  ) {
+    add("HEADING_STACK", "headings must resolve to --font-interface");
+  }
+  for (const match of css.matchAll(/([^{}]+)\{[^{}]*font-family:\s*var\(--font-editorial\)/g)) {
+    const selector = match[1];
+    if (/h[1-6]/.test(selector) && !selector.includes(".")) {
+      add("HEADING_STACK", `serif headings outside reading containers: ${selector.trim()}`);
+    }
+  }
+
+  // The institutional palette is the 18-slug set; every role must be present.
+  const requiredSlugs = [
+    "paper",
+    "paper-raised",
+    "paper-muted",
+    "ink",
+    "ink-soft",
+    "navy",
+    "navy-hover",
+    "signal",
+    "signal-hover",
+    "rule",
+    "rule-strong",
+    "success",
+    "warning",
+    "error",
+    "info-wash",
+    "success-wash",
+    "warning-wash",
+    "error-wash",
+  ];
+  const paletteSlugs = new Set(theme.settings.color.palette.map(({ slug }) => slug));
+  for (const slug of requiredSlugs) {
+    if (!paletteSlugs.has(slug)) add("MISSING_PALETTE_SLUG", slug);
+  }
+
+  // theme.json styles consume presets only; a raw color there would compete
+  // with the palette as a second token source.
+  for (const match of JSON.stringify(theme.styles).matchAll(
+    /#[0-9a-f]{3,8}\b|\brgba?\(|\bhsla?\(/gi,
+  )) {
+    add("UNTOKENIZED_COLOR", `theme.json styles: ${match[0]}`);
+  }
+
   return {
     lane: "theme-design-system",
     status: findings.length === 0 ? "passed" : "failed",

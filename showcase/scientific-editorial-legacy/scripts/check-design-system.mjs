@@ -93,90 +93,21 @@ for (const match of css.matchAll(/font-size\s*:\s*([^;]+);/gi)) {
 
 const requiredTokens = [
   "--color-paper",
-  "--color-paper-muted",
   "--color-ink",
-  "--color-ink-soft",
   "--color-navy",
-  "--color-navy-hover",
   "--color-signal",
-  "--color-signal-hover",
   "--color-rule",
-  "--color-rule-strong",
-  "--color-focus-offset",
   "--font-editorial",
   "--font-interface",
   "--font-mono",
   "--grid-max",
   "--grid-gutter",
   "--motion-fast",
-  "--motion-standard",
-  "--ease-state",
   "--radius-square",
   "--shadow-none",
 ];
 for (const token of requiredTokens) {
   if (!css.includes(`${token}:`)) add("MISSING_TOKEN", `Required design token ${token} is absent.`);
-}
-
-/* Sans-led hierarchy: the h1-h4 block must resolve to the interface stack, and
-   no heading rule may reintroduce the serif outside reading containers. */
-if (
-  !/h1,\s*\n?\s*h2,\s*\n?\s*h3,\s*\n?\s*h4\s*\{[^}]*font-family:\s*var\(--font-interface\)/s.test(
-    css,
-  )
-) {
-  add("HEADING_STACK", "Headings must resolve to the interface stack in the sans-led system.");
-}
-for (const match of css.matchAll(/([^{}]+)\{[^{}]*font-family:\s*var\(--font-editorial\)/g)) {
-  const selector = match[1];
-  if (/h[1-6]/.test(selector) && !selector.includes(".")) {
-    add(
-      "HEADING_STACK",
-      "The reading serif is scoped to reading containers; unscoped headings stay sans.",
-      selector.trim(),
-    );
-  }
-}
-
-/* Token parity: theme.json is the single source (ADR-08). Every palette slug,
-   font family, font size and spacing size must appear here under its
-   documented --color- / --font- / --type- / --space- name with the identical
-   value; a divergent value is a competing token definition. */
-const themeJsonPath = resolve(root, "../../wp-content/themes/lps-theme/theme.json");
-const rootTokens = new Map();
-for (const range of rootRanges) {
-  for (const match of css.slice(range[0], range[1]).matchAll(/(--[a-z0-9-]+)\s*:\s*([^;]+);/gi)) {
-    rootTokens.set(match[1].toLowerCase(), match[2].trim().replace(/\s+/g, " "));
-  }
-}
-try {
-  const theme = JSON.parse(await readFile(themeJsonPath, "utf8"));
-  const checkParity = (token, expected, label) => {
-    const actual = rootTokens.get(token);
-    if (actual === undefined) {
-      add("MISSING_TOKEN", `Required design token ${token} (${label}) is absent.`);
-    } else if (actual !== expected.replace(/\s+/g, " ")) {
-      add(
-        "TOKEN_VALUE_MISMATCH",
-        `${token} must mirror theme.json ${label} verbatim.`,
-        `expected ${expected}, found ${actual}`,
-      );
-    }
-  };
-  for (const { slug, color } of theme.settings.color.palette) {
-    checkParity(`--color-${slug}`, color.toLowerCase(), `palette slug ${slug}`);
-  }
-  for (const { slug, fontFamily } of theme.settings.typography.fontFamilies) {
-    checkParity(`--font-${slug}`, fontFamily, `font family ${slug}`);
-  }
-  for (const { slug, size } of theme.settings.typography.fontSizes) {
-    checkParity(`--type-${slug}`, size, `font size ${slug}`);
-  }
-  for (const { slug, size } of theme.settings.spacing.spacingSizes) {
-    checkParity(`--space-${slug}`, size, `spacing size ${slug}`);
-  }
-} catch {
-  add("THEME_SOURCE_UNAVAILABLE", `Cannot read the single token source at ${themeJsonPath}.`);
 }
 
 const requiredMarkup = [
