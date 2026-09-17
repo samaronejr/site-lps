@@ -94,10 +94,11 @@ defined by editorial governance.
 
 ## Homepage sequence and journeys
 
-The homepage sequence is fixed: institutional mission and proof; research themes; validated
-evidence and outputs; featured projects; the Join, Collaborate, and Partner journeys; people and
-research participation; infrastructure and capabilities; latest publications, news, and events;
-partners and funders; and a collaboration/contact close.
+The homepage sequence is fixed in `front-page.html` as eight locked modules: institutional
+mission and proof; the Join, Collaborate, and Partner journeys; research themes with the evidence
+stratum; featured projects; people and research participation; infrastructure and capabilities;
+latest publications, news, and events; and partners and funders with the collaboration/contact
+handoff.
 
 The three co-primary journeys map to the defined audience outcomes: **Join LPS** reaches
 opportunities for prospective researchers; **Collaborate** reaches the collaboration route for

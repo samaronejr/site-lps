@@ -70,6 +70,10 @@ rights holder/license or other rights basis, provenance, and the applicable priv
 found online, in a legacy file, or on a third-party profile is not evidence by itself. The privacy
 auditor records a block or escalation; this policy does not supply a legal basis or claim consent.
 
+Institutional marks are media under the same rule. The header wordmark stays text-only; a logo or
+mark may render only after an authorized owner supplies the files, usage rules, and written
+permission, cited in the redesign evidence. `lps_logo_vector.svg` is unapproved and must not ship.
+
 Public media must also meet the applicable alternative-text, caption, transcript, and contextual
 requirements. Rights-unknown, privacy-unreviewed, or inaccessible media remains non-public.
 

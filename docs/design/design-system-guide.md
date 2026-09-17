@@ -14,9 +14,8 @@ value that `DESIGN.md` and `theme.json` do not already define. Verify with
 token, radius, shadow, font and motion values.
 
 Rows below carry the contract tags from `DESIGN.md`. MEASURED means the value is frozen in
-`theme.json` or `theme.css` today. PROPOSAL means the value is binding direction in `DESIGN.md`
-and lands in code with the token-freeze todos; until then the incumbent `theme.json` value is
-what ships.
+`theme.json` or `theme.css` today; the token freeze has landed, so every value in this guide is
+MEASURED. Parenthetical notes record what each value replaced in the warm-paper system.
 
 ## Colour tokens
 
@@ -25,9 +24,9 @@ CSS custom properties in `theme.css`.
 
 | Role | Token | Value | Usage | Tag |
 | --- | --- | --- | --- | --- |
-| Canvas | `--color-paper` | `#FFFFFF` | Page canvas, primary reading surface | PROPOSAL (replaces `#F7F4EC`) |
-| Raised surface | `--color-paper-raised` | `#FFFFFF` | Inputs, selected rows, media mat; flat, never elevation | PROPOSAL (replaces `#FFFEFA`) |
-| Section gray | `--color-paper-muted` | `#EFF1F4` | Alternating section band, quiet grouping, code/metadata fields, disabled fills | PROPOSAL (replaces `#ECE8DE`) |
+| Canvas | `--color-paper` | `#FFFFFF` | Page canvas, primary reading surface | MEASURED (replaced `#F7F4EC`) |
+| Raised surface | `--color-paper-raised` | `#FFFFFF` | Inputs, selected rows, media mat; flat, never elevation | MEASURED (replaced `#FFFEFA`) |
+| Section gray | `--color-paper-muted` | `#EFF1F4` | Alternating section band, quiet grouping, code/metadata fields, disabled fills | MEASURED (replaced `#ECE8DE`) |
 | Ink | `--color-ink` | `#141A1F` | Headlines and body; 17.54:1 on white | MEASURED (incumbent) |
 | Ink soft | `--color-ink-soft` | `#46515A` | Supporting text, captions, metadata; 8.12:1 on white | MEASURED (incumbent) |
 | Navy | `--color-navy` | `#003B5C` | Institutional anchor: header rule, primary fills, footer band, wordmark text; 11.80:1 on white | MEASURED (incumbent) |
@@ -41,9 +40,9 @@ CSS custom properties in `theme.css`.
 | Error | `--color-error` | `#A12622` | Errors, destructive text, invalid borders | MEASURED (incumbent) |
 | Info wash | `--color-info-wash` | `#DDECEF` | Informational alert background | MEASURED (incumbent) |
 | Success wash | `--color-success-wash` | `#E0ECE5` | Success alert background | MEASURED (incumbent) |
-| Warning wash | `--color-warning-wash` | `#F2E8D2` | Warning alert background | MEASURED value; PROPOSAL sync into `theme.json` palette |
-| Error wash | `--color-error-wash` | `#F2DEDA` | Error alert background | MEASURED value; PROPOSAL sync into `theme.json` palette |
-| Focus offset | `--color-focus-offset` | `#FFFFFF` | Focus-ring separation on dark fills | PROPOSAL (retargeted from `#F7F4EC`) |
+| Warning wash | `--color-warning-wash` | `#F2E8D2` | Warning alert background | MEASURED |
+| Error wash | `--color-error-wash` | `#F2DEDA` | Error alert background | MEASURED |
+| Focus offset | `--color-focus-offset` | `#FFFFFF` | Focus-ring separation on dark fills | MEASURED (retargeted from `#F7F4EC`) |
 
 Rules that reviewers enforce:
 
@@ -70,8 +69,8 @@ Serif 4 is retained only for reading containers. Three font roles, no proprietar
 
 | Role | Token | Stack | Owns | Tag |
 | --- | --- | --- | --- | --- |
-| Interface + display | `--font-interface` | `system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif` | Display, h1-h4, nav, controls, tables, labels, captions, short body | Stack MEASURED; display/nav ownership PROPOSAL |
-| Reading serif | `--font-editorial` | `"Source Serif 4", "Noto Serif", "Noto Serif CJK SC", "Noto Serif CJK JP", Georgia, serif` | `.lps-reading` and `.wp-block-post-content` only: body text and headings inside those containers | Scope PROPOSAL; stack/files MEASURED (OFL 1.1, self-hosted woff2, `font-display: swap`) |
+| Interface + display | `--font-interface` | `system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif` | Display, h1-h4, nav, controls, tables, labels, captions, short body | MEASURED |
+| Reading serif | `--font-editorial` | `"Source Serif 4", "Noto Serif", "Noto Serif CJK SC", "Noto Serif CJK JP", Georgia, serif` | `.lps-reading` and `.wp-block-post-content` only: body text and headings inside those containers | MEASURED (OFL 1.1, self-hosted woff2, `font-display: swap`) |
 | Technical metadata | `--font-mono` | `ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace` | Dates, kickers, status, locale labels, code, tabular data | MEASURED (incumbent) |
 
 Faces evaluated and excluded stay excluded: Arial, Inter, Roboto, Montserrat, WiredDisplay,
@@ -83,8 +82,8 @@ and `source-serif-4-semibold.woff2`, licensed under
 `wp-content/themes/lps-theme/assets/fonts/OFL.txt`.
 
 The fluid scale matches the `theme.json` font sizes `display`, `h1`, `h2`, `h3`, `h4`, `lead`,
-`body`, `reading`, `small`, `meta`. Sizes are retained; weights, line heights and tracking are
-the sans-led remap:
+`body`, `reading`, `small`, `meta`. Sizes are retained; the sans-led weights, line heights and
+tracking below are frozen in `theme.css`:
 
 | Role/token | Fluid size | Weight | Line height | Tracking | Measure/use |
 | --- | --- | --- | --- | --- | --- |
@@ -133,8 +132,8 @@ The 12-column editorial grid: `--grid-max` is `80rem` (1280px), document-centere
 measure `--measure-reading` is `68ch`, interface measure `--measure-interface` is `72ch`, lead
 measure `--measure-lead` is `62ch`. Mobile under `48rem` uses 4 conceptual columns with
 `--grid-gutter: 1rem`; tablet `48rem` to `63.99rem` uses 8 columns with `1.5rem`; desktop at
-`64rem` and up uses 12 columns with `2rem`, where the section label takes 2 columns, primary
-content 7 and the contextual note 3. Outer inset is
+`64rem` and up uses 12 columns with `2rem`, where the section label takes 3 columns, primary
+content 7 and the contextual note 2. Outer inset is
 `clamp(var(--space-4), 4vw, var(--space-10))`. The `lps-page-grid` container holds the page and
 `lps-content-limiter` bounds text measures. The document owns vertical scroll; the only nested
 scroll is an explicitly labeled, keyboard-focusable table wrapper on narrow screens. Source
@@ -200,8 +199,7 @@ every record type, search, 404), parts in `wp-content/themes/lps-theme/parts/` a
 | `--motion-standard` | `180ms` | Disclosure/state tint if later required |
 | `--ease-state` | `cubic-bezier(0.2, 0, 0, 1)` | Interruptible state response |
 
-`--motion-fast` and `--ease-state` are frozen in `theme.css`; `--motion-standard` is declared in
-`DESIGN.md` and the showcase and is added to `theme.css` by the token freeze.
+`--motion-fast`, `--motion-standard` and `--ease-state` are all frozen in `theme.css`.
 
 Motion communicates only interaction and state. No load reveals, parallax, ambient drift,
 carousels, decorative graph animation, smooth-scroll hijacking, magnetic controls or hover

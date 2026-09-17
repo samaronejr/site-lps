@@ -60,10 +60,10 @@ This is a replacement-world contract: product truth and constraints are preserve
 | Prior clause (DESIGN.md @ sha256 `a9f7e11e`) | Replacement | Status |
 | --- | --- | --- |
 | §1 atmosphere: "peer-reviewed paper" warmth on paper canvas | Light institutional canvas; laboratory evidence leads; identity supports | SUPERSEDED |
-| §2 `--color-paper` `#F7F4EC`, `--color-paper-raised` `#FFFEFA`, `--color-paper-muted` `#ECE8DE` | `#FFFFFF`, `#FFFFFF`, `#EFF1F4` | SUPERSEDED (PROPOSAL values) |
-| §2 `--color-focus-offset` `#F7F4EC` | `#FFFFFF` (retargeted with canvas) | SUPERSEDED (PROPOSAL) |
-| §3 serif owns display, deck, quotations, headings | Interface stack owns display, h1-h4, nav, controls, tables, labels; serif owns `.lps-reading` and `.wp-block-post-content` only | SUPERSEDED (role remap PROPOSAL) |
-| §3 type weights 600-led headings, serif display tracking | Sans-led weights 650-750, retuned tracking/line-height per section 4 | SUPERSEDED (PROPOSAL) |
+| §2 `--color-paper` `#F7F4EC`, `--color-paper-raised` `#FFFEFA`, `--color-paper-muted` `#ECE8DE` | `#FFFFFF`, `#FFFFFF`, `#EFF1F4` | SUPERSEDED (landed) |
+| §2 `--color-focus-offset` `#F7F4EC` | `#FFFFFF` (retargeted with canvas) | SUPERSEDED (landed) |
+| §3 serif owns display, deck, quotations, headings | Interface stack owns display, h1-h4, nav, controls, tables, labels; serif owns `.lps-reading` and `.wp-block-post-content` only | SUPERSEDED (landed) |
+| §3 type weights 600-led headings, serif display tracking | Sans-led weights 650-750, retuned tracking/line-height per section 4 | SUPERSEDED (landed) |
 | §3 ban list: "Never use Arial, Inter, Roboto, Montserrat, ..." | Evaluated-stack rule: three documented roles, platform stacks, OFL self-hosted serif; exclusions restated as evaluation outcomes | SUPERSEDED |
 | §5 uniform hairline-separated record stacks as the default section grammar | Differentiated modules per section 6; record rows remain one module grammar among several | SUPERSEDED |
 | §7 "borders-only editorial depth" | Flat contrast: white/section-gray band alternation, hairline rules, at most one interior navy band plus the navy footer band | SUPERSEDED |
@@ -108,9 +108,9 @@ Values reuse the task-6 candidates verbatim. Contrast ratios are computed in tha
 
 | Role | Token | Value | Usage | Tag |
 | --- | --- | --- | --- | --- |
-| Canvas | `--color-paper` | `#FFFFFF` | Page canvas, primary reading surface | PROPOSAL (replaces `#F7F4EC`) |
-| Raised surface | `--color-paper-raised` | `#FFFFFF` | Inputs, selected rows, media mat; flat, never elevation | PROPOSAL (replaces `#FFFEFA`) |
-| Section gray | `--color-paper-muted` | `#EFF1F4` | Alternating section band, quiet grouping, code/metadata fields, disabled fills | PROPOSAL (replaces `#ECE8DE`) |
+| Canvas | `--color-paper` | `#FFFFFF` | Page canvas, primary reading surface | MEASURED (replaced `#F7F4EC`) |
+| Raised surface | `--color-paper-raised` | `#FFFFFF` | Inputs, selected rows, media mat; flat, never elevation | MEASURED (replaced `#FFFEFA`) |
+| Section gray | `--color-paper-muted` | `#EFF1F4` | Alternating section band, quiet grouping, code/metadata fields, disabled fills | MEASURED (replaced `#ECE8DE`) |
 | Ink | `--color-ink` | `#141A1F` | Headlines and body; 17.54:1 on white | MEASURED (incumbent) |
 | Ink soft | `--color-ink-soft` | `#46515A` | Supporting text, captions, metadata; 8.12:1 on white | MEASURED (incumbent) |
 | Navy | `--color-navy` | `#003B5C` | Institutional anchor: header rule, primary fills, footer band, wordmark text; 11.80:1 on white | MEASURED (incumbent) |
@@ -124,9 +124,9 @@ Values reuse the task-6 candidates verbatim. Contrast ratios are computed in tha
 | Error | `--color-error` | `#A12622` | Errors, destructive text, invalid borders | MEASURED (incumbent) |
 | Info wash | `--color-info-wash` | `#DDECEF` | Informational alert background | MEASURED (incumbent) |
 | Success wash | `--color-success-wash` | `#E0ECE5` | Success alert background | MEASURED (incumbent) |
-| Warning wash | `--color-warning-wash` | `#F2E8D2` | Warning alert background | MEASURED value; PROPOSAL sync into `theme.json` palette |
-| Error wash | `--color-error-wash` | `#F2DEDA` | Error alert background | MEASURED value; PROPOSAL sync into `theme.json` palette |
-| Focus offset | `--color-focus-offset` | `#FFFFFF` | Focus-ring separation on dark fills | PROPOSAL (retargeted from `#F7F4EC`) |
+| Warning wash | `--color-warning-wash` | `#F2E8D2` | Warning alert background | MEASURED |
+| Error wash | `--color-error-wash` | `#F2DEDA` | Error alert background | MEASURED |
+| Focus offset | `--color-focus-offset` | `#FFFFFF` | Focus-ring separation on dark fills | MEASURED (retargeted from `#F7F4EC`) |
 
 ### Color rules
 
@@ -146,15 +146,15 @@ Sans-led hierarchy: display, headings, navigation, and controls use the interfac
 
 | Role | Token | Stack | Owns | Tag |
 | --- | --- | --- | --- | --- |
-| Interface + display | `--font-interface` | `system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif` | Display, h1-h4, nav, controls, tables, labels, captions, short body | Stack MEASURED; display/nav ownership PROPOSAL |
-| Reading serif | `--font-editorial` | `"Source Serif 4", "Noto Serif", "Noto Serif CJK SC", "Noto Serif CJK JP", Georgia, serif` | `.lps-reading` and `.wp-block-post-content` only: body text and headings inside those containers | Scope PROPOSAL; stack/files MEASURED (OFL 1.1, self-hosted woff2, `font-display: swap`) |
+| Interface + display | `--font-interface` | `system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif` | Display, h1-h4, nav, controls, tables, labels, captions, short body | MEASURED |
+| Reading serif | `--font-editorial` | `"Source Serif 4", "Noto Serif", "Noto Serif CJK SC", "Noto Serif CJK JP", Georgia, serif` | `.lps-reading` and `.wp-block-post-content` only: body text and headings inside those containers | MEASURED (OFL 1.1, self-hosted woff2, `font-display: swap`) |
 | Technical metadata | `--font-mono` | `ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace` | Dates, kickers, status, locale labels, code, tabular data | MEASURED (incumbent) |
 
 Three roles are justified: high-legibility interface and display, scholarly long-form reading, and aligned technical data. No proprietary face is permitted. Faces evaluated and excluded remain excluded: Arial, Inter, Roboto, Montserrat, WiredDisplay, BreveText, Apercu, WiredMono, Playfair. New candidates enter only through this table with provenance and license recorded.
 
 ### Scale
 
-Sizes are retained (MEASURED). Weights, line heights, and tracking are the sans-led remap (PROPOSAL where changed).
+Sizes are retained (MEASURED). Weights, line heights, and tracking are the sans-led remap, frozen in `theme.css` (MEASURED).
 
 | Role/token | Fluid size | Weight | Line height | Tracking | Measure/use |
 | --- | --- | --- | --- | --- | --- |
@@ -205,16 +205,16 @@ Base unit: 4px. Intentional spacing uses only these tokens (all MEASURED, incumb
 - `--grid-max: 80rem` (1280px); document-centered. Reading measure `--measure-reading: 68ch`; interface measure `--measure-interface: 72ch`; lead measure `--measure-lead: 62ch`.
 - Mobile `< 48rem`: 4 conceptual columns, `--grid-gutter: 1rem`; regions span full width unless explicitly paired.
 - Tablet `48rem-63.99rem`: 8 conceptual columns, `--grid-gutter: 1.5rem`; labels/notes may span 2 while content spans 6.
-- Desktop `>= 64rem`: 12 columns, `--grid-gutter: 2rem`; section label 2 columns, primary content 7, contextual note 3. Figures may span 8-10; long-form text stays 6-7 columns.
+- Desktop `>= 64rem`: 12 columns, `--grid-gutter: 2rem`; section label 3 columns, primary content 7, contextual note 2. The label takes three columns because a two-column label cannot hold a Portuguese h2 without mid-word wrapping. Figures may span 8-10; long-form text stays 6-7 columns.
 - Outer inset: `clamp(var(--space-4), 4vw, var(--space-10))`.
-- The `page-grid` contains the page and the `twelve-span-grid` places modules. The document owns scrolling. No nested vertical scroll except an explicitly labeled table wrapper on narrow screens; that wrapper receives keyboard focus and an accessible description.
+- The `lps-page-grid` contains the page and `lps-home-section`/`lps-editorial-section` place modules on it. The document owns scrolling. No nested vertical scroll except an explicitly labeled table wrapper on narrow screens; that wrapper receives keyboard focus and an accessible description.
 - Source order equals reading/focus order. CSS placement must not reorder semantic content.
 - Browser mechanics (`auto`, percentages, `minmax()`, `clamp()`, intrinsic sizing) remain raw; design intent resolves to tokens.
 
 ### Band rhythm (replaces uniform rows)
 
 - Homepage and landing sections render as full-width bands alternating white canvas and section gray, separated by `--space-16` to `--space-24` internal rhythm. Adjacent modules never share a band color.
-- Navy is reserved: the footer band, primary action fills, the header rule, and at most one interior band per page (PROPOSAL). White text on navy is 11.80:1.
+- Navy is reserved: the footer band, primary action fills, the header rule, and at most one interior band per page (MEASURED: the journeys module is that band). White text on navy is 11.80:1.
 - Band color is a container property only; component internals (records, tables, forms) keep their own hairline structure inside the band.
 
 ### Responsive/stress contract
@@ -228,18 +228,20 @@ Base unit: 4px. Intentional spacing uses only these tokens (all MEASURED, incumb
 
 ## 6. Homepage Thesis: Eight Differentiated Modules
 
-The homepage is a sequence of eight modules, each with a distinct job and a distinct surface grammar. Modules are not interchangeable rows; each is specified once here and reused nowhere else on the page. All public copy inside modules is UNAPPROVED until editorial sign-off (section 9).
+The homepage body is a sequence of eight locked modules, each with a distinct job and a distinct surface grammar, rendered in this order by `front-page.html` between the header and footer shell. Modules are not interchangeable rows; each is specified once here and reused nowhere else on the page. The logical `evidence` stratum renders inside `research`, and the `contact` handoff renders inside `partners`, so the ten logical sections map onto the eight rendered modules. All public copy inside modules is UNAPPROVED until editorial sign-off (section 9).
 
 | # | Module | Job | Surface grammar | Band |
 | --- | --- | --- | --- | --- |
-| 1 | Header | Identify, navigate, search, switch locale | Single slim bar (~64-72px desktop, ~56px mobile): text-only wordmark left, 7 primary nav items, search, PT/EN toggle. Navy 2px base rule. No utility tier, no gradient | White |
-| 2 | Hero | State the mission, show one piece of evidence, offer one action | `--type-display` H1 + lead + one primary CTA + one rights-cleared evidence figure, all inside the first viewport at 375px and 1280px. No carousel, no autoplay | White |
-| 3 | Research themes | Route into the controlled vocabulary | Metadata-forward rows: area label + domain tags + owning-unit provenance, linked titles. Not image cards, no per-card carousel | Section gray |
-| 4 | Evidence | Prove with outputs | Dated record list: publications, projects, news with `<time>` metadata and hairline separation | White |
-| 5 | Journeys | Convert: join, collaborate, partner | Three explicit audience paths as text-led blocks with one CTA each. The single interior navy band may be used here; otherwise section gray | Navy (optional) or section gray |
-| 6 | People & infrastructure | Show the laboratory is real | Authentic people/equipment figures with provenance captions beside role-based contact routes | White |
-| 7 | Digest | Retain: news, events, opportunities | `ram-grid` of dated record cards without chrome; status text explicit | Section gray |
-| 8 | Footer | Affiliate, attribute, route | Compact navy band (target under ~320px desktop): affiliation line, 4 utility links (Contato, Eventos, Privacidade, Acessibilidade), contact route. No duplicated sitemap, no decorative strip | Navy |
+| 1 | Mission | State the mission, show one piece of evidence, offer one action | `--type-display` H1 + lead + one primary CTA + one rights-cleared evidence figure, all inside the first viewport at 375px and 1280px. No carousel, no autoplay. Keeps a compact not-published notice when no reviewed mission record exists | White |
+| 2 | Journeys | Convert: join, collaborate, partner | Three explicit audience paths as text-led blocks with one CTA each; the single interior navy band. A journey whose destination is unpublished renders as a disabled action, never a link | Navy |
+| 3 | Research themes | Route into the controlled vocabulary | Metadata-forward rows: area label + domain tags + owning-unit provenance, linked titles; the evidence stratum shares this band. Not image cards, no per-card carousel | Section gray |
+| 4 | Featured projects | Prove with outputs | Numbered editorial records inside the shared muted band; dated, hairline-separated, no chrome | Section gray (shared with research) |
+| 5 | People | Show the laboratory is real | Authentic people figures with provenance captions beside role-based routes | White |
+| 6 | Infrastructure | Show capabilities | Equipment/capability records with provenance captions; shares the white band with people | White (shared with people) |
+| 7 | Latest | Retain: publications, news, events | `lps-listing` of dated records without chrome; status text explicit | Section gray |
+| 8 | Partners and funders | Attribute and route | Partner/funder records plus the collaboration/contact handoff, which keeps a compact not-published notice when no reviewed contact record exists | White |
+
+The enclosing shell is the slim institutional header (text-only wordmark, 7 primary nav items, search, PT/EN toggle, navy 2px base rule) and the compact navy footer band (affiliation line, 4 utility links, contact route; no duplicated sitemap, no decorative strip).
 
 Interior pages use a slim page-header module: breadcrumb (hairline-separated, current page as `aria-current` text) plus `--type-h1` on canvas. A banner image is optional and must carry real laboratory provenance; it is never required for the page to read correctly.
 
@@ -287,7 +289,7 @@ Component semantics are preserved from the prior contract; surface details now f
 - **States**: only the actual title link responds; article itself is not falsely clickable. Opportunity and event state uses the status primitive with explicit text. No lift, scale, rounded container, fill, or shadow.
 - **Accessibility**: one heading; link text remains meaningful out of context; date values use semantic `<time>`.
 - **Motion**: none on article.
-- **Layout**: `ram-grid` repeats records with `minmax(min(16rem, 100%), 1fr)` and no internal scroll; each record remains a hairline-separated stack inside its band.
+- **Layout**: `lps-listing` repeats records across the band with no internal scroll; each record remains a hairline-separated stack inside its band.
 
 ### Institutional Trust Layout
 - **Structure**: primary `<article>` followed in source order by an `<aside>` named for verification and contact details.
@@ -296,7 +298,7 @@ Component semantics are preserved from the prior contract; surface details now f
 - **States**: verified facts show source and last-reviewed date; stale or absent evidence becomes an explicit warning/block rather than a positive claim or invented contact.
 - **Accessibility**: headings remain sequential; role contacts are descriptive `mailto:` links; source URLs are breakable; no form, cookie banner, or data collection appears.
 - **Motion**: none.
-- **Layout**: ordinary document flow on narrow screens; at desktop, `sticky-aside` places the verification aside beside long copy while the document remains the only vertical scroll owner.
+- **Layout**: ordinary document flow on narrow screens; at desktop, `lps-institutional` places the `lps-verification` aside beside long copy (`position: sticky`) while the document remains the only vertical scroll owner.
 
 ### Figure
 - **Structure**: `<figure>` containing rights-cleared media or project-original SVG/data graphic and `<figcaption>` with description, source, credit, and rights status.
@@ -428,7 +430,7 @@ Section gray is a flat grouping field, not elevation. No generic card chrome, ro
 | Item | Location | Why accepted | Owner / exit |
 | --- | --- | --- | --- |
 | Official UFRJ/COPPE/LPS marks are represented by text only | Header wordmark, showcase, future shell | Live pages prove current files exist but do not prove reuse rights or provide identity rules; `lps_logo_vector.svg` is unapproved and its placement is conditional | Institutional communications/rights owner supplies authorized source files, license/permission, and clear-space/color rules before any mark ships |
-| PROPOSAL token values are unfrozen in code | `theme.json`, `theme.css`, showcase | This contract sets direction; the token sync (palette +2 slugs, heading fontFamily flip, `--motion-standard`, `--color-focus-offset` wiring) lands in the freeze todos | Token-freeze todos update `theme.json`/CSS/showcase and renegotiate `theme-contract.test.mjs` palette length; `check-design-system.mjs` must pass |
+| ~~PROPOSAL token values are unfrozen in code~~ — resolved | `theme.json`, `theme.css`, showcase | The token freeze landed: palette slugs, the sans-led font remap, `--motion-standard`, and `--color-focus-offset` are all in `theme.json`/`theme.css` | Closed; `check-design-system.mjs` and `theme-contract.test.mjs` pass against the frozen values |
 | Source Serif 4 CJK glyphs depend on platform fallback | Multilingual typography | Bundling full Noto CJK subsets would add substantial weight before final locale corpus is known | Font packaging selects tested, subsetted open-source CJK fallback if target platforms show metric/tofu defects |
 | No human screen-reader session in this task | Standalone showcase | Linux harness supplies Chromium accessibility snapshots and keyboard/axe evidence, not a representative human AT study | Plan-wide accessibility review runs supported AT smoke evidence; any unsupported platform remains explicit |
 | No exact visual-reference image | Research log | Imagen tooling unavailable and FEEC/WIRED are hierarchy/atmosphere sources, not clone targets | Primitive browser captures are the contract; production pages receive fresh visual QA |

@@ -137,16 +137,16 @@
       "id": "design-tokens",
       "kind": "source",
       "doc": "docs/design/design-system-guide.md",
-      "reviewedAt": "2026-09-08",
+      "reviewedAt": "2026-09-17",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "wp-content/themes/lps-theme/theme.json",
-          "sha256": "73f4d650f719c3cc33b1980799a96e6337808ea13b583d4b4631b75a8878e1d5"
+          "sha256": "befeada88191ae2da931e2c763ffacc24d833a9177acc1ff83c504296092532a"
         },
         {
           "path": "DESIGN.md",
-          "sha256": "d58df2044bd699fa43c4d2ed79102e4339f566888146d247ab9ab9b35dc6a2f1"
+          "sha256": "3b0ff8ec9be251dfbf57a8300519814505b02fe53643bf648d12b677a3680319"
         }
       ]
     },
