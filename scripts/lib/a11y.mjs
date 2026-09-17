@@ -832,7 +832,11 @@ export function cssTokens(css) {
   const tokens = new Map();
   const root = /:root\s*\{([^}]*)\}/su.exec(css);
   if (!root) return tokens;
-  for (const declaration of root[1].split(";")) {
+  // Comments are legitimate inside :root; without stripping them a declaration
+  // that follows a comment in the same `;` segment is silently dropped, which
+  // blinds the contrast audit to every pair that references it.
+  const declarations = root[1].replace(/\/\*.*?\*\//gsu, "");
+  for (const declaration of declarations.split(";")) {
     const match = /^\s*(--[\w-]+)\s*:\s*(.+)$/su.exec(declaration);
     if (match) tokens.set(match[1], match[2].trim());
   }
