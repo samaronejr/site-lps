@@ -511,7 +511,8 @@ final class PublicRoutes {
 	public static function people( string $locale ): array {
 		$people = array();
 		foreach ( self::records( 'lps_person', $locale ) as $post ) {
-			$record = self::person_record( $post->post_name, $post->post_title, self::meta( $post->ID ), self::history( $post, $locale ) );
+			$record          = self::person_record( $post->post_name, $post->post_title, self::meta( $post->ID ), self::history( $post, $locale ) );
+			$record['stale'] = self::is_stale_translation( $post );
 			if ( true === $record['published'] ) {
 				$people[] = $record;
 			}
@@ -528,7 +529,8 @@ final class PublicRoutes {
 	public static function organizations( string $locale ): array {
 		$organizations = array();
 		foreach ( self::records( 'lps_organization', $locale ) as $post ) {
-			$record = self::organization_record( $post->post_name, $post->post_title, self::meta( $post->ID ) );
+			$record          = self::organization_record( $post->post_name, $post->post_title, self::meta( $post->ID ) );
+			$record['stale'] = self::is_stale_translation( $post );
 			if ( true === $record['public_profile'] ) {
 				$organizations[] = $record;
 			}
@@ -549,7 +551,9 @@ final class PublicRoutes {
 			if ( 'infrastructure-facility' !== self::value( $meta, '_lps_page_key' ) ) {
 				continue;
 			}
-			$facilities[] = self::facility_record( $post->post_name, $post->post_title, $meta );
+			$facility          = self::facility_record( $post->post_name, $post->post_title, $meta );
+			$facility['stale'] = self::is_stale_translation( $post );
+			$facilities[]      = $facility;
 		}
 		return $facilities;
 	}
@@ -673,7 +677,7 @@ final class PublicRoutes {
 	private static function filters(): array {
 		$filters = array();
 		foreach ( array( 'role', 'status', 'area' ) as $name ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only public listing facet.
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- read-only public listing facet; every element passes sanitize_key() below.
 			$raw = isset( $_GET[ $name ] ) ? wp_unslash( $_GET[ $name ] ) : array();
 			if ( is_string( $raw ) ) {
 				$raw = array( $raw );
@@ -705,9 +709,30 @@ final class PublicRoutes {
 		if ( ! $post instanceof WP_Post || ! class_exists( Translations::class ) ) {
 			return $post instanceof WP_Post ? $post : null;
 		}
+		if ( Translations::locale( $post->ID ) === $locale ) {
+			return $post;
+		}
+		// A missing variant resolves to nothing: history links never substitute
+		// the other language's record for the requested locale.
 		$variants = Translations::variants( $post->ID );
 		$variant  = isset( $variants[ $locale ] ) ? get_post( $variants[ $locale ] ) : null;
-		return $variant instanceof WP_Post ? $variant : $post;
+		return $variant instanceof WP_Post ? $variant : null;
+	}
+
+	/**
+	 * Reports whether an English record trails its reviewed Portuguese source.
+	 *
+	 * Staleness is a source-hash comparison owned by the translation policy, never
+	 * a timestamp guess: the flag is set only for English variants whose reviewed
+	 * hash no longer matches the authority record.
+	 *
+	 * @param WP_Post $post Record.
+	 */
+	private static function is_stale_translation( WP_Post $post ): bool {
+		if ( ! class_exists( Translations::class ) ) {
+			return false;
+		}
+		return 'en' === Translations::locale( $post->ID ) && Translations::is_stale( $post->ID );
 	}
 
 	/**

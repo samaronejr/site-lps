@@ -83,7 +83,7 @@ final class PublicSurfacesTest extends TestCase {
 
 		$html = PublicSurfaces::person_profile( 'pt-br', $person );
 
-		self::assertStringContainsString( '<img src="/wp-content/uploads/present-portrait.jpg" alt="Retrato.">', $html );
+		self::assertStringContainsString( '<img class="lps-person-photo" src="/wp-content/uploads/present-portrait.jpg" alt="Retrato.">', $html );
 	}
 
 	/** A record heading is an H1 only where the record owns the page. */
@@ -239,7 +239,7 @@ final class PublicSurfacesTest extends TestCase {
 		self::assertStringContainsString( '/en/research/signal-processing/', $html );
 		self::assertStringContainsString( '/en/projects/atlas/', $html );
 		self::assertStringContainsString( '/en/people/technical-staff/', $html );
-		self::assertStringContainsString( 'Source reviewed 2026-08-20', $html );
+		self::assertStringContainsString( 'Source reviewed <time datetime="2026-08-20">2026-08-20</time>', $html );
 	}
 
 	/** Every cohort keeps its own label instead of being flattened into professors. */
@@ -438,11 +438,79 @@ final class PublicSurfacesTest extends TestCase {
 			)
 		);
 
-		self::assertStringContainsString( 'Fonte revisada em 2026-08-20', $html );
+		self::assertStringContainsString( 'Fonte revisada em <time datetime="2026-08-20">2026-08-20</time>', $html );
 		self::assertStringContainsString( '/pt-br/infraestrutura/bancada/', $html );
 		self::assertStringContainsString( '/pt-br/pesquisa/processamento/', $html );
 		self::assertStringContainsString( '/pt-br/projetos/atlas/', $html );
 		self::assertStringContainsString( '/pt-br/pessoas/equipe-tecnica/', $html );
+	}
+
+	/** A stale English record announces the review state instead of falling back. */
+	public function test_stale_english_record_announces_review_instead_of_falling_back(): void {
+		$person = array(
+			'slug'      => 'ana-alvares',
+			'name'      => 'Ana Alvares',
+			'roles'     => array( 'researcher' ),
+			'status'    => 'active',
+			'stale'     => true,
+			'published' => true,
+		);
+
+		$html = PublicSurfaces::person_profile( 'en', $person );
+
+		self::assertStringContainsString( 'lps-translation-notice', $html );
+		self::assertStringContainsString( 'under review', $html );
+		self::assertStringContainsString( 'Ana Alvares', $html );
+		self::assertStringNotContainsString( 'Ana Álvares', $html );
+
+		$fresh = PublicSurfaces::person_profile( 'en', array_merge( $person, array( 'stale' => false ) ) );
+		self::assertStringNotContainsString( 'lps-translation-notice', $fresh );
+
+		$organization = PublicSurfaces::organization_profile(
+			'en',
+			array(
+				'name'           => 'Public Partner',
+				'public_profile' => true,
+				'stale'          => true,
+			)
+		);
+		self::assertStringContainsString( 'lps-translation-notice', $organization );
+	}
+
+	/** Infrastructure groups its evidence links under localized headings. */
+	public function test_infrastructure_groups_links_under_localized_headings(): void {
+		$facility = array(
+			'name'      => 'Laboratório validado',
+			'equipment' => array(
+				array(
+					'title' => 'Bancada de aquisição',
+					'url'   => '/pt-br/infraestrutura/bancada/',
+				),
+			),
+			'contacts'  => array(
+				array(
+					'title' => 'Equipe técnica',
+					'url'   => '/pt-br/pessoas/equipe-tecnica/',
+				),
+			),
+		);
+
+		$portuguese = PublicSurfaces::infrastructure_page( 'pt-br', array( $facility ) );
+		$english    = PublicSurfaces::infrastructure_page( 'en', array( $facility ) );
+
+		self::assertStringContainsString( '<h3>Equipamento</h3>', $portuguese );
+		self::assertStringContainsString( '<h3>Contatos</h3>', $portuguese );
+		self::assertStringContainsString( '<h3>Equipment</h3>', $english );
+		self::assertStringContainsString( '<h3>Contacts</h3>', $english );
+		self::assertStringContainsString( 'lps-infra-group', $portuguese );
+	}
+
+	/** An empty facility set renders the documented empty state, not a blank section. */
+	public function test_infrastructure_without_facilities_renders_the_empty_state(): void {
+		$html = PublicSurfaces::infrastructure_page( 'en', array() );
+
+		self::assertStringContainsString( 'lps-empty', $html );
+		self::assertStringContainsString( 'No published facilities', $html );
 	}
 
 	/** An absent record renders nothing at all, not an empty profile shell. */

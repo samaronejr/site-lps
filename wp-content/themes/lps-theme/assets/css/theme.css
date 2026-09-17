@@ -318,6 +318,16 @@ dd {
 .lps-journey-label,
 .lps-claim-source,
 .lps-listing-count,
+.lps-people-count,
+.lps-result-count,
+.lps-search-count,
+.lps-search-range,
+.lps-facet-count,
+.lps-tenure,
+.lps-role,
+.lps-disambiguation,
+.lps-search-kind,
+.lps-news-listing time,
 .lps-opportunity-state,
 .lps-event-state,
 .wp-block-post-date,
@@ -332,6 +342,21 @@ dd {
 
 .lps-meta,
 .lps-listing-count,
+.lps-people-count,
+.lps-result-count,
+.lps-search-count,
+.lps-search-range,
+.lps-facet-count,
+.lps-tenure,
+.lps-search-hint,
+.lps-search-prompt,
+.lps-search-empty,
+.lps-search-empty-hint,
+.lps-role,
+.lps-disambiguation,
+.lps-search-kind,
+.lps-opportunity-state,
+.lps-event-state,
 .lps-event-date,
 .lps-event-venue,
 .lps-deadline,
@@ -572,6 +597,8 @@ dd {
 .lps-authors li,
 .lps-funders li,
 .lps-contact-roles li,
+.lps-collaboration-journeys li,
+.lps-history li,
 .lps-claims li {
   display: flex;
   flex-wrap: wrap;
@@ -590,6 +617,8 @@ dd {
 .lps-authors li > p,
 .lps-funders li > p,
 .lps-contact-roles li > p,
+.lps-collaboration-journeys li > p,
+.lps-history li > p,
 .lps-claims li > p {
   flex-basis: 100%;
   margin-block: var(--space-1) 0;
@@ -850,7 +879,12 @@ tbody tr:focus-within {
   background: var(--color-paper-muted);
 }
 
-.lps-status {
+.lps-status,
+.lps-role,
+.lps-disambiguation,
+.lps-search-kind,
+.lps-opportunity-state,
+.lps-event-state {
   display: inline-block;
   padding-inline-start: var(--space-3);
   border-inline-start: var(--rule-focus) solid currentColor;
@@ -888,7 +922,9 @@ tbody tr:focus-within {
 
 .lps-alert-warning,
 .lps-event-notice,
-.lps-contact-unavailable {
+.lps-contact-unavailable,
+.lps-translation-notice,
+.lps-claims-warning {
   background: var(--color-warning-wash);
 }
 
@@ -897,7 +933,10 @@ tbody tr:focus-within {
 }
 
 .lps-event-notice,
-.lps-contact-unavailable {
+.lps-contact-unavailable,
+.lps-translation-notice,
+.lps-claims-warning,
+.lps-search-error {
   padding: var(--space-4) var(--space-5);
   border-inline-start: var(--rule-focus) solid var(--color-signal);
 }
@@ -1385,6 +1424,214 @@ details:not(.lps-shell-disclosure) > summary {
   }
 }
 
+/* -------------------------------------------------------------------------
+   Public, trust, and search surfaces: record pages, the verification aside,
+   faceted search, and listing rows in the institutional system.
+   ------------------------------------------------------------------------- */
+
+/* People listing: labelled select facets wrap into a cluster; the count is
+   announced through role=status in the markup. */
+.lps-people form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  align-items: end;
+  margin-block-end: var(--space-6);
+}
+
+.lps-people form label {
+  display: grid;
+  flex: 1 1 12rem;
+  gap: var(--space-2);
+  font-size: var(--type-small);
+  font-weight: 700;
+}
+
+.lps-people-list,
+.lps-infra-group ul,
+.lps-claims ul,
+.lps-contact-roles,
+.lps-collaboration-journeys,
+.lps-history {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lps-people-list > li,
+.lps-news-listing > li,
+.lps-event-listing > li,
+.lps-opportunity-listing > li,
+.lps-collaboration-journeys > li,
+.lps-history > li,
+.lps-claims li {
+  padding-block: var(--space-4);
+  border-block-start: var(--rule-thin) solid var(--color-rule);
+}
+
+/* Derived states keep an explicit text label; color only supports it. */
+.lps-event[data-state="cancelled"] .lps-event-state,
+.lps-event[data-state="postponed"] .lps-event-state,
+.lps-event-listing li[data-state="cancelled"] .lps-event-state,
+.lps-event-listing li[data-state="postponed"] .lps-event-state {
+  color: var(--color-warning);
+}
+
+.lps-person-photo,
+.lps-org-logo {
+  max-inline-size: 16rem;
+  margin-block: var(--space-4);
+}
+
+/* The external-collaborator disclaimer is a persistent notice, not metadata. */
+.lps-external {
+  padding: var(--space-4) var(--space-5);
+  border-inline-start: var(--rule-focus) solid var(--color-signal);
+  background: var(--color-info-wash);
+}
+
+/* Infrastructure facilities: sourced claims and grouped evidence links. */
+.lps-infra article {
+  padding-block: var(--space-6);
+  border-block-start: var(--rule-thin) solid var(--color-rule);
+}
+
+.lps-infra-group {
+  margin-block-start: var(--space-4);
+}
+
+.lps-infra-group h3 {
+  font-size: var(--type-h4);
+}
+
+/* Institutional trust layout: the verification aside follows the article
+   content in source order and docks beside long copy at desktop measure. */
+.lps-verification {
+  margin-block-start: var(--space-6);
+  padding: var(--space-5);
+  border: var(--rule-thin) solid var(--color-rule);
+  background: var(--color-paper-muted);
+}
+
+.lps-verification h2,
+.lps-claims h3 {
+  font-size: var(--type-h4);
+}
+
+/* Search surface: the section stacks form, status, results, and pagination. */
+.lps-search-surface {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.lps-search-surface > * {
+  margin-block: 0;
+}
+
+.lps-search-form {
+  display: grid;
+  max-inline-size: var(--measure-interface);
+  gap: var(--space-4);
+}
+
+.lps-search-form > p {
+  display: grid;
+  margin-block: 0;
+  gap: var(--space-2);
+}
+
+.lps-search-hint {
+  font-size: var(--type-small);
+}
+
+.lps-search-facets {
+  display: grid;
+  margin: 0;
+  padding: var(--space-4);
+  border: var(--rule-thin) solid var(--color-rule);
+  gap: var(--space-4);
+}
+
+.lps-search-facets > legend {
+  font-size: var(--type-h4);
+  font-weight: 700;
+}
+
+.lps-search-facet {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.lps-search-facet legend {
+  padding: 0;
+  font-weight: 700;
+}
+
+.lps-search-facet-values {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-6);
+}
+
+.lps-search-results {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.lps-search-result > p {
+  margin-block: var(--space-1) 0;
+  color: var(--color-ink-soft);
+}
+
+.lps-search-error {
+  background: var(--color-error-wash);
+}
+
+.lps-search-pagination {
+  display: grid;
+  gap: var(--space-3);
+}
+
+@media (min-width: 48rem) {
+  .lps-main-content > .lps-person,
+  .lps-main-content > .lps-org,
+  .lps-main-content > .lps-opportunity,
+  .lps-main-content > .lps-event {
+    grid-column: 2 / 8;
+  }
+}
+
+@media (min-width: 64rem) {
+  .lps-main-content > .lps-person,
+  .lps-main-content > .lps-org,
+  .lps-main-content > .lps-opportunity,
+  .lps-main-content > .lps-event {
+    grid-column: 3 / 10;
+  }
+
+  .lps-institutional {
+    display: grid;
+    column-gap: var(--grid-gutter);
+    grid-template-columns: minmax(0, 1fr) minmax(16rem, 20rem);
+  }
+
+  .lps-institutional > :not(.lps-verification) {
+    grid-column: 1;
+  }
+
+  /* The aside spans the article's implicit rows so it can stick beside the
+     copy; the explicit grid has one row, so the span reaches across them. */
+  .lps-institutional > .lps-verification {
+    position: sticky;
+    top: var(--space-4);
+    align-self: start;
+    margin-block-start: 0;
+    grid-column: 2;
+    grid-row: 1 / span 99;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   /* Declared at the same specificity as the component rules that set a duration,
      and after them, so the cascade neutralizes motion without `!important`. A
@@ -1421,7 +1668,7 @@ details:not(.lps-shell-disclosure) > summary {
   .lps-breadcrumbs,
   .lps-site-footer nav,
   .wp-block-button,
-  form {
+  form[role="search"] {
     display: none;
   }
 

@@ -199,7 +199,7 @@ final class SearchSurfaces {
 		$error  = self::text( $state['error'] ?? '' );
 		$total  = self::number( $result['total'] ?? 0 );
 
-		$html  = '<section class="lps-search" aria-labelledby="lps-search-title">';
+		$html  = '<section class="lps-search lps-search-surface" aria-labelledby="lps-search-title">';
 		$html .= '<h2 id="lps-search-title">' . self::esc( self::copy( 'legend', $locale ) ) . '</h2>';
 		$html .= self::form( $query, $record, $facets, $facet_counts, $definitions, $locale, $action );
 		if ( '' !== $error ) {
@@ -251,7 +251,7 @@ final class SearchSurfaces {
 				if ( array() === $values ) {
 					continue;
 				}
-				$html .= '<fieldset class="lps-search-facet"><legend>' . self::esc( self::facet_label( $facet, $locale ) ) . '</legend>';
+				$html .= '<fieldset class="lps-search-facet"><legend>' . self::esc( self::facet_label( $facet, $locale ) ) . '</legend><div class="lps-search-facet-values">';
 				foreach ( $values as $value => $count ) {
 					$id      = 'lps-facet-' . $facet . '-' . preg_replace( '/[^a-z0-9-]/', '', (string) $value );
 					$checked = in_array( (string) $value, $facets[ $facet ] ?? array(), true ) ? ' checked' : '';
@@ -260,7 +260,7 @@ final class SearchSurfaces {
 					$html   .= '<label for="' . self::esc( (string) $id ) . '">' . self::esc( (string) $value ) . ' <span class="lps-facet-count">(' . self::number( $count ) . ')</span></label>';
 					$html   .= '</span>';
 				}
-				$html .= '</fieldset>';
+				$html .= '</div></fieldset>';
 			}
 			$html .= '</fieldset>';
 		}

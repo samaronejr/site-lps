@@ -21,7 +21,7 @@ final class PublicSurfaces {
 	public static function people_listing( string $locale, array $people, array $filters ): string {
 		$english = 'en' === $locale;
 		$html    = '<section class="lps-people">';
-		$html   .= '<form method="get" action="">';
+		$html   .= '<form method="get" action="" role="search" aria-label="' . self::esc( $english ? 'Filter this listing' : 'Filtrar esta listagem' ) . '">';
 		$html   .= '<label>' . self::esc( $english ? 'Role' : 'Papel' ) . '<select name="role[]">';
 		foreach ( self::role_options( $locale ) as $value => $label ) {
 			$selected = in_array( $value, self::string_list( $filters['role'] ?? array() ), true ) ? ' selected' : '';
@@ -55,7 +55,7 @@ final class PublicSurfaces {
 		$collisions = self::colliding_names( $listed );
 
 		$html .= '<p class="lps-people-count" id="lps-people-status" role="status">' . self::esc( self::count_label( count( $listed ), $locale ) ) . '</p>';
-		$html .= '<ul>';
+		$html .= '<ul class="lps-people-list">';
 		foreach ( $listed as $person ) {
 			$slug   = self::text( $person['slug'] ?? '' );
 			$name   = self::text( $person['name'] ?? '' );
@@ -105,6 +105,7 @@ final class PublicSurfaces {
 		$name      = self::text( $person['name'] ?? '' );
 		$html      = '<article class="lps-person">';
 		$html     .= '<h1>' . self::esc( $name ) . '</h1>';
+		$html     .= self::translation_notice( $person, $locale );
 		$roles     = self::string_list( $person['roles'] ?? array() );
 		$role_opts = self::role_options( $locale );
 		foreach ( $roles as $role ) {
@@ -131,14 +132,14 @@ final class PublicSurfaces {
 			: self::local_file_exists( $photo_url );
 		if ( $reviewed && $photo_present && 'cleared' === $rights && 0 === strpos( $photo_url, '/' ) && false === strpos( $photo_url, '://' ) ) {
 			$alt   = self::text( $person['photo_alt'] ?? $name );
-			$html .= '<img src="' . self::esc( $photo_url ) . '" alt="' . self::esc( $alt ) . '">';
+			$html .= '<img class="lps-person-photo" src="' . self::esc( $photo_url ) . '" alt="' . self::esc( $alt ) . '">';
 		} else {
 			$html .= '<p>' . self::esc( $english ? 'Photo not published' : 'Foto não publicada' ) . '</p>';
 		}
 		if ( $reviewed ) {
 			$public_email = trim( self::text( $person['public_email'] ?? '' ) );
 			if ( '' !== $public_email ) {
-				$html .= '<p><a href="mailto:' . self::esc( $public_email ) . '">' . self::esc( $public_email ) . '</a></p>';
+				$html .= '<p><a class="lps-breakable" href="mailto:' . self::esc( $public_email ) . '">' . self::esc( $public_email ) . '</a></p>';
 			}
 		}
 		$orcid = trim( self::text( $person['orcid'] ?? '' ) );
@@ -210,14 +211,15 @@ final class PublicSurfaces {
 		$html   = '<article class="lps-org">';
 		$tag    = 2 === $heading_level ? 'h2' : 'h1';
 		$html  .= '<' . $tag . '>' . self::esc( $name ) . '</' . $tag . '>';
+		$html  .= self::translation_notice( $org, $locale );
 		$logo   = self::text( $org['logo_url'] ?? '' );
 		$rights = self::text( $org['logo_rights'] ?? '' );
 		if ( 'cleared' === $rights && '' !== $logo && 0 === strpos( $logo, '/' ) && false === strpos( $logo, '://' ) ) {
-			$html .= '<img src="' . self::esc( $logo ) . '" alt="' . self::esc( $name ) . '">';
+			$html .= '<img class="lps-org-logo" src="' . self::esc( $logo ) . '" alt="' . self::esc( $name ) . '">';
 		}
 		$canonical = self::text( $org['canonical_url'] ?? '' );
 		if ( '' !== $canonical ) {
-			$html .= '<p><a href="' . self::esc( $canonical ) . '">' . self::esc( $canonical ) . '</a></p>';
+			$html .= '<p><a class="lps-breakable" href="' . self::esc( $canonical ) . '">' . self::esc( $canonical ) . '</a></p>';
 		}
 		$html .= '</article>';
 		return $html;
@@ -230,14 +232,15 @@ final class PublicSurfaces {
 	 * @param array<mixed,mixed> $facilities Facilities.
 	 */
 	public static function infrastructure_page( string $locale, array $facilities ): string {
-		$english = 'en' === $locale;
-		$html    = '<section class="lps-infra">';
+		$english  = 'en' === $locale;
+		$articles = '';
 		foreach ( $facilities as $facility ) {
 			if ( ! is_array( $facility ) ) {
 				continue;
 			}
-			$html  .= '<article><h2>' . self::esc( self::text( $facility['name'] ?? '' ) ) . '</h2>';
-			$claims = isset( $facility['claims'] ) && is_array( $facility['claims'] ) ? $facility['claims'] : array();
+			$articles .= '<article><h2>' . self::esc( self::text( $facility['name'] ?? '' ) ) . '</h2>';
+			$articles .= self::translation_notice( $facility, $locale );
+			$claims    = isset( $facility['claims'] ) && is_array( $facility['claims'] ) ? $facility['claims'] : array();
 			foreach ( $claims as $claim ) {
 				if ( ! is_array( $claim ) ) {
 					continue;
@@ -248,16 +251,17 @@ final class PublicSurfaces {
 				if ( '' === $text || '' === $source || '' === $reviewed ) {
 					continue;
 				}
-				$html .= '<p>' . self::esc( $text ) . ' <a href="' . self::esc( $source ) . '">' . self::esc( $english ? 'Source' : 'Fonte' ) . '</a> ';
-				$html .= '<span>' . self::esc( ( $english ? 'Source reviewed ' : 'Fonte revisada em ' ) . $reviewed ) . '</span></p>';
+				$articles .= '<p>' . self::esc( $text ) . ' <a class="lps-claim-source lps-breakable" href="' . self::esc( $source ) . '">' . self::esc( $english ? 'Source' : 'Fonte' ) . '</a> ';
+				$articles .= '<span class="lps-meta">' . self::esc( $english ? 'Source reviewed ' : 'Fonte revisada em ' ) . '<time datetime="' . self::esc( $reviewed ) . '">' . self::esc( $reviewed ) . '</time></span></p>';
 			}
 			foreach ( array(
-				'equipment' => 'Equipment',
-				'research'  => 'Research',
-				'projects'  => 'Projects',
-				'contacts'  => 'Contacts',
+				'equipment' => $english ? 'Equipment' : 'Equipamento',
+				'research'  => $english ? 'Research' : 'Pesquisa',
+				'projects'  => $english ? 'Projects' : 'Projetos',
+				'contacts'  => $english ? 'Contacts' : 'Contatos',
 			) as $key => $label ) {
 				$links = isset( $facility[ $key ] ) && is_array( $facility[ $key ] ) ? $facility[ $key ] : array();
+				$items = '';
 				foreach ( $links as $link ) {
 					if ( ! is_array( $link ) ) {
 						continue;
@@ -265,14 +269,41 @@ final class PublicSurfaces {
 					$title = self::text( $link['title'] ?? $link['name'] ?? '' );
 					$url   = self::text( $link['url'] ?? '' );
 					if ( '' !== $title && '' !== $url ) {
-						$html .= '<p><a href="' . self::esc( $url ) . '">' . self::esc( $title ) . '</a></p>';
+						$items .= '<li><a href="' . self::esc( $url ) . '">' . self::esc( $title ) . '</a></li>';
 					}
 				}
+				if ( '' !== $items ) {
+					$articles .= '<section class="lps-infra-group"><h3>' . self::esc( $label ) . '</h3><ul>' . $items . '</ul></section>';
+				}
 			}
-			$html .= '</article>';
+			$articles .= '</article>';
 		}
-		$html .= '</section>';
+		$html = '<section class="lps-infra">';
+		if ( '' === $articles ) {
+			$html .= '<p class="lps-empty">' . self::esc( $english ? 'No published facilities' : 'Nenhuma infraestrutura publicada' ) . '</p>';
+		}
+		$html .= $articles . '</section>';
 		return $html;
+	}
+
+	/**
+	 * Renders the explicit stale-translation warning of one record.
+	 *
+	 * A stale English variant stays at its own URL and announces that its review
+	 * trails the Portuguese source; the surface never silently substitutes the
+	 * source text for the requested locale.
+	 *
+	 * @param array<mixed,mixed> $record Public record.
+	 * @param string             $locale Supported locale slug.
+	 */
+	private static function translation_notice( array $record, string $locale ): string {
+		if ( empty( $record['stale'] ) ) {
+			return '';
+		}
+		$message = 'en' === $locale
+			? 'This English translation is under review: the Portuguese source changed since the last review.'
+			: 'Esta tradução está em revisão: a fonte em português mudou desde a última revisão.';
+		return '<p class="lps-translation-notice" role="status">' . self::esc( $message ) . '</p>';
 	}
 
 	/**
