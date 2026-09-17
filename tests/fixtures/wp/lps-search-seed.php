@@ -14,7 +14,7 @@ declare(strict_types=1);
 use LPS\ContentModel\SearchIndex;
 use LPS\ContentModel\Translations;
 
-const LPS_SEARCH_SEED_VERSION = '16';
+const LPS_SEARCH_SEED_VERSION = '17';
 const LPS_SEARCH_SEED_OPTION  = 'lps_search_seed_version';
 
 /**
@@ -68,6 +68,31 @@ function lps_search_seed_page( string $slug, string $title, string $locale ): in
 }
 
 
+/** Returns whether both supported languages are registered and usable. */
+function lps_search_seed_languages_ready(): bool {
+	if ( ! function_exists( 'pll_languages_list' ) || ! function_exists( 'pll_save_post_translations' ) || ! function_exists( 'pll_set_post_language' ) ) {
+		return false;
+	}
+	$languages = pll_languages_list();
+	if ( ! is_array( $languages ) ) {
+		return false;
+	}
+	return in_array( 'pt-br', $languages, true ) && in_array( 'en', $languages, true );
+}
+
+/**
+ * Tracks whether the current run left an unassociated pair behind.
+ *
+ * @param bool|null $set New state, or null to read the current one.
+ */
+function lps_search_seed_incomplete( ?bool $set = null ): bool {
+	static $incomplete = false;
+	if ( null !== $set ) {
+		$incomplete = $set;
+	}
+	return $incomplete;
+}
+
 /**
  * Publishes one search fixture record through the plugin's own write path.
  *
@@ -91,6 +116,11 @@ function lps_search_seed_draft( string $post_type, string $locale, string $title
 		)
 	);
 	if ( array() !== $existing ) {
+		// The repair path still asserts the language term so records seeded before
+		// the Polylang languages were usable become visible to archive queries.
+		if ( function_exists( 'pll_set_post_language' ) ) {
+			pll_set_post_language( $existing[0]->ID, $locale );
+		}
 		return $existing[0]->ID;
 	}
 	$post_id = wp_insert_post(
@@ -132,7 +162,10 @@ function lps_search_seed_publish_pair( array $ids ): int {
 		return 0;
 	}
 	if ( class_exists( Translations::class ) ) {
-		Translations::associate( $portuguese, $english );
+		if ( is_wp_error( Translations::associate( $portuguese, $english ) ) ) {
+			lps_search_seed_incomplete( true );
+			return 0;
+		}
 	}
 
 	// The bilingual contract publishes the reviewed English variant first and
@@ -244,6 +277,11 @@ function lps_search_seed_fixtures(): void {
 	if ( LPS_SEARCH_SEED_VERSION === get_option( LPS_SEARCH_SEED_OPTION ) ) {
 		return;
 	}
+	if ( ! lps_search_seed_languages_ready() ) {
+		// Polylang registers its languages during this same boot; seeding before
+		// the association back end is usable would leave unlinked drafts.
+		return;
+	}
 	$portuguese = lps_search_seed_page( 'busca', 'Busca', 'pt-br' );
 	$english    = lps_search_seed_page( 'search', 'Search', 'en' );
 
@@ -280,7 +318,9 @@ function lps_search_seed_fixtures(): void {
 		update_option( 'lps_search_seed_indexed', $indexed );
 	}
 
-	update_option( LPS_SEARCH_SEED_OPTION, LPS_SEARCH_SEED_VERSION );
+	if ( ! lps_search_seed_incomplete() ) {
+		update_option( LPS_SEARCH_SEED_OPTION, LPS_SEARCH_SEED_VERSION );
+	}
 	flush_rewrite_rules( false );
 }
 
