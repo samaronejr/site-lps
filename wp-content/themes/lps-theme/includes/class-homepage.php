@@ -532,7 +532,9 @@ final class Homepage {
 	 * @param string               $locale Supported locale.
 	 */
 	private static function dated_meta( array $record, string $locale ): string {
-		$date = trim( self::text( $record['date'] ?? '' ) );
+		// Canonical news dates carry a time; the row prints the ISO day so every
+		// dated record in the module shares the publication row's format.
+		$date = substr( trim( self::text( $record['date'] ?? '' ) ), 0, 10 );
 		$type = self::type_label( self::text( $record['type'] ?? '' ), $locale );
 		$html = '';
 		if ( '' !== $date ) {

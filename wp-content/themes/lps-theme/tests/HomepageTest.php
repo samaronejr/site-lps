@@ -199,6 +199,20 @@ final class HomepageTest extends TestCase {
 		self::assertStringNotContainsString( 'lps-feature-media-fallback', $html );
 	}
 
+	/** Dated rows print the ISO day even when the canonical date carries a time. */
+	public function test_latest_rows_normalize_datetime_to_day(): void {
+		$news = array_replace(
+			$this->record( 'latest', 'en' ),
+			array(
+				'type' => 'lps_news',
+				'date' => '2026-09-01 09:00:00',
+			)
+		);
+		$html = Homepage::section_markup( 'latest', 'en', array( $news ), '2026-09-06' );
+		self::assertStringContainsString( '<time datetime="2026-09-01">2026-09-01</time>', $html );
+		self::assertStringNotContainsString( '09:00:00', $html );
+	}
+
 	/**
 	 * Creates an explicit, current, reviewed CMS selection.
 	 *

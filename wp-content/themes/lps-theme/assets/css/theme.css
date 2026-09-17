@@ -51,6 +51,11 @@
     "Source Serif 4", "Noto Serif", "Noto Serif CJK SC", "Noto Serif CJK JP", Georgia, serif;
   --font-mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
   --type-display: clamp(2.75rem, 7vw, 5.75rem);
+  /* Display bounded by its own measure: 11cqi keeps the longest Portuguese
+     mission word ("Processamento", 7.4em) and the three-line statement
+     (8.8em) inside the statement column at every width, so the H1 never
+     breaks mid-word. Resolves against the nearest inline-size container. */
+  --type-display-fit: clamp(2.25rem, 11cqi, var(--type-display));
   --type-h1: clamp(2.25rem, 5vw, 4rem);
   --type-h2: clamp(1.75rem, 3.5vw, 2.75rem);
   --type-h3: clamp(1.375rem, 2vw, 1.75rem);
@@ -893,7 +898,16 @@ figcaption,
   font-size: var(--type-display);
 }
 
+/* Custom properties cannot fall back through the cascade, so the fitted size
+   is gated on container-unit support. */
+@supports (font-size: 1cqi) {
+  .lps-home-section[data-home-section="mission"] h1 {
+    font-size: var(--type-display-fit);
+  }
+}
+
 .lps-home-section[data-home-section="mission"] .lps-record {
+  container-type: inline-size;
   max-inline-size: var(--measure-lead);
   padding-block: 0;
   border: 0;
@@ -1314,6 +1328,11 @@ details:not(.lps-shell-disclosure) > summary {
     grid-column: span 4;
   }
 
+  /* A lone project record owns the band instead of half of it. */
+  .lps-home-section[data-home-section="projects"] > .lps-record:only-of-type {
+    grid-column: 1 / -1;
+  }
+
   /* Dated rows: the metadata column leads, title and summary follow. */
   .lps-home-section[data-home-section="latest"] > .lps-record {
     display: grid;
@@ -1442,6 +1461,13 @@ details:not(.lps-shell-disclosure) > summary {
     grid-column: 1 / 11;
   }
 
+  /* The header's navy base rule already separates the mission from the
+     shell; the tighter lead-in keeps H1, lead, CTA and figure inside the
+     800px first viewport at 1280 (DESIGN.md module 1). */
+  .lps-home-section[data-home-section="mission"] {
+    padding-block-start: var(--space-12);
+  }
+
   /* ram-grid: numbered project records repeat across the band below the
      label; the latest module keeps full-width dated rows instead. */
   .lps-home-section[data-home-section="projects"] > h2,
@@ -1451,6 +1477,13 @@ details:not(.lps-shell-disclosure) > summary {
 
   .lps-home-section[data-home-section="projects"] > .lps-record {
     grid-column: span 3;
+  }
+
+  /* The 4-up repeat degrades below three records: one or two records split
+     the band in halves so a title is never squeezed into a quarter column. */
+  .lps-home-section[data-home-section="projects"] > .lps-record:first-of-type:nth-last-of-type(-n + 2),
+  .lps-home-section[data-home-section="projects"] > .lps-record:first-of-type:nth-last-of-type(-n + 2) ~ .lps-record {
+    grid-column: span 6;
   }
 
   .lps-home-section[data-home-section="latest"] > .lps-record {
@@ -1466,6 +1499,13 @@ details:not(.lps-shell-disclosure) > summary {
   .lps-home-section[data-home-section="mission"] > .lps-feature-media-fallback {
     grid-column: 8 / -1;
     margin-block: 0;
+  }
+
+  /* The not-published notice holds the governed figure's 3:2 footprint at
+     the top of the column instead of stretching to the statement's height. */
+  .lps-home-section[data-home-section="mission"] > .lps-feature-media-fallback {
+    align-self: start;
+    aspect-ratio: 3 / 2;
   }
 
   /* People and infrastructure form one split module on the white band: the
