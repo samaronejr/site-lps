@@ -21,6 +21,15 @@ No role may use a shared account. The deployer deploys approved artifacts only a
 content-editing path. The administrator manages individual accounts and settings without replacing
 editorial or privacy review.
 
+## Sparse homepage states
+
+The homepage never substitutes unreviewed or foreign-language material for missing content. A
+module or stratum with no reviewed records in the current locale is omitted entirely; only the
+mission feature and the contact handoff keep a single compact not-published notice in place. The
+three journeys always render: a journey whose destination page is unpublished or unreviewed shows
+a disabled action labelled as not published, never a link to an unreviewed or substitute page.
+Editors resolve a sparse state by publishing reviewed records, not by adding filler.
+
 ## Correction and takedown
 
 A correction request is logged with the claimed issue, affected record/asset, source supplied,

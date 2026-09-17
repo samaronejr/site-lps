@@ -350,14 +350,16 @@ final class Homepage {
 			return self::partners_module( $html, $heading, $items, $locale, $sections['contact'][ $english ? 1 : 2 ] );
 		}
 		$items = array_values( array_filter( $items, static fn( array $record ): bool => ( $record['section'] ?? '' ) === $section ) );
+		if ( array() === $items ) {
+			// Sparse policy: optional modules are omitted entirely; only the
+			// required contact close keeps a single compact notice in place.
+			return 'contact' === $section ? $html . '<h2 id="lps-home-' . $section . '">' . self::escape( $heading ) . '</h2>' . self::empty_notice( 'contact', $locale ) . '</section>' : '';
+		}
 		if ( 'latest' === $section ) {
 			usort( $items, static fn( array $left, array $right ): int => strcmp( self::text( $right['date'] ?? '' ), self::text( $left['date'] ?? '' ) ) );
 		}
-		$items = 'projects' === $section ? self::select_features( $items, $locale, $today ) : array_slice( $items, 0, 'contact' === $section ? 1 : 4 );
-		$html .= '<h2 id="lps-home-' . $section . '">' . self::escape( $heading ) . '</h2>';
-		if ( array() === $items ) {
-			return $html . self::empty_notice( $section, $locale ) . '</section>';
-		}
+		$items      = 'projects' === $section ? self::select_features( $items, $locale, $today ) : array_slice( $items, 0, 'contact' === $section ? 1 : 4 );
+		$html      .= '<h2 id="lps-home-' . $section . '">' . self::escape( $heading ) . '</h2>';
 		$media_slot = in_array( $section, array( 'projects', 'people', 'infrastructure' ), true );
 		foreach ( $items as $record ) {
 			$meta  = 'latest' === $section ? self::dated_meta( $record, $locale ) : '';
@@ -430,18 +432,27 @@ final class Homepage {
 	private static function research_module( string $html, string $heading, array $items, string $locale, string $evidence_heading ): string {
 		$themes   = array_slice( array_values( array_filter( $items, static fn( array $record ): bool => ( $record['section'] ?? '' ) === 'research' ) ), 0, 4 );
 		$evidence = array_slice( array_values( array_filter( $items, static fn( array $record ): bool => ( $record['section'] ?? '' ) === 'evidence' ) ), 0, 4 );
-		$html    .= '<h2 id="lps-home-research">' . self::escape( $heading ) . '</h2>';
+		if ( array() === $themes && array() === $evidence ) {
+			return '';
+		}
 		if ( array() === $themes ) {
-			$html .= self::empty_notice( 'research', $locale );
-		} else {
-			foreach ( $themes as $record ) {
-				$html .= self::record_markup( $record, $locale );
+			// Evidence alone carries the module: promote its stratum heading to
+			// h2 so the section keeps a valid name and sequential headings.
+			$html  = str_replace( 'aria-labelledby="lps-home-research"', 'aria-labelledby="lps-home-evidence"', $html );
+			$html .= '<section class="lps-home-stratum" data-home-section="evidence" aria-labelledby="lps-home-evidence"><h2 class="lps-kicker" id="lps-home-evidence">' . self::escape( $evidence_heading ) . '</h2>';
+			foreach ( $evidence as $record ) {
+				$html .= self::record_markup( $record, $locale, self::provenance_meta( $record, $locale ), 'h3' );
 			}
+			return $html . '</section></section>';
+		}
+		$html .= '<h2 id="lps-home-research">' . self::escape( $heading ) . '</h2>';
+		foreach ( $themes as $record ) {
+			$html .= self::record_markup( $record, $locale );
+		}
+		if ( array() === $evidence ) {
+			return $html . '</section>';
 		}
 		$html .= '<section class="lps-home-stratum" data-home-section="evidence" aria-labelledby="lps-home-evidence"><h3 class="lps-kicker" id="lps-home-evidence">' . self::escape( $evidence_heading ) . '</h3>';
-		if ( array() === $evidence ) {
-			return $html . self::empty_notice( 'evidence', $locale ) . '</section></section>';
-		}
 		foreach ( $evidence as $record ) {
 			$html .= self::record_markup( $record, $locale, self::provenance_meta( $record, $locale ), 'h4' );
 		}
@@ -460,15 +471,18 @@ final class Homepage {
 	private static function partners_module( string $html, string $heading, array $items, string $locale, string $contact_heading ): string {
 		$partners = array_slice( array_values( array_filter( $items, static fn( array $record ): bool => ( $record['section'] ?? '' ) === 'partners' ) ), 0, 4 );
 		$contact  = array_slice( array_values( array_filter( $items, static fn( array $record ): bool => ( $record['section'] ?? '' ) === 'contact' ) ), 0, 1 );
-		$html    .= '<h2 id="lps-home-partners">' . self::escape( $heading ) . '</h2>';
+		// The contact handoff is required, so this module always renders; the
+		// optional partner rows and their heading are omitted when empty.
 		if ( array() === $partners ) {
-			$html .= self::empty_notice( 'partners', $locale );
+			$html = str_replace( 'aria-labelledby="lps-home-partners"', 'aria-labelledby="lps-home-contact"', $html );
 		} else {
+			$html .= '<h2 id="lps-home-partners">' . self::escape( $heading ) . '</h2>';
 			foreach ( $partners as $record ) {
 				$html .= self::record_markup( $record, $locale );
 			}
 		}
-		$html .= '<section class="lps-home-stratum lps-home-handoff" data-home-section="contact" aria-labelledby="lps-home-contact"><h3 class="lps-kicker" id="lps-home-contact">' . self::escape( $contact_heading ) . '</h3>';
+		$level = array() === $partners ? 'h2' : 'h3';
+		$html .= '<section class="lps-home-stratum lps-home-handoff" data-home-section="contact" aria-labelledby="lps-home-contact"><' . $level . ' class="lps-kicker" id="lps-home-contact">' . self::escape( $contact_heading ) . '</' . $level . '>';
 		if ( ! isset( $contact[0] ) ) {
 			return $html . self::empty_notice( 'contact', $locale ) . '</section></section>';
 		}
@@ -571,7 +585,11 @@ final class Homepage {
 	}
 
 	/**
-	 * Returns the truthful not-published notice for one data section.
+	 * Returns the truthful not-published notice for a required data section.
+	 *
+	 * Only the mission feature and the contact handoff may render this notice;
+	 * every other module or stratum is omitted entirely when it has no
+	 * reviewed records, so a sparse homepage never repeats empty panels.
 	 *
 	 * @param string $section Locked section key.
 	 * @param string $locale  Supported locale.

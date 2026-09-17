@@ -297,10 +297,14 @@ final class HomepageTest extends TestCase {
 	/** Missing destinations have no invented link in either locale. */
 	public function test_missing_journey_is_not_replaced_by_an_unreviewed_link(): void {
 		foreach ( array( 'pt-br', 'en' ) as $locale ) {
-			$html = Homepage::section_markup( 'journeys', $locale, array(), '2026-09-06' );
+			$html    = Homepage::section_markup( 'journeys', $locale, array(), '2026-09-06' );
+			$message = 'en' === $locale ? 'Information not published' : 'Informações não publicadas';
 			self::assertStringNotContainsString( '<a ', $html );
 			self::assertSame( 3, substr_count( $html, 'aria-disabled="true"' ) );
+			self::assertSame( 3, substr_count( $html, '<span aria-disabled="true">' . $message . '</span>' ) );
+			self::assertSame( 3, substr_count( $html, 'lps-journey-label' ) );
 			self::assertStringContainsString( 'aria-labelledby="lps-home-journeys"', $html );
+			self::assertMatchesRegularExpression( '/<h2 id="lps-home-journeys">[^<]+<\/h2>/', $html );
 		}
 	}
 
@@ -322,20 +326,99 @@ final class HomepageTest extends TestCase {
 		}
 	}
 
-	/** Empty sections remain named and cannot fall back to foreign CMS copy. */
+	/**
+	 * Sparse policy: optional modules are omitted, required ones keep a named
+	 * compact notice, and no state may fall back to foreign CMS copy.
+	 */
 	public function test_empty_section_is_accessible_without_mixed_language(): void {
+		// 'partners' is not optional: it always renders to carry the required contact handoff.
+		$optional = array( 'research', 'evidence', 'projects', 'people', 'infrastructure', 'latest' );
 		foreach ( array( 'pt-br', 'en' ) as $locale ) {
 			$foreign_locale = 'en' === $locale ? 'pt-br' : 'en';
-			$foreign        = array_replace( $this->record( 'projects', $foreign_locale ), array( 'title' => 'FOREIGN_TITLE', 'summary' => 'FOREIGN_SUMMARY' ) );
-			$html           = Homepage::section_markup( 'projects', $locale, array( $foreign ), '2026-09-06' );
-			self::assertSame( Homepage::section_markup( 'projects', $locale, array(), '2026-09-06' ), $html );
-			self::assertStringContainsString( 'aria-labelledby="lps-home-projects"', $html );
-			self::assertMatchesRegularExpression( '/<h2 id="lps-home-projects">[^<]+<\/h2>/', $html );
-			self::assertMatchesRegularExpression( '/<p data-home-empty="projects">[^<]+<\/p>/', $html );
-			self::assertStringNotContainsString( 'FOREIGN_', $html );
-			self::assertStringNotContainsString( '<article', $html );
-			self::assertStringNotContainsString( '<a ', $html );
-			self::assertStringNotContainsString( '<img', $html );
+			foreach ( $optional as $section ) {
+				$foreign = array_replace(
+					$this->record( $section, $foreign_locale ),
+					array(
+						'title'   => 'FOREIGN_TITLE',
+						'summary' => 'FOREIGN_SUMMARY',
+					)
+				);
+				self::assertSame( '', Homepage::section_markup( $section, $locale, array(), '2026-09-06' ), $section );
+				self::assertSame( '', Homepage::section_markup( $section, $locale, array( $foreign ), '2026-09-06' ), $section );
+			}
+			foreach ( array( 'mission', 'contact' ) as $section ) {
+				$foreign = array_replace(
+					$this->record( $section, $foreign_locale ),
+					array(
+						'title'   => 'FOREIGN_TITLE',
+						'summary' => 'FOREIGN_SUMMARY',
+					)
+				);
+				$html    = Homepage::section_markup( $section, $locale, array( $foreign ), '2026-09-06' );
+				self::assertSame( Homepage::section_markup( $section, $locale, array(), '2026-09-06' ), $html );
+				self::assertStringContainsString( 'aria-labelledby="lps-home-' . $section . '"', $html );
+				self::assertMatchesRegularExpression( '/<h[12] id="lps-home-' . $section . '">[^<]+<\/h[12]>/', $html );
+				self::assertMatchesRegularExpression( '/<p data-home-empty="' . $section . '">[^<]+<\/p>/', $html );
+				self::assertStringNotContainsString( 'FOREIGN_', $html );
+				self::assertStringNotContainsString( '<article', $html );
+				self::assertStringNotContainsString( '<a ', $html );
+				self::assertStringNotContainsString( '<img', $html );
+			}
+		}
+	}
+
+	/**
+	 * A zero-record home renders only the required modules: the mission notice,
+	 * the three truthful disabled journeys, and the contact handoff notice.
+	 */
+	public function test_zero_record_home_renders_only_required_modules(): void {
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- reads a local theme template fixture, not a remote URL.
+		$template = file_get_contents( dirname( __DIR__ ) . '/templates/front-page.html' );
+		self::assertIsString( $template );
+		preg_match_all( '/wp:lps-theme\/homepage \{"section":"([a-z]+)"/', $template, $blocks );
+		self::assertSame( array( 'mission', 'journeys', 'research', 'projects', 'people', 'infrastructure', 'latest', 'partners' ), $blocks[1] );
+		foreach ( array( 'pt-br', 'en' ) as $locale ) {
+			$page = '';
+			foreach ( $blocks[1] as $section ) {
+				$page .= Homepage::section_markup( $section, $locale, array(), '2026-09-06' );
+			}
+			self::assertSame( 4, substr_count( $page, 'data-home-section=' ), $page );
+			self::assertStringContainsString( 'data-home-section="mission"', $page );
+			self::assertStringContainsString( 'data-home-section="journeys"', $page );
+			self::assertStringContainsString( 'data-home-section="partners"', $page );
+			self::assertStringContainsString( 'data-home-section="contact"', $page );
+			foreach ( array( 'research', 'evidence', 'projects', 'people', 'infrastructure', 'latest' ) as $omitted ) {
+				self::assertStringNotContainsString( 'data-home-section="' . $omitted . '"', $page );
+			}
+			self::assertSame( 2, substr_count( $page, 'data-home-empty=' ), $page );
+			self::assertStringContainsString( 'data-home-empty="mission"', $page );
+			self::assertStringContainsString( 'data-home-empty="contact"', $page );
+			self::assertSame( 3, substr_count( $page, 'aria-disabled="true"' ) );
+			self::assertStringNotContainsString( '<a ', $page );
+			self::assertSame( 1, substr_count( $page, '<h1' ) );
+		}
+	}
+
+	/**
+	 * A nested stratum that becomes the module's only content is promoted to
+	 * h2 so the section keeps a valid accessible name and sequential headings.
+	 */
+	public function test_lone_stratum_is_promoted_to_keep_the_module_named(): void {
+		foreach ( array( 'pt-br', 'en' ) as $locale ) {
+			$evidence = $this->record( 'evidence', $locale );
+			$html     = Homepage::section_markup( 'research', $locale, array( $evidence ), '2026-09-06' );
+			self::assertStringContainsString( 'aria-labelledby="lps-home-evidence"', $html );
+			self::assertMatchesRegularExpression( '/<h2 class="lps-kicker" id="lps-home-evidence">[^<]+<\/h2>/', $html );
+			self::assertStringNotContainsString( 'lps-home-research">', $html );
+			self::assertStringNotContainsString( 'data-home-empty', $html );
+
+			$contact = array_replace( $this->record( 'contact', $locale ), array( 'cta' => 'CONTACT_CTA' ) );
+			$html    = Homepage::section_markup( 'partners', $locale, array( $contact ), '2026-09-06' );
+			self::assertStringContainsString( 'aria-labelledby="lps-home-contact"', $html );
+			self::assertMatchesRegularExpression( '/<h2 class="lps-kicker" id="lps-home-contact">[^<]+<\/h2>/', $html );
+			self::assertStringNotContainsString( 'lps-home-partners">', $html );
+			self::assertStringNotContainsString( 'data-home-empty', $html );
+			self::assertStringContainsString( 'CONTACT_CTA', $html );
 		}
 	}
 }

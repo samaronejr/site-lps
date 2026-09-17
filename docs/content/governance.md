@@ -53,6 +53,11 @@ A record remains draft when any required source, review, translation, accessibil
 rights evidence is absent. Unknown facts remain null. A review date does not certify a fact that
 has no source.
 
+The same rule governs sparse public surfaces: an optional homepage module with no reviewed records
+is omitted rather than filled, the required mission and contact notices stay visible and compact,
+and an unpublished journey destination renders as a disabled action instead of a link. No surface
+may invent content, links, or contacts to appear complete.
+
 ## Public personal data and media
 
 Publish a personal email address only when documentary evidence identifies it as an intended public
