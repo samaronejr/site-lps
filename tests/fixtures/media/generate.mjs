@@ -52,7 +52,7 @@ try {
     );
     await page.evaluate((n) => {
       const ctx = document.querySelector("canvas").getContext("2d");
-      ctx.fillStyle = "#F7F4EC";
+      ctx.fillStyle = "#FFFFFF";
       ctx.fillRect(0, 0, 640, 360);
       ctx.fillStyle = "#003B5C";
       ctx.font = "32px system-ui";
