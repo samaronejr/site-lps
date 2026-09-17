@@ -289,7 +289,9 @@ final class Homepage {
 	}
 
 	/**
-	 * Builds a reusable, localized section. Missing media uses a text-only layout.
+	 * Builds one visual module of the §7 composition. The ten frozen data
+	 * sections map onto eight modules: evidence renders inside research and
+	 * contact inside the partners handoff; the other eight map one-to-one.
 	 *
 	 * @param string                           $section Locked section key.
 	 * @param string                           $locale Supported locale.
@@ -317,42 +319,238 @@ final class Homepage {
 		$html    = $sections[ $section ][0] . ' class="lps-home-section" aria-labelledby="lps-home-' . $section . '">';
 		$items   = array_values( array_filter( $records, static fn( array $record ): bool => self::reviewed_feature( $record, $locale, $today ) ) );
 		if ( 'journeys' === $section ) {
-			$html .= '<h2 id="lps-home-journeys">' . self::escape( $heading ) . '</h2><ul class="lps-home-journeys">';
-			foreach ( self::journeys( $locale ) as $journey ) {
-				$matches = array_values( array_filter( $items, static fn( array $record ): bool => ( $record['page_key'] ?? '' ) === $journey['page_key'] && '' !== trim( self::text( $record['cta'] ?? '' ) ) ) );
-				$html   .= '<li>';
-				if ( isset( $matches[0] ) ) {
-					$record = $matches[0];
-					$html  .= '<a class="lps-button" data-home-journey="' . $journey['page_key'] . '" data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '" href="' . self::escape( self::text( $record['url'] ) ) . '">' . self::escape( self::text( $record['cta'] ) ) . '</a>';
-				} else {
-					$html .= '<span aria-disabled="true">' . self::escape( $journey['label'] ) . ' — ' . ( $english ? 'information not published' : 'informações não publicadas' ) . '</span>';
-				}
-				$html .= '</li>';
-			}
-			return $html . '</ul></section>';
+			return self::journeys_module( $html, $heading, $items, $locale );
+		}
+		if ( 'mission' === $section ) {
+			return self::mission_module( $html, $items, $locale );
+		}
+		if ( 'research' === $section ) {
+			return self::research_module( $html, $heading, $items, $locale, $sections['evidence'][ $english ? 1 : 2 ] );
+		}
+		if ( 'partners' === $section ) {
+			return self::partners_module( $html, $heading, $items, $locale, $sections['contact'][ $english ? 1 : 2 ] );
 		}
 		$items = array_values( array_filter( $items, static fn( array $record ): bool => ( $record['section'] ?? '' ) === $section ) );
 		if ( 'latest' === $section ) {
 			usort( $items, static fn( array $left, array $right ): int => strcmp( self::text( $right['date'] ?? '' ), self::text( $left['date'] ?? '' ) ) );
 		}
-		$items = 'projects' === $section ? self::select_features( $items, $locale, $today ) : array_slice( $items, 0, 'mission' === $section || 'contact' === $section ? 1 : 4 );
-		if ( 'mission' === $section && isset( $items[0] ) ) {
-			$heading = self::text( $items[0]['title'] );
-			$html    = str_replace( ' class="lps-home-section"', ' data-source-id="' . self::escape( self::text( $items[0]['source_id'] ) ) . '" class="lps-home-section"', $html );
-		}
-		$level = 'mission' === $section ? 'h1' : 'h2';
-		$html .= '<' . $level . ' id="lps-home-' . $section . '">' . self::escape( $heading ) . '</' . $level . '>';
+		$items = 'projects' === $section ? self::select_features( $items, $locale, $today ) : array_slice( $items, 0, 'contact' === $section ? 1 : 4 );
+		$html .= '<h2 id="lps-home-' . $section . '">' . self::escape( $heading ) . '</h2>';
 		if ( array() === $items ) {
-			return $html . '<p data-home-empty="' . $section . '">' . ( $english ? 'Reviewed information has not been published for this section.' : 'Informações revisadas ainda não foram publicadas nesta seção.' ) . '</p></section>';
+			return $html . self::empty_notice( $section, $locale ) . '</section>';
 		}
 		foreach ( $items as $record ) {
-			$html .= '<article class="lps-record" data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '" data-record-id="' . self::escape( self::text( $record['record_id'] ?? '' ) ) . '">';
-			if ( 'mission' !== $section ) {
-				$html .= '<h3><a href="' . self::escape( self::text( $record['url'] ) ) . '">' . self::escape( self::text( $record['title'] ) ) . '</a></h3>';
-			}
-			$html .= '<p>' . self::escape( self::text( $record['summary'] ?? '' ) ) . '</p></article>';
+			$meta  = 'latest' === $section ? self::dated_meta( $record, $locale ) : '';
+			$html .= self::record_markup( $record, $meta );
 		}
 		return $html . '</section>';
+	}
+
+	/**
+	 * Renders the mission feature: H1 statement, deck, governed action and media.
+	 *
+	 * @param string                           $html    Opened section tag.
+	 * @param array<int, array<string, mixed>> $items   Reviewed snapshot.
+	 * @param string                           $locale  Supported locale.
+	 */
+	private static function mission_module( string $html, array $items, string $locale ): string {
+		$items = array_slice( array_values( array_filter( $items, static fn( array $record ): bool => ( $record['section'] ?? '' ) === 'mission' ) ), 0, 1 );
+		if ( ! isset( $items[0] ) ) {
+			return $html . '<h1 id="lps-home-mission">LPS</h1>' . self::empty_notice( 'mission', $locale ) . '</section>';
+		}
+		$record  = $items[0];
+		$html    = str_replace( ' class="lps-home-section"', ' data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '" class="lps-home-section"', $html );
+		$html   .= '<article class="lps-record" data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '" data-record-id="' . self::escape( self::text( $record['record_id'] ?? '' ) ) . '">';
+		$html   .= '<h1 id="lps-home-mission">' . self::escape( self::text( $record['title'] ) ) . '</h1>';
+		$summary = trim( self::text( $record['summary'] ?? '' ) );
+		if ( '' !== $summary ) {
+			$html .= '<p>' . self::escape( $summary ) . '</p>';
+		}
+		$cta = trim( self::text( $record['cta'] ?? '' ) );
+		if ( '' !== $cta ) {
+			$html .= '<p><a class="lps-button" href="' . self::escape( self::text( $record['url'] ) ) . '">' . self::escape( $cta ) . '</a></p>';
+		}
+		return $html . '</article>' . self::feature_media_markup( $record, $locale ) . '</section>';
+	}
+
+	/**
+	 * Renders the three audience journeys as one action band.
+	 *
+	 * @param string                           $html    Opened section tag.
+	 * @param string                           $heading Localized module heading.
+	 * @param array<int, array<string, mixed>> $items   Reviewed snapshot.
+	 * @param string                           $locale  Supported locale.
+	 */
+	private static function journeys_module( string $html, string $heading, array $items, string $locale ): string {
+		$english = 'en' === $locale;
+		$html   .= '<h2 id="lps-home-journeys">' . self::escape( $heading ) . '</h2><ul class="lps-home-journeys">';
+		foreach ( self::journeys( $locale ) as $journey ) {
+			$matches = array_values( array_filter( $items, static fn( array $record ): bool => ( $record['page_key'] ?? '' ) === $journey['page_key'] && '' !== trim( self::text( $record['cta'] ?? '' ) ) ) );
+			$html   .= '<li><span class="lps-journey-label">' . self::escape( $journey['label'] ) . '</span>';
+			if ( isset( $matches[0] ) ) {
+				$record = $matches[0];
+				$html  .= '<a class="lps-button" data-home-journey="' . $journey['page_key'] . '" data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '" href="' . self::escape( self::text( $record['url'] ) ) . '">' . self::escape( self::text( $record['cta'] ) ) . '</a>';
+			} else {
+				$html .= '<span aria-disabled="true">' . ( $english ? 'Information not published' : 'Informações não publicadas' ) . '</span>';
+			}
+			$html .= '</li>';
+		}
+		return $html . '</ul></section>';
+	}
+
+	/**
+	 * Renders research themes with the evidence stratum nested in one module.
+	 *
+	 * @param string                           $html             Opened section tag.
+	 * @param string                           $heading          Localized module heading.
+	 * @param array<int, array<string, mixed>> $items            Reviewed snapshot.
+	 * @param string                           $locale           Supported locale.
+	 * @param string                           $evidence_heading Localized stratum heading.
+	 */
+	private static function research_module( string $html, string $heading, array $items, string $locale, string $evidence_heading ): string {
+		$themes   = array_slice( array_values( array_filter( $items, static fn( array $record ): bool => ( $record['section'] ?? '' ) === 'research' ) ), 0, 4 );
+		$evidence = array_slice( array_values( array_filter( $items, static fn( array $record ): bool => ( $record['section'] ?? '' ) === 'evidence' ) ), 0, 4 );
+		$html    .= '<h2 id="lps-home-research">' . self::escape( $heading ) . '</h2>';
+		if ( array() === $themes ) {
+			$html .= self::empty_notice( 'research', $locale );
+		} else {
+			foreach ( $themes as $record ) {
+				$html .= self::record_markup( $record );
+			}
+		}
+		$html .= '<section class="lps-home-stratum" data-home-section="evidence" aria-labelledby="lps-home-evidence"><h3 class="lps-kicker" id="lps-home-evidence">' . self::escape( $evidence_heading ) . '</h3>';
+		if ( array() === $evidence ) {
+			return $html . self::empty_notice( 'evidence', $locale ) . '</section></section>';
+		}
+		foreach ( $evidence as $record ) {
+			$html .= self::record_markup( $record, self::provenance_meta( $record, $locale ), 'h4' );
+		}
+		return $html . '</section></section>';
+	}
+
+	/**
+	 * Renders partner rows with the contact handoff nested as the closing strip.
+	 *
+	 * @param string                           $html            Opened section tag.
+	 * @param string                           $heading         Localized module heading.
+	 * @param array<int, array<string, mixed>> $items           Reviewed snapshot.
+	 * @param string                           $locale          Supported locale.
+	 * @param string                           $contact_heading Localized stratum heading.
+	 */
+	private static function partners_module( string $html, string $heading, array $items, string $locale, string $contact_heading ): string {
+		$partners = array_slice( array_values( array_filter( $items, static fn( array $record ): bool => ( $record['section'] ?? '' ) === 'partners' ) ), 0, 4 );
+		$contact  = array_slice( array_values( array_filter( $items, static fn( array $record ): bool => ( $record['section'] ?? '' ) === 'contact' ) ), 0, 1 );
+		$html    .= '<h2 id="lps-home-partners">' . self::escape( $heading ) . '</h2>';
+		if ( array() === $partners ) {
+			$html .= self::empty_notice( 'partners', $locale );
+		} else {
+			foreach ( $partners as $record ) {
+				$html .= self::record_markup( $record );
+			}
+		}
+		$html .= '<section class="lps-home-stratum lps-home-handoff" data-home-section="contact" aria-labelledby="lps-home-contact"><h3 class="lps-kicker" id="lps-home-contact">' . self::escape( $contact_heading ) . '</h3>';
+		if ( ! isset( $contact[0] ) ) {
+			return $html . self::empty_notice( 'contact', $locale ) . '</section></section>';
+		}
+		$record  = $contact[0];
+		$summary = trim( self::text( $record['summary'] ?? '' ) );
+		if ( '' !== $summary ) {
+			$html .= '<p>' . self::escape( $summary ) . '</p>';
+		}
+		$label = trim( self::text( $record['cta'] ?? '' ) );
+		$label = '' !== $label ? $label : self::text( $record['title'] );
+		$html .= '<p><a class="lps-button" data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '" href="' . self::escape( self::text( $record['url'] ) ) . '">' . self::escape( $label ) . '</a></p>';
+		return $html . '</section></section>';
+	}
+
+	/**
+	 * Renders one record row with provenance attributes and optional metadata.
+	 *
+	 * @param array<string, mixed> $record CMS record.
+	 * @param string               $meta   Pre-built metadata markup.
+	 * @param string               $level  Heading level for the linked title.
+	 */
+	private static function record_markup( array $record, string $meta = '', string $level = 'h3' ): string {
+		$html    = '<article class="lps-record" data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '" data-record-id="' . self::escape( self::text( $record['record_id'] ?? '' ) ) . '">';
+		$html   .= $meta;
+		$html   .= '<' . $level . '><a href="' . self::escape( self::text( $record['url'] ) ) . '">' . self::escape( self::text( $record['title'] ) ) . '</a></' . $level . '>';
+		$summary = trim( self::text( $record['summary'] ?? '' ) );
+		if ( '' !== $summary ) {
+			$html .= '<p>' . self::escape( $summary ) . '</p>';
+		}
+		return $html . '</article>';
+	}
+
+	/**
+	 * Builds the date-plus-type metadata line of a dated record row.
+	 *
+	 * @param array<string, mixed> $record CMS record.
+	 * @param string               $locale Supported locale.
+	 */
+	private static function dated_meta( array $record, string $locale ): string {
+		$date = trim( self::text( $record['date'] ?? '' ) );
+		$type = self::type_label( self::text( $record['type'] ?? '' ), $locale );
+		$html = '';
+		if ( '' !== $date ) {
+			$html .= '<time datetime="' . self::escape( $date ) . '">' . self::escape( $date ) . '</time>';
+		}
+		if ( '' !== $type ) {
+			$html .= ( '' === $html ? '' : ' · ' ) . '<span class="lps-kicker">' . self::escape( $type ) . '</span>';
+		}
+		return '' === $html ? '' : '<p class="lps-meta">' . $html . '</p>';
+	}
+
+	/**
+	 * Builds the type-plus-review-date provenance line of an evidence record.
+	 *
+	 * @param array<string, mixed> $record CMS record.
+	 * @param string               $locale Supported locale.
+	 */
+	private static function provenance_meta( array $record, string $locale ): string {
+		$type     = self::type_label( self::text( $record['type'] ?? '' ), $locale );
+		$reviewed = trim( self::text( $record['review_date'] ?? '' ) );
+		$html     = '';
+		if ( '' !== $type ) {
+			$html .= '<span class="lps-kicker">' . self::escape( $type ) . '</span>';
+		}
+		if ( '' !== $reviewed ) {
+			$label = 'en' === $locale ? 'Last reviewed' : 'Última revisão';
+			$html .= ( '' === $html ? '' : ' · ' ) . $label . ': <time datetime="' . self::escape( $reviewed ) . '">' . self::escape( $reviewed ) . '</time>';
+		}
+		return '' === $html ? '' : '<p class="lps-meta">' . $html . '</p>';
+	}
+
+	/**
+	 * Returns the localized record-type label used by homepage kickers.
+	 *
+	 * @param string $type   Record post type.
+	 * @param string $locale Supported locale.
+	 */
+	private static function type_label( string $type, string $locale ): string {
+		$labels = array(
+			'lps_research_area' => array( 'Pesquisa', 'Research' ),
+			'lps_project'       => array( 'Projetos', 'Projects' ),
+			'lps_publication'   => array( 'Publicações', 'Publications' ),
+			'lps_person'        => array( 'Pessoas', 'People' ),
+			'lps_news'          => array( 'Notícias', 'News' ),
+			'lps_event'         => array( 'Eventos', 'Events' ),
+			'lps_opportunity'   => array( 'Oportunidades', 'Opportunities' ),
+			'lps_organization'  => array( 'Organizações', 'Organizations' ),
+		);
+		return isset( $labels[ $type ] ) ? $labels[ $type ][ 'en' === $locale ? 1 : 0 ] : '';
+	}
+
+	/**
+	 * Returns the truthful not-published notice for one data section.
+	 *
+	 * @param string $section Locked section key.
+	 * @param string $locale  Supported locale.
+	 */
+	private static function empty_notice( string $section, string $locale ): string {
+		$message = 'en' === $locale
+			? 'Reviewed information has not been published for this section.'
+			: 'Informações revisadas ainda não foram publicadas nesta seção.';
+		return '<p data-home-empty="' . $section . '">' . $message . '</p>';
 	}
 
 	/**

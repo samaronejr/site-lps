@@ -616,7 +616,12 @@ dd {
   border-block-start: var(--rule-thin) solid var(--color-rule);
 }
 
-.lps-record h3 {
+.lps-record h3,
+.lps-record h4 {
+  margin-block-end: var(--space-2);
+}
+
+.lps-record > .lps-meta {
   margin-block-end: var(--space-2);
 }
 
@@ -677,12 +682,51 @@ figcaption,
 }
 
 /* Band rhythm: white canvas and section gray alternate; adjacent modules never
-   share a band color. Journeys is the single interior navy band. */
+   share a band color. Journeys is the single interior navy band. Research and
+   projects share one muted band so they read as a single module's strata;
+   people and infrastructure share the white band for the same reason. */
 .lps-home-section[data-home-section="research"],
 .lps-home-section[data-home-section="projects"],
-.lps-home-section[data-home-section="infrastructure"],
-.lps-home-section[data-home-section="partners"] {
+.lps-home-section[data-home-section="latest"] {
   background: var(--color-paper-muted);
+}
+
+/* Strata inside a module separate by rule and spacing, never by cards. */
+.lps-home-section[data-home-section="projects"],
+.lps-home-stratum {
+  padding-block-start: var(--space-12);
+  border-block-start: var(--rule-thin) solid var(--color-rule);
+}
+
+/* The contact handoff closes the partners module with a strong top rule. */
+.lps-home-handoff {
+  border-block-start: var(--rule-medium) solid var(--color-rule-strong);
+}
+
+/* Selected projects are numbered editorial records inside the shared band. */
+.lps-home-section[data-home-section="projects"] {
+  counter-reset: lps-project;
+}
+
+.lps-home-section[data-home-section="projects"] .lps-record {
+  counter-increment: lps-project;
+}
+
+.lps-home-section[data-home-section="projects"] .lps-record h3::before {
+  content: counter(lps-project) ". ";
+  color: var(--color-ink-soft);
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  letter-spacing: 0.075em;
+}
+
+/* Stacked below 64rem, the infrastructure half of the people module keeps a
+   hairline seam so the two groups stay legible on the shared white band. */
+.lps-home-section[data-home-section="infrastructure"] {
+  padding-block-start: var(--space-12);
+  border-block-start: var(--rule-thin) solid var(--color-rule);
 }
 
 .lps-home-section[data-home-section="journeys"] {
@@ -700,6 +744,12 @@ figcaption,
 
 .lps-home-section[data-home-section="journeys"] span[aria-disabled="true"] {
   color: var(--color-rule);
+}
+
+/* The audience label sits on navy, so it inherits the band's paper text color
+   instead of the signal-hover kicker color used on light bands. */
+.lps-home-section[data-home-section="journeys"] .lps-journey-label {
+  color: inherit;
 }
 
 .lps-home-section[data-home-section="mission"] h1 {
@@ -723,6 +773,10 @@ figcaption,
 }
 
 .lps-home-journeys > li {
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+  justify-items: start;
   padding-block-start: var(--space-4);
   border-block-start: var(--rule-thin) solid var(--color-rule);
 }
@@ -1110,9 +1164,25 @@ details:not(.lps-shell-disclosure) > summary {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .lps-home-section[data-home-section="projects"] > .lps-record,
-  .lps-home-section[data-home-section="latest"] > .lps-record {
+  .lps-home-section[data-home-section="projects"] > .lps-record {
     grid-column: span 4;
+  }
+
+  /* Dated rows: the metadata column leads, title and summary follow. */
+  .lps-home-section[data-home-section="latest"] > .lps-record {
+    display: grid;
+    grid-template-columns: minmax(8rem, auto) 1fr;
+    column-gap: var(--grid-gutter);
+  }
+
+  .lps-home-section[data-home-section="latest"] > .lps-record > .lps-meta {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+  }
+
+  .lps-home-section[data-home-section="latest"] > .lps-record > h3,
+  .lps-home-section[data-home-section="latest"] > .lps-record > p:not(.lps-meta) {
+    grid-column: 2;
   }
 
   .lps-main-content > .wp-block-post-title,
@@ -1226,15 +1296,58 @@ details:not(.lps-shell-disclosure) > summary {
     grid-column: 1 / 11;
   }
 
-  /* ram-grid: dated record cards repeat across the band below the label. */
+  /* ram-grid: numbered project records repeat across the band below the
+     label; the latest module keeps full-width dated rows instead. */
   .lps-home-section[data-home-section="projects"] > h2,
   .lps-home-section[data-home-section="latest"] > h2 {
     grid-column: 1 / -1;
   }
 
-  .lps-home-section[data-home-section="projects"] > .lps-record,
-  .lps-home-section[data-home-section="latest"] > .lps-record {
+  .lps-home-section[data-home-section="projects"] > .lps-record {
     grid-column: span 3;
+  }
+
+  .lps-home-section[data-home-section="latest"] > .lps-record {
+    grid-column: 1 / -1;
+  }
+
+  /* Mission feature: statement spans seven columns, the figure five. */
+  .lps-home-section[data-home-section="mission"] > .lps-record {
+    grid-column: 1 / 8;
+  }
+
+  .lps-home-section[data-home-section="mission"] > .lps-feature-media,
+  .lps-home-section[data-home-section="mission"] > .lps-feature-media-fallback {
+    grid-column: 8 / -1;
+    margin-block: 0;
+  }
+
+  /* People and infrastructure form one split module on the white band: the
+     sections drop their full-bleed band behavior and sit side by side on the
+     parent page grid. */
+  .lps-home-section[data-home-section="people"],
+  .lps-home-section[data-home-section="infrastructure"] {
+    position: static;
+    inline-size: auto;
+    padding-inline: 0;
+    transform: none;
+  }
+
+  .lps-home-section[data-home-section="people"] {
+    grid-column: 1 / 8;
+  }
+
+  .lps-home-section[data-home-section="infrastructure"] {
+    grid-column: 8 / -1;
+    padding-block-start: var(--space-16);
+    border-block-start: 0;
+  }
+
+  .lps-home-section[data-home-section="people"] > h2,
+  .lps-home-section[data-home-section="infrastructure"] > h2,
+  .lps-home-section[data-home-section="people"] > :not(h1, h2),
+  .lps-home-section[data-home-section="infrastructure"] > :not(h1, h2) {
+    grid-column: 1 / -1;
   }
 
   .lps-main-content > .wp-block-post-title,
