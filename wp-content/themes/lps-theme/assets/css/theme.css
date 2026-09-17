@@ -593,7 +593,7 @@ dd {
 .lps-publications li,
 .lps-people li,
 .lps-relations li,
-.lps-area-projects li,
+.lps-access-links li,
 .lps-authors li,
 .lps-funders li,
 .lps-contact-roles li,
@@ -613,7 +613,7 @@ dd {
 .lps-publications li > p,
 .lps-people li > p,
 .lps-relations li > p,
-.lps-area-projects li > p,
+.lps-access-links li > .lps-meta,
 .lps-authors li > p,
 .lps-funders li > p,
 .lps-contact-roles li > p,
@@ -624,9 +624,110 @@ dd {
   margin-block: var(--space-1) 0;
 }
 
+/* Discovery listings: a labeled filter group, an announced count, and
+   hairline-separated record rows. */
 .lps-listing {
   display: grid;
   gap: var(--space-6);
+}
+
+.lps-listing > h2 {
+  margin-block: 0;
+  font-size: var(--type-h3);
+}
+
+.lps-listing-filters fieldset {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  align-items: end;
+  margin: 0;
+  padding: 0 0 var(--space-6);
+  border: 0;
+  border-block-end: var(--rule-thin) solid var(--color-rule);
+}
+
+.lps-listing-filters legend {
+  margin-block-end: var(--space-2);
+  color: var(--color-ink-soft);
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  letter-spacing: 0.075em;
+}
+
+.lps-listing-filter {
+  flex: 1 1 12rem;
+  margin: 0;
+}
+
+.lps-listing-filter label {
+  display: block;
+  margin-block-end: var(--space-2);
+  font-size: var(--type-small);
+  font-weight: 700;
+}
+
+.lps-listing-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  margin: 0;
+}
+
+.lps-listing-clear {
+  display: inline-flex;
+  min-block-size: var(--control-min);
+  align-items: center;
+}
+
+.lps-listing-results,
+.lps-area-projects,
+.lps-access-links,
+.lps-members,
+.lps-funders,
+.lps-publications,
+.lps-authors,
+.lps-relations {
+  margin-block-start: 0;
+  padding-inline-start: 0;
+  list-style: none;
+}
+
+/* Discovery record pages: relationship groups and the access section are
+   strata separated by hairlines, matching the homepage module grammar. */
+.lps-research-area > h2,
+.lps-project > h2,
+.lps-publication > h2 {
+  margin-block: var(--space-10) var(--space-4);
+  padding-block-start: var(--space-6);
+  border-block-start: var(--rule-thin) solid var(--color-rule);
+  font-size: var(--type-h3);
+}
+
+.lps-access {
+  margin-block-start: var(--space-10);
+  padding-block-start: var(--space-6);
+  border-block-start: var(--rule-thin) solid var(--color-rule);
+}
+
+.lps-access > h2 {
+  margin-block: 0 var(--space-4);
+  padding-block-start: 0;
+  border-block-start: 0;
+  font-size: var(--type-h3);
+}
+
+.lps-access-links a {
+  display: inline-flex;
+  min-block-size: var(--control-min);
+  align-items: center;
+}
+
+.lps-doi {
+  overflow-wrap: anywhere;
 }
 
 .lps-empty {

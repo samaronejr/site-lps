@@ -182,6 +182,56 @@ final class DiscoveryRoutesTest extends TestCase {
 	}
 
 	/**
+	 * Listing filters accept only approved values at the request boundary.
+	 */
+	public function test_listing_filters_accept_only_approved_values_at_the_boundary(): void {
+		$previous_get = $_GET; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only filter boundary under test.
+		$_GET         = array(
+			'q'      => '  sinais  ',
+			'year'   => '2025',
+			'type'   => 'journal-article',
+			'area'   => 'signal-processing',
+			'status' => 'not-a-status',
+		);
+		$publications = DiscoveryRoutes::active_filters( 'lps_publication' );
+		$projects     = DiscoveryRoutes::active_filters( 'lps_project' );
+		$_GET         = $previous_get;
+
+		self::assertSame(
+			array(
+				'q'    => 'sinais',
+				'year' => '2025',
+				'type' => 'journal-article',
+				'area' => 'signal-processing',
+			),
+			$publications
+		);
+		// An unapproved status key is dropped; the term and area still apply.
+		self::assertSame(
+			array(
+				'q'    => 'sinais',
+				'area' => 'signal-processing',
+			),
+			$projects
+		);
+	}
+
+	/**
+	 * Malformed filter values never reach the listing query.
+	 */
+	public function test_malformed_filter_values_never_reach_the_listing_query(): void {
+		$previous_get = $_GET; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only filter boundary under test.
+		$_GET         = array(
+			'year' => '20x5',
+			'area' => 'invented-area',
+		);
+		$active       = DiscoveryRoutes::active_filters( 'lps_publication' );
+		$_GET         = $previous_get;
+
+		self::assertSame( array(), $active );
+	}
+
+	/**
 	 * Documents outside discovery routes keep their language attributes.
 	 */
 	public function test_documents_outside_discovery_routes_keep_their_language_attributes(): void {

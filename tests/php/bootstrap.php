@@ -116,6 +116,40 @@ if (! function_exists('wp_json_encode')) {
 	}
 }
 
+if (! function_exists('get_query_var')) {
+	/**
+	 * Mirrors the WordPress query-var reader used by request-boundary seams.
+	 *
+	 * @param string $var     Query variable key.
+	 * @param mixed  $default Default value.
+	 */
+	function get_query_var(string $var, mixed $default = ''): mixed {
+		return $GLOBALS['lps_test_query_vars'][ $var ] ?? $default;
+	}
+}
+
+if (! function_exists('sanitize_text_field')) {
+	/**
+	 * Mirrors the WordPress text-field sanitizer used by request-boundary seams.
+	 */
+	function sanitize_text_field(string $str): string {
+		$filtered = wp_strip_all_tags($str);
+		return trim((string) preg_replace('/[\r\n\t ]+/', ' ', $filtered));
+	}
+}
+
+if (! function_exists('wp_unslash')) {
+	/**
+	 * Mirrors the WordPress unslashing helper used by request-boundary seams.
+	 *
+	 * @param string|array<int|string, mixed> $value Value to unslash.
+	 * @return string|array<int|string, mixed>
+	 */
+	function wp_unslash(string|array $value): string|array {
+		return is_string($value) ? stripslashes($value) : array_map('wp_unslash', $value);
+	}
+}
+
 $wordpress_tests_directory = getenv('WP_TESTS_DIR');
 if (is_string($wordpress_tests_directory) && '' !== $wordpress_tests_directory) {
 	require_once rtrim($wordpress_tests_directory, '/') . '/includes/functions.php';

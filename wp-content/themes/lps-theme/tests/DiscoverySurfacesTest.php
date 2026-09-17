@@ -32,7 +32,8 @@ final class DiscoverySurfacesTest extends TestCase {
 		$html = DiscoverySurfaces::render_area( $record, array(), 'pt-br' );
 
 		// Then: the paragraph is real markup and no block delimiter is shown as text.
-		self::assertStringContainsString( '<div class="lps-body"><p>Métodos estatísticos para detecção.</p></div>', $html );
+		// The body carries the reading-serif container class of the replacement system.
+		self::assertStringContainsString( '<div class="lps-body lps-reading"><p>Métodos estatísticos para detecção.</p></div>', $html );
 		self::assertStringNotContainsString( '&lt;p&gt;', $html );
 		self::assertStringNotContainsString( 'wp:paragraph', $html );
 	}
@@ -368,9 +369,121 @@ final class DiscoverySurfacesTest extends TestCase {
 		self::assertStringContainsString( 'method="get"', $html );
 		self::assertStringContainsString( '<label', $html );
 		self::assertStringContainsString( 'aria-label="Paginação de projetos"', $html );
-		self::assertStringContainsString( 'page=1', $html );
-		self::assertStringContainsString( 'page=3', $html );
+		// `paged` is the archive query var WordPress paginates on; the earlier
+		// `page=` links were inert on archive routes.
+		self::assertStringContainsString( 'paged=1', $html );
+		self::assertStringContainsString( 'paged=3', $html );
 		self::assertStringNotContainsString( '<script', $html );
+	}
+
+	/**
+	 * Active filters render as labeled controls and follow pagination links.
+	 */
+	public function test_active_filters_render_controls_and_follow_pagination(): void {
+		$html = DiscoverySurfaces::render_listing(
+			'projects',
+			array(
+				array(
+					'title'   => 'Projeto A',
+					'url'     => '/pt-br/projetos/a/',
+					'summary' => 'Resumo A',
+					'meta'    => 'Projeto em andamento',
+				),
+			),
+			array(
+				'q'      => 'sinais',
+				'status' => array(
+					'value'   => 'active',
+					'options' => DiscoverySurfaces::filter_options( 'status', 'pt-br' ),
+				),
+			),
+			array(
+				'current'  => 1,
+				'total'    => 3,
+				'base_url' => '/pt-br/projetos/',
+			),
+			'pt-br'
+		);
+
+		// Then: the closed vocabulary is a select, the term is a search input,
+		// a clear link exists, and every page link carries the active filters.
+		self::assertStringContainsString( '<select id="lps-listing-filter-status" name="status">', $html );
+		self::assertStringContainsString( '<option value="active" selected>Em andamento</option>', $html );
+		self::assertStringContainsString( 'type="search" id="lps-listing-filter-q" name="q" value="sinais"', $html );
+		self::assertStringContainsString( 'Limpar filtros', $html );
+		self::assertStringContainsString( 'q=sinais&amp;status=active&amp;paged=2', $html );
+		self::assertStringContainsString( 'role="status"', $html );
+	}
+
+	/**
+	 * A publication record leads with its metadata line.
+	 */
+	public function test_publication_leads_with_date_venue_and_type_metadata(): void {
+		$html = DiscoverySurfaces::render_publication(
+			array(
+				'id'             => 12,
+				'title'          => 'Artigo',
+				'summary'        => 'Resumo.',
+				'abstract'       => '',
+				'date'           => '2025-03-09',
+				'date_precision' => 'day',
+				'venue'          => 'Periódico de fixture',
+				'type'           => 'journal-article',
+			),
+			array(),
+			array(),
+			'pt-br'
+		);
+
+		self::assertStringContainsString( '<time datetime="2025-03-09">9 de março de 2025</time>', $html );
+		self::assertStringContainsString( 'Periódico de fixture', $html );
+		self::assertStringContainsString( 'journal-article', $html );
+		self::assertLessThan( strpos( $html, 'lps-summary' ), strpos( $html, 'lps-meta' ) );
+		self::assertStringContainsString( 'Acesso e downloads', $html );
+		self::assertStringContainsString( 'class="lps-access"', $html );
+	}
+
+	/**
+	 * A project record announces its status and recorded date range.
+	 */
+	public function test_project_announces_status_and_recorded_date_range(): void {
+		$html = DiscoverySurfaces::render_project(
+			array(
+				'title'      => 'Projeto',
+				'summary'    => 'Resumo.',
+				'status'     => 'active',
+				'start_date' => '2024-01-15',
+				'end_date'   => '',
+			),
+			array(),
+			'pt-br'
+		);
+
+		self::assertStringContainsString( 'lps-status-success', $html );
+		self::assertStringContainsString( 'Projeto em andamento', $html );
+		self::assertStringContainsString( 'Iniciado em 15 de janeiro de 2024', $html );
+	}
+
+	/**
+	 * CSL-JSON carries the venue as the container title.
+	 */
+	public function test_csl_json_carries_the_venue_as_container_title(): void {
+		$csl = json_decode(
+			DiscoverySurfaces::csl_json(
+				array(
+					'id'    => 7,
+					'title' => 'Paper',
+					'venue' => 'Journal of Fixtures',
+				),
+				array()
+			),
+			true,
+			512,
+			JSON_THROW_ON_ERROR
+		);
+
+		self::assertIsArray( $csl );
+		self::assertSame( 'Journal of Fixtures', $csl['container-title'] );
 	}
 
 	/**
