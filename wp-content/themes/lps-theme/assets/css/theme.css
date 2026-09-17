@@ -1179,6 +1179,15 @@ details:not(.lps-shell-disclosure) > summary {
     display: grid;
   }
 
+  /* The disclosure ships closed so the mobile header stays compact; at desktop
+     the panel is always visible. Engines that hide closed details content via
+     ::details-content (content-visibility) cannot be overridden by a display
+     rule on the child, so the pseudo-element is forced visible here. Engines
+     without the pseudo-element ignore the rule and use the display rule above. */
+  .lps-shell-disclosure::details-content {
+    content-visibility: visible;
+  }
+
   .lps-primary-nav {
     grid-column: 1 / 9;
   }

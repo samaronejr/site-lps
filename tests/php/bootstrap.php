@@ -50,6 +50,63 @@ if (! function_exists('home_url')) {
 	}
 }
 
+if (! function_exists('add_filter')) {
+	/**
+	 * Mirrors the WordPress hook registry used by conditional-slot seams.
+	 *
+	 * @param string   $hook_name Hook name.
+	 * @param callable $callback  Filter callback.
+	 * @param int      $priority  Hook priority.
+	 */
+	function add_filter(string $hook_name, callable $callback, int $priority = 10): bool {
+		$GLOBALS['lps_test_hooks'][ $hook_name ][ $priority ][] = $callback;
+		return true;
+	}
+}
+
+if (! function_exists('remove_filter')) {
+	/**
+	 * Mirrors the WordPress hook removal used by conditional-slot seams.
+	 *
+	 * @param string   $hook_name Hook name.
+	 * @param callable $callback  Filter callback.
+	 * @param int      $priority  Hook priority.
+	 */
+	function remove_filter(string $hook_name, callable $callback, int $priority = 10): bool {
+		if (! isset($GLOBALS['lps_test_hooks'][ $hook_name ][ $priority ])) {
+			return false;
+		}
+		$callbacks = &$GLOBALS['lps_test_hooks'][ $hook_name ][ $priority ];
+		foreach ($callbacks as $index => $registered) {
+			if ($registered === $callback) {
+				unset($callbacks[ $index ]);
+				return true;
+			}
+		}
+		return false;
+	}
+}
+
+if (! function_exists('apply_filters')) {
+	/**
+	 * Mirrors the WordPress filter dispatcher used by conditional-slot seams.
+	 *
+	 * @param string $hook_name Hook name.
+	 * @param mixed  $value     Value to filter.
+	 * @param mixed  ...$args   Additional filter arguments.
+	 */
+	function apply_filters(string $hook_name, mixed $value, mixed ...$args): mixed {
+		$callbacks = $GLOBALS['lps_test_hooks'][ $hook_name ] ?? array();
+		ksort($callbacks);
+		foreach ($callbacks as $registered) {
+			foreach ($registered as $callback) {
+				$value = $callback($value, ...$args);
+			}
+		}
+		return $value;
+	}
+}
+
 if (! function_exists('wp_json_encode')) {
 	/**
 	 * Mirrors the WordPress JSON encoder used by structured-data seams.

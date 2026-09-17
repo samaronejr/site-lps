@@ -148,7 +148,8 @@ final class ThemeShellTest extends TestCase {
 		// Then: native links, disclosure, search, locale, landmarks, and affiliation remain available.
 		self::assertStringContainsString( 'href="#lps-main"', $header );
 		self::assertStringContainsString( '<header', $header );
-		self::assertStringContainsString( '<details class="lps-shell-disclosure" open>', $header );
+		self::assertStringContainsString( '<details class="lps-shell-disclosure">', $header );
+		self::assertStringContainsString( '<summary>', $header );
 		self::assertStringContainsString( '<nav', $header );
 		self::assertStringContainsString( 'aria-current="page"', $header );
 		self::assertStringContainsString( '<form', $header );
@@ -168,6 +169,109 @@ final class ThemeShellTest extends TestCase {
 		self::assertStringContainsString( 'aria-current="page"', $control );
 		self::assertStringContainsString( 'aria-disabled="true"', $control );
 		self::assertStringNotContainsString( 'href="/en/', $control );
+	}
+
+	/** The masthead ships the text wordmark until an approved mark is recorded. */
+	public function test_masthead_defaults_to_the_text_wordmark(): void {
+		// Given: no approved-mark artifact is cited for the logo slot.
+		// When: the header renders in either locale.
+		$portuguese = Shell::header_markup( 'pt-br', '/pt-br/' );
+		$english    = Shell::header_markup( 'en', '/en/' );
+
+		// Then: the home link carries the text wordmark and no image.
+		self::assertStringContainsString( '>LPS</a>', $portuguese );
+		self::assertStringContainsString( '>LPS</a>', $english );
+		self::assertStringNotContainsString( '<img', $portuguese );
+		self::assertStringNotContainsString( '<img', $english );
+	}
+
+	/** The approved-mark slot renders a supplied mark inside the persistent home link. */
+	public function test_masthead_mark_slot_renders_an_approved_mark(): void {
+		// Given: an approved mark supplied through the slot (approval artifact required).
+		$mark = static fn(): string => '<img src="/lps-mark.svg" width="40" height="40" alt="">';
+		add_filter( 'lps_masthead_mark', $mark );
+		try {
+			// When: the header renders.
+			$header = Shell::header_markup( 'pt-br', '/pt-br/' );
+		} finally {
+			remove_filter( 'lps_masthead_mark', $mark );
+		}
+
+		// Then: the mark replaces the wordmark text inside the persistent home link.
+		self::assertStringContainsString( '<img src="/lps-mark.svg"', $header );
+		self::assertStringNotContainsString( '>LPS</a>', $header );
+		self::assertStringContainsString( 'class="lps-wordmark"', $header );
+	}
+
+	/** Header regions keep DOM order equal to reading and focus order. */
+	public function test_header_regions_keep_dom_reading_and_focus_order(): void {
+		// Given: a rendered English header.
+		$header = Shell::header_markup( 'en', '/en/research/' );
+
+		// Then: skip link, banner, disclosure, nav, search, locale and CTA appear in order.
+		$positions = array(
+			'skip'    => strpos( $header, 'href="#lps-main"' ),
+			'banner'  => strpos( $header, '<header' ),
+			'summary' => strpos( $header, '<summary>' ),
+			'nav'     => strpos( $header, 'aria-label="Primary navigation"' ),
+			'search'  => strpos( $header, 'role="search"' ),
+			'locale'  => strpos( $header, 'aria-label="Language"' ),
+			'cta'     => strpos( $header, 'href="/en/collaborate/"' ),
+		);
+		foreach ( $positions as $position ) {
+			self::assertNotFalse( $position );
+		}
+		self::assertTrue(
+			$positions['skip'] < $positions['banner']
+			&& $positions['banner'] < $positions['summary']
+			&& $positions['summary'] < $positions['nav']
+			&& $positions['nav'] < $positions['search']
+			&& $positions['search'] < $positions['locale']
+			&& $positions['locale'] < $positions['cta']
+		);
+	}
+
+	/** The English shell localizes every control and marks the current nav item. */
+	public function test_english_header_localizes_controls_and_marks_current_item(): void {
+		// Given: an English research request.
+		$header = Shell::header_markup( 'en', '/en/research/' );
+
+		// Then: controls render in English and the current item carries aria-current.
+		self::assertStringContainsString( 'Skip to content', $header );
+		self::assertStringContainsString( 'aria-label="Primary navigation"', $header );
+		self::assertStringContainsString( 'Search the LPS website', $header );
+		self::assertStringContainsString( 'Collaborate', $header );
+		self::assertStringContainsString( 'aria-current="page" href="/en/research/"', $header );
+		self::assertStringContainsString( 'hreflang="pt-BR"', $header );
+	}
+
+	/** A missing Portuguese variant renders the same honest disabled state. */
+	public function test_absent_portuguese_variant_is_rendered_as_an_unavailable_state(): void {
+		// Given: a record with no published Portuguese variant.
+		// When: the locale control is rendered with only English available.
+		$control = Shell::locale_markup( 'en', array( 'en' => '/en/news/example/' ) );
+
+		// Then: the missing variant is a named disabled state, never a link.
+		self::assertStringContainsString( 'aria-current="page"', $control );
+		self::assertStringContainsString( 'aria-disabled="true"', $control );
+		self::assertStringContainsString( 'translation unavailable', $control );
+		self::assertStringNotContainsString( 'href="/pt-br/', $control );
+	}
+
+	/** The footer carries institutional context and four direct links, never a nav repeat. */
+	public function test_footer_carries_institutional_context_without_nav_clutter(): void {
+		// Given: the English footer.
+		$footer = Shell::footer_markup( 'en' );
+
+		// Then: affiliation context and the four utility routes render, and the
+		// primary navigation is not duplicated.
+		self::assertStringContainsString( 'Federal University of Rio de Janeiro', $footer );
+		self::assertStringContainsString( 'href="/en/contact/"', $footer );
+		self::assertStringContainsString( 'href="/en/events/"', $footer );
+		self::assertStringContainsString( 'href="/en/privacy/"', $footer );
+		self::assertStringContainsString( 'href="/en/accessibility/"', $footer );
+		self::assertStringNotContainsString( '/en/research/', $footer );
+		self::assertStringNotContainsString( '/en/publications/', $footer );
 	}
 
 	/** A listing breadcrumb names the listing, never a record in its loop. */

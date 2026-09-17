@@ -195,13 +195,19 @@ describe("LPS block theme contract", () => {
     expect(license).toContain("SIL OPEN FONT LICENSE Version 1.1");
   });
 
-  test("renders the native shell disclosure open so desktop and no-JS controls stay available", () => {
-    // Given: the server-rendered global shell implementation.
-    // When: its disclosure markup is inspected before any client behavior runs.
+  test("renders the native shell disclosure closed on mobile and always open on desktop", () => {
+    // Given: the server-rendered global shell implementation and stylesheet.
+    // When: the disclosure markup and its desktop override are inspected.
     const shell = read("includes/class-shell.php");
+    const css = read("assets/css/theme.css");
 
-    // Then: native descendants remain exposed in every browser and without JavaScript.
-    expect(shell).toContain('<details class="lps-shell-disclosure" open>');
+    // Then: the disclosure ships closed so the mobile header stays compact, the
+    // native summary toggles it without JavaScript, and the desktop rules keep
+    // the panel visible under both the legacy and the ::details-content model.
+    expect(shell).toContain('<details class="lps-shell-disclosure">');
+    expect(shell).not.toContain('class="lps-shell-disclosure" open');
+    expect(css).toContain(".lps-shell-disclosure:not([open]) > .lps-nav-panel");
+    expect(css).toContain(".lps-shell-disclosure::details-content");
   });
 
   test("locks the global structure while preserving editable post content", () => {

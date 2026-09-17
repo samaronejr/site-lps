@@ -107,6 +107,12 @@ async function capture(state) {
   await ready(page);
   if (state.zoom) await page.evaluate(() => (document.documentElement.style.zoom = "2"));
 
+  // The disclosure ships closed so the mobile header stays compact; opening it
+  // is a native toggle that needs no JavaScript, so the no-JS capture performs
+  // it before measuring the reachable controls.
+  if (state.openDisclosure) {
+    await page.locator(".lps-shell-disclosure > summary").click();
+  }
   const metrics = await pageMetrics(page);
   const accessibility = await page.locator("body").ariaSnapshot();
   const axe = state.javaScriptEnabled === false ? null : await new AxeBuilder({ page }).analyze();
@@ -212,6 +218,7 @@ for (const state of [
     width: 375,
     height: 812,
     javaScriptEnabled: false,
+    openDisclosure: true,
     mode: "no-js",
   },
   {
@@ -245,7 +252,8 @@ observe(actionPage, "global-actions");
 await actionPage.goto(`${baseURL}/pt-br/`, { waitUntil: "domcontentloaded" });
 await ready(actionPage);
 const summary = actionPage.locator(".lps-shell-disclosure > summary");
-await summary.click();
+// The disclosure ships closed so the mobile header stays compact; one
+// activation must open it natively, without JavaScript.
 await summary.click();
 actions.push({
   control: "native menu disclosure",
@@ -254,8 +262,8 @@ actions.push({
     .locator(".lps-shell-disclosure")
     .evaluate((node) => node.hasAttribute("open")),
 });
+await summary.click();
 await summary.focus();
-await summary.press("Enter");
 await summary.press("Enter");
 actions.push({
   control: "native menu disclosure",

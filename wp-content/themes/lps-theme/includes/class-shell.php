@@ -91,14 +91,33 @@ final class Shell {
 				'en'    => '/en/',
 			)
 		);
+		$mark           = self::masthead_mark();
 		return '<a class="lps-skip-link" href="#lps-main">' . self::escape( $skip ) . '</a>'
 			. '<header class="lps-site-header">'
 			. '<div class="lps-affiliation lps-page-grid"><p lang="pt-BR">Laboratório de Processamento de Sinais <span aria-hidden="true">/</span> UFRJ <span aria-hidden="true">/</span> COPPE</p><p class="lps-meta" lang="pt-BR">Universidade Federal do Rio de Janeiro</p></div>'
-			. '<div class="lps-masthead lps-page-grid"><a class="lps-wordmark" href="' . $home . '" aria-label="LPS — ' . ( $english ? 'home' : 'início' ) . '">LPS</a><p' . ( $english ? '' : ' lang="pt-BR"' ) . '>' . ( $english ? 'Signal Processing Laboratory' : 'Laboratório de Processamento de Sinais' ) . '</p></div>'
-			. '<details class="lps-shell-disclosure" open><summary>' . self::escape( $menu ) . '</summary><div class="lps-nav-panel lps-page-grid">'
+			. '<div class="lps-masthead lps-page-grid"><a class="lps-wordmark" href="' . $home . '" aria-label="LPS — ' . ( $english ? 'home' : 'início' ) . '">' . ( '' !== $mark ? $mark : 'LPS' ) . '</a><p' . ( $english ? '' : ' lang="pt-BR"' ) . '>' . ( $english ? 'Signal Processing Laboratory' : 'Laboratório de Processamento de Sinais' ) . '</p></div>'
+			. '<details class="lps-shell-disclosure"><summary>' . self::escape( $menu ) . '</summary><div class="lps-nav-panel lps-page-grid">'
 			. '<nav class="lps-primary-nav" aria-label="' . self::escape( $nav_label ) . '"><ul>' . $items . '</ul></nav>'
 			. '<div class="lps-shell-tools"><form class="lps-search" role="search" action="' . $home . '" method="get"><label for="lps-search-input">' . self::escape( $search_label ) . '</label><div><input id="lps-search-input" name="s" type="search" autocomplete="off"><button type="submit">' . self::escape( $search_button ) . '</button></div></form>'
 			. $locale_control . '<a class="lps-button lps-button-primary" href="' . $collaborate_url . '">' . self::escape( $collaborate ) . '</a></div></div></details></header>';
+	}
+
+	/**
+	 * Returns the approved institutional mark for the masthead slot, if one exists.
+	 *
+	 * The header ships the text wordmark by default: `lps_logo_vector.svg` is
+	 * unapproved, and a mark may render only after a written owner-approval
+	 * artifact is cited in the redesign evidence (DESIGN.md accepted debt). The
+	 * `lps_masthead_mark` filter is the conditional slot for that approval path;
+	 * a returned value replaces the wordmark text inside the persistent home
+	 * link, so the link keeps its accessible name either way.
+	 */
+	private static function masthead_mark(): string {
+		if ( ! function_exists( 'apply_filters' ) ) {
+			return '';
+		}
+		$mark = apply_filters( 'lps_masthead_mark', '' );
+		return is_string( $mark ) ? $mark : '';
 	}
 
 	/**
