@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace LPS\ContentModel;
 
+require_once __DIR__ . '/class-teachingcontracts.php';
+
 /** Defines canonical relationship direction, shape, cardinality, and identifier rules. */
 final class RelationshipPolicy {
 	/**
@@ -73,6 +75,36 @@ final class RelationshipPolicy {
 				'target_types' => array( 'lps_publication' ),
 				'roles'        => array( 'preprint-of', 'final-of', 'version-of', 'correction-of' ),
 			),
+			'offering_course'        => array(
+				'source_types' => array( 'lps_offering' ),
+				'target_types' => array( 'lps_course' ),
+				'roles'        => array( 'instance-of' ),
+			),
+			'offering_term'          => array(
+				'source_types' => array( 'lps_offering' ),
+				'target_types' => array( 'lps_term' ),
+				'roles'        => array( 'scheduled-in' ),
+			),
+			'teaching_team'          => array(
+				'source_types' => array( 'lps_offering' ),
+				'target_types' => array( 'lps_person' ),
+				'roles'        => array( 'lead', 'co-teacher', 'assistant' ),
+			),
+			'unit_offering'          => array(
+				'source_types' => array( 'lps_unit' ),
+				'target_types' => array( 'lps_offering' ),
+				'roles'        => array( 'part-of' ),
+			),
+			'resource_offering'      => array(
+				'source_types' => array( 'lps_resource' ),
+				'target_types' => array( 'lps_offering' ),
+				'roles'        => array( 'attached-to' ),
+			),
+			'resource_unit'          => array(
+				'source_types' => array( 'lps_resource' ),
+				'target_types' => array( 'lps_unit' ),
+				'roles'        => array( 'supports' ),
+			),
 		);
 	}
 
@@ -91,6 +123,12 @@ final class RelationshipPolicy {
 			'person_supervised_opportunity'  => 'opportunity_supervisor',
 			'project_publication'            => 'publication_project',
 			'research_area_record'           => 'research_area',
+			'course_offering'                => 'offering_course',
+			'term_offering'                  => 'offering_term',
+			'person_teaching'                => 'teaching_team',
+			'offering_unit'                  => 'unit_offering',
+			'offering_resource'              => 'resource_offering',
+			'unit_resource'                  => 'resource_unit',
 		);
 	}
 
@@ -261,6 +299,9 @@ final class RelationshipPolicy {
 				$errors[] = 'lps_too_many_secondary_research_areas';
 			}
 		}
+		if ( in_array( $relationship_type, array( 'offering_course', 'offering_term', 'teaching_team', 'unit_offering', 'resource_offering', 'resource_unit' ), true ) ) {
+			$errors = array_merge( $errors, TeachingContracts::relationship_errors( $relationship_type, $normalized ) );
+		}
 		return array_values( array_unique( $errors ) );
 	}
 
@@ -378,6 +419,12 @@ final class RelationshipPolicy {
 			'_lps_supervisor_ids',
 			'_lps_speaker_ids',
 			'_lps_organizer_ids',
+			'_lps_course_ids',
+			'_lps_term_ids',
+			'_lps_offering_ids',
+			'_lps_unit_ids',
+			'_lps_resource_ids',
+			'_lps_teaching_team_ids',
 		);
 	}
 
@@ -396,6 +443,12 @@ final class RelationshipPolicy {
 			'_lps_organized_event_ids',
 			'_lps_supervised_opportunity_ids',
 			'_lps_related_from_ids',
+			'_lps_offering_course_ids',
+			'_lps_offering_term_ids',
+			'_lps_teaching_offering_ids',
+			'_lps_unit_offering_ids',
+			'_lps_resource_offering_ids',
+			'_lps_unit_resource_ids',
 		);
 	}
 

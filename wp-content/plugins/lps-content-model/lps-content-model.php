@@ -29,6 +29,8 @@ require_once __DIR__ . '/includes/class-securitypolicy.php';
 require_once __DIR__ . '/includes/class-taxonomies.php';
 require_once __DIR__ . '/includes/class-relationshippolicy.php';
 require_once __DIR__ . '/includes/class-migrations.php';
+require_once __DIR__ . '/includes/class-teachingcontracts.php';
+require_once __DIR__ . '/includes/class-teachingmigrations.php';
 require_once __DIR__ . '/includes/class-relationships.php';
 require_once __DIR__ . '/includes/class-translationpolicy.php';
 require_once __DIR__ . '/includes/class-contracts.php';

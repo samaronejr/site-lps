@@ -46,19 +46,31 @@
   "prerequisites": [
     {
       "doc": "README.md",
-      "tokens": ["npm ci", "npm run env:start", "tools/composer install"]
+      "tokens": [
+        "npm ci",
+        "npm run env:start",
+        "tools/composer install"
+      ]
     },
     {
       "doc": "docs/handbook/editorial-quick-start.md",
-      "tokens": ["_lps_assigned_collections", "Two-Factor"]
+      "tokens": [
+        "_lps_assigned_collections",
+        "Two-Factor"
+      ]
     },
     {
       "doc": "docs/handbook/role-workflows.md",
-      "tokens": ["npm run test", "tools/composer test"]
+      "tokens": [
+        "npm run test",
+        "tools/composer test"
+      ]
     },
     {
       "doc": "docs/handbook/translation-freshness.md",
-      "tokens": ["_lps_source_hash"]
+      "tokens": [
+        "_lps_source_hash"
+      ]
     },
     {
       "doc": "docs/handbook/publication-import-guide.md",
@@ -70,27 +82,41 @@
     },
     {
       "doc": "docs/handbook/role-acceptance-simulations.md",
-      "tokens": ["npx playwright test --list"]
+      "tokens": [
+        "npx playwright test --list"
+      ]
     },
     {
       "doc": "docs/operations/privacy-security-operations.md",
-      "tokens": ["npm run build"]
+      "tokens": [
+        "npm run build"
+      ]
     },
     {
       "doc": "docs/operations/plugin-update-policy.md",
-      "tokens": ["npm ci", "tools/composer install"]
+      "tokens": [
+        "npm ci",
+        "tools/composer install"
+      ]
     },
     {
       "doc": "docs/operations/release-runbook-index.md",
-      "tokens": ["npm run build"]
+      "tokens": [
+        "npm run build"
+      ]
     },
     {
       "doc": "docs/operations/troubleshooting.md",
-      "tokens": ["npm ci", "npm run env:start"]
+      "tokens": [
+        "npm ci",
+        "npm run env:start"
+      ]
     },
     {
       "doc": "docs/operations/evidence-retention.md",
-      "tokens": [".omo/evidence/"]
+      "tokens": [
+        ".omo/evidence/"
+      ]
     }
   ],
   "freshness": [
@@ -98,12 +124,12 @@
       "id": "content-model-contract",
       "kind": "source",
       "doc": "docs/content/data-dictionary.md",
-      "reviewedAt": "2026-09-06",
+      "reviewedAt": "2026-09-18",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
-          "sha256": "fd24b4726d612fb72f107523478100e2f45a8a2e71cb2ef6dae1ff55b0434759"
+          "sha256": "fc72a9a1e461f54140d2d311d3fc1d092f6fab6f975d89c1cb8a8ba0d36e10a7"
         }
       ]
     },
@@ -124,12 +150,12 @@
       "id": "translation-en-editorial-fields",
       "kind": "translation",
       "doc": "docs/handbook/translation-freshness.md",
-      "reviewedAt": "2026-09-06",
+      "reviewedAt": "2026-09-18",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-translationpolicy.php",
-          "sha256": "418dcb111c238b4cbc103782d82ef673df5f87f5c567e1729a37bd662238c0d6"
+          "sha256": "cabc5ace5cd59fd3bf89c1fd090acf67c895a1350505778f35eec53d514d2d30"
         }
       ]
     },
@@ -154,12 +180,12 @@
       "id": "governance-matrix",
       "kind": "source",
       "doc": "docs/handbook/editorial-quick-start.md",
-      "reviewedAt": "2026-09-06",
+      "reviewedAt": "2026-09-18",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "tests/fixtures/governance/role-collection-matrix.json",
-          "sha256": "37b65f0aae8a28524dc3b8a3363eb1c0f2dc2aa1bfe5284eaadfb83c02581227"
+          "sha256": "02be283d10b92808239f64122ddadbba862db0f7db5d979a9d098dac10c20e48"
         }
       ]
     },

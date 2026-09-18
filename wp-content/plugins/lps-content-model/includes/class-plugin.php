@@ -68,6 +68,9 @@ final class Plugin {
 				add_post_type_support( 'page', 'custom-fields' );
 				continue;
 			}
+			if ( in_array( $post_type, TeachingContracts::POST_TYPES, true ) ) {
+				continue;
+			}
 			$args = $definition;
 			unset( $args['builtin'] );
 			$args['menu_icon']       = 'dashicons-media-document';
@@ -83,6 +86,7 @@ final class Plugin {
 			register_post_type( $post_type, $args );
 		}
 
+		TeachingContracts::register();
 		Taxonomies::register();
 		Media::register();
 
@@ -140,6 +144,7 @@ final class Plugin {
 			update_option( self::SCHEMA_OPTION, Contracts::VERSION, false );
 		}
 		Migrations::apply();
+		TeachingMigrations::apply();
 		SearchIndex::install();
 	}
 
@@ -240,7 +245,7 @@ final class Plugin {
 			}
 			$record                 = array_merge( $meta, $data );
 			$relationship_source_id = Translations::source_id( $post_id ) ?? $post_id;
-			$errors                 = array_merge( Policy::publish_errors( $post_type, $record ), Relationships::publish_errors( $post_type, $relationship_source_id ) );
+			$errors                 = array_merge( Policy::publish_errors( $post_type, $record ), Relationships::publish_errors( $post_type, $relationship_source_id ), TeachingContracts::publish_errors( $post_type, $record ) );
 			if ( ! empty( $errors ) ) {
 				self::$pending_errors[ $post_id ] = $errors;
 				$data['post_status']              = $update ? Policy::scalar_string( get_post_status( $post_id ) ) : 'draft';
@@ -343,7 +348,7 @@ final class Plugin {
 			);
 
 			$relationship_source_id = Translations::source_id( $post_id ) ?? $post_id;
-			$errors                 = array_merge( Policy::publish_errors( $post_type, $record ), Relationships::publish_errors( $post_type, $relationship_source_id ) );
+			$errors                 = array_merge( Policy::publish_errors( $post_type, $record ), Relationships::publish_errors( $post_type, $relationship_source_id ), TeachingContracts::publish_errors( $post_type, $record ) );
 			if ( ! empty( $errors ) ) {
 				$code  = reset( $errors );
 				$field = (string) array_key_first( $errors );
@@ -363,6 +368,11 @@ final class Plugin {
 	 * @return mixed
 	 */
 	public static function protect_identity_meta( mixed $check, int $object_id, string $meta_key, mixed $meta_value ): mixed {
+		if ( '_lps_term_token' === $meta_key ) {
+			$stored    = Policy::scalar_string( get_post_meta( $object_id, $meta_key, true ) );
+			$candidate = Policy::scalar_string( $meta_value );
+			return '' === $stored || hash_equals( $stored, $candidate ) ? $check : false;
+		}
 		if ( '_lps_record_id' !== $meta_key ) {
 			return $check;
 		}
@@ -439,6 +449,28 @@ final class Plugin {
 		update_post_meta( $post_id, '_lps_state', '' === $state ? 'draft' : $state );
 		if ( 'publish' === $post->post_status && '' === Policy::scalar_string( get_post_meta( $post_id, '_lps_published_slug', true ) ) ) {
 			update_post_meta( $post_id, '_lps_published_slug', $post->post_name );
+		}
+		if ( 'lps_term' === $post->post_type && '' === Policy::scalar_string( get_post_meta( $post_id, '_lps_term_token', true ) ) ) {
+			$token = TeachingContracts::term_token(
+				get_post_meta( $post_id, '_lps_calendar_key', true ),
+				get_post_meta( $post_id, '_lps_term_code', true )
+			);
+			if ( '' !== $token ) {
+				update_post_meta( $post_id, '_lps_term_token', $token );
+			}
+		}
+		if ( 'lps_offering' === $post->post_type ) {
+			$term_rows = Relationships::for_source( $post_id, 'offering_term' );
+			$term_id   = Policy::sanitize_integer( $term_rows[0]['target_post_id'] ?? 0 );
+			$status    = 0 < $term_id ? TeachingContracts::temporal_status(
+				get_post_meta( $term_id, '_lps_starts_on', true ),
+				get_post_meta( $term_id, '_lps_ends_on', true ),
+				get_post_meta( $post_id, '_lps_cancelled', true ),
+				TeachingContracts::today()
+			) : '';
+			if ( '' !== $status ) {
+				update_post_meta( $post_id, '_lps_temporal_status', $status );
+			}
 		}
 	}
 

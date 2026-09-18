@@ -13,7 +13,7 @@ require_once __DIR__ . '/class-trustsurfacepolicy.php';
 
 /** Domain validation and boundary sanitization policy. */
 final class Policy {
-	private const RECORD_ID_PATTERN = '/^lps:(page|person|organization|research-area|project|publication|news|opportunity|event|redirect):[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/';
+	private const RECORD_ID_PATTERN = '/^lps:(page|person|organization|research-area|project|publication|news|opportunity|event|redirect|course|term|offering|unit|resource):[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/';
 
 	/**
 	 * Sanitizes an immutable record identifier.
@@ -152,12 +152,16 @@ final class Policy {
 	 * @return array<string, string>
 	 */
 	public static function publish_errors( string $post_type, array $record ): array {
-		$errors = array();
-		foreach ( array(
-			'post_title'   => 'title',
-			'post_excerpt' => 'summary',
-			'post_content' => 'body',
-		) as $key => $label ) {
+		$errors         = array();
+		$body_required  = ! in_array( $post_type, array( 'lps_term', 'lps_unit', 'lps_resource' ), true );
+		$required_posts = $body_required
+			? array(
+				'post_title'   => 'title',
+				'post_excerpt' => 'summary',
+				'post_content' => 'body',
+			)
+			: array( 'post_title' => 'title' );
+		foreach ( $required_posts as $key => $label ) {
 			if ( '' === trim( self::scalar_string( $record[ $key ] ?? '' ) ) ) {
 				$errors[ $key ] = 'lps_required_' . $label;
 			}

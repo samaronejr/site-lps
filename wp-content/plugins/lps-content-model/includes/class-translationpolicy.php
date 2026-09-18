@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace LPS\ContentModel;
 
+require_once __DIR__ . '/class-teachingcontracts.php';
+
 /** Defines locale, authority, freshness, shared-data, and reporting rules without WordPress state. */
 final class TranslationPolicy {
 	public const SOURCE_LOCALE = 'pt-br';
@@ -68,7 +70,7 @@ final class TranslationPolicy {
 		if ( 'page' === $post_type ) {
 			return in_array( $page_key, array( 'home', 'about', 'research', 'projects', 'people', 'publications', 'infrastructure', 'opportunities', 'collaboration', 'contact', 'privacy', 'accessibility' ), true );
 		}
-		return in_array( $post_type, array( 'lps_person', 'lps_research_area', 'lps_project', 'lps_publication', 'lps_opportunity' ), true );
+		return in_array( $post_type, array( 'lps_person', 'lps_research_area', 'lps_project', 'lps_publication', 'lps_opportunity', 'lps_course', 'lps_offering' ), true );
 	}
 
 	/**
@@ -89,7 +91,7 @@ final class TranslationPolicy {
 			'lps_opportunity'   => array( '_lps_opportunity_type', '_lps_audiences', '_lps_opens_at', '_lps_closes_at', '_lps_positions', '_lps_project_ids', '_lps_supervisor_ids', '_lps_funder_ids', '_lps_mode' ),
 			'lps_event'         => array( '_lps_starts_at', '_lps_ends_at', '_lps_event_status', '_lps_online_url', '_lps_registration_url', '_lps_recording_url' ),
 		);
-		return array_values( array_unique( array_merge( $common, $by_type[ $post_type ] ?? array() ) ) );
+		return array_values( array_unique( array_merge( $common, $by_type[ $post_type ] ?? array(), TeachingContracts::shared_specific_keys( $post_type ) ) ) );
 	}
 
 	/**
@@ -102,6 +104,9 @@ final class TranslationPolicy {
 		return match ( $post_type ) {
 			'lps_opportunity' => array( '_lps_opens_at', '_lps_closes_at', '_lps_opportunity_type' ),
 			'lps_event' => array( '_lps_starts_at', '_lps_ends_at', '_lps_event_status' ),
+			'lps_term' => array( '_lps_starts_on', '_lps_ends_on' ),
+			'lps_offering' => array( '_lps_cancelled', '_lps_schedule' ),
+			'lps_resource' => array( '_lps_release_state', '_lps_release_at', '_lps_withdrawn_at', '_lps_version_id', '_lps_external_url' ),
 			default => array(),
 		};
 	}
