@@ -34,6 +34,13 @@ final class Reports {
 			'lps-audit-history',
 			array( self::class, 'render_audit' )
 		);
+		add_management_page(
+			__( 'Origin reconciliation', 'lps-content-model' ),
+			__( 'Origin reconciliation', 'lps-content-model' ),
+			SecurityPolicy::capability( 'review' ),
+			'lps-origin-reconciliation',
+			array( self::class, 'render_origin_reconciliation' )
+		);
 	}
 
 	/**
@@ -93,6 +100,38 @@ final class Reports {
 		echo '<table class="widefat striped"><thead><tr><th>ID</th><th>' . esc_html__( 'Actor', 'lps-content-model' ) . '</th><th>' . esc_html__( 'Time', 'lps-content-model' ) . '</th><th>' . esc_html__( 'Action', 'lps-content-model' ) . '</th><th>' . esc_html__( 'Object / revision', 'lps-content-model' ) . '</th></tr></thead><tbody>';
 		foreach ( Audit::entries() as $row ) {
 			echo '<tr><td>' . esc_html( (string) $row['audit_id'] ) . '</td><td>' . esc_html( (string) $row['actor_user_id'] ) . '</td><td>' . esc_html( (string) $row['occurred_at'] ) . '</td><td>' . esc_html( (string) $row['action'] ) . '</td><td>' . esc_html( (string) $row['object_id'] . ' / ' . (string) $row['revision_id'] ) . '</td></tr>';
+		}
+		echo '</tbody></table></div>';
+	}
+
+	/**
+	 * Renders the ambiguous-origin reconciliation queue.
+	 *
+	 * The report is a review queue, never an automatic trust decision: rows
+	 * are classified by `PublicationPolicy::reconciliation_class()` and an
+	 * editor must reconcile each record deliberately. Ambiguous records are
+	 * already withheld from every public surface by the unified visibility
+	 * decision, so listing them here changes nothing about their trust.
+	 */
+	public static function render_origin_reconciliation(): void {
+		if ( ! current_user_can( SecurityPolicy::capability( 'review' ) ) ) {
+			wp_die( esc_html__( 'You cannot review record origins.', 'lps-content-model' ), '', array( 'response' => 403 ) );
+		}
+		$rows   = class_exists( PublicationRecords::class ) ? PublicationRecords::origin_reconciliation() : array();
+		$labels = array(
+			'ambiguous'         => __( 'Ambiguous origin — review required', 'lps-content-model' ),
+			'conflict'          => __( 'Native claim conflicts with import provenance', 'lps-content-model' ),
+			'unreviewed-import' => __( 'Imported record without completed review', 'lps-content-model' ),
+		);
+		echo '<div class="wrap"><h1>' . esc_html__( 'Origin reconciliation', 'lps-content-model' ) . '</h1>';
+		echo '<p>' . esc_html__( 'Records whose provenance needs an editorial decision. Reconciling a record here is a deliberate review action; nothing on this page grants trust automatically.', 'lps-content-model' ) . '</p>';
+		echo '<table class="widefat striped"><thead><tr><th>' . esc_html__( 'Queue', 'lps-content-model' ) . '</th><th>' . esc_html__( 'Type', 'lps-content-model' ) . '</th><th>' . esc_html__( 'Record', 'lps-content-model' ) . '</th><th>' . esc_html__( 'Resolved origin', 'lps-content-model' ) . '</th></tr></thead><tbody>';
+		foreach ( $rows as $row ) {
+			$label = $labels[ $row['action'] ] ?? $row['action'];
+			echo '<tr><td><code>' . esc_html( $row['action'] ) . '</code> ' . esc_html( $label ) . '</td><td>' . esc_html( $row['post_type'] ) . '</td><td>' . esc_html( $row['title'] ) . ' (#' . esc_html( (string) $row['post_id'] ) . ')</td><td><code>' . esc_html( $row['origin'] ) . '</code></td></tr>';
+		}
+		if ( array() === $rows ) {
+			echo '<tr><td colspan="4">' . esc_html__( 'No records need origin reconciliation.', 'lps-content-model' ) . '</td></tr>';
 		}
 		echo '</tbody></table></div>';
 	}

@@ -125,6 +125,15 @@ final class TranslationPolicy {
 	/**
 	 * Hashes only editor-owned, translatable Portuguese source fields.
 	 *
+	 * Staleness is field-specific. For teaching record types the hash covers
+	 * exactly the localized (per-variant editorial) fields declared by
+	 * `TeachingContracts::field_ownership()`: a shared schedule, term boundary,
+	 * release state, or file/version identifier never forces a meaningless
+	 * re-translation, and authored-language resources never require translated
+	 * file bytes. For the pre-existing record types the hash keeps its
+	 * established coverage — every non-shared, non-system `_lps_` field — so
+	 * reviewed hashes already stored for those records stay valid.
+	 *
 	 * @param string               $post_type Governed record type.
 	 * @param array<string, mixed> $record    Source record.
 	 */
@@ -133,12 +142,18 @@ final class TranslationPolicy {
 		foreach ( array( 'post_title', 'post_excerpt', 'post_content' ) as $field ) {
 			$relevant[ $field ] = self::normalize_hash_value( $record[ $field ] ?? '' );
 		}
-		$shared = self::shared_meta_keys( $post_type );
-		foreach ( $record as $key => $value ) {
-			if ( ! str_starts_with( $key, '_lps_' ) || in_array( $key, $shared, true ) || in_array( $key, array( '_lps_locale', '_lps_state', '_lps_created_at', '_lps_updated_at', '_lps_archived_at', '_lps_published_slug', '_lps_source_revision', '_lps_source_hash', '_lps_reviewed_source_hash', '_lps_translation_reviewed_at' ), true ) ) {
-				continue;
+		if ( in_array( $post_type, TeachingContracts::POST_TYPES, true ) ) {
+			foreach ( TeachingContracts::localized_meta_keys( $post_type ) as $key ) {
+				$relevant[ $key ] = self::normalize_hash_value( $record[ $key ] ?? '' );
 			}
-			$relevant[ $key ] = self::normalize_hash_value( $value );
+		} else {
+			$shared = self::shared_meta_keys( $post_type );
+			foreach ( $record as $key => $value ) {
+				if ( ! str_starts_with( $key, '_lps_' ) || in_array( $key, $shared, true ) || in_array( $key, array( '_lps_origin', '_lps_locale', '_lps_state', '_lps_created_at', '_lps_updated_at', '_lps_archived_at', '_lps_published_slug', '_lps_source_revision', '_lps_source_hash', '_lps_reviewed_source_hash', '_lps_translation_reviewed_at' ), true ) ) {
+					continue;
+				}
+				$relevant[ $key ] = self::normalize_hash_value( $value );
+			}
 		}
 		ksort( $relevant, SORT_STRING );
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- Portable policy is loaded without WordPress by unit consumers.

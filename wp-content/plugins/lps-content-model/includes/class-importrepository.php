@@ -115,6 +115,10 @@ final class ImportRepository {
 		$meta['_lps_import_review_state']    = self::text( $record['review_state'] ?? '' );
 		$meta['_lps_import_reviewed_fields'] = is_array( $record['reviewed_fields'] ?? null ) ? $record['reviewed_fields'] : array();
 		$meta['_lps_import_fingerprint']     = $fingerprint;
+		// The import boundary owns the origin claim: real provenance means the
+		// record is imported, never native, and the write stays last so the
+		// provenance keys above are already stored when it is evaluated.
+		$meta['_lps_origin'] = 'imported';
 		foreach ( $meta as $key => $value ) {
 			update_post_meta( $post_id, (string) $key, $value );
 		}

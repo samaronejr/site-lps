@@ -13,6 +13,8 @@ use WP_Error;
 use WP_Post;
 use WP_REST_Request;
 
+require_once __DIR__ . '/class-publicationpolicy.php';
+
 /** WordPress adapter for the portable content contracts. */
 final class Plugin {
 	private const SCHEMA_OPTION = 'lps_content_model_schema_version';
@@ -243,6 +245,12 @@ final class Plugin {
 				$data['post_status']                             = $update ? Policy::scalar_string( get_post_status( $post_id ) ) : 'draft';
 				return $data;
 			}
+			$origin_error = PublicationPolicy::origin_consistency_error( $meta );
+			if ( null !== $origin_error ) {
+				self::$pending_errors[ $post_id ]['_lps_origin'] = $origin_error;
+				$data['post_status']                             = $update ? Policy::scalar_string( get_post_status( $post_id ) ) : 'draft';
+				return $data;
+			}
 			$record                 = array_merge( $meta, $data );
 			$relationship_source_id = Translations::source_id( $post_id ) ?? $post_id;
 			$errors                 = array_merge( Policy::publish_errors( $post_type, $record ), Relationships::publish_errors( $post_type, $relationship_source_id ), TeachingContracts::publish_errors( $post_type, $record ) );
@@ -328,6 +336,15 @@ final class Plugin {
 			}
 		}
 
+		if ( isset( $incoming['_lps_origin'] ) ) {
+			$origin_error = 'en' === $locale
+				? 'lps_origin_variant_forbidden'
+				: PublicationPolicy::origin_write_error( Policy::scalar_string( get_post_meta( $post_id, '_lps_origin', true ) ), Policy::scalar_string( $incoming['_lps_origin'] ), $meta );
+			if ( null !== $origin_error ) {
+				return self::error( $origin_error, 'The record origin cannot be written this way.', '_lps_origin' );
+			}
+		}
+
 		$translation_input = array_merge( $incoming, array( 'lang' => $request->get_param( 'lang' ) ) );
 		$requested_status  = isset( $prepared->post_status ) && is_string( $prepared->post_status ) ? $prepared->post_status : Policy::scalar_string( $request->get_param( 'status' ) );
 		$requested_status  = '' === $requested_status && 0 < $post_id ? Policy::scalar_string( get_post_status( $post_id ) ) : $requested_status;
@@ -337,6 +354,10 @@ final class Plugin {
 		}
 
 		if ( 'publish' === $requested_status ) {
+			$origin_error = PublicationPolicy::origin_consistency_error( $meta );
+			if ( null !== $origin_error ) {
+				return self::error( $origin_error, 'The record origin conflicts with its stored provenance.', '_lps_origin' );
+			}
 			$stored_post = 0 < $post_id ? get_post( $post_id ) : null;
 			$record      = array_merge(
 				$meta,
@@ -368,6 +389,24 @@ final class Plugin {
 	 * @return mixed
 	 */
 	public static function protect_identity_meta( mixed $check, int $object_id, string $meta_key, mixed $meta_value ): mixed {
+		if ( '_lps_origin' === $meta_key ) {
+			// An English variant never carries its own origin: provenance lives
+			// on the Portuguese authority and is read from there.
+			if ( 'en' === Translations::locale( $object_id ) ) {
+				return false;
+			}
+			$stored = Policy::scalar_string( get_post_meta( $object_id, '_lps_origin', true ) );
+			$record = array();
+			foreach ( PublicationPolicy::decision_meta_keys() as $key ) {
+				$record[ $key ] = get_post_meta( $object_id, $key, true );
+			}
+			$candidate = Policy::scalar_string( $meta_value );
+			return null === PublicationPolicy::origin_write_error( $stored, $candidate, $record ) ? $check : false;
+		}
+		if ( 'en' === Translations::locale( $object_id ) && in_array( $meta_key, PublicationPolicy::english_forbidden_provenance_keys(), true ) ) {
+			// A variant cannot mint import provenance or a Crossref identity.
+			return false;
+		}
 		if ( '_lps_term_token' === $meta_key ) {
 			$stored    = Policy::scalar_string( get_post_meta( $object_id, $meta_key, true ) );
 			$candidate = Policy::scalar_string( $meta_value );
@@ -440,6 +479,21 @@ final class Plugin {
 			$prefix = str_replace( 'lps_', '', $post->post_type );
 			$prefix = str_replace( '_', '-', $prefix );
 			update_post_meta( $post_id, '_lps_record_id', 'lps:' . $prefix . ':' . wp_generate_uuid4() );
+		}
+		if ( '' === Policy::scalar_string( get_post_meta( $post_id, '_lps_origin', true ) ) ) {
+			$provenance = array();
+			foreach ( PublicationPolicy::decision_meta_keys() as $key ) {
+				$provenance[ $key ] = get_post_meta( $post_id, $key, true );
+			}
+			if ( PublicationPolicy::has_import_provenance( $provenance ) ) {
+				// Real provenance always resolves to imported, even on legacy saves.
+				update_post_meta( $post_id, '_lps_origin', PublicationPolicy::ORIGIN_IMPORTED );
+			} elseif ( ! $update ) {
+				// Only genuinely new records are marked native; a legacy record
+				// saved without provenance stays ambiguous and is reported, never
+				// automatically trusted.
+				update_post_meta( $post_id, '_lps_origin', PublicationPolicy::ORIGIN_NATIVE );
+			}
 		}
 		if ( ! $update || '' === Policy::scalar_string( get_post_meta( $post_id, '_lps_created_at', true ) ) ) {
 			update_post_meta( $post_id, '_lps_created_at', $now );
@@ -564,7 +618,7 @@ final class Plugin {
 				continue;
 			}
 			$value    = get_post_meta( $post->ID, $key, true );
-			$readonly = '_lps_record_id' === $key || '_lps_published_slug' === $key || str_ends_with( $key, '_at' ) || str_starts_with( $key, '_lps_source_' ) || str_starts_with( $key, '_lps_reviewed_source_' ) || '_lps_translation_reviewer_id' === $key;
+			$readonly = '_lps_record_id' === $key || '_lps_published_slug' === $key || '_lps_origin' === $key || str_ends_with( $key, '_at' ) || str_starts_with( $key, '_lps_source_' ) || str_starts_with( $key, '_lps_reviewed_source_' ) || str_starts_with( $key, '_lps_import_' ) || str_starts_with( $key, '_lps_crossref_' ) || '_lps_translation_reviewer_id' === $key;
 			$id       = 'lps-field-' . sanitize_html_class( $key );
 			echo '<p><label for="' . esc_attr( $id ) . '"><strong>' . esc_html( (string) $definition['description'] ) . '</strong></label><br>';
 			if ( 'boolean' === $definition['type'] ) {
@@ -598,7 +652,7 @@ final class Plugin {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Each typed value uses its registered sanitizer below.
 		$submitted = isset( $_POST['lps_meta'] ) && is_array( $_POST['lps_meta'] ) ? wp_unslash( $_POST['lps_meta'] ) : array();
 		foreach ( Contracts::meta_fields()[ $post->post_type ] as $key => $definition ) {
-			if ( '_lps_record_id' === $key || '_lps_published_slug' === $key || str_ends_with( $key, '_at' ) || str_starts_with( $key, '_lps_source_' ) || str_starts_with( $key, '_lps_reviewed_source_' ) || '_lps_translation_reviewer_id' === $key || in_array( $key, RelationshipPolicy::legacy_relationship_meta_keys(), true ) || '_lps_application_domains' === $key ) {
+			if ( '_lps_record_id' === $key || '_lps_published_slug' === $key || '_lps_origin' === $key || str_ends_with( $key, '_at' ) || str_starts_with( $key, '_lps_source_' ) || str_starts_with( $key, '_lps_reviewed_source_' ) || str_starts_with( $key, '_lps_import_' ) || str_starts_with( $key, '_lps_crossref_' ) || '_lps_translation_reviewer_id' === $key || in_array( $key, RelationshipPolicy::legacy_relationship_meta_keys(), true ) || '_lps_application_domains' === $key ) {
 				continue;
 			}
 			$value = $submitted[ $key ] ?? ( 'boolean' === $definition['type'] ? false : null );

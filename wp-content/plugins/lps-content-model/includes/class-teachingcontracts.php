@@ -43,6 +43,7 @@ final class TeachingContracts {
 	 */
 	private const COMMON_OWNERSHIP = array(
 		'_lps_record_id'               => 'system',
+		'_lps_origin'                  => 'system',
 		'_lps_claim_verified'          => 'shared',
 		'_lps_claim_source_url'        => 'shared',
 		'_lps_claim_reviewed_at'       => 'shared',
@@ -231,6 +232,28 @@ final class TeachingContracts {
 			),
 		);
 		return array_merge( self::COMMON_OWNERSHIP, $specific[ $post_type ] ?? array() );
+	}
+
+	/**
+	 * Returns the per-variant editorial teaching metadata keys.
+	 *
+	 * Localized fields are the only teaching values an English variant may own,
+	 * so they are also the only teaching fields whose change can make a
+	 * reviewed English variant stale. Shared and system fields — schedules,
+	 * term boundaries, release states, version identifiers, storage keys, and
+	 * provenance — never enter the translation-freshness hash.
+	 *
+	 * @param string $post_type Teaching record type.
+	 * @return array<int, string>
+	 */
+	public static function localized_meta_keys( string $post_type ): array {
+		$keys = array();
+		foreach ( self::field_ownership( $post_type ) as $key => $ownership ) {
+			if ( 'localized' === $ownership ) {
+				$keys[] = $key;
+			}
+		}
+		return array_values( $keys );
 	}
 
 	/**

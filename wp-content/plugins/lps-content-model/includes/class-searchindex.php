@@ -16,6 +16,8 @@ use wpdb;
 
 require_once __DIR__ . '/class-searchpolicy.php';
 require_once __DIR__ . '/class-searchstorage.php';
+require_once __DIR__ . '/class-publicationpolicy.php';
+require_once __DIR__ . '/class-publicationrecords.php';
 
 /** Owns the locale search index table and keeps it truthful on every transition. */
 final class SearchIndex {
@@ -128,36 +130,18 @@ final class SearchIndex {
 	/**
 	 * Reports whether the public surfaces publish this record at all.
 	 *
-	 * A record can be `publish` in WordPress and still be withheld from every
-	 * public surface: an archived record and an unapproved in-memoriam profile
-	 * are both hidden by the public listing. Indexing either would make search
-	 * the one place that leaks them, so the index applies the same gate.
+	 * The index evaluates the same plugin-owned decision every other public
+	 * surface uses — `PublicationPolicy::visibility_decision()` on the
+	 * `public` surface — so search can never leak a record the renderers,
+	 * feeds, or previews would withhold: archived or in-review records,
+	 * unapproved in-memoriam profiles, stale English variants, unreviewed
+	 * imports, and ambiguous-origin records are all absent from the index.
 	 *
 	 * @param array<string, mixed> $record Portable record.
 	 */
 	public static function is_publicly_visible( array $record ): bool {
-		if ( 'archived' === self::text( $record['_lps_state'] ?? '' ) ) {
-			return false;
-		}
-		if ( 'in-memoriam' === self::text( $record['_lps_person_status'] ?? '' ) && ! self::flag( $record['_lps_in_memoriam_approved'] ?? '' ) ) {
-			return false;
-		}
-		return true;
-	}
-
-	/**
-	 * Reads one boundary value as a boolean flag.
-	 *
-	 * @param mixed $value Boundary input.
-	 */
-	private static function flag( mixed $value ): bool {
-		if ( is_bool( $value ) ) {
-			return $value;
-		}
-		if ( is_int( $value ) ) {
-			return 0 !== $value;
-		}
-		return is_string( $value ) && in_array( strtolower( $value ), array( '1', 'true', 'yes' ), true );
+		$locale = self::text( $record['locale'] ?? '' );
+		return PublicationPolicy::visibility_decision( $record, PublicationPolicy::SURFACE_PUBLIC, $locale, gmdate( 'Y-m-d' ) )['visible'];
 	}
 
 	/**
@@ -432,25 +416,25 @@ final class SearchIndex {
 				}
 			}
 		}
-		return array(
-			'post_id'                   => $post->ID,
-			'status'                    => $post->post_status,
-			'locale'                    => self::meta( $post->ID, '_lps_locale' ),
-			'post_type'                 => $post->post_type,
-			'title'                     => $post->post_title,
-			'acronym'                   => self::meta( $post->ID, '_lps_acronym' ),
-			'doi'                       => self::canonical_doi( $post ),
-			'orcid'                     => self::meta( $post->ID, '_lps_orcid' ),
-			'summary'                   => $post->post_excerpt,
-			'taxonomy'                  => $terms,
-			'body'                      => $post->post_content,
-			'facets'                    => self::facets_for_post( $post, $terms ),
-			'url'                       => (string) get_permalink( $post ),
-			'published_at'              => $post->post_date_gmt,
-
-			'_lps_state'                => self::meta( $post->ID, '_lps_state' ),
-			'_lps_person_status'        => self::meta( $post->ID, '_lps_person_status' ),
-			'_lps_in_memoriam_approved' => self::meta( $post->ID, '_lps_in_memoriam_approved' ),
+		$decision = class_exists( PublicationRecords::class ) ? PublicationRecords::publication_record( $post ) : array();
+		return array_merge(
+			$decision,
+			array(
+				'post_id'      => $post->ID,
+				'status'       => $post->post_status,
+				'locale'       => self::text( $decision['locale'] ?? self::meta( $post->ID, '_lps_locale' ) ),
+				'post_type'    => $post->post_type,
+				'title'        => $post->post_title,
+				'acronym'      => self::meta( $post->ID, '_lps_acronym' ),
+				'doi'          => self::canonical_doi( $post ),
+				'orcid'        => self::meta( $post->ID, '_lps_orcid' ),
+				'summary'      => $post->post_excerpt,
+				'taxonomy'     => $terms,
+				'body'         => $post->post_content,
+				'facets'       => self::facets_for_post( $post, $terms ),
+				'url'          => (string) get_permalink( $post ),
+				'published_at' => $post->post_date_gmt,
+			)
 		);
 	}
 

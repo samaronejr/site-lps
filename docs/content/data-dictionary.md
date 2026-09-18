@@ -55,6 +55,7 @@ Archived is terminal: a referenced record is archived, never hard-deleted.
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `_lps_record_id` | record id | Immutable internal record identifier. |
+| `_lps_origin` | origin | Provenance claim: `native` (authored in the CMS) or `imported` (written by the import boundary). Resolved against real provenance fields; a record with neither is `ambiguous` and withheld from public surfaces until reconciled. |
 | `_lps_locale` | locale | Record locale (`pt-br` authoritative, `en` reviewed variant). |
 | `_lps_state` | state | Editorial state (see the state machine). |
 | `_lps_owner_user_id` | integer, private | Accountable owner account. |
@@ -67,7 +68,11 @@ Archived is terminal: a referenced record is archived, never hard-deleted.
 | `_lps_translation_reviewed_at` | datetime | Translation review timestamp. |
 | `_lps_translation_reviewer_id` | integer, private | Independent translation reviewer. |
 
-## Migration provenance fields (every record)
+## Migration provenance fields (every imported record)
+
+These fields are written only by the import boundary and are read-only in the
+editor. Their presence resolves `_lps_origin` to `imported` regardless of any
+stored claim, so an unreviewed import can never be marked native.
 
 | Field | Meaning |
 | --- | --- |

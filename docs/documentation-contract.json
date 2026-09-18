@@ -129,7 +129,7 @@
       "sources": [
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
-          "sha256": "fc72a9a1e461f54140d2d311d3fc1d092f6fab6f975d89c1cb8a8ba0d36e10a7"
+          "sha256": "56aa42c392f202fa5b027bb0653d634b69e1afa195acd67136e64ed3b8c79e05"
         }
       ]
     },
@@ -155,7 +155,7 @@
       "sources": [
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-translationpolicy.php",
-          "sha256": "cabc5ace5cd59fd3bf89c1fd090acf67c895a1350505778f35eec53d514d2d30"
+          "sha256": "283bada5916d398527ab344cfe5d08c45b0f6afefb8b7b74079de4506a44663a"
         }
       ]
     },

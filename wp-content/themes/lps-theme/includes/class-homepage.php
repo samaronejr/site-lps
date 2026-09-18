@@ -11,6 +11,8 @@ namespace LPS\Theme;
 
 use LPS\ContentModel\Media;
 use LPS\ContentModel\MediaPolicy;
+use LPS\ContentModel\PublicationPolicy;
+use LPS\ContentModel\PublicationRecords;
 use LPS\ContentModel\Translations;
 use WP_Post;
 
@@ -65,31 +67,21 @@ final class Homepage {
 	/**
 	 * Checks whether a record may appear as a homepage feature.
 	 *
+	 * The eligibility condition is the plugin-owned
+	 * `PublicationPolicy::visibility_decision()` on the `feature` surface — the
+	 * same decision search, feeds, and previews evaluate — never a homepage
+	 * reinvention. A legitimately reviewed native record is eligible without
+	 * import fields; an unreviewed imported or ambiguous record is not.
+	 *
 	 * @param array<mixed, mixed> $record Record fields.
 	 * @param string              $locale Requested locale slug.
 	 * @param string              $today  Current date in YYYY-MM-DD.
 	 */
 	public static function eligible_feature( array $record, string $locale, string $today ): bool {
-		if ( ( $record['status'] ?? '' ) !== 'publish' ) {
+		if ( ! class_exists( PublicationPolicy::class ) ) {
 			return false;
 		}
-		if ( ( $record['state'] ?? '' ) !== 'published' ) {
-			return false;
-		}
-		if ( ( $record['locale'] ?? '' ) !== $locale ) {
-			return false;
-		}
-		if ( '' === trim( self::text( $record['source_id'] ?? '' ) ) ) {
-			return false;
-		}
-		if ( ( $record['stale'] ?? true ) ) {
-			return false;
-		}
-		$until = trim( self::text( $record['featured_until'] ?? '' ) );
-		if ( '' !== $until && $until < $today ) {
-			return false;
-		}
-		return true;
+		return PublicationPolicy::visibility_decision( $record, PublicationPolicy::SURFACE_FEATURE, $locale, $today )['visible'];
 	}
 
 	/**
@@ -224,6 +216,10 @@ final class Homepage {
 	/**
 	 * Adapts governed post fields without copying bodies or unreviewed media.
 	 *
+	 * Decision inputs come from `PublicationRecords::publication_record()`,
+	 * which reads provenance from the authoritative record; display fields are
+	 * merged on top for the homepage's own composition.
+	 *
 	 * @param int $post_id Localized record ID.
 	 * @return array<string, mixed>
 	 */
@@ -236,34 +232,30 @@ final class Homepage {
 		foreach ( array( 'record_id', 'import_source_id', 'import_review_state', 'state', 'review_date', 'page_key', 'canonical_task', 'public_profile', 'featured_until', 'ends_at', 'event_status', 'canonical_date', 'publication_date' ) as $field ) {
 			$meta[ '_lps_' . $field ] = get_post_meta( $post_id, '_lps_' . $field, true );
 		}
-		$meta   = Translations::merge_shared_meta( $post->post_type, $post_id, $meta );
-		$locale = Translations::locale( $post_id );
-		$source = Translations::source_id( $post_id );
-		$valid  = null !== $source && 'publish' === get_post_status( $source ) && 'published' === get_post_meta( $source, '_lps_state', true );
-		if ( 'lps_organization' === $post->post_type && empty( $meta['_lps_public_profile'] ) ) {
-			$valid = false;
-		}
-		if ( 'lps_event' === $post->post_type && in_array( $meta['_lps_event_status'], array( 'cancelled', 'postponed' ), true ) ) {
-			$valid = false;
-		}
-		return array(
-			'type'           => $post->post_type,
-			'title'          => $post->post_title,
-			'summary'        => $post->post_excerpt,
-			'url'            => get_permalink( $post_id ),
-			'record_id'      => $meta['_lps_record_id'],
-			'source_id'      => $meta['_lps_import_source_id'],
-			'status'         => $post->post_status,
-			'state'          => $meta['_lps_state'],
-			'locale'         => $locale,
-			'stale'          => 'en' === $locale && Translations::is_stale( $post_id ),
-			'reviewed'       => $valid && 'reviewed' === $meta['_lps_import_review_state'],
-			'review_date'    => $meta['_lps_review_date'],
-			'page_key'       => 'collaboration' === $meta['_lps_page_key'] ? 'collaborate' : $meta['_lps_page_key'],
-			'cta'            => $meta['_lps_canonical_task'],
-			'featured_until' => 'lps_event' === $post->post_type ? substr( self::text( $meta['_lps_ends_at'] ), 0, 10 ) : $meta['_lps_featured_until'],
-			'date'           => self::text( 'lps_publication' === $post->post_type ? $meta['_lps_publication_date'] : $meta['_lps_canonical_date'] ),
-			'media'          => Media::record_image( $post ),
+		$meta     = Translations::merge_shared_meta( $post->post_type, $post_id, $meta );
+		$decision = class_exists( PublicationRecords::class ) ? PublicationRecords::publication_record( $post ) : array();
+		$locale   = self::text( $decision['locale'] ?? Translations::locale( $post_id ) );
+		return array_merge(
+			$meta,
+			$decision,
+			array(
+				'type'           => $post->post_type,
+				'title'          => $post->post_title,
+				'summary'        => $post->post_excerpt,
+				'url'            => get_permalink( $post_id ),
+				'record_id'      => $meta['_lps_record_id'],
+				'source_id'      => class_exists( PublicationPolicy::class ) ? PublicationPolicy::provenance_id( array_merge( $meta, $decision ) ) : '',
+				'status'         => $post->post_status,
+				'state'          => $meta['_lps_state'],
+				'locale'         => $locale,
+				'stale'          => ! empty( $decision['stale'] ),
+				'review_date'    => $meta['_lps_review_date'],
+				'page_key'       => 'collaboration' === $meta['_lps_page_key'] ? 'collaborate' : $meta['_lps_page_key'],
+				'cta'            => $meta['_lps_canonical_task'],
+				'featured_until' => 'lps_event' === $post->post_type ? substr( self::text( $meta['_lps_ends_at'] ), 0, 10 ) : $meta['_lps_featured_until'],
+				'date'           => self::text( 'lps_publication' === $post->post_type ? $meta['_lps_publication_date'] : $meta['_lps_canonical_date'] ),
+				'media'          => Media::record_image( $post ),
+			)
 		);
 	}
 
@@ -290,20 +282,22 @@ final class Homepage {
 	}
 
 	/**
-	 * Requires provenance, current review, matching locale and a safe record link.
+	 * Requires the unified feature decision plus a titled, locale-safe link.
+	 *
+	 * Provenance, review currency, ownership, claim verification, and the
+	 * feature window are all evaluated inside
+	 * `PublicationPolicy::visibility_decision()`; the homepage adds only its
+	 * own presentation constraints (a non-empty title and a URL on the
+	 * requested locale route).
 	 *
 	 * @param array<string, mixed> $record CMS record.
 	 * @param string               $locale Requested locale.
 	 * @param string               $today Current date.
 	 */
 	private static function reviewed_feature( array $record, string $locale, string $today ): bool {
-		$url  = self::text( $record['url'] ?? '' );
-		$from = self::text( $record['featured_from'] ?? '' );
+		$url = self::text( $record['url'] ?? '' );
 		return self::eligible_feature( $record, $locale, $today )
-			&& true === ( $record['reviewed'] ?? false )
-			&& self::text( $record['review_date'] ?? '' ) >= $today
 			&& '' !== trim( self::text( $record['title'] ?? '' ) )
-			&& ( '' === $from || $from <= $today )
 			&& 1 === preg_match( '~^(?:https?://[^/]+)?/' . $locale . '/~', $url );
 	}
 

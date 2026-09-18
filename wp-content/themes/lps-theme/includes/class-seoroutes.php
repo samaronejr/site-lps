@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace LPS\Theme;
 
+use LPS\ContentModel\PublicationPolicy;
+use LPS\ContentModel\PublicationRecords;
 use LPS\ContentModel\SeoPolicy;
 use LPS\ContentModel\StructuredData;
 use LPS\ContentModel\TrustSurfacePolicy;
@@ -550,14 +552,23 @@ final class SeoRoutes {
 		if ( array() !== $_GET ) {
 			$state['filtered'] = true;
 		}
-		if ( function_exists( 'is_preview' ) && is_preview() ) {
-			$state['preview'] = true;
-		}
 		if ( function_exists( 'is_paged' ) && is_paged() ) {
 			$state['filtered'] = true;
 		}
 		$post = is_singular() ? get_queried_object() : null;
 		if ( $post instanceof WP_Post ) {
+			if ( function_exists( 'is_preview' ) && is_preview() ) {
+				// Previews evaluate the same plugin-owned decision as every other
+				// surface; they render for the editor but stay noindex, and a
+				// record the public decision would withhold is marked accordingly.
+				$state['preview'] = true;
+				if ( class_exists( PublicationRecords::class ) && class_exists( PublicationPolicy::class ) ) {
+					$preview = PublicationPolicy::preview_decision( PublicationRecords::publication_record( $post ), self::current_locale( $path ), gmdate( 'Y-m-d' ) );
+					if ( ! $preview['public_visible'] ) {
+						$state['draft'] = true;
+					}
+				}
+			}
 			if ( 'publish' !== $post->post_status ) {
 				$state['draft'] = true;
 			}
@@ -870,7 +881,7 @@ final class SeoRoutes {
 		$addressable = self::addressable_slugs( $locale );
 		foreach ( self::published_records( array_keys( self::SECTIONS ), $locale ) as $post ) {
 			$path = self::record_path( $post, $locale );
-			if ( '' === $path ) {
+			if ( '' === $path || ! self::publicly_visible( $post, $locale ) ) {
 				continue;
 			}
 			$state = array();
@@ -963,7 +974,7 @@ final class SeoRoutes {
 		$items = array();
 		foreach ( self::published_records( array( $post_type ), $locale ) as $post ) {
 			$path = self::record_path( $post, $locale );
-			if ( '' === $path ) {
+			if ( '' === $path || ! self::publicly_visible( $post, $locale ) ) {
 				continue;
 			}
 			$source = self::source_id( $post );
@@ -978,6 +989,24 @@ final class SeoRoutes {
 			);
 		}
 		return $items;
+	}
+
+	/**
+	 * Reports whether a record passes the single public-visibility decision.
+	 *
+	 * Sitemaps and feeds evaluate the same plugin-owned
+	 * `PublicationPolicy::visibility_decision()` on the `public` surface that
+	 * renderers, search, and previews use; nothing here reimplements a weaker
+	 * eligibility condition.
+	 *
+	 * @param WP_Post $post   Record.
+	 * @param string  $locale Locale slug.
+	 */
+	private static function publicly_visible( WP_Post $post, string $locale ): bool {
+		if ( ! class_exists( PublicationRecords::class ) || ! class_exists( PublicationPolicy::class ) ) {
+			return false;
+		}
+		return PublicationPolicy::visibility_decision( PublicationRecords::publication_record( $post ), PublicationPolicy::SURFACE_PUBLIC, $locale, gmdate( 'Y-m-d' ) )['visible'];
 	}
 
 	/**

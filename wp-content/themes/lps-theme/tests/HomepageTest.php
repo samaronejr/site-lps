@@ -31,33 +31,89 @@ final class HomepageTest extends TestCase {
 		self::assertSame( array( 'Join LPS', 'Collaborate', 'Partner' ), array_column( $english, 'label' ) );
 	}
 
+	/**
+	 * Returns a fully eligible native feature record for the data provider.
+	 *
+	 * @param array<string, mixed> $overrides Field overrides.
+	 * @return array<string, mixed>
+	 */
+	private static function eligible_native( array $overrides = array() ): array {
+		return array_replace(
+			array(
+				'status'             => 'publish',
+				'state'              => 'published',
+				'_lps_state'         => 'published',
+				'locale'             => 'en',
+				'source_id'          => 'lps:project:1',
+				'post_type'          => 'lps_project',
+				'_lps_origin'        => 'native',
+				'_lps_record_id'     => 'lps:project:1',
+				'_lps_owner_user_id' => 7,
+				'_lps_review_date'   => '2027-01-01',
+				'source_status'      => 'publish',
+				'source_state'       => 'published',
+				'feature_order'      => 1,
+				'featured_until'     => '2026-12-31',
+				'stale'              => false,
+			),
+			$overrides
+		);
+	}
+
 	/** @return array<string, array{array<string, mixed>, string, bool}> */
 	public static function feature_states(): array {
 		return array(
 			'published reviewed current feature' => array(
-				array( 'status' => 'publish', 'state' => 'published', 'locale' => 'en', 'source_id' => 'lps:project:1', 'feature_order' => 1, 'featured_until' => '2026-12-31', 'stale' => false ),
+				self::eligible_native(),
 				'2026-09-03',
 				true,
 			),
 			'unpublished' => array(
-				array( 'status' => 'draft', 'state' => 'draft', 'locale' => 'en', 'source_id' => 'lps:project:1', 'feature_order' => 1, 'featured_until' => '2026-12-31', 'stale' => false ),
+				self::eligible_native( array( 'status' => 'draft', '_lps_state' => 'draft' ) ),
 				'2026-09-03',
 				false,
 			),
 			'stale English' => array(
-				array( 'status' => 'publish', 'state' => 'published', 'locale' => 'en', 'source_id' => 'lps:project:1', 'feature_order' => 1, 'featured_until' => '2026-12-31', 'stale' => true ),
+				self::eligible_native( array( 'stale' => true ) ),
 				'2026-09-03',
 				false,
 			),
 			'expired' => array(
-				array( 'status' => 'publish', 'state' => 'published', 'locale' => 'pt-br', 'source_id' => 'lps:project:1', 'feature_order' => 1, 'featured_until' => '2026-09-02', 'stale' => false ),
+				self::eligible_native( array( 'locale' => 'pt-br', 'featured_until' => '2026-09-02' ) ),
 				'2026-09-03',
 				false,
 			),
-			'missing source' => array(
-				array( 'status' => 'publish', 'state' => 'published', 'locale' => 'pt-br', 'source_id' => '', 'feature_order' => 1, 'featured_until' => '2026-12-31', 'stale' => false ),
+			'missing provenance' => array(
+				self::eligible_native( array( 'locale' => 'pt-br', '_lps_record_id' => '' ) ),
 				'2026-09-03',
 				false,
+			),
+			'ambiguous origin' => array(
+				self::eligible_native( array( '_lps_origin' => '', '_lps_record_id' => '' ) ),
+				'2026-09-03',
+				false,
+			),
+			'unreviewed import' => array(
+				self::eligible_native(
+					array(
+						'_lps_origin'             => 'native',
+						'_lps_import_source_id'   => 'record-001',
+						'_lps_import_review_state' => 'candidate',
+					)
+				),
+				'2026-09-03',
+				false,
+			),
+			'reviewed import' => array(
+				self::eligible_native(
+					array(
+						'_lps_origin'             => 'imported',
+						'_lps_import_source_id'   => 'record-001',
+						'_lps_import_review_state' => 'reviewed',
+					)
+				),
+				'2026-09-03',
+				true,
 			),
 		);
 	}
@@ -72,10 +128,10 @@ final class HomepageTest extends TestCase {
 
 	public function test_feature_selection_is_explicit_bounded_and_ordered(): void {
 		$records = array(
-			array( 'status' => 'publish', 'state' => 'published', 'locale' => 'en', 'source_id' => 'lps:project:3', 'feature_order' => 3, 'featured_until' => '', 'stale' => false ),
-			array( 'status' => 'publish', 'state' => 'published', 'locale' => 'en', 'source_id' => 'lps:project:1', 'feature_order' => 1, 'featured_until' => '', 'stale' => false ),
-			array( 'status' => 'publish', 'state' => 'published', 'locale' => 'en', 'source_id' => 'lps:project:2', 'feature_order' => 2, 'featured_until' => '', 'stale' => false ),
-			array( 'status' => 'publish', 'state' => 'published', 'locale' => 'en', 'source_id' => 'lps:project:4', 'feature_order' => 4, 'featured_until' => '', 'stale' => false ),
+			self::eligible_native( array( 'source_id' => 'lps:project:3', '_lps_record_id' => 'lps:project:3', 'feature_order' => 3, 'featured_until' => '' ) ),
+			self::eligible_native( array( 'source_id' => 'lps:project:1', '_lps_record_id' => 'lps:project:1', 'feature_order' => 1, 'featured_until' => '' ) ),
+			self::eligible_native( array( 'source_id' => 'lps:project:2', '_lps_record_id' => 'lps:project:2', 'feature_order' => 2, 'featured_until' => '' ) ),
+			self::eligible_native( array( 'source_id' => 'lps:project:4', '_lps_record_id' => 'lps:project:4', 'feature_order' => 4, 'featured_until' => '' ) ),
 		);
 
 		self::assertSame(
@@ -222,19 +278,28 @@ final class HomepageTest extends TestCase {
 	 */
 	private function record( string $section = 'projects', string $locale = 'en' ): array {
 		return array(
-			'section'       => $section,
-			'title'         => 'CMS <record>',
-			'summary'       => 'CMS & summary',
-			'url'           => '/' . $locale . '/projects/record/',
-			'source_id'     => 'source:record',
-			'record_id'     => 'lps:project:record',
-			'status'        => 'publish',
-			'state'         => 'published',
-			'locale'        => $locale,
-			'stale'         => false,
-			'reviewed'      => true,
-			'review_date'   => '2027-01-01',
-			'feature_order' => 1,
+			'section'            => $section,
+			'title'              => 'CMS <record>',
+			'summary'            => 'CMS & summary',
+			'url'                => '/' . $locale . '/projects/record/',
+			'source_id'          => 'source:record',
+			'record_id'          => 'lps:project:record',
+			'status'             => 'publish',
+			'state'              => 'published',
+			'locale'             => $locale,
+			'stale'              => false,
+			'review_date'        => '2027-01-01',
+			'feature_order'      => 1,
+
+			// Unified visibility-decision inputs: a reviewed native record.
+			'post_type'          => 'lps_project',
+			'_lps_state'         => 'published',
+			'_lps_origin'        => 'native',
+			'_lps_record_id'     => 'lps:project:record',
+			'_lps_owner_user_id' => 7,
+			'_lps_review_date'   => '2027-01-01',
+			'source_status'      => 'publish',
+			'source_state'       => 'published',
 		);
 	}
 
@@ -262,12 +327,13 @@ final class HomepageTest extends TestCase {
 		foreach ( array( 'pt-br', 'en' ) as $locale ) {
 			foreach ( array(
 				array( 'status' => 'draft' ),
-				array( 'state' => 'archived' ),
+				array( '_lps_state' => 'archived' ),
 				array( 'stale' => true ),
 				array( 'locale' => 'en' === $locale ? 'pt-br' : 'en' ),
-				array( 'reviewed' => false ),
-				array( 'review_date' => '2026-09-05' ),
-				array( 'source_id' => '' ),
+				array( '_lps_origin' => 'imported', '_lps_import_source_id' => 'record-001', '_lps_import_review_state' => 'candidate' ),
+				array( '_lps_origin' => '', '_lps_record_id' => '' ),
+				array( '_lps_owner_user_id' => 0 ),
+				array( '_lps_review_date' => '2026-09-05' ),
 				array( 'featured_until' => '2026-09-05' ),
 				array( 'featured_from' => '2026-09-07' ),
 				array( 'url' => 'javascript:alert(1)' ),

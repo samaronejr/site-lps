@@ -43,9 +43,14 @@ synchronize atomically are `_lps_starts_on`/`_lps_ends_on` (term), `_lps_cancell
 
 ## How staleness is detected
 
-Freshness is content-derived, not date-derived:
+Freshness is content-derived, not date-derived, and it is field-specific:
 
-1. `TranslationPolicy::source_hash()` hashes the authoritative Portuguese material fields.
+1. `TranslationPolicy::source_hash()` hashes the authoritative Portuguese material fields. For the
+   teaching record types the hash covers exactly the localized (per-variant editorial) fields
+   declared by `TeachingContracts::field_ownership()` — a shared schedule, term boundary, release
+   state, or file/version identifier never forces a meaningless re-translation, and an
+   authored-language resource never requires translated file bytes. For the pre-existing record
+   types the hash keeps its established coverage so reviewed hashes already stored stay valid.
 2. The value is stored as `_lps_source_hash`; the reviewer-approved value is
    `_lps_reviewed_source_hash`.
 3. `TranslationPolicy::is_stale()` compares them. Different hashes mean the English variant no longer

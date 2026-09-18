@@ -11,6 +11,7 @@ namespace LPS\ContentModel;
 
 require_once __DIR__ . '/class-importcontracts.php';
 require_once __DIR__ . '/class-teachingcontracts.php';
+require_once __DIR__ . '/class-publicationpolicy.php';
 
 /**
  * Canonical record, metadata, and option schemas.
@@ -54,6 +55,7 @@ final class Contracts {
 	public static function meta_fields(): array {
 		$common = array(
 			'_lps_record_id'               => self::field( 'string', 'Immutable internal record ID', 'record_id' ),
+			'_lps_origin'                  => self::field( 'string', 'Record origin: native authoring or reviewed import', 'origin' ),
 			'_lps_claim_verified'          => self::field( 'boolean', 'Institutional claim is verified', 'boolean' ),
 			'_lps_claim_source_url'        => self::field( 'string', 'Institutional claim source URL', 'url' ),
 			'_lps_claim_reviewed_at'       => self::field( 'string', 'Institutional claim review date', 'date' ),
@@ -309,6 +311,7 @@ final class Contracts {
 			'email' => array( Policy::class, 'sanitize_email' ),
 			'doi' => array( RelationshipPolicy::class, 'normalize_doi' ),
 			'record_id' => array( Policy::class, 'sanitize_record_id' ),
+			'origin' => array( PublicationPolicy::class, 'sanitize_origin' ),
 			'course_code' => array( TeachingContracts::class, 'normalize_course_code' ),
 			'term_code' => array( TeachingContracts::class, 'normalize_term_code' ),
 			'section_key' => array( TeachingContracts::class, 'normalize_section_key' ),
