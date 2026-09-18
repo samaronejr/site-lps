@@ -25,6 +25,7 @@ require_once __DIR__ . '/includes/class-mediacontracts.php';
 require_once __DIR__ . '/includes/class-mediablocks.php';
 require_once __DIR__ . '/includes/class-mediauploads.php';
 require_once __DIR__ . '/includes/class-mediaeditor.php';
+require_once __DIR__ . '/includes/class-teachingstorage.php';
 require_once __DIR__ . '/includes/class-securitypolicy.php';
 require_once __DIR__ . '/includes/class-taxonomies.php';
 require_once __DIR__ . '/includes/class-relationshippolicy.php';

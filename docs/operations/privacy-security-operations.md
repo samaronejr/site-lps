@@ -27,8 +27,14 @@ in a half-configured state:
 | `DISALLOW_FILE_EDIT` | `true` |
 | `DISALLOW_FILE_MODS` | `true` |
 | `LPS_EDGE_SECURITY_VERIFIED` | `true`, and only after the operator's approval is recorded and TLS, origin isolation, 429 throttling, headers, upload isolation, secrets/grants and the release allowlist have actually been tested |
+| `LPS_TEACHING_STORAGE_ROOT` | Absolute path outside the web root, writable by the PHP service, provisioned by the host |
+| `LPS_TEACHING_PUBLIC_ROOT` | Absolute path of the public web root, used to prove the storage root is outside it |
+| `LPS_TEACHING_MAX_BYTES` | Optional per-file cap override in bytes; default 52428800 (50 MiB), hard ceiling 209715200 (200 MiB); technical administration only, never faculty-adjustable |
+| `LPS_TEACHING_SCANNER_APPROVED` | `true`, and only after the institution approves the deployed scanner; the test-only adapter never satisfies this |
 
-Never define `LPS_EDGE_SECURITY_VERIFIED` merely to make a smoke test pass.
+Never define `LPS_EDGE_SECURITY_VERIFIED` or `LPS_TEACHING_SCANNER_APPROVED` merely to make a
+smoke test pass. Teaching-file publication and release fail closed while the storage root, its
+non-public placement, or the scanner configuration is absent.
 
 ## Accounts and authentication
 
@@ -78,6 +84,15 @@ limits. Executable and double extensions, MIME/extension mismatches, bad image g
 PDF/VTT payloads are rejected. Uploads are served non-executable with nosniff; PDF and VTT downloads
 get attachment disposition and a sandbox CSP at the edge. No SVG, HTML or script upload is allowed.
 Private documents never belong in public uploads.
+
+Faculty teaching downloads never enter public uploads at all: `class-teachingstorage.php` quarantines
+them outside the web root under opaque keys, inspects content (PDF actions, UTF-8 text, image
+geometry, OOXML package safety, `.ipynb` schema — never executed), and releases only after a
+`clean` verdict from the configured scanner. Pending, error and infected verdicts never clear.
+Allowed teaching types: PDF, UTF-8 TXT/CSV, DOCX/PPTX/XLSX with package validation, PNG/JPEG/WebP,
+and `.ipynb` delivered only as downloads. Macro-enabled Office, SVG, HTML, scripts, executables,
+archives and arbitrary JSON are denied. Downloads are `attachment` + nosniff + no-store through
+the authorized endpoint; records carry no public URL.
 
 ## Routine security cadence
 

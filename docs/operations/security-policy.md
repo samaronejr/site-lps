@@ -79,6 +79,21 @@ non-executable with nosniff; PDF/VTT downloads receive attachment disposition an
 the edge, containing active content even if hidden in compressed PDF objects. No SVG/HTML/script
 uploads. Sideloads pass through the same boundary. Private documents never belong in public uploads.
 
+Faculty teaching downloads are a separate lane from controlled brand/media assets.
+`wp-content/plugins/lps-content-model/includes/class-teachingstorage.php` stores them
+outside the public root under opaque `lps-file-*` keys: files land in `quarantine/`,
+pass extension/MIME/content inspection (PDF action names, UTF-8 text, image geometry,
+OOXML package structure with macro/ActiveX/OLE/embedded-executable denial, `.ipynb`
+schema validation with active-output denial — notebooks are never executed), then the
+configured scanner. Only a `clean` verdict moves a record to `cleared/`; `pending`,
+`error`, adapter exceptions and invalid verdicts return to quarantine and `infected`
+fails. Records never carry a public URL; the authorized download endpoint re-checks
+state on every request and serves `attachment` disposition with nosniff and no-store.
+The default cap is 50 MiB, adjustable only by technical administrators within the
+200 MiB ceiling. Missing storage root, a root inside the public tree, a missing
+scanner or an unapproved scanner in production all fail closed — the bundled
+`lps-test-only-scanner` adapter is test-only and can never satisfy production.
+
 ## Secrets and least privilege
 
 Provision wp-config.php outside the web root from an institution-controlled secret store, mode
