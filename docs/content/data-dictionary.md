@@ -1,7 +1,10 @@
 # Content model and data dictionary
 
 Authoritative source: `wp-content/plugins/lps-content-model/includes/class-contracts.php`
-(records, fields, sanitizers, REST exposure), `class-importcontracts.php` (provenance fields),
+(records, fields, sanitizers, REST exposure), `class-teachingcontracts.php` (teaching entities,
+field ownership, normalization, uniqueness identities, temporal state, copy-forward),
+`class-teachingmigrations.php` (indexed uniqueness registries and additive schema migrations),
+`class-importcontracts.php` (provenance fields),
 `class-relationships.php` (relationship storage and reverse lookups),
 `class-taxonomies.php` (controlled vocabularies) and `class-policy.php` (state machine). This
 document describes what those files implement; when they change, this document is reported stale by
@@ -29,6 +32,7 @@ The governance collections, their owner roles and review cadences are the execut
 | `event` | `lps_event` | section-editor | `P30D` |
 | `media-asset` | attachment | section-editor | `P365D` |
 | `redirect` | `lps_redirect` | publisher | `P365D` |
+| `teaching` | `lps_course`, `lps_term`, `lps_offering`, `lps_unit`, `lps_resource` | section-editor | `P180D` |
 
 `Roles::collection_for_post_type()` maps a post type to its collection key; per-account collection
 assignment is stored in the user meta `_lps_assigned_collections`.
@@ -171,6 +175,69 @@ Event: `_lps_starts_at`, `_lps_ends_at`, `_lps_event_status`, `_lps_related_reco
 (HTTP 410), `_lps_redirect_status`, `_lps_redirect_reason`, `_lps_redirect_provenance`,
 `_lps_verified_at`. Verify the graph with `wp lps redirects verify`.
 
+## Teaching entities
+
+The five teaching record types are registered by explicit `register_post_type()` calls in
+`TeachingContracts::register()`. Field ownership is declared per key: `shared` fields are owned by
+the authoritative Portuguese record (English variants cannot write them), `localized` fields are
+per-variant editorial text, and `system` fields are boundary-written or derived. `_lps_version_id`,
+`_lps_storage_key` and `_lps_uploader_user_id` are never exposed through REST.
+
+### Course (`lps_course`, public)
+
+`_lps_course_code` (uppercase ASCII official code), `_lps_course_level`
+(`undergraduate`/`graduate`/`extension`), `_lps_calendar_key`, `_lps_program` (shared);
+`_lps_prerequisites`, `_lps_syllabus` (localized). A published offering keeps its own syllabus
+snapshot, so later edits to the default syllabus do not rewrite history.
+
+### Academic term (`lps_term`, internal)
+
+`_lps_calendar_key`, `_lps_term_code`, `_lps_period_label`, `_lps_period_type`
+(`semester`/`trimester`/`quarter`/`annual`/`intensive`), `_lps_starts_on`, `_lps_ends_on` (shared);
+`_lps_term_token` (system, immutable calendar-qualified route token `{code}-{calendar}`);
+`_lps_term_source` (shared). Term boundaries are stored in the institutional timezone
+(`America/Sao_Paulo` by default). `starts_on > ends_on` is rejected.
+
+### Course offering (`lps_offering`, public)
+
+`_lps_section_key` (normalized: folded, lowercased, hyphenated ASCII), `_lps_schedule`, `_lps_venue`,
+`_lps_lms_url` + `_lps_lms_url_approved`, `_lps_cancelled` (shared); `_lps_syllabus_snapshot`
+(localized); `_lps_temporal_status` (system, derived: `upcoming`/`current`/`completed`/`cancelled`).
+Temporal status is separate from the editorial `_lps_state` machine: a completed offering stays
+published and searchable, and end-of-term never archives a record. Co-teaching is many-to-many
+through the `teaching_team` relationship (`lead`, `co-teacher`, `assistant`).
+
+### Teaching unit (`lps_unit`, internal)
+
+`_lps_anchor` (stable anchor), `_lps_position` (ordered, ≥ 1), `_lps_topic_date` (shared).
+`unit_offering` is exactly-one: a unit cannot reference another offering.
+
+### Teaching resource (`lps_resource`, internal)
+
+`_lps_resource_type`, `_lps_resource_language` (authored language), `_lps_external_url`,
+`_lps_sha256`, `_lps_byte_size`, `_lps_mime_type`, `_lps_scan_state`, `_lps_scan_version`,
+`_lps_release_state` (`draft`/`scheduled`/`released`/`withdrawn`), `_lps_release_at`,
+`_lps_withdrawn_at`, `_lps_rights_review`, `_lps_accessibility_review` (shared); `_lps_version_id`,
+`_lps_storage_key`, `_lps_uploader_user_id` (system, private). A resource is one immutable local
+version or one external URL, never both; a correction creates a new version. `resource_offering` is
+exactly-one and `resource_unit` is at-most-one, and the unit must belong to the resource's offering.
+
+### Uniqueness registries
+
+`TeachingMigrations` owns two indexed registry tables: `{prefix}lps_term_registry` enforces
+`(calendar_key, term_code)` plus the immutable `term_token`, and `{prefix}lps_offering_registry`
+enforces `(authoritative course, authoritative term, normalized section key)` through a unique
+`identity_hash`. Translated record IDs resolve to the Portuguese authority before hashing, so an
+English variant cannot bypass uniqueness. Claims are released only on hard deletion.
+
+### Copy-forward
+
+`TeachingContracts::copy_forward_plan_error()` validates the operation contract: new IDs in draft,
+a new term/section, explicit teaching-team review, resets for announcements, deadlines, release
+times, active notices and unreleased/withdrawn resources, and reuse of already-public immutable
+versions only after explicit selection. One operation completes with a manifest or leaves no
+half-published offering; retrying the same `operation_id` must not duplicate it.
+
 ## Media assets
 
 Attachments carry credit, rights holder, license, source, checksum, focal point, dimensions or
@@ -186,7 +253,10 @@ Relationships are stored as typed rows through `Relationships::replace()` with r
 (`replace_authors()`) and controlled project application domains
 (`replace_application_domains()`). Referenced records cannot be deleted while
 `Relationships::is_referenced()` is true. Project publish gates require a project lead
-(`lps_project_lead_required`).
+(`lps_project_lead_required`). Teaching relationships are `offering_course`, `offering_term`,
+`teaching_team`, `unit_offering`, `resource_offering` and `resource_unit`; offering publish gates
+require a course, a term and a teaching lead, and a resource's unit must belong to its offering
+(`lps_cross_offering_unit_reference`).
 
 ## Controlled vocabularies
 

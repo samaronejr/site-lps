@@ -20,7 +20,10 @@
       "privacy-auditor": 1,
       "deployer": 1
     },
-    "mfaRoles": ["publisher", "administrator"],
+    "mfaRoles": [
+      "publisher",
+      "administrator"
+    ],
     "sharedAccountsForbidden": true,
     "contributorSelfPublishingForbidden": true,
     "independentTranslationReviewRequired": true
@@ -51,7 +54,10 @@
     {
       "id": "site-settings",
       "ownerRole": "administrator",
-      "sourcePriority": ["official-lps-record", "official-ufrj-coppe-record"],
+      "sourcePriority": [
+        "official-lps-record",
+        "official-ufrj-coppe-record"
+      ],
       "reviewCadence": "P90D",
       "expiryRule": "Review immediately after an official institutional change.",
       "translation": {
@@ -135,7 +141,10 @@
     {
       "id": "research-area",
       "ownerRole": "section-editor",
-      "sourcePriority": ["official-lps-record", "official-ufrj-coppe-record"],
+      "sourcePriority": [
+        "official-lps-record",
+        "official-ufrj-coppe-record"
+      ],
       "reviewCadence": "P180D",
       "expiryRule": "Revise only after the controlled vocabulary is approved or superseded.",
       "translation": {
@@ -285,7 +294,10 @@
     {
       "id": "redirect",
       "ownerRole": "administrator",
-      "sourcePriority": ["migration-inventory-record", "official-lps-record"],
+      "sourcePriority": [
+        "migration-inventory-record",
+        "official-lps-record"
+      ],
       "reviewCadence": "P365D",
       "expiryRule": "Review after destination, canonical URL, or retirement status changes.",
       "translation": {
@@ -294,6 +306,28 @@
         "reviewRequired": false
       },
       "archiveRule": "Retain redirect or deliberate 410 history and prevent redirect chains.",
+      "correctionPath": {
+        "correction": "section-editor-to-publisher",
+        "takedown": "publisher-and-privacy-auditor",
+        "publicRoute": "unresolved"
+      }
+    },
+    {
+      "id": "teaching",
+      "ownerRole": "section-editor",
+      "sourcePriority": [
+        "official-lps-record",
+        "official-ufrj-coppe-record",
+        "verified-primary-source"
+      ],
+      "reviewCadence": "P180D",
+      "expiryRule": "Keep completed offerings published as history; correct or annotate when the institutional record changes.",
+      "translation": {
+        "obligation": "localized-per-use",
+        "reviewerRole": "section-editor",
+        "reviewRequired": true
+      },
+      "archiveRule": "Archive only through the editorial state machine; end-of-term never archives an offering automatically.",
       "correctionPath": {
         "correction": "section-editor-to-publisher",
         "takedown": "publisher-and-privacy-auditor",

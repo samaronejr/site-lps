@@ -27,10 +27,19 @@ saving.
 ## Required English coverage
 
 English is required for Home, About, Research, Projects, People, Publications, Infrastructure,
-Opportunities, Collaboration, Contact and the privacy/accessibility notices. News and events are
-Portuguese-first with optional reviewed English summaries. A required locale pair publishes
-atomically: an Opportunity change that alters material English content cannot publish half-updated.
-`hreflang` alternates are emitted only for published pairs.
+Opportunities, Collaboration, Contact and the privacy/accessibility notices, and for the public
+teaching records `lps_course` and `lps_offering`. News and events are Portuguese-first with optional
+reviewed English summaries; terms, units and resources keep their authored language and are not
+translated record pairs. A required locale pair publishes atomically: an Opportunity change that
+alters material English content cannot publish half-updated. `hreflang` alternates are emitted only
+for published pairs.
+
+Teaching shared fields follow the same Portuguese-authority rule: section keys, schedules, term
+boundaries, release states and file/version identifiers are owned by the authoritative record, so an
+English variant can never write them or bypass offering uniqueness. The material sets that must
+synchronize atomically are `_lps_starts_on`/`_lps_ends_on` (term), `_lps_cancelled`/`_lps_schedule`
+(offering) and `_lps_release_state`/`_lps_release_at`/`_lps_withdrawn_at`/`_lps_version_id`/
+`_lps_external_url` (resource).
 
 ## How staleness is detected
 
@@ -62,7 +71,7 @@ The report ordering puts `stale` rows ahead of clean rows so a reviewer sees the
 | --- | --- |
 | `P30D` | opportunity, event |
 | `P90D` | site-settings, person, project |
-| `P180D` | page, organization, research-area |
+| `P180D` | page, organization, research-area, teaching |
 | `P365D` | publication, news, media-asset, redirect |
 
 The cadence is the maximum ordinary interval. Review earlier whenever a source, status, deadline,

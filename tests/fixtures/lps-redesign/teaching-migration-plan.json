@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "fixture": "lps-redesign/teaching-migration-plan",
+  "synthetic": true,
+  "purpose": "Synthetic migration-plan and copy-forward cases for the task-3 teaching contracts. Every identifier is invented test data; the fixture asserts versioned additive migration behavior and the immutable copy-forward operation contract without touching storage.",
+  "schema": {
+    "currentVersion": "1.0.0",
+    "tables": ["lps_term_registry", "lps_offering_registry"],
+    "additiveOnly": true,
+    "dryRunMutates": false
+  },
+  "plans": [
+    {
+      "id": "plan-fresh-install",
+      "from": "0.0.0",
+      "to": "1.0.0",
+      "expectOk": true,
+      "expectSteps": ["create_term_registry", "create_offering_registry"]
+    },
+    {
+      "id": "plan-downgrade",
+      "from": "1.0.0",
+      "to": "1.0.0",
+      "expectOk": false,
+      "expectErrors": ["lps_teaching_migration_downgrade"]
+    },
+    {
+      "id": "plan-unknown-target",
+      "from": "0.0.0",
+      "to": "9.9.9",
+      "expectOk": false,
+      "expectErrors": ["lps_teaching_migration_unknown_version"]
+    },
+    {
+      "id": "plan-unknown-source",
+      "from": "0.5.0",
+      "to": "1.0.0",
+      "expectOk": false,
+      "expectErrors": ["lps_teaching_migration_unknown_version"]
+    }
+  ],
+  "copyForward": [
+    {
+      "id": "copy-valid",
+      "expectError": null,
+      "plan": {
+        "operation_id": "copy-2026-1-to-2026-2",
+        "source_offering_id": 30,
+        "source_term_id": 20,
+        "source_section": "a",
+        "new_term_id": 21,
+        "new_section": "A",
+        "creates_draft": true,
+        "publishes": false,
+        "team_reviewed": true,
+        "resets": ["announcements", "deadlines", "release_times", "active_notices", "unreleased_resources"],
+        "selected_version_ids": ["lpsver:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"],
+        "cleared_version_ids": ["lpsver:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"]
+      }
+    },
+    {
+      "id": "copy-same-identity",
+      "expectError": "lps_copy_forward_identity_collision",
+      "plan": {
+        "operation_id": "copy-2026-1-to-2026-1",
+        "source_offering_id": 30,
+        "source_term_id": 20,
+        "source_section": "a",
+        "new_term_id": 20,
+        "new_section": "a",
+        "creates_draft": true,
+        "publishes": false,
+        "team_reviewed": true,
+        "resets": ["announcements", "deadlines", "release_times", "active_notices", "unreleased_resources"],
+        "selected_version_ids": [],
+        "cleared_version_ids": []
+      }
+    },
+    {
+      "id": "copy-missing-operation",
+      "expectError": "lps_copy_forward_operation_id_required",
+      "plan": {
+        "operation_id": "",
+        "source_offering_id": 30,
+        "source_term_id": 20,
+        "source_section": "a",
+        "new_term_id": 21,
+        "new_section": "b",
+        "creates_draft": true,
+        "publishes": false,
+        "team_reviewed": true,
+        "resets": ["announcements", "deadlines", "release_times", "active_notices", "unreleased_resources"],
+        "selected_version_ids": [],
+        "cleared_version_ids": []
+      }
+    },
+    {
+      "id": "copy-team-not-reviewed",
+      "expectError": "lps_copy_forward_team_review_required",
+      "plan": {
+        "operation_id": "copy-2026-1-to-2026-2",
+        "source_offering_id": 30,
+        "source_term_id": 20,
+        "source_section": "a",
+        "new_term_id": 21,
+        "new_section": "b",
+        "creates_draft": true,
+        "publishes": false,
+        "team_reviewed": false,
+        "resets": ["announcements", "deadlines", "release_times", "active_notices", "unreleased_resources"],
+        "selected_version_ids": [],
+        "cleared_version_ids": []
+      }
+    },
+    {
+      "id": "copy-missing-resets",
+      "expectError": "lps_copy_forward_reset_required",
+      "plan": {
+        "operation_id": "copy-2026-1-to-2026-2",
+        "source_offering_id": 30,
+        "source_term_id": 20,
+        "source_section": "a",
+        "new_term_id": 21,
+        "new_section": "b",
+        "creates_draft": true,
+        "publishes": false,
+        "team_reviewed": true,
+        "resets": ["announcements"],
+        "selected_version_ids": [],
+        "cleared_version_ids": []
+      }
+    },
+    {
+      "id": "copy-unreleased-version",
+      "expectError": "lps_copy_forward_unreleased_version",
+      "plan": {
+        "operation_id": "copy-2026-1-to-2026-2",
+        "source_offering_id": 30,
+        "source_term_id": 20,
+        "source_section": "a",
+        "new_term_id": 21,
+        "new_section": "b",
+        "creates_draft": true,
+        "publishes": false,
+        "team_reviewed": true,
+        "resets": ["announcements", "deadlines", "release_times", "active_notices", "unreleased_resources"],
+        "selected_version_ids": ["lpsver:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"],
+        "cleared_version_ids": ["lpsver:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"]
+      }
+    },
+    {
+      "id": "copy-publishes",
+      "expectError": "lps_copy_forward_publish_forbidden",
+      "plan": {
+        "operation_id": "copy-2026-1-to-2026-2",
+        "source_offering_id": 30,
+        "source_term_id": 20,
+        "source_section": "a",
+        "new_term_id": 21,
+        "new_section": "b",
+        "creates_draft": true,
+        "publishes": true,
+        "team_reviewed": true,
+        "resets": ["announcements", "deadlines", "release_times", "active_notices", "unreleased_resources"],
+        "selected_version_ids": [],
+        "cleared_version_ids": []
+      }
+    }
+  ]
+}

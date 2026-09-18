@@ -47,7 +47,19 @@ export function fixtureSlug(id, env = process.env) {
  */
 export async function materializeFixture(name, recordId, env = process.env) {
   const fixture = await loadFixture(name);
-  const collection = ["people", "accounts", "calendars", "terms", "offerings"].find((key) =>
+  const collection = [
+    "people",
+    "accounts",
+    "calendars",
+    "terms",
+    "offerings",
+    "courses",
+    "units",
+    "resources",
+    "invalidCases",
+    "plans",
+    "copyForward",
+  ].find((key) =>
     (fixture[key] ?? []).some((entry) => entry.id === recordId),
   );
   if (!collection) {

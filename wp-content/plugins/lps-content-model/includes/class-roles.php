@@ -257,6 +257,7 @@ final class Roles {
 			'lps_event' => 'event',
 			'lps_news' => 'news',
 			'lps_redirect' => 'redirect',
+			'lps_course', 'lps_term', 'lps_offering', 'lps_unit', 'lps_resource' => 'teaching',
 			default => $post_type,
 		};
 	}

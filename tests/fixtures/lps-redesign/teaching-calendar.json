@@ -57,7 +57,10 @@
       "term": "term-synthetic-2026-1",
       "section": "A",
       "temporalStatus": "current",
-      "teachingTeam": ["person-synthetic-ada", "person-synthetic-bento"],
+      "teachingTeam": [
+        "person-synthetic-ada",
+        "person-synthetic-bento"
+      ],
       "synthetic": true
     },
     {
@@ -66,7 +69,9 @@
       "term": "term-synthetic-2025-2",
       "section": "A",
       "temporalStatus": "completed",
-      "teachingTeam": ["person-synthetic-ada"],
+      "teachingTeam": [
+        "person-synthetic-ada"
+      ],
       "synthetic": true
     },
     {
@@ -75,8 +80,100 @@
       "term": "term-synthetic-2026-t1",
       "section": "B",
       "temporalStatus": "upcoming",
-      "teachingTeam": ["person-synthetic-bento"],
+      "teachingTeam": [
+        "person-synthetic-bento"
+      ],
       "synthetic": true
+    }
+  ],
+  "courses": [
+    {
+      "id": "course-synthetic-sinais",
+      "code": "EEL315",
+      "level": "undergraduate",
+      "calendarKey": "semester",
+      "synthetic": true
+    },
+    {
+      "id": "course-synthetic-ondas",
+      "code": "COE765",
+      "level": "graduate",
+      "calendarKey": "trimester",
+      "synthetic": true
+    }
+  ],
+  "units": [
+    {
+      "id": "unit-synthetic-convolucao",
+      "offering": "offering-synthetic-current",
+      "anchor": "convolucao",
+      "position": 1,
+      "synthetic": true
+    },
+    {
+      "id": "unit-synthetic-amostragem",
+      "offering": "offering-synthetic-current",
+      "anchor": "amostragem",
+      "position": 2,
+      "synthetic": true
+    }
+  ],
+  "resources": [
+    {
+      "id": "resource-synthetic-notas",
+      "offering": "offering-synthetic-current",
+      "unit": "unit-synthetic-convolucao",
+      "type": "document",
+      "language": "pt-br",
+      "releaseState": "released",
+      "synthetic": true
+    },
+    {
+      "id": "resource-synthetic-repo",
+      "offering": "offering-synthetic-upcoming",
+      "unit": null,
+      "type": "link",
+      "language": "en",
+      "releaseState": "draft",
+      "synthetic": true
+    }
+  ],
+  "invalidCases": [
+    {
+      "id": "invalid-date-order",
+      "kind": "term",
+      "input": {
+        "startsOn": "2026-07-10",
+        "endsOn": "2026-03-02"
+      },
+      "expectError": "lps_invalid_term_date_order"
+    },
+    {
+      "id": "cross-offering-unit",
+      "kind": "resourceUnit",
+      "input": {
+        "resourceOffering": "offering-synthetic-upcoming",
+        "unitOffering": "offering-synthetic-current"
+      },
+      "expectError": "lps_cross_offering_unit_reference"
+    },
+    {
+      "id": "conflicting-section-keys",
+      "kind": "sectionCollision",
+      "input": {
+        "first": "Turma A",
+        "second": "turma a"
+      },
+      "expectError": "lps_offering_identity_conflict"
+    },
+    {
+      "id": "calendar-collision",
+      "kind": "termCollision",
+      "input": {
+        "calendarKey": "semester",
+        "termCode": "2026.1"
+      },
+      "expectError": "lps_term_identity_conflict"
     }
   ]
 }

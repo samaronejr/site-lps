@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace LPS\ContentModel;
 
 require_once __DIR__ . '/class-importcontracts.php';
+require_once __DIR__ . '/class-teachingcontracts.php';
 
 /**
  * Canonical record, metadata, and option schemas.
@@ -42,7 +43,7 @@ final class Contracts {
 			'lps_opportunity'   => self::type( 'Opportunities', 'Opportunity', 'opportunities' ),
 			'lps_event'         => self::type( 'Events', 'Event', 'events' ),
 			'lps_redirect'      => self::type( 'Redirects', 'Redirect', 'redirects', false ),
-		);
+		) + TeachingContracts::post_types();
 	}
 
 	/**
@@ -205,6 +206,8 @@ final class Contracts {
 			),
 		);
 
+		$specific = array_merge( $specific, TeachingContracts::specific_meta_fields( array( self::class, 'field' ) ) );
+
 		$result = array();
 		foreach ( array_keys( self::post_types() ) as $post_type ) {
 			$result[ $post_type ] = array_merge( $common, $specific[ $post_type ] );
@@ -306,6 +309,12 @@ final class Contracts {
 			'email' => array( Policy::class, 'sanitize_email' ),
 			'doi' => array( RelationshipPolicy::class, 'normalize_doi' ),
 			'record_id' => array( Policy::class, 'sanitize_record_id' ),
+			'course_code' => array( TeachingContracts::class, 'normalize_course_code' ),
+			'term_code' => array( TeachingContracts::class, 'normalize_term_code' ),
+			'section_key' => array( TeachingContracts::class, 'normalize_section_key' ),
+			'version_id' => array( TeachingContracts::class, 'normalize_version_id' ),
+			'resource_language' => array( TeachingContracts::class, 'normalize_language' ),
+			'iso_date' => array( TeachingContracts::class, 'normalize_iso_date' ),
 			'textarea' => array( Policy::class, 'sanitize_textarea' ),
 			default => array( Policy::class, 'sanitize_text' ),
 		};

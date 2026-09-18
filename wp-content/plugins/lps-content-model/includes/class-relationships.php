@@ -12,6 +12,8 @@ namespace LPS\ContentModel;
 use WP_Error;
 use WP_Post;
 
+require_once __DIR__ . '/class-teachingmigrations.php';
+
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- This canonical custom-table repository must read fresh integrity state and invalidates through atomic replacement.
 /** Provides the only writable boundary for Todo 8 relationships and publication DOIs. */
 final class Relationships {
@@ -410,6 +412,38 @@ final class Relationships {
 				}
 			}
 		}
+		if ( 'lps_offering' === $post_type && 0 < $post_id ) {
+			foreach ( array( 'offering_course', 'offering_term', 'teaching_team' ) as $relationship_type ) {
+				$type_errors = TeachingContracts::relationship_errors( $relationship_type, self::for_source( $post_id, $relationship_type ) );
+				if ( array() !== $type_errors ) {
+					$errors[ '_lps_relationship_' . $relationship_type ] = $type_errors[0];
+				}
+			}
+		}
+		if ( 'lps_unit' === $post_type && 0 < $post_id ) {
+			$unit_errors = TeachingContracts::relationship_errors( 'unit_offering', self::for_source( $post_id, 'unit_offering' ) );
+			if ( array() !== $unit_errors ) {
+				$errors['_lps_relationship_unit_offering'] = $unit_errors[0];
+			}
+		}
+		if ( 'lps_resource' === $post_type && 0 < $post_id ) {
+			$resource_errors = TeachingContracts::relationship_errors( 'resource_offering', self::for_source( $post_id, 'resource_offering' ) );
+			if ( array() !== $resource_errors ) {
+				$errors['_lps_relationship_resource_offering'] = $resource_errors[0];
+			}
+			$unit_rows = self::for_source( $post_id, 'resource_unit' );
+			if ( 1 === count( $unit_rows ) && array() === $resource_errors ) {
+				$resource_offering = self::for_source( $post_id, 'resource_offering' );
+				$unit_offering     = self::for_source( $unit_rows[0]['target_post_id'], 'unit_offering' );
+				$unit_error        = TeachingContracts::resource_unit_error(
+					Policy::sanitize_integer( $resource_offering[0]['target_post_id'] ?? 0 ),
+					Policy::sanitize_integer( $unit_offering[0]['target_post_id'] ?? 0 )
+				);
+				if ( null !== $unit_error ) {
+					$errors['_lps_relationship_resource_unit'] = $unit_error;
+				}
+			}
+		}
 		return $errors;
 	}
 
@@ -438,6 +472,7 @@ final class Relationships {
 		$wpdb   = self::database();
 		$tables = Migrations::table_names( $wpdb );
 		$wpdb->delete( $tables['dois'], array( 'publication_id' => $post_id ), array( '%d' ) );
+		TeachingMigrations::release_post_claims( $post_id );
 	}
 
 	/**
