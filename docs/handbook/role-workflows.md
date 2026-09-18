@@ -1,6 +1,6 @@
 # Role-specific workflows
 
-Seven roles are implemented in
+Nine roles are implemented in
 `wp-content/plugins/lps-content-model/includes/class-securitypolicy.php` and installed as WordPress
 roles by `class-roles.php` (slug pattern `lps_<role>`, e.g. `lps_section_editor`). Actions are
 custom primitive capabilities named `lps_<action>` (e.g. `lps_publish`).
@@ -10,7 +10,11 @@ custom primitive capabilities named `lps_<action>` (e.g. `lps_publish`).
 - An individual named account with exactly one policy role.
 - Collection assignments recorded by an administrator (`_lps_assigned_collections`) for
   `contributor`, `translator` and `section-editor`; other roles are not collection-scoped.
-- An enabled Two-Factor provider for `publisher` and `administrator`.
+- Teaching scope grants recorded by an administrator or a section editor assigned the `teaching`
+  collection (`_lps_teaching_grants`) for `professor` and `delegate`; scoped roles hold no
+  collection rights at all.
+- An enabled Two-Factor provider for `publisher`, `administrator` and `professor` — every role
+  holding public publishing authority.
 - The routine gate commands available locally: `npm run test` and `tools/composer test`.
 
 ## Authoritative action matrix
@@ -22,14 +26,63 @@ that source by `node tests/docs/docs-checker.mjs`; a claim the policy denies fai
 | --- | --- | --- | --- |
 | contributor | `create`, `edit`, `submit` | yes | no |
 | translator | `edit`, `submit` | yes | no |
-| section-editor | `create`, `edit`, `submit`, `review`, `archive` | yes | no |
+| section-editor | `create`, `edit`, `submit`, `review`, `archive`, `grant-scope`, `revoke-scope` | yes | no |
 | publisher | `create`, `edit`, `submit`, `review`, `publish`, `unpublish`, `archive`, `redirect` | no | yes |
-| administrator | `create`, `edit`, `submit`, `review`, `publish`, `unpublish`, `archive`, `import`, `redirect`, `settings`, `audit`, `dormant-report` | no | yes |
+| administrator | `create`, `edit`, `submit`, `review`, `publish`, `unpublish`, `archive`, `import`, `redirect`, `settings`, `audit`, `dormant-report`, `grant-scope`, `revoke-scope` | no | yes |
 | privacy-auditor | `review`, `audit`, `dormant-report` | no | no |
 | deployer | `deploy` | no | no |
+| professor | `create`, `edit`, `submit`, `publish`, `copy-forward` | offering-scoped | yes |
+| delegate | `create`, `edit`, `submit` | offering-scoped | no |
 
 Audited actions retained in the immutable ledger (`class-audit.php`): `create`, `edit`, `submit`,
-`review`, `publish`, `unpublish`, `archive`, `import`, `redirect`, `settings`.
+`review`, `publish`, `unpublish`, `archive`, `import`, `redirect`, `settings`, `grant-scope`,
+`revoke-scope`.
+
+## Offering-scoped roles
+
+`professor` and `delegate` are governed by `class-teachingpolicy.php`, not by collection
+assignment. Every scoped action requires a persisted grant on the account (`_lps_teaching_grants`)
+covering the exact scope: one offering record, or the `news` scope for designated faculty news
+editors. Scope resolves only from server-side state — the grant list and canonical relationships —
+never from user-controlled owner, person, offering, or relation IDs. Revocation and expiry are
+evaluated on every request, so a revoked or expired grant denies immediately.
+
+Scoped roles may touch only `lps_offering`, `lps_unit`, `lps_resource` and `lps_news`. Professors
+publish cleared materials (`lps_unit`, `lps_resource`) and scoped news; delegates prepare drafts
+and never publish or write release fields. Offering publication, course and term records,
+teaching-team membership, owner fields, review states, scan and storage fields stay with
+institutional editors — a scoped role writing them is denied before any mutation. Professors may
+copy forward an assigned offering (`copy-forward`); the operation creates drafts only.
+
+## Professor
+
+Routine work: maintain assigned offerings, units and materials; publish cleared teaching files;
+send news through the scoped lane when designated.
+
+1. Accept the offering scope grant recorded by an administrator or teaching section editor.
+2. Edit the offering's schedule, venue and syllabus snapshot; create and order units; attach
+   resources and set release state once rights, accessibility and scan reviews are approved.
+3. Publish cleared materials inside the granted offering; copy the offering forward to a new
+   term/section as a draft with the required resets.
+4. Publish news directly only when the account also holds the `news` scope grant.
+
+Boundaries: MFA is mandatory because the role publishes publicly. You cannot publish offerings,
+courses or terms, edit other offerings, change the teaching team, owner, review, scan or storage
+fields, manage grants, or touch any non-teaching collection. An attempt is denied without any data
+change.
+
+## Delegate
+
+Routine work: prepare drafts inside granted offerings for a professor.
+
+1. Accept the delegate scope grant recorded by an administrator or teaching section editor.
+2. Create and edit draft units, resources and offering descriptive fields inside the granted
+   offering.
+3. Submit drafts for the professor or an editor to review.
+
+Boundaries: you cannot publish anything, write release or withdrawal fields, copy offerings
+forward, manage grants, or touch records outside the granted offering. An attempt is denied
+without any data change.
 
 ## Contributor
 
@@ -119,7 +172,9 @@ Boundaries: no editorial account, no content edits, no reusable publishing secre
 ## Verifying the boundary
 
 - `tools/composer test` runs the table-driven role/action/collection matrix and the MFA-bypass
-  fixtures in `wp-content/plugins/lps-content-model/tests/SecurityContractsTest.php`.
+  fixtures in `wp-content/plugins/lps-content-model/tests/SecurityContractsTest.php`, plus the
+  offering-scope grant, expiry, field-allowlist and denial contracts in
+  `LpsRedesignTask04Test.php`.
 - `npm run qa:governance` prints the role/collection matrix used by governance.
 - `npm run qa:security` runs the passive security lane.
 - Per-role end-to-end acceptance simulations are specified in

@@ -38,6 +38,7 @@ require_once __DIR__ . '/includes/class-publicationpolicy.php';
 require_once __DIR__ . '/includes/class-publicationrecords.php';
 require_once __DIR__ . '/includes/class-contracts.php';
 require_once __DIR__ . '/includes/class-mfa.php';
+require_once __DIR__ . '/includes/class-teachingpolicy.php';
 require_once __DIR__ . '/includes/class-roles.php';
 require_once __DIR__ . '/includes/class-audit.php';
 require_once __DIR__ . '/includes/class-reports.php';

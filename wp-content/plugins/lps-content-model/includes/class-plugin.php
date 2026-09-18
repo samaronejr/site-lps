@@ -41,6 +41,7 @@ final class Plugin {
 		add_action( 'init', array( self::class, 'register' ), 5 );
 		add_action( 'init', array( self::class, 'migrate' ), 10 );
 		add_action( 'add_meta_boxes', array( self::class, 'add_meta_boxes' ) );
+		add_action( 'save_post', array( self::class, 'persist_pending_scoped_parent' ), 9, 2 );
 		add_action( 'save_post', array( self::class, 'save_admin_fields' ), 10, 2 );
 		add_action( 'wp_after_insert_post', array( self::class, 'complete_record' ), 10, 4 );
 		add_action( 'deleted_post', array( Relationships::class, 'cleanup_deleted_post' ) );
@@ -198,8 +199,23 @@ final class Plugin {
 		}
 		$raw_post_id = $postarr['ID'] ?? 0;
 		$post_id     = is_numeric( $raw_post_id ) ? (int) $raw_post_id : 0;
-		$incoming    = $unsanitized['meta_input'] ?? array();
-		$incoming    = is_array( $incoming ) ? $incoming : array();
+		$role        = Roles::policy_role();
+		if ( TeachingPolicy::is_scoped_role( $role ) ) {
+			$stored_post = 0 < $post_id ? get_post( $post_id ) : null;
+			if ( $stored_post instanceof WP_Post ) {
+				$scoped_error = Roles::scoped_post_error( get_current_user_id(), 'edit', $stored_post );
+			} else {
+				$grants       = Roles::teaching_grants( get_current_user_id() );
+				$scoped_error = 'lps_offering' === $post_type ? 'lps_teaching_scope_required' : TeachingPolicy::scope_error( $role, 'create', $post_type, 0, $grants, gmdate( 'c' ) );
+			}
+			if ( null !== $scoped_error ) {
+				self::$pending_errors[ $post_id ]['_lps_scope'] = $scoped_error;
+				$data['post_status']                            = $update ? Policy::scalar_string( get_post_status( $post_id ) ) : 'draft';
+				return $data;
+			}
+		}
+		$incoming = $unsanitized['meta_input'] ?? array();
+		$incoming = is_array( $incoming ) ? $incoming : array();
 		/**
 		 * Typed direct-insert metadata.
 		 *
@@ -274,7 +290,18 @@ final class Plugin {
 		$post_id   = isset( $prepared->ID ) && is_numeric( $prepared->ID ) ? (int) $prepared->ID : Policy::sanitize_integer( $request->get_param( 'id' ) );
 		$role      = Roles::policy_role();
 		$action    = 0 < $post_id ? 'edit' : 'create';
-		if ( '' !== $role && ! Roles::current_user_can_action( $action, Roles::collection_for_post_type( $post_type ) ) ) {
+		if ( TeachingPolicy::is_scoped_role( $role ) ) {
+			$scoped_error = self::scoped_rest_error( $role, $action, $post_type, $post_id, $request );
+			if ( null !== $scoped_error ) {
+				return self::error( $scoped_error, 'This account lacks the required teaching scope for this action.', 'type' );
+			}
+			if ( 'create' === $action && isset( TeachingPolicy::RELATIONSHIP_SCOPES[ $post_type ] ) ) {
+				// The declared parent was already validated against the persisted
+				// grants; stash it so `save_post` can write the canonical row before
+				// the REST meta update checks `edit_post_meta` on the new record.
+				self::$pending_scoped_offering = Policy::sanitize_integer( $request->get_param( 'lps_parent_offering' ) );
+			}
+		} elseif ( '' !== $role && ! Roles::current_user_can_action( $action, Roles::collection_for_post_type( $post_type ) ) ) {
 			return self::error( 'lps_collection_scope_forbidden', 'This account is not assigned to this collection or action.', 'type' );
 		}
 		$incoming = $request->get_param( 'meta' );
@@ -288,6 +315,9 @@ final class Plugin {
 		foreach ( array_keys( $incoming ) as $field ) {
 			if ( ! SecurityPolicy::can_write_field( $role, (string) $field, $locale ) ) {
 				return self::error( 'lps_translator_shared_field_forbidden', 'Translators may change only localized English editorial fields.', (string) $field );
+			}
+			if ( ! TeachingPolicy::field_write_allowed( $role, $post_type, (string) $field ) ) {
+				return self::error( 'lps_teaching_field_forbidden', 'This scoped account may not write this field.', (string) $field );
 			}
 		}
 		$meta          = self::merged_meta( $post_type, $post_id, $incoming );
@@ -420,7 +450,7 @@ final class Plugin {
 		return Policy::can_change_identity( $stored, $candidate ) ? $check : false;
 	}
 
-	/** Blocks translator writes to shared identifiers, dates, and relationship fields.
+	/** Blocks translator and scoped-role writes outside their field and grant boundaries.
 	 *
 	 * @param mixed  $check      Existing short-circuit value.
 	 * @param int    $object_id  Record ID.
@@ -432,7 +462,17 @@ final class Plugin {
 		unset( $meta_value );
 		$role   = Roles::policy_role();
 		$locale = Policy::scalar_string( get_post_meta( $object_id, '_lps_locale', true ) );
-		return SecurityPolicy::can_write_field( $role, $meta_key, $locale ) ? $check : false;
+		if ( ! SecurityPolicy::can_write_field( $role, $meta_key, $locale ) ) {
+			return false;
+		}
+		if ( ! TeachingPolicy::is_scoped_role( $role ) ) {
+			return $check;
+		}
+		$post = get_post( $object_id );
+		if ( ! $post instanceof WP_Post || ! TeachingPolicy::field_write_allowed( $role, $post->post_type, $meta_key ) ) {
+			return false;
+		}
+		return null === Roles::scoped_post_error( get_current_user_id(), 'edit', $post ) ? $check : false;
 	}
 
 	/** Removes private ownership and audit-shaped values from anonymous REST responses.
@@ -704,6 +744,109 @@ final class Plugin {
 			echo '<li><code>' . esc_html( $code ) . '</code>: ' . esc_html( $field ) . '</li>';
 		}
 		echo '</ul></div>';
+	}
+
+	/**
+	 * Returns the first scoped REST denial, or null when the request may proceed.
+	 *
+	 * Creates of units and resources must declare their parent offering through
+	 * the `lps_parent_offering` parameter; the declared ID is validated against
+	 * the persisted grant list, so an input ID can never create its own access.
+	 * Scoped roles never create offerings directly: offering creation is an
+	 * institutional act and copy-forward is a dedicated server operation.
+	 *
+	 * @param string          $role      Scoped policy role.
+	 * @param string          $action    `create` or `edit`.
+	 * @param string          $post_type Governed record type.
+	 * @param int             $post_id   Record ID for updates.
+	 * @param WP_REST_Request $request   Current REST request.
+	 */
+	private static function scoped_rest_error( string $role, string $action, string $post_type, int $post_id, WP_REST_Request $request ): ?string {
+		$user = wp_get_current_user();
+		if ( ! SecurityPolicy::privileged_session_allowed( $role, MFA::is_enrolled( $user->ID ) ) ) {
+			return 'lps_mfa_required';
+		}
+		if ( ! in_array( $post_type, TeachingPolicy::SCOPED_POST_TYPES, true ) ) {
+			return 'lps_teaching_scope_post_type';
+		}
+		$offering_id = 0;
+		if ( 'offering' === TeachingPolicy::scope_for_post_type( $post_type ) ) {
+			if ( 0 < $post_id ) {
+				$stored = get_post( $post_id );
+				if ( ! $stored instanceof WP_Post ) {
+					return 'lps_teaching_scope_required';
+				}
+				$offering_id = Roles::persisted_offering_id( $stored );
+			} else {
+				if ( 'lps_offering' === $post_type ) {
+					return 'lps_teaching_scope_required';
+				}
+				$offering_id = Policy::sanitize_integer( $request->get_param( 'lps_parent_offering' ) );
+				$parent      = 0 < $offering_id ? get_post( $offering_id ) : null;
+				if ( ! $parent instanceof WP_Post || 'lps_offering' !== $parent->post_type ) {
+					return 'lps_teaching_scope_required';
+				}
+			}
+		}
+		$grants = Roles::teaching_grants( $user->ID );
+		$error  = TeachingPolicy::scope_error( $role, $action, $post_type, $offering_id, $grants, gmdate( 'c' ) );
+		if ( null !== $error ) {
+			return $error;
+		}
+		$author_param = $request->get_param( 'author' );
+		if ( null !== $author_param ) {
+			$author_id = Policy::sanitize_integer( $author_param );
+			$expected  = 0 < $post_id ? Policy::sanitize_integer( get_post_field( 'post_author', $post_id ) ) : $user->ID;
+			if ( $author_id !== $expected ) {
+				return 'lps_teaching_owner_forbidden';
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Offering ID declared by an in-flight scoped REST create.
+	 *
+	 * @var int|null
+	 */
+	private static ?int $pending_scoped_offering = null;
+
+	/**
+	 * Persists the validated parent offering inside `wp_insert_post`.
+	 *
+	 * `validate_rest_insert` already proved the declared `lps_parent_offering`
+	 * is a real offering inside the account's active grants. Writing the
+	 * canonical `unit_offering` or `resource_offering` row on `save_post` —
+	 * before the REST meta update checks `edit_post_meta` — keeps the new
+	 * record scoped from its first persisted state.
+	 *
+	 * @param int     $post_id Inserted record ID.
+	 * @param WP_Post $post    Inserted record.
+	 */
+	public static function persist_pending_scoped_parent( int $post_id, WP_Post $post ): void {
+		$offering_id = self::$pending_scoped_offering;
+		if ( null === $offering_id ) {
+			return;
+		}
+		self::$pending_scoped_offering = null;
+		$relationship                  = TeachingPolicy::RELATIONSHIP_SCOPES[ $post->post_type ] ?? '';
+		if ( '' === $relationship || 0 >= $offering_id ) {
+			return;
+		}
+		Relationships::replace(
+			$post_id,
+			$relationship,
+			array(
+				array(
+					'target_post_id'    => $offering_id,
+					'relationship_role' => 'unit_offering' === $relationship ? 'part-of' : 'attached-to',
+					'sort_order'        => 1,
+					'start_date'        => '',
+					'end_date'          => '',
+					'public_visibility' => true,
+				),
+			)
+		);
 	}
 
 	/**
