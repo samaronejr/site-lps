@@ -5,7 +5,7 @@ const themeRoot = "wp-content/themes/lps-theme";
 const read = (path) => readFileSync(`${themeRoot}/${path}`, "utf8");
 
 describe("LPS block theme contract", () => {
-  test("declares the binding palette, typography, spacing, and square surface settings", () => {
+  test("declares the binding palette, typography, spacing, and control-radius settings", () => {
     // Given: the production block theme configuration.
     // When: theme.json is parsed.
     const theme = JSON.parse(read("theme.json"));
@@ -44,20 +44,20 @@ describe("LPS block theme contract", () => {
     });
     expect(theme.settings.blocks["core/image"]).toEqual({ border: { radius: false } });
 
-    // Then: the light institutional canvas carries the full status set, washes included.
-    expect(theme.settings.color.palette).toHaveLength(18);
+    // Then: the unified canvas carries the full status set, washes included.
+    // The dark-surface focus token is a CSS-only primitive, not a palette slug.
+    expect(theme.settings.color.palette).toHaveLength(17);
     expect(theme.settings.color.palette.map(({ slug }) => slug)).toEqual([
-      "paper",
-      "paper-raised",
-      "paper-muted",
-      "ink",
-      "ink-soft",
-      "navy",
-      "navy-hover",
-      "signal",
-      "signal-hover",
-      "rule",
-      "rule-strong",
+      "canvas",
+      "surface",
+      "anchor",
+      "anchor-deep",
+      "action",
+      "action-hover",
+      "text",
+      "text-muted",
+      "rule-quiet",
+      "boundary-strong",
       "success",
       "warning",
       "error",
@@ -70,17 +70,16 @@ describe("LPS block theme contract", () => {
       theme.settings.color.palette.map(({ slug, color }) => [slug, color]),
     );
     expect(colors).toMatchObject({
-      paper: "#FFFFFF",
-      "paper-raised": "#FFFFFF",
-      "paper-muted": "#EFF1F4",
-      ink: "#141A1F",
-      "ink-soft": "#46515A",
-      navy: "#003B5C",
-      "navy-hover": "#002B44",
-      signal: "#007A87",
-      "signal-hover": "#005F69",
-      rule: "#C9CDD1",
-      "rule-strong": "#6F7A82",
+      canvas: "#F5F7FA",
+      surface: "#FFFFFF",
+      anchor: "#12304A",
+      "anchor-deep": "#0C2237",
+      action: "#165A96",
+      "action-hover": "#0F4A7E",
+      text: "#182B3A",
+      "text-muted": "#526477",
+      "rule-quiet": "#D7E0E8",
+      "boundary-strong": "#74869A",
       success: "#216E4E",
       warning: "#7A4A00",
       error: "#A12622",
@@ -90,19 +89,27 @@ describe("LPS block theme contract", () => {
       "error-wash": "#F2DEDA",
     });
 
-    // Then: the sans-led interface role leads, the reading serif stays self-hosted OFL.
+    // Then: the sans-led interface role leads and the mono is scoped to
+    // identifiers; the retired serif role ships no family and no font files.
     expect(theme.settings.typography.fontFamilies.map(({ slug }) => slug)).toEqual([
       "interface",
-      "editorial",
       "mono",
     ]);
     const families = Object.fromEntries(
       theme.settings.typography.fontFamilies.map(({ slug, ...rest }) => [slug, rest]),
     );
+    expect(families.interface.fontFamily).toContain("IBM Plex Sans");
     expect(families.interface.fontFamily).toContain("system-ui");
-    expect(families.editorial.fontFamily).toContain("Source Serif 4");
-    expect(families.editorial.fontFace).toHaveLength(2);
+    expect(families.interface.fontFace).toHaveLength(4);
+    expect(families.mono.fontFamily).toContain("IBM Plex Mono");
     expect(families.mono.fontFamily).toContain("ui-monospace");
+    expect(families.mono.fontFace).toHaveLength(2);
+    for (const family of theme.settings.typography.fontFamilies) {
+      for (const face of family.fontFace ?? []) {
+        expect(face.fontDisplay).toBe("swap");
+        for (const src of face.src) expect(src).toMatch(/^file:\.\/assets\/fonts\/.+\.woff2$/);
+      }
+    }
 
     expect(theme.settings.typography.fontSizes.map(({ slug }) => slug)).toEqual([
       "meta",
@@ -140,39 +147,38 @@ describe("LPS block theme contract", () => {
 
     // Then: canvas, rhythm, and body copy resolve to presets, never literals.
     expect(styles.color).toEqual({
-      background: "var:preset|color|paper",
-      text: "var:preset|color|ink",
+      background: "var:preset|color|canvas",
+      text: "var:preset|color|text",
     });
     expect(styles.spacing.blockGap).toBe("var:preset|spacing|6");
     expect(styles.typography.fontFamily).toBe("var:preset|font-family|interface");
     expect(styles.typography.fontSize).toBe("var:preset|font-size|body");
 
     // Then: headings are sans-led with the contracted per-level weights.
-    expect(styles.elements.heading.color.text).toBe("var:preset|color|ink");
+    expect(styles.elements.heading.color.text).toBe("var:preset|color|text");
     expect(styles.elements.heading.typography.fontFamily).toBe("var:preset|font-family|interface");
-    for (const level of ["h1", "h2"]) {
-      expect(styles.elements[level].typography.fontFamily).toBe("var:preset|font-family|interface");
-      expect(styles.elements[level].typography.fontWeight).toBe("700");
-    }
-    for (const level of ["h3", "h4"]) {
+    expect(styles.elements.h1.typography.fontFamily).toBe("var:preset|font-family|interface");
+    expect(styles.elements.h1.typography.fontWeight).toBe("700");
+    for (const level of ["h2", "h3", "h4"]) {
       expect(styles.elements[level].typography.fontFamily).toBe("var:preset|font-family|interface");
       expect(styles.elements[level].typography.fontWeight).toBe("650");
     }
 
-    // Then: the reading serif is scoped to the post-content container only.
+    // Then: long-form reading stays on the interface family at the reading
+    // size; the retired serif role is not reintroduced in any block style.
     expect(styles.blocks["core/post-content"].typography.fontFamily).toBe(
-      "var:preset|font-family|editorial",
+      "var:preset|font-family|interface",
     );
-    expect(styles.blocks["core/post-content"].elements.heading.typography.fontFamily).toBe(
-      "var:preset|font-family|editorial",
+    expect(styles.blocks["core/post-content"].typography.fontSize).toBe(
+      "var:preset|font-size|reading",
     );
 
-    // Then: links and buttons keep the institutional signal/navy treatment.
-    expect(styles.elements.link.color.text).toBe("var:preset|color|signal-hover");
-    expect(styles.elements.button.border.radius).toBe("0");
+    // Then: links and buttons keep the institutional action treatment.
+    expect(styles.elements.link.color.text).toBe("var:preset|color|action");
+    expect(styles.elements.button.border.radius).toBe("4px");
     expect(styles.elements.button.color).toEqual({
-      background: "var:preset|color|navy",
-      text: "var:preset|color|paper-raised",
+      background: "var:preset|color|action",
+      text: "var:preset|color|surface",
     });
     expect(styles.elements.button.typography.fontFamily).toBe("var:preset|font-family|interface");
     expect(styles.elements.button.typography.fontSize).toBe("var:preset|font-size|small");
@@ -188,11 +194,21 @@ describe("LPS block theme contract", () => {
     const css = read("assets/css/theme.css");
     const license = read("assets/fonts/OFL.txt");
 
-    // Then: fonts are local and the theme has no remote imports or copied logo asset.
-    expect(css).toContain("../fonts/source-serif-4-regular.woff2");
-    expect(css).toContain("../fonts/source-serif-4-semibold.woff2");
+    // Then: fonts are local woff2 with swap, and the theme has no remote
+    // imports or copied logo asset.
+    for (const face of [
+      "ibm-plex-sans-regular.woff2",
+      "ibm-plex-sans-medium.woff2",
+      "ibm-plex-sans-semibold.woff2",
+      "ibm-plex-sans-bold.woff2",
+      "ibm-plex-mono-regular.woff2",
+      "ibm-plex-mono-semibold.woff2",
+    ]) {
+      expect(css).toContain(`../fonts/${face}`);
+    }
     expect(css).not.toMatch(/@import|url\(["']?https?:/i);
     expect(license).toContain("SIL OPEN FONT LICENSE Version 1.1");
+    expect(license).toContain('Reserved Font Name "Plex"');
   });
 
   test("renders the native shell disclosure closed on mobile and always open on desktop", () => {

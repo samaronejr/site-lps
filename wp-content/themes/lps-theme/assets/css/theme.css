@@ -1,40 +1,77 @@
 /*
- * Public primitives for the light institutional system (DESIGN.md replacement
- * contract). The token layer below mirrors the theme.json slugs verbatim —
- * palette, families, sizes and spacing — and every visual value in this file
- * resolves through these variables. Geometry stays square and flat:
- * border-radius is always 0 and box-shadow is always none.
+ * Public primitives for the unified LPS identity (DESIGN.md replacement
+ * contract, frozen by plan task-07). The token layer below mirrors the
+ * theme.json slugs and docs/design/design-contract.json verbatim — palette,
+ * families, sizes and spacing — and every visual value in this file resolves
+ * through these variables. Depth stays flat: box-shadow is always none, and
+ * the only radius is the 4px control radius; imagery stays rectangular.
+ *
+ * Self-hosted IBM Plex (SIL OFL 1.1, Reserved Font Name "Plex") is subsetted
+ * to ASCII, Latin-1 (full pt-BR diacritics) and general punctuation; the
+ * system stacks remain the documented fallback while the woff2 loads
+ * (font-display: swap). No remote font requests are ever made.
  */
 
 @font-face {
-  font-family: "Source Serif 4";
-  src: url("../fonts/source-serif-4-regular.woff2") format("woff2");
+  font-family: "IBM Plex Sans";
+  src: url("../fonts/ibm-plex-sans-regular.woff2") format("woff2");
   font-style: normal;
   font-weight: 400;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "Source Serif 4";
-  src: url("../fonts/source-serif-4-semibold.woff2") format("woff2");
+  font-family: "IBM Plex Sans";
+  src: url("../fonts/ibm-plex-sans-medium.woff2") format("woff2");
   font-style: normal;
-  font-weight: 600 700;
+  font-weight: 450 550;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("../fonts/ibm-plex-sans-semibold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 600 650;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("../fonts/ibm-plex-sans-bold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 700 750;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("../fonts/ibm-plex-mono-regular.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("../fonts/ibm-plex-mono-semibold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 500 700;
   font-display: swap;
 }
 
 :root {
-  /* Color — theme.json settings.color.palette, 18 slugs. */
-  --color-paper: #ffffff;
-  --color-paper-raised: #ffffff;
-  --color-paper-muted: #eff1f4;
-  --color-ink: #141a1f;
-  --color-ink-soft: #46515a;
-  --color-navy: #003b5c;
-  --color-navy-hover: #002b44;
-  --color-signal: #007a87;
-  --color-signal-hover: #005f69;
-  --color-rule: #c9cdd1;
-  --color-rule-strong: #6f7a82;
+  /* Color — theme.json settings.color.palette, 17 slugs. */
+  --color-canvas: #f5f7fa;
+  --color-surface: #ffffff;
+  --color-anchor: #12304a;
+  --color-anchor-deep: #0c2237;
+  --color-action: #165a96;
+  --color-action-hover: #0f4a7e;
+  --color-text: #182b3a;
+  --color-text-muted: #526477;
+  --color-rule-quiet: #d7e0e8;
+  --color-boundary-strong: #74869a;
   --color-success: #216e4e;
   --color-warning: #7a4a00;
   --color-error: #a12622;
@@ -42,25 +79,27 @@
   --color-success-wash: #e0ece5;
   --color-warning-wash: #f2e8d2;
   --color-error-wash: #f2deda;
-  /* Focus-ring separation on dark fills; not a palette entry. */
-  --color-focus-offset: #ffffff;
+  /* Focus-ring separation on anchor bands and other dark fills; not a palette
+     entry. */
+  --color-focus-on-dark: #ffffff;
 
-  /* Type roles — interface-led. The serif is scoped to reading containers. */
-  --font-interface: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-editorial:
-    "Source Serif 4", "Noto Serif", "Noto Serif CJK SC", "Noto Serif CJK JP", Georgia, serif;
-  --font-mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
-  --type-display: clamp(2.75rem, 7vw, 5.75rem);
+  /* Type roles — IBM Plex Sans owns interface and reading; the mono is scoped
+     to codes, identifiers and tabular metadata only. */
+  --font-interface:
+    "IBM Plex Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono:
+    "IBM Plex Mono", ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
+  --type-display: clamp(2rem, 5vw, 3.5rem);
   /* Display bounded by its own measure: 11cqi keeps the longest Portuguese
      mission word ("Processamento", 7.4em) and the three-line statement
      (8.8em) inside the statement column at every width, so the H1 never
      breaks mid-word. Resolves against the nearest inline-size container. */
-  --type-display-fit: clamp(2.25rem, 11cqi, var(--type-display));
-  --type-h1: clamp(2.25rem, 5vw, 4rem);
-  --type-h2: clamp(1.75rem, 3.5vw, 2.75rem);
-  --type-h3: clamp(1.375rem, 2vw, 1.75rem);
+  --type-display-fit: clamp(1.75rem, 11cqi, var(--type-display));
+  --type-h1: clamp(1.75rem, 4vw, 2.75rem);
+  --type-h2: clamp(1.375rem, 2.5vw, 2rem);
+  --type-h3: clamp(1.125rem, 1.8vw, 1.375rem);
   --type-h4: 1.125rem;
-  --type-lead: clamp(1.25rem, 2vw, 1.5rem);
+  --type-lead: clamp(1.125rem, 1.6vw, 1.25rem);
   --type-body: 1rem;
   --type-reading: 1.125rem;
   --type-small: 0.875rem;
@@ -85,16 +124,23 @@
   --grid-gutter: var(--space-4);
   --grid-padding: clamp(var(--space-4), 4vw, var(--space-10));
   --control-min: 2.75rem;
-  --rule-thin: 0.0625rem;
-  --rule-medium: 0.125rem;
-  --rule-focus: 0.1875rem;
+  --line-thin: 0.0625rem;
+  --line-medium: 0.125rem;
+  --line-focus: 0.1875rem;
   --focus-offset: 0.1875rem;
   --press-shift: 0.0625rem;
-  --radius-square: 0;
+  --radius-control: 4px;
+  --radius-image: 0;
   --shadow-none: none;
   --measure-reading: 68ch;
   --measure-interface: 72ch;
   --measure-lead: 62ch;
+
+  /* Rule primitives — complete border values (DESIGN.md §11). */
+  --rule-hairline: var(--line-thin) solid var(--color-rule-quiet);
+  --rule-boundary: var(--line-medium) solid var(--color-boundary-strong);
+  --rule-anchor: var(--line-medium) solid var(--color-anchor);
+  --rule-focus: var(--line-focus) solid var(--color-action);
 
   /* Motion — state response only, never layout. */
   --motion-fast: 120ms;
@@ -111,8 +157,8 @@
 html {
   min-inline-size: 0;
   overflow-x: clip;
-  background: var(--color-paper);
-  color: var(--color-ink);
+  background: var(--color-canvas);
+  color: var(--color-text);
   font-family: var(--font-interface);
   font-size: var(--type-body);
   scroll-behavior: auto;
@@ -122,9 +168,9 @@ body {
   min-inline-size: 0;
   margin: 0;
   overflow-wrap: break-word;
-  background: var(--color-paper);
-  color: var(--color-ink);
-  line-height: 1.65;
+  background: var(--color-canvas);
+  color: var(--color-text);
+  line-height: 1.6;
 }
 
 img,
@@ -169,7 +215,7 @@ h1,
 h2,
 h3,
 h4 {
-  color: var(--color-ink);
+  color: var(--color-text);
   font-family: var(--font-interface);
   text-wrap: balance;
 }
@@ -178,24 +224,21 @@ h1 {
   margin-block-end: var(--space-6);
   font-size: var(--type-h1);
   font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: 1.04;
+  line-height: 1.15;
 }
 
 h2 {
   margin-block-end: var(--space-6);
   font-size: var(--type-h2);
-  font-weight: 700;
-  letter-spacing: -0.018em;
-  line-height: 1.12;
+  font-weight: 650;
+  line-height: 1.2;
 }
 
 h3 {
   margin-block-end: var(--space-3);
   font-size: var(--type-h3);
   font-weight: 650;
-  letter-spacing: -0.01em;
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
 h4 {
@@ -211,9 +254,9 @@ dd {
 }
 
 :where(a) {
-  color: var(--color-signal-hover);
+  color: var(--color-action);
   text-decoration-line: underline;
-  text-decoration-thickness: var(--rule-thin);
+  text-decoration-thickness: var(--line-thin);
   text-underline-offset: var(--space-1);
   transition:
     color var(--motion-fast) var(--ease-state),
@@ -221,32 +264,32 @@ dd {
 }
 
 :where(a):hover {
-  color: var(--color-navy-hover);
-  text-decoration-thickness: var(--rule-medium);
+  color: var(--color-action-hover);
+  text-decoration-thickness: var(--line-medium);
 }
 
 :where(a):active {
-  color: var(--color-navy);
+  color: var(--color-anchor);
 }
 
-/* Focus is a 3px signal outline with a 3px offset on every interactive
+/* Focus is a 3px action outline with a 3px offset on every interactive
    element; it is never clipped or covered. */
 :where(a, button, input, select, textarea, summary, [tabindex], video[controls]):focus-visible {
-  outline: var(--rule-focus) solid var(--color-signal);
+  outline: var(--rule-focus);
   outline-offset: var(--focus-offset);
 }
 
-/* On navy fills the signal outline falls under the 3:1 graphic floor, so dark
-   bands switch the outline to the documented separation token. */
+/* On anchor fills the action outline falls under the 3:1 graphic floor, so
+   dark bands switch the outline to the documented separation token. */
 :where(.lps-site-footer, .lps-affiliation, .lps-home-section[data-home-section="journeys"])
 :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
-  outline-color: var(--color-focus-offset);
+  outline-color: var(--color-focus-on-dark);
 }
 
 .lps-visually-hidden {
   position: absolute;
-  inline-size: var(--rule-thin);
-  block-size: var(--rule-thin);
+  inline-size: var(--line-thin);
+  block-size: var(--line-thin);
   padding: 0;
   overflow: hidden;
   clip-path: inset(50%);
@@ -288,29 +331,24 @@ dd {
   max-inline-size: var(--measure-reading);
 }
 
-/* The reading serif owns .lps-reading and .wp-block-post-content only: body
-   text and headings inside those containers. */
+/* Long-form reading keeps the interface family at the reading size and
+   measure; the retired serif role is not reintroduced anywhere. */
 .lps-reading {
   max-inline-size: var(--measure-reading);
-  font-family: var(--font-editorial);
   font-size: var(--type-reading);
-  line-height: 1.72;
-}
-
-:where(.lps-reading, .wp-block-post-content) :where(h1, h2, h3, h4, h5, h6) {
-  font-family: var(--font-editorial);
+  line-height: 1.65;
 }
 
 .lps-lead {
   max-inline-size: var(--measure-lead);
-  color: var(--color-ink-soft);
+  color: var(--color-text-muted);
   font-size: var(--type-lead);
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
 .lps-summary {
   max-inline-size: var(--measure-lead);
-  color: var(--color-ink-soft);
+  color: var(--color-text-muted);
 }
 
 .lps-meta,
@@ -340,7 +378,7 @@ dd {
   font-family: var(--font-mono);
   font-size: var(--type-meta);
   font-variant-numeric: tabular-nums;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.075em;
   line-height: 1.4;
 }
@@ -367,12 +405,12 @@ dd {
 .lps-deadline,
 .lps-reviewed-at,
 .lps-claim-source {
-  color: var(--color-ink-soft);
+  color: var(--color-text-muted);
 }
 
 .lps-kicker,
 .lps-journey-label {
-  color: var(--color-signal-hover);
+  color: var(--color-action);
 }
 
 .lps-skip-link {
@@ -382,8 +420,8 @@ dd {
   z-index: 20;
   padding: var(--space-3) var(--space-4);
   transform: translateY(-200%);
-  background: var(--color-paper-raised);
-  color: var(--color-navy);
+  background: var(--color-surface);
+  color: var(--color-anchor);
   font-weight: 700;
 }
 
@@ -392,15 +430,15 @@ dd {
 }
 
 .lps-site-header {
-  border-block-end: var(--rule-medium) solid var(--color-navy);
+  border-block-end: var(--rule-anchor);
 }
 
 /* Institutional affiliation strip: identity surface, not a page band. */
 .lps-affiliation {
   max-inline-size: none;
   padding-block: var(--space-2);
-  background: var(--color-navy);
-  color: var(--color-paper-raised);
+  background: var(--color-anchor);
+  color: var(--color-surface);
   font-size: var(--type-small);
 }
 
@@ -425,21 +463,20 @@ dd {
 
 .lps-masthead p {
   margin: var(--space-2) 0 0;
-  color: var(--color-ink-soft);
+  color: var(--color-text-muted);
 }
 
 .lps-wordmark {
-  color: var(--color-navy);
+  color: var(--color-anchor);
   font-family: var(--font-interface);
   font-size: var(--type-h1);
   font-weight: 700;
-  letter-spacing: -0.04em;
   line-height: 0.9;
   text-decoration: none;
 }
 
 .lps-shell-disclosure {
-  border-block-start: var(--rule-thin) solid var(--color-rule);
+  border-block-start: var(--rule-hairline);
 }
 
 .lps-shell-disclosure > summary {
@@ -448,7 +485,7 @@ dd {
   align-items: center;
   justify-content: space-between;
   padding-inline: var(--space-4);
-  color: var(--color-navy);
+  color: var(--color-anchor);
   cursor: pointer;
   font-weight: 700;
   list-style: none;
@@ -495,28 +532,28 @@ dd {
 }
 
 .lps-primary-nav a {
-  color: var(--color-ink);
+  color: var(--color-text);
   font-size: var(--type-small);
   font-weight: 650;
   text-decoration: none;
 }
 
 .lps-primary-nav a:hover {
-  color: var(--color-navy-hover);
+  color: var(--color-action-hover);
   text-decoration-line: underline;
-  text-decoration-thickness: var(--rule-medium);
+  text-decoration-thickness: var(--line-medium);
   text-underline-offset: var(--space-1);
 }
 
 .lps-primary-nav a:active {
-  color: var(--color-navy);
+  color: var(--color-anchor);
 }
 
-/* Current page is a 3px signal rule plus weight 750, never color alone. */
+/* Current page is a 3px action rule plus weight 750, never color alone. */
 .lps-primary-nav a[aria-current="page"],
 .lps-locale a[aria-current="page"] {
-  border-block-end: var(--rule-focus) solid var(--color-signal);
-  color: var(--color-navy);
+  border-block-end: var(--rule-focus);
+  color: var(--color-anchor);
   font-weight: 750;
 }
 
@@ -548,13 +585,13 @@ dd {
 }
 
 .lps-locale span[aria-disabled="true"] {
-  color: var(--color-ink-soft);
+  color: var(--color-text-muted);
   text-decoration: line-through;
 }
 
 .lps-breadcrumbs {
   padding-block: var(--space-4);
-  border-block-end: var(--rule-thin) solid var(--color-rule);
+  border-block-end: var(--rule-hairline);
 }
 
 .lps-breadcrumbs ol {
@@ -566,7 +603,7 @@ dd {
 .lps-breadcrumbs li + li::before {
   content: "/";
   margin-inline-end: var(--space-2);
-  color: var(--color-rule-strong);
+  color: var(--color-boundary-strong);
 }
 
 .lps-main-content {
@@ -574,9 +611,8 @@ dd {
 }
 
 .wp-block-post-content {
-  font-family: var(--font-editorial);
   font-size: var(--type-reading);
-  line-height: 1.72;
+  line-height: 1.65;
 }
 
 .wp-block-post-content > :where(p, ul, ol, h2, h3, h4, blockquote) {
@@ -649,16 +685,16 @@ dd {
   margin: 0;
   padding: 0 0 var(--space-6);
   border: 0;
-  border-block-end: var(--rule-thin) solid var(--color-rule);
+  border-block-end: var(--rule-hairline);
 }
 
 .lps-listing-filters legend {
   margin-block-end: var(--space-2);
-  color: var(--color-ink-soft);
+  color: var(--color-text-muted);
   font-family: var(--font-mono);
   font-size: var(--type-meta);
   font-variant-numeric: tabular-nums;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.075em;
 }
 
@@ -708,14 +744,14 @@ dd {
 .lps-publication > h2 {
   margin-block: var(--space-10) var(--space-4);
   padding-block-start: var(--space-6);
-  border-block-start: var(--rule-thin) solid var(--color-rule);
+  border-block-start: var(--rule-hairline);
   font-size: var(--type-h3);
 }
 
 .lps-access {
   margin-block-start: var(--space-10);
   padding-block-start: var(--space-6);
-  border-block-start: var(--rule-thin) solid var(--color-rule);
+  border-block-start: var(--rule-hairline);
 }
 
 .lps-access > h2 {
@@ -736,7 +772,7 @@ dd {
 }
 
 .lps-empty {
-  color: var(--color-ink-soft);
+  color: var(--color-text-muted);
 }
 
 .wp-block-post-template {
@@ -748,7 +784,7 @@ dd {
 .wp-block-post-template > li,
 .lps-record {
   padding-block: var(--space-6);
-  border-block-start: var(--rule-thin) solid var(--color-rule);
+  border-block-start: var(--rule-hairline);
 }
 
 .lps-record h3,
@@ -762,7 +798,7 @@ dd {
 
 .lps-record p {
   margin-block: 0;
-  color: var(--color-ink-soft);
+  color: var(--color-text-muted);
 }
 
 .wp-block-post-template .wp-block-post-title {
@@ -777,8 +813,8 @@ figure,
 
 .lps-feature-media-fallback {
   padding: var(--space-8);
-  background: var(--color-paper-muted);
-  color: var(--color-ink-soft);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
 }
 
 /* Governed media inside a record row keeps a tighter rhythm than a standalone
@@ -792,7 +828,7 @@ figcaption,
 .wp-element-caption {
   max-inline-size: var(--measure-interface);
   margin-block-start: var(--space-3);
-  color: var(--color-ink-soft);
+  color: var(--color-text-muted);
   font-size: var(--type-small);
   line-height: 1.5;
 }
@@ -822,26 +858,26 @@ figcaption,
   min-inline-size: 0;
 }
 
-/* Band rhythm: white canvas and section gray alternate; adjacent modules never
-   share a band color. Journeys is the single interior navy band. Research and
-   projects share one muted band so they read as a single module's strata;
-   people and infrastructure share the white band for the same reason. */
+/* Band rhythm: canvas and surface alternate; adjacent modules never share a
+   band color. Journeys is the single interior anchor band. Research and
+   projects share one surface band so they read as a single module's strata;
+   people and infrastructure share the canvas band for the same reason. */
 .lps-home-section[data-home-section="research"],
 .lps-home-section[data-home-section="projects"],
 .lps-home-section[data-home-section="latest"] {
-  background: var(--color-paper-muted);
+  background: var(--color-surface);
 }
 
 /* Strata inside a module separate by rule and spacing, never by cards. */
 .lps-home-section[data-home-section="projects"],
 .lps-home-stratum {
   padding-block-start: var(--space-12);
-  border-block-start: var(--rule-thin) solid var(--color-rule);
+  border-block-start: var(--rule-hairline);
 }
 
 /* The contact handoff closes the partners module with a strong top rule. */
 .lps-home-handoff {
-  border-block-start: var(--rule-medium) solid var(--color-rule-strong);
+  border-block-start: var(--line-medium) solid var(--color-boundary-strong);
 }
 
 /* Selected projects are numbered editorial records inside the shared band. */
@@ -855,24 +891,24 @@ figcaption,
 
 .lps-home-section[data-home-section="projects"] .lps-record h3::before {
   content: counter(lps-project) ". ";
-  color: var(--color-ink-soft);
+  color: var(--color-text-muted);
   font-family: var(--font-mono);
   font-size: var(--type-meta);
   font-variant-numeric: tabular-nums;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.075em;
 }
 
 /* Stacked below 64rem, the infrastructure half of the people module keeps a
-   hairline seam so the two groups stay legible on the shared white band. */
+   hairline seam so the two groups stay legible on the shared canvas band. */
 .lps-home-section[data-home-section="infrastructure"] {
   padding-block-start: var(--space-12);
-  border-block-start: var(--rule-thin) solid var(--color-rule);
+  border-block-start: var(--rule-hairline);
 }
 
 .lps-home-section[data-home-section="journeys"] {
-  background: var(--color-navy);
-  color: var(--color-paper-raised);
+  background: var(--color-anchor);
+  color: var(--color-surface);
 }
 
 .lps-home-section[data-home-section="journeys"] :where(h2, p, li) {
@@ -880,15 +916,15 @@ figcaption,
 }
 
 .lps-home-section[data-home-section="journeys"] a {
-  color: var(--color-paper-raised);
+  color: var(--color-surface);
 }
 
 .lps-home-section[data-home-section="journeys"] span[aria-disabled="true"] {
-  color: var(--color-rule);
+  color: var(--color-rule-quiet);
 }
 
-/* The audience label sits on navy, so it inherits the band's paper text color
-   instead of the signal-hover kicker color used on light bands. */
+/* The audience label sits on anchor, so it inherits the band's surface text
+   color instead of the action kicker color used on light bands. */
 .lps-home-section[data-home-section="journeys"] .lps-journey-label {
   color: inherit;
 }
@@ -928,12 +964,12 @@ figcaption,
   align-content: start;
   justify-items: start;
   padding-block-start: var(--space-4);
-  border-block-start: var(--rule-thin) solid var(--color-rule);
+  border-block-start: var(--rule-hairline);
 }
 
 .lps-editorial-section {
   padding-block: var(--space-12);
-  border-block-start: var(--rule-thin) solid var(--color-rule);
+  border-block-start: var(--rule-hairline);
 }
 
 .lps-editorial-section > * {
@@ -942,7 +978,7 @@ figcaption,
 
 .lps-handoff {
   padding-block: var(--space-8);
-  border-block-start: var(--rule-thin) solid var(--color-rule);
+  border-block-start: var(--rule-hairline);
 }
 
 /* Tables: caption names the purpose; the wrapper alone owns horizontal scroll
@@ -951,12 +987,12 @@ figcaption,
 .wp-block-table {
   max-inline-size: 100%;
   overflow-x: auto;
-  border-block-start: var(--rule-medium) solid var(--color-navy);
+  border-block-start: var(--rule-anchor);
 }
 
 .lps-table-scroll:focus-visible,
 .wp-block-table:focus-within {
-  outline: var(--rule-focus) solid var(--color-signal);
+  outline: var(--rule-focus);
   outline-offset: var(--focus-offset);
 }
 
@@ -977,13 +1013,13 @@ caption {
 th,
 td {
   padding: var(--space-3) var(--space-4);
-  border-block-end: var(--rule-thin) solid var(--color-rule);
+  border-block-end: var(--rule-hairline);
   text-align: start;
   vertical-align: top;
 }
 
 thead th {
-  color: var(--color-ink-soft);
+  color: var(--color-text-muted);
   font-family: var(--font-mono);
   font-size: var(--type-meta);
   letter-spacing: 0.04em;
@@ -991,7 +1027,7 @@ thead th {
 
 tbody tr:hover,
 tbody tr:focus-within {
-  background: var(--color-paper-muted);
+  background: var(--color-surface);
 }
 
 .lps-status,
@@ -1002,7 +1038,7 @@ tbody tr:focus-within {
 .lps-event-state {
   display: inline-block;
   padding-inline-start: var(--space-3);
-  border-inline-start: var(--rule-focus) solid currentColor;
+  border-inline-start: var(--line-focus) solid currentColor;
 }
 
 .lps-status-success {
@@ -1017,13 +1053,13 @@ tbody tr:focus-within {
   color: var(--color-error);
 }
 
-/* Alerts: left signal rule over a semantic wash; never a floating toast. */
+/* Alerts: left action rule over a semantic wash; never a floating toast. */
 .lps-alert {
   display: grid;
   gap: var(--space-4);
   padding: var(--space-5);
-  border-inline-start: var(--rule-focus) solid var(--color-signal);
-  color: var(--color-ink);
+  border-inline-start: var(--rule-focus);
+  color: var(--color-text);
   grid-template-columns: minmax(0, 1fr);
 }
 
@@ -1053,7 +1089,7 @@ tbody tr:focus-within {
 .lps-claims-warning,
 .lps-search-error {
   padding: var(--space-4) var(--space-5);
-  border-inline-start: var(--rule-focus) solid var(--color-signal);
+  border-inline-start: var(--rule-focus);
 }
 
 .lps-alert :where(h2, h3, h4) {
@@ -1068,9 +1104,9 @@ tbody tr:focus-within {
   min-block-size: var(--control-min);
   inline-size: 100%;
   padding: var(--space-3) var(--space-4);
-  border: var(--rule-medium) solid var(--color-rule-strong);
-  border-radius: var(--radius-square);
-  background: var(--color-paper-raised);
+  border: var(--rule-boundary);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
 }
 
 .lps-search input {
@@ -1078,9 +1114,9 @@ tbody tr:focus-within {
   min-inline-size: 0;
   inline-size: 100%;
   padding: var(--space-3);
-  border: var(--rule-medium) solid var(--color-rule-strong);
-  border-radius: var(--radius-square);
-  background: var(--color-paper-raised);
+  border: var(--rule-boundary);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
 }
 
 :where(input, select, textarea)[aria-invalid="true"] {
@@ -1088,12 +1124,26 @@ tbody tr:focus-within {
 }
 
 :where(input, select, textarea):disabled {
-  background: var(--color-paper-muted);
-  color: var(--color-ink-soft);
+  background: var(--color-canvas);
+  color: var(--color-text-muted);
 }
 
-/* Buttons: square geometry, navy fill for primary, 2px navy rule for
-   secondary; the only spatial response is a 1px press. */
+/* Validation messages name the field, the cause, and the repair; the error
+   color is a supporting cue, never the only signal. The message is essential
+   text, so it keeps the 16px body floor rather than the caption size. */
+.lps-field-error {
+  color: var(--color-error);
+  font-size: var(--type-body);
+  font-weight: 650;
+}
+
+.lps-field-hint {
+  color: var(--color-text-muted);
+  font-size: var(--type-small);
+}
+
+/* Buttons: 4px control radius, action fill for primary, 2px strong boundary
+   for secondary; the only spatial response is a 1px press. */
 .lps-search button,
 .lps-button,
 .wp-element-button,
@@ -1103,11 +1153,11 @@ tbody tr:focus-within {
   align-items: center;
   justify-content: center;
   padding: var(--space-3) var(--space-5);
-  border: var(--rule-medium) solid var(--color-navy);
-  border-radius: var(--radius-square);
+  border: var(--rule-boundary);
+  border-radius: var(--radius-control);
   box-shadow: var(--shadow-none);
-  background: var(--color-paper);
-  color: var(--color-navy);
+  background: var(--color-surface);
+  color: var(--color-action);
   cursor: pointer;
   font-family: var(--font-interface);
   font-size: var(--type-small);
@@ -1124,17 +1174,18 @@ tbody tr:focus-within {
 .lps-search button,
 .lps-button-primary,
 .wp-block-button:not(.is-style-outline) .wp-block-button__link {
-  background: var(--color-navy);
-  color: var(--color-paper-raised);
+  border-color: var(--color-action);
+  background: var(--color-action);
+  color: var(--color-surface);
 }
 
 .lps-search button:hover,
 .lps-button:hover,
 .wp-element-button:hover,
 .wp-block-button__link:hover {
-  border-color: var(--color-navy-hover);
-  background: var(--color-navy-hover);
-  color: var(--color-paper-raised);
+  border-color: var(--color-action-hover);
+  background: var(--color-action-hover);
+  color: var(--color-surface);
 }
 
 .lps-search button:active,
@@ -1148,24 +1199,25 @@ tbody tr:focus-within {
 .lps-button[aria-disabled="true"],
 .wp-element-button:disabled,
 .wp-block-button__link[aria-disabled="true"] {
-  border-color: var(--color-rule);
-  background: var(--color-paper-muted);
-  color: var(--color-ink-soft);
+  border-color: var(--color-rule-quiet);
+  background: var(--color-canvas);
+  color: var(--color-text-muted);
   cursor: default;
 }
 
-/* On the navy journeys band the button inverts to a paper fill; declared after
-   the base button rules so the cascade order matches the specificity order. */
+/* On the anchor journeys band the button inverts to a surface fill; declared
+   after the base button rules so the cascade order matches the specificity
+   order. */
 .lps-home-section[data-home-section="journeys"] .lps-button {
-  border-color: var(--color-paper-raised);
-  background: var(--color-paper-raised);
-  color: var(--color-navy);
+  border-color: var(--color-surface);
+  background: var(--color-surface);
+  color: var(--color-anchor);
 }
 
 .lps-home-section[data-home-section="journeys"] .lps-button:hover {
-  border-color: var(--color-paper);
-  background: var(--color-paper);
-  color: var(--color-navy-hover);
+  border-color: var(--color-canvas);
+  background: var(--color-canvas);
+  color: var(--color-anchor-deep);
 }
 
 /* Target size, WCAG 2.2 SC 2.5.8. A control inside a link cluster, a pagination
@@ -1227,7 +1279,7 @@ tbody tr:focus-within {
 
 details:not(.lps-shell-disclosure) {
   padding-block: var(--space-4);
-  border-block: var(--rule-thin) solid var(--color-rule);
+  border-block: var(--rule-hairline);
 }
 
 details:not(.lps-shell-disclosure) > summary {
@@ -1241,7 +1293,7 @@ details:not(.lps-shell-disclosure) > summary {
 .lps-not-found {
   max-inline-size: var(--measure-lead);
   padding-block: var(--space-12);
-  border-block: var(--rule-medium) solid var(--color-navy);
+  border-block: var(--rule-anchor);
 }
 
 .lps-main-content > .wp-block-post-title,
@@ -1252,12 +1304,12 @@ details:not(.lps-shell-disclosure) > summary {
   grid-column: 1 / -1;
 }
 
-/* Footer: compact navy band carrying affiliation, utility routes and the
+/* Footer: compact anchor band carrying affiliation, utility routes and the
    reporting contact. */
 .lps-site-footer {
   padding-block: var(--space-8);
-  background: var(--color-navy-hover);
-  color: var(--color-paper-raised);
+  background: var(--color-anchor);
+  color: var(--color-surface);
 }
 
 .lps-footer-grid {
@@ -1272,7 +1324,7 @@ details:not(.lps-shell-disclosure) > summary {
 .lps-wordmark-light,
 .lps-site-footer a,
 .lps-site-footer .lps-meta {
-  color: var(--color-paper-raised);
+  color: var(--color-surface);
 }
 
 .lps-site-footer p {
@@ -1461,7 +1513,7 @@ details:not(.lps-shell-disclosure) > summary {
     grid-column: 1 / 11;
   }
 
-  /* The header's navy base rule already separates the mission from the
+  /* The header's anchor base rule already separates the mission from the
      shell; the tighter lead-in keeps H1, lead, CTA and figure inside the
      800px first viewport at 1280 (DESIGN.md module 1). */
   .lps-home-section[data-home-section="mission"] {
@@ -1508,7 +1560,7 @@ details:not(.lps-shell-disclosure) > summary {
     aspect-ratio: 3 / 2;
   }
 
-  /* People and infrastructure form one split module on the white band: the
+  /* People and infrastructure form one split module on the canvas band: the
      sections drop their full-bleed band behavior and sit side by side on the
      parent page grid. */
   .lps-home-section[data-home-section="people"],
@@ -1607,7 +1659,7 @@ details:not(.lps-shell-disclosure) > summary {
 .lps-history > li,
 .lps-claims li {
   padding-block: var(--space-4);
-  border-block-start: var(--rule-thin) solid var(--color-rule);
+  border-block-start: var(--rule-hairline);
 }
 
 /* Derived states keep an explicit text label; color only supports it. */
@@ -1627,14 +1679,14 @@ details:not(.lps-shell-disclosure) > summary {
 /* The external-collaborator disclaimer is a persistent notice, not metadata. */
 .lps-external {
   padding: var(--space-4) var(--space-5);
-  border-inline-start: var(--rule-focus) solid var(--color-signal);
+  border-inline-start: var(--rule-focus);
   background: var(--color-info-wash);
 }
 
 /* Infrastructure facilities: sourced claims and grouped evidence links. */
 .lps-infra article {
   padding-block: var(--space-6);
-  border-block-start: var(--rule-thin) solid var(--color-rule);
+  border-block-start: var(--rule-hairline);
 }
 
 .lps-infra-group {
@@ -1650,8 +1702,8 @@ details:not(.lps-shell-disclosure) > summary {
 .lps-verification {
   margin-block-start: var(--space-6);
   padding: var(--space-5);
-  border: var(--rule-thin) solid var(--color-rule);
-  background: var(--color-paper-muted);
+  border: var(--rule-hairline);
+  background: var(--color-surface);
 }
 
 .lps-verification h2,
@@ -1689,7 +1741,7 @@ details:not(.lps-shell-disclosure) > summary {
   display: grid;
   margin: 0;
   padding: var(--space-4);
-  border: var(--rule-thin) solid var(--color-rule);
+  border: var(--rule-hairline);
   gap: var(--space-4);
 }
 
@@ -1722,7 +1774,7 @@ details:not(.lps-shell-disclosure) > summary {
 
 .lps-search-result > p {
   margin-block: var(--space-1) 0;
-  color: var(--color-ink-soft);
+  color: var(--color-text-muted);
 }
 
 .lps-search-error {
@@ -1814,23 +1866,23 @@ details:not(.lps-shell-disclosure) > summary {
   }
 
   .lps-affiliation {
-    border-block-end: var(--rule-medium) solid var(--color-ink);
-    background: var(--color-paper);
-    color: var(--color-ink);
+    border-block-end: var(--line-medium) solid var(--color-text);
+    background: var(--color-surface);
+    color: var(--color-text);
   }
 
   /* The footer keeps its affiliation context in print; only its navigation is
      stripped as an interaction-only control. */
   .lps-site-footer {
-    border-block-start: var(--rule-medium) solid var(--color-ink);
-    background: var(--color-paper);
-    color: var(--color-ink);
+    border-block-start: var(--line-medium) solid var(--color-text);
+    background: var(--color-surface);
+    color: var(--color-text);
   }
 
   .lps-site-footer a,
   .lps-site-footer .lps-meta,
   .lps-wordmark-light {
-    color: var(--color-ink);
+    color: var(--color-text);
   }
 
   .lps-home-section {
@@ -1841,13 +1893,13 @@ details:not(.lps-shell-disclosure) > summary {
   }
 
   .lps-home-section[data-home-section="journeys"] {
-    background: var(--color-paper);
-    color: var(--color-ink);
+    background: var(--color-surface);
+    color: var(--color-text);
   }
 
   .lps-home-section[data-home-section="journeys"] :where(h2, p, li),
   .lps-home-section[data-home-section="journeys"] a {
-    color: var(--color-ink);
+    color: var(--color-text);
   }
 
   a[href^="http"]::after {

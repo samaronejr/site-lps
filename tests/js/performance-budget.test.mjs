@@ -28,8 +28,8 @@ describe("Todo 21 compressed initial budgets", () => {
     expect(classifyAsset("assets/css/theme.css")).toBe("css");
     expect(classifyAsset("assets/js/nav.js")).toBe("js");
     expect(classifyAsset("assets/js/nav.mjs")).toBe("js");
-    expect(classifyAsset("assets/fonts/source-serif-4-regular.woff2")).toBe("fonts");
-    expect(classifyAsset("assets/fonts/source-serif-4-regular.ttf")).toBe("fonts");
+    expect(classifyAsset("assets/fonts/ibm-plex-sans-regular.woff2")).toBe("fonts");
+    expect(classifyAsset("assets/fonts/ibm-plex-sans-regular.ttf")).toBe("fonts");
     expect(classifyAsset("uploads/hero.avif")).toBe("image");
     expect(classifyAsset("readme.txt")).toBe("other");
   });
@@ -73,8 +73,8 @@ describe("Todo 21 compressed initial budgets", () => {
   test("an unbounded font payload fails the font budget", () => {
     // Given: unsubset fonts shipped as full TTF faces.
     const assets = [
-      asset("assets/fonts/source-serif-4-regular.ttf", 190 * KIB),
-      asset("assets/fonts/source-serif-4-semibold.ttf", 190 * KIB),
+      asset("assets/fonts/ibm-plex-sans-regular.ttf", 190 * KIB),
+      asset("assets/fonts/ibm-plex-sans-semibold.ttf", 190 * KIB),
     ];
 
     // When/Then: the font budget rejects the payload.

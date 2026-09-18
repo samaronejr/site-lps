@@ -168,11 +168,11 @@
       "sources": [
         {
           "path": "wp-content/themes/lps-theme/theme.json",
-          "sha256": "befeada88191ae2da931e2c763ffacc24d833a9177acc1ff83c504296092532a"
+          "sha256": "a8fdaecf872671d11ba53bfc956569d55ac63bbc970c6488b4562501f24ca941"
         },
         {
           "path": "DESIGN.md",
-          "sha256": "912573d30193d9e71a281664256f49d21d19d7fc7dbf0c01688bf6064cb49548"
+          "sha256": "2070a296b78663612e1b780778f6e2668d7d50eeb71fc2679420db1e58b126da"
         }
       ]
     },

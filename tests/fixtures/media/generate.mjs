@@ -16,18 +16,18 @@ try {
     viewport: { width: 640, height: 360 },
     deviceScaleFactor: 1,
   });
-  const serif = await readFile(
+  const sans = await readFile(
     new URL(
-      "../../../wp-content/themes/lps-theme/assets/fonts/source-serif-4-regular.woff2",
+      "../../../wp-content/themes/lps-theme/assets/fonts/ibm-plex-sans-regular.woff2",
       import.meta.url,
     ),
   );
   for (const [locale, data] of Object.entries(content)) {
     await page.setContent(`<!doctype html><html lang="${locale}"><head><title>${escapeHtml(data.title)}</title><style>
-      @font-face { font-family: "Source Serif 4"; src: url(data:font/woff2;base64,${serif.toString("base64")}); }
+      @font-face { font-family: "IBM Plex Sans"; src: url(data:font/woff2;base64,${sans.toString("base64")}); }
       @page { size: A4; margin: 20mm; }
-      body { color: #141A1F; font: 12pt/1.65 "Source Serif 4", Georgia, serif; }
-      h1 { color: #003B5C; font-size: 24pt; line-height: 1.12; break-after: avoid; }
+      body { color: #182B3A; font: 12pt/1.6 "IBM Plex Sans", system-ui, sans-serif; }
+      h1 { color: #12304A; font-size: 24pt; line-height: 1.15; break-after: avoid; }
       p { orphans: 3; widows: 3; }
     </style></head><body><h1>${escapeHtml(data.title)}</h1>${data.paragraphs.map((p) => `<p>${escapeHtml(p)}</p>`).join("")}</body></html>`);
     await page.evaluate(() => document.fonts.ready);
@@ -54,7 +54,7 @@ try {
       const ctx = document.querySelector("canvas").getContext("2d");
       ctx.fillStyle = "#FFFFFF";
       ctx.fillRect(0, 0, 640, 360);
-      ctx.fillStyle = "#003B5C";
+      ctx.fillStyle = "#12304A";
       ctx.font = "32px system-ui";
       ctx.textAlign = "center";
       ctx.fillText("QA fixture / Teste de QA", 320, 64);
