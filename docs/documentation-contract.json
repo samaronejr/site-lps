@@ -250,6 +250,24 @@
       }
     },
     {
+      "id": "setting-lps_teaching_storage_root",
+      "category": "production-setting",
+      "token": "LPS_TEACHING_STORAGE_ROOT",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-teachingstorage.php",
+        "mustContain": "LPS_TEACHING_STORAGE_ROOT"
+      }
+    },
+    {
+      "id": "setting-lps_teaching_scanner_approved",
+      "category": "production-setting",
+      "token": "LPS_TEACHING_SCANNER_APPROVED",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-teachingstorage.php",
+        "mustContain": "LPS_TEACHING_SCANNER_APPROVED"
+      }
+    },
+    {
       "id": "setting-address",
       "category": "production-setting",
       "token": "address",
