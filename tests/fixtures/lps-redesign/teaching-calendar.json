@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "fixture": "lps-redesign/teaching-calendar",
+  "synthetic": true,
+  "purpose": "Data-only calendar, current-offering, and completed-offering inputs for the lps-redesign plan. Persistence for these entities is implemented and tested by task 8; this baseline task consumes them as inert data fixtures and assumes no storage.",
+  "persistence": {
+    "implementedBy": "task-08",
+    "assumedInBaseline": false
+  },
+  "calendars": [
+    {
+      "key": "semester",
+      "label": "Semestral",
+      "periodType": "semester",
+      "synthetic": true
+    },
+    {
+      "key": "trimester",
+      "label": "Trimestral",
+      "periodType": "trimester",
+      "synthetic": true
+    }
+  ],
+  "terms": [
+    {
+      "id": "term-synthetic-2026-1",
+      "calendarKey": "semester",
+      "periodLabel": "2026.1",
+      "token": "2026-1-semester",
+      "startsOn": "2026-03-02",
+      "endsOn": "2026-07-10",
+      "synthetic": true
+    },
+    {
+      "id": "term-synthetic-2025-2",
+      "calendarKey": "semester",
+      "periodLabel": "2025.2",
+      "token": "2025-2-semester",
+      "startsOn": "2025-08-04",
+      "endsOn": "2025-12-12",
+      "synthetic": true
+    },
+    {
+      "id": "term-synthetic-2026-t1",
+      "calendarKey": "trimester",
+      "periodLabel": "2026.T1",
+      "token": "2026-t1-trimester",
+      "startsOn": "2026-01-12",
+      "endsOn": "2026-04-10",
+      "synthetic": true
+    }
+  ],
+  "offerings": [
+    {
+      "id": "offering-synthetic-current",
+      "course": "course-synthetic-sinais",
+      "term": "term-synthetic-2026-1",
+      "section": "A",
+      "temporalStatus": "current",
+      "teachingTeam": ["person-synthetic-ada", "person-synthetic-bento"],
+      "synthetic": true
+    },
+    {
+      "id": "offering-synthetic-completed",
+      "course": "course-synthetic-sinais",
+      "term": "term-synthetic-2025-2",
+      "section": "A",
+      "temporalStatus": "completed",
+      "teachingTeam": ["person-synthetic-ada"],
+      "synthetic": true
+    },
+    {
+      "id": "offering-synthetic-upcoming",
+      "course": "course-synthetic-ondas",
+      "term": "term-synthetic-2026-t1",
+      "section": "B",
+      "temporalStatus": "upcoming",
+      "teachingTeam": ["person-synthetic-bento"],
+      "synthetic": true
+    }
+  ]
+}
