@@ -57,7 +57,7 @@ for (const [locale, mediaRoute, aboutRoute] of [
       }
     });
 
-    test(`Native video keyboard focus has the signal outline and offset: ${locale} ${width}`, async () => {
+    test(`Native video keyboard focus has the action outline and offset: ${locale} ${width}`, async () => {
       const page = await browser.newPage({ viewport: { width, height: 900 } });
       try {
         await page.goto(new URL(mediaRoute, base).href);
@@ -66,12 +66,12 @@ for (const [locale, mediaRoute, aboutRoute] of [
         const video = page.locator("video");
         const observed = await video.evaluate((v) => {
           const s = getComputedStyle(v);
-          // The expected focus color is read back from the --color-signal token
+          // The expected focus color is read back from the --color-action token
           // instead of a hardcoded literal, so the pin follows the token layer.
           const probe = document.createElement("div");
-          probe.style.color = "var(--color-signal)";
+          probe.style.color = "var(--color-action)";
           document.body.append(probe);
-          const signalToken = getComputedStyle(probe).color;
+          const actionToken = getComputedStyle(probe).color;
           probe.remove();
           return {
             url: location.href,
@@ -84,7 +84,7 @@ for (const [locale, mediaRoute, aboutRoute] of [
             style: s.outlineStyle,
             color: s.outlineColor,
             offset: s.outlineOffset,
-            signalToken,
+            actionToken,
           };
         });
         if (output) {
@@ -112,29 +112,29 @@ for (const [locale, mediaRoute, aboutRoute] of [
         assert.equal(observed.focusVisible, true);
         assert.equal(observed.controls, true);
         assert.equal(observed.tabindex, null);
-        // Renegotiated for todo 10: the literal pin is retained as the token's
-        // frozen value, and the outline must equal the live --color-signal token.
+        // The literal pin is retained as the token's frozen value, and the
+        // outline must equal the live --color-action token (#165A96).
         assert.equal(
-          observed.signalToken,
-          "rgb(0, 122, 135)",
-          `--color-signal token drifted: ${observed.signalToken}`,
+          observed.actionToken,
+          "rgb(22, 90, 150)",
+          `--color-action token drifted: ${observed.actionToken}`,
         );
         assert.deepEqual(
           [observed.width, observed.style, observed.color, observed.offset],
-          ["3px", "solid", observed.signalToken, "3px"],
+          ["3px", "solid", observed.actionToken, "3px"],
           `Actual native host outline: ${observed.outline}; offset ${observed.offset}`,
         );
 
-        // Selector coverage renegotiated for todo 10: the focus primitive is a
-        // shared selector list, so a second family member — a footer link on
-        // the navy band — must show the same 3px/3px geometry with the dark-
-        // surface separation color (--color-focus-offset).
+        // The focus primitive is a shared selector list, so a second family
+        // member — a footer link on the anchor band — must show the same
+        // 3px/3px geometry with the dark-surface separation color
+        // (--color-focus-on-dark).
         await keyboardTo(page, ".lps-site-footer a");
         const footerLink = page.locator(".lps-site-footer a").first();
         const darkObserved = await footerLink.evaluate((el) => {
           const s = getComputedStyle(el);
           const probe = document.createElement("div");
-          probe.style.color = "var(--color-focus-offset)";
+          probe.style.color = "var(--color-focus-on-dark)";
           document.body.append(probe);
           const offsetToken = getComputedStyle(probe).color;
           probe.remove();
@@ -153,7 +153,7 @@ for (const [locale, mediaRoute, aboutRoute] of [
         assert.equal(
           darkObserved.offsetToken,
           "rgb(255, 255, 255)",
-          `--color-focus-offset token drifted: ${darkObserved.offsetToken}`,
+          `--color-focus-on-dark token drifted: ${darkObserved.offsetToken}`,
         );
         assert.deepEqual(
           [darkObserved.width, darkObserved.style, darkObserved.color, darkObserved.offset],

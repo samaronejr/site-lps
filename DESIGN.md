@@ -9,7 +9,7 @@ supersede table in section 1 says so explicitly. Nothing here weakens accessibil
 governance requirements, and this document specifies one direction, not a menu of styles.
 
 The machine-readable half of this contract is `docs/design/design-contract.json`, validated by
-`node scripts/lib/design-contract.mjs`. The JSON is the token specification task-07 syncs into
+`node scripts/lib/design-contract.mjs`. The JSON is the token specification task-07 synced into
 `theme.json`/`theme.css`; this document is the human contract around it.
 
 ## 0. Contract Basis, Tags & Evidence
@@ -19,7 +19,7 @@ The machine-readable half of this contract is `docs/design/design-contract.json`
 | Tag | Meaning |
 | --- | --- |
 | MEASURED | Value read verbatim from worktree source, instrumented from a live capture, or carried forward unchanged from the incumbent contract. Basis is cited. |
-| PROPOSAL | Design decision resolved by the plan but not yet frozen in `theme.json`/`theme.css`. Binding as direction; frozen in code only when the token sync lands (plan task-07). |
+| PROPOSAL | Design decision resolved by the plan but not yet frozen in `theme.json`/`theme.css`. Binding as direction; frozen in code only when the token sync lands (plan task-07). Values tagged PROPOSAL in the 2026-09-18 revision were frozen by task-07 and are re-tagged MEASURED. |
 | UNAPPROVED | Public-facing copy, marks, or placements that require an authorized owner. Never ships as written until approved. |
 
 ### Evidence base
@@ -43,6 +43,12 @@ The machine-readable half of this contract is `docs/design/design-contract.json`
   1049 glyphs respectively, zero missing. The licensing and glyph check passes, so IBM Plex is
   the contract family; the system-stack fallback remains documented in case the self-hosted
   files cannot ship.
+- Font vendoring, 2026-09-18 (task-07): the verified TTFs were subsetted to ASCII, Latin-1
+  (full pt-BR diacritics) and general punctuation and written as woff2 into
+  `wp-content/themes/lps-theme/assets/fonts/` — `ibm-plex-sans-{regular,medium,semibold,bold}`
+  and `ibm-plex-mono-{regular,semibold}`, ~9.5–10 KiB per face, `font-display: swap`, OFL.txt
+  retained beside them. The system stacks remain the recorded fallback inside each family
+  stack; no remote font request exists anywhere in the theme.
 - Contrast computation, 2026-09-18: every pair in `design-contract.json` was computed with WCAG
   2.2 relative luminance. Computed ratios are expectations, not a conformance claim; rendered
   review re-checks every actual pairing after the token sync.
@@ -105,13 +111,13 @@ product requirements and approved artwork outrank any skill's generic defaults.
 
 | Prior clause (incumbent DESIGN.md @ sha256 `3b0ff8ec`) | Replacement | Status |
 | --- | --- | --- |
-| §3 palette: `--color-paper` `#FFFFFF`, `--color-paper-muted` `#EFF1F4`, `--color-navy` `#003B5C`, `--color-signal` `#007A87`, `--color-ink` `#141A1F`, `--color-ink-soft` `#46515A`, `--color-rule` `#C9CDD1`, `--color-rule-strong` `#6F7A82` | `--color-canvas` `#F5F7FA`, `--color-surface` `#FFFFFF`, `--color-anchor` `#12304A`, `--color-action` `#165A96`, `--color-text` `#182B3A`, `--color-text-muted` `#526477`, `--color-rule-quiet` `#D7E0E8`, `--color-boundary-strong` `#74869A` | SUPERSEDED (PROPOSAL until task-07) |
+| §3 palette: `--color-paper` `#FFFFFF`, `--color-paper-muted` `#EFF1F4`, `--color-navy` `#003B5C`, `--color-signal` `#007A87`, `--color-ink` `#141A1F`, `--color-ink-soft` `#46515A`, `--color-rule` `#C9CDD1`, `--color-rule-strong` `#6F7A82` | `--color-canvas` `#F5F7FA`, `--color-surface` `#FFFFFF`, `--color-anchor` `#12304A`, `--color-action` `#165A96`, `--color-text` `#182B3A`, `--color-text-muted` `#526477`, `--color-rule-quiet` `#D7E0E8`, `--color-boundary-strong` `#74869A` | SUPERSEDED (frozen by task-07) |
 | §3 semantic tokens (success/warning/error + washes) | Carried forward unchanged | PRESERVED |
-| §4 `--font-interface` system-ui stack | `"IBM Plex Sans", system-ui, …` self-hosted OFL | SUPERSEDED (PROPOSAL) |
-| §4 `--font-editorial` Source Serif 4 reading role | Retired; IBM Plex Sans owns reading | SUPERSEDED (PROPOSAL) |
-| §4 `--font-mono` platform mono stack | `"IBM Plex Mono", ui-monospace, …` scoped to codes/identifiers | SUPERSEDED (PROPOSAL) |
+| §4 `--font-interface` system-ui stack | `"IBM Plex Sans", system-ui, …` self-hosted OFL | SUPERSEDED (frozen by task-07) |
+| §4 `--font-editorial` Source Serif 4 reading role | Retired; IBM Plex Sans owns reading | SUPERSEDED (frozen by task-07) |
+| §4 `--font-mono` platform mono stack | `"IBM Plex Mono", ui-monospace, …` scoped to codes/identifiers | SUPERSEDED (frozen by task-07) |
 | §1 "Text-only header wordmark"; `lps_logo_vector.svg` unapproved | Full-color artwork in the masthead for this owner-supplied LPS artwork only; UFRJ/COPPE marks remain text-only | AMENDED |
-| §10 `--radius-square` `0` for all surfaces | 4px control radii; images remain rectangular | SUPERSEDED (PROPOSAL) |
+| §10 `--radius-square` `0` for all surfaces | 4px control radii; images remain rectangular | SUPERSEDED (frozen by task-07) |
 | §6 eight-module homepage grammar | Plan homepage composition (section 7) | SUPERSEDED (PROPOSAL) |
 | §9 nav labels `Sobre · Pesquisa · Pessoas · Publicações · Infraestrutura · Oportunidades · Notícias` | `O LPS · Pesquisa · Pessoas · Ensino · Notícias e eventos · Oportunidades` | SUPERSEDED (PROPOSAL) |
 | §0, §5 grid/spacing, §7 component semantics, §8 motion, §11 accessibility constraints and rights debt | Carried forward, updated only where a superseded clause touches them | PRESERVED |
@@ -168,17 +174,17 @@ per-pair expectations is `design-contract.json → colors`.
 
 | Role | Token | Value | Usage | Tag |
 | --- | --- | --- | --- | --- |
-| Canvas | `--color-canvas` | `#F5F7FA` | General page background | PROPOSAL |
-| Surface | `--color-surface` | `#FFFFFF` | Reading and form surfaces; the only approved field for full-color logo artwork | PROPOSAL |
-| Institutional anchor | `--color-anchor` | `#12304A` | Navigation band and footer band; primary fills | PROPOSAL |
-| Anchor depth | `--color-anchor-deep` | `#0C2237` | Hover/pressed depth inside anchor bands | PROPOSAL (derived) |
-| Action | `--color-action` | `#165A96` | Links and controls on light surfaces; focus outline on light surfaces | PROPOSAL |
-| Action depth | `--color-action-hover` | `#0F4A7E` | Link/control hover and pressed states on light surfaces | PROPOSAL (derived) |
-| Text | `--color-text` | `#182B3A` | Main reading text | PROPOSAL |
-| Muted text | `--color-text-muted` | `#526477` | Secondary readable text; never essential low-contrast hints | PROPOSAL |
-| Quiet rule | `--color-rule-quiet` | `#D7E0E8` | Decorative separators only; never the sole boundary of a control | PROPOSAL |
-| Strong boundary | `--color-boundary-strong` | `#74869A` | Necessary light-surface control boundaries (3.74:1 on surface) | PROPOSAL |
-| Focus on dark | `--color-focus-on-dark` | `#FFFFFF` | Focus outline on anchor bands and other dark fills | PROPOSAL |
+| Canvas | `--color-canvas` | `#F5F7FA` | General page background | MEASURED |
+| Surface | `--color-surface` | `#FFFFFF` | Reading and form surfaces; the only approved field for full-color logo artwork | MEASURED |
+| Institutional anchor | `--color-anchor` | `#12304A` | Navigation band and footer band; primary fills | MEASURED |
+| Anchor depth | `--color-anchor-deep` | `#0C2237` | Hover/pressed depth inside anchor bands | MEASURED (derived) |
+| Action | `--color-action` | `#165A96` | Links and controls on light surfaces; focus outline on light surfaces | MEASURED |
+| Action depth | `--color-action-hover` | `#0F4A7E` | Link/control hover and pressed states on light surfaces | MEASURED (derived) |
+| Text | `--color-text` | `#182B3A` | Main reading text | MEASURED |
+| Muted text | `--color-text-muted` | `#526477` | Secondary readable text; never essential low-contrast hints | MEASURED |
+| Quiet rule | `--color-rule-quiet` | `#D7E0E8` | Decorative separators only; never the sole boundary of a control | MEASURED |
+| Strong boundary | `--color-boundary-strong` | `#74869A` | Necessary light-surface control boundaries (3.74:1 on surface) | MEASURED |
+| Focus on dark | `--color-focus-on-dark` | `#FFFFFF` | Focus outline on anchor bands and other dark fills | MEASURED |
 | Success / Warning / Error | `--color-success` `#216E4E`, `--color-warning` `#7A4A00`, `--color-error` `#A12622` | Status text/icon plus label; never color alone | CARRIED |
 | Washes | `--color-info-wash` `#DDECEF`, `--color-success-wash` `#E0ECE5`, `--color-warning-wash` `#F2E8D2`, `--color-error-wash` `#F2DEDA` | Alert backgrounds | CARRIED |
 
@@ -206,8 +212,8 @@ per-pair expectations is `design-contract.json → colors`.
 
 | Role | Token | Stack | Owns | Tag |
 | --- | --- | --- | --- | --- |
-| Interface + reading | `--font-interface` | `"IBM Plex Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif` | Display, h1–h4, navigation, controls, tables, labels, captions, body and long-form reading | PROPOSAL (OFL 1.1, self-hosted woff2, `font-display: swap`) |
-| Technical metadata | `--font-mono` | `"IBM Plex Mono", ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace` | Course codes, record identifiers, code samples, tabular schedule numerals only | PROPOSAL (OFL 1.1, self-hosted woff2, `font-display: swap`) |
+| Interface + reading | `--font-interface` | `"IBM Plex Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif` | Display, h1–h4, navigation, controls, tables, labels, captions, body and long-form reading | MEASURED (OFL 1.1, self-hosted woff2, `font-display: swap`) |
+| Technical metadata | `--font-mono` | `"IBM Plex Mono", ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace` | Course codes, record identifiers, code samples, tabular schedule numerals only | MEASURED (OFL 1.1, self-hosted woff2, `font-display: swap`) |
 
 Two roles are justified: one high-legibility family for all reading and interface text, and one
 mono for technical identifiers. Licensing and glyph coverage were verified 2026-09-18 (section
@@ -473,10 +479,10 @@ hierarchy.
 
 | Item | Location | Why accepted | Owner / exit |
 | --- | --- | --- | --- |
-| PROPOSAL token values are unfrozen in code | `theme.json`, `theme.css` | This contract amends expectations before the token sync; task-07 lands the values and reconciles after rendered review | Token sync task; `design-contract.mjs` and the contract tests re-run against frozen values |
+| ~~PROPOSAL token values are unfrozen in code~~ — resolved 2026-09-18 | `theme.json`, `theme.css` | Task-07 landed the values; `check-theme.mjs` now gates contract↔:root parity so drift is a hard failure | Closed by task-07; the contract gate re-runs in `qa:design-system` |
 | Institutional use/rights records for the artwork | Section 6 | The amendment authorizes the design; legal sign-off is a separate launch gate | Institutional communications/rights owner |
 | UFRJ/COPPE marks remain text-only | Masthead affiliation line, footer | No rights owner has supplied files or rules | Rights owner supplies authorized assets |
-| IBM Plex woff2 files are not yet vendored | `assets/fonts/` | The license/glyph check passed; vendoring belongs to the token sync | Task-07 vendors approved subsets and retains `OFL.txt`; failure falls back to the recorded system stack |
+| ~~IBM Plex woff2 files are not yet vendored~~ — resolved 2026-09-18 | `assets/fonts/` | Task-07 vendored the six approved subset faces and retained `OFL.txt`; the system stack remains the in-stack fallback | Closed by task-07 |
 | Public copy remains UNAPPROVED | All surfaces | Draft strings exist so surfaces have real measures; none are approved institutional voice | Editorial owner approves or replaces each string; EN variants pass independent review per ADR-06 |
 | No human screen-reader session | Fixture and captures | The harness supplies Chromium accessibility snapshots and keyboard evidence, not a representative human AT study | Plan-wide accessibility review runs supported AT smoke evidence |
 | Reference screenshots are observation, not endorsement | Section 2 | FEEC/PEE inform wayfinding and composition; no assets, colors, or copy are adopted | Standing rule; re-capture on reference redesign |

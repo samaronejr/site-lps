@@ -7,26 +7,26 @@ the single token source in code (ADR-08); the machine-readable contract is
 `docs/design/design-contract.json`, validated by `node scripts/lib/design-contract.mjs`.
 
 Rows below carry the contract tags from `DESIGN.md`. MEASURED means the value is frozen in
-`theme.json` or `theme.css` today. PROPOSAL means the plan resolved the value and this contract
-records it, but the token sync (plan task-07) has not landed yet — code still carries the
-incumbent values until then. Verify with `npm run qa:design-system` for the frozen side and
+`theme.json` or `theme.css` today. The token sync (plan task-07) landed on 2026-09-18: every
+PROPOSAL row below is now MEASURED, and `check-theme.mjs` gates contract↔:root parity so drift
+is a hard failure. Verify with `npm run qa:design-system` for the frozen side and
 `node scripts/lib/design-contract.mjs` for the contract side.
 
 ## Colour tokens
 
 | Role | Token | Value | Usage | Tag |
 | --- | --- | --- | --- | --- |
-| Canvas | `--color-canvas` | `#F5F7FA` | General page background | PROPOSAL (replaces `--color-paper` `#FFFFFF`) |
-| Surface | `--color-surface` | `#FFFFFF` | Reading and form surfaces; the only approved field for full-color logo artwork | PROPOSAL (replaces `--color-paper-raised`) |
-| Institutional anchor | `--color-anchor` | `#12304A` | Navigation band and footer band; primary fills | PROPOSAL (replaces `--color-navy` `#003B5C`) |
-| Anchor depth | `--color-anchor-deep` | `#0C2237` | Hover/pressed depth inside anchor bands | PROPOSAL (derived) |
-| Action | `--color-action` | `#165A96` | Links and controls on light surfaces; focus outline on light surfaces | PROPOSAL (replaces `--color-signal`/`--color-signal-hover` for interaction) |
-| Action depth | `--color-action-hover` | `#0F4A7E` | Link/control hover and pressed states | PROPOSAL (derived) |
-| Text | `--color-text` | `#182B3A` | Main reading text | PROPOSAL (replaces `--color-ink` `#141A1F`) |
-| Muted text | `--color-text-muted` | `#526477` | Secondary readable text; never essential low-contrast hints | PROPOSAL (replaces `--color-ink-soft` `#46515A`) |
-| Quiet rule | `--color-rule-quiet` | `#D7E0E8` | Decorative separators only; never the sole boundary of a control | PROPOSAL (replaces `--color-rule` `#C9CDD1`) |
-| Strong boundary | `--color-boundary-strong` | `#74869A` | Necessary light-surface control boundaries (3.74:1 on surface) | PROPOSAL (replaces `--color-rule-strong` `#6F7A82`) |
-| Focus on dark | `--color-focus-on-dark` | `#FFFFFF` | Focus outline on anchor bands and other dark fills | PROPOSAL (replaces `--color-focus-offset`) |
+| Canvas | `--color-canvas` | `#F5F7FA` | General page background | MEASURED (replaces `--color-paper` `#FFFFFF`) |
+| Surface | `--color-surface` | `#FFFFFF` | Reading and form surfaces; the only approved field for full-color logo artwork | MEASURED (replaces `--color-paper-raised`) |
+| Institutional anchor | `--color-anchor` | `#12304A` | Navigation band and footer band; primary fills | MEASURED (replaces `--color-navy` `#003B5C`) |
+| Anchor depth | `--color-anchor-deep` | `#0C2237` | Hover/pressed depth inside anchor bands | MEASURED (derived) |
+| Action | `--color-action` | `#165A96` | Links and controls on light surfaces; focus outline on light surfaces | MEASURED (replaces `--color-signal`/`--color-signal-hover` for interaction) |
+| Action depth | `--color-action-hover` | `#0F4A7E` | Link/control hover and pressed states | MEASURED (derived) |
+| Text | `--color-text` | `#182B3A` | Main reading text | MEASURED (replaces `--color-ink` `#141A1F`) |
+| Muted text | `--color-text-muted` | `#526477` | Secondary readable text; never essential low-contrast hints | MEASURED (replaces `--color-ink-soft` `#46515A`) |
+| Quiet rule | `--color-rule-quiet` | `#D7E0E8` | Decorative separators only; never the sole boundary of a control | MEASURED (replaces `--color-rule` `#C9CDD1`) |
+| Strong boundary | `--color-boundary-strong` | `#74869A` | Necessary light-surface control boundaries (3.74:1 on surface) | MEASURED (replaces `--color-rule-strong` `#6F7A82`) |
+| Focus on dark | `--color-focus-on-dark` | `#FFFFFF` | Focus outline on anchor bands and other dark fills | MEASURED (replaces `--color-focus-offset`) |
 | Success | `--color-success` | `#216E4E` | Status text/icon plus label; never color alone | MEASURED (carried) |
 | Warning | `--color-warning` | `#7A4A00` | Status text/icon plus label; never color alone | MEASURED (carried) |
 | Error | `--color-error` | `#A12622` | Errors, destructive text, invalid borders | MEASURED (carried) |
@@ -52,8 +52,8 @@ Rules that reviewers enforce:
 
 | Role | Token | Stack | Owns | Tag |
 | --- | --- | --- | --- | --- |
-| Interface + reading | `--font-interface` | `"IBM Plex Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif` | Display, h1–h4, navigation, controls, tables, labels, captions, body and long-form reading | PROPOSAL (OFL 1.1, self-hosted woff2, `font-display: swap`) |
-| Technical metadata | `--font-mono` | `"IBM Plex Mono", ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace` | Course codes, record identifiers, code samples, tabular schedule numerals only | PROPOSAL (OFL 1.1, self-hosted woff2) |
+| Interface + reading | `--font-interface` | `"IBM Plex Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif` | Display, h1–h4, navigation, controls, tables, labels, captions, body and long-form reading | MEASURED (OFL 1.1, self-hosted woff2, `font-display: swap`) |
+| Technical metadata | `--font-mono` | `"IBM Plex Mono", ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace` | Course codes, record identifiers, code samples, tabular schedule numerals only | MEASURED (OFL 1.1, self-hosted woff2) |
 
 Licensing and glyph coverage were verified 2026-09-18 (SIL OFL 1.1, Reserved Font Name "Plex";
 full pt-BR diacritic coverage). If the licensed files cannot ship, the recorded fallback is the

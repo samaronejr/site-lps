@@ -7,7 +7,7 @@
   "supersedes": {
     "document": "DESIGN.md (light institutional contract)",
     "sha256": "3b0ff8ec9be251dfbf57a8300519814505b02fe53643bf648d12b677a3680319",
-    "note": "Values below are PROPOSAL until the token sync lands in theme.json/theme.css (plan task-07). Incumbent semantic tokens are carried forward unchanged."
+    "note": "Values below were PROPOSAL until plan task-07 froze them in theme.json/theme.css on 2026-09-18; check-theme.mjs now gates contract-to-:root parity. Incumbent semantic tokens are carried forward unchanged."
   },
   "dials": {
     "designVariance": 3,
@@ -21,63 +21,63 @@
         "value": "#F5F7FA",
         "role": "canvas",
         "usage": "General page background",
-        "tag": "PROPOSAL"
+        "tag": "MEASURED"
       },
       {
         "token": "--color-surface",
         "value": "#FFFFFF",
         "role": "surface",
         "usage": "Reading and form surfaces; the only approved field for full-color logo artwork",
-        "tag": "PROPOSAL"
+        "tag": "MEASURED"
       },
       {
         "token": "--color-anchor",
         "value": "#12304A",
         "role": "institutional-anchor",
         "usage": "Navigation band and footer band; primary fills",
-        "tag": "PROPOSAL"
+        "tag": "MEASURED"
       },
       {
         "token": "--color-anchor-deep",
         "value": "#0C2237",
         "role": "anchor-depth",
         "usage": "Hover/pressed depth inside anchor bands",
-        "tag": "PROPOSAL (derived)"
+        "tag": "MEASURED (derived)"
       },
       {
         "token": "--color-action",
         "value": "#165A96",
         "role": "action",
         "usage": "Links and controls on light surfaces; focus outline on light surfaces",
-        "tag": "PROPOSAL"
+        "tag": "MEASURED"
       },
       {
         "token": "--color-action-hover",
         "value": "#0F4A7E",
         "role": "action-depth",
         "usage": "Link/control hover and pressed states on light surfaces",
-        "tag": "PROPOSAL (derived)"
+        "tag": "MEASURED (derived)"
       },
       {
         "token": "--color-text",
         "value": "#182B3A",
         "role": "text",
         "usage": "Main reading text",
-        "tag": "PROPOSAL"
+        "tag": "MEASURED"
       },
       {
         "token": "--color-text-muted",
         "value": "#526477",
         "role": "muted-text",
         "usage": "Secondary readable text; never essential low-contrast hints",
-        "tag": "PROPOSAL"
+        "tag": "MEASURED"
       },
       {
         "token": "--color-rule-quiet",
         "value": "#D7E0E8",
         "role": "quiet-rule",
         "usage": "Decorative separators only; never the sole boundary of a control",
-        "tag": "PROPOSAL",
+        "tag": "MEASURED",
         "decorativeOnly": true
       },
       {
@@ -85,14 +85,14 @@
         "value": "#74869A",
         "role": "strong-boundary",
         "usage": "Necessary light-surface control boundaries",
-        "tag": "PROPOSAL"
+        "tag": "MEASURED"
       },
       {
         "token": "--color-focus-on-dark",
         "value": "#FFFFFF",
         "role": "focus-on-dark",
         "usage": "Focus outline on anchor bands and other dark fills",
-        "tag": "PROPOSAL"
+        "tag": "MEASURED"
       },
       {
         "token": "--color-success",
@@ -324,7 +324,7 @@
         "license": "SIL OFL 1.1, Reserved Font Name \"Plex\"",
         "glyphCheck": "2026-09-18: IBMPlexSans-Regular/Medium/SemiBold/Bold TTF cmap covers full pt-BR diacritic set, ASCII, and typographic punctuation (895 glyphs; zero missing)",
         "delivery": "self-hosted woff2, font-display: swap; no remote font loading",
-        "tag": "PROPOSAL"
+        "tag": "MEASURED"
       },
       {
         "token": "--font-mono",
@@ -333,7 +333,7 @@
         "license": "SIL OFL 1.1, Reserved Font Name \"Plex\"",
         "glyphCheck": "2026-09-18: IBMPlexMono-Regular/SemiBold TTF cmap covers the same set (1049 glyphs; zero missing)",
         "delivery": "self-hosted woff2, font-display: swap; no remote font loading",
-        "tag": "PROPOSAL"
+        "tag": "MEASURED"
       }
     ],
     "scale": [
