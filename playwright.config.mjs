@@ -6,6 +6,10 @@ export default defineConfig({
   reporter: [["list"], ["html", { open: "never", outputFolder: "playwright-report" }]],
   retries: 0,
   timeout: 30_000,
+  // The local Playground env is single-process PHP; parallel browser workers
+  // starve it and flake session establishment. Cap workers to the weakest
+  // host this suite runs on.
+  workers: process.env.LPS_E2E_WORKERS ? Number(process.env.LPS_E2E_WORKERS) : 2,
   use: {
     baseURL: process.env.LPS_BASE_URL ?? "http://127.0.0.1:8888",
     trace: "retain-on-failure",

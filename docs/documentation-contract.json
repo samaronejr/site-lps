@@ -137,12 +137,12 @@
       "id": "role-policy-matrix",
       "kind": "source",
       "doc": "docs/handbook/role-workflows.md",
-      "reviewedAt": "2026-09-06",
+      "reviewedAt": "2026-09-18",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-securitypolicy.php",
-          "sha256": "23ee1be58ac9c5ef1671fed3fa2462b135dd1e1d613da0c330948e968e431a84"
+          "sha256": "165ed715c434d823da7108bcdcc282a67634c88b9cc8286f38c9070ce7fd1037"
         }
       ]
     },
@@ -185,7 +185,7 @@
       "sources": [
         {
           "path": "tests/fixtures/governance/role-collection-matrix.json",
-          "sha256": "02be283d10b92808239f64122ddadbba862db0f7db5d979a9d098dac10c20e48"
+          "sha256": "7999b53b29fb4f7a173d86b2cc5223dadb5c97242196dc723eb82a0fa7a92d3d"
         }
       ]
     },
@@ -607,6 +607,24 @@
       "source": {
         "file": "wp-content/plugins/lps-content-model/includes/class-securitypolicy.php",
         "mustContain": "'deployer'"
+      }
+    },
+    {
+      "id": "role-professor",
+      "category": "role",
+      "token": "professor",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-securitypolicy.php",
+        "mustContain": "'professor'"
+      }
+    },
+    {
+      "id": "role-delegate",
+      "category": "role",
+      "token": "delegate",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-securitypolicy.php",
+        "mustContain": "'delegate'"
       }
     },
     {

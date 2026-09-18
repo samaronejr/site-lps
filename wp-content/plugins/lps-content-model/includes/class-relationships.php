@@ -33,6 +33,10 @@ final class Relationships {
 	 * @return array{changed: bool, count: int}|WP_Error
 	 */
 	public static function replace( int $source_post_id, string $relationship_type, array $rows ): array|WP_Error {
+		$scoped_error = Roles::scoped_relationship_error( $relationship_type, $source_post_id, $rows );
+		if ( null !== $scoped_error ) {
+			return self::error( $scoped_error, 'The requested relationship change is outside this account\'s teaching scope.', 'relationships' );
+		}
 		$validated = self::validate_relationship_set( $source_post_id, $relationship_type, $rows );
 		if ( $validated instanceof WP_Error ) {
 			return $validated;

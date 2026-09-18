@@ -238,6 +238,26 @@ times, active notices and unreleased/withdrawn resources, and reuse of already-p
 versions only after explicit selection. One operation completes with a manifest or leaves no
 half-published offering; retrying the same `operation_id` must not duplicate it.
 
+### Offering-scoped authorization
+
+`TeachingPolicy` (`class-teachingpolicy.php`) governs the scoped roles `professor` and `delegate`.
+They hold no collection or global editing rights: every scoped action requires a persisted grant
+record on the account in the `_lps_teaching_grants` user meta, covering the exact scope — one
+offering record ID, or the `news` scope for designated faculty news editors. Grants carry
+`scope`, `offering_id`, `role`, `granted_at`, `expires_at`, `revoked_at` and `granted_by`;
+revocation and expiry are evaluated on every request, so they take effect immediately.
+
+Administrators and section editors assigned the `teaching` collection grant and revoke scopes
+(`grant-scope`, `revoke-scope`, both audited); no account may grant itself, and the grant role
+must equal the target account's policy role. Scoped roles may touch only `lps_offering`,
+`lps_unit`, `lps_resource` and `lps_news`; professors publish cleared `lps_unit`/`lps_resource`
+materials and scoped news, while delegates prepare drafts and never publish or write release
+fields. Offering publication, course and term records, teaching-team membership, owner, review,
+scan and storage fields stay with institutional editors. Scope resolves only from persisted
+grants and canonical relationships — user-controlled owner, person, offering or relation IDs
+never create access. Person records are content, not accounts: public identity and teaching
+history survive account deactivation.
+
 ## Media assets
 
 Attachments carry credit, rights holder, license, source, checksum, focal point, dimensions or

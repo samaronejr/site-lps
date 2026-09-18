@@ -25,13 +25,22 @@ repairs transitive denial-of-service advisories while preserving its compatible 
 
 ## Authentication and authorization
 
-Named individual accounts only. Publishers and both native/custom administrators require an
-actually configured, enabled Two-Factor provider, not a nonempty metadata array. Missing providers
-leave only read/profile access; upload, deletion, user management, publishing and settings remain
-locked. TOTP is the recommended privileged provider; recovery codes remain offline and private.
+Named individual accounts only. Publishers, professors and both native/custom administrators
+require an actually configured, enabled Two-Factor provider, not a nonempty metadata array — every
+role holding public publishing authority meets the same MFA contract. Missing providers leave only
+read/profile access; upload, deletion, user management, publishing and settings remain locked.
+TOTP is the recommended privileged provider; recovery codes remain offline and private.
 WordPress/Two-Factor owns challenge verification and session issuance; never invent a parallel
 login endpoint. Unused XML-RPC methods and application passwords are disabled. Public REST account
 enumeration is denied. Public Person records are not WordPress login accounts.
+
+Offering-scoped editorial access is deny-by-default: `professor` and `delegate` accounts hold no
+collection or global editing rights and act only inside persisted `_lps_teaching_grants` scope
+records (one offering, or the `news` scope for designated faculty news editors). Administrators
+and teaching-assigned section editors grant and revoke scopes; every grant and revocation is
+audited, takes effect immediately, and is re-evaluated on each request. User-controlled owner,
+person, offering or relation IDs never create access, and scoped roles cannot write owner,
+teaching-team, review, scan or storage fields.
 
 Core REST cookie authentication requires the WordPress REST nonce. Custom admin handlers check
 both their own action nonce and the target-object capability before typed sanitization. Output is

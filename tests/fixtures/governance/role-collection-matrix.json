@@ -8,7 +8,9 @@
     "publisher",
     "administrator",
     "privacy-auditor",
-    "deployer"
+    "deployer",
+    "professor",
+    "delegate"
   ],
   "staffing": {
     "minimumAccounts": {
@@ -18,15 +20,45 @@
       "section-editor": 1,
       "translator": 1,
       "privacy-auditor": 1,
-      "deployer": 1
+      "deployer": 1,
+      "professor": 1,
+      "delegate": 0
     },
     "mfaRoles": [
       "publisher",
-      "administrator"
+      "administrator",
+      "professor"
     ],
     "sharedAccountsForbidden": true,
     "contributorSelfPublishingForbidden": true,
     "independentTranslationReviewRequired": true
+  },
+  "teachingScopes": {
+    "scopedRoles": [
+      "professor",
+      "delegate"
+    ],
+    "scopes": [
+      "offering",
+      "news"
+    ],
+    "grantRecord": "_lps_teaching_grants",
+    "granterRoles": [
+      "administrator"
+    ],
+    "granterCollectionRoles": {
+      "section-editor": [
+        "teaching"
+      ]
+    },
+    "publishablePostTypes": [
+      "lps_unit",
+      "lps_resource",
+      "lps_news"
+    ],
+    "delegatePublishes": false,
+    "revocationEffective": "immediate",
+    "inputIdsNeverGrantAccess": true
   },
   "launchBlockers": [
     {
