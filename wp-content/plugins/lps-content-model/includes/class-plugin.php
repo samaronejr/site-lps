@@ -38,6 +38,8 @@ final class Plugin {
 		Reports::boot();
 		Media::boot();
 		SearchIndex::boot();
+		TeachingRecords::boot();
+		TeachingRest::boot();
 		add_action( 'init', array( self::class, 'register' ), 5 );
 		add_action( 'init', array( self::class, 'migrate' ), 10 );
 		add_action( 'add_meta_boxes', array( self::class, 'add_meta_boxes' ) );

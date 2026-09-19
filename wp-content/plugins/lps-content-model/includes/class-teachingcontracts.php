@@ -253,7 +253,7 @@ final class TeachingContracts {
 				$keys[] = $key;
 			}
 		}
-		return array_values( $keys );
+		return $keys;
 	}
 
 	/**
@@ -269,7 +269,7 @@ final class TeachingContracts {
 				$keys[] = $key;
 			}
 		}
-		return array_values( $keys );
+		return $keys;
 	}
 
 	/**
@@ -308,6 +308,19 @@ final class TeachingContracts {
 	 * @param mixed $value Boundary input.
 	 */
 	public static function normalize_section_key( mixed $value ): string {
+		return self::normalize_key( $value );
+	}
+
+	/**
+	 * Normalizes one route lookup key with the section-key contract.
+	 *
+	 * Route tokens and section keys share the same folded, lowercased,
+	 * hyphenated ASCII form, so a request segment always compares equal to the
+	 * stored canonical value it addresses.
+	 *
+	 * @param mixed $value Boundary input.
+	 */
+	public static function normalize_lookup_key( mixed $value ): string {
 		return self::normalize_key( $value );
 	}
 
@@ -442,7 +455,7 @@ final class TeachingContracts {
 	 * @param array{calendar_key: string, term_code: string} $identity Canonical term identity.
 	 */
 	public static function term_identity_hash( array $identity ): string {
-		return hash( 'sha256', 'lps-term|' . Policy::scalar_string( $identity['calendar_key'] ?? '' ) . '|' . Policy::scalar_string( $identity['term_code'] ?? '' ) );
+		return hash( 'sha256', 'lps-term|' . Policy::scalar_string( $identity['calendar_key'] ) . '|' . Policy::scalar_string( $identity['term_code'] ) );
 	}
 
 	/**
@@ -451,7 +464,7 @@ final class TeachingContracts {
 	 * @param array{course_id: int, term_id: int, section_key: string} $identity Canonical offering identity.
 	 */
 	public static function offering_identity_hash( array $identity ): string {
-		return hash( 'sha256', 'lps-offering|' . Policy::sanitize_integer( $identity['course_id'] ?? 0 ) . '|' . Policy::sanitize_integer( $identity['term_id'] ?? 0 ) . '|' . Policy::scalar_string( $identity['section_key'] ?? '' ) );
+		return hash( 'sha256', 'lps-offering|' . Policy::sanitize_integer( $identity['course_id'] ) . '|' . Policy::sanitize_integer( $identity['term_id'] ) . '|' . Policy::scalar_string( $identity['section_key'] ) );
 	}
 
 	/**
@@ -811,8 +824,8 @@ final class TeachingContracts {
 			'new_section_key'      => self::normalize_section_key( $plan['new_section'] ?? '' ),
 			'creates_draft'        => true,
 			'publishes'            => false,
-			'resets'               => array_values( is_array( $plan['resets'] ?? null ) ? $plan['resets'] : array() ),
-			'selected_version_ids' => array_values( is_array( $plan['selected_version_ids'] ?? null ) ? $plan['selected_version_ids'] : array() ),
+			'resets'               => array_values( array_filter( is_array( $plan['resets'] ?? null ) ? $plan['resets'] : array(), 'is_string' ) ),
+			'selected_version_ids' => array_values( array_filter( is_array( $plan['selected_version_ids'] ?? null ) ? $plan['selected_version_ids'] : array(), 'is_string' ) ),
 			'atomic'               => true,
 			'idempotent_retry'     => true,
 		);
@@ -940,7 +953,7 @@ final class TeachingContracts {
 	 * Builds the WordPress registration arguments for one teaching type.
 	 *
 	 * @param string $post_type Teaching record type.
-	 * @return array<string, mixed>
+	 * @return array{labels: array{name: string, singular_name: string}, public: bool, show_in_rest: bool, rest_base: string, supports: list<string>, menu_icon: string, has_archive: bool, rewrite: bool, capability_type: array{string, string}, map_meta_cap: bool}
 	 */
 	private static function registration_args( string $post_type ): array {
 		$args = self::post_types()[ $post_type ];

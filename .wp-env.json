@@ -24,6 +24,7 @@
     "wp-content/mu-plugins/lps-trust-seed.php": "./tests/fixtures/wp/lps-trust-seed.php",
     "wp-content/mu-plugins/lps-seo-seed.php": "./tests/fixtures/wp/lps-seo-seed.php",
     "wp-content/mu-plugins/lps-a11y-seed.php": "./tests/fixtures/wp/lps-a11y-seed.php",
+    "wp-content/mu-plugins/lps-teaching-seed.php": "./tests/fixtures/wp/lps-teaching-seed.php",
     "wp-content/uploads/lps-qa-media": "./tests/fixtures/media/assets"
   }
 }

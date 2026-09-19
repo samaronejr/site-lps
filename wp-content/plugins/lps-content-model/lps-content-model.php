@@ -32,6 +32,8 @@ require_once __DIR__ . '/includes/class-relationshippolicy.php';
 require_once __DIR__ . '/includes/class-migrations.php';
 require_once __DIR__ . '/includes/class-teachingcontracts.php';
 require_once __DIR__ . '/includes/class-teachingmigrations.php';
+require_once __DIR__ . '/includes/class-teachingrecords.php';
+require_once __DIR__ . '/includes/class-teachingrest.php';
 require_once __DIR__ . '/includes/class-relationships.php';
 require_once __DIR__ . '/includes/class-translationpolicy.php';
 require_once __DIR__ . '/includes/class-publicationpolicy.php';
