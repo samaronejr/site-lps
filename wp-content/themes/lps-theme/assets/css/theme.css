@@ -1825,11 +1825,158 @@ details:not(.lps-shell-disclosure) > summary {
   gap: var(--space-3);
 }
 
+/* -------------------------------------------------------------------------
+   Teaching surfaces: course directory, offering detail, units and materials.
+   Operate mode (DESIGN.md §7.3): dense, orderly resource rows separated by
+   hairlines; metadata stays in the mono role; state text is never color-only.
+   ------------------------------------------------------------------------- */
+
+.lps-course-list,
+.lps-offering-list,
+.lps-materials,
+.lps-teaching-team,
+.lps-offering-toc ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lps-course-list > li,
+.lps-offering-list > li,
+.lps-materials > li {
+  padding-block: var(--space-4);
+  border-block-start: var(--rule-hairline);
+}
+
+.lps-course-list > li > h2,
+.lps-offering-list > li > h3 {
+  margin-block-end: var(--space-1);
+  font-size: var(--type-h4);
+}
+
+.lps-course-list > li > p,
+.lps-offering-list > li > p,
+.lps-materials > li > p {
+  margin-block: var(--space-1) 0;
+}
+
+.lps-teaching > h2 {
+  margin-block: var(--space-10) var(--space-4);
+  padding-block-start: var(--space-6);
+  border-block-start: var(--rule-hairline);
+  font-size: var(--type-h3);
+}
+
+/* The contents strip is navigation, not a section: it keeps its own compact
+   rhythm and never inherits the stratum's top rule. */
+.lps-offering-toc {
+  margin-block: var(--space-6) 0;
+  padding: var(--space-4) var(--space-5);
+  border: var(--rule-hairline);
+  background: var(--color-surface);
+}
+
+.lps-offering-toc > h2 {
+  margin-block: 0 var(--space-3);
+  padding-block-start: 0;
+  border-block-start: 0;
+  font-size: var(--type-h4);
+}
+
+.lps-offering-toc ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-5);
+}
+
+.lps-offering-toc a {
+  display: inline-flex;
+  min-block-size: var(--control-min);
+  align-items: center;
+}
+
+.lps-offering-course {
+  margin-block-end: var(--space-2);
+}
+
+.lps-offering-identity {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+}
+
+.lps-teaching-team > li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+  padding-block: var(--space-2);
+  border-block-start: var(--rule-hairline);
+}
+
+.lps-team-role {
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  letter-spacing: 0.075em;
+}
+
+.lps-units {
+  margin: 0;
+  padding-inline-start: var(--space-6);
+}
+
+.lps-units > li {
+  padding-block: var(--space-4);
+  border-block-start: var(--rule-hairline);
+}
+
+.lps-units > li::marker {
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.lps-units .lps-materials {
+  margin-block-start: var(--space-3);
+}
+
+.lps-material-title {
+  font-weight: 650;
+}
+
+.lps-material-summary {
+  color: var(--color-text-muted);
+}
+
+.lps-checksum {
+  overflow-wrap: anywhere;
+}
+
+/* Withdrawn and pending materials keep an explicit notice, never a dead
+   link; the warning wash marks withdrawal, the info wash marks pending. */
+.lps-material-note {
+  padding: var(--space-3) var(--space-4);
+  border-inline-start: var(--rule-focus);
+  background: var(--color-info-wash);
+}
+
+.lps-material-note-warning {
+  background: var(--color-warning-wash);
+}
+
+.lps-offering-history {
+  margin-block-start: var(--space-10);
+}
+
 @media (min-width: 48rem) {
   .lps-main-content > .lps-person,
   .lps-main-content > .lps-org,
   .lps-main-content > .lps-opportunity,
-  .lps-main-content > .lps-event {
+  .lps-main-content > .lps-event,
+  .lps-main-content > .lps-teaching {
     grid-column: 2 / 8;
   }
 }
@@ -1838,7 +1985,8 @@ details:not(.lps-shell-disclosure) > summary {
   .lps-main-content > .lps-person,
   .lps-main-content > .lps-org,
   .lps-main-content > .lps-opportunity,
-  .lps-main-content > .lps-event {
+  .lps-main-content > .lps-event,
+  .lps-main-content > .lps-teaching {
     grid-column: 3 / 10;
   }
 

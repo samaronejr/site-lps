@@ -13,10 +13,12 @@
 
 declare(strict_types=1);
 
+use LPS\ContentModel\Relationships;
 use LPS\ContentModel\TeachingRecords;
+use LPS\ContentModel\TeachingResources;
 use LPS\ContentModel\Translations;
 
-const LPS_TEACHING_SEED_VERSION = '1';
+const LPS_TEACHING_SEED_VERSION = '2';
 const LPS_TEACHING_SEED_OPTION  = 'lps_teaching_seed_version';
 
 /**
@@ -138,6 +140,49 @@ function lps_teaching_seed(): void {
 	}
 	lps_teaching_seed_publish_pair( $person_pt, $person_en );
 
+	// A second person completes the co-teaching case.
+	$co_teacher_pt = lps_teaching_seed_id( 'lps_person', 'docente-cosinais-fixture' );
+	$co_teacher_en = lps_teaching_seed_id( 'lps_person', 'co-signals-faculty-fixture' );
+	if ( 0 === $co_teacher_pt ) {
+		$co_teacher_pt = wp_insert_post(
+			array(
+				'post_type'    => 'lps_person',
+				'post_status'  => 'draft',
+				'post_title'   => 'Co-docente de Sinais (fixture de QA)',
+				'post_name'    => 'docente-cosinais-fixture',
+				'post_excerpt' => 'Perfil de teste local para co-docência.',
+				'post_content' => 'Fixture local. Não representa uma pessoa real.',
+				'meta_input'   => array(
+					'_lps_locale'         => 'pt-br',
+					'_lps_canonical_name' => 'Co-docente de Sinais (fixture de QA)',
+					'_lps_person_status'  => 'active',
+				),
+			),
+			true
+		);
+		$co_teacher_pt = is_wp_error( $co_teacher_pt ) ? 0 : (int) $co_teacher_pt;
+	}
+	if ( 0 === $co_teacher_en && 0 < $co_teacher_pt ) {
+		$co_teacher_en = wp_insert_post(
+			array(
+				'post_type'    => 'lps_person',
+				'post_status'  => 'draft',
+				'post_title'   => 'Co-teaching Faculty (QA fixture)',
+				'post_name'    => 'co-signals-faculty-fixture',
+				'post_excerpt' => 'Local test profile for the co-teaching case.',
+				'post_content' => 'Local fixture. It does not represent a real person.',
+				'meta_input'   => array( '_lps_locale' => 'en' ),
+			),
+			true
+		);
+		$co_teacher_en = is_wp_error( $co_teacher_en ) ? 0 : (int) $co_teacher_en;
+		if ( 0 < $co_teacher_en && is_wp_error( Translations::associate( $co_teacher_pt, $co_teacher_en ) ) ) {
+			wp_delete_post( $co_teacher_en, true );
+			$co_teacher_en = 0;
+		}
+	}
+	lps_teaching_seed_publish_pair( $co_teacher_pt, $co_teacher_en );
+
 	// Terms: one current semester, one completed semester.
 	$term_current = lps_teaching_seed_record(
 		'lps_term',
@@ -213,13 +258,22 @@ function lps_teaching_seed(): void {
 		return;
 	}
 
-	// Offerings: one current section and one completed section.
+	// Offerings: one current section and one completed section. The current
+	// section carries the co-teaching case; the completed one keeps the lead
+	// only, matching the canonical first-integrated-example fixture.
 	$team = array(
 		array(
 			'person_id' => $person_pt,
 			'role'      => 'lead',
 		),
 	);
+	$co_team = $team;
+	if ( 0 < $co_teacher_pt ) {
+		$co_team[] = array(
+			'person_id' => $co_teacher_pt,
+			'role'      => 'co-teacher',
+		);
+	}
 	$offering_current = lps_teaching_seed_record(
 		'lps_offering',
 		'sinais-e-sistemas-2026-2-t01',
@@ -231,7 +285,7 @@ function lps_teaching_seed(): void {
 			'course_id' => $course_pt,
 			'term_id'   => $term_current,
 			'section'   => 't01',
-			'team'      => $team,
+			'team'      => $co_team,
 			'meta'      => array(
 				'_lps_schedule' => 'Ter/Qui 10h-12h',
 				'_lps_venue'    => 'Sala 201',
@@ -239,6 +293,27 @@ function lps_teaching_seed(): void {
 		),
 		array( TeachingRecords::class, 'create_offering' )
 	);
+	// A pre-existing current offering gains the co-teacher row idempotently.
+	if ( 0 < $offering_current && 0 < $co_teacher_pt && class_exists( Relationships::class ) ) {
+		$existing_team = Relationships::for_source( $offering_current, 'teaching_team' );
+		$has_co        = false;
+		foreach ( $existing_team as $member ) {
+			if ( (int) $member['target_post_id'] === $co_teacher_pt ) {
+				$has_co = true;
+			}
+		}
+		if ( ! $has_co ) {
+			$existing_team[] = array(
+				'target_post_id'    => $co_teacher_pt,
+				'relationship_role' => 'co-teacher',
+				'sort_order'        => count( $existing_team ) + 1,
+				'start_date'        => '',
+				'end_date'          => '',
+				'public_visibility' => true,
+			);
+			Relationships::replace( $offering_current, 'teaching_team', $existing_team );
+		}
+	}
 	$offering_current_en = 0;
 	if ( 0 < $offering_current ) {
 		$variants            = Translations::variants( $offering_current );
@@ -325,6 +400,59 @@ function lps_teaching_seed(): void {
 				array( TeachingRecords::class, 'create_unit' )
 			);
 			lps_teaching_seed_publish( $unit_id );
+		}
+	}
+
+	// Materials: one released external resource on unit 1 and one withdrawn
+	// resource, so the canonical fixture exercises both material states.
+	if ( 0 < $offering_current && class_exists( TeachingResources::class ) ) {
+		$unit_one = lps_teaching_seed_id( 'lps_unit', 'unidade-1-sinais-continuos' );
+		$released = lps_teaching_seed_record(
+			'lps_resource',
+			'apostila-sinais-fixture',
+			array(
+				'title'        => 'Apostila de sinais (fixture de QA)',
+				'slug'         => 'apostila-sinais-fixture',
+				'excerpt'      => 'Notas de aula de teste local.',
+				'offering_id'  => $offering_current,
+				'unit_id'      => $unit_one,
+				'external_url' => 'https://example.org/lps-fixture/apostila-sinais',
+				'meta'         => array(
+					'_lps_resource_type'        => 'document',
+					'_lps_resource_language'    => 'pt-br',
+					'_lps_rights_review'        => 'approved',
+					'_lps_accessibility_review' => 'approved',
+				),
+			),
+			array( TeachingResources::class, 'create_resource' )
+		);
+		if ( 0 < $released && 'released' !== get_post_meta( $released, '_lps_release_state', true ) ) {
+			TeachingResources::release_resource( $released, 'released', '', TeachingResources::storage_config() );
+		}
+		lps_teaching_seed_publish( $released );
+
+		$withdrawn = lps_teaching_seed_record(
+			'lps_resource',
+			'prova-antiga-sinais-fixture',
+			array(
+				'title'        => 'Prova antiga (fixture de QA)',
+				'slug'         => 'prova-antiga-sinais-fixture',
+				'excerpt'      => 'Avaliação de teste local retirada.',
+				'offering_id'  => $offering_current,
+				'external_url' => 'https://example.org/lps-fixture/prova-antiga',
+				'meta'         => array(
+					'_lps_resource_type'        => 'document',
+					'_lps_resource_language'    => 'pt-br',
+					'_lps_rights_review'        => 'approved',
+					'_lps_accessibility_review' => 'approved',
+				),
+			),
+			array( TeachingResources::class, 'create_resource' )
+		);
+		if ( 0 < $withdrawn && 'withdrawn' !== get_post_meta( $withdrawn, '_lps_release_state', true ) ) {
+			TeachingResources::release_resource( $withdrawn, 'released', '', TeachingResources::storage_config() );
+			lps_teaching_seed_publish( $withdrawn );
+			TeachingResources::withdraw_resource( $withdrawn );
 		}
 	}
 }

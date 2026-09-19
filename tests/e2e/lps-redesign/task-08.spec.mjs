@@ -300,7 +300,9 @@ test.describe("task-08: teaching persistence and canonical routes", () => {
     expect(pt.status()).toBe(200);
     await expect(page.locator("h1").first()).toContainText(`Turma ${RUN} T01`);
     await expect(page.locator(".lps-term-token").first()).toContainText(`2026-2-${RUN}-semester`);
-    await expect(page.locator(".lps-temporal-status").first()).toContainText("current");
+    // The machine status lives on data-state; the visible label is localized.
+    await expect(page.locator("article.lps-offering")).toHaveAttribute("data-state", "current");
+    await expect(page.locator(".lps-temporal-status").first()).toContainText("Em andamento");
     await expect(page.locator(".lps-teaching-team")).toContainText(`Docente ${RUN}`);
     await expect(page.locator(`#unidade-${RUN}`)).toBeAttached();
 
@@ -314,7 +316,7 @@ test.describe("task-08: teaching persistence and canonical routes", () => {
     await expect(page.locator("h1").first()).toContainText(`Disciplina ${RUN}`);
     const landing = await page.goto("/pt-br/ensino/");
     expect(landing.status()).toBe(200);
-    await expect(page.locator("main.lps-teaching-landing")).toBeAttached();
+    await expect(page.locator(".lps-teaching-landing")).toBeAttached();
   });
 
   test("route collisions and unknown identities return real 404s", async () => {
