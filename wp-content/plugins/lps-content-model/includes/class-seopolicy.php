@@ -57,9 +57,13 @@ final class SeoPolicy {
 	 * as a withheld person, a hidden partner, or an editorial page that was
 	 * never published: listing one would advertise a 404 to every crawler.
 	 *
+	 * `stale` covers an English variant whose review trails the Portuguese
+	 * source: the page stays served with its explicit notice, but an index
+	 * entry would certify a translation nobody has re-reviewed.
+	 *
 	 * @var array<int, string>
 	 */
-	private const NONINDEXABLE_STATES = array( 'draft', 'preview', 'search', 'filtered', 'expired', 'private', 'unavailable' );
+	private const NONINDEXABLE_STATES = array( 'draft', 'preview', 'search', 'filtered', 'expired', 'private', 'unavailable', 'stale' );
 
 	/**
 	 * Returns the supported locale slugs in authoritative order.

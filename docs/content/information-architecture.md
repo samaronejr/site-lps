@@ -62,11 +62,21 @@ fixture. The route and parent hierarchy is at most two levels below a locale roo
 │   └── :news
 ├── eventos | events
 │   └── :event
+├── ensino | teaching
+│   └── disciplinas | courses
+│       └── :course
+│           └── :term/:section
 ├── colabore | collaborate
 ├── contato | contact
 ├── privacidade | privacy
 └── acessibilidade | accessibility
 ```
+
+The teaching branch is the one deliberate exception to the two-level rule: an offering address
+carries its course slug, the immutable calendar-qualified term token and the section key, so a
+section page is addressable only through its course. The registered `lps_course` and
+`lps_offering` permalinks and archives stay resolvable but answer with a single 301 to these
+canonical routes; they never serve a second canonical document.
 
 `{locale}` is translated by the paired mapping in the fixture (`pt-br` or `en`); every displayed
 Portuguese segment above maps to its English route segment there. Detail patterns are routing

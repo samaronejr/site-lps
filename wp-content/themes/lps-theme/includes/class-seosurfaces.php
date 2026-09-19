@@ -33,6 +33,7 @@ final class SeoSurfaces {
 		'/wp-login.php',
 		'/pt-br/busca/',
 		'/en/search/',
+		'/lps-resource/',
 		'/*?*',
 	);
 
