@@ -31,6 +31,17 @@ final class HomepageTest extends TestCase {
 		self::assertSame( array( 'Join LPS', 'Collaborate', 'Partner' ), array_column( $english, 'label' ) );
 	}
 
+	/** The two pinned first-viewport actions are locale-specific and stable. */
+	public function test_primary_links_are_locale_specific(): void {
+		$portuguese = Homepage::primary_links( 'pt-br' );
+		$english    = Homepage::primary_links( 'en' );
+
+		self::assertSame( array( 'research', 'teaching' ), array_column( $portuguese, 'key' ) );
+		self::assertSame( array( 'Conheça a pesquisa', 'Disciplinas e materiais' ), array_column( $portuguese, 'label' ) );
+		self::assertSame( array( '/pt-br/pesquisa/', '/pt-br/ensino/' ), array_column( $portuguese, 'url' ) );
+		self::assertSame( array( '/en/research/', '/en/teaching/' ), array_column( $english, 'url' ) );
+	}
+
 	/**
 	 * Returns a fully eligible native feature record for the data provider.
 	 *
@@ -96,8 +107,8 @@ final class HomepageTest extends TestCase {
 			'unreviewed import' => array(
 				self::eligible_native(
 					array(
-						'_lps_origin'             => 'native',
-						'_lps_import_source_id'   => 'record-001',
+						'_lps_origin'              => 'native',
+						'_lps_import_source_id'    => 'record-001',
 						'_lps_import_review_state' => 'candidate',
 					)
 				),
@@ -107,8 +118,8 @@ final class HomepageTest extends TestCase {
 			'reviewed import' => array(
 				self::eligible_native(
 					array(
-						'_lps_origin'             => 'imported',
-						'_lps_import_source_id'   => 'record-001',
+						'_lps_origin'              => 'imported',
+						'_lps_import_source_id'    => 'record-001',
 						'_lps_import_review_state' => 'reviewed',
 					)
 				),
@@ -140,13 +151,11 @@ final class HomepageTest extends TestCase {
 		);
 	}
 
-	public function test_image_fallback_is_accessible_and_contains_no_placeholder_image(): void {
+	/** A record with no governed media degrades to text, never a broken box. */
+	public function test_missing_media_degrades_to_text_without_placeholder(): void {
 		$markup = Homepage::feature_media_markup( array( 'title' => 'Projeto validado', 'image' => null ), 'pt-br' );
 
-		self::assertStringContainsString( 'role="img"', $markup );
-		self::assertStringContainsString( 'Imagem não publicada', $markup );
-		self::assertStringNotContainsString( '<img', $markup );
-		self::assertStringNotContainsString( 'placeholder', strtolower( $markup ) );
+		self::assertSame( '', $markup );
 	}
 
 	/**
@@ -200,8 +209,18 @@ final class HomepageTest extends TestCase {
 		self::assertStringNotContainsString( 'fetchpriority="high"', $content );
 	}
 
+	/** A reviewed focal point renders as the governed object-position. */
+	public function test_focal_point_renders_object_position(): void {
+		$media          = $this->cleared_media();
+		$media['asset'] = array_merge( $media['asset'], array( 'focal_x' => 0.25, 'focal_y' => 0.8 ) );
+		$record         = array_replace( $this->record( 'mission', 'pt-br' ), array( 'media' => $media ) );
+		$markup         = Homepage::feature_media_markup( $record, 'pt-br', 'hero' );
+
+		self::assertStringContainsString( 'object-position: 25% 80%', $markup );
+	}
+
 	/** An attachment without rights fields can never render, referenced or not. */
-	public function test_media_without_rights_fields_falls_back(): void {
+	public function test_media_without_rights_fields_degrades_to_text(): void {
 		$media          = $this->cleared_media();
 		$media['asset'] = array(
 			'id'     => 42,
@@ -212,36 +231,33 @@ final class HomepageTest extends TestCase {
 		);
 		$record         = array_replace( $this->record( 'projects', 'en' ), array( 'media' => $media ) );
 		$markup         = Homepage::feature_media_markup( $record, 'en' );
-		self::assertStringNotContainsString( '<img', $markup );
-		self::assertStringContainsString( 'role="img"', $markup );
-		self::assertStringContainsString( 'Image not published', $markup );
+		self::assertSame( '', $markup );
 
-		$html = Homepage::section_markup( 'projects', 'en', array( $record ), '2026-09-06' );
+		$html = Homepage::section_markup( 'research', 'en', array( $record ), '2026-09-06' );
 		self::assertStringNotContainsString( '<img', $html );
-		self::assertStringContainsString( 'lps-feature-media-fallback', $html );
+		self::assertStringContainsString( 'CMS &lt;record&gt;', $html );
 	}
 
 	/** The removed raw-URL path cannot smuggle an ungoverned image through. */
 	public function test_raw_image_url_is_never_rendered(): void {
 		$record = array_replace( $this->record( 'mission', 'en' ), array( 'image' => 'https://cdn.example/photo.jpg' ) );
 		$markup = Homepage::feature_media_markup( $record, 'en' );
-		self::assertStringNotContainsString( '<img', $markup );
-		self::assertStringNotContainsString( 'cdn.example', $markup );
+		self::assertSame( '', $markup );
 
 		$html = Homepage::section_markup( 'mission', 'en', array( $record ), '2026-09-06' );
 		self::assertStringNotContainsString( 'cdn.example', $html );
+		self::assertStringNotContainsString( '<img', $html );
 	}
 
-	/** Media slots exist on projects/people/infrastructure rows, not elsewhere. */
-	public function test_media_slots_render_only_in_media_sections(): void {
+	/** Media slots exist on the feature row and media strata, not on dated rows. */
+	public function test_media_slots_render_only_in_media_positions(): void {
 		$media   = $this->cleared_media();
 		$slotted = array_replace( $this->record( 'projects', 'en' ), array( 'media' => $media ) );
-		$html    = Homepage::section_markup( 'projects', 'en', array( $slotted ), '2026-09-06' );
+		$html    = Homepage::section_markup( 'research', 'en', array( $slotted ), '2026-09-06' );
 		self::assertStringContainsString( '<figure class="lps-media lps-media--image">', $html );
 
-		$plain = Homepage::section_markup( 'projects', 'en', array( $this->record( 'projects', 'en' ) ), '2026-09-06' );
+		$plain = Homepage::section_markup( 'research', 'en', array( $this->record( 'projects', 'en' ) ), '2026-09-06' );
 		self::assertStringNotContainsString( '<img', $plain );
-		self::assertStringNotContainsString( 'lps-feature-media-fallback', $plain );
 
 		$dated = array_replace(
 			$this->record( 'latest', 'en' ),
@@ -250,9 +266,18 @@ final class HomepageTest extends TestCase {
 				'date'  => '2026-09-01',
 			)
 		);
-		$html  = Homepage::section_markup( 'latest', 'en', array( $dated ), '2026-09-06' );
-		self::assertStringNotContainsString( '<img', $html );
-		self::assertStringNotContainsString( 'lps-feature-media-fallback', $html );
+		$older = array_replace(
+			$this->record( 'latest', 'en' ),
+			array(
+				'media'     => $media,
+				'date'      => '2026-08-01',
+				'source_id' => 'source:older',
+			)
+		);
+		$html  = Homepage::section_markup( 'latest', 'en', array( $dated, $older ), '2026-09-06' );
+		// Only the newest record carries the media slot.
+		self::assertSame( 1, substr_count( $html, '<figure class="lps-media' ) );
+		self::assertStringContainsString( 'lps-record--featured', $html );
 	}
 
 	/** Dated rows print the ISO day even when the canonical date carries a time. */
@@ -267,6 +292,24 @@ final class HomepageTest extends TestCase {
 		$html = Homepage::section_markup( 'latest', 'en', array( $news ), '2026-09-06' );
 		self::assertStringContainsString( '<time datetime="2026-09-01">2026-09-01</time>', $html );
 		self::assertStringNotContainsString( '09:00:00', $html );
+	}
+
+	/** Event rows carry an explicit status and venue, differentiated from news. */
+	public function test_event_rows_carry_status_and_venue(): void {
+		$event = array_replace(
+			$this->record( 'latest', 'pt-br' ),
+			array(
+				'type'         => 'lps_event',
+				'date'         => '2026-10-01T14:00:00-03:00',
+				'event_status' => 'cancelled',
+				'venue'        => 'Auditório do LPS',
+			)
+		);
+		$html = Homepage::section_markup( 'latest', 'pt-br', array( $event ), '2026-09-06' );
+		self::assertStringContainsString( '<time datetime="2026-10-01">2026-10-01</time>', $html );
+		self::assertStringContainsString( 'Eventos', $html );
+		self::assertStringContainsString( 'Cancelado', $html );
+		self::assertStringContainsString( 'Auditório do LPS', $html );
 	}
 
 	/**
@@ -312,13 +355,11 @@ final class HomepageTest extends TestCase {
 
 	/** CMS values are escaped and carry provenance. */
 	public function test_sections_escape_cms_copy_and_attach_provenance(): void {
-		$html = Homepage::section_markup( 'projects', 'en', array( $this->record() ), '2026-09-06' );
+		$html = Homepage::section_markup( 'research', 'en', array( $this->record() ), '2026-09-06' );
 		self::assertStringContainsString( 'data-home-section="projects"', $html );
 		self::assertStringContainsString( 'data-source-id="source:record"', $html );
 		self::assertStringContainsString( 'CMS &lt;record&gt;', $html );
 		self::assertStringContainsString( 'CMS &amp; summary', $html );
-		self::assertSame( 1, substr_count( $html, '<h2' ) );
-		self::assertSame( 1, substr_count( $html, '<h3' ) );
 		self::assertStringNotContainsString( '<img', $html );
 	}
 
@@ -338,17 +379,17 @@ final class HomepageTest extends TestCase {
 				array( 'featured_from' => '2026-09-07' ),
 				array( 'url' => 'javascript:alert(1)' ),
 			) as $change ) {
-				$rejected = array_replace( $this->record( 'projects', $locale ), array( 'title' => 'REJECTED_RECORD', 'summary' => 'REJECTED_SUMMARY' ), $change );
-				$valid    = array_replace( $this->record( 'projects', $locale ), array( 'source_id' => 'source:valid' ) );
-				$html     = Homepage::section_markup( 'projects', $locale, array( $rejected, $valid ), '2026-09-06' );
+				$rejected = array_replace( $this->record( 'latest', $locale ), array( 'title' => 'REJECTED_RECORD', 'summary' => 'REJECTED_SUMMARY', 'date' => '2026-09-01' ), $change );
+				$valid    = array_replace( $this->record( 'latest', $locale ), array( 'source_id' => 'source:valid', 'date' => '2026-09-02' ) );
+				$html     = Homepage::section_markup( 'latest', $locale, array( $rejected, $valid ), '2026-09-06' );
 				self::assertStringNotContainsString( 'REJECTED_RECORD', $html );
 				self::assertStringNotContainsString( 'REJECTED_SUMMARY', $html );
 				self::assertStringNotContainsString( 'source:record', $html );
 				self::assertStringContainsString( 'data-source-id="source:valid"', $html );
 				self::assertSame( 1, substr_count( $html, '<article' ) );
 				self::assertSame(
-					Homepage::section_markup( 'projects', $locale, array(), '2026-09-06' ),
-					Homepage::section_markup( 'projects', $locale, array( $rejected ), '2026-09-06' )
+					Homepage::section_markup( 'latest', $locale, array(), '2026-09-06' ),
+					Homepage::section_markup( 'latest', $locale, array( $rejected ), '2026-09-06' )
 				);
 			}
 		}
@@ -389,13 +430,13 @@ final class HomepageTest extends TestCase {
 	}
 
 	/** Rendered features, not just the selector, are ordered and bounded to three. */
-	public function test_project_limit_is_three_and_mission_has_one_h1(): void {
+	public function test_project_stratum_is_bounded_and_mission_has_one_h1(): void {
 		foreach ( array( 'pt-br', 'en' ) as $locale ) {
 			$records = array();
 			foreach ( array( 4, 2, 1, 5, 3 ) as $order ) {
 				$records[] = array_replace( $this->record( 'projects', $locale ), array( 'feature_order' => $order, 'source_id' => 'source:' . $order ) );
 			}
-			$html = Homepage::section_markup( 'projects', $locale, $records, '2026-09-06' );
+			$html = Homepage::section_markup( 'research', $locale, $records, '2026-09-06' );
 			self::assertSame( 3, substr_count( $html, '<article' ) );
 			preg_match_all( '/data-source-id="([^"]+)"/', $html, $sources );
 			self::assertSame( array( 'source:1', 'source:2', 'source:3' ), $sources[1] );
@@ -412,7 +453,7 @@ final class HomepageTest extends TestCase {
 	 */
 	public function test_empty_section_is_accessible_without_mixed_language(): void {
 		// 'partners' is not optional: it always renders to carry the required contact handoff.
-		$optional = array( 'research', 'evidence', 'projects', 'people', 'infrastructure', 'latest' );
+		$optional = array( 'research', 'latest', 'people' );
 		foreach ( array( 'pt-br', 'en' ) as $locale ) {
 			$foreign_locale = 'en' === $locale ? 'pt-br' : 'en';
 			foreach ( $optional as $section ) {
@@ -434,14 +475,21 @@ final class HomepageTest extends TestCase {
 						'summary' => 'FOREIGN_SUMMARY',
 					)
 				);
-				$html    = Homepage::section_markup( $section, $locale, array( $foreign ), '2026-09-06' );
-				self::assertSame( Homepage::section_markup( $section, $locale, array(), '2026-09-06' ), $html );
+				$html    = 'contact' === $section
+					? Homepage::section_markup( 'partners', $locale, array( $foreign ), '2026-09-06' )
+					: Homepage::section_markup( $section, $locale, array( $foreign ), '2026-09-06' );
+				$empty   = 'contact' === $section
+					? Homepage::section_markup( 'partners', $locale, array(), '2026-09-06' )
+					: Homepage::section_markup( $section, $locale, array(), '2026-09-06' );
+				self::assertSame( $empty, $html );
 				self::assertStringContainsString( 'aria-labelledby="lps-home-' . $section . '"', $html );
-				self::assertMatchesRegularExpression( '/<h[12] id="lps-home-' . $section . '">[^<]+<\/h[12]>/', $html );
+				self::assertMatchesRegularExpression( '/<h[12][^>]*id="lps-home-' . $section . '">[^<]+<\/h[12]>/', $html );
 				self::assertMatchesRegularExpression( '/<p data-home-empty="' . $section . '">[^<]+<\/p>/', $html );
 				self::assertStringNotContainsString( 'FOREIGN_', $html );
 				self::assertStringNotContainsString( '<article', $html );
-				self::assertStringNotContainsString( '<a ', $html );
+				// The mission notice keeps only the two pinned first-viewport
+				// actions; the contact notice keeps no link at all.
+				self::assertSame( 'mission' === $section ? 2 : 0, substr_count( $html, '<a ' ) );
 				self::assertStringNotContainsString( '<img', $html );
 			}
 		}
@@ -449,33 +497,38 @@ final class HomepageTest extends TestCase {
 
 	/**
 	 * A zero-record home renders only the required modules: the mission notice,
-	 * the three truthful disabled journeys, and the contact handoff notice.
+	 * the three truthful disabled journeys, the teaching entrance, and the
+	 * contact handoff notice.
 	 */
 	public function test_zero_record_home_renders_only_required_modules(): void {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- reads a local theme template fixture, not a remote URL.
 		$template = file_get_contents( dirname( __DIR__ ) . '/templates/front-page.html' );
 		self::assertIsString( $template );
 		preg_match_all( '/wp:lps-theme\/homepage \{"section":"([a-z]+)"/', $template, $blocks );
-		self::assertSame( array( 'mission', 'journeys', 'research', 'projects', 'people', 'infrastructure', 'latest', 'partners' ), $blocks[1] );
+		self::assertSame( array( 'mission', 'research', 'latest', 'teaching', 'people', 'journeys', 'partners' ), $blocks[1] );
 		foreach ( array( 'pt-br', 'en' ) as $locale ) {
 			$page = '';
 			foreach ( $blocks[1] as $section ) {
 				$page .= Homepage::section_markup( $section, $locale, array(), '2026-09-06' );
 			}
-			self::assertSame( 4, substr_count( $page, 'data-home-section=' ), $page );
+			self::assertSame( 5, substr_count( $page, 'data-home-section=' ), $page );
 			self::assertStringContainsString( 'data-home-section="mission"', $page );
 			self::assertStringContainsString( 'data-home-section="journeys"', $page );
+			self::assertStringContainsString( 'data-home-section="teaching"', $page );
 			self::assertStringContainsString( 'data-home-section="partners"', $page );
 			self::assertStringContainsString( 'data-home-section="contact"', $page );
-			foreach ( array( 'research', 'evidence', 'projects', 'people', 'infrastructure', 'latest' ) as $omitted ) {
+			foreach ( array( 'research', 'latest', 'people', 'projects', 'evidence', 'infrastructure' ) as $omitted ) {
 				self::assertStringNotContainsString( 'data-home-section="' . $omitted . '"', $page );
 			}
 			self::assertSame( 2, substr_count( $page, 'data-home-empty=' ), $page );
 			self::assertStringContainsString( 'data-home-empty="mission"', $page );
 			self::assertStringContainsString( 'data-home-empty="contact"', $page );
 			self::assertSame( 3, substr_count( $page, 'aria-disabled="true"' ) );
-			self::assertStringNotContainsString( '<a ', $page );
 			self::assertSame( 1, substr_count( $page, '<h1' ) );
+			// The pinned first-viewport actions and the teaching entrance persist.
+			self::assertStringContainsString( 'data-home-action="research"', $page );
+			self::assertStringContainsString( 'data-home-action="teaching"', $page );
+			self::assertStringContainsString( 'en' === $locale ? '/en/teaching/' : '/pt-br/ensino/', $page );
 		}
 	}
 

@@ -857,17 +857,35 @@ figure,
   margin-block: var(--space-8);
 }
 
-.lps-feature-media-fallback {
-  padding: var(--space-8);
-  background: var(--color-surface);
-  color: var(--color-text-muted);
-}
-
 /* Governed media inside a record row keeps a tighter rhythm than a standalone
    figure so the row's hairline separation stays readable. */
-.lps-record .lps-media,
-.lps-record .lps-feature-media-fallback {
+.lps-record .lps-media {
   margin-block: 0 var(--space-4);
+}
+
+/* Homepage media slots crop to a uniform 3:2 frame; the governed focal point
+   (rendered as object-position) decides which part of the image stays in
+   frame, so a cleared image never distorts to fit the slot. */
+.lps-home-section .lps-media img {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+}
+
+.lps-home-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.lps-home-links {
+  margin-block-start: var(--space-4);
+}
+
+.lps-home-links a + a {
+  margin-inline-start: var(--space-5);
 }
 
 figcaption,
@@ -905,17 +923,14 @@ figcaption,
 }
 
 /* Band rhythm: canvas and surface alternate; adjacent modules never share a
-   band color. Journeys is the single interior anchor band. Research and
-   projects share one surface band so they read as a single module's strata;
-   people and infrastructure share the canvas band for the same reason. */
+   band color. Journeys is the single interior anchor band; research and
+   latest share the surface band so they read as the page's evidence core. */
 .lps-home-section[data-home-section="research"],
-.lps-home-section[data-home-section="projects"],
 .lps-home-section[data-home-section="latest"] {
   background: var(--color-surface);
 }
 
 /* Strata inside a module separate by rule and spacing, never by cards. */
-.lps-home-section[data-home-section="projects"],
 .lps-home-stratum {
   padding-block-start: var(--space-12);
   border-block-start: var(--rule-hairline);
@@ -924,32 +939,6 @@ figcaption,
 /* The contact handoff closes the partners module with a strong top rule. */
 .lps-home-handoff {
   border-block-start: var(--line-medium) solid var(--color-boundary-strong);
-}
-
-/* Selected projects are numbered editorial records inside the shared band. */
-.lps-home-section[data-home-section="projects"] {
-  counter-reset: lps-project;
-}
-
-.lps-home-section[data-home-section="projects"] .lps-record {
-  counter-increment: lps-project;
-}
-
-.lps-home-section[data-home-section="projects"] .lps-record h3::before {
-  content: counter(lps-project) ". ";
-  color: var(--color-text-muted);
-  font-family: var(--font-mono);
-  font-size: var(--type-meta);
-  font-variant-numeric: tabular-nums;
-  font-weight: 500;
-  letter-spacing: 0.075em;
-}
-
-/* Stacked below 64rem, the infrastructure half of the people module keeps a
-   hairline seam so the two groups stay legible on the shared canvas band. */
-.lps-home-section[data-home-section="infrastructure"] {
-  padding-block-start: var(--space-12);
-  border-block-start: var(--rule-hairline);
 }
 
 .lps-home-section[data-home-section="journeys"] {
@@ -1423,15 +1412,6 @@ details:not(.lps-shell-disclosure) > summary {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .lps-home-section[data-home-section="projects"] > .lps-record {
-    grid-column: span 4;
-  }
-
-  /* A lone project record owns the band instead of half of it. */
-  .lps-home-section[data-home-section="projects"] > .lps-record:only-of-type {
-    grid-column: 1 / -1;
-  }
-
   /* Dated rows: the metadata column leads, title and summary follow. */
   .lps-home-section[data-home-section="latest"] > .lps-record {
     display: grid;
@@ -1447,6 +1427,23 @@ details:not(.lps-shell-disclosure) > summary {
   .lps-home-section[data-home-section="latest"] > .lps-record > h3,
   .lps-home-section[data-home-section="latest"] > .lps-record > p:not(.lps-meta) {
     grid-column: 2;
+  }
+
+  /* The featured latest row leads with its governed image. */
+  .lps-home-section[data-home-section="latest"] > .lps-record--featured {
+    grid-template-columns: minmax(14rem, 2fr) 3fr;
+  }
+
+  .lps-home-section[data-home-section="latest"] > .lps-record--featured > .lps-media {
+    grid-column: 1;
+    grid-row: 1 / span 3;
+  }
+
+  .lps-home-section[data-home-section="latest"] > .lps-record--featured > .lps-meta,
+  .lps-home-section[data-home-section="latest"] > .lps-record--featured > h3,
+  .lps-home-section[data-home-section="latest"] > .lps-record--featured > p:not(.lps-meta) {
+    grid-column: 2;
+    grid-row: auto;
   }
 
   .lps-main-content > .wp-block-post-title,
@@ -1569,22 +1566,9 @@ details:not(.lps-shell-disclosure) > summary {
     padding-block-start: var(--space-12);
   }
 
-  /* ram-grid: numbered project records repeat across the band below the
-     label; the latest module keeps full-width dated rows instead. */
-  .lps-home-section[data-home-section="projects"] > h2,
+  /* The latest module keeps full-width dated rows below its label. */
   .lps-home-section[data-home-section="latest"] > h2 {
     grid-column: 1 / -1;
-  }
-
-  .lps-home-section[data-home-section="projects"] > .lps-record {
-    grid-column: span 3;
-  }
-
-  /* The 4-up repeat degrades below three records: one or two records split
-     the band in halves so a title is never squeezed into a quarter column. */
-  .lps-home-section[data-home-section="projects"] > .lps-record:first-of-type:nth-last-of-type(-n + 2),
-  .lps-home-section[data-home-section="projects"] > .lps-record:first-of-type:nth-last-of-type(-n + 2) ~ .lps-record {
-    grid-column: span 6;
   }
 
   .lps-home-section[data-home-section="latest"] > .lps-record {
@@ -1596,45 +1580,26 @@ details:not(.lps-shell-disclosure) > summary {
     grid-column: 1 / 8;
   }
 
-  .lps-home-section[data-home-section="mission"] > .lps-media,
-  .lps-home-section[data-home-section="mission"] > .lps-feature-media-fallback {
+  .lps-home-section[data-home-section="mission"] > .lps-media {
     grid-column: 8 / -1;
     margin-block: 0;
   }
 
-  /* The not-published notice holds the governed figure's 3:2 footprint at
-     the top of the column instead of stretching to the statement's height. */
-  .lps-home-section[data-home-section="mission"] > .lps-feature-media-fallback {
-    align-self: start;
-    aspect-ratio: 3 / 2;
-  }
-
-  /* People and infrastructure form one split module on the canvas band: the
-     sections drop their full-bleed band behavior and sit side by side on the
-     parent page grid. */
-  .lps-home-section[data-home-section="people"],
-  .lps-home-section[data-home-section="infrastructure"] {
-    position: static;
-    inline-size: auto;
-    padding-inline: 0;
-    transform: none;
-  }
-
-  .lps-home-section[data-home-section="people"] {
-    grid-column: 1 / 8;
-  }
-
-  .lps-home-section[data-home-section="infrastructure"] {
-    grid-column: 8 / -1;
-    padding-block-start: var(--space-16);
-    border-block-start: 0;
-  }
-
-  .lps-home-section[data-home-section="people"] > h2,
-  .lps-home-section[data-home-section="infrastructure"] > h2,
-  .lps-home-section[data-home-section="people"] > :not(h1, h2),
-  .lps-home-section[data-home-section="infrastructure"] > :not(h1, h2) {
+  /* Strata inside a module keep the module's two-column rhythm: the stratum
+     label owns the left rail, its records the content column. The element
+     selector keeps this rule level with the section's generic child rule. */
+  .lps-home-section > section.lps-home-stratum {
     grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+  }
+
+  .lps-home-stratum > :is(h2, h3) {
+    grid-column: 1 / 4;
+  }
+
+  .lps-home-stratum > :not(:is(h2, h3)) {
+    grid-column: 4 / 11;
   }
 
   .lps-main-content > .wp-block-post-title,
