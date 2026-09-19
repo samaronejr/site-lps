@@ -207,7 +207,8 @@ snapshot, so later edits to the default syllabus do not rewrite history.
 
 `_lps_section_key` (normalized: folded, lowercased, hyphenated ASCII), `_lps_schedule`, `_lps_venue`,
 `_lps_lms_url` + `_lps_lms_url_approved`, `_lps_cancelled` (shared); `_lps_syllabus_snapshot`
-(localized); `_lps_temporal_status` (system, derived: `upcoming`/`current`/`completed`/`cancelled`).
+(localized); `_lps_temporal_status` (system, derived: `upcoming`/`current`/`completed`/`cancelled`);
+`_lps_copy_operation_id`, `_lps_copy_source_offering_id` (system, copy-forward provenance).
 Temporal status is separate from the editorial `_lps_state` machine: a completed offering stays
 published and searchable, and end-of-term never archives a record. Co-teaching is many-to-many
 through the `teaching_team` relationship (`lead`, `co-teacher`, `assistant`).
@@ -254,6 +255,30 @@ a new term/section, explicit teaching-team review, resets for announcements, dea
 times, active notices and unreleased/withdrawn resources, and reuse of already-public immutable
 versions only after explicit selection. One operation completes with a manifest or leaves no
 half-published offering; retrying the same `operation_id` must not duplicate it.
+
+`TeachingCopy::copy_forward()` (`POST /lps/v1/teaching/offerings/{id}/copy-forward`) executes the
+contract in one server-side operation: the new offering is created as a draft under the reviewed
+team, units are cloned in `_lps_position` order with `_lps_topic_date` reset, and every resource
+arrives as a draft stub — `_lps_release_state`, `_lps_release_at`, `_lps_withdrawn_at`, version
+identity and review states reset — except that an explicitly selected `cleared`+`clean` version
+referenced by an effectively released resource is reused verbatim, and an effectively released
+external URL carries forward with its approved reviews. Sensitive and term-bound fields
+(`_lps_lms_url`, `_lps_lms_url_approved`, `_lps_cancelled`, `_lps_temporal_status`) are reset; the
+syllabus snapshot, schedule and venue copy forward. The completed manifest is persisted under
+`lps_copy_op_{operation_id}` and stamped on the draft as `_lps_copy_operation_id`, so a retry
+replays the same record instead of duplicating it; a mid-operation failure rolls the partial
+graph back and releases the identity claim. Scoped grants apply: a professor copies only granted
+offerings.
+
+`TeachingCopy::propagate_correction()` (`POST /lps/v1/teaching/offerings/{id}/corrections`)
+applies allowlisted field corrections (`_lps_schedule`, `_lps_venue`, `_lps_syllabus_snapshot`,
+`_lps_lms_url`, `_lps_lms_url_approved`, `_lps_cancelled`) to an explicit
+`affected_offering_ids` list restricted to the same authoritative course. Each target keeps its
+own history: the correctable fields ride WordPress revisions, so every propagation writes one
+revision per record, and the decision is audited as `edit` with the operation context. The
+manifest persists under `lps_correction_op_{operation_id}` for idempotent replay; identity,
+system and non-allowlisted fields are rejected (`lps_correction_field_forbidden`), as are
+cross-course targets (`lps_correction_course_mismatch`).
 
 ### Offering-scoped authorization
 

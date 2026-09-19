@@ -35,6 +35,33 @@ add_filter(
 	}
 );
 
+/**
+ * Test-only copy-forward failure adapter: when the `lps_test_copy_fail_step`
+ * option names a step, the operation boundary receives a WP_Error at that
+ * step and must roll the partial graph back. Test-only.
+ *
+ * @param mixed  $failure       Current failure value.
+ * @param string $step          Step identifier.
+ * @param string $operation_id  Operation identifier.
+ * @return mixed
+ */
+function lps_test_copy_step_error( $failure, string $step, string $operation_id ): mixed {
+	unset( $operation_id );
+	if ( $failure instanceof WP_Error ) {
+		return $failure;
+	}
+	$armed = get_option( 'lps_test_copy_fail_step', '' );
+	if ( is_string( $armed ) && '' !== $armed && $armed === $step ) {
+		return new WP_Error(
+			'lps_test_copy_step_failed',
+			'The test fixture interrupted the copy-forward operation.',
+			array( 'status' => 500 )
+		);
+	}
+	return $failure;
+}
+add_filter( 'lps_teaching_copy_step_error', 'lps_test_copy_step_error', 10, 3 );
+
 add_action(
 	'rest_api_init',
 	static function (): void {
@@ -78,6 +105,21 @@ add_action(
 				},
 				'permission_callback' => static function (): bool {
 					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+		register_rest_route(
+			'lps/v1',
+			'/test/copy-fail',
+			array(
+				'methods'             => 'POST',
+				'callback'            => static function ( WP_REST_Request $request ): WP_REST_Response {
+					$step = sanitize_key( (string) $request->get_param( 'step' ) );
+					update_option( 'lps_test_copy_fail_step', $step );
+					return rest_ensure_response( array( 'armed_step' => $step ) );
+				},
+				'permission_callback' => static function (): bool {
+					return current_user_can( 'edit_posts' );
 				},
 			)
 		);

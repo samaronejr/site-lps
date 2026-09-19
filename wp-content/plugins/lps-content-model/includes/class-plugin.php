@@ -668,7 +668,7 @@ final class Plugin {
 				continue;
 			}
 			$value    = get_post_meta( $post->ID, $key, true );
-			$readonly = '_lps_record_id' === $key || '_lps_published_slug' === $key || '_lps_origin' === $key || str_ends_with( $key, '_at' ) || str_starts_with( $key, '_lps_source_' ) || str_starts_with( $key, '_lps_reviewed_source_' ) || str_starts_with( $key, '_lps_import_' ) || str_starts_with( $key, '_lps_crossref_' ) || '_lps_translation_reviewer_id' === $key;
+			$readonly = '_lps_record_id' === $key || '_lps_published_slug' === $key || '_lps_origin' === $key || str_ends_with( $key, '_at' ) || str_starts_with( $key, '_lps_source_' ) || str_starts_with( $key, '_lps_reviewed_source_' ) || str_starts_with( $key, '_lps_import_' ) || str_starts_with( $key, '_lps_crossref_' ) || str_starts_with( $key, '_lps_copy_' ) || '_lps_translation_reviewer_id' === $key;
 			$id       = 'lps-field-' . sanitize_html_class( $key );
 			echo '<p><label for="' . esc_attr( $id ) . '"><strong>' . esc_html( (string) $definition['description'] ) . '</strong></label><br>';
 			if ( 'boolean' === $definition['type'] ) {
@@ -702,7 +702,7 @@ final class Plugin {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Each typed value uses its registered sanitizer below.
 		$submitted = isset( $_POST['lps_meta'] ) && is_array( $_POST['lps_meta'] ) ? wp_unslash( $_POST['lps_meta'] ) : array();
 		foreach ( Contracts::meta_fields()[ $post->post_type ] as $key => $definition ) {
-			if ( '_lps_record_id' === $key || '_lps_published_slug' === $key || '_lps_origin' === $key || str_ends_with( $key, '_at' ) || str_starts_with( $key, '_lps_source_' ) || str_starts_with( $key, '_lps_reviewed_source_' ) || str_starts_with( $key, '_lps_import_' ) || str_starts_with( $key, '_lps_crossref_' ) || '_lps_translation_reviewer_id' === $key || in_array( $key, RelationshipPolicy::legacy_relationship_meta_keys(), true ) || '_lps_application_domains' === $key ) {
+			if ( '_lps_record_id' === $key || '_lps_published_slug' === $key || '_lps_origin' === $key || str_ends_with( $key, '_at' ) || str_starts_with( $key, '_lps_source_' ) || str_starts_with( $key, '_lps_reviewed_source_' ) || str_starts_with( $key, '_lps_import_' ) || str_starts_with( $key, '_lps_crossref_' ) || str_starts_with( $key, '_lps_copy_' ) || '_lps_translation_reviewer_id' === $key || in_array( $key, RelationshipPolicy::legacy_relationship_meta_keys(), true ) || '_lps_application_domains' === $key ) {
 				continue;
 			}
 			$value = $submitted[ $key ] ?? ( 'boolean' === $definition['type'] ? false : null );
