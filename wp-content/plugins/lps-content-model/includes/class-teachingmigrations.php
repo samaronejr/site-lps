@@ -16,15 +16,17 @@ use wpdb;
 /**
  * Owns the indexed uniqueness registries for teaching identities.
  *
- * Two plugin-owned tables carry the atomic uniqueness contracts:
+ * Three plugin-owned tables carry the atomic uniqueness contracts:
  * `{prefix}lps_term_registry` enforces `(calendar_key, term_code)` and the
  * immutable `term_token`; `{prefix}lps_offering_registry` enforces
- * `(authoritative course, authoritative term, normalized section key)`.
- * Migrations are versioned, additive, idempotent, and dry-run capable; a
- * dry-run never touches the database and preserves every existing record.
+ * `(authoritative course, authoritative term, normalized section key)`;
+ * `{prefix}lps_resource_version_registry` holds the immutable asset-version
+ * records resources select by opaque `lpsver:*` ID. Migrations are versioned,
+ * additive, idempotent, and dry-run capable; a dry-run never touches the
+ * database and preserves every existing record.
  */
 final class TeachingMigrations {
-	public const VERSION = '1.0.0';
+	public const VERSION = '1.1.0';
 
 	private const VERSION_OPTION = 'lps_teaching_schema_version';
 
@@ -36,6 +38,7 @@ final class TeachingMigrations {
 	public static function steps(): array {
 		return array(
 			'1.0.0' => array( 'create_term_registry', 'create_offering_registry' ),
+			'1.1.0' => array( 'create_resource_version_registry' ),
 		);
 	}
 
@@ -45,7 +48,7 @@ final class TeachingMigrations {
 	 * @return array<int, string>
 	 */
 	public static function table_suffixes(): array {
-		return array( 'lps_term_registry', 'lps_offering_registry' );
+		return array( 'lps_term_registry', 'lps_offering_registry', 'lps_resource_version_registry' );
 	}
 
 	/**
@@ -61,6 +64,7 @@ final class TeachingMigrations {
 		return array(
 			'term_registry'     => $database->prefix . 'lps_term_registry',
 			'offering_registry' => $database->prefix . 'lps_offering_registry',
+			'version_registry'  => $database->prefix . 'lps_resource_version_registry',
 		);
 	}
 
@@ -74,6 +78,7 @@ final class TeachingMigrations {
 	public static function schema_sql( string $prefix, string $charset_collate ): array {
 		$term_registry     = $prefix . 'lps_term_registry';
 		$offering_registry = $prefix . 'lps_offering_registry';
+		$version_registry  = $prefix . 'lps_resource_version_registry';
 		return array(
 			$term_registry     => "CREATE TABLE {$term_registry} (
  term_post_id bigint(20) unsigned NOT NULL,
@@ -99,6 +104,23 @@ final class TeachingMigrations {
  KEY course_lookup (course_post_id),
  KEY term_lookup (term_post_id),
  KEY section_lookup (section_key)
+) {$charset_collate};",
+			$version_registry  => "CREATE TABLE {$version_registry} (
+ version_id char(71) NOT NULL,
+ storage_key varchar(64) NOT NULL,
+ state varchar(16) NOT NULL,
+ scan_verdict varchar(16) NOT NULL,
+ sha256 char(64) NOT NULL,
+ byte_size bigint(20) unsigned NOT NULL,
+ mime_type varchar(100) NOT NULL,
+ detected_mime varchar(100) NOT NULL,
+ extension varchar(10) NOT NULL,
+ original_name varchar(255) NOT NULL,
+ download_name varchar(255) NOT NULL,
+ created_at varchar(25) NOT NULL,
+ PRIMARY KEY  (version_id),
+ UNIQUE KEY storage_key (storage_key),
+ KEY state_lookup (state)
 ) {$charset_collate};",
 		);
 	}

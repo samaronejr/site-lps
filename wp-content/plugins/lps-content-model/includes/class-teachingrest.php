@@ -14,6 +14,7 @@ use WP_REST_Request;
 use WP_REST_Response;
 
 require_once __DIR__ . '/class-teachingrecords.php';
+require_once __DIR__ . '/class-teachingresources.php';
 require_once __DIR__ . '/class-teachingpolicy.php';
 require_once __DIR__ . '/class-roles.php';
 require_once __DIR__ . '/class-securitypolicy.php';
@@ -60,6 +61,118 @@ final class TeachingRest {
 				)
 			);
 		}
+		register_rest_route(
+			self::NAMESPACE,
+			'/teaching/resources',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( self::class, 'create_resource' ),
+				'permission_callback' => array( self::class, 'may_create_resource' ),
+				'args'                => array(
+					'title'       => array(
+						'required'          => true,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'slug'        => array( 'type' => 'string' ),
+					'offering_id' => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					),
+					'unit_id'     => array( 'type' => 'integer' ),
+					'version_id'  => array( 'type' => 'string' ),
+					'meta'        => array( 'type' => 'object' ),
+				),
+			)
+		);
+		register_rest_route(
+			self::NAMESPACE,
+			'/teaching/resource-versions',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( self::class, 'upload_version' ),
+				'permission_callback' => array( self::class, 'may_upload_version' ),
+				'args'                => array(
+					'offering_id' => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					),
+					'scan'        => array( 'type' => 'boolean' ),
+				),
+			)
+		);
+		register_rest_route(
+			self::NAMESPACE,
+			'/teaching/resource-versions/(?P<version_id>lpsver:[0-9a-f]{64})/scan',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( self::class, 'scan_version' ),
+				'permission_callback' => array( self::class, 'may_upload_version' ),
+				'args'                => array(
+					'offering_id' => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					),
+				),
+			)
+		);
+		register_rest_route(
+			self::NAMESPACE,
+			'/teaching/resources/(?P<id>\d+)/version',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( self::class, 'select_version' ),
+				'permission_callback' => array( self::class, 'may_edit_resource' ),
+				'args'                => array(
+					'id'         => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					),
+					'version_id' => array(
+						'required' => true,
+						'type'     => 'string',
+					),
+				),
+			)
+		);
+		register_rest_route(
+			self::NAMESPACE,
+			'/teaching/resources/(?P<id>\d+)/release',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( self::class, 'release_resource' ),
+				'permission_callback' => array( self::class, 'may_publish_resource' ),
+				'args'                => array(
+					'id'         => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					),
+					'state'      => array( 'type' => 'string' ),
+					'release_at' => array( 'type' => 'string' ),
+				),
+			)
+		);
+		register_rest_route(
+			self::NAMESPACE,
+			'/teaching/resources/(?P<id>\d+)/withdraw',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( self::class, 'withdraw_resource' ),
+				'permission_callback' => array( self::class, 'may_publish_resource' ),
+				'args'                => array(
+					'id' => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					),
+				),
+			)
+		);
 		register_rest_route(
 			self::NAMESPACE,
 			'/teaching/records/(?P<id>\d+)/publish',
@@ -149,6 +262,119 @@ final class TeachingRest {
 		$response = rest_ensure_response( $result );
 		$response->set_status( 201 );
 		return $response;
+	}
+
+	/**
+	 * Creates one teaching resource through the domain service.
+	 *
+	 * @param WP_REST_Request $request Current request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function create_resource( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+		$input = $request->get_params();
+		unset( $input['rest_route'] );
+		$result = TeachingResources::create_resource( $input );
+		if ( $result instanceof WP_Error ) {
+			return $result;
+		}
+		$response = rest_ensure_response( $result );
+		$response->set_status( 201 );
+		return $response;
+	}
+
+	/**
+	 * Stores an uploaded file in quarantine and mints its immutable version.
+	 *
+	 * The upload travels as multipart `file`; `scan=false` leaves the version
+	 * quarantined so the scan boundary can be exercised separately.
+	 *
+	 * @param WP_REST_Request $request Current request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function upload_version( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+		$files = $request->get_file_params();
+		$file  = is_array( $files['file'] ?? null ) ? $files['file'] : array();
+		$name  = Policy::scalar_string( $file['name'] ?? '' );
+		$tmp   = Policy::scalar_string( $file['tmp_name'] ?? '' );
+		if ( '' === $name || '' === $tmp ) {
+			return self::error( 'lps_teaching_upload_required', 'A multipart file upload is required.', 'file', 400 );
+		}
+		$scan_param = $request->get_param( 'scan' );
+		$scan       = null === $scan_param ? true : wp_validate_boolean( $scan_param );
+		$result     = TeachingResources::upload_version( $name, $tmp, TeachingResources::storage_config(), $scan );
+		if ( null !== $result['error'] || null === $result['version'] ) {
+			return self::error( (string) $result['error'], 'The upload was denied by the storage boundary.', 'file', 400 );
+		}
+		$response = rest_ensure_response( $result['version'] );
+		$response->set_status( 201 );
+		return $response;
+	}
+
+	/**
+	 * Drives one minted version through the configured scanner.
+	 *
+	 * @param WP_REST_Request $request Current request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function scan_version( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+		$result = TeachingResources::scan_version(
+			Policy::scalar_string( $request->get_param( 'version_id' ) ),
+			TeachingResources::storage_config()
+		);
+		if ( null === $result['version'] ) {
+			return self::error( (string) $result['error'], 'The version does not exist.', 'version_id', 404 );
+		}
+		return rest_ensure_response( $result['version'] );
+	}
+
+	/**
+	 * Replaces the version a resource serves, explicitly and audibly.
+	 *
+	 * @param WP_REST_Request $request Current request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function select_version( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+		$result = TeachingResources::select_version(
+			Policy::sanitize_integer( $request->get_param( 'id' ) ),
+			Policy::scalar_string( $request->get_param( 'version_id' ) )
+		);
+		if ( $result instanceof WP_Error ) {
+			return $result;
+		}
+		return rest_ensure_response( $result );
+	}
+
+	/**
+	 * Applies a scoped release or scheduling decision.
+	 *
+	 * @param WP_REST_Request $request Current request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function release_resource( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+		$result = TeachingResources::release_resource(
+			Policy::sanitize_integer( $request->get_param( 'id' ) ),
+			Policy::scalar_string( $request->get_param( 'state' ) ),
+			Policy::scalar_string( $request->get_param( 'release_at' ) ),
+			TeachingResources::storage_config()
+		);
+		if ( $result instanceof WP_Error ) {
+			return $result;
+		}
+		return rest_ensure_response( $result );
+	}
+
+	/**
+	 * Applies a scoped withdrawal decision.
+	 *
+	 * @param WP_REST_Request $request Current request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function withdraw_resource( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+		$result = TeachingResources::withdraw_resource( Policy::sanitize_integer( $request->get_param( 'id' ) ) );
+		if ( $result instanceof WP_Error ) {
+			return $result;
+		}
+		return rest_ensure_response( $result );
 	}
 
 	/**
@@ -246,6 +472,82 @@ final class TeachingRest {
 			return false;
 		}
 		return Roles::current_user_can_scoped_action( 'create', $post_type, $offering_id );
+	}
+
+	/**
+	 * Returns whether the account may create a resource on the declared offering.
+	 *
+	 * Editors create through their collection assignment; scoped roles create
+	 * only when the declared parent offering is covered by an active persisted
+	 * grant — the offering ID is validated server-side, never trusted alone.
+	 *
+	 * @param WP_REST_Request $request Current request.
+	 */
+	public static function may_create_resource( WP_REST_Request $request ): bool {
+		if ( Roles::current_user_can_action( 'create', 'teaching' ) ) {
+			return true;
+		}
+		$offering_id = Policy::sanitize_integer( $request->get_param( 'offering_id' ) );
+		if ( 0 >= $offering_id ) {
+			return false;
+		}
+		$parent = get_post( $offering_id );
+		if ( ! $parent instanceof \WP_Post || 'lps_offering' !== $parent->post_type ) {
+			return false;
+		}
+		return Roles::current_user_can_scoped_action( 'create', 'lps_resource', $offering_id );
+	}
+
+	/**
+	 * Returns whether the account may mint or rescan versions for an offering.
+	 *
+	 * Versions are shared immutable assets: the scoped check anchors them to a
+	 * declared offering covered by an active grant, exactly like a create.
+	 *
+	 * @param WP_REST_Request $request Current request.
+	 */
+	public static function may_upload_version( WP_REST_Request $request ): bool {
+		return self::may_create_resource( $request );
+	}
+
+	/**
+	 * Returns whether the account may replace the addressed resource's version.
+	 *
+	 * @param WP_REST_Request $request Current request.
+	 */
+	public static function may_edit_resource( WP_REST_Request $request ): bool {
+		$post_id = Policy::sanitize_integer( $request->get_param( 'id' ) );
+		$post    = 0 < $post_id ? get_post( $post_id ) : null;
+		if ( ! $post instanceof \WP_Post || 'lps_resource' !== $post->post_type ) {
+			return false;
+		}
+		if ( Roles::current_user_can_action( 'edit', 'teaching' ) ) {
+			return true;
+		}
+		$offering_id = Roles::persisted_offering_id( $post );
+		return 0 < $offering_id && Roles::current_user_can_scoped_action( 'edit', 'lps_resource', $offering_id );
+	}
+
+	/**
+	 * Returns whether the account may release or withdraw the addressed resource.
+	 *
+	 * Release and withdrawal change public file delivery, so they follow the
+	 * `publish` action: editors with publish rights on the teaching collection,
+	 * or a scoped role whose persisted grant covers the resource's offering.
+	 *
+	 * @param WP_REST_Request $request Current request.
+	 */
+	public static function may_publish_resource( WP_REST_Request $request ): bool {
+		$post_id = Policy::sanitize_integer( $request->get_param( 'id' ) );
+		$post    = 0 < $post_id ? get_post( $post_id ) : null;
+		if ( ! $post instanceof \WP_Post || 'lps_resource' !== $post->post_type ) {
+			return false;
+		}
+		if ( Roles::current_user_can_action( 'publish', 'teaching' ) ) {
+			return true;
+		}
+		$offering_id = Roles::persisted_offering_id( $post );
+		return 0 < $offering_id && Roles::current_user_can_scoped_action( 'publish', 'lps_resource', $offering_id );
 	}
 
 	/**

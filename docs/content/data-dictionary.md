@@ -229,11 +229,16 @@ exactly-one and `resource_unit` is at-most-one, and the unit must belong to the 
 
 ### Uniqueness registries
 
-`TeachingMigrations` owns two indexed registry tables: `{prefix}lps_term_registry` enforces
+`TeachingMigrations` owns three indexed registry tables: `{prefix}lps_term_registry` enforces
 `(calendar_key, term_code)` plus the immutable `term_token`, and `{prefix}lps_offering_registry`
 enforces `(authoritative course, authoritative term, normalized section key)` through a unique
 `identity_hash`. Translated record IDs resolve to the Portuguese authority before hashing, so an
 English variant cannot bypass uniqueness. Claims are released only on hard deletion.
+`{prefix}lps_resource_version_registry` records every immutable resource version under its
+`lpsver:<sha256>` identifier with a unique opaque `storage_key`, the content `sha256`, byte size,
+MIME pair, state (`quarantined`/`cleared`/`infected`/`failed`), scan verdict and display names.
+A version row is never mutated in place: only `state` and `scan_verdict` change through the scan
+boundary, and a correction mints a new version row rather than editing an existing one.
 
 ### Copy-forward
 
