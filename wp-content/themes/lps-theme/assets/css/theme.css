@@ -2191,3 +2191,105 @@ details:not(.lps-shell-disclosure) > summary {
     display: table-header-group;
   }
 }
+
+/* Faculty task dashboard (Operate mode): compact task list, structured
+   forms and status chips on the shared tokens. */
+.lps-status-info {
+  color: var(--color-action);
+}
+
+.lps-dashboard-main {
+  padding-block-end: var(--space-12);
+}
+
+.lps-dashboard-tasks .lps-task-list {
+  display: grid;
+  gap: var(--space-3);
+  padding: 0;
+  list-style: none;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+}
+
+.lps-dashboard-tasks .lps-task-link {
+  display: block;
+  padding: var(--space-4) var(--space-5);
+  border: var(--rule-boundary);
+  border-radius: var(--radius-control);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.lps-dashboard-tasks .lps-task-link:hover {
+  border-color: var(--color-action);
+  color: var(--color-action-hover);
+}
+
+.lps-dashboard-section,
+.lps-dashboard-form {
+  margin-block-start: var(--space-8);
+  padding-block-start: var(--space-5);
+  border-block-start: var(--rule-hairline);
+}
+
+.lps-dashboard-form .lps-field {
+  max-inline-size: 38rem;
+}
+
+.lps-record-list {
+  display: grid;
+  gap: var(--space-3);
+  padding-inline-start: var(--space-5);
+}
+
+.lps-record-list .lps-record {
+  padding-block-end: var(--space-3);
+  border-block-end: var(--rule-hairline);
+}
+
+.lps-record form {
+  margin-block-start: var(--space-3);
+}
+
+.lps-button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.lps-fieldset {
+  margin-block: var(--space-4);
+  padding: var(--space-4);
+  border: var(--rule-hairline);
+  max-inline-size: 38rem;
+}
+
+.lps-team-row {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+}
+
+.lps-checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.lps-checkbox input {
+  inline-size: auto;
+  min-block-size: auto;
+}
+
+.lps-proposal-diff {
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: minmax(8rem, max-content) minmax(0, 1fr);
+}
+
+.lps-proposal-diff dt {
+  font-weight: 650;
+}
+
+.lps-proposal-diff dd {
+  margin: 0;
+}

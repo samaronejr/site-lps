@@ -138,6 +138,17 @@ if (! function_exists('sanitize_text_field')) {
 	}
 }
 
+if (! function_exists('sanitize_key')) {
+	/**
+	 * Mirrors the WordPress key sanitizer used by form-field seams.
+	 *
+	 * @param string $key Candidate key.
+	 */
+	function sanitize_key(string $key): string {
+		return (string) preg_replace('/[^a-z0-9_\-]/', '', strtolower($key));
+	}
+}
+
 if (! function_exists('wp_unslash')) {
 	/**
 	 * Mirrors the WordPress unslashing helper used by request-boundary seams.
