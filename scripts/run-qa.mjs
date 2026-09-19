@@ -52,6 +52,9 @@ if (lane === "workspace") {
 } else if (lane === "seo" || lane === "schema") {
   const { runSeoCli } = await import("./qa/seo/cli.mjs");
   await runSeoCli(process.argv.slice(3), lane);
+} else if (lane === "links") {
+  const { runLinksCli } = await import("./qa/links/cli.mjs");
+  await runLinksCli(process.argv.slice(3));
 } else if (lane === "a11y") {
   const { runA11yCli } = await import("./qa/a11y/cli.mjs");
   await runA11yCli(process.argv.slice(3));

@@ -373,6 +373,11 @@ dd {
 .lps-news-listing time,
 .lps-opportunity-state,
 .lps-event-state,
+.lps-term-token,
+.lps-temporal-status,
+.lps-section,
+.lps-team-role,
+.lps-offering-identity,
 .wp-block-post-date,
 .wp-block-post-terms {
   font-family: var(--font-mono);
@@ -404,7 +409,12 @@ dd {
 .lps-event-venue,
 .lps-deadline,
 .lps-reviewed-at,
-.lps-claim-source {
+.lps-claim-source,
+.lps-term-token,
+.lps-temporal-status,
+.lps-section,
+.lps-team-role,
+.lps-offering-identity {
   color: var(--color-text-muted);
 }
 
@@ -1684,7 +1694,13 @@ details:not(.lps-shell-disclosure) > summary {
 .lps-claims ul,
 .lps-contact-roles,
 .lps-collaboration-journeys,
-.lps-history {
+.lps-history,
+.lps-person-contact,
+.lps-teaching-history,
+.lps-course-list,
+.lps-offering-list,
+.lps-teaching-team,
+.lps-units {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -1696,9 +1712,75 @@ details:not(.lps-shell-disclosure) > summary {
 .lps-opportunity-listing > li,
 .lps-collaboration-journeys > li,
 .lps-history > li,
-.lps-claims li {
+.lps-claims li,
+.lps-person-contact > li,
+.lps-teaching-history > li,
+.lps-course-list > li,
+.lps-offering-list > li,
+.lps-teaching-team > li,
+.lps-units > li {
   padding-block: var(--space-4);
   border-block-start: var(--rule-hairline);
+}
+
+/* People directory: cohort sections separate by rule and spacing, matching
+   the record-page strata grammar. */
+.lps-people-cohort > h2 {
+  margin-block: var(--space-10) var(--space-4);
+  padding-block-start: var(--space-6);
+  border-block-start: var(--rule-hairline);
+  font-size: var(--type-h3);
+}
+
+/* Person profile: the header, portrait, contact cluster, teaching history
+   and historical record are strata, not cards. */
+.lps-person-header {
+  margin-block-end: var(--space-6);
+}
+
+.lps-person-roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin-block: var(--space-2) 0;
+}
+
+.lps-person-no-photo {
+  color: var(--color-text-muted);
+}
+
+.lps-person-teaching > h2,
+.lps-person-record > h2 {
+  margin-block: var(--space-10) var(--space-4);
+  padding-block-start: var(--space-6);
+  border-block-start: var(--rule-hairline);
+  font-size: var(--type-h3);
+}
+
+.lps-teaching-group > h3,
+.lps-offering-group > h3 {
+  margin-block: var(--space-6) var(--space-2);
+  font-size: var(--type-h4);
+}
+
+/* Teaching surfaces: the offering identity line and the cancelled notice
+   reuse the trust-state grammar; units keep stable anchors. */
+.lps-offering-identity {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+}
+
+.lps-units > li {
+  scroll-margin-block-start: var(--space-4);
+}
+
+/* The offering's back-to-course link sits inside the record, so it drops the
+   shell breadcrumb's band padding and bottom rule. */
+.lps-offering .lps-breadcrumb {
+  padding-block: 0;
+  border-block-end: 0;
+  font-size: var(--type-small);
 }
 
 /* Derived states keep an explicit text label; color only supports it. */
@@ -1829,8 +1911,28 @@ details:not(.lps-shell-disclosure) > summary {
   .lps-main-content > .lps-person,
   .lps-main-content > .lps-org,
   .lps-main-content > .lps-opportunity,
-  .lps-main-content > .lps-event {
+  .lps-main-content > .lps-event,
+  .lps-main-content > .lps-news,
+  .lps-main-content > .lps-research-area,
+  .lps-main-content > .lps-project,
+  .lps-main-content > .lps-publication,
+  .lps-main-content > .lps-teaching {
     grid-column: 2 / 8;
+  }
+
+  /* Directory and listing surfaces keep a wider measure than reading pages:
+     filters and grouped rows need the extra columns to stay on one line. */
+  .lps-main-content > .lps-people,
+  .lps-main-content > .lps-listing,
+  .lps-main-content > .lps-infra,
+  .lps-main-content > .lps-institutional,
+  .lps-main-content > .lps-news-listing,
+  .lps-main-content > .lps-event-listing,
+  .lps-main-content > .lps-opportunity-listing,
+  .lps-main-content > .lps-contact-roles,
+  .lps-main-content > .lps-contact-unavailable,
+  .lps-main-content > .lps-empty {
+    grid-column: 1 / -1;
   }
 }
 
@@ -1838,8 +1940,26 @@ details:not(.lps-shell-disclosure) > summary {
   .lps-main-content > .lps-person,
   .lps-main-content > .lps-org,
   .lps-main-content > .lps-opportunity,
-  .lps-main-content > .lps-event {
+  .lps-main-content > .lps-event,
+  .lps-main-content > .lps-news,
+  .lps-main-content > .lps-research-area,
+  .lps-main-content > .lps-project,
+  .lps-main-content > .lps-publication,
+  .lps-main-content > .lps-teaching {
     grid-column: 3 / 10;
+  }
+
+  .lps-main-content > .lps-people,
+  .lps-main-content > .lps-listing,
+  .lps-main-content > .lps-infra,
+  .lps-main-content > .lps-institutional,
+  .lps-main-content > .lps-news-listing,
+  .lps-main-content > .lps-event-listing,
+  .lps-main-content > .lps-opportunity-listing,
+  .lps-main-content > .lps-contact-roles,
+  .lps-main-content > .lps-contact-unavailable,
+  .lps-main-content > .lps-empty {
+    grid-column: 2 / 12;
   }
 
   .lps-institutional {

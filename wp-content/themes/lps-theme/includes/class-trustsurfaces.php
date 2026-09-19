@@ -191,6 +191,10 @@ final class TrustSurfaces {
 			$items .= '<li data-state="' . self::esc( $state ) . '">';
 			$items .= '<a href="' . self::esc( $url ) . '">' . self::esc( $title ) . '</a>';
 			$items .= '<span class="lps-opportunity-state">' . self::esc( self::OPPORTUNITY_LABELS[ $state ][ $locale ] ?? '' ) . '</span>';
+			$closes = self::text( $record['closes_at'] ?? '' );
+			if ( '' !== $closes ) {
+				$items .= '<span class="lps-deadline">' . self::esc( $english ? 'Deadline' : 'Prazo' ) . ' <time datetime="' . self::esc( substr( $closes, 0, 10 ) ) . '">' . self::esc( substr( $closes, 0, 10 ) ) . '</time></span>';
+			}
 			$items .= self::translation_chip( $record, $locale );
 			$items .= '</li>';
 		}
@@ -270,6 +274,14 @@ final class TrustSurfaces {
 			$items .= '<li data-state="' . self::esc( $state ) . '">';
 			$items .= '<a href="' . self::esc( self::single_path( 'lps_event', $locale, $slug ) ) . '">' . self::esc( $title ) . '</a>';
 			$items .= '<span class="lps-event-state">' . self::esc( self::EVENT_LABELS[ $state ][ $locale ] ?? '' ) . '</span>';
+			$starts = self::text( $record['starts_at'] ?? '' );
+			if ( '' !== $starts ) {
+				$items .= '<span class="lps-event-date"><time datetime="' . self::esc( substr( $starts, 0, 10 ) ) . '">' . self::esc( substr( $starts, 0, 10 ) ) . '</time></span>';
+			}
+			$venue = self::text( $record['venue'] ?? '' );
+			if ( '' !== $venue ) {
+				$items .= '<span class="lps-event-venue">' . self::esc( $venue ) . '</span>';
+			}
 			$items .= self::translation_chip( $record, $locale );
 			$items .= '</li>';
 		}
@@ -277,6 +289,32 @@ final class TrustSurfaces {
 			return '<p class="lps-empty">' . self::esc( $english ? 'No published events' : 'Nenhum evento publicado' ) . '</p>';
 		}
 		return '<ul class="lps-event-listing">' . $items . '</ul>';
+	}
+
+	/**
+	 * Renders one news record as a dated reading page.
+	 *
+	 * @param array<string, mixed> $record News record.
+	 * @param string               $locale Supported locale slug.
+	 */
+	public static function render_news( array $record, string $locale ): string {
+		$html  = '<article class="lps-news">';
+		$html .= '<h1>' . self::esc( self::text( $record['title'] ?? '' ) ) . '</h1>';
+		$html .= self::translation_notice( $record, $locale );
+		$date  = self::text( $record['date'] ?? '' );
+		if ( '' !== $date ) {
+			$html .= '<p class="lps-meta"><time datetime="' . self::esc( substr( $date, 0, 10 ) ) . '">' . self::esc( substr( $date, 0, 10 ) ) . '</time></p>';
+		}
+		$summary = self::text( $record['summary'] ?? '' );
+		if ( '' !== $summary ) {
+			$html .= '<p class="lps-summary">' . self::esc( $summary ) . '</p>';
+		}
+		$body = self::text( $record['body'] ?? '' );
+		if ( '' !== $body ) {
+			$rendered = function_exists( 'do_blocks' ) ? (string) do_blocks( $body ) : $body;
+			$html    .= '<div class="lps-body lps-reading">' . ( function_exists( 'wp_kses_post' ) ? wp_kses_post( $rendered ) : $rendered ) . '</div>';
+		}
+		return $html . '</article>';
 	}
 
 	/**

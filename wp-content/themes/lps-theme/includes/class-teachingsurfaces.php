@@ -37,10 +37,10 @@ final class TeachingSurfaces {
 		$list = '' === $items
 			? '<p>' . esc_html( $empty ) . '</p>'
 			: '<ul class="lps-course-list">' . $items . '</ul>';
-		return '<main class="lps-teaching lps-teaching-landing" lang="' . esc_attr( self::bcp47( $locale ) ) . '">'
+		return '<div class="lps-teaching lps-teaching-landing" lang="' . esc_attr( self::bcp47( $locale ) ) . '">'
 			. '<h1>' . esc_html( $heading ) . '</h1>'
 			. $list
-			. '</main>';
+			. '</div>';
 	}
 
 	/**
@@ -52,23 +52,48 @@ final class TeachingSurfaces {
 	 */
 	public static function course( array $course, array $offerings, string $locale ): string {
 		$offerings_label = 'en' === $locale ? 'Offerings' : 'Turmas';
-		$items           = '';
+		// Offerings are grouped by their derived temporal status so a visitor
+		// can tell the current section from completed terms at a glance; the
+		// grouping mirrors the faculty profile's teaching history.
+		$groups = array(
+			'current'   => 'en' === $locale ? 'In progress' : 'Em andamento',
+			'upcoming'  => 'en' === $locale ? 'Upcoming offerings' : 'Próximas ofertas',
+			'completed' => 'en' === $locale ? 'Previous offerings' : 'Ofertas anteriores',
+		);
+		$grouped = array();
 		foreach ( $offerings as $offering ) {
-			$term   = self::record( $offering['term'] ?? null );
-			$items .= '<li><a href="' . esc_url( self::text( $offering['url'] ?? '' ) ) . '">'
-				. esc_html( self::text( $offering['title'] ?? '' ) ) . '</a>'
-				. ' <span class="lps-term-token">' . esc_html( self::text( $term['token'] ?? '' ) ) . '</span>'
-				. ' <span class="lps-temporal-status">' . esc_html( self::text( $offering['temporal_status'] ?? '' ) ) . '</span>'
-				. '</li>';
+			$status              = self::text( $offering['temporal_status'] ?? '' );
+			$bucket              = isset( $groups[ $status ] ) ? $status : 'completed';
+			$grouped[ $bucket ][] = $offering;
 		}
-		$list = '' === $items ? '' : '<h2>' . esc_html( $offerings_label ) . '</h2><ul class="lps-offering-list">' . $items . '</ul>';
-		return '<main class="lps-teaching lps-course" lang="' . esc_attr( self::bcp47( $locale ) ) . '">'
+		$list = '';
+		foreach ( $groups as $status => $label ) {
+			$rows = $grouped[ $status ] ?? array();
+			if ( array() === $rows ) {
+				continue;
+			}
+			$items = '';
+			foreach ( $rows as $offering ) {
+				$term       = self::record( $offering['term'] ?? null );
+				$cancelled  = 'cancelled' === self::text( $offering['temporal_status'] ?? '' );
+				$items     .= '<li' . ( $cancelled ? ' data-state="cancelled"' : '' ) . '><a href="' . esc_url( self::text( $offering['url'] ?? '' ) ) . '">'
+					. esc_html( self::text( $offering['title'] ?? '' ) ) . '</a>'
+					. ' <span class="lps-term-token">' . esc_html( self::text( $term['token'] ?? '' ) ) . '</span>'
+					. ' <span class="lps-temporal-status">' . esc_html( self::temporal_label( self::text( $offering['temporal_status'] ?? '' ), $locale ) ) . '</span>'
+					. '</li>';
+			}
+			$list .= '<section class="lps-offering-group" data-temporal="' . esc_attr( $status ) . '"><h3>' . esc_html( $label ) . '</h3><ul class="lps-offering-list">' . $items . '</ul></section>';
+		}
+		if ( '' !== $list ) {
+			$list = '<h2>' . esc_html( $offerings_label ) . '</h2>' . $list;
+		}
+		return '<div class="lps-teaching lps-course" lang="' . esc_attr( self::bcp47( $locale ) ) . '">'
 			. '<h1>' . esc_html( self::text( $course['title'] ?? '' ) ) . '</h1>'
 			. self::meta_line( self::text( $course['code'] ?? '' ), self::text( $course['level'] ?? '' ) )
 			. self::paragraph( self::text( $course['summary'] ?? '' ) )
 			. self::body( self::text( $course['body'] ?? '' ) )
 			. $list
-			. '</main>';
+			. '</div>';
 	}
 
 	/**
@@ -87,7 +112,7 @@ final class TeachingSurfaces {
 		foreach ( $team as $member ) {
 			$member      = self::record( $member );
 			$team_items .= '<li>' . esc_html( self::text( $member['name'] ?? '' ) )
-				. ' <span class="lps-team-role">' . esc_html( self::text( $member['role'] ?? '' ) ) . '</span></li>';
+				. ' <span class="lps-team-role">' . esc_html( self::team_role_label( self::text( $member['role'] ?? '' ), $locale ) ) . '</span></li>';
 		}
 		$team_markup = '' === $team_items ? '' : '<ul class="lps-teaching-team">' . $team_items . '</ul>';
 
@@ -106,14 +131,21 @@ final class TeachingSurfaces {
 			? ''
 			: '<p class="lps-lms"><a href="' . esc_url( $lms ) . '" rel="noopener noreferrer">' . esc_html( $lms ) . '</a></p>';
 
-		return '<main class="lps-teaching lps-offering" lang="' . esc_attr( self::bcp47( $locale ) ) . '">'
+		// A cancelled offering keeps its stable URL and announces the state
+		// explicitly, the same contract the event surface follows.
+		$cancelled_markup = ! empty( $offering['cancelled'] )
+			? '<p class="lps-event-notice">' . esc_html( 'en' === $locale ? 'This offering was cancelled. The record is kept for reference.' : 'Esta oferta foi cancelada. O registro é mantido para referência.' ) . '</p>'
+			: '';
+
+		return '<div class="lps-teaching lps-offering" lang="' . esc_attr( self::bcp47( $locale ) ) . '">'
 			. '<nav class="lps-breadcrumb"><a href="' . esc_url( self::text( $course['url'] ?? '' ) ) . '">'
 			. esc_html( self::text( $course['title'] ?? '' ) ) . '</a></nav>'
 			. '<h1>' . esc_html( self::text( $offering['title'] ?? '' ) ) . '</h1>'
+			. $cancelled_markup
 			. '<p class="lps-offering-identity">'
 			. '<span class="lps-term-token">' . esc_html( self::text( $term['token'] ?? '' ) ) . '</span>'
 			. ' <span class="lps-section">' . esc_html( self::text( $offering['section_key'] ?? '' ) ) . '</span>'
-			. ' <span class="lps-temporal-status">' . esc_html( self::text( $offering['temporal_status'] ?? '' ) ) . '</span>'
+			. ' <span class="lps-temporal-status">' . esc_html( self::temporal_label( self::text( $offering['temporal_status'] ?? '' ), $locale ) ) . '</span>'
 			. '</p>'
 			. self::meta_line( self::text( $offering['schedule'] ?? '' ), self::text( $offering['venue'] ?? '' ) )
 			. self::paragraph( self::text( $offering['summary'] ?? '' ) )
@@ -121,7 +153,40 @@ final class TeachingSurfaces {
 			. $team_markup
 			. $lms_markup
 			. $units_markup
-			. '</main>';
+			. '</div>';
+	}
+
+	/**
+	 * Returns the localized label of one derived temporal status.
+	 *
+	 * @param string $status Stored temporal status key.
+	 * @param string $locale Supported locale slug.
+	 */
+	private static function temporal_label( string $status, string $locale ): string {
+		$english = 'en' === $locale;
+		$labels  = array(
+			'upcoming'  => $english ? 'Upcoming' : 'Próxima',
+			'current'   => $english ? 'In progress' : 'Em andamento',
+			'completed' => $english ? 'Completed' : 'Concluída',
+			'cancelled' => $english ? 'Cancelled' : 'Cancelada',
+		);
+		return $labels[ $status ] ?? $status;
+	}
+
+	/**
+	 * Returns the localized label of one canonical teaching-team role.
+	 *
+	 * @param string $role   Stored relationship role.
+	 * @param string $locale Supported locale slug.
+	 */
+	private static function team_role_label( string $role, string $locale ): string {
+		$english = 'en' === $locale;
+		$labels  = array(
+			'lead'       => $english ? 'Lead instructor' : 'Docente responsável',
+			'co-teacher' => $english ? 'Co-teacher' : 'Codocente',
+			'assistant'  => $english ? 'Teaching assistant' : 'Assistente de ensino',
+		);
+		return $labels[ $role ] ?? $role;
 	}
 
 	/**

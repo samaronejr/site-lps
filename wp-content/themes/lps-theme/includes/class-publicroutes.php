@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace LPS\Theme;
 
 use LPS\ContentModel\Relationships;
+use LPS\ContentModel\TeachingRecords;
 use LPS\ContentModel\Translations;
 use WP_Post;
 use WP_Query;
@@ -511,8 +512,9 @@ final class PublicRoutes {
 	public static function people( string $locale ): array {
 		$people = array();
 		foreach ( self::records( 'lps_person', $locale ) as $post ) {
-			$record          = self::person_record( $post->post_name, $post->post_title, self::meta( $post->ID ), self::history( $post, $locale ) );
-			$record['stale'] = self::is_stale_translation( $post );
+			$record             = self::person_record( $post->post_name, $post->post_title, self::meta( $post->ID ), self::history( $post, $locale ) );
+			$record['stale']    = self::is_stale_translation( $post );
+			$record['teaching'] = self::teaching_history( $post, $locale );
 			if ( true === $record['published'] ) {
 				$people[] = $record;
 			}
@@ -593,6 +595,29 @@ final class PublicRoutes {
 			}
 		}
 		return $history;
+	}
+
+	/**
+	 * Returns the derived teaching history of one person in the route locale.
+	 *
+	 * The entries come from the canonical `teaching_team` rows read backwards
+	 * through `TeachingRecords::person_history`, so a co-taught offering appears
+	 * on every member's profile with the same course, term, and section data —
+	 * never as a duplicated per-person copy.
+	 *
+	 * @param WP_Post $post   Person record.
+	 * @param string  $locale Supported locale slug.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private static function teaching_history( WP_Post $post, string $locale ): array {
+		if ( ! class_exists( TeachingRecords::class ) ) {
+			return array();
+		}
+		$history = TeachingRecords::person_history( $post->ID, $locale, 'view' );
+		if ( ! is_array( $history ) || ! is_array( $history['entries'] ?? null ) ) {
+			return array();
+		}
+		return $history['entries'];
 	}
 
 	/**

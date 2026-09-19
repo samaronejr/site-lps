@@ -13,10 +13,11 @@
 
 declare(strict_types=1);
 
+use LPS\ContentModel\Relationships;
 use LPS\ContentModel\TeachingRecords;
 use LPS\ContentModel\Translations;
 
-const LPS_TEACHING_SEED_VERSION = '1';
+const LPS_TEACHING_SEED_VERSION = '2';
 const LPS_TEACHING_SEED_OPTION  = 'lps_teaching_seed_version';
 
 /**
@@ -138,6 +139,52 @@ function lps_teaching_seed(): void {
 	}
 	lps_teaching_seed_publish_pair( $person_pt, $person_en );
 
+	// A second bilingual published person completes the canonical
+	// first-integrated-example fixture: the current offering is co-taught, so
+	// both profiles must derive the same shared offering from the canonical
+	// `teaching_team` rows.
+	$co_teacher_pt = lps_teaching_seed_id( 'lps_person', 'codocente-sinais-fixture' );
+	$co_teacher_en = lps_teaching_seed_id( 'lps_person', 'signals-co-teacher-fixture' );
+	if ( 0 === $co_teacher_pt ) {
+		$co_teacher_pt = wp_insert_post(
+			array(
+				'post_type'    => 'lps_person',
+				'post_status'  => 'draft',
+				'post_title'   => 'Codocente de Sinais (fixture de QA)',
+				'post_name'    => 'codocente-sinais-fixture',
+				'post_excerpt' => 'Perfil de teste local para a co-docência.',
+				'post_content' => 'Fixture local. Não representa uma pessoa real.',
+				'meta_input'   => array(
+					'_lps_locale'         => 'pt-br',
+					'_lps_canonical_name' => 'Codocente de Sinais (fixture de QA)',
+					'_lps_person_status'  => 'active',
+				),
+			),
+			true
+		);
+		$co_teacher_pt = is_wp_error( $co_teacher_pt ) ? 0 : (int) $co_teacher_pt;
+	}
+	if ( 0 === $co_teacher_en && 0 < $co_teacher_pt ) {
+		$co_teacher_en = wp_insert_post(
+			array(
+				'post_type'    => 'lps_person',
+				'post_status'  => 'draft',
+				'post_title'   => 'Signals Co-Teacher (QA fixture)',
+				'post_name'    => 'signals-co-teacher-fixture',
+				'post_excerpt' => 'Local test profile for the co-teaching case.',
+				'post_content' => 'Local fixture. It does not represent a real person.',
+				'meta_input'   => array( '_lps_locale' => 'en' ),
+			),
+			true
+		);
+		$co_teacher_en = is_wp_error( $co_teacher_en ) ? 0 : (int) $co_teacher_en;
+		if ( 0 < $co_teacher_en && is_wp_error( Translations::associate( $co_teacher_pt, $co_teacher_en ) ) ) {
+			wp_delete_post( $co_teacher_en, true );
+			$co_teacher_en = 0;
+		}
+	}
+	lps_teaching_seed_publish_pair( $co_teacher_pt, $co_teacher_en );
+
 	// Terms: one current semester, one completed semester.
 	$term_current = lps_teaching_seed_record(
 		'lps_term',
@@ -220,6 +267,13 @@ function lps_teaching_seed(): void {
 			'role'      => 'lead',
 		),
 	);
+	$co_team = $team;
+	if ( 0 < $co_teacher_pt ) {
+		$co_team[] = array(
+			'person_id' => $co_teacher_pt,
+			'role'      => 'co-teacher',
+		);
+	}
 	$offering_current = lps_teaching_seed_record(
 		'lps_offering',
 		'sinais-e-sistemas-2026-2-t01',
@@ -231,7 +285,7 @@ function lps_teaching_seed(): void {
 			'course_id' => $course_pt,
 			'term_id'   => $term_current,
 			'section'   => 't01',
-			'team'      => $team,
+			'team'      => $co_team,
 			'meta'      => array(
 				'_lps_schedule' => 'Ter/Qui 10h-12h',
 				'_lps_venue'    => 'Sala 201',
@@ -239,6 +293,29 @@ function lps_teaching_seed(): void {
 		),
 		array( TeachingRecords::class, 'create_offering' )
 	);
+	// The canonical fixture is co-taught: an environment seeded before the
+	// co-teacher existed keeps its offering record, so the team is reconciled
+	// through the same canonical relationship write the create path uses.
+	if ( 0 < $offering_current && 0 < $co_teacher_pt && class_exists( Relationships::class ) ) {
+		$current_team = Relationships::for_source( $offering_current, 'teaching_team' );
+		$has_co       = false;
+		foreach ( $current_team as $member ) {
+			if ( (int) ( $member['target_post_id'] ?? 0 ) === $co_teacher_pt ) {
+				$has_co = true;
+			}
+		}
+		if ( ! $has_co ) {
+			$current_team[] = array(
+				'target_post_id'    => $co_teacher_pt,
+				'relationship_role' => 'co-teacher',
+				'sort_order'        => count( $current_team ) + 1,
+				'start_date'        => '',
+				'end_date'          => '',
+				'public_visibility' => true,
+			);
+			Relationships::replace( $offering_current, 'teaching_team', $current_team );
+		}
+	}
 	$offering_current_en = 0;
 	if ( 0 < $offering_current ) {
 		$variants            = Translations::variants( $offering_current );

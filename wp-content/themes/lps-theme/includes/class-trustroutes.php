@@ -330,6 +330,7 @@ final class TrustRoutes {
 			'slug'                 => $post->post_name,
 			'title'                => get_the_title( $post ),
 			'summary'              => $post->post_excerpt,
+			'body'                 => $post->post_content,
 			'eligibility'          => $meta( '_lps_eligibility' ),
 			'instructions'         => $meta( '_lps_application_instructions' ),
 			'opens_at'             => $meta( '_lps_opens_at' ),
@@ -432,7 +433,7 @@ final class TrustRoutes {
 			return match ( $post->post_type ) {
 				'lps_opportunity' => TrustSurfaces::render_opportunity( $record, $locale, $now ),
 				'lps_event' => TrustSurfaces::render_event( $record, $locale, $now ),
-				default => TrustSurfaces::render_news_listing( array( $record ), $locale ),
+				default => TrustSurfaces::render_news( $record, $locale ),
 			};
 		}
 		$post_type = get_query_var( 'post_type' );

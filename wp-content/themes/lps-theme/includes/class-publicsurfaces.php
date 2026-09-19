@@ -55,34 +55,52 @@ final class PublicSurfaces {
 		$collisions = self::colliding_names( $listed );
 
 		$html .= '<p class="lps-people-count" id="lps-people-status" role="status">' . self::esc( self::count_label( count( $listed ), $locale ) ) . '</p>';
-		$html .= '<ul class="lps-people-list">';
+		// The directory is grouped by affiliation cohort, not a flat list: each
+		// cohort keeps its own heading so the listing reads as an institutional
+		// directory instead of one undifferentiated result set.
+		$status_opts = self::status_options( $locale );
+		$cohorts     = array();
 		foreach ( $listed as $person ) {
-			$slug   = self::text( $person['slug'] ?? '' );
-			$name   = self::text( $person['name'] ?? '' );
-			$base   = $english ? '/en/people/' : '/pt-br/pessoas/';
-			$html  .= '<li><a href="' . self::esc( $base . $slug . '/' ) . '">' . self::esc( $name ) . '</a> ';
-			$opts   = self::role_options( $locale );
-			$labels = array();
-			foreach ( self::string_list( $person['roles'] ?? array() ) as $role ) {
-				if ( isset( $opts[ $role ] ) ) {
-					$labels[] = $opts[ $role ];
-				}
-			}
-			foreach ( $labels as $label ) {
-				$html .= '<span class="lps-role">' . self::esc( $label ) . '</span> ';
-			}
-			$status      = self::text( $person['status'] ?? '' );
-			$status_opts = self::status_options( $locale );
-			if ( isset( $status_opts[ $status ] ) ) {
-				$html .= '<span class="lps-status">' . self::esc( $status_opts[ $status ] ) . '</span>';
-			}
-			if ( in_array( self::normalized_name( $name ), $collisions, true ) ) {
-				$qualifier = isset( $labels[0] ) ? $labels[0] : $slug;
-				$html     .= '<span class="lps-disambiguation">' . self::esc( $qualifier ) . '</span>';
-			}
-			$html .= '</li>';
+			$status = self::text( $person['status'] ?? '' );
+			$cohorts[ $status ][] = $person;
 		}
-		$html .= '</ul></section>';
+		$ordered_statuses = array_merge( array( 'active', 'alumni', 'in-memoriam' ), array_diff( array_keys( $cohorts ), array( 'active', 'alumni', 'in-memoriam' ) ) );
+		foreach ( $ordered_statuses as $status ) {
+			$members = $cohorts[ $status ] ?? array();
+			if ( array() === $members ) {
+				continue;
+			}
+			$label = $status_opts[ $status ] ?? $status;
+			$html .= '<section class="lps-people-cohort" data-cohort="' . self::esc( $status ) . '">';
+			$html .= '<h2>' . self::esc( $label ) . '</h2>';
+			$html .= '<ul class="lps-people-list">';
+			foreach ( $members as $person ) {
+				$slug   = self::text( $person['slug'] ?? '' );
+				$name   = self::text( $person['name'] ?? '' );
+				$base   = $english ? '/en/people/' : '/pt-br/pessoas/';
+				$html  .= '<li><a href="' . self::esc( $base . $slug . '/' ) . '">' . self::esc( $name ) . '</a> ';
+				$opts   = self::role_options( $locale );
+				$labels = array();
+				foreach ( self::string_list( $person['roles'] ?? array() ) as $role ) {
+					if ( isset( $opts[ $role ] ) ) {
+						$labels[] = $opts[ $role ];
+					}
+				}
+				foreach ( $labels as $role_label ) {
+					$html .= '<span class="lps-role">' . self::esc( $role_label ) . '</span> ';
+				}
+				if ( isset( $status_opts[ $status ] ) ) {
+					$html .= '<span class="lps-status">' . self::esc( $status_opts[ $status ] ) . '</span>';
+				}
+				if ( in_array( self::normalized_name( $name ), $collisions, true ) ) {
+					$qualifier = isset( $labels[0] ) ? $labels[0] : $slug;
+					$html     .= '<span class="lps-disambiguation">' . self::esc( $qualifier ) . '</span>';
+				}
+				$html .= '</li>';
+			}
+			$html .= '</ul></section>';
+		}
+		$html .= '</section>';
 		return $html;
 	}
 
@@ -104,24 +122,30 @@ final class PublicSurfaces {
 		$english   = 'en' === $locale;
 		$name      = self::text( $person['name'] ?? '' );
 		$html      = '<article class="lps-person">';
+		$html     .= '<header class="lps-person-header">';
 		$html     .= '<h1>' . self::esc( $name ) . '</h1>';
 		$html     .= self::translation_notice( $person, $locale );
 		$roles     = self::string_list( $person['roles'] ?? array() );
 		$role_opts = self::role_options( $locale );
+		$role_list = '';
 		foreach ( $roles as $role ) {
 			if ( isset( $role_opts[ $role ] ) ) {
-				$html .= '<p class="lps-role">' . self::esc( $role_opts[ $role ] ) . '</p>';
+				$role_list .= '<span class="lps-role">' . self::esc( $role_opts[ $role ] ) . '</span> ';
 			}
+		}
+		$status      = self::text( $person['status'] ?? '' );
+		$status_opts = self::status_options( $locale );
+		if ( isset( $status_opts[ $status ] ) ) {
+			$role_list .= '<span class="lps-status">' . self::esc( $status_opts[ $status ] ) . '</span>';
+		}
+		if ( '' !== $role_list ) {
+			$html .= '<p class="lps-person-roles">' . $role_list . '</p>';
 		}
 		if ( in_array( 'external-collaborator', $roles, true ) ) {
 			$external = $english ? 'External collaborator - not LPS staff' : 'Colaboração externa - não integra a equipe do LPS';
 			$html    .= '<p class="lps-external">' . self::esc( $external ) . '</p>';
 		}
-		$status      = self::text( $person['status'] ?? '' );
-		$status_opts = self::status_options( $locale );
-		if ( isset( $status_opts[ $status ] ) ) {
-			$html .= '<p>' . self::esc( $status_opts[ $status ] ) . '</p>';
-		}
+		$html .= '</header>';
 		$reviewed  = (bool) ( $person['privacy_reviewed'] ?? false );
 		$photo_url = self::text( $person['photo_url'] ?? '' );
 		$rights    = self::text( $person['photo_rights'] ?? '' );
@@ -134,21 +158,25 @@ final class PublicSurfaces {
 			$alt   = self::text( $person['photo_alt'] ?? $name );
 			$html .= '<img class="lps-person-photo" src="' . self::esc( $photo_url ) . '" alt="' . self::esc( $alt ) . '">';
 		} else {
-			$html .= '<p>' . self::esc( $english ? 'Photo not published' : 'Foto não publicada' ) . '</p>';
+			$html .= '<p class="lps-person-no-photo">' . self::esc( $english ? 'Photo not published' : 'Foto não publicada' ) . '</p>';
 		}
+		$contact = '';
 		if ( $reviewed ) {
 			$public_email = trim( self::text( $person['public_email'] ?? '' ) );
 			if ( '' !== $public_email ) {
-				$html .= '<p><a class="lps-breakable" href="mailto:' . self::esc( $public_email ) . '">' . self::esc( $public_email ) . '</a></p>';
+				$contact .= '<li><a class="lps-breakable" href="mailto:' . self::esc( $public_email ) . '">' . self::esc( $public_email ) . '</a></li>';
 			}
 		}
 		$orcid = trim( self::text( $person['orcid'] ?? '' ) );
 		if ( '' !== $orcid && self::valid_orcid( $orcid ) ) {
-			$html .= '<p><a href="https://orcid.org/' . self::esc( $orcid ) . '">ORCID</a></p>';
+			$contact .= '<li><a href="https://orcid.org/' . self::esc( $orcid ) . '">ORCID</a></li>';
 		}
 		$lattes = trim( self::text( $person['lattes_url'] ?? '' ) );
 		if ( '' !== $lattes && 1 === preg_match( '#^https?://lattes\.cnpq\.br/\d{16}$#', $lattes ) ) {
-			$html .= '<p><a href="' . self::esc( $lattes ) . '">Lattes</a></p>';
+			$contact .= '<li><a href="' . self::esc( $lattes ) . '">Lattes</a></li>';
+		}
+		if ( '' !== $contact ) {
+			$html .= '<ul class="lps-person-contact">' . $contact . '</ul>';
 		}
 		$start = trim( self::text( $person['start_date'] ?? '' ) );
 		$end   = trim( self::text( $person['end_date'] ?? '' ) );
@@ -158,9 +186,10 @@ final class PublicSurfaces {
 		} elseif ( '' !== $start ) {
 			$html .= '<p class="lps-tenure">' . self::esc( ( $english ? 'Joined on ' : 'Ingressou em ' ) . $start ) . '</p>';
 		}
+		$html .= self::teaching_section( $person, $locale );
 		$history = isset( $person['history'] ) && is_array( $person['history'] ) ? $person['history'] : array();
 		if ( array() !== $history ) {
-			$html .= '<h3>' . self::esc( $english ? 'Historical record' : 'Registro histórico' ) . '</h3>';
+			$html .= '<section class="lps-person-record"><h2>' . self::esc( $english ? 'Historical record' : 'Registro histórico' ) . '</h2>';
 			$html .= '<ul class="lps-history">';
 			foreach ( $history as $entry ) {
 				if ( ! is_array( $entry ) ) {
@@ -173,10 +202,97 @@ final class PublicSurfaces {
 				}
 				$html .= '<li><a href="' . self::esc( $url ) . '">' . self::esc( $title ) . '</a></li>';
 			}
-			$html .= '</ul>';
+			$html .= '</ul></section>';
 		}
 		$html .= '</article>';
 		return $html;
+	}
+
+	/**
+	 * Renders the person's teaching history grouped by derived temporal status.
+	 *
+	 * Entries arrive pre-sorted (newest term first) from the canonical
+	 * `teaching_team` rows via `TeachingRecords::person_history`; the surface
+	 * only groups and labels them. A cancelled offering keeps its row under the
+	 * previous-offerings group with an explicit cancelled label, matching the
+	 * closed/cancelled contract of the event and opportunity surfaces.
+	 *
+	 * @param array<mixed,mixed> $person Person row.
+	 * @param string             $locale Supported locale slug.
+	 */
+	private static function teaching_section( array $person, string $locale ): string {
+		$english = 'en' === $locale;
+		$entries = isset( $person['teaching'] ) && is_array( $person['teaching'] ) ? $person['teaching'] : array();
+		$groups  = array(
+			'current'   => $english ? 'In progress' : 'Em andamento',
+			'upcoming'  => $english ? 'Upcoming offerings' : 'Próximas ofertas',
+			'completed' => $english ? 'Previous offerings' : 'Ofertas anteriores',
+		);
+		$grouped = array();
+		foreach ( $entries as $entry ) {
+			if ( ! is_array( $entry ) ) {
+				continue;
+			}
+			$status = self::text( $entry['temporal_status'] ?? '' );
+			$bucket = isset( $groups[ $status ] ) ? $status : 'completed';
+			$grouped[ $bucket ][] = $entry;
+		}
+		if ( array() === $grouped ) {
+			return '<section class="lps-person-teaching"><h2>' . self::esc( $english ? 'Courses and materials' : 'Disciplinas e materiais' ) . '</h2>'
+				. '<p class="lps-empty">' . self::esc( $english ? 'No published offerings' : 'Nenhuma oferta publicada' ) . '</p></section>';
+		}
+		$html = '<section class="lps-person-teaching"><h2>' . self::esc( $english ? 'Courses and materials' : 'Disciplinas e materiais' ) . '</h2>';
+		foreach ( $groups as $status => $label ) {
+			$rows = $grouped[ $status ] ?? array();
+			if ( array() === $rows ) {
+				continue;
+			}
+			$html .= '<section class="lps-teaching-group" data-temporal="' . self::esc( $status ) . '"><h3>' . self::esc( $label ) . '</h3><ul class="lps-teaching-history">';
+			foreach ( $rows as $entry ) {
+				$title = self::text( $entry['title'] ?? '' );
+				if ( '' === $title ) {
+					continue;
+				}
+				$url      = self::text( $entry['url'] ?? '' );
+				$term     = isset( $entry['term'] ) && is_array( $entry['term'] ) ? $entry['term'] : array();
+				$meta     = array();
+				$period   = self::text( $term['period_label'] ?? '' );
+				$section  = self::text( $entry['section_key'] ?? '' );
+				$role     = self::teaching_role_label( self::text( $entry['role'] ?? '' ), $locale );
+				$meta[]   = '' !== $period ? $period : self::text( $term['token'] ?? '' );
+				$meta[]   = '' !== $section ? strtoupper( $section ) : '';
+				$meta[]   = $role;
+				$meta     = array_values( array_filter( $meta, static fn( string $part ): bool => '' !== $part ) );
+				$cancelled = 'cancelled' === self::text( $entry['temporal_status'] ?? '' );
+				$html     .= '<li' . ( $cancelled ? ' data-state="cancelled"' : '' ) . '>';
+				$html     .= '' !== $url ? '<a href="' . self::esc( $url ) . '">' . self::esc( $title ) . '</a>' : self::esc( $title );
+				if ( array() !== $meta ) {
+					$html .= ' <span class="lps-meta">' . self::esc( implode( ' · ', $meta ) ) . '</span>';
+				}
+				if ( $cancelled ) {
+					$html .= ' <span class="lps-status lps-status-warning">' . self::esc( $english ? 'Cancelled' : 'Cancelada' ) . '</span>';
+				}
+				$html .= '</li>';
+			}
+			$html .= '</ul></section>';
+		}
+		return $html . '</section>';
+	}
+
+	/**
+	 * Returns the localized label of one canonical teaching-team role.
+	 *
+	 * @param string $role   Stored relationship role.
+	 * @param string $locale Supported locale slug.
+	 */
+	private static function teaching_role_label( string $role, string $locale ): string {
+		$english = 'en' === $locale;
+		$labels  = array(
+			'lead'        => $english ? 'Lead instructor' : 'Docente responsável',
+			'co-teacher'  => $english ? 'Co-teacher' : 'Codocente',
+			'assistant'   => $english ? 'Teaching assistant' : 'Assistente de ensino',
+		);
+		return $labels[ $role ] ?? $role;
 	}
 
 	/**
