@@ -94,6 +94,9 @@ final class SearchSurfaces {
 			'lps_opportunity'   => 'Oportunidades',
 			'lps_event'         => 'Eventos',
 			'lps_research_area' => 'Áreas de pesquisa',
+			'lps_course'        => 'Disciplinas',
+			'lps_offering'      => 'Turmas',
+			'lps_resource'      => 'Materiais de ensino',
 		),
 		'en'    => array(
 			'lps_publication'   => 'Publications',
@@ -103,6 +106,9 @@ final class SearchSurfaces {
 			'lps_opportunity'   => 'Opportunities',
 			'lps_event'         => 'Events',
 			'lps_research_area' => 'Research areas',
+			'lps_course'        => 'Courses',
+			'lps_offering'      => 'Offerings',
+			'lps_resource'      => 'Teaching materials',
 		),
 	);
 
@@ -113,32 +119,76 @@ final class SearchSurfaces {
 	 */
 	private const FACET_LABELS = array(
 		'pt-br' => array(
-			'year'     => 'Ano',
-			'type'     => 'Tipo',
-			'person'   => 'Pessoa',
-			'project'  => 'Projeto',
-			'area'     => 'Área de pesquisa',
-			'domain'   => 'Domínio de aplicação',
-			'status'   => 'Situação',
-			'role'     => 'Papel',
-			'category' => 'Categoria',
-			'state'    => 'Estado',
-			'audience' => 'Público',
-			'date'     => 'Data',
+			'year'       => 'Ano',
+			'type'       => 'Tipo',
+			'person'     => 'Pessoa',
+			'project'    => 'Projeto',
+			'area'       => 'Área de pesquisa',
+			'domain'     => 'Domínio de aplicação',
+			'status'     => 'Situação',
+			'role'       => 'Papel',
+			'category'   => 'Categoria',
+			'state'      => 'Estado',
+			'audience'   => 'Público',
+			'date'       => 'Data',
+			'term'       => 'Período letivo',
+			'level'      => 'Nível',
+			'instructor' => 'Docente',
+			'language'   => 'Idioma',
 		),
 		'en'    => array(
-			'year'     => 'Year',
-			'type'     => 'Type',
-			'person'   => 'Person',
-			'project'  => 'Project',
-			'area'     => 'Research area',
-			'domain'   => 'Application domain',
-			'status'   => 'Status',
-			'role'     => 'Role',
-			'category' => 'Category',
-			'state'    => 'State',
-			'audience' => 'Audience',
-			'date'     => 'Date',
+			'year'       => 'Year',
+			'type'       => 'Type',
+			'person'     => 'Person',
+			'project'    => 'Project',
+			'area'       => 'Research area',
+			'domain'     => 'Application domain',
+			'status'     => 'Status',
+			'role'       => 'Role',
+			'category'   => 'Category',
+			'state'      => 'State',
+			'audience'   => 'Audience',
+			'date'       => 'Date',
+			'term'       => 'Academic term',
+			'level'      => 'Level',
+			'instructor' => 'Instructor',
+			'language'   => 'Language',
+		),
+	);
+
+	/**
+	 * Localized labels for closed-vocabulary facet values.
+	 *
+	 * Open-vocabulary values (terms, instructors, languages, types) render
+	 * their stored slug; closed vocabularies get readable labels so the
+	 * current/previous offering filter is clear in both locales.
+	 *
+	 * @var array<string, array<string, array<string, string>>>
+	 */
+	private const FACET_VALUE_LABELS = array(
+		'status' => array(
+			'current'  => array(
+				'pt-br' => 'Atuais',
+				'en'    => 'Current',
+			),
+			'previous' => array(
+				'pt-br' => 'Anteriores',
+				'en'    => 'Previous',
+			),
+		),
+		'level'  => array(
+			'undergraduate' => array(
+				'pt-br' => 'Graduação',
+				'en'    => 'Undergraduate',
+			),
+			'graduate'      => array(
+				'pt-br' => 'Pós-graduação',
+				'en'    => 'Graduate',
+			),
+			'extension'     => array(
+				'pt-br' => 'Extensão',
+				'en'    => 'Extension',
+			),
 		),
 	);
 
@@ -257,7 +307,7 @@ final class SearchSurfaces {
 					$checked = in_array( (string) $value, $facets[ $facet ] ?? array(), true ) ? ' checked' : '';
 					$html   .= '<span class="lps-search-facet-value">';
 					$html   .= '<input type="checkbox" id="' . self::esc( (string) $id ) . '" name="' . self::esc( $facet ) . '[]" value="' . self::esc( (string) $value ) . '"' . $checked . '>';
-					$html   .= '<label for="' . self::esc( (string) $id ) . '">' . self::esc( (string) $value ) . ' <span class="lps-facet-count">(' . self::number( $count ) . ')</span></label>';
+					$html   .= '<label for="' . self::esc( (string) $id ) . '">' . self::esc( self::facet_value_label( $facet, (string) $value, $locale ) ) . ' <span class="lps-facet-count">(' . self::number( $count ) . ')</span></label>';
 					$html   .= '</span>';
 				}
 				$html .= '</div></fieldset>';
@@ -350,6 +400,21 @@ final class SearchSurfaces {
 	public static function facet_label( string $facet, string $locale ): string {
 		$table = self::FACET_LABELS[ $locale ] ?? self::FACET_LABELS['pt-br'];
 		return $table[ $facet ] ?? $facet;
+	}
+
+	/**
+	 * Returns the localized label of one facet value, or the raw slug.
+	 *
+	 * @param string $facet  Facet key.
+	 * @param string $value  Stored facet value.
+	 * @param string $locale Supported locale slug.
+	 */
+	public static function facet_value_label( string $facet, string $value, string $locale ): string {
+		$labels = self::FACET_VALUE_LABELS[ $facet ][ $value ] ?? null;
+		if ( is_array( $labels ) ) {
+			return $labels[ $locale ] ?? $labels['pt-br'] ?? $value;
+		}
+		return $value;
 	}
 
 	/**

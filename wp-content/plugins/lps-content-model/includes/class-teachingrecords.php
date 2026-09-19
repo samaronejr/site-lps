@@ -671,6 +671,13 @@ final class TeachingRecords {
 		);
 		if ( '' !== $status && get_post_meta( $post_id, '_lps_temporal_status', true ) !== $status ) {
 			update_post_meta( $post_id, '_lps_temporal_status', $status );
+			// A temporal transition is a metadata write the post hooks never
+			// see, so the index row — and its English sibling — is refreshed
+			// explicitly rather than left quoting the stale status.
+			if ( ! class_exists( SearchIndex::class ) ) {
+				require_once __DIR__ . '/class-searchindex.php';
+			}
+			SearchIndex::synchronize_post( $post_id );
 		}
 	}
 

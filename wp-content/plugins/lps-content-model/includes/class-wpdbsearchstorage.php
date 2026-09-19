@@ -96,12 +96,13 @@ final class WpdbSearchStorage implements SearchStorage {
 				'medium_terms' => $row['medium_terms'],
 				'low_terms'    => $row['low_terms'],
 				'facets'       => $row['facets'],
+				'lifecycle'    => $row['lifecycle'] ?? '',
 				'title'        => $row['title'],
 				'summary'      => $row['summary'],
 				'url'          => $row['url'],
 				'published_at' => $row['published_at'],
 			),
-			array( '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' )
+			array( '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' )
 		);
 	}
 

@@ -83,6 +83,19 @@ add_action(
 		);
 		register_rest_route(
 			'lps/v1',
+			'/test/cache-purge',
+			array(
+				'methods'             => 'GET',
+				'callback'            => static function (): WP_REST_Response {
+					return rest_ensure_response( get_option( 'lps_cache_last_purge', array() ) );
+				},
+				'permission_callback' => static function (): bool {
+					return current_user_can( 'edit_posts' );
+				},
+			)
+		);
+		register_rest_route(
+			'lps/v1',
 			'/test/audit',
 			array(
 				'methods'             => 'GET',

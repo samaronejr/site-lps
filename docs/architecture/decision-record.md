@@ -87,7 +87,13 @@ publication until an independent reviewer clears it. See
 **Decision:** the plugin maintains its own locale search index
 (`wp-content/plugins/lps-content-model/includes/class-searchindex.php`,
 `class-wpdbsearchstorage.php`) updated transactionally on publish and archive, queried through
-prepared statements, and rendered server-side at `/pt-br/busca/` and `/en/search/`.
+prepared statements, and rendered server-side at `/pt-br/busca/` and `/en/search/`. Published
+teaching records join the index: courses, offerings and released resources carry their codes,
+instructors, term labels and authored languages, while terms and units stay internal. Each row
+stores a lifecycle payload (offering term boundaries, resource release state) evaluated at query
+time, so the `current`/`previous` offering filter and scheduled resource releases need no
+scheduler and fail closed. Publication, correction, withdrawal and term transitions propagate
+through the same synchronization path to the index and the delivery purge targets.
 **Why:** core search cannot express accent-insensitive weighting, locale isolation or private-field
 exclusion, and the site must work without JavaScript.
 **Consequence:** search behaviour is a data contract, not a UI feature; changes require the search

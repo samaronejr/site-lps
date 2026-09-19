@@ -212,6 +212,13 @@ Temporal status is separate from the editorial `_lps_state` machine: a completed
 published and searchable, and end-of-term never archives a record. Co-teaching is many-to-many
 through the `teaching_team` relationship (`lead`, `co-teacher`, `assistant`).
 
+Published courses, offerings and released resources are indexed in the locale search index:
+course codes, titles, instructors, term labels and authored resource languages are searchable,
+while `_lps_storage_key`, `_lps_version_id`, `_lps_uploader_user_id` and every other private field
+stay out. The offering `status` search facet exposes only `current`/`previous`, derived from term
+boundaries at query time, and a `scheduled` resource becomes searchable when its `_lps_release_at`
+passes — no scheduler run is required. Terms and units are internal and never indexed.
+
 ### Teaching unit (`lps_unit`, internal)
 
 `_lps_anchor` (stable anchor), `_lps_position` (ordered, ≥ 1), `_lps_topic_date` (shared).
@@ -296,9 +303,10 @@ require a course, a term and a teaching lead, and a resource's unit must belong 
 `lps_application_domain` (projects): `electrical-nuclear-energy`, `oil-and-gas`,
 `high-energy-physics`, `defense`, `medicine`, `veterinary-science`, `data-quality`.
 
-Both are seeded from `content/taxonomies/controlled-vocabularies.yaml`; the nine server-rendered
-search facets are frozen in `content/taxonomies/search-facets.yaml`. An unapproved term is rejected,
-not created.
+Both are seeded from `content/taxonomies/controlled-vocabularies.yaml`; the server-rendered
+search facets are frozen in `content/taxonomies/search-facets.yaml` — `level` (courses),
+`status`/`term`/`level`/`instructor` (offerings) and `type`/`language` (resources) join the
+original nine. An unapproved term is rejected, not created.
 
 ## Validation
 

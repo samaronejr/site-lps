@@ -320,24 +320,15 @@ final class TeachingResources {
 	 * becomes effective only when its release time has passed — evaluated on
 	 * every request, so a stopped scheduler can never release early and a due
 	 * release never waits on cron. Unknown states fail closed to `draft`.
+	 * The contract lives in `TeachingContracts` so the search index evaluates
+	 * the identical rule without loading the delivery boundary.
 	 *
 	 * @param string $release_state Stored release state.
 	 * @param string $release_at    Scheduled release timestamp.
 	 * @param string $now           Reference time (ISO-8601).
 	 */
 	public static function effective_release_state( string $release_state, string $release_at, string $now ): string {
-		if ( 'released' === $release_state || 'withdrawn' === $release_state ) {
-			return $release_state;
-		}
-		if ( 'scheduled' === $release_state ) {
-			$release_time = strtotime( TeachingPolicy::normalize_datetime( $release_at ) );
-			$now_time     = strtotime( TeachingPolicy::normalize_datetime( $now ) );
-			if ( false !== $release_time && false !== $now_time && $release_time <= $now_time ) {
-				return 'released';
-			}
-			return 'scheduled';
-		}
-		return 'draft';
+		return TeachingContracts::effective_release_state( $release_state, $release_at, $now );
 	}
 
 	/**
@@ -544,6 +535,7 @@ final class TeachingResources {
 			);
 		}
 		$scanned = self::scan_record( $version, $config );
+		self::resync_version_consumers( $version_id, $scanned['record'] );
 		return array(
 			'error'   => $scanned['error'],
 			'version' => self::version_response( $scanned['record'] ),
@@ -683,6 +675,7 @@ final class TeachingResources {
 		self::system_meta( $post_id, '_lps_scan_version', Policy::scalar_string( $version['scan_version'] ?? '' ) );
 		self::system_meta( $post_id, '_lps_uploader_user_id', get_current_user_id() );
 		self::system_meta( $post_id, '_lps_external_url', '' );
+		self::resync_search_index( $post_id );
 		Audit::record(
 			'edit',
 			$post_id,
@@ -747,6 +740,7 @@ final class TeachingResources {
 		self::system_meta( $post_id, '_lps_release_state', $state );
 		self::system_meta( $post_id, '_lps_release_at', 'scheduled' === $state ? $release_at : '' );
 		self::system_meta( $post_id, '_lps_withdrawn_at', '' );
+		self::resync_search_index( $post_id );
 		Audit::record(
 			'publish',
 			$post_id,
@@ -780,6 +774,7 @@ final class TeachingResources {
 		$withdrawn_at = gmdate( 'c' );
 		self::system_meta( $post_id, '_lps_release_state', 'withdrawn' );
 		self::system_meta( $post_id, '_lps_withdrawn_at', $withdrawn_at );
+		self::resync_search_index( $post_id );
 		Audit::record(
 			'unpublish',
 			$post_id,
@@ -1091,6 +1086,58 @@ final class TeachingResources {
 			'download_name' => Policy::scalar_string( $row['download_name'] ?? '' ),
 			'created_at'    => Policy::scalar_string( $row['created_at'] ?? '' ),
 		);
+	}
+
+	/**
+	 * Re-indexes one resource after a lifecycle write the post hooks never see.
+	 *
+	 * Release, withdrawal and version selection are pure metadata writes, so
+	 * `wp_after_insert_post` never fires for them; the search index must be
+	 * synchronized explicitly or a withdrawn resource would keep its stale row.
+	 *
+	 * @param int $post_id Resource record ID.
+	 */
+	private static function resync_search_index( int $post_id ): void {
+		if ( ! class_exists( SearchIndex::class ) ) {
+			require_once __DIR__ . '/class-searchindex.php';
+		}
+		SearchIndex::synchronize_post( $post_id );
+	}
+
+	/**
+	 * Mirrors a scan transition onto every resource selecting the version.
+	 *
+	 * The `_lps_scan_state` mirror is what the public-visibility decision
+	 * reads, so a cleared or failed scan must reach the consuming resources
+	 * here — the registry row alone never re-opens or closes their index row.
+	 *
+	 * @param string               $version_id Immutable version identifier.
+	 * @param array<string, mixed> $record     Post-scan version record.
+	 */
+	private static function resync_version_consumers( string $version_id, array $record ): void {
+		$ids = get_posts(
+			array(
+				'post_type'      => 'lps_resource',
+				'post_status'    => array( 'publish', 'draft', 'pending', 'future', 'private' ),
+				'posts_per_page' => 200, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- one version feeds a bounded resource set.
+				'fields'         => 'ids',
+				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- the selected-version mirror is the canonical link.
+					array(
+						'key'   => '_lps_version_id',
+						'value' => $version_id,
+					),
+				),
+			)
+		);
+		$scan_state = self::scan_state_for( $record );
+		foreach ( $ids as $id ) {
+			$post_id = Policy::sanitize_integer( $id );
+			if ( 0 >= $post_id ) {
+				continue;
+			}
+			self::system_meta( $post_id, '_lps_scan_state', $scan_state );
+			self::resync_search_index( $post_id );
+		}
 	}
 
 	/**

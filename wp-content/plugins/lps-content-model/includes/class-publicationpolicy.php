@@ -115,6 +115,8 @@ final class PublicationPolicy {
 				'_lps_public_profile',
 				'_lps_event_status',
 				'_lps_release_state',
+				'_lps_release_at',
+				'_lps_version_id',
 				'_lps_scan_state',
 				'_lps_rights_review',
 				'_lps_accessibility_review',
@@ -317,7 +319,10 @@ final class PublicationPolicy {
 			if ( 'released' !== self::text( $record['_lps_release_state'] ?? '' ) ) {
 				$errors['_lps_release_state'] = 'lps_resource_not_released';
 			}
-			if ( 'clean' !== self::text( $record['_lps_scan_state'] ?? '' ) ) {
+			// A clean scan is required only for a local immutable version: an
+			// external resource carries no bytes to scan, matching the publish
+			// gate and the download resolver.
+			if ( '' !== self::text( $record['_lps_version_id'] ?? '' ) && 'clean' !== self::text( $record['_lps_scan_state'] ?? '' ) ) {
 				$errors['_lps_scan_state'] = 'lps_resource_scan_not_clean';
 			}
 			if ( 'approved' !== self::text( $record['_lps_rights_review'] ?? '' ) ) {

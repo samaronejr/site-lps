@@ -180,7 +180,7 @@ final class SearchIndexTest extends TestCase {
 		foreach ( SearchIndex::private_fields() as $field ) {
 			self::assertArrayNotHasKey( $field, $row );
 		}
-		self::assertSame( array( 'post_id', 'locale', 'post_type', 'exact_terms', 'high_terms', 'medium_terms', 'low_terms', 'facets', 'title', 'summary', 'url', 'published_at' ), array_keys( $row ) );
+		self::assertSame( array( 'post_id', 'locale', 'post_type', 'exact_terms', 'high_terms', 'medium_terms', 'low_terms', 'facets', 'lifecycle', 'title', 'summary', 'url', 'published_at' ), array_keys( $row ) );
 	}
 
 	/**

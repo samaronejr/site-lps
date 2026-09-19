@@ -525,6 +525,35 @@ final class TeachingContracts {
 	}
 
 	/**
+	 * Returns the release state in effect at one instant.
+	 *
+	 * `released` and `withdrawn` are authoritative immediately; `scheduled`
+	 * becomes effective only when its release time has passed — evaluated on
+	 * every call, so a stopped scheduler can never release early and a due
+	 * release never waits on cron. Unknown states fail closed to `draft`.
+	 * The download resolver and the search index share this one evaluation.
+	 *
+	 * @param mixed $release_state Stored release state.
+	 * @param mixed $release_at    Scheduled release timestamp.
+	 * @param mixed $now           Reference time (ISO-8601).
+	 */
+	public static function effective_release_state( mixed $release_state, mixed $release_at, mixed $now ): string {
+		$state = trim( Policy::scalar_string( $release_state ) );
+		if ( 'released' === $state || 'withdrawn' === $state ) {
+			return $state;
+		}
+		if ( 'scheduled' === $state ) {
+			$release_time = self::instant( $release_at );
+			$now_time     = self::instant( $now );
+			if ( null !== $release_time && null !== $now_time && $release_time <= $now_time ) {
+				return 'released';
+			}
+			return 'scheduled';
+		}
+		return 'draft';
+	}
+
+	/**
 	 * Returns the invalid-date-order violation for term boundaries.
 	 *
 	 * @param mixed $starts_on Term start date.
@@ -845,6 +874,20 @@ final class TeachingContracts {
 			unset( $exception );
 			return gmdate( 'Y-m-d' );
 		}
+	}
+
+	/**
+	 * Parses one boundary timestamp to a Unix instant, or null.
+	 *
+	 * @param mixed $value Boundary input.
+	 */
+	private static function instant( mixed $value ): ?int {
+		$text = trim( Policy::scalar_string( $value ) );
+		if ( '' === $text ) {
+			return null;
+		}
+		$timestamp = strtotime( $text );
+		return false === $timestamp ? null : $timestamp;
 	}
 
 	/**
