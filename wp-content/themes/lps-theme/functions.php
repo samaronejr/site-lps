@@ -19,6 +19,7 @@ require_once __DIR__ . '/includes/class-publicroutes.php';
 require_once __DIR__ . '/includes/class-searchroutes.php';
 require_once __DIR__ . '/includes/class-trustroutes.php';
 require_once __DIR__ . '/includes/class-seoroutes.php';
+require_once __DIR__ . '/includes/class-dashboardroutes.php';
 require_once __DIR__ . '/includes/class-assetpolicy.php';
 require_once __DIR__ . '/includes/class-cachepolicy.php';
 require_once __DIR__ . '/includes/class-delivery.php';
@@ -31,6 +32,7 @@ PublicRoutes::boot();
 SearchRoutes::boot();
 TrustRoutes::boot();
 SeoRoutes::boot();
+DashboardRoutes::boot();
 BrandAssets::boot();
 Delivery::boot();
 

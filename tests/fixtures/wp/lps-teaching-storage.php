@@ -89,15 +89,17 @@ add_action(
 					$user_login  = sanitize_user( (string) $request->get_param( 'user_login' ) );
 					$offering_id = absint( $request->get_param( 'offering_id' ) );
 					$role        = sanitize_key( (string) $request->get_param( 'role' ) );
+					$scope       = sanitize_key( (string) $request->get_param( 'scope' ) );
+					$scope       = in_array( $scope, array( 'offering', 'news' ), true ) ? $scope : 'offering';
 					$expires_at  = sanitize_text_field( (string) $request->get_param( 'expires_at' ) );
 					if ( 0 >= $user_id && '' !== $user_login ) {
 						$account = get_user_by( 'login', $user_login );
 						$user_id = $account instanceof WP_User ? (int) $account->ID : 0;
 					}
-					if ( 0 >= $user_id || 0 >= $offering_id || ! in_array( $role, array( 'professor', 'delegate' ), true ) ) {
-						return new WP_Error( 'lps_test_grant_invalid', 'user_id or user_login, offering_id and a scoped role are required.', array( 'status' => 400 ) );
+					if ( 0 >= $user_id || ( 'offering' === $scope && 0 >= $offering_id ) || ! in_array( $role, array( 'professor', 'delegate' ), true ) ) {
+						return new WP_Error( 'lps_test_grant_invalid', 'user_id or user_login, offering_id (for the offering scope) and a scoped role are required.', array( 'status' => 400 ) );
 					}
-					$result = \LPS\ContentModel\Roles::grant_scope( $user_id, 'offering', $offering_id, $role, $expires_at );
+					$result = \LPS\ContentModel\Roles::grant_scope( $user_id, $scope, 'news' === $scope ? 0 : $offering_id, $role, $expires_at );
 					if ( $result instanceof WP_Error ) {
 						return $result;
 					}
@@ -138,6 +140,34 @@ add_action(
 		);
 		register_rest_route(
 			'lps/v1',
+			'/test/dashboard-probe',
+			array(
+				'methods'             => 'GET',
+				'callback'            => static function ( WP_REST_Request $request ): WP_REST_Response {
+					$post_id = absint( $request->get_param( 'post_id' ) );
+					$user_id = absint( $request->get_param( 'user_id' ) );
+					return rest_ensure_response(
+						array(
+							'routes_class'   => class_exists( 'LPS\Theme\DashboardRoutes' ),
+							'surfaces_class' => class_exists( 'LPS\Theme\DashboardSurfaces' ),
+							'model_class'    => class_exists( 'LPS\ContentModel\TaskDashboard' ),
+							'match_painel'   => class_exists( 'LPS\Theme\DashboardRoutes' ) ? \LPS\Theme\DashboardRoutes::match_path( '/pt-br/painel/' ) : null,
+							'has_redirect'   => class_exists( 'LPS\Theme\DashboardRoutes' ) ? has_action( 'template_redirect', array( \LPS\Theme\DashboardRoutes::class, 'serve' ) ) : false,
+							'theme'          => function_exists( 'wp_get_theme' ) ? wp_get_theme()->get( 'Name' ) : '',
+							'post_author'    => 0 < $post_id ? (int) get_post_field( 'post_author', $post_id ) : null,
+							'person_for_user' => 0 < $user_id && class_exists( 'LPS\ContentModel\TaskDashboard' ) ? \LPS\ContentModel\TaskDashboard::person_for_user( $user_id ) : null,
+							'authored'       => 0 < $user_id ? array_map( 'intval', (array) get_posts( array( 'post_type' => 'lps_person', 'post_status' => 'any', 'author' => $user_id, 'posts_per_page' => 50, 'fields' => 'ids' ) ) ) : null,
+							'grants'         => 0 < $user_id && class_exists( 'LPS\ContentModel\TaskDashboard' ) ? \LPS\ContentModel\TaskDashboard::granted_offering_ids( $user_id ) : null,
+						)
+					);
+				},
+				'permission_callback' => static function (): bool {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+		register_rest_route(
+			'lps/v1',
 			'/test/audit',
 			array(
 				'methods'             => 'GET',
@@ -158,3 +188,4 @@ add_action(
 		);
 	}
 );
+add_action("init", function(){ if (!headers_sent()) header("X-LPS-Mu-Probe: loaded"); });

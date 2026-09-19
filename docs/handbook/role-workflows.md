@@ -139,6 +139,26 @@ Routine work: make and reverse publication decisions.
 Boundaries: MFA is mandatory; you cannot treat an unresolved source, privacy, rights, legal-basis or
 review issue as approved, and you cannot use a shared account.
 
+## Faculty task dashboard
+
+The dashboard (`/pt-br/painel/`, `/en/dashboard/`) is the simplified authenticated surface for
+faculty work. It renders server-side only — no JavaScript, no layout editing — and every form
+posts to `admin-post.php` handlers that re-check the persisted grant on the server. The task list
+is derived from the account's grants and role, so a professor sees only the tasks their scope
+covers and a delegate never sees publish controls.
+
+| Task | Who | What it does |
+| --- | --- | --- |
+| My profile | professor, delegate | Propose changes to the linked person record (bio, public e-mail, ORCID, Lattes, Scholar, website). A proposal is stored pending; an editor approves or rejects it before the public record changes. |
+| My offerings | professor, delegate | Open the assigned offering workspace: create units, attach materials, upload and select file versions, release and publish cleared materials, copy the offering forward. |
+| Submit news | professor (news scope) | Draft a news item and send it to review; a rejected item returns with the reviewer's note and can be edited and resubmitted. |
+| Review queue | section editor, publisher | Approve or reject pending news and profile proposals; a rejection always requires a note. |
+| Create offering | section editor, publisher | Create a new offering draft on a published course and term with a reviewed teaching team. |
+
+Recoverable validation: a denied submit redirects back to the same form with the field named and
+the entered values recalled, so nothing is lost. The dashboard sends `Cache-Control: private,
+no-store` and `X-Robots-Tag: noindex, nofollow` on every view.
+
 ## Administrator
 
 Routine work: accounts, settings, imports and audit availability.

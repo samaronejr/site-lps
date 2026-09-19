@@ -170,6 +170,12 @@ stable page and becomes noindex after 90 days.
 
 News: `_lps_canonical_date`, `_lps_news_status`, `_lps_related_record_ids`, `_lps_featured_until`.
 
+Dashboard review fields (private, never exposed through REST): `_lps_review_comments` carries the
+reviewer's note on a rejected news item or proposal so the author sees the required fix;
+`_lps_profile_proposals` stores the pending profile-change rows on a person record
+(`id`, `fields`, `state`, `note`, `submitted_at`, `reviewed_at`, `reviewer_id`) until an editor
+approves or rejects them.
+
 Event: `_lps_starts_at`, `_lps_ends_at`, `_lps_event_status`, `_lps_related_record_ids`,
 `_lps_speaker_ids`, `_lps_organizer_ids`, `_lps_venue`, `_lps_online_url`, `_lps_registration_url`,
 `_lps_recording_url`.
