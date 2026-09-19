@@ -107,12 +107,13 @@ final class TeachingContracts {
 	public static function specific_meta_fields( callable $field ): array {
 		$fields = array(
 			'lps_course'   => array(
-				'_lps_course_code'   => $field( 'string', 'Official course code', 'course_code' ),
-				'_lps_course_level'  => $field( 'string', 'Course level', 'key' ),
-				'_lps_calendar_key'  => $field( 'string', 'Responsible calendar key', 'key' ),
-				'_lps_program'       => $field( 'string', 'Responsible program', 'text' ),
-				'_lps_prerequisites' => $field( 'string', 'Prerequisites statement', 'textarea' ),
-				'_lps_syllabus'      => $field( 'string', 'Default syllabus', 'textarea' ),
+				'_lps_course_code'        => $field( 'string', 'Official course code', 'course_code' ),
+				'_lps_course_level'       => $field( 'string', 'Course level', 'key' ),
+				'_lps_calendar_key'       => $field( 'string', 'Responsible calendar key', 'key' ),
+				'_lps_program'            => $field( 'string', 'Responsible program', 'text' ),
+				'_lps_catalog_source_url' => $field( 'string', 'Authoritative catalog source URL', 'url' ),
+				'_lps_prerequisites'      => $field( 'string', 'Prerequisites statement', 'textarea' ),
+				'_lps_syllabus'           => $field( 'string', 'Default syllabus', 'textarea' ),
 			),
 			'lps_term'     => array(
 				'_lps_calendar_key' => $field( 'string', 'Calendar key', 'key' ),
@@ -198,12 +199,13 @@ final class TeachingContracts {
 	public static function field_ownership( string $post_type ): array {
 		$specific = array(
 			'lps_course'   => array(
-				'_lps_course_code'   => 'shared',
-				'_lps_course_level'  => 'shared',
-				'_lps_calendar_key'  => 'shared',
-				'_lps_program'       => 'shared',
-				'_lps_prerequisites' => 'localized',
-				'_lps_syllabus'      => 'localized',
+				'_lps_course_code'        => 'shared',
+				'_lps_course_level'       => 'shared',
+				'_lps_calendar_key'       => 'shared',
+				'_lps_program'            => 'shared',
+				'_lps_catalog_source_url' => 'shared',
+				'_lps_prerequisites'      => 'localized',
+				'_lps_syllabus'           => 'localized',
 			),
 			'lps_term'     => array(
 				'_lps_calendar_key' => 'shared',

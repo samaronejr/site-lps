@@ -39,6 +39,15 @@ Never manufacture a source from an unsourced assertion. Do not turn a discovered
 legacy PDF, or stale profile into evidence of permission or current truth. Legal bases, rights, and
 consent require their own documentary evidence; this policy neither selects nor approves them.
 
+The import boundary enforces this mechanically: records declaring `synthetic` fixture data or a
+fixture provenance path are rejected (`lps_import_synthetic_record`); records sourced from the
+retired `lps.ufrj.br` site or `web.archive.org`/`archive.org` are rejected as active content
+(`lps_import_legacy_scrape_source`) — those hosts remain legitimate only as archive-only
+provenance and redirect evidence; imported `lps_course` records without `_lps_catalog_source_url`
+and `lps_term` records without `_lps_term_source` quarantine for an authoritative catalog or
+calendar source (`lps_import_course_source_required`); and a verified claim without its source URL
+and review date quarantines (`lps_import_claim_unsourced`).
+
 ## Corrections, retirement, and provenance
 
 Corrections cite the superseding source and retain the prior revision trail. Takedown assessment

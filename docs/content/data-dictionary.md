@@ -197,9 +197,12 @@ per-variant editorial text, and `system` fields are boundary-written or derived.
 ### Course (`lps_course`, public)
 
 `_lps_course_code` (uppercase ASCII official code), `_lps_course_level`
-(`undergraduate`/`graduate`/`extension`), `_lps_calendar_key`, `_lps_program` (shared);
+(`undergraduate`/`graduate`/`extension`), `_lps_calendar_key`, `_lps_program`,
+`_lps_catalog_source_url` (authoritative catalog source for the code/level/program, shared);
 `_lps_prerequisites`, `_lps_syllabus` (localized). A published offering keeps its own syllabus
-snapshot, so later edits to the default syllabus do not rewrite history.
+snapshot, so later edits to the default syllabus do not rewrite history. Imported course
+records without `_lps_catalog_source_url` and imported term records without `_lps_term_source`
+are quarantined at the import boundary (`lps_import_course_source_required`).
 
 ### Academic term (`lps_term`, internal)
 

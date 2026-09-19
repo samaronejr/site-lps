@@ -40,7 +40,7 @@ final class ImportPlanner {
 		 */
 		$quarantine = array();
 		foreach ( $package_errors as $error ) {
-			if ( in_array( $error['code'], array( 'lps_person_match_confirmation_required', 'lps_media_rights_unknown', 'lps_media_provenance_required' ), true ) ) {
+			if ( in_array( $error['code'], MigrationPolicy::quarantine_codes(), true ) ) {
 				$quarantine[] = $error;
 			} else {
 				$errors[] = $error;
@@ -214,10 +214,9 @@ final class ImportPlanner {
 	 * @return list<ImportIssue>
 	 */
 	private static function unique_errors( array $errors ): array {
-		$quarantine_codes = array( 'lps_person_match_confirmation_required', 'lps_media_rights_unknown', 'lps_media_provenance_required' );
-		$result           = array();
+		$result = array();
 		foreach ( $errors as $error ) {
-			if ( ! in_array( $error['code'], $quarantine_codes, true ) ) {
+			if ( ! in_array( $error['code'], MigrationPolicy::quarantine_codes(), true ) ) {
 				$result[ $error['code'] . '|' . $error['path'] ] = $error;
 			}
 		}

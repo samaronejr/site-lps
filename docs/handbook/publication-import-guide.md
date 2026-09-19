@@ -70,6 +70,13 @@ record `unchanged`. That is the idempotency contract, asserted statically by
 | `ambiguous_author` | An author matches more than one person | Record quarantined | Confirm the internal person match manually; never guess |
 | `unresolved_author` | An author matches no person | Record quarantined | Create or correct the person record first |
 | `invalid_locale` | Locale is not well-formed BCP47 | Record quarantined | Correct the locale tag (`pt-BR`, `en`) |
+| `synthetic_record` | Record declares fixture data or a fixture provenance path | Record quarantined at plan; hard error `lps_import_synthetic_record` at the package boundary | Keep development fixtures out of the launch corpus |
+| `legacy_scrape_source` | Source URL is `lps.ufrj.br`, `web.archive.org` or `archive.org` | Record quarantined at plan; hard error `lps_import_legacy_scrape_source` at the package boundary | Legacy/archive hosts are provenance only; re-source from a permitted current record |
+| `catalog_source_missing` | Course/term record lacks an authoritative catalog source | Record quarantined; `lps_import_course_source_required` at the package boundary | Supply `_lps_catalog_source_url` / `_lps_term_source` from the official catalog or calendar |
+| `lps_import_claim_unsourced` | A verified claim lacks its source URL or review date | Record quarantined | Attach the claim source and review date, or unverify |
+| `lps_media_rights_unknown` | Media `rights_status` is not `cleared` | Media quarantined | Document rights holder and licence, or drop the asset |
+| `lps_media_provenance_required` | Media lacks holder, credit, licence, source or checksum | Media quarantined | Complete the provenance row |
+| `lps_media_alt_required` | Image media lacks `alt_text` and is not `decorative` | Media quarantined | Write reviewed alt text or record an explicit decorative decision |
 
 Never resolve a quarantine by editing the target database. Fix the source data or the importer, then
 re-run from `plan`.
@@ -87,6 +94,15 @@ The full staging rehearsal — clean baseline, dry run, apply, re-apply, export,
 documented in [the migration rehearsal runbook](../operations/migration-rehearsal.md). Its `run`
 subcommand mutates staging and refuses to start without both `LPS_REHEARSAL_TARGET` and
 `--confirm-mutates-staging`.
+
+## Live rehearsal on the dedicated environment
+
+`scripts/migration/launch-corpus-rehearsal.php` performs the dry-run/apply/re-apply/verify/export
+sequence plus the reviewed-field conflict, media alt/credit staging and the failure package against
+a real WordPress database inside the dedicated Playground environment. It prints one JSON transcript
+and exits non-zero on any failed assertion; it resets imported state first, so it is re-runnable.
+Invoke it through `wp-playground-cli php` with the worktree mounted at `/workspace` and the plugin
+mounted at `/wordpress/wp-content/plugins/lps-content-model`.
 
 ## What is still PENDING
 

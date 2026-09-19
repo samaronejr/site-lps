@@ -119,9 +119,20 @@ final class ImportRepository {
 		// record is imported, never native, and the write stays last so the
 		// provenance keys above are already stored when it is evaluated.
 		$meta['_lps_origin'] = 'imported';
+		// The identity and role guards correctly deny provenance writes to
+		// editors — including on English variants, which may never mint their
+		// own import identity. The import boundary is the provenance owner, so
+		// it lifts both guards for its own writes and restores them
+		// immediately, the same pattern complete_record uses for system fields.
+		// Without this, English variants lose their fingerprint: re-apply
+		// rewrites them and the export checkpoint silently drops them.
+		remove_filter( 'update_post_metadata', array( Plugin::class, 'protect_identity_meta' ), 10 );
+		remove_filter( 'update_post_metadata', array( Plugin::class, 'protect_role_meta' ), 11 );
 		foreach ( $meta as $key => $value ) {
 			update_post_meta( $post_id, (string) $key, $value );
 		}
+		add_filter( 'update_post_metadata', array( Plugin::class, 'protect_identity_meta' ), 10, 5 );
+		add_filter( 'update_post_metadata', array( Plugin::class, 'protect_role_meta' ), 11, 5 );
 		if ( 'lps_publication' === $post['post_type'] ) {
 			$doi = Relationships::set_doi( $post_id, $meta['_lps_doi'] ?? '' );
 			if ( $doi instanceof WP_Error ) {
