@@ -290,7 +290,7 @@ final class Contracts {
 			'builtin'      => $builtin,
 			'show_in_rest' => true,
 			'rest_base'    => $rest_base,
-			'supports'     => array( 'title', 'editor', 'excerpt', 'author', 'revisions', 'custom-fields' ),
+			'supports'     => array( 'title', 'editor', 'excerpt', 'author', 'revisions', 'custom-fields', 'thumbnail' ),
 		);
 	}
 

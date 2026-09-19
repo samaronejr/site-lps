@@ -71,6 +71,7 @@ final class Plugin {
 		foreach ( Contracts::post_types() as $post_type => $definition ) {
 			if ( 'page' === $post_type ) {
 				add_post_type_support( 'page', 'custom-fields' );
+				add_post_type_support( 'page', 'thumbnail' );
 				continue;
 			}
 			if ( in_array( $post_type, TeachingContracts::POST_TYPES, true ) ) {

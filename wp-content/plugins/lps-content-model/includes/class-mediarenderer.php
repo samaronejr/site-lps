@@ -25,8 +25,15 @@ final class MediaRenderer {
 		$loading    = $hero ? 'eager' : 'lazy';
 		$priority   = $hero ? 'high' : 'auto';
 		$srcset     = MediaPolicy::string_value( $asset['srcset'] ?? '' );
+		$focal_x    = MediaPolicy::sanitize_focal_point( $asset['focal_x'] ?? 0.5 );
+		$focal_y    = MediaPolicy::sanitize_focal_point( $asset['focal_y'] ?? 0.5 );
+		$focal      = 0.5 === $focal_x && 0.5 === $focal_y ? '' : sprintf(
+			' style="object-position: %s%% %s%%"',
+			self::percent( $focal_x ),
+			self::percent( $focal_y )
+		);
 		$image      = sprintf(
-			'<img src="%s"%s sizes="%s" width="%d" height="%d" alt="%s" loading="%s" fetchpriority="%s" decoding="async">',
+			'<img src="%s"%s sizes="%s" width="%d" height="%d" alt="%s" loading="%s" fetchpriority="%s" decoding="async"%s>',
 			self::attribute( MediaPolicy::string_value( $asset['url'] ?? '' ) ),
 			'' === $srcset ? '' : ' srcset="' . self::attribute( $srcset ) . '"',
 			self::attribute( $sizes ),
@@ -34,7 +41,8 @@ final class MediaRenderer {
 			Policy::sanitize_integer( $asset['height'] ?? 0 ),
 			self::attribute( $alt ),
 			$loading,
-			$priority
+			$priority,
+			$focal
 		);
 		$image      = self::picture( $image, $asset, $sizes );
 		$caption    = MediaPolicy::string_value( $usage['caption'] ?? '' );
@@ -147,6 +155,16 @@ final class MediaRenderer {
 			self::text( MediaPolicy::string_value( $asset['credit'] ?? '' ) ),
 			self::text( MediaPolicy::string_value( $asset['license'] ?? '' ) )
 		);
+	}
+
+	/**
+	 * Formats a normalized focal coordinate as a percentage literal.
+	 *
+	 * @param float $value Sanitized focal coordinate from 0 to 1.
+	 */
+	private static function percent( float $value ): string {
+		$percent = (string) round( $value * 100, 2 );
+		return str_contains( $percent, '.' ) ? rtrim( rtrim( $percent, '0' ), '.' ) : $percent;
 	}
 
 	/**
