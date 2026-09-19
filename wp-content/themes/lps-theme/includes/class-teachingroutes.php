@@ -10,7 +10,9 @@ declare(strict_types=1);
 namespace LPS\Theme;
 
 use LPS\ContentModel\Relationships;
+use LPS\ContentModel\TeachingContracts;
 use LPS\ContentModel\TeachingRecords;
+use LPS\ContentModel\TeachingResources;
 use LPS\ContentModel\Translations;
 use WP_Post;
 use WP_Query;
@@ -384,7 +386,7 @@ final class TeachingRoutes {
 			}
 			if ( $object instanceof WP_Post && 'lps_offering' === $object->post_type ) {
 				$locale = self::locale_for_post( $object );
-				return TeachingSurfaces::offering( self::offering_record( $object, $locale ), $locale );
+				return TeachingSurfaces::offering( self::offering_record( $object, $locale, true ), $locale );
 			}
 			$query = $GLOBALS['wp_query'] ?? null;
 			if ( $query instanceof WP_Query && 'lps_course' === $query->get( 'post_type' ) && $query->is_archive() ) {
@@ -403,9 +405,22 @@ final class TeachingRoutes {
 				: '';
 		}
 		$offering = get_queried_object();
-		return $offering instanceof WP_Post
-			? TeachingSurfaces::offering( self::offering_record( $offering, $locale ), $locale )
-			: '';
+		if ( ! $offering instanceof WP_Post ) {
+			return '';
+		}
+		$record = self::offering_record( $offering, $locale, true );
+		// Sibling offerings power the term-switch navigation so a student can
+		// move between the live section and the completed-term record.
+		$course_id = 0;
+		if ( class_exists( TeachingRecords::class ) ) {
+			$identity  = TeachingRecords::offering_identity_for( self::authority_id( $offering ) );
+			$course_id = null !== $identity ? (int) $identity['course_id'] : 0;
+		}
+		$course_authority = 0 < $course_id ? get_post( $course_id ) : null;
+		if ( $course_authority instanceof WP_Post ) {
+			$record['siblings'] = self::course_offerings( $course_authority, $locale );
+		}
+		return TeachingSurfaces::offering( $record, $locale );
 	}
 
 	/**
@@ -435,7 +450,16 @@ final class TeachingRoutes {
 		$courses = array();
 		foreach ( $query->posts as $post ) {
 			if ( $post instanceof WP_Post && 'published' === self::meta_string( $post->ID, '_lps_state' ) ) {
-				$courses[] = self::course_record( $post, $locale );
+				$record = self::course_record( $post, $locale );
+				// The landing row links straight into the live section so a
+				// student reaches current materials in one hop.
+				foreach ( self::course_offerings( $post, $locale ) as $offering ) {
+					if ( 'current' === self::text( $offering['temporal_status'] ?? '' ) ) {
+						$record['current_offering'] = $offering;
+						break;
+					}
+				}
+				$courses[] = $record;
 			}
 		}
 		return $courses;
@@ -499,11 +523,12 @@ final class TeachingRoutes {
 	/**
 	 * Builds the publishable offering record for the renderer.
 	 *
-	 * @param WP_Post $post   Offering record.
-	 * @param string  $locale Supported locale slug.
+	 * @param WP_Post $post           Offering record.
+	 * @param string  $locale         Supported locale slug.
+	 * @param bool    $with_materials Whether to assemble the material rows.
 	 * @return array<string, mixed>
 	 */
-	private static function offering_record( WP_Post $post, string $locale ): array {
+	private static function offering_record( WP_Post $post, string $locale, bool $with_materials = false ): array {
 		$authority = self::authority_id( $post );
 		$identity  = class_exists( TeachingRecords::class ) ? TeachingRecords::offering_identity_for( $authority ) : null;
 		$course    = null !== $identity ? self::localized_post( $identity['course_id'], $locale ) : null;
@@ -570,7 +595,71 @@ final class TeachingRoutes {
 			),
 			'team'            => $team,
 			'units'           => $units,
+			'materials'       => $with_materials ? self::offering_materials( $authority ) : array(),
+			'siblings'        => array(),
 		);
+	}
+
+	/**
+	 * Returns the published material rows of one offering.
+	 *
+	 * Rows mirror the download resolver's visibility contract: the resource
+	 * must be published and its offering relationship publicly visible. The
+	 * effective release state is evaluated per request through the shared
+	 * contract, so a due scheduled release appears without a scheduler run
+	 * and a withdrawn row keeps its notice instead of a dead link.
+	 *
+	 * @param int $authority Offering authority record ID.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private static function offering_materials( int $authority ): array {
+		if ( ! class_exists( Relationships::class ) ) {
+			return array();
+		}
+		$now       = class_exists( TeachingContracts::class ) ? TeachingContracts::today() : gmdate( 'Y-m-d' );
+		$materials = array();
+		foreach ( Relationships::reverse_for( $authority, 'resource_offering' ) as $row ) {
+			if ( ! $row['public_visibility'] ) {
+				continue;
+			}
+			$resource = get_post( $row['source_post_id'] );
+			if ( ! $resource instanceof WP_Post || 'publish' !== $resource->post_status ) {
+				continue;
+			}
+			$resource_authority = self::authority_id( $resource );
+			if ( 'published' !== self::meta_string( $resource_authority, '_lps_state' ) ) {
+				continue;
+			}
+			$unit_anchor = '';
+			$unit_rows   = Relationships::for_source( $resource_authority, 'resource_unit' );
+			if ( isset( $unit_rows[0] ) ) {
+				$unit_anchor = self::meta_string( (int) $unit_rows[0]['target_post_id'], '_lps_anchor' );
+			}
+			$release_state = self::meta_string( $resource_authority, '_lps_release_state' );
+			$release_at    = self::meta_string( $resource_authority, '_lps_release_at' );
+			$materials[]   = array(
+				'title'                => $resource->post_title,
+				'summary'              => $resource->post_excerpt,
+				'type'                 => self::meta_string( $resource_authority, '_lps_resource_type' ),
+				'language'             => self::meta_string( $resource_authority, '_lps_resource_language' ),
+				'unit_anchor'          => $unit_anchor,
+				'effective_state'      => class_exists( TeachingContracts::class )
+					? TeachingContracts::effective_release_state( $release_state, $release_at, $now )
+					: $release_state,
+				'external_url'         => self::meta_string( $resource_authority, '_lps_external_url' ),
+				'download_url'         => class_exists( TeachingResources::class ) ? TeachingResources::download_url( $resource_authority ) : '',
+				'sha256'               => self::meta_string( $resource_authority, '_lps_sha256' ),
+				'bytes'                => (int) self::meta_string( $resource_authority, '_lps_byte_size' ),
+				'mime'                 => self::meta_string( $resource_authority, '_lps_mime_type' ),
+				'scan_state'           => self::meta_string( $resource_authority, '_lps_scan_state' ),
+				'rights_review'        => self::meta_string( $resource_authority, '_lps_rights_review' ),
+				'accessibility_review' => self::meta_string( $resource_authority, '_lps_accessibility_review' ),
+				'updated_at'           => 'withdrawn' === $release_state
+					? self::meta_string( $resource_authority, '_lps_withdrawn_at' )
+					: self::meta_string( $resource_authority, '_lps_updated_at' ),
+			);
+		}
+		return $materials;
 	}
 
 	/**

@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 use LPS\ContentModel\Relationships;
 use LPS\ContentModel\TeachingRecords;
+use LPS\ContentModel\TeachingResources;
 use LPS\ContentModel\Translations;
 
 const LPS_TEACHING_SEED_VERSION = '2';
@@ -260,7 +261,9 @@ function lps_teaching_seed(): void {
 		return;
 	}
 
-	// Offerings: one current section and one completed section.
+	// Offerings: one current section and one completed section. The current
+	// section carries the co-teaching case; the completed one keeps the lead
+	// only, matching the canonical first-integrated-example fixture.
 	$team = array(
 		array(
 			'person_id' => $person_pt,
@@ -402,6 +405,59 @@ function lps_teaching_seed(): void {
 				array( TeachingRecords::class, 'create_unit' )
 			);
 			lps_teaching_seed_publish( $unit_id );
+		}
+	}
+
+	// Materials: one released external resource on unit 1 and one withdrawn
+	// resource, so the canonical fixture exercises both material states.
+	if ( 0 < $offering_current && class_exists( TeachingResources::class ) ) {
+		$unit_one = lps_teaching_seed_id( 'lps_unit', 'unidade-1-sinais-continuos' );
+		$released = lps_teaching_seed_record(
+			'lps_resource',
+			'apostila-sinais-fixture',
+			array(
+				'title'        => 'Apostila de sinais (fixture de QA)',
+				'slug'         => 'apostila-sinais-fixture',
+				'excerpt'      => 'Notas de aula de teste local.',
+				'offering_id'  => $offering_current,
+				'unit_id'      => $unit_one,
+				'external_url' => 'https://example.org/lps-fixture/apostila-sinais',
+				'meta'         => array(
+					'_lps_resource_type'        => 'document',
+					'_lps_resource_language'    => 'pt-br',
+					'_lps_rights_review'        => 'approved',
+					'_lps_accessibility_review' => 'approved',
+				),
+			),
+			array( TeachingResources::class, 'create_resource' )
+		);
+		if ( 0 < $released && 'released' !== get_post_meta( $released, '_lps_release_state', true ) ) {
+			TeachingResources::release_resource( $released, 'released', '', TeachingResources::storage_config() );
+		}
+		lps_teaching_seed_publish( $released );
+
+		$withdrawn = lps_teaching_seed_record(
+			'lps_resource',
+			'prova-antiga-sinais-fixture',
+			array(
+				'title'        => 'Prova antiga (fixture de QA)',
+				'slug'         => 'prova-antiga-sinais-fixture',
+				'excerpt'      => 'Avaliação de teste local retirada.',
+				'offering_id'  => $offering_current,
+				'external_url' => 'https://example.org/lps-fixture/prova-antiga',
+				'meta'         => array(
+					'_lps_resource_type'        => 'document',
+					'_lps_resource_language'    => 'pt-br',
+					'_lps_rights_review'        => 'approved',
+					'_lps_accessibility_review' => 'approved',
+				),
+			),
+			array( TeachingResources::class, 'create_resource' )
+		);
+		if ( 0 < $withdrawn && 'withdrawn' !== get_post_meta( $withdrawn, '_lps_release_state', true ) ) {
+			TeachingResources::release_resource( $withdrawn, 'released', '', TeachingResources::storage_config() );
+			lps_teaching_seed_publish( $withdrawn );
+			TeachingResources::withdraw_resource( $withdrawn );
 		}
 	}
 }
