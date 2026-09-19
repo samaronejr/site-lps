@@ -637,6 +637,10 @@ final class PublicRoutes {
 				'order'                  => 'ASC',
 				'no_found_rows'          => true,
 				'update_post_term_cache' => false,
+				// Pin the queried locale: on requests without a locale prefix (locale
+				// sitemaps, feeds) Polylang would otherwise filter to the default
+				// language and silently drop the records of the requested locale.
+				'lang'                   => $locale,
 				'meta_query'             => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- locale is the routing key of this surface.
 					array(
 						'key'   => '_lps_locale',

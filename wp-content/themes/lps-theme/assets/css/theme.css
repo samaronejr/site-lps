@@ -2131,7 +2131,9 @@ details:not(.lps-shell-disclosure) > summary {
   .lps-breadcrumbs,
   .lps-site-footer nav,
   .wp-block-button,
-  form[role="search"] {
+  form[role="search"],
+  .lps-offering-toc,
+  .lps-offering-history {
     display: none;
   }
 
@@ -2179,11 +2181,24 @@ details:not(.lps-shell-disclosure) > summary {
     font-size: var(--type-meta);
   }
 
+  /* Material downloads are root-relative addresses, so the external-link
+     rule never prints them; they get the same explicit destination. */
+  .lps-materials a[href^="/"]::after {
+    content: " (" attr(href) ")";
+    overflow-wrap: anywhere;
+    font-family: var(--font-mono);
+    font-size: var(--type-meta);
+  }
+
   figure,
   table,
   .lps-alert,
   .lps-empty-state,
-  .lps-main-content > .lps-not-found {
+  .lps-main-content > .lps-not-found,
+  .lps-units > li,
+  .lps-materials > li,
+  .lps-offering-list > li,
+  .lps-course-list > li {
     break-inside: avoid;
   }
 

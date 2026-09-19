@@ -484,6 +484,7 @@ final class TeachingRoutes {
 			'program'       => self::meta_string( $authority, '_lps_program' ),
 			'prerequisites' => self::meta_string( $post->ID, '_lps_prerequisites' ),
 			'syllabus'      => self::meta_string( $post->ID, '_lps_syllabus' ),
+			'stale'         => self::is_stale_translation( $post ),
 			'offerings'     => array(),
 		);
 	}
@@ -582,6 +583,7 @@ final class TeachingRoutes {
 			'lms_url'         => self::flag( $authority, '_lps_lms_url_approved' ) ? self::meta_string( $authority, '_lps_lms_url' ) : '',
 			'temporal_status' => self::meta_string( $authority, '_lps_temporal_status' ),
 			'cancelled'       => self::flag( $authority, '_lps_cancelled' ),
+			'stale'           => self::is_stale_translation( $post ),
 			'course'          => array(
 				'title' => $course instanceof WP_Post ? $course->post_title : '',
 				'url'   => $course instanceof WP_Post ? self::course_path( $locale, $course->post_name ) : '',
@@ -679,6 +681,18 @@ final class TeachingRoutes {
 		$variants = Translations::variants( $post->ID );
 		$variant  = isset( $variants[ $locale ] ) ? get_post( $variants[ $locale ] ) : null;
 		return $variant instanceof WP_Post ? $variant : null;
+	}
+
+	/**
+	 * Answers whether one record is an English variant awaiting re-review.
+	 *
+	 * @param WP_Post $post Record.
+	 */
+	private static function is_stale_translation( WP_Post $post ): bool {
+		if ( ! class_exists( Translations::class ) ) {
+			return false;
+		}
+		return 'en' === Translations::locale( $post->ID ) && Translations::is_stale( $post->ID );
 	}
 
 	/**

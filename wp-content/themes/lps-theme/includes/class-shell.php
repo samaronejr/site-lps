@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace LPS\Theme;
 
+use WP_Post;
+
 require_once __DIR__ . '/class-searchsurfaces.php';
 
 /** Owns the bilingual global shell and its native, no-JavaScript controls. */
@@ -421,6 +423,22 @@ final class Shell {
 		}
 		$path    = self::request_path();
 		$locale  = self::current_locale( $path );
+		if ( null !== TeachingRoutes::match_path( $path ) ) {
+			// Teaching routes carry their full context: landing, course, and the
+			// offering's section crumb — the same trail the JSON-LD graph emits.
+			$label  = 'en' === $locale ? 'Breadcrumb' : 'Trilha de navegação';
+			$items  = SeoRoutes::breadcrumb_items( $path );
+			$markup = '<nav class="lps-breadcrumbs lps-page-grid" aria-label="' . self::escape( $label ) . '"><ol>';
+			$last   = count( $items ) - 1;
+			foreach ( $items as $index => $item ) {
+				if ( $index === $last ) {
+					$markup .= '<li aria-current="page">' . self::escape( $item['name'] ) . '</li>';
+					continue;
+				}
+				$markup .= '<li><a href="' . self::escape( $item['path'] ) . '">' . self::escape( $item['name'] ) . '</a></li>';
+			}
+			return $markup . '</ol></nav>';
+		}
 		$english = 'en' === $locale;
 		$home    = $english ? '/en/' : '/pt-br/';
 		$label   = $english ? 'Breadcrumb' : 'Trilha de navegação';
@@ -624,11 +642,31 @@ final class Shell {
 	}
 
 	/**
-	 * Returns only published variants for a singular record.
+	 * Returns the published locale variants of the current page.
+	 *
+	 * Singular records link to their canonical locale route — never the
+	 * default permalink — and only when the public surface actually serves
+	 * the variant. Non-singular routes link to their locale counterpart
+	 * (landing, listing or search), preserving the search query; anything
+	 * without a counterpart falls back to the locale home.
 	 *
 	 * @return array<string, string>
 	 */
 	private static function current_variants(): array {
+		$path = self::request_path();
+		if ( null !== SearchRoutes::match_path( $path ) ) {
+			// The search page is a singular page record, but its language switch
+			// belongs to the route: it preserves the query, never the page slug.
+			$locale      = self::current_locale( $path );
+			$counterpart = SearchRoutes::search_path( 'pt-br' === $locale ? 'en' : 'pt-br' );
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only propagation of the current search query.
+			$query = isset( $_GET['q'] ) && is_string( $_GET['q'] ) ? trim( sanitize_text_field( wp_unslash( $_GET['q'] ) ) ) : '';
+			$suffix = '' === $query ? '' : '?q=' . rawurlencode( $query );
+			return array(
+				$locale => $path . $suffix,
+				'pt-br' === $locale ? 'en' : 'pt-br' => $counterpart . $suffix,
+			);
+		}
 		if ( function_exists( 'is_singular' ) && is_singular() && function_exists( 'pll_get_post_translations' ) && function_exists( 'get_queried_object_id' ) ) {
 			$result       = array();
 			$translations = pll_get_post_translations( get_queried_object_id() );
@@ -637,15 +675,43 @@ final class Shell {
 					if ( ! is_int( $post_id ) || ( 'pt-br' !== $slug && 'en' !== $slug ) ) {
 						continue;
 					}
-					if ( 'publish' === get_post_status( $post_id ) ) {
-						$url = get_permalink( $post_id );
-						if ( is_string( $url ) ) {
-							$result[ $slug ] = $url;
-						}
+					$post = get_post( $post_id );
+					if ( ! $post instanceof WP_Post || 'publish' !== $post->post_status ) {
+						continue;
+					}
+					if ( ! SeoRoutes::publicly_visible( $post, $slug ) ) {
+						continue;
+					}
+					$canonical = SeoRoutes::record_path( $post, $slug );
+					if ( '' !== $canonical ) {
+						$result[ $slug ] = $canonical;
+						continue;
+					}
+					$url = get_permalink( $post_id );
+					if ( is_string( $url ) ) {
+						$result[ $slug ] = $url;
 					}
 				}
 			}
 			return $result;
+		}
+		$locale      = self::current_locale( $path );
+		$counterpart = SeoRoutes::counterpart_path( $path, $locale );
+		if ( '' !== $counterpart ) {
+			$variants = array(
+				$locale => $path,
+				'pt-br' === $locale ? 'en' : 'pt-br' => $counterpart,
+			);
+			// The search form state survives the language switch so a reader
+			// never loses the term they typed.
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only propagation of the current search query.
+			$query = isset( $_GET['q'] ) && is_string( $_GET['q'] ) ? trim( sanitize_text_field( wp_unslash( $_GET['q'] ) ) ) : '';
+			if ( '' !== $query && null !== SearchRoutes::match_path( $path ) ) {
+				foreach ( $variants as $slug => $variant_path ) {
+					$variants[ $slug ] = $variant_path . '?q=' . rawurlencode( $query );
+				}
+			}
+			return $variants;
 		}
 		return array(
 			'pt-br' => '/pt-br/',

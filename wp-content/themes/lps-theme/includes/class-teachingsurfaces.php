@@ -61,7 +61,7 @@ final class TeachingSurfaces {
 			if ( '' !== $meta ) {
 				$html .= '<p class="lps-meta">' . $meta . '</p>';
 			}
-			$html   .= '<h2>' . ( '' === $url ? self::esc( $title ) : '<a href="' . self::esc( $url ) . '">' . self::esc( $title ) . '</a>' ) . '</h2>';
+			$html   .= '<h2>' . ( '' === $url ? self::esc( $title ) : '<a href="' . self::esc( $url ) . '">' . self::esc( $title ) . '</a>' ) . self::translation_chip( $course, $locale ) . '</h2>';
 			$summary = self::text( $course['summary'] ?? '' );
 			if ( '' !== $summary ) {
 				$html .= '<p>' . self::esc( $summary ) . '</p>';
@@ -92,6 +92,7 @@ final class TeachingSurfaces {
 		$english = 'en' === $locale;
 		$html    = '<article class="lps-teaching lps-course" lang="' . self::esc( self::bcp47( $locale ) ) . '">';
 		$html   .= '<h1>' . self::esc( self::text( $course['title'] ?? '' ) ) . '</h1>';
+		$html   .= self::translation_notice( $course, $locale );
 		$html   .= self::meta_line(
 			array(
 				self::text( $course['code'] ?? '' ),
@@ -176,6 +177,7 @@ final class TeachingSurfaces {
 			$html    .= '</p>';
 		}
 		$html .= '<h1>' . self::esc( self::text( $offering['title'] ?? '' ) ) . '</h1>';
+		$html .= self::translation_notice( $offering, $locale );
 		$html .= '<p class="lps-meta lps-offering-identity">'
 			. '<span class="lps-term-token">' . self::esc( self::text( $term['token'] ?? '' ) ) . '</span>'
 			. ' <span class="lps-section">' . self::esc( self::text( $offering['section_key'] ?? '' ) ) . '</span>'
@@ -513,6 +515,40 @@ final class TeachingSurfaces {
 	 */
 	private static function body( string $body ): string {
 		return '' === $body ? '' : '<div class="lps-body">' . self::rich( $body ) . '</div>';
+	}
+
+	/**
+	 * Renders the explicit stale-translation warning of one record.
+	 *
+	 * A stale English variant stays at its own URL and announces that its review
+	 * trails the Portuguese source; the notice is part of the record, never a
+	 * silent substitution.
+	 *
+	 * @param array<mixed,mixed> $record Teaching record.
+	 * @param string             $locale Supported locale slug.
+	 */
+	private static function translation_notice( array $record, string $locale ): string {
+		if ( empty( $record['stale'] ) ) {
+			return '';
+		}
+		$message = 'en' === $locale
+			? 'This English translation is under review: the Portuguese source changed since the last review.'
+			: 'Esta tradução está em revisão: a fonte em português mudou desde a última revisão.';
+		return '<p class="lps-translation-notice" role="status">' . self::esc( $message ) . '</p>';
+	}
+
+	/**
+	 * Renders the compact stale-translation marker used inside listing rows.
+	 *
+	 * @param array<mixed,mixed> $record Teaching record.
+	 * @param string             $locale Supported locale slug.
+	 */
+	private static function translation_chip( array $record, string $locale ): string {
+		if ( empty( $record['stale'] ) ) {
+			return '';
+		}
+		$label = 'en' === $locale ? 'Translation under review' : 'Tradução em revisão';
+		return ' <span class="lps-status lps-status-warning">' . self::esc( $label ) . '</span>';
 	}
 
 	/**
