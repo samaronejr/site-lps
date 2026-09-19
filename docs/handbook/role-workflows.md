@@ -63,7 +63,11 @@ send news through the scoped lane when designated.
 2. Edit the offering's schedule, venue and syllabus snapshot; create and order units; attach
    resources and set release state once rights, accessibility and scan reviews are approved.
 3. Publish cleared materials inside the granted offering; copy the offering forward to a new
-   term/section as a draft with the required resets.
+   term/section as a draft with the required resets — the reviewed team is supplied explicitly,
+   sensitive and term-bound fields are reset, and only explicitly selected public versions are
+   reused. Propagate allowlisted corrections (schedule, venue, syllabus snapshot, LMS link,
+   cancellation) to explicitly selected offerings of the same course; every target keeps its own
+   revision history.
 4. Publish news directly only when the account also holds the `news` scope grant.
 
 Boundaries: MFA is mandatory because the role publishes publicly. You cannot publish offerings,

@@ -37,6 +37,15 @@ final class TeachingContracts {
 	public const OWNERSHIP_KINDS   = array( 'shared', 'localized', 'system' );
 
 	/**
+	 * Offering fields a correction may propagate to explicitly selected
+	 * offerings of the same course. Identity, provenance, temporal and
+	 * system fields are never correctable through propagation.
+	 *
+	 * @var array<int, string>
+	 */
+	public const CORRECTABLE_OFFERING_FIELDS = array( '_lps_schedule', '_lps_venue', '_lps_syllabus_snapshot', '_lps_lms_url', '_lps_lms_url_approved', '_lps_cancelled' );
+
+	/**
 	 * Ownership of the common record fields declared by Contracts.
 	 *
 	 * @var array<string, string>
@@ -116,14 +125,16 @@ final class TeachingContracts {
 				'_lps_term_source'  => $field( 'string', 'Term source provenance', 'text' ),
 			),
 			'lps_offering' => array(
-				'_lps_section_key'       => $field( 'string', 'Normalized section key', 'section_key' ),
-				'_lps_schedule'          => $field( 'string', 'Meeting schedule', 'textarea' ),
-				'_lps_venue'             => $field( 'string', 'Venue', 'text' ),
-				'_lps_syllabus_snapshot' => $field( 'string', 'Published syllabus snapshot', 'textarea' ),
-				'_lps_lms_url'           => $field( 'string', 'Approved LMS link', 'url' ),
-				'_lps_lms_url_approved'  => $field( 'boolean', 'LMS link approved', 'boolean' ),
-				'_lps_cancelled'         => $field( 'boolean', 'Offering cancelled', 'boolean' ),
-				'_lps_temporal_status'   => $field( 'string', 'Derived temporal status', 'key' ),
+				'_lps_section_key'             => $field( 'string', 'Normalized section key', 'section_key' ),
+				'_lps_schedule'                => $field( 'string', 'Meeting schedule', 'textarea' ),
+				'_lps_venue'                   => $field( 'string', 'Venue', 'text' ),
+				'_lps_syllabus_snapshot'       => $field( 'string', 'Published syllabus snapshot', 'textarea' ),
+				'_lps_lms_url'                 => $field( 'string', 'Approved LMS link', 'url' ),
+				'_lps_lms_url_approved'        => $field( 'boolean', 'LMS link approved', 'boolean' ),
+				'_lps_cancelled'               => $field( 'boolean', 'Offering cancelled', 'boolean' ),
+				'_lps_temporal_status'         => $field( 'string', 'Derived temporal status', 'key' ),
+				'_lps_copy_operation_id'       => $field( 'string', 'Copy-forward operation identifier', 'key' ),
+				'_lps_copy_source_offering_id' => $field( 'integer', 'Copy-forward source offering', 'integer' ),
 			),
 			'lps_unit'     => array(
 				'_lps_anchor'     => $field( 'string', 'Stable unit anchor', 'key' ),
@@ -152,6 +163,13 @@ final class TeachingContracts {
 		foreach ( self::private_meta_keys() as $private_key ) {
 			if ( isset( $fields['lps_resource'][ $private_key ] ) ) {
 				$fields['lps_resource'][ $private_key ]['show_in_rest'] = false;
+			}
+		}
+		// Correctable offering fields ride WordPress revisions so a propagated
+		// correction preserves the prior value in the record's own history.
+		foreach ( self::CORRECTABLE_OFFERING_FIELDS as $correctable ) {
+			if ( isset( $fields['lps_offering'][ $correctable ] ) ) {
+				$fields['lps_offering'][ $correctable ]['revisions_enabled'] = true;
 			}
 		}
 		return $fields;
@@ -198,14 +216,16 @@ final class TeachingContracts {
 				'_lps_term_source'  => 'shared',
 			),
 			'lps_offering' => array(
-				'_lps_section_key'       => 'shared',
-				'_lps_schedule'          => 'shared',
-				'_lps_venue'             => 'shared',
-				'_lps_syllabus_snapshot' => 'localized',
-				'_lps_lms_url'           => 'shared',
-				'_lps_lms_url_approved'  => 'shared',
-				'_lps_cancelled'         => 'shared',
-				'_lps_temporal_status'   => 'system',
+				'_lps_section_key'             => 'shared',
+				'_lps_schedule'                => 'shared',
+				'_lps_venue'                   => 'shared',
+				'_lps_syllabus_snapshot'       => 'localized',
+				'_lps_lms_url'                 => 'shared',
+				'_lps_lms_url_approved'        => 'shared',
+				'_lps_cancelled'               => 'shared',
+				'_lps_temporal_status'         => 'system',
+				'_lps_copy_operation_id'       => 'system',
+				'_lps_copy_source_offering_id' => 'system',
 			),
 			'lps_unit'     => array(
 				'_lps_anchor'     => 'shared',

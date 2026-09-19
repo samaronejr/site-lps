@@ -312,6 +312,13 @@ final class Roles {
 		if ( ! TeachingPolicy::is_scoped_role( $role ) ) {
 			return null;
 		}
+		if ( class_exists( TeachingCopy::class ) && TeachingCopy::in_operation() ) {
+			// The copy-forward boundary is the authorized writer of the
+			// offering's canonical rows inside its own operation; the REST
+			// permission check already proved the account's copy-forward scope
+			// on the source offering.
+			return null;
+		}
 		if ( ! SecurityPolicy::privileged_session_allowed( $role, MFA::is_enrolled( $user->ID ) ) ) {
 			return 'lps_mfa_required';
 		}

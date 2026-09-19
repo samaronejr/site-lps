@@ -15,6 +15,7 @@ use WP_REST_Response;
 
 require_once __DIR__ . '/class-teachingrecords.php';
 require_once __DIR__ . '/class-teachingresources.php';
+require_once __DIR__ . '/class-teachingcopy.php';
 require_once __DIR__ . '/class-teachingpolicy.php';
 require_once __DIR__ . '/class-roles.php';
 require_once __DIR__ . '/class-securitypolicy.php';
@@ -169,6 +170,72 @@ final class TeachingRest {
 						'required'          => true,
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
+					),
+				),
+			)
+		);
+		register_rest_route(
+			self::NAMESPACE,
+			'/teaching/offerings/(?P<id>\d+)/copy-forward',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( self::class, 'copy_forward' ),
+				'permission_callback' => array( self::class, 'may_copy_forward' ),
+				'args'                => array(
+					'id'                   => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					),
+					'operation_id'         => array(
+						'required' => true,
+						'type'     => 'string',
+					),
+					'new_term_id'          => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					),
+					'new_section'          => array(
+						'required' => true,
+						'type'     => 'string',
+					),
+					'team'                 => array(
+						'required' => true,
+						'type'     => 'array',
+					),
+					'team_reviewed'        => array( 'type' => 'boolean' ),
+					'selected_version_ids' => array( 'type' => 'array' ),
+					'title'                => array( 'type' => 'string' ),
+					'excerpt'              => array( 'type' => 'string' ),
+					'content'              => array( 'type' => 'string' ),
+				),
+			)
+		);
+		register_rest_route(
+			self::NAMESPACE,
+			'/teaching/offerings/(?P<id>\d+)/corrections',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( self::class, 'propagate_correction' ),
+				'permission_callback' => array( self::class, 'may_propagate_correction' ),
+				'args'                => array(
+					'id'                     => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					),
+					'operation_id'           => array(
+						'required' => true,
+						'type'     => 'string',
+					),
+					'fields'                 => array(
+						'required' => true,
+						'type'     => 'object',
+					),
+					'affected_offering_ids'  => array(
+						'required' => true,
+						'type'     => 'array',
 					),
 				),
 			)
@@ -378,6 +445,45 @@ final class TeachingRest {
 	}
 
 	/**
+	 * Copies one offering forward into a new term/section as a draft.
+	 *
+	 * The route's `id` is the source offering; the operation identifier makes
+	 * retries idempotent and the response carries the complete manifest.
+	 *
+	 * @param WP_REST_Request $request Current request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function copy_forward( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+		$input                        = $request->get_params();
+		$input['source_offering_id']  = Policy::sanitize_integer( $request->get_param( 'id' ) );
+		unset( $input['rest_route'] );
+		$result = TeachingCopy::copy_forward( $input );
+		if ( $result instanceof WP_Error ) {
+			return $result;
+		}
+		$response = rest_ensure_response( $result );
+		$response->set_status( 201 );
+		return $response;
+	}
+
+	/**
+	 * Propagates declared field corrections to explicitly selected offerings.
+	 *
+	 * @param WP_REST_Request $request Current request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function propagate_correction( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+		$input                        = $request->get_params();
+		$input['source_offering_id']  = Policy::sanitize_integer( $request->get_param( 'id' ) );
+		unset( $input['rest_route'] );
+		$result = TeachingCopy::propagate_correction( $input );
+		if ( $result instanceof WP_Error ) {
+			return $result;
+		}
+		return rest_ensure_response( $result );
+	}
+
+	/**
 	 * Publishes one stored record through the full server-side gate.
 	 *
 	 * @param WP_REST_Request $request Current request.
@@ -566,6 +672,77 @@ final class TeachingRest {
 		}
 		$offering_id = Roles::persisted_offering_id( $post );
 		return 0 < $offering_id && Roles::current_user_can_scoped_action( 'publish', $post->post_type, $offering_id );
+	}
+
+	/**
+	 * Returns whether the account may copy the addressed offering forward.
+	 *
+	 * Editors act through their teaching collection assignment; a scoped
+	 * professor needs an active grant covering the source offering — the
+	 * `copy-forward` action is scoped to `lps_offering` only, so delegates
+	 * and out-of-scope professors are denied before any mutation.
+	 *
+	 * @param WP_REST_Request $request Current request.
+	 */
+	public static function may_copy_forward( WP_REST_Request $request ): bool {
+		$post_id = Policy::sanitize_integer( $request->get_param( 'id' ) );
+		$post    = 0 < $post_id ? get_post( $post_id ) : null;
+		if ( ! $post instanceof \WP_Post || 'lps_offering' !== $post->post_type ) {
+			return false;
+		}
+		if ( Roles::current_user_can_action( 'create', 'teaching' ) ) {
+			return true;
+		}
+		return Roles::current_user_can_scoped_action( 'copy-forward', 'lps_offering', $post_id );
+	}
+
+	/**
+	 * Returns whether the account may propagate the declared correction.
+	 *
+	 * Editors act through their teaching collection assignment. A scoped role
+	 * must hold an active grant on every explicitly affected offering and may
+	 * only propagate fields inside its own field allowlist — the service
+	 * re-verifies every write against the same boundary.
+	 *
+	 * @param WP_REST_Request $request Current request.
+	 */
+	public static function may_propagate_correction( WP_REST_Request $request ): bool {
+		$post_id = Policy::sanitize_integer( $request->get_param( 'id' ) );
+		$post    = 0 < $post_id ? get_post( $post_id ) : null;
+		if ( ! $post instanceof \WP_Post || 'lps_offering' !== $post->post_type ) {
+			return false;
+		}
+		if ( Roles::current_user_can_action( 'edit', 'teaching' ) ) {
+			return true;
+		}
+		$role = Roles::policy_role();
+		if ( ! TeachingPolicy::is_scoped_role( $role ) ) {
+			return false;
+		}
+		$fields = $request->get_param( 'fields' );
+		if ( ! is_array( $fields ) || array() === $fields ) {
+			return false;
+		}
+		foreach ( array_keys( $fields ) as $field ) {
+			if ( ! is_string( $field ) || ! TeachingPolicy::field_write_allowed( $role, 'lps_offering', $field ) ) {
+				return false;
+			}
+		}
+		$affected = $request->get_param( 'affected_offering_ids' );
+		if ( ! is_array( $affected ) || array() === $affected ) {
+			return false;
+		}
+		foreach ( $affected as $candidate ) {
+			$target_id = Policy::sanitize_integer( $candidate );
+			$target    = 0 < $target_id ? get_post( $target_id ) : null;
+			if ( ! $target instanceof \WP_Post || 'lps_offering' !== $target->post_type ) {
+				return false;
+			}
+			if ( ! Roles::current_user_can_scoped_action( 'edit', 'lps_offering', $target_id ) ) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
