@@ -98,6 +98,17 @@ configured scanner. Only a `clean` verdict moves a record to `cleared/`; `pendin
 `error`, adapter exceptions and invalid verdicts return to quarantine and `infected`
 fails. Records never carry a public URL; the authorized download endpoint re-checks
 state on every request and serves `attachment` disposition with nosniff and no-store.
+`wp-content/plugins/lps-content-model/includes/class-teachingresources.php` owns that
+endpoint at `/lps-resource/<record-uuid>/`: it re-evaluates the resource's publish and
+release state, the parent offering's public visibility, the selected immutable version's
+registry row, storage health, and rights/accessibility reviews on every request. Every
+denial is the same anonymous 404 — no titles, storage keys, paths or typed codes leak —
+and any request under the route prefix that does not resolve to a granted download dies
+there before SEO redirects or the template pipeline can answer it. Granted responses
+stream the selected version's bytes with a sanitized `attachment` filename, `nosniff`,
+`no-store`, `Accept-Ranges`, a `Digest: sha-256=` integrity header and single-range
+support; HEAD answers headers only. Replacing the selected version is an explicit,
+audited decision that never mutates prior version rows.
 The default cap is 50 MiB, adjustable only by technical administrators within the
 200 MiB ceiling. Missing storage root, a root inside the public tree, a missing
 scanner or an unapproved scanner in production all fail closed — the bundled

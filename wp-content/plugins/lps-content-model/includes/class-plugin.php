@@ -40,6 +40,7 @@ final class Plugin {
 		SearchIndex::boot();
 		TeachingRecords::boot();
 		TeachingRest::boot();
+		TeachingResources::boot();
 		add_action( 'init', array( self::class, 'register' ), 5 );
 		add_action( 'init', array( self::class, 'migrate' ), 10 );
 		add_action( 'add_meta_boxes', array( self::class, 'add_meta_boxes' ) );
@@ -516,6 +517,11 @@ final class Plugin {
 		if ( ! isset( Contracts::post_types()[ $post->post_type ] ) || wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) ) {
 			return;
 		}
+		// Identity, provenance, timestamp and editorial-state fields are
+		// system-owned: the scoped-role field guard correctly denies them to
+		// direct writes, so the completer lifts that one guard for its own
+		// writes and restores it immediately.
+		remove_filter( 'update_post_metadata', array( self::class, 'protect_role_meta' ), 11 );
 		$now = gmdate( 'c' );
 		if ( '' === Policy::scalar_string( get_post_meta( $post_id, '_lps_record_id', true ) ) ) {
 			$prefix = str_replace( 'lps_', '', $post->post_type );
@@ -568,6 +574,7 @@ final class Plugin {
 				update_post_meta( $post_id, '_lps_temporal_status', $status );
 			}
 		}
+		add_filter( 'update_post_metadata', array( self::class, 'protect_role_meta' ), 11, 5 );
 	}
 
 	/**

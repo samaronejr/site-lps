@@ -283,7 +283,7 @@ final class LpsRedesignTask03Test extends TestCase {
 	public function test_migration_plan_is_versioned_additive_and_dry_run_preserves_state(): void {
 		$plan = TeachingMigrations::plan( '0.0.0', TeachingMigrations::VERSION );
 		self::assertTrue( $plan['ok'] );
-		self::assertSame( array( 'create_term_registry', 'create_offering_registry' ), $plan['steps'] );
+		self::assertSame( array( 'create_term_registry', 'create_offering_registry', 'create_resource_version_registry' ), $plan['steps'] );
 
 		$before = TeachingMigrations::schema_sql( 'wp_', 'utf8mb4' );
 		$dry    = TeachingMigrations::dry_run( '0.0.0', TeachingMigrations::VERSION );
@@ -292,7 +292,7 @@ final class LpsRedesignTask03Test extends TestCase {
 		self::assertFalse( $dry['mutated'], 'the dry-run must not mutate' );
 		self::assertTrue( $dry['preserves_existing_records'] );
 		self::assertSame( $before, $after, 'the dry-run leaves the existing schema unchanged' );
-		self::assertCount( 2, $dry['statements'] );
+		self::assertCount( 3, $dry['statements'] );
 		foreach ( $dry['statements'] as $statement ) {
 			self::assertStringStartsWith( 'CREATE TABLE', $statement, 'migration statements are additive only' );
 			self::assertStringNotContainsString( 'DROP', $statement );

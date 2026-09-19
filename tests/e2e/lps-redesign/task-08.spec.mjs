@@ -497,9 +497,10 @@ test.describe("task-08: teaching persistence and canonical routes", () => {
 
     const report = await api("GET", "/teaching/reconciliation");
     expect(report.status, JSON.stringify(report.body)).toBe(200);
-    expect(report.body.schema.version).toBe("1.0.0");
+    expect(report.body.schema.version).toBe("1.1.0");
     expect(report.body.schema.tables.term_registry.exists).toBe(true);
     expect(report.body.schema.tables.offering_registry.exists).toBe(true);
+    expect(report.body.schema.tables.version_registry.exists).toBe(true);
     expect(report.body.counts.term_claims).toBeGreaterThanOrEqual(2);
     expect(report.body.counts.offering_claims).toBeGreaterThanOrEqual(2);
 
