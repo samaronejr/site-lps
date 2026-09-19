@@ -466,6 +466,42 @@ dd {
   color: var(--color-text-muted);
 }
 
+/* Masthead brand: the responsive artwork swap, with the text wordmark as
+   the no-artwork fallback. The artwork keeps its intrinsic ratio; the box
+   holds the contract band — 220px on narrow slots, 280px on desktop. The
+   footer keeps the text wordmark on the anchor fill. */
+.lps-brand {
+  display: inline-block;
+  inline-size: 220px;
+  max-inline-size: 100%;
+  color: var(--color-anchor);
+  font-family: var(--font-interface);
+  font-size: var(--type-h1);
+  font-weight: 700;
+  line-height: 0.9;
+  text-decoration: none;
+}
+
+.lps-logo {
+  display: block;
+  inline-size: 100%;
+  max-inline-size: 100%;
+  block-size: auto;
+}
+
+/* Long translated labels wrap by phrase inside the grid instead of forcing
+   a horizontal overflow at the narrowest supported width. */
+.lps-primary-nav ul,
+.lps-site-footer ul {
+  min-inline-size: 0;
+}
+
+.lps-primary-nav a,
+.lps-site-footer a {
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
 .lps-wordmark {
   color: var(--color-anchor);
   font-family: var(--font-interface);
@@ -1359,6 +1395,7 @@ details:not(.lps-shell-disclosure) > summary {
     text-align: end;
   }
 
+  .lps-masthead .lps-brand,
   .lps-masthead .lps-wordmark {
     grid-column: 1 / 3;
   }
@@ -1449,8 +1486,10 @@ details:not(.lps-shell-disclosure) > summary {
     grid-column: 9 / -1;
   }
 
+  .lps-masthead .lps-brand,
   .lps-masthead .lps-wordmark {
     grid-column: 1 / 4;
+    inline-size: 280px;
   }
 
   .lps-masthead p {

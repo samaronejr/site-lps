@@ -23,12 +23,15 @@ require_once __DIR__ . '/includes/class-assetpolicy.php';
 require_once __DIR__ . '/includes/class-cachepolicy.php';
 require_once __DIR__ . '/includes/class-delivery.php';
 
+require_once __DIR__ . '/includes/class-brandassets.php';
+
 DiscoveryRoutes::boot();
 TeachingRoutes::boot();
 PublicRoutes::boot();
 SearchRoutes::boot();
 TrustRoutes::boot();
 SeoRoutes::boot();
+BrandAssets::boot();
 Delivery::boot();
 
 add_action(

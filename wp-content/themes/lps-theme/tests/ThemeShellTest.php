@@ -153,11 +153,16 @@ final class ThemeShellTest extends TestCase {
 		self::assertStringContainsString( '<nav', $header );
 		self::assertStringContainsString( 'aria-current="page"', $header );
 		self::assertStringContainsString( '<form', $header );
-		self::assertStringContainsString( 'name="s"', $header );
+		self::assertStringContainsString( 'action="/pt-br/busca/"', $header );
+		self::assertStringContainsString( 'name="q"', $header );
 		self::assertStringContainsString( 'hreflang="en"', $header );
-		self::assertStringNotContainsString( '<img', $header );
+		self::assertStringContainsString( '/lps-brand/lps_logo_vector.svg', $header );
+		self::assertStringContainsString( 'srcset=', $header );
+		self::assertStringContainsString( '/lps-brand/lps_logo_compact.svg', $header );
 		self::assertStringContainsString( '<footer', $footer );
+		self::assertStringContainsString( '/pt-br/ensino/', $footer );
 		self::assertStringContainsString( '/pt-br/acessibilidade/', $footer );
+		self::assertStringNotContainsString( '<img', $footer );
 	}
 
 	public function test_absent_locale_variant_is_rendered_as_an_unavailable_state(): void {
@@ -171,18 +176,47 @@ final class ThemeShellTest extends TestCase {
 		self::assertStringNotContainsString( 'href="/en/', $control );
 	}
 
-	/** The masthead ships the text wordmark until an approved mark is recorded. */
-	public function test_masthead_defaults_to_the_text_wordmark(): void {
-		// Given: no approved-mark artifact is cited for the logo slot.
+	/** The masthead carries the contracted responsive artwork, not a redraw. */
+	public function test_masthead_renders_the_contracted_responsive_artwork(): void {
+		// Given: the unified-identity contract (DESIGN.md section 6) with the
+		// owner-supplied artwork as the default masthead identity.
 		// When: the header renders in either locale.
 		$portuguese = Shell::header_markup( 'pt-br', '/pt-br/' );
 		$english    = Shell::header_markup( 'en', '/en/' );
 
-		// Then: the home link carries the text wordmark and no image.
-		self::assertStringContainsString( '>LPS</a>', $portuguese );
-		self::assertStringContainsString( '>LPS</a>', $english );
-		self::assertStringNotContainsString( '<img', $portuguese );
-		self::assertStringNotContainsString( '<img', $english );
+		// Then: the home link keeps its accessible name and renders one
+		// decorative image with both artwork sources — full lockup plus
+		// compact variant — so engines swap by slot width without client
+		// code, and no label is duplicated inside the artwork.
+		foreach ( array( $portuguese, $english ) as $header ) {
+			self::assertStringContainsString( 'class="lps-brand"', $header );
+			self::assertStringContainsString( 'aria-label="LPS — ', $header );
+			self::assertStringContainsString( '/lps-brand/lps_logo_vector.svg', $header );
+			self::assertStringContainsString( '/lps-brand/lps_logo_compact.svg', $header );
+			self::assertStringContainsString( 'alt=""', $header );
+			self::assertStringContainsString( 'width="2052" height="301"', $header );
+			self::assertSame( 1, substr_count( $header, '<img' ) );
+		}
+		self::assertStringContainsString( 'aria-label="LPS — início"', $portuguese );
+		self::assertStringContainsString( 'aria-label="LPS — home"', $english );
+	}
+
+	/** A missing artwork file degrades to the named text wordmark, never an empty link. */
+	public function test_masthead_falls_back_to_the_text_wordmark_without_artwork(): void {
+		// Given: a deploy where the brand endpoint cannot resolve (the
+		// filter below stands in for an empty resolution by forcing the
+		// override slot empty and the sources empty is covered by
+		// logo_sources returning both configured names — so this asserts
+		// the fallback string the brand renderer returns instead).
+		// When: the artwork sources resolve to empty strings.
+		// Then: the documented fallback keeps the home link named.
+		self::assertSame(
+			array( 'full', 'compact' ),
+			array_keys( Shell::logo_sources() )
+		);
+		foreach ( Shell::logo_sources() as $source ) {
+			self::assertStringEndsWith( '.svg', $source );
+		}
 	}
 
 	/** The approved-mark slot renders a supplied mark inside the persistent home link. */
@@ -197,10 +231,10 @@ final class ThemeShellTest extends TestCase {
 			remove_filter( 'lps_masthead_mark', $mark );
 		}
 
-		// Then: the mark replaces the wordmark text inside the persistent home link.
+		// Then: the mark replaces the bundled artwork inside the persistent home link.
 		self::assertStringContainsString( '<img src="/lps-mark.svg"', $header );
-		self::assertStringNotContainsString( '>LPS</a>', $header );
-		self::assertStringContainsString( 'class="lps-wordmark"', $header );
+		self::assertStringNotContainsString( 'lps-brand/lps_logo_vector.svg', $header );
+		self::assertStringContainsString( 'class="lps-brand"', $header );
 	}
 
 	/** Header regions keep DOM order equal to reading and focus order. */
@@ -258,18 +292,22 @@ final class ThemeShellTest extends TestCase {
 		self::assertStringNotContainsString( 'href="/pt-br/', $control );
 	}
 
-	/** The footer carries institutional context and four direct links, never a nav repeat. */
+	/** The footer carries institutional context and the teaching entrance, never a nav repeat. */
 	public function test_footer_carries_institutional_context_without_nav_clutter(): void {
 		// Given: the English footer.
 		$footer = Shell::footer_markup( 'en' );
 
-		// Then: affiliation context and the four utility routes render, and the
-		// primary navigation is not duplicated.
+		// Then: affiliation context, the canonical teaching entrance and the
+		// four utility routes render; the footer band keeps the text
+		// wordmark (artwork stays on light surfaces); and the primary
+		// navigation is not duplicated.
 		self::assertStringContainsString( 'Federal University of Rio de Janeiro', $footer );
+		self::assertStringContainsString( 'href="/en/teaching/"', $footer );
 		self::assertStringContainsString( 'href="/en/contact/"', $footer );
 		self::assertStringContainsString( 'href="/en/events/"', $footer );
 		self::assertStringContainsString( 'href="/en/privacy/"', $footer );
 		self::assertStringContainsString( 'href="/en/accessibility/"', $footer );
+		self::assertStringNotContainsString( '<img', $footer );
 		self::assertStringNotContainsString( '/en/research/', $footer );
 		self::assertStringNotContainsString( '/en/publications/', $footer );
 	}

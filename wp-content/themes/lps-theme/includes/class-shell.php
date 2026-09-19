@@ -65,6 +65,13 @@ final class Shell {
 	/**
 	 * Builds the complete server-rendered header.
 	 *
+	 * Source order is reading order: affiliation, masthead identity,
+	 * disclosure control, primary navigation, search, locale switcher,
+	 * then the collaboration task link. The `<details>` disclosure keeps
+	 * every destination reachable with scripting disabled; the two
+	 * artwork sources swap by rendered width through native `srcset`
+	 * instead of client code.
+	 *
 	 * @param string                     $locale   Supported locale slug.
 	 * @param string                     $path     Current public path.
 	 * @param array<string, string>|null $variants Published locale URLs.
@@ -76,6 +83,7 @@ final class Shell {
 		$nav_label       = $english ? 'Primary navigation' : 'Navegação principal';
 		$search_label    = $english ? 'Search the LPS website' : 'Buscar no site do LPS';
 		$search_button   = $english ? 'Search' : 'Buscar';
+		$search_action   = $english ? '/en/search/' : '/pt-br/busca/';
 		$collaborate     = $english ? 'Collaborate' : 'Colabore';
 		$collaborate_url = $english ? '/en/collaborate/' : '/pt-br/colabore/';
 		$home            = $english ? '/en/' : '/pt-br/';
@@ -91,26 +99,100 @@ final class Shell {
 				'en'    => '/en/',
 			)
 		);
-		$mark           = self::masthead_mark();
+		$mark           = self::masthead_brand();
 		return '<a class="lps-skip-link" href="#lps-main">' . self::escape( $skip ) . '</a>'
 			. '<header class="lps-site-header">'
 			. '<div class="lps-affiliation lps-page-grid"><p lang="pt-BR">Laboratório de Processamento de Sinais <span aria-hidden="true">/</span> UFRJ <span aria-hidden="true">/</span> COPPE</p><p class="lps-meta" lang="pt-BR">Universidade Federal do Rio de Janeiro</p></div>'
-			. '<div class="lps-masthead lps-page-grid"><a class="lps-wordmark" href="' . $home . '" aria-label="LPS — ' . ( $english ? 'home' : 'início' ) . '">' . ( '' !== $mark ? $mark : 'LPS' ) . '</a><p' . ( $english ? '' : ' lang="pt-BR"' ) . '>' . ( $english ? 'Signal Processing Laboratory' : 'Laboratório de Processamento de Sinais' ) . '</p></div>'
+			. '<div class="lps-masthead lps-page-grid"><a class="lps-brand" href="' . $home . '" aria-label="LPS — ' . ( $english ? 'home' : 'início' ) . '">' . $mark . '</a><p' . ( $english ? '' : ' lang="pt-BR"' ) . '>' . ( $english ? 'Signal Processing Laboratory' : 'Laboratório de Processamento de Sinais' ) . '</p></div>'
 			. '<details class="lps-shell-disclosure"><summary>' . self::escape( $menu ) . '</summary><div class="lps-nav-panel lps-page-grid">'
 			. '<nav class="lps-primary-nav" aria-label="' . self::escape( $nav_label ) . '"><ul>' . $items . '</ul></nav>'
-			. '<div class="lps-shell-tools"><form class="lps-search" role="search" action="' . $home . '" method="get"><label for="lps-search-input">' . self::escape( $search_label ) . '</label><div><input id="lps-search-input" name="s" type="search" autocomplete="off"><button type="submit">' . self::escape( $search_button ) . '</button></div></form>'
+			. '<div class="lps-shell-tools"><form class="lps-search" role="search" action="' . $search_action . '" method="get"><label for="lps-search-input">' . self::escape( $search_label ) . '</label><div><input id="lps-search-input" name="q" type="search" autocomplete="off"><button type="submit">' . self::escape( $search_button ) . '</button></div></form>'
 			. $locale_control . '<a class="lps-button lps-button-primary" href="' . $collaborate_url . '">' . self::escape( $collaborate ) . '</a></div></div></details></header>';
 	}
 
 	/**
-	 * Returns the approved institutional mark for the masthead slot, if one exists.
+	 * Renders the masthead home-link brand: responsive artwork with a
+	 * text-wordmark fallback.
 	 *
-	 * The header ships the text wordmark by default: `lps_logo_vector.svg` is
-	 * unapproved, and a mark may render only after a written owner-approval
-	 * artifact is cited in the redesign evidence (DESIGN.md accepted debt). The
-	 * `lps_masthead_mark` filter is the conditional slot for that approval path;
-	 * a returned value replaces the wordmark text inside the persistent home
-	 * link, so the link keeps its accessible name either way.
+	 * The `<img>` carries both artwork sources — full lockup and compact
+	 * variant — so engines pick by rendered slot width without client
+	 * code. When neither bundled file resolves (for example a partial
+	 * deploy), the text wordmark keeps the home link named and usable.
+	 */
+	private static function masthead_brand(): string {
+		$approved = self::masthead_mark();
+		if ( '' !== $approved ) {
+			return $approved;
+		}
+		$sources = self::logo_sources();
+		if ( '' === $sources['full'] || '' === $sources['compact'] ) {
+			return 'LPS';
+		}
+		// Density descriptors (`1x`/`2x`) select by device pixel ratio, not by
+		// layout width: the compact variant (≈4.81:1) is the 1x source on
+		// narrow slots and the full lockup (≈6.82:1) the 2x source, so a
+		// high-density handset still decodes the legible variant while a
+		// desktop decodes the full artwork. Width descriptors would invert
+		// that choice (the engine would prefer the 1322w compact file at
+		// 220 CSS px even at 3x density).
+		return '<img class="lps-logo" src="' . self::escape( $sources['full'] ) . '" srcset="' . self::escape( $sources['compact'] ) . ' 1x, ' . self::escape( $sources['full'] ) . ' 2x" sizes="220px" alt="" width="2052" height="301" fetchpriority="high">';
+	}
+
+	/**
+	 * Resolves the masthead artwork sources: full lockup first, compact
+	 * variant second — a faithful swap, never a crop.
+	 *
+	 * The full lockup stays legible only at 240px rendered width and above;
+	 * below that the compact variant (the same kept paths, descriptive
+	 * lettering omitted) carries the identity at 28-40px height. The
+	 * Density descriptors keep the compact variant legible on narrow
+	 * high-density slots; the engine — not client code — picks the
+	 * fitting source.
+	 *
+	 * @return array{full: string, compact: string} Resolved artwork URLs;
+	 *                                              empty when unresolvable.
+	 */
+	public static function logo_sources(): array {
+		$base = self::brand_base_url();
+		if ( '' === $base ) {
+			return array( 'full' => '', 'compact' => '' );
+		}
+		return array(
+			'full'    => $base . 'lps_logo_vector.svg',
+			'compact' => $base . 'lps_logo_compact.svg',
+		);
+	}
+
+
+	/**
+	 * Returns the public base URL of the bundled brand directory.
+	 *
+	 * The artwork ships once at the repository root (`assets/brand/`), one
+	 * level above the WordPress content root, so the shell serves it
+	 * through a theme rewrite endpoint instead of a second copy: the
+	 * `lps-brand` endpoint (registered in `functions.php`) maps the two
+	 * contract file names to their bytes, which keeps the source checksum
+	 * intact. An empty resolution returns an empty string so the caller
+	 * falls back to the text wordmark instead of an empty image.
+	 */
+	private static function brand_base_url(): string {
+		// Root-relative on purpose: the artwork then inherits the page
+		// origin, so the hardening CSP (`img-src 'self'`) cannot treat it
+		// as cross-origin when the environment answers on several local
+		// hostnames (localhost vs 127.0.0.1).
+		return '/lps-brand/';
+	}
+
+	/**
+	 * Returns the approved institutional mark override, if one is supplied.
+	 *
+	 * The unified-identity contract (DESIGN.md section 6, amended for this
+	 * owner-supplied artwork) makes the bundled full-colour artwork the
+	 * default masthead identity; UFRJ/COPPE marks stay text-only. The
+	 * `lps_masthead_mark` filter remains as the override slot for a
+	 * rights-owner-supplied replacement: a returned value replaces the
+	 * bundled artwork inside the persistent home link, so the link keeps
+	 * its accessible name either way.
 	 */
 	private static function masthead_mark(): string {
 		if ( ! function_exists( 'apply_filters' ) ) {
@@ -184,18 +266,25 @@ final class Shell {
 	/**
 	 * Builds the institutional footer.
 	 *
+	 * The footer band keeps the text wordmark: the artwork's dark blues
+	 * fall below the legibility floor on the anchor fill, so only light
+	 * surfaces may carry the full-colour mark. The teaching entrance
+	 * keeps its canonical locale route beside the four utility links.
+	 *
 	 * @param string $locale Supported locale slug.
 	 */
 	public static function footer_markup( string $locale ): string {
 		$english = 'en' === $locale;
 		$links   = $english
 			? array(
+				'Teaching'      => '/en/teaching/',
 				'Contact'       => '/en/contact/',
 				'Events'        => '/en/events/',
 				'Privacy'       => '/en/privacy/',
 				'Accessibility' => '/en/accessibility/',
 			)
 			: array(
+				'Ensino'         => '/pt-br/ensino/',
 				'Contato'        => '/pt-br/contato/',
 				'Eventos'        => '/pt-br/eventos/',
 				'Privacidade'    => '/pt-br/privacidade/',
