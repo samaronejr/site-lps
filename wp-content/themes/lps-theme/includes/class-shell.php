@@ -137,9 +137,12 @@ final class Shell {
 		// desktop decodes the full artwork. Width descriptors would invert
 		// that choice (the engine would prefer the 1322w compact file at
 		// 220 CSS px even at 3x density).
+		// The artwork is the only content of the home link, so it carries the
+		// wordmark as its text alternative: an empty alt would leave the link
+		// unnamed for assistive technology that ignores the link's aria-label.
 		// The logo never claims a priority hint: fetchpriority is reserved for
 		// the single LCP image so the brand mark cannot compete with it.
-		return '<img class="lps-logo" src="' . self::escape( $sources['full'] ) . '" srcset="' . self::escape( $sources['compact'] ) . ' 1x, ' . self::escape( $sources['full'] ) . ' 2x" sizes="220px" alt="" width="2052" height="301">';
+		return '<img class="lps-logo" src="' . self::escape( $sources['full'] ) . '" srcset="' . self::escape( $sources['compact'] ) . ' 1x, ' . self::escape( $sources['full'] ) . ' 2x" sizes="220px" alt="LPS" width="2052" height="301">';
 	}
 
 	/**
@@ -325,13 +328,24 @@ final class Shell {
 		}
 		$hint  = $english ? 'table, scrollable horizontally' : 'tabela, rolagem horizontal';
 		$label = '' === $caption ? ucfirst( $hint ) : $caption . ' (' . $hint . ')';
-		$open  = '#<figure class="wp-block-table#';
+		// The scroll region is an inner `div`, not the `figure` itself: a `figure`
+		// that owns a `figcaption` may not take `role="region"` (axe
+		// aria-allowed-role), while a `div` may. The caption stays a direct child
+		// of the `figure`, so the figcaption association is preserved.
 		$fixed = preg_replace(
-			$open,
-			'<figure tabindex="0" role="region" aria-label="' . esc_attr( $label ) . '" class="wp-block-table',
+			'#(<figure class="wp-block-table"[^>]*>)#',
+			'$1<div class="lps-table-scroll" tabindex="0" role="region" aria-label="' . esc_attr( $label ) . '">',
 			$content,
 			1
 		);
+		if ( ! is_string( $fixed ) || $fixed === $content ) {
+			return $content;
+		}
+		if ( str_contains( $fixed, '<figcaption' ) ) {
+			$fixed = preg_replace( '#<figcaption#', '</div><figcaption', $fixed, 1 );
+		} else {
+			$fixed = preg_replace( '#</figure>#', '</div></figure>', $fixed, 1 );
+		}
 		return is_string( $fixed ) ? $fixed : $content;
 	}
 

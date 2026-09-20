@@ -147,7 +147,9 @@ final class TrustSurfaces {
 		) as $key => $label ) {
 			$value = self::text( $record[ $key ] ?? '' );
 			if ( '' !== $value ) {
-				$html .= '<section class="lps-opportunity-' . self::esc( $key ) . '"><h3>' . self::esc( $label ) . '</h3><p>' . self::esc( $value ) . '</p></section>';
+				// h2, not h3: these sections sit directly under the page h1, and a
+				// skipped level breaks the heading outline (axe heading-order).
+				$html .= '<section class="lps-opportunity-' . self::esc( $key ) . '"><h2>' . self::esc( $label ) . '</h2><p>' . self::esc( $value ) . '</p></section>';
 			}
 		}
 
