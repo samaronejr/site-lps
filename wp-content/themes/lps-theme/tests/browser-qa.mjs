@@ -83,9 +83,11 @@ async function pageMetrics(page) {
       toolbar:
         Boolean(document.querySelector("#wpadminbar")) ||
         document.body.classList.contains("admin-bar"),
+      // Third-party institutional marks (gravatar, UFRJ, COPPE) must never be
+      // hot-linked; the site's own lps_logo artwork is first-party and exempt.
       proprietaryAssets: [...document.images]
         .map((image) => image.currentSrc || image.src)
-        .filter((url) => /gravatar|ufrj|coppe|logo/i.test(url)),
+        .filter((url) => /gravatar|ufrj|coppe/i.test(url) || (/logo/i.test(url) && !/lps[-_]logo|lps-brand/i.test(url))),
       externalRuntimeAssets: [
         ...document.images,
         ...document.scripts,
@@ -339,7 +341,11 @@ for (const method of ["mouse", "keyboard"]) {
   await page.locator(".lps-shell-disclosure > summary").click();
   const input = page.locator("#lps-search-input");
   await input.fill(`controle global ${method} sem resultado`);
-  const navigation = page.waitForURL(/\?s=controle\+global\+(?:mouse|keyboard)\+sem\+resultado$/);
+  // The shell search posts to the locale search surface (/pt-br/busca/?q=),
+  // not the core ?s= route the pre-redesign assertion waited on.
+  const navigation = page.waitForURL(
+    /\/busca\/\?q=controle\+global\+(?:mouse|keyboard)\+sem\+resultado$/,
+  );
   if (method === "mouse")
     await Promise.all([navigation, page.locator(".lps-search button").click()]);
   else await Promise.all([navigation, input.press("Enter")]);

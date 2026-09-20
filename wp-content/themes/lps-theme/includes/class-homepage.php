@@ -665,7 +665,12 @@ final class Homepage {
 		// The contact handoff is required, so this module always renders; the
 		// optional partner rows and their heading are omitted when empty.
 		if ( array() === $partners ) {
-			$html = str_replace( 'aria-labelledby="lps-home-partners"', 'aria-labelledby="lps-home-contact"', $html );
+			// With no partner rows the section has no heading of its own, so the
+			// landmark label is dropped entirely: repointing it at the nested
+			// contact heading would name two landmarks identically (axe
+			// landmark-unique). An unnamed section is a plain group, which is
+			// the honest semantics for a handoff-only band.
+			$html = str_replace( ' aria-labelledby="lps-home-partners"', '', $html );
 		} else {
 			$html .= '<h2 id="lps-home-partners">' . self::escape( $heading ) . '</h2>';
 			foreach ( $partners as $record ) {

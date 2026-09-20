@@ -547,7 +547,11 @@ final class HomepageTest extends TestCase {
 
 			$contact = array_replace( $this->record( 'contact', $locale ), array( 'cta' => 'CONTACT_CTA' ) );
 			$html    = Homepage::section_markup( 'partners', $locale, array( $contact ), '2026-09-06' );
+			// The nested contact stratum keeps its own landmark name; the outer
+			// partners section drops its label so the two landmarks never share
+			// one accessible name (axe landmark-unique).
 			self::assertStringContainsString( 'aria-labelledby="lps-home-contact"', $html );
+			self::assertStringContainsString( '<section data-home-section="partners" class="lps-home-section">', $html );
 			self::assertMatchesRegularExpression( '/<h2 class="lps-kicker" id="lps-home-contact">[^<]+<\/h2>/', $html );
 			self::assertStringNotContainsString( 'lps-home-partners">', $html );
 			self::assertStringNotContainsString( 'data-home-empty', $html );

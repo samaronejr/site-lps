@@ -193,7 +193,7 @@ final class ThemeShellTest extends TestCase {
 			self::assertStringContainsString( 'aria-label="LPS — ', $header );
 			self::assertStringContainsString( '/lps-brand/lps_logo_vector.svg', $header );
 			self::assertStringContainsString( '/lps-brand/lps_logo_compact.svg', $header );
-			self::assertStringContainsString( 'alt=""', $header );
+			self::assertStringContainsString( 'alt="LPS"', $header );
 			self::assertStringContainsString( 'width="2052" height="301"', $header );
 			self::assertSame( 1, substr_count( $header, '<img' ) );
 		}

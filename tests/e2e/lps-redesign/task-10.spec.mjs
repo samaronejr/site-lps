@@ -175,7 +175,7 @@ test.describe("task-10: masthead, navigation, and utilities", () => {
       await expect(brand).toHaveAttribute("href", home);
       const logo = brand.locator("img.lps-logo");
       await expect(logo).toHaveCount(1);
-      await expect(logo).toHaveAttribute("alt", "");
+      await expect(logo).toHaveAttribute("alt", "LPS");
       const srcset = (await logo.getAttribute("srcset")) ?? "";
       expect(srcset).toContain("lps_logo_compact.svg");
       expect(srcset).toContain("lps_logo_vector.svg");

@@ -1016,17 +1016,21 @@ figcaption,
   border-block-start: var(--rule-hairline);
 }
 
-/* Tables: caption names the purpose; the wrapper alone owns horizontal scroll
-   on narrow viewports and takes keyboard focus. */
-.lps-table-scroll,
+/* Tables: caption names the purpose; the inner .lps-table-scroll wrapper
+   alone owns horizontal scroll on narrow viewports and takes keyboard focus.
+   The figure keeps only its width constraint so the two boxes never scroll
+   or border twice. */
 .wp-block-table {
+  max-inline-size: 100%;
+}
+
+.lps-table-scroll {
   max-inline-size: 100%;
   overflow-x: auto;
   border-block-start: var(--rule-anchor);
 }
 
-.lps-table-scroll:focus-visible,
-.wp-block-table:focus-within {
+.lps-table-scroll:focus-visible {
   outline: var(--rule-focus);
   outline-offset: var(--focus-offset);
 }
