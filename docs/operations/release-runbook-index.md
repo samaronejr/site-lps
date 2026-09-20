@@ -4,9 +4,9 @@ This is the map, not a second copy. The executable runbooks already exist and ar
 
 | Runbook | Owns | Status |
 | --- | --- | --- |
-| [Migration rehearsal](migration-rehearsal.md) | Clean staging baseline, dry run, apply, re-apply, export, crawl, reconcile | Tooling and fixtures verified; live rehearsal **PENDING** |
+| [Migration rehearsal](migration-rehearsal.md) | Clean staging baseline, dry run, apply, re-apply, export, crawl, reconcile | Tooling and fixtures verified; live rehearsal **PENDING** staging host |
 | [Migration reconciliation workbook](migration-reconciliation-workbook.md) | The per-rehearsal record: run identity, counts, locales, dispositions, idempotency, route manifest, rollback, sign-off | Template ready; filled per live run (**PENDING**) |
-| [Encrypted backup, restore and rollback](backup-restore.md) | Backup scope and encryption, retention, restore verification, RPO/RTO scoring | **BLOCKED** on encryption key, retention approval and RPO/RTO approval |
+| [Encrypted backup, restore and rollback](backup-restore.md) | Backup scope and encryption, retention, restore verification, RPO/RTO scoring | Local backup/restore/rollback rehearsal **VERIFIED** (task-23 evidence); encrypted artifact, retention approval and RPO/RTO approval still **BLOCKED** |
 | [Production cutover runbook](cutover-runbook.md) | Decision points D1–D6, preconditions, seven cutover steps, rollback thresholds, evidence paths | Statically provable steps PASS; every live step **PENDING** |
 | [Infrastructure preflight](infrastructure-preflight.md) | Observed DNS, TLS, HTTP and the operational capability checklist | Root and `www` TLS recorded as failing on 2026-08-30 |
 | [Performance hosting and CDN requirements](performance-hosting.md) | Payload and field budgets, response handling, publish invalidation, origin requirements | Budgets enforced locally; host configuration **PENDING** |
@@ -22,8 +22,10 @@ Do not duplicate their steps here. Read them, and record their results in their 
 
 ## Deployment
 
-A dedicated deploy runbook (docs/operations/deploy.md, not yet written) is part of the
-staging-deployment tranche that needs the institution-managed host. Until it lands, the deployable facts are:
+The deploy runbook is [deploy.md](deploy.md): artifact-based deploy and
+git-revert rollback, verified end-to-end by the local rehearsal in task 23
+(`.omo/evidence/lps-website-ulw-plan/attempt-1/task-23/`). The hosted staging
+deployment remains **PENDING** on the institution-managed host. The deployable facts are:
 
 - Build with `npm run build`. Deploy `dist/lps-content-model` to
   `wp-content/plugins/lps-content-model`, `dist/lps-theme` to `wp-content/themes/lps-theme` and
@@ -73,13 +75,15 @@ record its source.
 
 ## Consolidated PENDING list for the live tranche
 
-1. Staging host provisioning, deployment, cron, cache, logs, monitoring and the deploy runbook (docs/operations/deploy.md).
+1. Staging host provisioning, hosted deployment, cron, cache, logs and monitoring (the deploy runbook exists; the host does not).
 2. Two clean staging migration imports with identical hashes, and stage-4 zero-write proof.
 3. Live crawl manifest for `200` / one-hop `301` / `410` across every inventoried path.
 4. Backup encryption recipient key, retention approval, and a real encrypted backup artifact.
-5. Restore into a clean live environment with hash comparison and smoke tests.
-6. Owner-approved RPO/RTO for `application-rollback` and `content-revision-rollback`, then a rollback
-   rehearsal with measurements.
+5. Restore into a clean live environment with hash comparison and smoke tests (the local rehearsal
+   verified the contract on a disposable Playground target; the hosted restore is still pending).
+6. Owner-approved RPO/RTO for `application-rollback` and `content-revision-rollback`, then a hosted
+   rollback rehearsal with measurements (the local git-revert rollback rehearsal passed; scoring
+   against approved objectives stays blocked).
 7. Valid TLS on `lps.ufrj.br` and `www.lps.ufrj.br`, one-hop canonicalization, 30 stable TLS days
    before HSTS.
 8. Execution-time approval receipt for external writes (decision D5).
