@@ -2,7 +2,8 @@
 
 Read this once before your first publication. It covers what every editorial account must know,
 regardless of role. Your role's exact limits are in [role workflows](role-workflows.md); the binding
-policy is [editorial governance](../content/governance.md).
+policy is [editorial governance](../content/governance.md). Faculty who work only on the task
+dashboard have a Portuguese step-by-step guide: [guia do docente](guia-docente-painel.md).
 
 ## Prerequisites
 

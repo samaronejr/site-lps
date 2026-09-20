@@ -30,6 +30,36 @@ three journeys always render: a journey whose destination page is unpublished or
 a disabled action labelled as not published, never a link to an unreviewed or substitute page.
 Editors resolve a sparse state by publishing reviewed records, not by adding filler.
 
+## Teaching material release, withdrawal and correction
+
+Faculty routine work happens on the task dashboard (`/pt-br/painel/`, `/en/dashboard/`); the
+step-by-step Portuguese instructions are in
+[the faculty dashboard guide](../handbook/guia-docente-painel.md). The release lifecycle is the
+same policy the REST boundary enforces:
+
+1. A professor or delegate creates the material as a draft inside a granted offering and attaches
+   either one file or one external URL, never both. An uploaded file becomes an immutable version
+   registered under its `lpsver:<sha256>` identifier; it is never edited in place.
+2. The version waits for the scan boundary (`scan-pending`/`scan-failed` states are visible on the
+   record) and for the editor-owned rights and accessibility reviews. A professor cannot write
+   those review fields; an attempt is denied without mutation.
+3. Once the version is cleared and both reviews are approved, the professor releases the material
+   (`Publicar agora`) or schedules it (`Agendar` with a date). A scheduled release takes effect
+   when its time passes; no visit or cron run is required.
+4. Publishing the material record makes the guarded download route resolve. The file is never a
+   guessable uploads URL.
+5. Withdrawal (`Retirar`) flips the release state to `withdrawn`: the download route denies and
+   the material leaves search, but the record and its history stay. A withdrawal is reversible
+   only by a new release decision.
+6. A correction never edits a released file. The professor uploads the corrected file as a new
+   version and selects it; the previous version keeps its registry row and provenance.
+
+Offering-level corrections (schedule, venue, syllabus snapshot, LMS link, cancellation) propagate
+to explicitly selected offerings of the same course through the correction operation, one
+revision per target record, audited as `edit`. Copying an offering to a new term creates a draft
+with the reviewed team, resets term-bound and sensitive fields, and reuses only explicitly
+selected cleared versions.
+
 ## Correction and takedown
 
 A correction request is logged with the claimed issue, affected record/asset, source supplied,

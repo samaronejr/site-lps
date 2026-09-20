@@ -37,6 +37,13 @@ The governance collections, their owner roles and review cadences are the execut
 `Roles::collection_for_post_type()` maps a post type to its collection key; per-account collection
 assignment is stored in the user meta `_lps_assigned_collections`.
 
+Every governance post type registers `thumbnail` support alongside `title`, `editor`, `excerpt`,
+`author`, `revisions` and `custom-fields`, so a record can carry a featured image. The five
+teaching post types register the same supports minus `thumbnail`: teaching imagery lives on the
+governance `media-asset` collection, not on course or offering records. A featured image is a
+media asset under the same rights, provenance, privacy-review and alternative-text rules as any
+other attachment; it is never an unnamed file upload.
+
 ## Editorial state machine
 
 `_lps_state` moves only along the transitions implemented in `class-policy.php`:
@@ -55,7 +62,7 @@ Archived is terminal: a referenced record is archived, never hard-deleted.
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `_lps_record_id` | record id | Immutable internal record identifier. |
-| `_lps_origin` | origin | Provenance claim: `native` (authored in the CMS) or `imported` (written by the import boundary). Resolved against real provenance fields; a record with neither is `ambiguous` and withheld from public surfaces until reconciled. |
+| `_lps_origin` | origin | Provenance claim: `native` (authored in the CMS) or `imported` (written by the import boundary). Resolved against real provenance fields by `PublicationPolicy::sanitize_origin()`; a record with neither is `ambiguous` and withheld from public surfaces until reconciled. |
 | `_lps_locale` | locale | Record locale (`pt-br` authoritative, `en` reviewed variant). |
 | `_lps_state` | state | Editorial state (see the state machine). |
 | `_lps_owner_user_id` | integer, private | Accountable owner account. |

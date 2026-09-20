@@ -39,7 +39,8 @@ non-public placement, or the scanner configuration is absent.
 ## Accounts and authentication
 
 - Named individual accounts only; role-named or shared accounts are rejected at the account boundary.
-- `publisher` and `administrator` need an actually enabled Two-Factor provider; TOTP is the
+- `publisher`, `administrator` and `professor` need an actually enabled Two-Factor provider —
+  every role holding public publishing authority. TOTP is the
   recommended privileged provider and recovery codes stay offline and private.
 - Missing MFA leaves read and profile access only — upload, deletion, user management, publishing and
   settings stay locked.

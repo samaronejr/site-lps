@@ -9,6 +9,7 @@
     "docs/design/design-system-guide.md",
     "docs/handbook/editorial-quick-start.md",
     "docs/handbook/role-workflows.md",
+    "docs/handbook/guia-docente-painel.md",
     "docs/handbook/translation-freshness.md",
     "docs/handbook/publication-import-guide.md",
     "docs/handbook/accessibility-authoring-checklist.md",
@@ -124,12 +125,12 @@
       "id": "content-model-contract",
       "kind": "source",
       "doc": "docs/content/data-dictionary.md",
-      "reviewedAt": "2026-09-18",
+      "reviewedAt": "2026-09-19",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
-          "sha256": "56aa42c392f202fa5b027bb0653d634b69e1afa195acd67136e64ed3b8c79e05"
+          "sha256": "2312f60cdce0481e13e0e456ce786898ecd4a7c0c4839b8f660a1da79a2d1034"
         }
       ]
     },
@@ -199,6 +200,27 @@
         {
           "path": "docs/operations/recovery-objectives.json",
           "sha256": "daf9619f4374c7b346977362798bd74258351b364c6af469552f5986c1f007f9"
+        }
+      ]
+    },
+    {
+      "id": "faculty-dashboard-labels",
+      "kind": "source",
+      "doc": "docs/handbook/guia-docente-painel.md",
+      "reviewedAt": "2026-09-19",
+      "maxAgeDays": 180,
+      "sources": [
+        {
+          "path": "wp-content/themes/lps-theme/includes/class-dashboardsurfaces.php",
+          "sha256": "f2797a9486c89a46ae2d63b7c4ebb03a71a324d6a4945631fecbc8935e436ae0"
+        },
+        {
+          "path": "wp-content/plugins/lps-content-model/includes/class-taskdashboard.php",
+          "sha256": "80de4c6bcba8b8d6ec2a65e16245eb8b157aab57a8d9e234c00773f0bfa3c24c"
+        },
+        {
+          "path": "wp-content/themes/lps-theme/includes/class-dashboardroutes.php",
+          "sha256": "1045b1f2c280077e11ee7930388fa1d77669f27085d5c8ace4f3abbe4d161abd"
         }
       ]
     }

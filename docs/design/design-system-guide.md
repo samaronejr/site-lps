@@ -94,7 +94,9 @@ measure about 68ch. The full scale table is `design-contract.json → typography
 
 Four representative surfaces share one identity at different task densities — homepage
 (Persuade, low), professor (Read, medium), populated offering (Operate, high), editor dashboard
-(Operate, highest) — each with specified empty, error, and long-content states. Application
+(Operate, highest) — each with specified empty, error, and long-content states. The dashboard
+surface is live at `/pt-br/painel/` and `/en/dashboard/`: server-rendered, no JavaScript, the
+highest-density Operate application of the same tokens. Application
 specifications cover desktop/mobile branding, news cover, course-document cover, social
 preview, and print. The full tables are `DESIGN.md` sections 7–8 and
 `design-contract.json → surfaces, applications`.

@@ -39,8 +39,8 @@ node scripts/migration/rehearsal.mjs plan --package=dist/import-package.json
 | --- | --- | --- | --- |
 | 1 | reset | `wp db reset --yes` | `transcripts/01-reset.log` |
 | 2 | import-dry-run | `wp lps import dry-run <package>` | `transcripts/02-import-dry-run.log` |
-| 3 | import-apply | `wp lps import <package>` | `transcripts/03-import-apply.log` |
-| 4 | reimport-apply | `wp lps import <package>` | `transcripts/04-reimport-apply.log` |
+| 3 | import-apply | `wp lps import apply <package>` | `transcripts/03-import-apply.log` |
+| 4 | reimport-apply | `wp lps import apply <package>` | `transcripts/04-reimport-apply.log` |
 | 5 | export | `wp lps export --output=<export>` | `transcripts/05-export.log` |
 | 6 | crawl | `node scripts/run-qa.mjs links` | `transcripts/06-crawl.log` |
 | 7 | reconcile | `node scripts/migration/rehearsal.mjs reconcile --corpus=<package>` | `transcripts/07-reconcile.log` |

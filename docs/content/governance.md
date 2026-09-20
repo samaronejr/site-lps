@@ -25,6 +25,14 @@ revision reference. Publisher and administrator accounts require MFA before use.
 | Administrator | Provision individual accounts and configured settings; preserve audit/revision availability and enforce least privilege. | Use administrative access to bypass editorial, privacy, or publication gates; represent an unnamed operational contact as confirmed. |
 | Privacy auditor | Review public personal-data, photo, media-rights, and public-contact evidence; record a block or escalation. | Invent a legal basis, rights, or consent; publish content or deploy infrastructure. |
 | Deployer | Deploy approved, versioned artifacts; retain deployment and rollback evidence. | Edit public content, alter editorial approvals, or use deployment access as CMS editorial access. |
+| Professor | Inside granted offerings only: edit schedule, venue and syllabus snapshot; create and order units; attach materials; publish cleared units and materials; copy an offering forward as a draft; publish scoped news when the account also holds the `news` grant. | Publish offerings, courses or terms; edit other offerings; change teaching teams, owner, review, scan or storage fields; manage grants; or touch any non-teaching collection. |
+| Delegate | Inside granted offerings only: create and edit draft units, materials and offering descriptive fields; submit drafts for review. | Publish anything; write release or withdrawal fields; copy offerings forward; manage grants; or touch records outside the granted offering. |
+
+The professor and delegate rows describe offering-scoped accounts governed by
+`class-teachingpolicy.php`, not collection owners. Their grants are recorded per account by an
+administrator or a section editor assigned the `teaching` collection, expire and can be revoked,
+and are re-evaluated on every request. The authoritative action matrix is the machine-checked
+table in [role workflows](../handbook/role-workflows.md).
 
 ## Minimum staffing and launch boundary
 
@@ -47,7 +55,7 @@ translation obligation/reviewer, archive rule, and correction/takedown route in 
 matrix. An owner assignment is a future named assignment of that role, not a claim that a person
 has already accepted it. The required collection set is site settings, pages, people,
 organizations, research areas, projects, publications, opportunities, news, events, media assets,
-and redirects.
+redirects, and teaching (courses, terms, offerings, units and materials).
 
 A record remains draft when any required source, review, translation, accessibility, privacy, or
 rights evidence is absent. Unknown facts remain null. A review date does not certify a fact that
@@ -76,6 +84,24 @@ permission, cited in the redesign evidence. `lps_logo_vector.svg` is unapproved 
 
 Public media must also meet the applicable alternative-text, caption, transcript, and contextual
 requirements. Rights-unknown, privacy-unreviewed, or inaccessible media remains non-public.
+
+## Role owners, contacts and approvals: unresolved
+
+Every duty in this policy has an accountable role; no duty has a named holder yet. The following
+are recorded as unresolved until the institution supplies them, and no document in this set may
+present them as filled:
+
+- named holders for all nine roles, including at least two publishers and one administrator;
+- the collection owner assignments (each collection's accountable section editor);
+- the English translation reviewers independent of each translator;
+- the privacy contact, accessibility contact and public correction/takedown route;
+- the backup operator, restore verifier, cutover approver and encryption-key custodian
+  ([release runbook index](../operations/release-runbook-index.md));
+- the RPO/RTO approvals for `application-rollback` and `content-revision-rollback`;
+- the deployed-scanner approval behind `LPS_TEACHING_SCANNER_APPROVED`.
+
+A name, address or approval recorded without its documentary source is a fabrication and fails
+review. The executable matrix reports these as blockers; it is not a roster.
 
 ## Launch blockers
 
