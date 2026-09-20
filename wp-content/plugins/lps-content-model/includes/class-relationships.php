@@ -212,6 +212,50 @@ final class Relationships {
 	}
 
 	/**
+	 * Returns forward relationship lists for many sources in one query.
+	 *
+	 * List surfaces that render one row per related record must not issue a
+	 * relationship query per row: this bulk read keeps query growth flat as
+	 * the list grows. The result is keyed by source ID and each list keeps the
+	 * canonical `for_source()` order.
+	 *
+	 * @param array<int, int> $source_post_ids   Source record database IDs.
+	 * @param string          $relationship_type Canonical relationship type.
+	 * @return array<int, array<int, array{target_post_id: int, relationship_role: string, sort_order: int, start_date: string, end_date: string, public_visibility: bool}>>
+	 */
+	public static function for_sources( array $source_post_ids, string $relationship_type ): array {
+		$ids = array_values( array_unique( array_filter( array_map( array( Policy::class, 'sanitize_integer' ), $source_post_ids ) ) ) );
+		if ( array() === $ids ) {
+			return array();
+		}
+		$grouped = array_fill_keys( $ids, array() );
+		$wpdb    = self::database();
+		$table   = Migrations::table_names( $wpdb )['relationships'];
+		// The IN list is built from sanitized integers, never interpolated input.
+		$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+		/**
+		 * Typed forward-query rows.
+		 *
+		 * @var array<int, array<string, mixed>> $rows
+		 */
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Placeholder count is derived from the sanitized ID list.
+				"SELECT source_post_id, target_post_id, relationship_role, sort_order, start_date, end_date, public_visibility FROM %i WHERE relationship_type = %s AND source_post_id IN ({$placeholders}) ORDER BY source_post_id ASC, sort_order ASC, relationship_id ASC",
+				array_merge( array( $table, $relationship_type ), $ids )
+			),
+			'ARRAY_A'
+		);
+		foreach ( is_array( $rows ) ? $rows : array() as $row ) {
+			$source = Policy::sanitize_integer( $row['source_post_id'] ?? 0 );
+			if ( isset( $grouped[ $source ] ) ) {
+				$grouped[ $source ][] = self::cast_relationship_row( $row );
+			}
+		}
+		return $grouped;
+	}
+
+	/**
 	 * Derives reverse relationships directly from canonical forward rows.
 	 *
 	 * @param int         $target_post_id    Target record database ID.

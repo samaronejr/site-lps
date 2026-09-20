@@ -137,7 +137,9 @@ final class Shell {
 		// desktop decodes the full artwork. Width descriptors would invert
 		// that choice (the engine would prefer the 1322w compact file at
 		// 220 CSS px even at 3x density).
-		return '<img class="lps-logo" src="' . self::escape( $sources['full'] ) . '" srcset="' . self::escape( $sources['compact'] ) . ' 1x, ' . self::escape( $sources['full'] ) . ' 2x" sizes="220px" alt="" width="2052" height="301" fetchpriority="high">';
+		// The logo never claims a priority hint: fetchpriority is reserved for
+		// the single LCP image so the brand mark cannot compete with it.
+		return '<img class="lps-logo" src="' . self::escape( $sources['full'] ) . '" srcset="' . self::escape( $sources['compact'] ) . ' 1x, ' . self::escape( $sources['full'] ) . ' 2x" sizes="220px" alt="" width="2052" height="301">';
 	}
 
 	/**
