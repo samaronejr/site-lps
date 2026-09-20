@@ -618,9 +618,20 @@ final class TeachingRoutes {
 		if ( ! class_exists( Relationships::class ) ) {
 			return array();
 		}
-		$now       = class_exists( TeachingContracts::class ) ? TeachingContracts::today() : gmdate( 'Y-m-d' );
-		$materials = array();
-		foreach ( Relationships::reverse_for( $authority, 'resource_offering' ) as $row ) {
+		$now = class_exists( TeachingContracts::class ) ? TeachingContracts::today() : gmdate( 'Y-m-d' );
+
+		// Batch the per-row reads before the loop: one relationship query for
+		// every resource_unit edge and one post/meta cache prime for every
+		// resource and unit record. Without this the list issues several
+		// queries per material row, so a large resource list would grow
+		// pathologically instead of staying flat.
+		$rows = Relationships::reverse_for( $authority, 'resource_offering' );
+		if ( function_exists( '_prime_post_caches' ) ) {
+			_prime_post_caches( array_map( 'intval', array_column( $rows, 'source_post_id' ) ), true, true );
+		}
+		$visible     = array();
+		$authorities = array();
+		foreach ( $rows as $row ) {
 			if ( ! $row['public_visibility'] ) {
 				continue;
 			}
@@ -628,12 +639,34 @@ final class TeachingRoutes {
 			if ( ! $resource instanceof WP_Post || 'publish' !== $resource->post_status ) {
 				continue;
 			}
-			$resource_authority = self::authority_id( $resource );
+			$resource_authority              = self::authority_id( $resource );
+			$visible[]                       = array( $resource, $resource_authority );
+			$authorities[ $resource_authority ] = true;
+		}
+		if ( array() === $visible ) {
+			return array();
+		}
+
+		$authority_ids = array_map( 'intval', array_keys( $authorities ) );
+		$unit_edges    = Relationships::for_sources( $authority_ids, 'resource_unit' );
+		$unit_ids      = array();
+		foreach ( $unit_edges as $edge_rows ) {
+			if ( isset( $edge_rows[0] ) ) {
+				$unit_ids[] = (int) $edge_rows[0]['target_post_id'];
+			}
+		}
+		if ( function_exists( '_prime_post_caches' ) ) {
+			_prime_post_caches( array_merge( $authority_ids, $unit_ids ), true, true );
+		}
+
+		$materials = array();
+		foreach ( $visible as $entry ) {
+			list( $resource, $resource_authority ) = $entry;
 			if ( 'published' !== self::meta_string( $resource_authority, '_lps_state' ) ) {
 				continue;
 			}
 			$unit_anchor = '';
-			$unit_rows   = Relationships::for_source( $resource_authority, 'resource_unit' );
+			$unit_rows   = $unit_edges[ $resource_authority ] ?? array();
 			if ( isset( $unit_rows[0] ) ) {
 				$unit_anchor = self::meta_string( (int) $unit_rows[0]['target_post_id'], '_lps_anchor' );
 			}

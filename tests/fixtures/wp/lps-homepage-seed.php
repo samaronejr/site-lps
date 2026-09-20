@@ -892,6 +892,12 @@ add_action(
 		if ( LPS_HOME_SEED_VERSION === get_option( LPS_HOME_SEED_OPTION ) ) {
 			return;
 		}
+		if ( ! class_exists( Translations::class ) || ! function_exists( 'pll_languages_list' ) ) {
+			// The seed bails without its dependencies; the version must not be
+			// written in that case or the fixture set is skipped permanently
+			// (e.g. when init fires before the plugin and Polylang activate).
+			return;
+		}
 		lps_home_seed();
 		update_option( LPS_HOME_SEED_OPTION, LPS_HOME_SEED_VERSION );
 	},
