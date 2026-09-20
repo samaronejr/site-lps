@@ -2022,6 +2022,20 @@ details:not(.lps-shell-disclosure) > summary {
   margin-block-start: var(--space-10);
 }
 
+/* Desktop two-column trust grid. This block lives in its own media query ahead
+   of the placement lists below because the stylesheet lint enforces ascending
+   specificity in source order: `.lps-institutional` must precede every
+   `.lps-main-content > .lps-institutional` rule. Source position changes nothing
+   rendered — each media query applies at its own width — and the placement
+   lists only set grid-column, which never conflicts with display/columns. */
+@media (min-width: 64rem) {
+  .lps-institutional {
+    display: grid;
+    column-gap: var(--grid-gutter);
+    grid-template-columns: minmax(0, 1fr) minmax(16rem, 20rem);
+  }
+}
+
 @media (min-width: 48rem) {
   .lps-main-content > .lps-person,
   .lps-main-content > .lps-org,
@@ -2075,12 +2089,6 @@ details:not(.lps-shell-disclosure) > summary {
   .lps-main-content > .lps-contact-unavailable,
   .lps-main-content > .lps-empty {
     grid-column: 2 / 12;
-  }
-
-  .lps-institutional {
-    display: grid;
-    column-gap: var(--grid-gutter);
-    grid-template-columns: minmax(0, 1fr) minmax(16rem, 20rem);
   }
 
   .lps-institutional > :not(.lps-verification) {
