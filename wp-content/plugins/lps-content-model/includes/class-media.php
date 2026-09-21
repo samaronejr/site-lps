@@ -63,14 +63,25 @@ final class Media {
 		$file     = get_attached_file( $attachment_id );
 		$url      = wp_get_attachment_url( $attachment_id );
 		$srcset   = wp_get_attachment_image_srcset( $attachment_id, 'full' );
+		$width    = Policy::sanitize_integer( get_post_meta( $attachment_id, '_lps_media_width', true ) );
+		$height   = Policy::sanitize_integer( get_post_meta( $attachment_id, '_lps_media_height', true ) );
+		if ( 0 === $width ) {
+			$width = Policy::sanitize_integer( $metadata['width'] ?? 0 );
+		}
+		if ( 0 === $height ) {
+			$height = Policy::sanitize_integer( $metadata['height'] ?? 0 );
+		}
 		return array(
 			'id'                => $attachment_id,
 			'mime'              => (string) get_post_mime_type( $attachment_id ),
 			'bytes'             => is_string( $file ) && is_file( $file ) ? (int) filesize( $file ) : 0,
 			'url'               => is_string( $url ) ? $url : '',
 			'filename'          => is_string( $file ) ? basename( $file ) : '',
-			'width'             => Policy::sanitize_integer( get_post_meta( $attachment_id, '_lps_media_width', true ) ),
-			'height'            => Policy::sanitize_integer( get_post_meta( $attachment_id, '_lps_media_height', true ) ),
+			'width'             => $width,
+			'height'            => $height,
+			'focal_x'           => MediaPolicy::sanitize_focal_point( get_post_meta( $attachment_id, '_lps_media_focal_x', true ) ),
+			'focal_y'           => MediaPolicy::sanitize_focal_point( get_post_meta( $attachment_id, '_lps_media_focal_y', true ) ),
+			'sources'           => self::derivative_sources( $attachment_id, $metadata ),
 			'duration'          => MediaPolicy::sanitize_duration( get_post_meta( $attachment_id, '_lps_media_duration', true ) ),
 			'credit'            => MediaPolicy::string_value( get_post_meta( $attachment_id, '_lps_media_credit', true ) ),
 			'rights_holder'     => MediaPolicy::string_value( get_post_meta( $attachment_id, '_lps_media_rights_holder', true ) ),
@@ -85,6 +96,154 @@ final class Media {
 			'srcset'            => is_string( $srcset ) ? $srcset : '',
 			'metadata'          => $metadata,
 		);
+	}
+
+	/**
+	 * Resolves the first governed image usage declared in one record's content.
+	 *
+	 * Records expose homepage and surface imagery through the locked media
+	 * blocks (`lps/media`, `lps/figure`, `lps/gallery`), never through raw URL
+	 * fields. The returned pair is unvalidated on purpose: the caller re-checks
+	 * it through `MediaPolicy::usage_errors()` at render time so a rights or
+	 * privacy change after publication still fails closed.
+	 *
+	 * @param WP_Post $post Record whose content declares media usages.
+	 * @return array{usage: array<string, mixed>, asset: array<string, mixed>}|array{}
+	 */
+	public static function record_image( WP_Post $post ): array {
+		$usages = array();
+		$errors = array();
+		self::collect_blocks( parse_blocks( (string) $post->post_content ), $usages, $errors );
+		foreach ( $usages as $usage ) {
+			if ( ! in_array( $usage['block'] ?? '', array( 'image', 'figure', 'gallery' ), true ) ) {
+				continue;
+			}
+			return array(
+				'usage' => $usage,
+				'asset' => self::attachment_values( Policy::sanitize_integer( $usage['media_id'] ?? 0 ) ),
+			);
+		}
+		return self::meta_image( $post );
+	}
+
+	/**
+	 * Resolves a reviewed media ID referenced by record metadata.
+	 *
+	 * When no governed block declares imagery, the adapter falls back to the
+	 * media IDs an editor explicitly reviewed onto the record: the featured
+	 * image (`_thumbnail_id`), the project's cleared asset list
+	 * (`_lps_asset_ids`), and the organization's reviewed logo
+	 * (`_lps_logo_asset_id`). Authority-owned fields are read from the
+	 * Portuguese record so an English variant cannot mint its own imagery. The
+	 * synthesized usage carries the attachment's reviewed alt and caption; the
+	 * caller still re-checks it through `MediaPolicy::usage_errors()`, so an
+	 * attachment whose rights or privacy review lapses fails closed.
+	 *
+	 * @param WP_Post $post Record carrying reviewed media references.
+	 * @return array{usage: array<string, mixed>, asset: array<string, mixed>}|array{}
+	 */
+	private static function meta_image( WP_Post $post ): array {
+		$authority_id = class_exists( Translations::class ) ? ( Translations::source_id( $post->ID ) ?? $post->ID ) : $post->ID;
+		$ids          = array( Policy::sanitize_integer( get_post_meta( $authority_id, '_thumbnail_id', true ) ) );
+		foreach ( array( '_lps_asset_ids', '_lps_logo_asset_id' ) as $key ) {
+			$value = get_post_meta( $authority_id, $key, true );
+			foreach ( is_array( $value ) ? $value : array( $value ) as $candidate ) {
+				$ids[] = Policy::sanitize_integer( $candidate );
+			}
+		}
+		$first = array();
+		foreach ( array_unique( $ids ) as $media_id ) {
+			if ( 0 >= $media_id ) {
+				continue;
+			}
+			$asset = self::attachment_values( $media_id );
+			if ( '' === MediaPolicy::string_value( $asset['url'] ?? '' ) || ! str_starts_with( MediaPolicy::string_value( $asset['mime'] ?? '' ), 'image/' ) ) {
+				continue;
+			}
+			$usage = self::meta_usage( $media_id );
+			$pair  = array(
+				'usage' => $usage,
+				'asset' => $asset,
+			);
+			if ( array() === $first ) {
+				$first = $pair;
+			}
+			if ( array() === MediaPolicy::usage_errors( $usage, $asset ) ) {
+				return $pair;
+			}
+		}
+		return $first;
+	}
+
+	/**
+	 * Synthesizes the contextual usage for a meta-referenced attachment.
+	 *
+	 * The usage borrows the attachment's reviewed alternative text and caption;
+	 * an attachment with no alternative text is marked decorative so the
+	 * accessibility contract is still evaluated, never bypassed.
+	 *
+	 * @param int $media_id Attachment ID.
+	 * @return array<string, mixed>
+	 */
+	private static function meta_usage( int $media_id ): array {
+		$attachment = get_post( $media_id );
+		$alt        = MediaPolicy::string_value( get_post_meta( $media_id, '_wp_attachment_image_alt', true ) );
+		$caption    = $attachment instanceof WP_Post ? MediaPolicy::string_value( $attachment->post_excerpt ) : '';
+		return array(
+			'block'      => 'image',
+			'media_id'   => $media_id,
+			'alt'        => $alt,
+			'decorative' => '' === $alt,
+			'caption'    => $caption,
+			'context'    => 'record-media',
+			'placement'  => 'content',
+		);
+	}
+
+	/**
+	 * Collects governed modern-format derivative srcsets from attachment metadata.
+	 *
+	 * WordPress stores generated AVIF/WebP siblings under `sizes[*].sources`
+	 * (and `sources` on the full-size entry); the renderer offers them through
+	 * `<picture>` in preference order. Only same-directory local files are
+	 * offered — a derivative that cannot be resolved to the uploads base URL is
+	 * dropped, never hotlinked.
+	 *
+	 * @param int                  $attachment_id Attachment ID.
+	 * @param array<string, mixed> $metadata      Attachment metadata.
+	 * @return array<string, string>
+	 */
+	private static function derivative_sources( int $attachment_id, array $metadata ): array {
+		$uploads = wp_upload_dir();
+		$baseurl = is_array( $uploads ) ? MediaPolicy::string_value( $uploads['baseurl'] ?? '' ) : '';
+		$file    = MediaPolicy::string_value( $metadata['file'] ?? '' );
+		if ( '' === $baseurl || '' === $file ) {
+			return array();
+		}
+		$dir     = trailingslashit( $baseurl . '/' . trim( dirname( $file ), '/.' ) );
+		$entries = array();
+		foreach ( is_array( $metadata['sizes'] ?? null ) ? $metadata['sizes'] : array() as $size ) {
+			if ( ! is_array( $size ) ) {
+				continue;
+			}
+			$width = Policy::sanitize_integer( $size['width'] ?? 0 );
+			foreach ( is_array( $size['sources'] ?? null ) ? $size['sources'] : array() as $mime => $name ) {
+				if ( 0 < $width && is_string( $name ) && '' !== $name ) {
+					$entries[ (string) $mime ][] = $dir . $name . ' ' . $width . 'w';
+				}
+			}
+		}
+		$full_width = Policy::sanitize_integer( $metadata['width'] ?? 0 );
+		foreach ( is_array( $metadata['sources'] ?? null ) ? $metadata['sources'] : array() as $mime => $name ) {
+			if ( 0 < $full_width && is_string( $name ) && '' !== $name ) {
+				$entries[ (string) $mime ][] = $dir . $name . ' ' . $full_width . 'w';
+			}
+		}
+		$result = array();
+		foreach ( $entries as $mime => $candidates ) {
+			$result[ $mime ] = implode( ', ', $candidates );
+		}
+		return $result;
 	}
 
 	/**

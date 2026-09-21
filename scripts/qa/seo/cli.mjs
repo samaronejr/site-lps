@@ -1,4 +1,5 @@
 import { writeFile } from "node:fs/promises";
+import { pathToFileURL } from "node:url";
 import { crawl } from "../../lib/seo-crawler.mjs";
 import { readSnapshot, writeSnapshot } from "../../lib/seo-snapshot.mjs";
 import { validateSnapshot } from "../../lib/seo-validator.mjs";
@@ -74,4 +75,10 @@ export async function runSeoCli(argv, mode) {
   if (report.status !== "passed") {
     process.exitCode = 1;
   }
+}
+
+// Direct invocation (`node scripts/qa/seo/cli.mjs --capture ...`) runs the seo
+// lane; the schema lane always enters through `scripts/run-qa.mjs`.
+if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
+	await runSeoCli(process.argv.slice(2), "seo");
 }

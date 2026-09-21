@@ -56,11 +56,15 @@ final class AccessibilitySurfacesTest extends \PHPUnit\Framework\TestCase {
 		$filtered = Shell::make_tables_scrollable_by_keyboard( $content, $block );
 
 		// Then: the scroll container is focusable and named by its own caption.
+		// The region lives on an inner div, not the figure: a figure that owns a
+		// figcaption may not take role=region (axe aria-allowed-role).
 		self::assertStringContainsString( 'tabindex="0"', $filtered );
 		self::assertStringContainsString( 'role="region"', $filtered );
 		self::assertStringContainsString( 'aria-label="Equipamentos do laboratório (tabela, rolagem horizontal)"', $filtered );
 		self::assertStringContainsString( 'class="wp-block-table"', $filtered );
-		self::assertStringContainsString( '<div class="lps-table-scroll"', $filtered );
+		self::assertStringContainsString( '<div class="lps-table-scroll" tabindex="0" role="region"', $filtered );
+		self::assertStringContainsString( '</div><figcaption', $filtered );
+		self::assertStringNotContainsString( '<figure tabindex', $filtered );
 	}
 
 	/** Verifies that table filter is idempotent and ignores other blocks. */

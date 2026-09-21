@@ -57,7 +57,7 @@ for (const [locale, mediaRoute, aboutRoute] of [
       }
     });
 
-    test(`Native video keyboard focus has the signal outline and offset: ${locale} ${width}`, async () => {
+    test(`Native video keyboard focus has the action outline and offset: ${locale} ${width}`, async () => {
       const page = await browser.newPage({ viewport: { width, height: 900 } });
       try {
         await page.goto(new URL(mediaRoute, base).href);
@@ -66,6 +66,13 @@ for (const [locale, mediaRoute, aboutRoute] of [
         const video = page.locator("video");
         const observed = await video.evaluate((v) => {
           const s = getComputedStyle(v);
+          // The expected focus color is read back from the --color-action token
+          // instead of a hardcoded literal, so the pin follows the token layer.
+          const probe = document.createElement("div");
+          probe.style.color = "var(--color-action)";
+          document.body.append(probe);
+          const actionToken = getComputedStyle(probe).color;
+          probe.remove();
           return {
             url: location.href,
             focused: document.activeElement === v,
@@ -77,6 +84,7 @@ for (const [locale, mediaRoute, aboutRoute] of [
             style: s.outlineStyle,
             color: s.outlineColor,
             offset: s.outlineOffset,
+            actionToken,
           };
         });
         if (output) {
@@ -104,11 +112,60 @@ for (const [locale, mediaRoute, aboutRoute] of [
         assert.equal(observed.focusVisible, true);
         assert.equal(observed.controls, true);
         assert.equal(observed.tabindex, null);
+        // The literal pin is retained as the token's frozen value, and the
+        // outline must equal the live --color-action token (#165A96).
+        assert.equal(
+          observed.actionToken,
+          "rgb(22, 90, 150)",
+          `--color-action token drifted: ${observed.actionToken}`,
+        );
         assert.deepEqual(
           [observed.width, observed.style, observed.color, observed.offset],
-          ["3px", "solid", "rgb(0, 122, 135)", "3px"],
+          ["3px", "solid", observed.actionToken, "3px"],
           `Actual native host outline: ${observed.outline}; offset ${observed.offset}`,
         );
+
+        // The focus primitive is a shared selector list, so a second family
+        // member — a footer link on the anchor band — must show the same
+        // 3px/3px geometry with the dark-surface separation color
+        // (--color-focus-on-dark).
+        await keyboardTo(page, ".lps-site-footer a");
+        const footerLink = page.locator(".lps-site-footer a").first();
+        const darkObserved = await footerLink.evaluate((el) => {
+          const s = getComputedStyle(el);
+          const probe = document.createElement("div");
+          probe.style.color = "var(--color-focus-on-dark)";
+          document.body.append(probe);
+          const offsetToken = getComputedStyle(probe).color;
+          probe.remove();
+          return {
+            focused: document.activeElement === el,
+            focusVisible: el.matches(":focus-visible"),
+            width: s.outlineWidth,
+            style: s.outlineStyle,
+            color: s.outlineColor,
+            offset: s.outlineOffset,
+            offsetToken,
+          };
+        });
+        assert.equal(darkObserved.focused, true);
+        assert.equal(darkObserved.focusVisible, true);
+        assert.equal(
+          darkObserved.offsetToken,
+          "rgb(255, 255, 255)",
+          `--color-focus-on-dark token drifted: ${darkObserved.offsetToken}`,
+        );
+        assert.deepEqual(
+          [darkObserved.width, darkObserved.style, darkObserved.color, darkObserved.offset],
+          ["3px", "solid", darkObserved.offsetToken, "3px"],
+          `Dark-band focus outline: ${darkObserved.color}; offset ${darkObserved.offset}`,
+        );
+        if (output) {
+          await writeFile(
+            `${output}/focus-dark-${locale}-${width}.json`,
+            JSON.stringify(darkObserved, null, 2),
+          );
+        }
       } finally {
         await page.close();
       }

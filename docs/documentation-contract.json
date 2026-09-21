@@ -9,6 +9,7 @@
     "docs/design/design-system-guide.md",
     "docs/handbook/editorial-quick-start.md",
     "docs/handbook/role-workflows.md",
+    "docs/handbook/guia-docente-painel.md",
     "docs/handbook/translation-freshness.md",
     "docs/handbook/publication-import-guide.md",
     "docs/handbook/accessibility-authoring-checklist.md",
@@ -46,19 +47,31 @@
   "prerequisites": [
     {
       "doc": "README.md",
-      "tokens": ["npm ci", "npm run env:start", "tools/composer install"]
+      "tokens": [
+        "npm ci",
+        "npm run env:start",
+        "tools/composer install"
+      ]
     },
     {
       "doc": "docs/handbook/editorial-quick-start.md",
-      "tokens": ["_lps_assigned_collections", "Two-Factor"]
+      "tokens": [
+        "_lps_assigned_collections",
+        "Two-Factor"
+      ]
     },
     {
       "doc": "docs/handbook/role-workflows.md",
-      "tokens": ["npm run test", "tools/composer test"]
+      "tokens": [
+        "npm run test",
+        "tools/composer test"
+      ]
     },
     {
       "doc": "docs/handbook/translation-freshness.md",
-      "tokens": ["_lps_source_hash"]
+      "tokens": [
+        "_lps_source_hash"
+      ]
     },
     {
       "doc": "docs/handbook/publication-import-guide.md",
@@ -70,27 +83,41 @@
     },
     {
       "doc": "docs/handbook/role-acceptance-simulations.md",
-      "tokens": ["npx playwright test --list"]
+      "tokens": [
+        "npx playwright test --list"
+      ]
     },
     {
       "doc": "docs/operations/privacy-security-operations.md",
-      "tokens": ["npm run build"]
+      "tokens": [
+        "npm run build"
+      ]
     },
     {
       "doc": "docs/operations/plugin-update-policy.md",
-      "tokens": ["npm ci", "tools/composer install"]
+      "tokens": [
+        "npm ci",
+        "tools/composer install"
+      ]
     },
     {
       "doc": "docs/operations/release-runbook-index.md",
-      "tokens": ["npm run build"]
+      "tokens": [
+        "npm run build"
+      ]
     },
     {
       "doc": "docs/operations/troubleshooting.md",
-      "tokens": ["npm ci", "npm run env:start"]
+      "tokens": [
+        "npm ci",
+        "npm run env:start"
+      ]
     },
     {
       "doc": "docs/operations/evidence-retention.md",
-      "tokens": [".omo/evidence/"]
+      "tokens": [
+        ".omo/evidence/"
+      ]
     }
   ],
   "freshness": [
@@ -98,12 +125,12 @@
       "id": "content-model-contract",
       "kind": "source",
       "doc": "docs/content/data-dictionary.md",
-      "reviewedAt": "2026-09-06",
+      "reviewedAt": "2026-09-19",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
-          "sha256": "f09d4d7deead3c2f952b83608838958bcb58845a16e2202eebf5a883c0a9a056"
+          "sha256": "2312f60cdce0481e13e0e456ce786898ecd4a7c0c4839b8f660a1da79a2d1034"
         }
       ]
     },
@@ -111,12 +138,12 @@
       "id": "role-policy-matrix",
       "kind": "source",
       "doc": "docs/handbook/role-workflows.md",
-      "reviewedAt": "2026-09-06",
+      "reviewedAt": "2026-09-18",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-securitypolicy.php",
-          "sha256": "23ee1be58ac9c5ef1671fed3fa2462b135dd1e1d613da0c330948e968e431a84"
+          "sha256": "165ed715c434d823da7108bcdcc282a67634c88b9cc8286f38c9070ce7fd1037"
         }
       ]
     },
@@ -124,12 +151,12 @@
       "id": "translation-en-editorial-fields",
       "kind": "translation",
       "doc": "docs/handbook/translation-freshness.md",
-      "reviewedAt": "2026-09-06",
+      "reviewedAt": "2026-09-18",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-translationpolicy.php",
-          "sha256": "418dcb111c238b4cbc103782d82ef673df5f87f5c567e1729a37bd662238c0d6"
+          "sha256": "283bada5916d398527ab344cfe5d08c45b0f6afefb8b7b74079de4506a44663a"
         }
       ]
     },
@@ -137,16 +164,16 @@
       "id": "design-tokens",
       "kind": "source",
       "doc": "docs/design/design-system-guide.md",
-      "reviewedAt": "2026-09-08",
+      "reviewedAt": "2026-09-18",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "wp-content/themes/lps-theme/theme.json",
-          "sha256": "35d799a79cda2726107153610ce172502fca43c6c17fe5f5bcaee0b00c658974"
+          "sha256": "a8fdaecf872671d11ba53bfc956569d55ac63bbc970c6488b4562501f24ca941"
         },
         {
           "path": "DESIGN.md",
-          "sha256": "fd1af9570514ce0a14222dead5e96b970d93985a600a5e136642d3fc7ca099c2"
+          "sha256": "2070a296b78663612e1b780778f6e2668d7d50eeb71fc2679420db1e58b126da"
         }
       ]
     },
@@ -154,12 +181,12 @@
       "id": "governance-matrix",
       "kind": "source",
       "doc": "docs/handbook/editorial-quick-start.md",
-      "reviewedAt": "2026-09-06",
+      "reviewedAt": "2026-09-18",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "tests/fixtures/governance/role-collection-matrix.json",
-          "sha256": "37b65f0aae8a28524dc3b8a3363eb1c0f2dc2aa1bfe5284eaadfb83c02581227"
+          "sha256": "7999b53b29fb4f7a173d86b2cc5223dadb5c97242196dc723eb82a0fa7a92d3d"
         }
       ]
     },
@@ -173,6 +200,27 @@
         {
           "path": "docs/operations/recovery-objectives.json",
           "sha256": "daf9619f4374c7b346977362798bd74258351b364c6af469552f5986c1f007f9"
+        }
+      ]
+    },
+    {
+      "id": "faculty-dashboard-labels",
+      "kind": "source",
+      "doc": "docs/handbook/guia-docente-painel.md",
+      "reviewedAt": "2026-09-19",
+      "maxAgeDays": 180,
+      "sources": [
+        {
+          "path": "wp-content/themes/lps-theme/includes/class-dashboardsurfaces.php",
+          "sha256": "f2797a9486c89a46ae2d63b7c4ebb03a71a324d6a4945631fecbc8935e436ae0"
+        },
+        {
+          "path": "wp-content/plugins/lps-content-model/includes/class-taskdashboard.php",
+          "sha256": "80de4c6bcba8b8d6ec2a65e16245eb8b157aab57a8d9e234c00773f0bfa3c24c"
+        },
+        {
+          "path": "wp-content/themes/lps-theme/includes/class-dashboardroutes.php",
+          "sha256": "1045b1f2c280077e11ee7930388fa1d77669f27085d5c8ace4f3abbe4d161abd"
         }
       ]
     }
@@ -221,6 +269,24 @@
       "source": {
         "file": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
         "mustContain": "'founded_year'"
+      }
+    },
+    {
+      "id": "setting-lps_teaching_storage_root",
+      "category": "production-setting",
+      "token": "LPS_TEACHING_STORAGE_ROOT",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-teachingstorage.php",
+        "mustContain": "LPS_TEACHING_STORAGE_ROOT"
+      }
+    },
+    {
+      "id": "setting-lps_teaching_scanner_approved",
+      "category": "production-setting",
+      "token": "LPS_TEACHING_SCANNER_APPROVED",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-teachingstorage.php",
+        "mustContain": "LPS_TEACHING_SCANNER_APPROVED"
       }
     },
     {
@@ -563,6 +629,24 @@
       "source": {
         "file": "wp-content/plugins/lps-content-model/includes/class-securitypolicy.php",
         "mustContain": "'deployer'"
+      }
+    },
+    {
+      "id": "role-professor",
+      "category": "role",
+      "token": "professor",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-securitypolicy.php",
+        "mustContain": "'professor'"
+      }
+    },
+    {
+      "id": "role-delegate",
+      "category": "role",
+      "token": "delegate",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-securitypolicy.php",
+        "mustContain": "'delegate'"
       }
     },
     {

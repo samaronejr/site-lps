@@ -192,6 +192,35 @@
       "routes": { "pt-br": "/pt-br/acessibilidade/", "en": "/en/accessibility/" },
       "primaryAudience": "site-visitor",
       "canonicalTask": "understand-accessibility-notice"
+    },
+    {
+      "key": "teaching",
+      "parent": null,
+      "routes": { "pt-br": "/pt-br/ensino/", "en": "/en/teaching/" },
+      "primaryAudience": "current-lps-community",
+      "canonicalTask": "find-teaching"
+    },
+    {
+      "key": "course-detail",
+      "parent": "teaching",
+      "maxDepth": 3,
+      "routes": {
+        "pt-br": "/pt-br/ensino/disciplinas/:course/",
+        "en": "/en/teaching/courses/:course/"
+      },
+      "primaryAudience": "current-lps-community",
+      "canonicalTask": "understand-course"
+    },
+    {
+      "key": "offering-detail",
+      "parent": "teaching",
+      "maxDepth": 5,
+      "routes": {
+        "pt-br": "/pt-br/ensino/disciplinas/:course/:term/:section/",
+        "en": "/en/teaching/courses/:course/:term/:section/"
+      },
+      "primaryAudience": "current-lps-community",
+      "canonicalTask": "study-offering-materials"
     }
   ]
 }

@@ -250,6 +250,26 @@ final class SearchRoutesTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
+	 * The surface carries its own layout hook and grouped facet values.
+	 */
+	public function test_the_surface_carries_its_layout_hook_and_grouped_facets(): void {
+		$counts = SearchPolicy::facet_counts( self::rows(), SearchPolicy::facet_definitions( 'lps_project' ) );
+
+		$html = SearchSurfaces::render(
+			SearchRoutes::state_from_request( array( 'q' => 'sinal' ), 'pt-br' ),
+			SearchPolicy::search_records( self::rows(), 'sinal', 'pt-br', array(), 1, 20 ),
+			$counts,
+			SearchPolicy::facet_definitions( 'lps_project' ),
+			'pt-br',
+			'/pt-br/busca/'
+		);
+
+		self::assertStringContainsString( '<section class="lps-search lps-search-surface"', $html );
+		self::assertStringContainsString( 'lps-search-facet-values', $html );
+		self::assertStringContainsString( 'lps-search-kind', $html );
+	}
+
+	/**
 	 * Facet controls announce their available counts.
 	 */
 	public function test_facet_controls_announce_their_available_counts(): void {

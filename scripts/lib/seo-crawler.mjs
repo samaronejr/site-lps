@@ -58,13 +58,20 @@ export async function crawl(baseUrl, options = {}) {
 }
 
 async function warmUp(origin, timeoutMs) {
+  // The development runtime answers anonymous requests with the auto-login
+  // handshake (a login/2FA interstitial) unless the marker cookie is already
+  // set; sending it up front keeps every fetched document a real page.
   const response = await fetch(`${origin}/pt-br/`, {
     redirect: "manual",
+    headers: { cookie: "playground_auto_login_already_happened=1" },
     signal: AbortSignal.timeout(timeoutMs),
   });
   const raw = response.headers.getSetCookie?.() ?? [];
   await response.arrayBuffer();
-  return raw.map((value) => value.split(";")[0]).join("; ");
+  const session = raw.map((value) => value.split(";")[0]).join("; ");
+  return session === ""
+    ? "playground_auto_login_already_happened=1"
+    : `playground_auto_login_already_happened=1; ${session}`;
 }
 
 const MAX_ATTEMPTS = 5;

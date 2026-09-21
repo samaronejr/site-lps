@@ -14,6 +14,8 @@ require_once dirname( __DIR__ ) . '/includes/class-contracts.php';
 
 use LPS\ContentModel\Contracts;
 use LPS\ContentModel\Policy;
+use LPS\ContentModel\TeachingContracts;
+use PHPUnit\Framework\TestCase;
 
 /** Content-model contract tests. */
 final class ContentContractsTest extends \PHPUnit\Framework\TestCase {
@@ -23,7 +25,7 @@ final class ContentContractsTest extends \PHPUnit\Framework\TestCase {
 	public function test_registers_every_portable_record_type_with_rest_support(): void {
 		$types = Contracts::post_types();
 		self::assertSame(
-			array( 'page', 'lps_person', 'lps_organization', 'lps_research_area', 'lps_project', 'lps_publication', 'lps_news', 'lps_opportunity', 'lps_event', 'lps_redirect' ),
+			array( 'page', 'lps_person', 'lps_organization', 'lps_research_area', 'lps_project', 'lps_publication', 'lps_news', 'lps_opportunity', 'lps_event', 'lps_redirect', 'lps_course', 'lps_term', 'lps_offering', 'lps_unit', 'lps_resource' ),
 			array_keys( $types )
 		);
 		foreach ( $types as $type => $definition ) {
@@ -38,11 +40,12 @@ final class ContentContractsTest extends \PHPUnit\Framework\TestCase {
 	public function test_declares_typed_rest_metadata_and_one_site_settings_schema(): void {
 		$fields = Contracts::meta_fields();
 		self::assertGreaterThanOrEqual( 90, array_sum( array_map( 'count', $fields ) ) );
-		foreach ( $fields as $post_type => $definitions ) {
-			self::assertNotEmpty( $definitions, $post_type . ' must have metadata' );
+		foreach ( $fields as $postType => $definitions ) {
+			self::assertNotEmpty( $definitions, $postType . ' must have metadata' );
+			$private_keys = array_merge( array( '_lps_owner_user_id', '_lps_translation_reviewer_id' ), TeachingContracts::private_meta_keys() );
 			foreach ( $definitions as $key => $definition ) {
 				self::assertContains( $definition['type'], array( 'string', 'integer', 'number', 'boolean', 'array' ) );
-				self::assertSame( ! in_array( $key, array( '_lps_owner_user_id', '_lps_translation_reviewer_id' ), true ), $definition['show_in_rest'], $key . ' must respect REST privacy' );
+				self::assertSame( ! in_array( $key, $private_keys, true ), $definition['show_in_rest'], $key . ' must respect REST privacy' );
 			}
 		}
 		$settings = Contracts::site_settings_schema();

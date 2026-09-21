@@ -61,7 +61,7 @@ final class Hardening {
 	 * @return array<int, string>
 	 */
 	public static function allowed_plugins( array $plugins ): array {
-		return array_values( array_intersect( $plugins, self::PLUGINS ) );
+		return array_values( array_unique( array_intersect( $plugins, self::PLUGINS ) ) );
 	}
 
 	/**
@@ -175,6 +175,10 @@ final class Hardening {
 
 	/** Emits headers on public, REST, admin and login responses. */
 	public static function send_headers(): void {
+		// The edge hides X-Powered-By too; the application never relies on it.
+		if ( function_exists( 'header_remove' ) ) {
+			header_remove( 'X-Powered-By' );
+		}
 		foreach ( self::headers( is_admin(), is_ssl(), self::nonce() ) as $name => $value ) {
 			header( $name . ': ' . $value );
 		}

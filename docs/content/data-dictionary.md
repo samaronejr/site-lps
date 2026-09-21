@@ -1,7 +1,10 @@
 # Content model and data dictionary
 
 Authoritative source: `wp-content/plugins/lps-content-model/includes/class-contracts.php`
-(records, fields, sanitizers, REST exposure), `class-importcontracts.php` (provenance fields),
+(records, fields, sanitizers, REST exposure), `class-teachingcontracts.php` (teaching entities,
+field ownership, normalization, uniqueness identities, temporal state, copy-forward),
+`class-teachingmigrations.php` (indexed uniqueness registries and additive schema migrations),
+`class-importcontracts.php` (provenance fields),
 `class-relationships.php` (relationship storage and reverse lookups),
 `class-taxonomies.php` (controlled vocabularies) and `class-policy.php` (state machine). This
 document describes what those files implement; when they change, this document is reported stale by
@@ -29,9 +32,17 @@ The governance collections, their owner roles and review cadences are the execut
 | `event` | `lps_event` | section-editor | `P30D` |
 | `media-asset` | attachment | section-editor | `P365D` |
 | `redirect` | `lps_redirect` | publisher | `P365D` |
+| `teaching` | `lps_course`, `lps_term`, `lps_offering`, `lps_unit`, `lps_resource` | section-editor | `P180D` |
 
 `Roles::collection_for_post_type()` maps a post type to its collection key; per-account collection
 assignment is stored in the user meta `_lps_assigned_collections`.
+
+Every governance post type registers `thumbnail` support alongside `title`, `editor`, `excerpt`,
+`author`, `revisions` and `custom-fields`, so a record can carry a featured image. The five
+teaching post types register the same supports minus `thumbnail`: teaching imagery lives on the
+governance `media-asset` collection, not on course or offering records. A featured image is a
+media asset under the same rights, provenance, privacy-review and alternative-text rules as any
+other attachment; it is never an unnamed file upload.
 
 ## Editorial state machine
 
@@ -51,6 +62,7 @@ Archived is terminal: a referenced record is archived, never hard-deleted.
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `_lps_record_id` | record id | Immutable internal record identifier. |
+| `_lps_origin` | origin | Provenance claim: `native` (authored in the CMS) or `imported` (written by the import boundary). Resolved against real provenance fields by `PublicationPolicy::sanitize_origin()`; a record with neither is `ambiguous` and withheld from public surfaces until reconciled. |
 | `_lps_locale` | locale | Record locale (`pt-br` authoritative, `en` reviewed variant). |
 | `_lps_state` | state | Editorial state (see the state machine). |
 | `_lps_owner_user_id` | integer, private | Accountable owner account. |
@@ -63,7 +75,11 @@ Archived is terminal: a referenced record is archived, never hard-deleted.
 | `_lps_translation_reviewed_at` | datetime | Translation review timestamp. |
 | `_lps_translation_reviewer_id` | integer, private | Independent translation reviewer. |
 
-## Migration provenance fields (every record)
+## Migration provenance fields (every imported record)
+
+These fields are written only by the import boundary and are read-only in the
+editor. Their presence resolves `_lps_origin` to `imported` regardless of any
+stored claim, so an unreviewed import can never be marked native.
 
 | Field | Meaning |
 | --- | --- |
@@ -161,6 +177,12 @@ stable page and becomes noindex after 90 days.
 
 News: `_lps_canonical_date`, `_lps_news_status`, `_lps_related_record_ids`, `_lps_featured_until`.
 
+Dashboard review fields (private, never exposed through REST): `_lps_review_comments` carries the
+reviewer's note on a rejected news item or proposal so the author sees the required fix;
+`_lps_profile_proposals` stores the pending profile-change rows on a person record
+(`id`, `fields`, `state`, `note`, `submitted_at`, `reviewed_at`, `reviewer_id`) until an editor
+approves or rejects them.
+
 Event: `_lps_starts_at`, `_lps_ends_at`, `_lps_event_status`, `_lps_related_record_ids`,
 `_lps_speaker_ids`, `_lps_organizer_ids`, `_lps_venue`, `_lps_online_url`, `_lps_registration_url`,
 `_lps_recording_url`.
@@ -170,6 +192,129 @@ Event: `_lps_starts_at`, `_lps_ends_at`, `_lps_event_status`, `_lps_related_reco
 `_lps_redirect_source` (unique normalized path), `_lps_redirect_target`, `_lps_redirect_gone`
 (HTTP 410), `_lps_redirect_status`, `_lps_redirect_reason`, `_lps_redirect_provenance`,
 `_lps_verified_at`. Verify the graph with `wp lps redirects verify`.
+
+## Teaching entities
+
+The five teaching record types are registered by explicit `register_post_type()` calls in
+`TeachingContracts::register()`. Field ownership is declared per key: `shared` fields are owned by
+the authoritative Portuguese record (English variants cannot write them), `localized` fields are
+per-variant editorial text, and `system` fields are boundary-written or derived. `_lps_version_id`,
+`_lps_storage_key` and `_lps_uploader_user_id` are never exposed through REST.
+
+### Course (`lps_course`, public)
+
+`_lps_course_code` (uppercase ASCII official code), `_lps_course_level`
+(`undergraduate`/`graduate`/`extension`), `_lps_calendar_key`, `_lps_program`,
+`_lps_catalog_source_url` (authoritative catalog source for the code/level/program, shared);
+`_lps_prerequisites`, `_lps_syllabus` (localized). A published offering keeps its own syllabus
+snapshot, so later edits to the default syllabus do not rewrite history. Imported course
+records without `_lps_catalog_source_url` and imported term records without `_lps_term_source`
+are quarantined at the import boundary (`lps_import_course_source_required`).
+
+### Academic term (`lps_term`, internal)
+
+`_lps_calendar_key`, `_lps_term_code`, `_lps_period_label`, `_lps_period_type`
+(`semester`/`trimester`/`quarter`/`annual`/`intensive`), `_lps_starts_on`, `_lps_ends_on` (shared);
+`_lps_term_token` (system, immutable calendar-qualified route token `{code}-{calendar}`);
+`_lps_term_source` (shared). Term boundaries are stored in the institutional timezone
+(`America/Sao_Paulo` by default). `starts_on > ends_on` is rejected.
+
+### Course offering (`lps_offering`, public)
+
+`_lps_section_key` (normalized: folded, lowercased, hyphenated ASCII), `_lps_schedule`, `_lps_venue`,
+`_lps_lms_url` + `_lps_lms_url_approved`, `_lps_cancelled` (shared); `_lps_syllabus_snapshot`
+(localized); `_lps_temporal_status` (system, derived: `upcoming`/`current`/`completed`/`cancelled`);
+`_lps_copy_operation_id`, `_lps_copy_source_offering_id` (system, copy-forward provenance).
+Temporal status is separate from the editorial `_lps_state` machine: a completed offering stays
+published and searchable, and end-of-term never archives a record. Co-teaching is many-to-many
+through the `teaching_team` relationship (`lead`, `co-teacher`, `assistant`).
+
+Published courses, offerings and released resources are indexed in the locale search index:
+course codes, titles, instructors, term labels and authored resource languages are searchable,
+while `_lps_storage_key`, `_lps_version_id`, `_lps_uploader_user_id` and every other private field
+stay out. The offering `status` search facet exposes only `current`/`previous`, derived from term
+boundaries at query time, and a `scheduled` resource becomes searchable when its `_lps_release_at`
+passes — no scheduler run is required. Terms and units are internal and never indexed.
+
+### Teaching unit (`lps_unit`, internal)
+
+`_lps_anchor` (stable anchor), `_lps_position` (ordered, ≥ 1), `_lps_topic_date` (shared).
+`unit_offering` is exactly-one: a unit cannot reference another offering.
+
+### Teaching resource (`lps_resource`, internal)
+
+`_lps_resource_type`, `_lps_resource_language` (authored language), `_lps_external_url`,
+`_lps_sha256`, `_lps_byte_size`, `_lps_mime_type`, `_lps_scan_state`, `_lps_scan_version`,
+`_lps_release_state` (`draft`/`scheduled`/`released`/`withdrawn`), `_lps_release_at`,
+`_lps_withdrawn_at`, `_lps_rights_review`, `_lps_accessibility_review` (shared); `_lps_version_id`,
+`_lps_storage_key`, `_lps_uploader_user_id` (system, private). A resource is one immutable local
+version or one external URL, never both; a correction creates a new version. `resource_offering` is
+exactly-one and `resource_unit` is at-most-one, and the unit must belong to the resource's offering.
+
+### Uniqueness registries
+
+`TeachingMigrations` owns three indexed registry tables: `{prefix}lps_term_registry` enforces
+`(calendar_key, term_code)` plus the immutable `term_token`, and `{prefix}lps_offering_registry`
+enforces `(authoritative course, authoritative term, normalized section key)` through a unique
+`identity_hash`. Translated record IDs resolve to the Portuguese authority before hashing, so an
+English variant cannot bypass uniqueness. Claims are released only on hard deletion.
+`{prefix}lps_resource_version_registry` records every immutable resource version under its
+`lpsver:<sha256>` identifier with a unique opaque `storage_key`, the content `sha256`, byte size,
+MIME pair, state (`quarantined`/`cleared`/`infected`/`failed`), scan verdict and display names.
+A version row is never mutated in place: only `state` and `scan_verdict` change through the scan
+boundary, and a correction mints a new version row rather than editing an existing one.
+
+### Copy-forward
+
+`TeachingContracts::copy_forward_plan_error()` validates the operation contract: new IDs in draft,
+a new term/section, explicit teaching-team review, resets for announcements, deadlines, release
+times, active notices and unreleased/withdrawn resources, and reuse of already-public immutable
+versions only after explicit selection. One operation completes with a manifest or leaves no
+half-published offering; retrying the same `operation_id` must not duplicate it.
+
+`TeachingCopy::copy_forward()` (`POST /lps/v1/teaching/offerings/{id}/copy-forward`) executes the
+contract in one server-side operation: the new offering is created as a draft under the reviewed
+team, units are cloned in `_lps_position` order with `_lps_topic_date` reset, and every resource
+arrives as a draft stub — `_lps_release_state`, `_lps_release_at`, `_lps_withdrawn_at`, version
+identity and review states reset — except that an explicitly selected `cleared`+`clean` version
+referenced by an effectively released resource is reused verbatim, and an effectively released
+external URL carries forward with its approved reviews. Sensitive and term-bound fields
+(`_lps_lms_url`, `_lps_lms_url_approved`, `_lps_cancelled`, `_lps_temporal_status`) are reset; the
+syllabus snapshot, schedule and venue copy forward. The completed manifest is persisted under
+`lps_copy_op_{operation_id}` and stamped on the draft as `_lps_copy_operation_id`, so a retry
+replays the same record instead of duplicating it; a mid-operation failure rolls the partial
+graph back and releases the identity claim. Scoped grants apply: a professor copies only granted
+offerings.
+
+`TeachingCopy::propagate_correction()` (`POST /lps/v1/teaching/offerings/{id}/corrections`)
+applies allowlisted field corrections (`_lps_schedule`, `_lps_venue`, `_lps_syllabus_snapshot`,
+`_lps_lms_url`, `_lps_lms_url_approved`, `_lps_cancelled`) to an explicit
+`affected_offering_ids` list restricted to the same authoritative course. Each target keeps its
+own history: the correctable fields ride WordPress revisions, so every propagation writes one
+revision per record, and the decision is audited as `edit` with the operation context. The
+manifest persists under `lps_correction_op_{operation_id}` for idempotent replay; identity,
+system and non-allowlisted fields are rejected (`lps_correction_field_forbidden`), as are
+cross-course targets (`lps_correction_course_mismatch`).
+
+### Offering-scoped authorization
+
+`TeachingPolicy` (`class-teachingpolicy.php`) governs the scoped roles `professor` and `delegate`.
+They hold no collection or global editing rights: every scoped action requires a persisted grant
+record on the account in the `_lps_teaching_grants` user meta, covering the exact scope — one
+offering record ID, or the `news` scope for designated faculty news editors. Grants carry
+`scope`, `offering_id`, `role`, `granted_at`, `expires_at`, `revoked_at` and `granted_by`;
+revocation and expiry are evaluated on every request, so they take effect immediately.
+
+Administrators and section editors assigned the `teaching` collection grant and revoke scopes
+(`grant-scope`, `revoke-scope`, both audited); no account may grant itself, and the grant role
+must equal the target account's policy role. Scoped roles may touch only `lps_offering`,
+`lps_unit`, `lps_resource` and `lps_news`; professors publish cleared `lps_unit`/`lps_resource`
+materials and scoped news, while delegates prepare drafts and never publish or write release
+fields. Offering publication, course and term records, teaching-team membership, owner, review,
+scan and storage fields stay with institutional editors. Scope resolves only from persisted
+grants and canonical relationships — user-controlled owner, person, offering or relation IDs
+never create access. Person records are content, not accounts: public identity and teaching
+history survive account deactivation.
 
 ## Media assets
 
@@ -186,7 +331,10 @@ Relationships are stored as typed rows through `Relationships::replace()` with r
 (`replace_authors()`) and controlled project application domains
 (`replace_application_domains()`). Referenced records cannot be deleted while
 `Relationships::is_referenced()` is true. Project publish gates require a project lead
-(`lps_project_lead_required`).
+(`lps_project_lead_required`). Teaching relationships are `offering_course`, `offering_term`,
+`teaching_team`, `unit_offering`, `resource_offering` and `resource_unit`; offering publish gates
+require a course, a term and a teaching lead, and a resource's unit must belong to its offering
+(`lps_cross_offering_unit_reference`).
 
 ## Controlled vocabularies
 
@@ -196,9 +344,10 @@ Relationships are stored as typed rows through `Relationships::replace()` with r
 `lps_application_domain` (projects): `electrical-nuclear-energy`, `oil-and-gas`,
 `high-energy-physics`, `defense`, `medicine`, `veterinary-science`, `data-quality`.
 
-Both are seeded from `content/taxonomies/controlled-vocabularies.yaml`; the nine server-rendered
-search facets are frozen in `content/taxonomies/search-facets.yaml`. An unapproved term is rejected,
-not created.
+Both are seeded from `content/taxonomies/controlled-vocabularies.yaml`; the server-rendered
+search facets are frozen in `content/taxonomies/search-facets.yaml` — `level` (courses),
+`status`/`term`/`level`/`instructor` (offerings) and `type`/`language` (resources) join the
+original nine. An unapproved term is rejected, not created.
 
 ## Validation
 

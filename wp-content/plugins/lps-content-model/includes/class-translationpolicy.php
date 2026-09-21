@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace LPS\ContentModel;
 
+require_once __DIR__ . '/class-teachingcontracts.php';
+
 /** Defines locale, authority, freshness, shared-data, and reporting rules without WordPress state. */
 final class TranslationPolicy {
 	public const SOURCE_LOCALE = 'pt-br';
@@ -68,7 +70,7 @@ final class TranslationPolicy {
 		if ( 'page' === $post_type ) {
 			return in_array( $page_key, array( 'home', 'about', 'research', 'projects', 'people', 'publications', 'infrastructure', 'opportunities', 'collaboration', 'contact', 'privacy', 'accessibility' ), true );
 		}
-		return in_array( $post_type, array( 'lps_person', 'lps_research_area', 'lps_project', 'lps_publication', 'lps_opportunity' ), true );
+		return in_array( $post_type, array( 'lps_person', 'lps_research_area', 'lps_project', 'lps_publication', 'lps_opportunity', 'lps_course', 'lps_offering' ), true );
 	}
 
 	/**
@@ -89,7 +91,7 @@ final class TranslationPolicy {
 			'lps_opportunity'   => array( '_lps_opportunity_type', '_lps_audiences', '_lps_opens_at', '_lps_closes_at', '_lps_positions', '_lps_project_ids', '_lps_supervisor_ids', '_lps_funder_ids', '_lps_mode' ),
 			'lps_event'         => array( '_lps_starts_at', '_lps_ends_at', '_lps_event_status', '_lps_online_url', '_lps_registration_url', '_lps_recording_url' ),
 		);
-		return array_values( array_unique( array_merge( $common, $by_type[ $post_type ] ?? array() ) ) );
+		return array_values( array_unique( array_merge( $common, $by_type[ $post_type ] ?? array(), TeachingContracts::shared_specific_keys( $post_type ) ) ) );
 	}
 
 	/**
@@ -102,6 +104,9 @@ final class TranslationPolicy {
 		return match ( $post_type ) {
 			'lps_opportunity' => array( '_lps_opens_at', '_lps_closes_at', '_lps_opportunity_type' ),
 			'lps_event' => array( '_lps_starts_at', '_lps_ends_at', '_lps_event_status' ),
+			'lps_term' => array( '_lps_starts_on', '_lps_ends_on' ),
+			'lps_offering' => array( '_lps_cancelled', '_lps_schedule' ),
+			'lps_resource' => array( '_lps_release_state', '_lps_release_at', '_lps_withdrawn_at', '_lps_version_id', '_lps_external_url' ),
 			default => array(),
 		};
 	}
@@ -120,6 +125,15 @@ final class TranslationPolicy {
 	/**
 	 * Hashes only editor-owned, translatable Portuguese source fields.
 	 *
+	 * Staleness is field-specific. For teaching record types the hash covers
+	 * exactly the localized (per-variant editorial) fields declared by
+	 * `TeachingContracts::field_ownership()`: a shared schedule, term boundary,
+	 * release state, or file/version identifier never forces a meaningless
+	 * re-translation, and authored-language resources never require translated
+	 * file bytes. For the pre-existing record types the hash keeps its
+	 * established coverage — every non-shared, non-system `_lps_` field — so
+	 * reviewed hashes already stored for those records stay valid.
+	 *
 	 * @param string               $post_type Governed record type.
 	 * @param array<string, mixed> $record    Source record.
 	 */
@@ -128,12 +142,18 @@ final class TranslationPolicy {
 		foreach ( array( 'post_title', 'post_excerpt', 'post_content' ) as $field ) {
 			$relevant[ $field ] = self::normalize_hash_value( $record[ $field ] ?? '' );
 		}
-		$shared = self::shared_meta_keys( $post_type );
-		foreach ( $record as $key => $value ) {
-			if ( ! str_starts_with( $key, '_lps_' ) || in_array( $key, $shared, true ) || in_array( $key, array( '_lps_locale', '_lps_state', '_lps_created_at', '_lps_updated_at', '_lps_archived_at', '_lps_published_slug', '_lps_source_revision', '_lps_source_hash', '_lps_reviewed_source_hash', '_lps_translation_reviewed_at' ), true ) ) {
-				continue;
+		if ( in_array( $post_type, TeachingContracts::POST_TYPES, true ) ) {
+			foreach ( TeachingContracts::localized_meta_keys( $post_type ) as $key ) {
+				$relevant[ $key ] = self::normalize_hash_value( $record[ $key ] ?? '' );
 			}
-			$relevant[ $key ] = self::normalize_hash_value( $value );
+		} else {
+			$shared = self::shared_meta_keys( $post_type );
+			foreach ( $record as $key => $value ) {
+				if ( ! str_starts_with( $key, '_lps_' ) || in_array( $key, $shared, true ) || in_array( $key, array( '_lps_origin', '_lps_locale', '_lps_state', '_lps_created_at', '_lps_updated_at', '_lps_archived_at', '_lps_published_slug', '_lps_source_revision', '_lps_source_hash', '_lps_reviewed_source_hash', '_lps_translation_reviewed_at' ), true ) ) {
+					continue;
+				}
+				$relevant[ $key ] = self::normalize_hash_value( $value );
+			}
 		}
 		ksort( $relevant, SORT_STRING );
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- Portable policy is loaded without WordPress by unit consumers.

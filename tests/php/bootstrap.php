@@ -50,12 +50,114 @@ if (! function_exists('home_url')) {
 	}
 }
 
+if (! function_exists('add_filter')) {
+	/**
+	 * Mirrors the WordPress hook registry used by conditional-slot seams.
+	 *
+	 * @param string   $hook_name Hook name.
+	 * @param callable $callback  Filter callback.
+	 * @param int      $priority  Hook priority.
+	 */
+	function add_filter(string $hook_name, callable $callback, int $priority = 10): bool {
+		$GLOBALS['lps_test_hooks'][ $hook_name ][ $priority ][] = $callback;
+		return true;
+	}
+}
+
+if (! function_exists('remove_filter')) {
+	/**
+	 * Mirrors the WordPress hook removal used by conditional-slot seams.
+	 *
+	 * @param string   $hook_name Hook name.
+	 * @param callable $callback  Filter callback.
+	 * @param int      $priority  Hook priority.
+	 */
+	function remove_filter(string $hook_name, callable $callback, int $priority = 10): bool {
+		if (! isset($GLOBALS['lps_test_hooks'][ $hook_name ][ $priority ])) {
+			return false;
+		}
+		$callbacks = &$GLOBALS['lps_test_hooks'][ $hook_name ][ $priority ];
+		foreach ($callbacks as $index => $registered) {
+			if ($registered === $callback) {
+				unset($callbacks[ $index ]);
+				return true;
+			}
+		}
+		return false;
+	}
+}
+
+if (! function_exists('apply_filters')) {
+	/**
+	 * Mirrors the WordPress filter dispatcher used by conditional-slot seams.
+	 *
+	 * @param string $hook_name Hook name.
+	 * @param mixed  $value     Value to filter.
+	 * @param mixed  ...$args   Additional filter arguments.
+	 */
+	function apply_filters(string $hook_name, mixed $value, mixed ...$args): mixed {
+		$callbacks = $GLOBALS['lps_test_hooks'][ $hook_name ] ?? array();
+		ksort($callbacks);
+		foreach ($callbacks as $registered) {
+			foreach ($registered as $callback) {
+				$value = $callback($value, ...$args);
+			}
+		}
+		return $value;
+	}
+}
+
 if (! function_exists('wp_json_encode')) {
 	/**
 	 * Mirrors the WordPress JSON encoder used by structured-data seams.
 	 */
 	function wp_json_encode(mixed $data, int $options = 0, int $depth = 512): string|false {
 		return json_encode($data, $options, $depth);
+	}
+}
+
+if (! function_exists('get_query_var')) {
+	/**
+	 * Mirrors the WordPress query-var reader used by request-boundary seams.
+	 *
+	 * @param string $var     Query variable key.
+	 * @param mixed  $default Default value.
+	 */
+	function get_query_var(string $var, mixed $default = ''): mixed {
+		return $GLOBALS['lps_test_query_vars'][ $var ] ?? $default;
+	}
+}
+
+if (! function_exists('sanitize_text_field')) {
+	/**
+	 * Mirrors the WordPress text-field sanitizer used by request-boundary seams.
+	 */
+	function sanitize_text_field(string $str): string {
+		$filtered = wp_strip_all_tags($str);
+		return trim((string) preg_replace('/[\r\n\t ]+/', ' ', $filtered));
+	}
+}
+
+if (! function_exists('sanitize_key')) {
+	/**
+	 * Mirrors the WordPress key sanitizer used by form-field seams.
+	 *
+	 * @param string $key Candidate key.
+	 */
+	function sanitize_key(string $key): string {
+		return (string) preg_replace('/[^a-z0-9_\-]/', '', strtolower($key));
+	}
+}
+
+if (! function_exists('wp_unslash')) {
+	/**
+	 * Mirrors the WordPress unslashing helper used by request-boundary seams.
+	 *
+	 * @param string|array<int|string, mixed> $value Value to unslash.
+	 * @return string|array<int|string, mixed>
+	 */
+	function wp_unslash(string|array $value): string|array {
+		return is_string($value) ? stripslashes($value) : array_map('wp_unslash', $value);
 	}
 }
 

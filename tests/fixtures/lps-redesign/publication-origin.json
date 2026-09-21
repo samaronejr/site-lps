@@ -1,0 +1,480 @@
+{
+  "schemaVersion": 1,
+  "fixture": "lps-redesign/publication-origin",
+  "synthetic": true,
+  "purpose": "Synthetic origin, visibility, and staleness cases for task 5: native authoring, import provenance, ambiguous legacy records, and field-specific English staleness. Every record is invented test data.",
+  "today": "2026-09-18",
+  "locale": "pt-br",
+  "originCases": [
+    {
+      "id": "native-authored",
+      "record": { "_lps_origin": "native" },
+      "expectOrigin": "native"
+    },
+    {
+      "id": "imported-reviewed",
+      "record": {
+        "_lps_origin": "imported",
+        "_lps_import_source_id": "record-001",
+        "_lps_import_review_state": "reviewed"
+      },
+      "expectOrigin": "imported"
+    },
+    {
+      "id": "imported-unreviewed",
+      "record": {
+        "_lps_origin": "imported",
+        "_lps_import_source_id": "record-002",
+        "_lps_import_review_state": "candidate"
+      },
+      "expectOrigin": "imported"
+    },
+    {
+      "id": "forged-native-over-provenance",
+      "record": {
+        "_lps_origin": "native",
+        "_lps_import_source_id": "record-003",
+        "_lps_import_review_state": "candidate"
+      },
+      "expectOrigin": "imported",
+      "note": "Stored provenance always wins over a native claim, so an unreviewed imported record can never be marked native to bypass gates."
+    },
+    {
+      "id": "ambiguous-legacy",
+      "record": {},
+      "expectOrigin": "ambiguous"
+    },
+    {
+      "id": "invalid-origin-claim",
+      "record": { "_lps_origin": "smuggled" },
+      "expectOrigin": "ambiguous"
+    }
+  ],
+  "originWriteCases": [
+    {
+      "id": "mark-unreviewed-import-native",
+      "stored": "imported",
+      "candidate": "native",
+      "record": { "_lps_import_source_id": "record-004", "_lps_import_review_state": "candidate" },
+      "expectError": "lps_origin_conflicts_provenance"
+    },
+    {
+      "id": "flip-native-to-imported-without-provenance",
+      "stored": "native",
+      "candidate": "imported",
+      "record": {},
+      "expectError": "lps_origin_imported_requires_provenance"
+    },
+    {
+      "id": "flip-native-to-imported-with-provenance",
+      "stored": "native",
+      "candidate": "imported",
+      "record": { "_lps_import_source_id": "record-005" },
+      "expectError": null
+    },
+    {
+      "id": "first-native-write",
+      "stored": "",
+      "candidate": "native",
+      "record": {},
+      "expectError": null
+    },
+    {
+      "id": "first-native-write-over-provenance",
+      "stored": "",
+      "candidate": "native",
+      "record": { "_lps_import_source_id": "record-006" },
+      "expectError": "lps_origin_conflicts_provenance"
+    },
+    {
+      "id": "invalid-origin-value",
+      "stored": "",
+      "candidate": "smuggled",
+      "record": {},
+      "expectError": "lps_origin_invalid"
+    },
+    {
+      "id": "idempotent-same-write",
+      "stored": "native",
+      "candidate": "native",
+      "record": {},
+      "expectError": null
+    }
+  ],
+  "visibilityCases": [
+    {
+      "id": "native-news-feature",
+      "surface": "feature",
+      "record": {
+        "post_type": "lps_news",
+        "status": "publish",
+        "_lps_state": "published",
+        "locale": "pt-br",
+        "stale": false,
+        "_lps_origin": "native",
+        "_lps_record_id": "lps:news:018f21ce-7d7a-7abc-8a2f-2d6937f89a11",
+        "_lps_owner_user_id": 7,
+        "_lps_review_date": "2027-01-01"
+      },
+      "expectVisible": true,
+      "expectOrigin": "native",
+      "note": "A legitimately reviewed native news item publishes and features without any import field."
+    },
+    {
+      "id": "native-resource-released",
+      "surface": "public",
+      "record": {
+        "post_type": "lps_resource",
+        "status": "publish",
+        "_lps_state": "published",
+        "locale": "pt-br",
+        "stale": false,
+        "_lps_origin": "native",
+        "_lps_record_id": "lps:resource:018f21ce-7d7a-7abc-8a2f-2d6937f89a11",
+        "_lps_release_state": "released",
+        "_lps_scan_state": "clean",
+        "_lps_rights_review": "approved",
+        "_lps_accessibility_review": "approved"
+      },
+      "expectVisible": true,
+      "expectOrigin": "native"
+    },
+    {
+      "id": "imported-reviewed-news",
+      "surface": "feature",
+      "record": {
+        "post_type": "lps_news",
+        "status": "publish",
+        "_lps_state": "published",
+        "locale": "pt-br",
+        "stale": false,
+        "_lps_origin": "imported",
+        "_lps_record_id": "lps:news:018f21ce-7d7a-7abc-8a2f-2d6937f89a11",
+        "_lps_import_source_id": "record-010",
+        "_lps_import_review_state": "reviewed",
+        "_lps_owner_user_id": 7,
+        "_lps_review_date": "2027-01-01"
+      },
+      "expectVisible": true,
+      "expectOrigin": "imported"
+    },
+    {
+      "id": "imported-unreviewed-news",
+      "surface": "feature",
+      "record": {
+        "post_type": "lps_news",
+        "status": "publish",
+        "_lps_state": "published",
+        "locale": "pt-br",
+        "stale": false,
+        "_lps_origin": "imported",
+        "_lps_record_id": "lps:news:018f21ce-7d7a-7abc-8a2f-2d6937f89a11",
+        "_lps_import_source_id": "record-011",
+        "_lps_import_review_state": "candidate",
+        "_lps_owner_user_id": 7,
+        "_lps_review_date": "2027-01-01"
+      },
+      "expectVisible": false,
+      "expectOrigin": "imported",
+      "expectErrors": { "_lps_import_review_state": "lps_import_review_required" }
+    },
+    {
+      "id": "ambiguous-legacy-news",
+      "surface": "public",
+      "record": {
+        "post_type": "lps_news",
+        "status": "publish",
+        "_lps_state": "published",
+        "locale": "pt-br",
+        "stale": false
+      },
+      "expectVisible": false,
+      "expectOrigin": "ambiguous",
+      "expectErrors": { "_lps_origin": "lps_origin_review_required" }
+    },
+    {
+      "id": "forged-native-import",
+      "surface": "public",
+      "record": {
+        "post_type": "lps_news",
+        "status": "publish",
+        "_lps_state": "published",
+        "locale": "pt-br",
+        "stale": false,
+        "_lps_origin": "native",
+        "_lps_record_id": "lps:news:018f21ce-7d7a-7abc-8a2f-2d6937f89a11",
+        "_lps_import_source_id": "record-012",
+        "_lps_import_review_state": "candidate"
+      },
+      "expectVisible": false,
+      "expectOrigin": "imported",
+      "expectErrors": { "_lps_import_review_state": "lps_import_review_required" }
+    },
+    {
+      "id": "native-news-no-owner",
+      "surface": "feature",
+      "record": {
+        "post_type": "lps_news",
+        "status": "publish",
+        "_lps_state": "published",
+        "locale": "pt-br",
+        "stale": false,
+        "_lps_origin": "native",
+        "_lps_record_id": "lps:news:018f21ce-7d7a-7abc-8a2f-2d6937f89a11",
+        "_lps_owner_user_id": 0,
+        "_lps_review_date": "2027-01-01"
+      },
+      "expectVisible": false,
+      "expectOrigin": "native",
+      "expectErrors": { "_lps_owner_user_id": "lps_visibility_owner_required" }
+    },
+    {
+      "id": "native-resource-rights-removed",
+      "surface": "public",
+      "record": {
+        "post_type": "lps_resource",
+        "status": "publish",
+        "_lps_state": "published",
+        "locale": "pt-br",
+        "stale": false,
+        "_lps_origin": "native",
+        "_lps_record_id": "lps:resource:018f21ce-7d7a-7abc-8a2f-2d6937f89a11",
+        "_lps_release_state": "released",
+        "_lps_scan_state": "clean",
+        "_lps_rights_review": "pending",
+        "_lps_accessibility_review": "approved"
+      },
+      "expectVisible": false,
+      "expectOrigin": "native",
+      "expectErrors": { "_lps_rights_review": "lps_resource_rights_not_approved" }
+    },
+    {
+      "id": "stale-english-variant",
+      "surface": "public",
+      "record": {
+        "post_type": "lps_news",
+        "status": "publish",
+        "_lps_state": "published",
+        "locale": "en",
+        "stale": true,
+        "source_status": "publish",
+        "source_state": "published",
+        "_lps_origin": "native",
+        "_lps_record_id": "lps:news:018f21ce-7d7a-7abc-8a2f-2d6937f89a11"
+      },
+      "locale": "en",
+      "expectVisible": false,
+      "expectOrigin": "native",
+      "expectErrors": { "stale": "lps_visibility_stale_translation" }
+    },
+    {
+      "id": "english-variant-source-unpublished",
+      "surface": "public",
+      "record": {
+        "post_type": "lps_news",
+        "status": "publish",
+        "_lps_state": "published",
+        "locale": "en",
+        "stale": false,
+        "source_status": "draft",
+        "source_state": "draft",
+        "_lps_origin": "native",
+        "_lps_record_id": "lps:news:018f21ce-7d7a-7abc-8a2f-2d6937f89a11"
+      },
+      "locale": "en",
+      "expectVisible": false,
+      "expectOrigin": "native",
+      "expectErrors": { "source_status": "lps_visibility_source_not_published" }
+    },
+    {
+      "id": "cancelled-event-not-featureable",
+      "surface": "feature",
+      "record": {
+        "post_type": "lps_event",
+        "status": "publish",
+        "_lps_state": "published",
+        "locale": "pt-br",
+        "stale": false,
+        "_lps_origin": "native",
+        "_lps_record_id": "lps:event:018f21ce-7d7a-7abc-8a2f-2d6937f89a11",
+        "_lps_event_status": "cancelled",
+        "_lps_owner_user_id": 7,
+        "_lps_review_date": "2027-01-01"
+      },
+      "expectVisible": false,
+      "expectOrigin": "native",
+      "expectErrors": { "_lps_event_status": "lps_visibility_event_not_featureable" }
+    },
+    {
+      "id": "cancelled-event-still-public",
+      "surface": "public",
+      "record": {
+        "post_type": "lps_event",
+        "status": "publish",
+        "_lps_state": "published",
+        "locale": "pt-br",
+        "stale": false,
+        "_lps_origin": "native",
+        "_lps_record_id": "lps:event:018f21ce-7d7a-7abc-8a2f-2d6937f89a11",
+        "_lps_event_status": "cancelled"
+      },
+      "expectVisible": true,
+      "expectOrigin": "native",
+      "note": "A cancelled event keeps a stable public page; it only loses feature eligibility."
+    },
+    {
+      "id": "unverified-claim-not-featureable",
+      "surface": "feature",
+      "record": {
+        "post_type": "page",
+        "status": "publish",
+        "_lps_state": "published",
+        "locale": "pt-br",
+        "stale": false,
+        "_lps_origin": "native",
+        "_lps_record_id": "lps:page:018f21ce-7d7a-7abc-8a2f-2d6937f89a11",
+        "_lps_owner_user_id": 7,
+        "_lps_review_date": "2027-01-01",
+        "_lps_claim_verified": true,
+        "_lps_claim_source_url": "",
+        "_lps_claim_reviewed_at": "2026-01-01"
+      },
+      "expectVisible": false,
+      "expectOrigin": "native",
+      "expectErrors": { "_lps_claim_source_url": "lps_claim_source_required" }
+    }
+  ],
+  "stalenessCases": [
+    {
+      "id": "offering-shared-schedule-change",
+      "postType": "lps_offering",
+      "base": {
+        "post_title": "Oferta",
+        "post_excerpt": "Resumo",
+        "post_content": "Corpo",
+        "_lps_section_key": "a",
+        "_lps_schedule": "seg 10-12",
+        "_lps_syllabus_snapshot": "Ementa publicada"
+      },
+      "change": { "_lps_schedule": "qua 14-16" },
+      "expectStale": false,
+      "note": "A shared schedule change must not stale the English variant; the material-sync contract owns it."
+    },
+    {
+      "id": "offering-localized-snapshot-change",
+      "postType": "lps_offering",
+      "base": {
+        "post_title": "Oferta",
+        "post_excerpt": "Resumo",
+        "post_content": "Corpo",
+        "_lps_section_key": "a",
+        "_lps_schedule": "seg 10-12",
+        "_lps_syllabus_snapshot": "Ementa publicada"
+      },
+      "change": { "_lps_syllabus_snapshot": "Ementa revisada" },
+      "expectStale": true
+    },
+    {
+      "id": "resource-version-change",
+      "postType": "lps_resource",
+      "base": {
+        "post_title": "Notas de aula",
+        "post_excerpt": "",
+        "post_content": "",
+        "_lps_version_id": "lpsver:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "_lps_storage_key": "lps-resource/018f21ce",
+        "_lps_release_state": "released"
+      },
+      "change": { "_lps_version_id": "lpsver:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" },
+      "expectStale": false,
+      "note": "A file/version change never forces a meaningless translation of file bytes."
+    },
+    {
+      "id": "course-shared-code-change",
+      "postType": "lps_course",
+      "base": {
+        "post_title": "Sinais",
+        "post_excerpt": "Resumo",
+        "post_content": "Corpo",
+        "_lps_course_code": "EEL315",
+        "_lps_prerequisites": "Calculo II",
+        "_lps_syllabus": "Ementa"
+      },
+      "change": { "_lps_course_code": "EEL316" },
+      "expectStale": false
+    },
+    {
+      "id": "course-localized-syllabus-change",
+      "postType": "lps_course",
+      "base": {
+        "post_title": "Sinais",
+        "post_excerpt": "Resumo",
+        "post_content": "Corpo",
+        "_lps_course_code": "EEL315",
+        "_lps_prerequisites": "Calculo II",
+        "_lps_syllabus": "Ementa"
+      },
+      "change": { "_lps_syllabus": "Ementa revisada" },
+      "expectStale": true
+    },
+    {
+      "id": "news-import-meta-change-preserved",
+      "postType": "lps_news",
+      "base": {
+        "post_title": "Noticia",
+        "post_excerpt": "Resumo",
+        "post_content": "Corpo",
+        "_lps_import_source_id": "record-020",
+        "_lps_import_review_state": "reviewed"
+      },
+      "change": { "_lps_import_review_state": "candidate" },
+      "expectStale": true,
+      "note": "Non-teaching types keep their established hash coverage so stored reviewed hashes stay valid."
+    },
+    {
+      "id": "news-origin-write-not-stale",
+      "postType": "lps_news",
+      "base": {
+        "post_title": "Noticia",
+        "post_excerpt": "Resumo",
+        "post_content": "Corpo",
+        "_lps_import_source_id": "record-020"
+      },
+      "change": { "_lps_origin": "imported" },
+      "expectStale": false,
+      "note": "Writing the origin field never invalidates a reviewed English variant."
+    }
+  ],
+  "reconciliationCases": [
+    {
+      "id": "ambiguous-row",
+      "record": {},
+      "expectAction": "ambiguous",
+      "expectOrigin": "ambiguous"
+    },
+    {
+      "id": "conflict-row",
+      "record": { "_lps_origin": "native", "_lps_import_source_id": "record-030" },
+      "expectAction": "conflict",
+      "expectOrigin": "imported"
+    },
+    {
+      "id": "unreviewed-import-row",
+      "record": { "_lps_origin": "imported", "_lps_import_source_id": "record-031", "_lps_import_review_state": "candidate" },
+      "expectAction": "unreviewed-import",
+      "expectOrigin": "imported"
+    },
+    {
+      "id": "clean-native-row",
+      "record": { "_lps_origin": "native" },
+      "expectAction": "none",
+      "expectOrigin": "native"
+    },
+    {
+      "id": "clean-imported-row",
+      "record": { "_lps_origin": "imported", "_lps_import_source_id": "record-032", "_lps_import_review_state": "reviewed" },
+      "expectAction": "none",
+      "expectOrigin": "imported"
+    }
+  ]
+}

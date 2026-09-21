@@ -138,7 +138,7 @@ describe("failure fixtures identify the exact route and selector", () => {
     );
     const contrast = findings.filter((finding) => finding.code === "lps_a11y_contrast_text");
     expect(contrast.length).toBeGreaterThanOrEqual(2);
-    expect(contrast.some((finding) => finding.selector.includes("--color-ink-soft"))).toBe(true);
+    expect(contrast.some((finding) => finding.selector.includes("--color-text-muted"))).toBe(true);
   });
 
   it("reports focus indicators removed by a focus rule", async () => {

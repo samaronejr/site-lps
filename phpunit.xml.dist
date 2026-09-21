@@ -5,7 +5,8 @@
          cacheDirectory=".phpunit.cache"
          colors="true"
          failOnWarning="true"
-         failOnRisky="true">
+         failOnRisky="true"
+         failOnEmptyTestSuite="true">
     <testsuites>
         <testsuite name="foundation">
             <directory suffix="Test.php">tests/php</directory>

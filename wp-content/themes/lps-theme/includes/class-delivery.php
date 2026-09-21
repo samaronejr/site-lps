@@ -9,6 +9,11 @@ declare(strict_types=1);
 
 namespace LPS\Theme;
 
+use LPS\ContentModel\Relationships;
+use LPS\ContentModel\TeachingContracts;
+use LPS\ContentModel\TeachingRecords;
+use LPS\ContentModel\Translations;
+
 /**
  * Applies `AssetPolicy` and `CachePolicy` to live WordPress requests.
  *
@@ -32,7 +37,25 @@ final class Delivery {
 		add_action( 'template_redirect', array( self::class, 'send_cache_headers' ), 20 );
 		add_action( 'transition_post_status', array( self::class, 'purge_on_transition' ), 10, 3 );
 		add_action( 'deleted_post', array( self::class, 'purge_on_delete' ), 10, 2 );
+		add_action( 'updated_post_meta', array( self::class, 'purge_on_lifecycle_meta' ), 10, 4 );
+		add_action( 'added_post_meta', array( self::class, 'purge_on_lifecycle_meta' ), 10, 4 );
 	}
+
+	/**
+	 * Teaching lifecycle metadata that changes public delivery without a post
+	 * status transition: release, withdrawal, scheduling, cancellation,
+	 * temporal status and version selection.
+	 *
+	 * @var array<int, string>
+	 */
+	private const LIFECYCLE_META_KEYS = array(
+		'_lps_release_state',
+		'_lps_release_at',
+		'_lps_withdrawn_at',
+		'_lps_cancelled',
+		'_lps_temporal_status',
+		'_lps_version_id',
+	);
 
 	/** Reports whether the current request is a public front-end response. */
 	public static function is_public_request(): bool {
@@ -224,6 +247,32 @@ final class Delivery {
 	}
 
 	/**
+	 * Purges the affected public URLs when a lifecycle metadata write lands.
+	 *
+	 * Release, withdrawal, scheduling, cancellation and version selection are
+	 * pure metadata writes: `transition_post_status` never fires for them, so
+	 * this hook is the only invalidation signal. The purge is idempotent —
+	 * the same transition may legitimately write several keys — and only
+	 * published records have public URLs to expire.
+	 *
+	 * @param int    $meta_id    Metadata row ID.
+	 * @param int    $post_id    Record ID.
+	 * @param string $meta_key   Written metadata key.
+	 * @param mixed  $meta_value Written value.
+	 */
+	public static function purge_on_lifecycle_meta( int $meta_id, int $post_id, string $meta_key, mixed $meta_value ): void {
+		unset( $meta_id, $meta_value );
+		if ( ! in_array( $meta_key, self::LIFECYCLE_META_KEYS, true ) ) {
+			return;
+		}
+		$post = get_post( $post_id );
+		if ( ! $post instanceof \WP_Post || 'publish' !== $post->post_status ) {
+			return;
+		}
+		self::purge( $post );
+	}
+
+	/**
 	 * Computes and dispatches the purge batch for one record.
 	 *
 	 * @param mixed $post Changed post.
@@ -237,12 +286,18 @@ final class Delivery {
 		}
 
 		$permalink = get_permalink( $post->ID );
+		if ( ! is_string( $permalink ) || '' === $permalink ) {
+			// A deleted record has no permalink; the site root anchors the
+			// purge origin so related and locale targets still resolve.
+			$permalink = home_url( '/' );
+		}
 		$targets   = CachePolicy::purge_targets(
 			array(
 				'permalink'    => is_string( $permalink ) ? $permalink : '',
 				'archives'     => self::archive_urls( $post ),
 				'translations' => self::translation_urls( $post ),
 				'terms'        => self::term_urls( $post ),
+				'related'      => self::related_urls( $post ),
 				'locales'      => array( 'pt-br', 'en' ),
 				'records'      => self::record_urls( $post ),
 			)
@@ -271,6 +326,157 @@ final class Delivery {
 		 * @param \WP_Post           $post    Changed record.
 		 */
 		do_action( 'lps_cache_purge', $targets, $post );
+	}
+
+	/**
+	 * Lists the teaching-surface URLs affected by a record.
+	 *
+	 * Canonical teaching routes are not permalinks, so the purge must name
+	 * them explicitly: the landing and course pages, every offering route
+	 * derived from the changed record, the faculty pages of its teaching
+	 * team, and — through the `locales` group — the locale home and search
+	 * entry points that already accompany every publish.
+	 *
+	 * @param \WP_Post $post Changed post.
+	 *
+	 * @return array<int, string>
+	 */
+	private static function related_urls( \WP_Post $post ): array {
+		if ( ! class_exists( TeachingContracts::class ) || ! class_exists( TeachingRecords::class ) || ! class_exists( Relationships::class ) ) {
+			return array();
+		}
+		$urls      = array();
+		$authority = TeachingContracts::authoritative_id( $post->ID );
+		$locales   = array( 'pt-br', 'en' );
+		switch ( $post->post_type ) {
+			case 'lps_course':
+				foreach ( $locales as $locale ) {
+					$urls[] = home_url( TeachingRecords::landing_path( $locale ) );
+					$course = self::localized_post( $authority, $locale );
+					if ( $course instanceof \WP_Post ) {
+						$urls[] = home_url( TeachingRecords::course_path( $locale, $course->post_name ) );
+					}
+				}
+				foreach ( Relationships::reverse_for( $authority, 'offering_course' ) as $row ) {
+					$urls = array_merge( $urls, self::offering_urls( (int) ( $row['source_post_id'] ?? 0 ) ) );
+				}
+				break;
+			case 'lps_term':
+				foreach ( $locales as $locale ) {
+					$urls[] = home_url( TeachingRecords::landing_path( $locale ) );
+				}
+				foreach ( Relationships::reverse_for( $authority, 'offering_term' ) as $row ) {
+					$urls = array_merge( $urls, self::offering_urls( (int) ( $row['source_post_id'] ?? 0 ) ) );
+				}
+				break;
+			case 'lps_offering':
+				foreach ( $locales as $locale ) {
+					$urls[] = home_url( TeachingRecords::landing_path( $locale ) );
+				}
+				$urls = array_merge( $urls, self::offering_urls( $authority ), self::course_urls_for_offering( $authority ), self::team_urls( $authority ) );
+				break;
+			case 'lps_unit':
+				foreach ( Relationships::for_source( $authority, 'unit_offering' ) as $row ) {
+					$urls = array_merge( $urls, self::offering_urls( (int) ( $row['target_post_id'] ?? 0 ) ) );
+				}
+				break;
+			case 'lps_resource':
+				foreach ( Relationships::for_source( $authority, 'resource_offering' ) as $row ) {
+					$urls = array_merge( $urls, self::offering_urls( (int) ( $row['target_post_id'] ?? 0 ) ) );
+				}
+				break;
+			case 'lps_person':
+				foreach ( Relationships::reverse_for( $authority, 'teaching_team' ) as $row ) {
+					$urls = array_merge( $urls, self::offering_urls( (int) ( $row['source_post_id'] ?? 0 ) ) );
+				}
+				break;
+			default:
+				break;
+		}
+		return array_values( array_filter( $urls, 'is_string' ) );
+	}
+
+	/**
+	 * Lists the canonical offering URLs of one offering in both locales.
+	 *
+	 * @param int $offering_id Any associated offering variant ID.
+	 *
+	 * @return array<int, string>
+	 */
+	private static function offering_urls( int $offering_id ): array {
+		$urls = array();
+		foreach ( array( 'pt-br', 'en' ) as $locale ) {
+			$path = TeachingRecords::offering_url( $offering_id, $locale );
+			if ( '' !== $path ) {
+				$urls[] = home_url( $path );
+			}
+		}
+		return $urls;
+	}
+
+	/**
+	 * Lists the canonical course URLs owning one offering in both locales.
+	 *
+	 * @param int $offering_id Authoritative offering ID.
+	 *
+	 * @return array<int, string>
+	 */
+	private static function course_urls_for_offering( int $offering_id ): array {
+		$identity  = TeachingRecords::offering_identity_for( $offering_id );
+		$course_id = (int) ( $identity['course_id'] ?? 0 );
+		$urls      = array();
+		foreach ( array( 'pt-br', 'en' ) as $locale ) {
+			$course = self::localized_post( $course_id, $locale );
+			if ( $course instanceof \WP_Post ) {
+				$urls[] = home_url( TeachingRecords::course_path( $locale, $course->post_name ) );
+			}
+		}
+		return $urls;
+	}
+
+	/**
+	 * Lists the faculty permalinks of one offering's teaching team.
+	 *
+	 * @param int $offering_id Authoritative offering ID.
+	 *
+	 * @return array<int, string>
+	 */
+	private static function team_urls( int $offering_id ): array {
+		$urls = array();
+		foreach ( Relationships::for_source( $offering_id, 'teaching_team' ) as $member ) {
+			foreach ( array( 'pt-br', 'en' ) as $locale ) {
+				$person = self::localized_post( (int) ( $member['target_post_id'] ?? 0 ), $locale );
+				if ( $person instanceof \WP_Post ) {
+					$permalink = get_permalink( $person->ID );
+					if ( is_string( $permalink ) && '' !== $permalink ) {
+						$urls[] = $permalink;
+					}
+				}
+			}
+		}
+		return $urls;
+	}
+
+	/**
+	 * Returns the locale variant of a record, or null when absent.
+	 *
+	 * @param int    $post_id Any associated variant ID.
+	 * @param string $locale  Supported locale slug.
+	 */
+	private static function localized_post( int $post_id, string $locale ): ?\WP_Post {
+		$post = 0 < $post_id ? get_post( $post_id ) : null;
+		if ( ! $post instanceof \WP_Post ) {
+			return null;
+		}
+		if ( ! class_exists( Translations::class ) ) {
+			return $post;
+		}
+		if ( Translations::locale( $post->ID ) === $locale ) {
+			return $post;
+		}
+		$variants = Translations::variants( $post->ID );
+		$variant  = isset( $variants[ $locale ] ) ? get_post( $variants[ $locale ] ) : null;
+		return $variant instanceof \WP_Post ? $variant : null;
 	}
 
 	/**

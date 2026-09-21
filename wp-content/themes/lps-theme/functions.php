@@ -14,19 +14,26 @@ require_once __DIR__ . '/includes/class-homepage.php';
 require_once __DIR__ . '/includes/class-discoverysurfaces.php';
 require_once __DIR__ . '/includes/class-publicsurfaces.php';
 require_once __DIR__ . '/includes/class-discoveryroutes.php';
+require_once __DIR__ . '/includes/class-teachingroutes.php';
 require_once __DIR__ . '/includes/class-publicroutes.php';
 require_once __DIR__ . '/includes/class-searchroutes.php';
 require_once __DIR__ . '/includes/class-trustroutes.php';
 require_once __DIR__ . '/includes/class-seoroutes.php';
+require_once __DIR__ . '/includes/class-dashboardroutes.php';
 require_once __DIR__ . '/includes/class-assetpolicy.php';
 require_once __DIR__ . '/includes/class-cachepolicy.php';
 require_once __DIR__ . '/includes/class-delivery.php';
 
+require_once __DIR__ . '/includes/class-brandassets.php';
+
 DiscoveryRoutes::boot();
+TeachingRoutes::boot();
 PublicRoutes::boot();
 SearchRoutes::boot();
 TrustRoutes::boot();
 SeoRoutes::boot();
+DashboardRoutes::boot();
+BrandAssets::boot();
 Delivery::boot();
 
 add_action(
@@ -69,6 +76,7 @@ add_action(
 		);
 		$blocks = array(
 			'lps-theme/discovery'       => array( DiscoveryRoutes::class, 'render_block' ),
+			'lps-theme/teaching'        => array( TeachingRoutes::class, 'render_block' ),
 			'lps-theme/public-surfaces' => array( PublicRoutes::class, 'render_block' ),
 			'lps-theme/search'          => array( SearchRoutes::class, 'render_block' ),
 			'lps-theme/trust'           => array( TrustRoutes::class, 'render_block' ),

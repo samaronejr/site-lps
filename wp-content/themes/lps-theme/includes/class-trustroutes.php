@@ -332,6 +332,7 @@ final class TrustRoutes {
 			'slug'                 => $post->post_name,
 			'title'                => get_the_title( $post ),
 			'summary'              => $post->post_excerpt,
+			'body'                 => $post->post_content,
 			'eligibility'          => $meta( '_lps_eligibility' ),
 			'instructions'         => $meta( '_lps_application_instructions' ),
 			'opens_at'             => $meta( '_lps_opens_at' ),
@@ -345,6 +346,7 @@ final class TrustRoutes {
 			'status'               => $meta( '_lps_event_status' ),
 			'venue'                => $meta( '_lps_venue' ),
 			'date'                 => $meta( '_lps_canonical_date' ),
+			'stale'                => self::is_stale_translation( $post ),
 		);
 	}
 
@@ -382,7 +384,24 @@ final class TrustRoutes {
 			'claims'         => $list( '_lps_claims' ),
 			'role_contacts'  => $list( '_lps_role_contacts' ),
 			'journeys'       => $list( '_lps_journeys' ),
+			'stale'          => self::is_stale_translation( $post ),
 		);
+	}
+
+	/**
+	 * Reports whether an English record trails its reviewed Portuguese source.
+	 *
+	 * Staleness is a source-hash comparison owned by the translation policy, never
+	 * a timestamp guess: the flag is set only for English variants whose reviewed
+	 * hash no longer matches the authority record.
+	 *
+	 * @param WP_Post $post Record.
+	 */
+	private static function is_stale_translation( WP_Post $post ): bool {
+		if ( ! class_exists( Translations::class ) ) {
+			return false;
+		}
+		return 'en' === Translations::locale( $post->ID ) && Translations::is_stale( $post->ID );
 	}
 
 	/** Renders the trust surface for the current request. */
@@ -416,7 +435,7 @@ final class TrustRoutes {
 			return match ( $post->post_type ) {
 				'lps_opportunity' => TrustSurfaces::render_opportunity( $record, $locale, $now ),
 				'lps_event' => TrustSurfaces::render_event( $record, $locale, $now ),
-				default => TrustSurfaces::render_news_listing( array( $record ), $locale ),
+				default => TrustSurfaces::render_news( $record, $locale ),
 			};
 		}
 		$post_type = get_query_var( 'post_type' );

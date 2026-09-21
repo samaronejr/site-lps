@@ -16,22 +16,23 @@
       "defaultGradients": false,
       "defaultPalette": false,
       "palette": [
-        { "slug": "paper", "name": "Paper", "color": "#F7F4EC" },
-        { "slug": "paper-raised", "name": "Paper raised", "color": "#FFFEFA" },
-        { "slug": "paper-muted", "name": "Paper muted", "color": "#ECE8DE" },
-        { "slug": "ink", "name": "Ink", "color": "#141A1F" },
-        { "slug": "ink-soft", "name": "Ink soft", "color": "#46515A" },
-        { "slug": "navy", "name": "Navy", "color": "#003B5C" },
-        { "slug": "navy-hover", "name": "Navy hover", "color": "#002B44" },
-        { "slug": "signal", "name": "Signal", "color": "#007A87" },
-        { "slug": "signal-hover", "name": "Signal hover", "color": "#005F69" },
-        { "slug": "rule", "name": "Rule", "color": "#C9CDD1" },
-        { "slug": "rule-strong", "name": "Rule strong", "color": "#6F7A82" },
+        { "slug": "canvas", "name": "Canvas", "color": "#F5F7FA" },
+        { "slug": "surface", "name": "Surface", "color": "#FFFFFF" },
+        { "slug": "anchor", "name": "Institutional anchor", "color": "#12304A" },
+        { "slug": "anchor-deep", "name": "Anchor depth", "color": "#0C2237" },
+        { "slug": "action", "name": "Action", "color": "#165A96" },
+        { "slug": "action-hover", "name": "Action depth", "color": "#0F4A7E" },
+        { "slug": "text", "name": "Text", "color": "#182B3A" },
+        { "slug": "text-muted", "name": "Muted text", "color": "#526477" },
+        { "slug": "rule-quiet", "name": "Quiet rule", "color": "#D7E0E8" },
+        { "slug": "boundary-strong", "name": "Strong boundary", "color": "#74869A" },
         { "slug": "success", "name": "Success", "color": "#216E4E" },
         { "slug": "warning", "name": "Warning", "color": "#7A4A00" },
         { "slug": "error", "name": "Error", "color": "#A12622" },
         { "slug": "info-wash", "name": "Info wash", "color": "#DDECEF" },
-        { "slug": "success-wash", "name": "Success wash", "color": "#E0ECE5" }
+        { "slug": "success-wash", "name": "Success wash", "color": "#E0ECE5" },
+        { "slug": "warning-wash", "name": "Warning wash", "color": "#F2E8D2" },
+        { "slug": "error-wash", "name": "Error wash", "color": "#F2DEDA" }
       ]
     },
     "custom": {
@@ -41,7 +42,6 @@
     "spacing": {
       "customSpacingSize": false,
       "defaultSpacingSizes": false,
-      "spacingScale": { "steps": 0 },
       "spacingSizes": [
         { "slug": "1", "name": "1", "size": "0.25rem" },
         { "slug": "2", "name": "2", "size": "0.5rem" },
@@ -65,46 +65,73 @@
       "fluid": true,
       "fontFamilies": [
         {
-          "slug": "editorial",
-          "name": "Source Serif 4",
-          "fontFamily": "\"Source Serif 4\", \"Noto Serif\", \"Noto Serif CJK SC\", \"Noto Serif CJK JP\", Georgia, serif",
+          "slug": "interface",
+          "name": "IBM Plex Sans",
+          "fontFamily": "\"IBM Plex Sans\", system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
           "fontFace": [
             {
-              "fontFamily": "Source Serif 4",
+              "fontFamily": "IBM Plex Sans",
               "fontStyle": "normal",
               "fontWeight": "400",
-              "src": ["file:./assets/fonts/source-serif-4-regular.woff2"]
+              "fontDisplay": "swap",
+              "src": ["file:./assets/fonts/ibm-plex-sans-regular.woff2"]
             },
             {
-              "fontFamily": "Source Serif 4",
+              "fontFamily": "IBM Plex Sans",
               "fontStyle": "normal",
-              "fontWeight": "600 700",
-              "src": ["file:./assets/fonts/source-serif-4-semibold.woff2"]
+              "fontWeight": "450 550",
+              "fontDisplay": "swap",
+              "src": ["file:./assets/fonts/ibm-plex-sans-medium.woff2"]
+            },
+            {
+              "fontFamily": "IBM Plex Sans",
+              "fontStyle": "normal",
+              "fontWeight": "600 650",
+              "fontDisplay": "swap",
+              "src": ["file:./assets/fonts/ibm-plex-sans-semibold.woff2"]
+            },
+            {
+              "fontFamily": "IBM Plex Sans",
+              "fontStyle": "normal",
+              "fontWeight": "700 750",
+              "fontDisplay": "swap",
+              "src": ["file:./assets/fonts/ibm-plex-sans-bold.woff2"]
             }
           ]
         },
         {
-          "slug": "interface",
-          "name": "Interface",
-          "fontFamily": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif"
-        },
-        {
           "slug": "mono",
-          "name": "Technical metadata",
-          "fontFamily": "ui-monospace, \"Cascadia Mono\", \"Segoe UI Mono\", Menlo, Consolas, monospace"
+          "name": "IBM Plex Mono",
+          "fontFamily": "\"IBM Plex Mono\", ui-monospace, \"Cascadia Mono\", \"Segoe UI Mono\", Menlo, Consolas, monospace",
+          "fontFace": [
+            {
+              "fontFamily": "IBM Plex Mono",
+              "fontStyle": "normal",
+              "fontWeight": "400",
+              "fontDisplay": "swap",
+              "src": ["file:./assets/fonts/ibm-plex-mono-regular.woff2"]
+            },
+            {
+              "fontFamily": "IBM Plex Mono",
+              "fontStyle": "normal",
+              "fontWeight": "500 700",
+              "fontDisplay": "swap",
+              "src": ["file:./assets/fonts/ibm-plex-mono-semibold.woff2"]
+            }
+          ]
         }
       ],
       "fontSizes": [
         { "slug": "meta", "name": "Metadata", "size": "0.75rem" },
         { "slug": "small", "name": "Small", "size": "0.875rem" },
         { "slug": "body", "name": "Body", "size": "1rem", "fluid": false },
-        { "slug": "reading", "name": "Reading", "size": "1.125rem", "fluid": false },
-        { "slug": "lead", "name": "Lead", "size": "clamp(1.25rem, 2vw, 1.5rem)" },
+        { "slug": "reading", "name": "Reading", "size": "1.125rem" },
+        { "slug": "lead", "name": "Lead", "size": "clamp(1.125rem, 1.6vw, 1.25rem)" },
         { "slug": "h4", "name": "Heading 4", "size": "1.125rem" },
-        { "slug": "h3", "name": "Heading 3", "size": "clamp(1.375rem, 2vw, 1.75rem)" },
-        { "slug": "h2", "name": "Heading 2", "size": "clamp(1.75rem, 3.5vw, 2.75rem)" },
-        { "slug": "h1", "name": "Heading 1", "size": "clamp(2.25rem, 5vw, 4rem)" },
-        { "slug": "display", "name": "Display", "size": "clamp(2.75rem, 7vw, 5.75rem)" }
+        { "slug": "h3", "name": "Heading 3", "size": "clamp(1.125rem, 1.8vw, 1.375rem)" },
+        { "slug": "h2", "name": "Heading 2", "size": "clamp(1.375rem, 2.5vw, 2rem)" },
+        { "slug": "h1", "name": "Heading 1", "size": "clamp(1.75rem, 4vw, 2.75rem)" },
+        { "slug": "display", "name": "Display", "size": "clamp(2rem, 5vw, 3.5rem)" }
       ]
     },
     "border": { "color": false, "radius": false, "style": false, "width": false },
@@ -119,29 +146,70 @@
     }
   },
   "styles": {
-    "color": { "background": "var:preset|color|paper", "text": "var:preset|color|ink" },
+    "color": { "background": "var:preset|color|canvas", "text": "var:preset|color|text" },
     "spacing": { "blockGap": "var:preset|spacing|6" },
     "typography": {
       "fontFamily": "var:preset|font-family|interface",
       "fontSize": "var:preset|font-size|body",
-      "lineHeight": "1.65"
+      "lineHeight": "1.6"
     },
     "elements": {
       "heading": {
-        "color": { "text": "var:preset|color|ink" },
-        "typography": { "fontFamily": "var:preset|font-family|editorial", "fontWeight": "600" }
+        "color": { "text": "var:preset|color|text" },
+        "typography": { "fontFamily": "var:preset|font-family|interface" }
+      },
+      "h1": {
+        "typography": {
+          "fontFamily": "var:preset|font-family|interface",
+          "fontSize": "var:preset|font-size|h1",
+          "fontWeight": "700",
+          "lineHeight": "1.15"
+        }
+      },
+      "h2": {
+        "typography": {
+          "fontFamily": "var:preset|font-family|interface",
+          "fontSize": "var:preset|font-size|h2",
+          "fontWeight": "650",
+          "lineHeight": "1.2"
+        }
+      },
+      "h3": {
+        "typography": {
+          "fontFamily": "var:preset|font-family|interface",
+          "fontSize": "var:preset|font-size|h3",
+          "fontWeight": "650",
+          "lineHeight": "1.25"
+        }
+      },
+      "h4": {
+        "typography": {
+          "fontFamily": "var:preset|font-family|interface",
+          "fontSize": "var:preset|font-size|h4",
+          "fontWeight": "650",
+          "lineHeight": "1.3"
+        }
       },
       "link": {
-        "color": { "text": "var:preset|color|signal-hover" },
+        "color": { "text": "var:preset|color|action" },
         "typography": { "textDecoration": "underline" }
       },
       "button": {
-        "border": { "radius": "0" },
-        "color": { "background": "var:preset|color|navy", "text": "var:preset|color|paper-raised" },
+        "border": { "radius": "4px" },
+        "color": { "background": "var:preset|color|action", "text": "var:preset|color|surface" },
         "typography": {
           "fontFamily": "var:preset|font-family|interface",
           "fontSize": "var:preset|font-size|small",
           "fontWeight": "700"
+        }
+      }
+    },
+    "blocks": {
+      "core/post-content": {
+        "typography": {
+          "fontFamily": "var:preset|font-family|interface",
+          "fontSize": "var:preset|font-size|reading",
+          "lineHeight": "1.65"
         }
       }
     }

@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LPS design-contract fixture — logo at intended sizes</title>
+<style>
+  :root {
+    --color-canvas: #F5F7FA;
+    --color-surface: #FFFFFF;
+    --color-anchor: #12304A;
+    --color-action: #165A96;
+    --color-text: #182B3A;
+    --color-text-muted: #526477;
+    --color-rule-quiet: #D7E0E8;
+    --color-boundary-strong: #74869A;
+    --font-interface: "IBM Plex Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    background: var(--color-canvas);
+    color: var(--color-text);
+    font-family: var(--font-interface);
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+  .fixture-label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    padding: 0.5rem 1rem 0;
+  }
+  /* Desktop masthead: full-color artwork on a light surface. */
+  .masthead-desktop {
+    background: var(--color-surface);
+    border-bottom: 2px solid var(--color-anchor);
+    padding: 1rem clamp(1rem, 4vw, 2.5rem);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+  .masthead-desktop .logo-full {
+    display: block;
+    width: 280px;
+    max-width: 100%;
+    height: auto;
+  }
+  .masthead-desktop .site-name {
+    font-size: 1.125rem;
+    font-weight: 650;
+    color: var(--color-anchor);
+  }
+  /* Mobile masthead: compact variant, labelled disclosure button. */
+  .masthead-mobile {
+    background: var(--color-surface);
+    border-bottom: 2px solid var(--color-anchor);
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    max-width: 375px;
+  }
+  .masthead-mobile .logo-compact {
+    display: block;
+    height: 32px;
+    width: auto;
+  }
+  .masthead-mobile .disclosure {
+    font: inherit;
+    font-size: 0.875rem;
+    font-weight: 650;
+    color: var(--color-surface);
+    background: var(--color-anchor);
+    border: 0;
+    border-radius: 4px;
+    padding: 0.625rem 1rem;
+    min-height: 44px;
+    cursor: pointer;
+  }
+  /* Anchor band: text wordmark only — artwork is restricted to light surfaces. */
+  .band-anchor {
+    background: var(--color-anchor);
+    color: var(--color-surface);
+    padding: 1.5rem clamp(1rem, 4vw, 2.5rem);
+  }
+  .band-anchor .wordmark {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .band-anchor a { color: var(--color-surface); }
+  .band-anchor a:focus-visible {
+    outline: 3px solid var(--color-surface);
+    outline-offset: 3px;
+  }
+  /* Surrounding labels: must stay readable next to the artwork. */
+  .context {
+    padding: 1rem clamp(1rem, 4vw, 2.5rem);
+    max-width: 68ch;
+  }
+  .context p { margin-block: 0.5rem; }
+  .context .muted { color: var(--color-text-muted); }
+  .context a { color: var(--color-action); }
+  .context a:focus-visible, .masthead-desktop a:focus-visible, .masthead-mobile a:focus-visible {
+    outline: 3px solid var(--color-action);
+    outline-offset: 3px;
+  }
+  .control-sample {
+    display: inline-block;
+    margin-top: 0.5rem;
+    padding: 0.5rem 1rem;
+    font: inherit;
+    border: 2px solid var(--color-boundary-strong);
+    border-radius: 4px;
+    background: var(--color-surface);
+    color: var(--color-text);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+  <p class="fixture-label">Fixture: desktop masthead — full artwork 280px on surface</p>
+  <header class="masthead-desktop" data-fixture="desktop">
+    <a href="/pt-br/" aria-label="LPS — página inicial">
+      <img class="logo-full" src="../../../assets/brand/lps_logo_vector.svg" alt="" width="280">
+    </a>
+    <span class="site-name">Laboratório de Processamento de Sinais</span>
+  </header>
+
+  <p class="fixture-label">Fixture: mobile masthead — compact artwork 32px on surface</p>
+  <header class="masthead-mobile" data-fixture="mobile">
+    <a href="/pt-br/" aria-label="LPS — página inicial">
+      <img class="logo-compact" src="../../../assets/brand/lps_logo_compact.svg" alt="" height="32">
+    </a>
+    <button class="disclosure" type="button" aria-expanded="false" aria-controls="nav-panel">Menu</button>
+  </header>
+
+  <p class="fixture-label">Fixture: anchor band — text wordmark only</p>
+  <footer class="band-anchor" data-fixture="anchor">
+    <span class="wordmark">LPS</span>
+    <span> — COPPE/UFRJ · <a href="/pt-br/contato/">Contato</a> · <a href="/pt-br/acessibilidade/">Acessibilidade</a></span>
+  </footer>
+
+  <p class="fixture-label">Fixture: surrounding labels and control boundary</p>
+  <main class="context" data-fixture="context">
+    <p>Texto de leitura em --color-text sobre --color-canvas, com <a href="#">ligação em --color-action</a>.</p>
+    <p class="muted">Texto secundário em --color-text-muted, nunca para instruções essenciais.</p>
+    <button class="control-sample" type="button">Controle com borda --color-boundary-strong</button>
+  </main>
+</body>
+</html>

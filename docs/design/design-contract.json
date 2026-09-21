@@ -1,0 +1,666 @@
+{
+  "schemaVersion": 1,
+  "id": "lps-design-contract",
+  "title": "LPS unified identity and representative page layouts — replacement design contract",
+  "revision": "2026-09-18",
+  "plan": "lps-website-ulw-plan task-02",
+  "supersedes": {
+    "document": "DESIGN.md (light institutional contract)",
+    "sha256": "3b0ff8ec9be251dfbf57a8300519814505b02fe53643bf648d12b677a3680319",
+    "note": "Values below were PROPOSAL until plan task-07 froze them in theme.json/theme.css on 2026-09-18; check-theme.mjs now gates contract-to-:root parity. Incumbent semantic tokens are carried forward unchanged."
+  },
+  "dials": {
+    "designVariance": 3,
+    "motionIntensity": 2,
+    "visualDensity": 5
+  },
+  "colors": {
+    "tokens": [
+      {
+        "token": "--color-canvas",
+        "value": "#F5F7FA",
+        "role": "canvas",
+        "usage": "General page background",
+        "tag": "MEASURED"
+      },
+      {
+        "token": "--color-surface",
+        "value": "#FFFFFF",
+        "role": "surface",
+        "usage": "Reading and form surfaces; the only approved field for full-color logo artwork",
+        "tag": "MEASURED"
+      },
+      {
+        "token": "--color-anchor",
+        "value": "#12304A",
+        "role": "institutional-anchor",
+        "usage": "Navigation band and footer band; primary fills",
+        "tag": "MEASURED"
+      },
+      {
+        "token": "--color-anchor-deep",
+        "value": "#0C2237",
+        "role": "anchor-depth",
+        "usage": "Hover/pressed depth inside anchor bands",
+        "tag": "MEASURED (derived)"
+      },
+      {
+        "token": "--color-action",
+        "value": "#165A96",
+        "role": "action",
+        "usage": "Links and controls on light surfaces; focus outline on light surfaces",
+        "tag": "MEASURED"
+      },
+      {
+        "token": "--color-action-hover",
+        "value": "#0F4A7E",
+        "role": "action-depth",
+        "usage": "Link/control hover and pressed states on light surfaces",
+        "tag": "MEASURED (derived)"
+      },
+      {
+        "token": "--color-text",
+        "value": "#182B3A",
+        "role": "text",
+        "usage": "Main reading text",
+        "tag": "MEASURED"
+      },
+      {
+        "token": "--color-text-muted",
+        "value": "#526477",
+        "role": "muted-text",
+        "usage": "Secondary readable text; never essential low-contrast hints",
+        "tag": "MEASURED"
+      },
+      {
+        "token": "--color-rule-quiet",
+        "value": "#D7E0E8",
+        "role": "quiet-rule",
+        "usage": "Decorative separators only; never the sole boundary of a control",
+        "tag": "MEASURED",
+        "decorativeOnly": true
+      },
+      {
+        "token": "--color-boundary-strong",
+        "value": "#74869A",
+        "role": "strong-boundary",
+        "usage": "Necessary light-surface control boundaries",
+        "tag": "MEASURED"
+      },
+      {
+        "token": "--color-focus-on-dark",
+        "value": "#FFFFFF",
+        "role": "focus-on-dark",
+        "usage": "Focus outline on anchor bands and other dark fills",
+        "tag": "MEASURED"
+      },
+      {
+        "token": "--color-success",
+        "value": "#216E4E",
+        "role": "success",
+        "usage": "Status text/icon plus label; never color alone",
+        "tag": "CARRIED"
+      },
+      {
+        "token": "--color-warning",
+        "value": "#7A4A00",
+        "role": "warning",
+        "usage": "Status text/icon plus label; never color alone",
+        "tag": "CARRIED"
+      },
+      {
+        "token": "--color-error",
+        "value": "#A12622",
+        "role": "error",
+        "usage": "Errors, destructive text, invalid borders",
+        "tag": "CARRIED"
+      },
+      {
+        "token": "--color-info-wash",
+        "value": "#DDECEF",
+        "role": "info-wash",
+        "usage": "Informational alert background",
+        "tag": "CARRIED"
+      },
+      {
+        "token": "--color-success-wash",
+        "value": "#E0ECE5",
+        "role": "success-wash",
+        "usage": "Success alert background",
+        "tag": "CARRIED"
+      },
+      {
+        "token": "--color-warning-wash",
+        "value": "#F2E8D2",
+        "role": "warning-wash",
+        "usage": "Warning alert background",
+        "tag": "CARRIED"
+      },
+      {
+        "token": "--color-error-wash",
+        "value": "#F2DEDA",
+        "role": "error-wash",
+        "usage": "Error alert background",
+        "tag": "CARRIED"
+      }
+    ],
+    "pairs": [
+      {
+        "id": "body-on-canvas",
+        "foreground": "--color-text",
+        "background": "--color-canvas",
+        "minRatio": 4.5,
+        "expectedRatio": 13.54,
+        "context": "body text"
+      },
+      {
+        "id": "body-on-surface",
+        "foreground": "--color-text",
+        "background": "--color-surface",
+        "minRatio": 4.5,
+        "expectedRatio": 14.53,
+        "context": "body text"
+      },
+      {
+        "id": "muted-on-canvas",
+        "foreground": "--color-text-muted",
+        "background": "--color-canvas",
+        "minRatio": 4.5,
+        "expectedRatio": 5.67,
+        "context": "secondary text"
+      },
+      {
+        "id": "muted-on-surface",
+        "foreground": "--color-text-muted",
+        "background": "--color-surface",
+        "minRatio": 4.5,
+        "expectedRatio": 6.09,
+        "context": "secondary text"
+      },
+      {
+        "id": "link-on-canvas",
+        "foreground": "--color-action",
+        "background": "--color-canvas",
+        "minRatio": 4.5,
+        "expectedRatio": 6.66,
+        "context": "link text"
+      },
+      {
+        "id": "link-on-surface",
+        "foreground": "--color-action",
+        "background": "--color-surface",
+        "minRatio": 4.5,
+        "expectedRatio": 7.15,
+        "context": "link text"
+      },
+      {
+        "id": "anchor-text-on-canvas",
+        "foreground": "--color-anchor",
+        "background": "--color-canvas",
+        "minRatio": 4.5,
+        "expectedRatio": 12.65,
+        "context": "heading/label text"
+      },
+      {
+        "id": "nav-label-on-anchor",
+        "foreground": "--color-surface",
+        "background": "--color-anchor",
+        "minRatio": 4.5,
+        "expectedRatio": 13.57,
+        "context": "navigation and footer labels"
+      },
+      {
+        "id": "button-label-on-action",
+        "foreground": "--color-surface",
+        "background": "--color-action",
+        "minRatio": 4.5,
+        "expectedRatio": 7.15,
+        "context": "primary action label"
+      },
+      {
+        "id": "button-label-on-action-hover",
+        "foreground": "--color-surface",
+        "background": "--color-action-hover",
+        "minRatio": 4.5,
+        "expectedRatio": 9.13,
+        "context": "primary action label hover"
+      },
+      {
+        "id": "focus-outline-on-canvas",
+        "foreground": "--color-action",
+        "background": "--color-canvas",
+        "minRatio": 3.0,
+        "expectedRatio": 6.66,
+        "context": "focus indicator (UI graphic)"
+      },
+      {
+        "id": "focus-outline-on-anchor",
+        "foreground": "--color-focus-on-dark",
+        "background": "--color-anchor",
+        "minRatio": 3.0,
+        "expectedRatio": 13.57,
+        "context": "focus indicator on dark band"
+      },
+      {
+        "id": "control-boundary-on-surface",
+        "foreground": "--color-boundary-strong",
+        "background": "--color-surface",
+        "minRatio": 3.0,
+        "expectedRatio": 3.74,
+        "context": "control boundary (UI graphic)"
+      },
+      {
+        "id": "control-boundary-on-canvas",
+        "foreground": "--color-boundary-strong",
+        "background": "--color-canvas",
+        "minRatio": 3.0,
+        "expectedRatio": 3.48,
+        "context": "control boundary (UI graphic)"
+      },
+      {
+        "id": "success-text-on-surface",
+        "foreground": "--color-success",
+        "background": "--color-surface",
+        "minRatio": 4.5,
+        "expectedRatio": 6.17,
+        "context": "status text"
+      },
+      {
+        "id": "warning-text-on-surface",
+        "foreground": "--color-warning",
+        "background": "--color-surface",
+        "minRatio": 4.5,
+        "expectedRatio": 7.48,
+        "context": "status text"
+      },
+      {
+        "id": "error-text-on-surface",
+        "foreground": "--color-error",
+        "background": "--color-surface",
+        "minRatio": 4.5,
+        "expectedRatio": 7.46,
+        "context": "status text"
+      },
+      {
+        "id": "success-text-on-wash",
+        "foreground": "--color-success",
+        "background": "--color-success-wash",
+        "minRatio": 4.5,
+        "expectedRatio": 5.08,
+        "context": "status text on alert wash"
+      },
+      {
+        "id": "warning-text-on-wash",
+        "foreground": "--color-warning",
+        "background": "--color-warning-wash",
+        "minRatio": 4.5,
+        "expectedRatio": 6.14,
+        "context": "status text on alert wash"
+      },
+      {
+        "id": "error-text-on-wash",
+        "foreground": "--color-error",
+        "background": "--color-error-wash",
+        "minRatio": 4.5,
+        "expectedRatio": 5.77,
+        "context": "status text on alert wash"
+      },
+      {
+        "id": "info-text-on-wash",
+        "foreground": "--color-anchor",
+        "background": "--color-info-wash",
+        "minRatio": 4.5,
+        "expectedRatio": 11.19,
+        "context": "status text on alert wash"
+      }
+    ]
+  },
+  "typography": {
+    "families": [
+      {
+        "token": "--font-interface",
+        "stack": "\"IBM Plex Sans\", system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+        "owns": "Display, h1-h4, navigation, controls, tables, labels, captions, body and long-form reading",
+        "license": "SIL OFL 1.1, Reserved Font Name \"Plex\"",
+        "glyphCheck": "2026-09-18: IBMPlexSans-Regular/Medium/SemiBold/Bold TTF cmap covers full pt-BR diacritic set, ASCII, and typographic punctuation (895 glyphs; zero missing)",
+        "delivery": "self-hosted woff2, font-display: swap; no remote font loading",
+        "tag": "MEASURED"
+      },
+      {
+        "token": "--font-mono",
+        "stack": "\"IBM Plex Mono\", ui-monospace, \"Cascadia Mono\", \"Segoe UI Mono\", Menlo, Consolas, monospace",
+        "owns": "Course codes, record identifiers, code samples, tabular schedule numerals only",
+        "license": "SIL OFL 1.1, Reserved Font Name \"Plex\"",
+        "glyphCheck": "2026-09-18: IBMPlexMono-Regular/SemiBold TTF cmap covers the same set (1049 glyphs; zero missing)",
+        "delivery": "self-hosted woff2, font-display: swap; no remote font loading",
+        "tag": "MEASURED"
+      }
+    ],
+    "scale": [
+      {
+        "token": "--type-display",
+        "size": "clamp(2rem, 5vw, 3.5rem)",
+        "weight": 700,
+        "lineHeight": 1.1,
+        "use": "Homepage mission statement only; 32-56px band"
+      },
+      {
+        "token": "--type-h1",
+        "size": "clamp(1.75rem, 4vw, 2.75rem)",
+        "weight": 700,
+        "lineHeight": 1.15,
+        "use": "Page title"
+      },
+      {
+        "token": "--type-h2",
+        "size": "clamp(1.375rem, 2.5vw, 2rem)",
+        "weight": 650,
+        "lineHeight": 1.2,
+        "use": "Section head"
+      },
+      {
+        "token": "--type-h3",
+        "size": "clamp(1.125rem, 1.8vw, 1.375rem)",
+        "weight": 650,
+        "lineHeight": 1.25,
+        "use": "Subsection/record title"
+      },
+      {
+        "token": "--type-h4",
+        "size": "1.125rem",
+        "weight": 650,
+        "lineHeight": 1.3,
+        "use": "Compact heading"
+      },
+      {
+        "token": "--type-lead",
+        "size": "clamp(1.125rem, 1.6vw, 1.25rem)",
+        "weight": 400,
+        "lineHeight": 1.55,
+        "use": "Intro/deck, max 62ch"
+      },
+      {
+        "token": "--type-body",
+        "size": "1rem",
+        "weight": 400,
+        "lineHeight": 1.6,
+        "use": "Interface/body, max 72ch"
+      },
+      {
+        "token": "--type-reading",
+        "size": "1.125rem",
+        "weight": 400,
+        "lineHeight": 1.65,
+        "use": "Long-form reading, max 68ch"
+      },
+      {
+        "token": "--type-small",
+        "size": "0.875rem",
+        "weight": 450,
+        "lineHeight": 1.5,
+        "use": "Captions/help/nav links"
+      },
+      {
+        "token": "--type-meta",
+        "size": "0.75rem",
+        "weight": 500,
+        "lineHeight": 1.4,
+        "use": "Mono labels/metadata; never essential instructions alone"
+      }
+    ],
+    "rules": [
+      "Body text is 16-18 CSS px; line height 1.5-1.65; reading measure about 68ch",
+      "Sentence case and natural wrapping; no forced breaks; tabular numerals for schedules",
+      "IBM Plex Mono is restricted to course codes, identifiers, and code samples",
+      "No essential text below the 16px body floor; captions/meta never carry essential instructions alone",
+      "If the licensed self-hosted files cannot ship, fall back to the system stack and record the substitution; the decision does not reopen mid-execution"
+    ]
+  },
+  "spacing": {
+    "baseUnitPx": 4,
+    "tokens": [
+      { "token": "--space-1", "value": "0.25rem" },
+      { "token": "--space-2", "value": "0.5rem" },
+      { "token": "--space-3", "value": "0.75rem" },
+      { "token": "--space-4", "value": "1rem" },
+      { "token": "--space-5", "value": "1.25rem" },
+      { "token": "--space-6", "value": "1.5rem" },
+      { "token": "--space-8", "value": "2rem" },
+      { "token": "--space-10", "value": "2.5rem" },
+      { "token": "--space-12", "value": "3rem" },
+      { "token": "--space-16", "value": "4rem" },
+      { "token": "--space-20", "value": "5rem" },
+      { "token": "--space-24", "value": "6rem" }
+    ],
+    "sectionRhythm": "Desktop section spacing 48-80px (--space-12 to --space-20); smaller task-page and mobile gaps"
+  },
+  "geometry": {
+    "maxContentWidth": "80rem (1280px)",
+    "grid": "12-column on desktop; 8 conceptual columns at 48-64rem; one column below 48rem",
+    "controlRadius": "4px",
+    "imageRadius": "0 (rectangular images)",
+    "rules": [
+      "Moderate 4px control radii; rectangular images; restrained separators; no universal card wrapper",
+      "Breakpoints follow content: one column on small screens; two columns only when both remain readable; full desktop navigation only when all labels fit",
+      "Headings adapt within the 32-56px band rather than occupy an entire screen"
+    ]
+  },
+  "motion": {
+    "tokens": [
+      { "token": "--motion-fast", "value": "120ms", "use": "Hover/focus color and button press" },
+      { "token": "--motion-standard", "value": "180ms", "use": "Disclosure/state tint" },
+      {
+        "token": "--ease-state",
+        "value": "cubic-bezier(0.2, 0, 0, 1)",
+        "use": "Interruptible state response"
+      }
+    ],
+    "rules": [
+      "Short, interruptible interaction feedback only; no entrance animations that hide content",
+      "Only transform, opacity, filter, color, and text-decoration may transition; never transition: all; never animate layout properties",
+      "prefers-reduced-motion removes movement without removing information",
+      "CSS visual order must match document reading and keyboard order",
+      "No scroll hijacking, pinned storytelling, autoplay media, marquees, or parallax"
+    ]
+  },
+  "logo": {
+    "source": {
+      "path": "assets/brand/lps_logo_vector.svg",
+      "sha256": "f369f9e49c81e297d30fa8e240267667dddf8b89f0d26c494636f9429027a23b",
+      "bytes": 53019,
+      "viewBox": "48 190 2052 301",
+      "aspectRatio": 6.817,
+      "note": "Owner-supplied artwork; bytes preserved verbatim as a source asset. Earlier name lps_logo_vector_transparent.svg referred to this same file."
+    },
+    "variants": [
+      {
+        "id": "full",
+        "path": "assets/brand/lps_logo_vector.svg",
+        "use": "Desktop masthead and any placement at least 240px wide on a light surface",
+        "surfaces": ["light"],
+        "minWidthPx": 240
+      },
+      {
+        "id": "compact",
+        "path": "assets/brand/lps_logo_compact.svg",
+        "viewBox": "64 200 1322 275",
+        "aspectRatio": 4.807,
+        "use": "Mobile masthead and constrained placements; keeps the waveform and LPS lettering, drops the long descriptive lettering that cannot stay legible at mobile sizes",
+        "surfaces": ["light"],
+        "minHeightPx": 28,
+        "derivation": {
+          "method": "path-selection-and-recombination-only",
+          "keptPaths": ["reference-line", "waveform", "separator", "lps-lettering"],
+          "droppedPaths": ["laboratory-name", "computational-intelligence"],
+          "keptGradients": ["wave-gradient", "baseline-gradient", "lps-gradient"],
+          "viewBoxDerivation": "Union of kept-path bounds x[72,1378.1] y[208.03,467.33] padded 8 units per side",
+          "constraint": "No new geometry, no altered paths, no recolor; every kept path d attribute is byte-identical to the source"
+        }
+      },
+      {
+        "id": "text-wordmark",
+        "use": "Anchor (navy) surfaces including the footer band, and any context where full-color artwork fails legibility",
+        "surfaces": ["dark"],
+        "note": "The logo's dark blues measure 1.59-2.25:1 on --color-anchor; artwork is restricted to light surfaces"
+      }
+    ],
+    "rules": [
+      "Full-color artwork appears only on light surfaces (canvas or surface); anchor bands use the text wordmark",
+      "Mobile masthead uses the compact variant; the full lockup is never scaled below 240px width",
+      "The compact variant is never scaled below 28px height",
+      "The logo link carries a meaningful accessible name (e.g. 'LPS — página inicial') without duplicate narration of the embedded title",
+      "Clear space around the artwork equals the height of the waveform block on all sides",
+      "The waveform gradient stays inside the artwork; no recolor, redraw, effects, or container chrome on the mark",
+      "Amendment: the full-color masthead artwork supersedes the repository's text-only-marks rule for this owner-supplied LPS artwork only; UFRJ/COPPE marks remain text-only until their rights owner supplies files and rules"
+    ]
+  },
+  "navigation": {
+    "primary": ["O LPS", "Pesquisa", "Pessoas", "Ensino", "Notícias e eventos", "Oportunidades"],
+    "utility": ["Busca", "PT / EN", "Área docente"],
+    "rules": [
+      "A visible route to contact and accessibility information is preserved",
+      "Mobile uses a labelled button and keyboard-operable disclosure, not hover-only navigation",
+      "Skip link, breadcrumbs where useful, visible focus, and a stable footer are mandatory"
+    ]
+  },
+  "surfaces": [
+    {
+      "id": "homepage",
+      "mode": "persuade",
+      "taskDensity": "low",
+      "logo": "full",
+      "regions": [
+        "masthead with full-color logo and concise lab introduction",
+        "primary links: Conheça a pesquisa; Disciplinas e materiais",
+        "one authentic feature image when rights-cleared",
+        "research feature with linked areas",
+        "differentiated news and upcoming-event content",
+        "compact teaching entrance",
+        "people/collaboration links",
+        "institutional footer"
+      ],
+      "states": {
+        "empty": "Optional sections with no reviewed records are removed; orientation and task entrances remain; no empty-panel grid",
+        "error": "A failed featured record degrades to its text links; the page never shows a broken-image box",
+        "long-content": "Long Portuguese titles wrap by phrase inside the 12-column grid; news lists paginate",
+        "image-free": "The image-free version looks intentional: mission, links, and records carry the page without a placeholder box"
+      }
+    },
+    {
+      "id": "professor",
+      "mode": "read",
+      "taskDensity": "medium",
+      "logo": "full",
+      "regions": [
+        "reviewed identity, affiliation and role",
+        "optional cleared portrait",
+        "research interests and scholarly links",
+        "projects and publications through shared relationships",
+        "Disciplinas e materiais grouped into Em andamento, Próximas ofertas, Ofertas anteriores with explicit term and section"
+      ],
+      "states": {
+        "empty": "No current offering: the Em andamento group collapses and Ofertas anteriores carries the teaching record",
+        "error": "A missing portrait renders the monogram-free text layout; no placeholder silhouette",
+        "long-content": "Twenty prior terms paginate by year; three co-teachers list fully; long names wrap naturally",
+        "attribution": "Past teaching attribution is preserved when login access or affiliation changes"
+      }
+    },
+    {
+      "id": "offering",
+      "mode": "operate",
+      "taskDensity": "high",
+      "logo": "compact",
+      "regions": [
+        "term and section header with teaching team",
+        "syllabus snapshot, schedule, venue or approved class link, optional LMS handoff",
+        "ordered units with stable anchors",
+        "material links near the top on mobile, each with descriptive title, format, size when known, authored language, version/update info, and accessibility alternative when required"
+      ],
+      "states": {
+        "empty": "An offering with no released materials shows the syllabus and schedule with an explicit 'materiais ainda não publicados' notice",
+        "error": "A withdrawn resource shows its withdrawn state; an invalid external link is identified as external without promising availability",
+        "long-content": "One hundred resources group under their units with sticky unit anchors; mixed authored languages are labelled per resource",
+        "scan-pending": "A resource whose scan is pending shows state text and no download control"
+      }
+    },
+    {
+      "id": "editor-dashboard",
+      "mode": "operate",
+      "taskDensity": "highest",
+      "logo": "compact",
+      "regions": [
+        "task list: Meu perfil, Minhas disciplinas, Criar oferta, Adicionar material, Enviar notícia",
+        "structured fields with context-aware defaults and locked presentation",
+        "previews and revisions"
+      ],
+      "states": {
+        "empty": "A professor with no assigned offerings sees the task list and an explicit assignment notice, not a blank panel",
+        "error": "Validation failure names the field, cause, and repair; access denied is a distinct state from validation failure",
+        "long-content": "Long offering lists paginate; duplicate section attempts surface the uniqueness error",
+        "lifecycle": "Saving, draft saved, in review, scheduled, public, validation failure, scan pending/failed, and access denied are visually distinct states; a saved draft is never styled as a successful publication"
+      }
+    }
+  ],
+  "applications": [
+    {
+      "id": "desktop-branding",
+      "logoVariant": "full",
+      "spec": "Masthead on canvas: full-color artwork at 240-320px rendered width, clear space equal to the waveform height, home-link accessible name; separate primary navigation row below the masthead"
+    },
+    {
+      "id": "mobile-branding",
+      "logoVariant": "compact",
+      "spec": "Compact artwork at 28-40px rendered height on a light masthead; labelled disclosure button for navigation; the full lockup is never shrunk to fit"
+    },
+    {
+      "id": "news-cover",
+      "logoVariant": "none",
+      "spec": "News cover images carry no embedded logo; the compact lockup may sit on a light caption mat beside the image when a cover template requires identification"
+    },
+    {
+      "id": "course-document-cover",
+      "logoVariant": "full",
+      "spec": "Generated course-document covers place the full artwork top-left on white at minimum 40mm width; course code in IBM Plex Mono; offering term and section below the rule"
+    },
+    {
+      "id": "social-preview",
+      "logoVariant": "full",
+      "spec": "og:image 1200x630: full artwork centered on --color-canvas with the page title in --color-text; no photography without provenance; no text inside the artwork's clear space"
+    },
+    {
+      "id": "print",
+      "logoVariant": "full",
+      "spec": "Print keeps the full-color artwork on white at the top of the first page; navigation and interactive controls are stripped; URLs are retained where useful"
+    }
+  ],
+  "bans": {
+    "effects": [
+      "linear-gradient",
+      "radial-gradient",
+      "conic-gradient",
+      "box-shadow",
+      "text-shadow",
+      "drop-shadow",
+      "backdrop-filter",
+      "backdrop-blur",
+      "filter: blur",
+      "border-radius > 4px on controls",
+      "pill radius",
+      "transition: all",
+      "animation of layout properties",
+      "scroll-hijack",
+      "pinned storytelling",
+      "marquee",
+      "parallax",
+      "autoplay media",
+      "glass navigation",
+      "decorative gradients outside the artwork",
+      "emoji in UI",
+      "flag icons for locales",
+      "external runtime asset URLs",
+      "copied institutional marks",
+      "placeholder stock imagery"
+    ],
+    "note": "The waveform gradient inside the supplied artwork is the single permitted gradient; it is part of the artwork, not a decorative effect"
+  }
+}

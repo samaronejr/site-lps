@@ -31,9 +31,9 @@ describe("bilingual information architecture", () => {
       expect(report.issues).toEqual([]);
       expect(report.counts).toEqual({
         applicationDomains: 7,
-        pages: 21,
+        pages: 24,
         researchAreas: 4,
-        routes: 42,
+        routes: 48,
         searchFacets: 9,
       });
       await expect(

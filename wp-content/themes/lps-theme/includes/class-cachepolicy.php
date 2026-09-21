@@ -32,7 +32,7 @@ final class CachePolicy {
 	public const STALE_WHILE_REVALIDATE = 60;
 
 	/** Query keys that address a real public state and may therefore be cached. */
-	private const ALLOWED_QUERY_KEYS = array( 'category', 'domain', 'page', 'q', 'record', 'status', 'type', 'year', 'area' );
+	private const ALLOWED_QUERY_KEYS = array( 'category', 'domain', 'page', 'q', 'record', 'status', 'type', 'year', 'area', 'term', 'level', 'instructor', 'language' );
 
 	/** Query keys that always mark a personalized or unpublished view. */
 	private const PRIVATE_QUERY_KEYS = array( '_wpnonce', 'preview', 'preview_id', 'preview_nonce', 'p', 'customize_changeset_uuid' );
@@ -99,7 +99,7 @@ final class CachePolicy {
 	/**
 	 * Lists the canonical public URLs a publish must expire.
 	 *
-	 * @param array{permalink?: string, archives?: array<int, string>, translations?: array<int, string>, terms?: array<int, string>, locales?: array<int, string>} $record Changed record.
+	 * @param array{permalink?: string, archives?: array<int, string>, translations?: array<int, string>, terms?: array<int, string>, related?: array<int, string>, locales?: array<int, string>} $record Changed record.
 	 *
 	 * @return array<int, string>
 	 */
@@ -111,7 +111,7 @@ final class CachePolicy {
 
 		$origin  = self::origin( $permalink );
 		$targets = array( $permalink );
-		foreach ( array( 'archives', 'translations', 'terms', 'records' ) as $group ) {
+		foreach ( array( 'archives', 'translations', 'terms', 'related', 'records' ) as $group ) {
 			foreach ( $record[ $group ] ?? array() as $url ) {
 				if ( '' !== trim( $url ) ) {
 					$targets[] = trim( $url );

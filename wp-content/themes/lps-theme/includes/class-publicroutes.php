@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace LPS\Theme;
 
 use LPS\ContentModel\Relationships;
+use LPS\ContentModel\TeachingRecords;
 use LPS\ContentModel\Translations;
 use WP_Post;
 use WP_Query;
@@ -511,7 +512,9 @@ final class PublicRoutes {
 	public static function people( string $locale ): array {
 		$people = array();
 		foreach ( self::records( 'lps_person', $locale ) as $post ) {
-			$record = self::person_record( $post->post_name, $post->post_title, self::meta( $post->ID ), self::history( $post, $locale ) );
+			$record             = self::person_record( $post->post_name, $post->post_title, self::meta( $post->ID ), self::history( $post, $locale ) );
+			$record['stale']    = self::is_stale_translation( $post );
+			$record['teaching'] = self::teaching_history( $post, $locale );
 			if ( true === $record['published'] ) {
 				$people[] = $record;
 			}
@@ -528,7 +531,8 @@ final class PublicRoutes {
 	public static function organizations( string $locale ): array {
 		$organizations = array();
 		foreach ( self::records( 'lps_organization', $locale ) as $post ) {
-			$record = self::organization_record( $post->post_name, $post->post_title, self::meta( $post->ID ) );
+			$record          = self::organization_record( $post->post_name, $post->post_title, self::meta( $post->ID ) );
+			$record['stale'] = self::is_stale_translation( $post );
 			if ( true === $record['public_profile'] ) {
 				$organizations[] = $record;
 			}
@@ -549,7 +553,9 @@ final class PublicRoutes {
 			if ( 'infrastructure-facility' !== self::value( $meta, '_lps_page_key' ) ) {
 				continue;
 			}
-			$facilities[] = self::facility_record( $post->post_name, $post->post_title, $meta );
+			$facility          = self::facility_record( $post->post_name, $post->post_title, $meta );
+			$facility['stale'] = self::is_stale_translation( $post );
+			$facilities[]      = $facility;
 		}
 		return $facilities;
 	}
@@ -592,6 +598,29 @@ final class PublicRoutes {
 	}
 
 	/**
+	 * Returns the derived teaching history of one person in the route locale.
+	 *
+	 * The entries come from the canonical `teaching_team` rows read backwards
+	 * through `TeachingRecords::person_history`, so a co-taught offering appears
+	 * on every member's profile with the same course, term, and section data —
+	 * never as a duplicated per-person copy.
+	 *
+	 * @param WP_Post $post   Person record.
+	 * @param string  $locale Supported locale slug.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private static function teaching_history( WP_Post $post, string $locale ): array {
+		if ( ! class_exists( TeachingRecords::class ) ) {
+			return array();
+		}
+		$history = TeachingRecords::person_history( $post->ID, $locale, 'view' );
+		if ( ! is_array( $history ) || ! is_array( $history['entries'] ?? null ) ) {
+			return array();
+		}
+		return $history['entries'];
+	}
+
+	/**
 	 * Returns published records of one type and locale.
 	 *
 	 * The set is read one bounded page at a time so a single query never asks
@@ -617,6 +646,10 @@ final class PublicRoutes {
 					'order'                  => 'ASC',
 					'no_found_rows'          => true,
 					'update_post_term_cache' => false,
+					// Pin the queried locale: on requests without a locale prefix (locale
+					// sitemaps, feeds) Polylang would otherwise filter to the default
+					// language and silently drop the records of the requested locale.
+					'lang'                   => $locale,
 					'meta_query'             => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- locale is the routing key of this surface.
 						array(
 							'key'   => '_lps_locale',
@@ -723,9 +756,30 @@ final class PublicRoutes {
 		if ( ! $post instanceof WP_Post || ! class_exists( Translations::class ) ) {
 			return $post instanceof WP_Post ? $post : null;
 		}
+		if ( Translations::locale( $post->ID ) === $locale ) {
+			return $post;
+		}
+		// A missing variant resolves to nothing: history links never substitute
+		// the other language's record for the requested locale.
 		$variants = Translations::variants( $post->ID );
 		$variant  = isset( $variants[ $locale ] ) ? get_post( $variants[ $locale ] ) : null;
-		return $variant instanceof WP_Post ? $variant : $post;
+		return $variant instanceof WP_Post ? $variant : null;
+	}
+
+	/**
+	 * Reports whether an English record trails its reviewed Portuguese source.
+	 *
+	 * Staleness is a source-hash comparison owned by the translation policy, never
+	 * a timestamp guess: the flag is set only for English variants whose reviewed
+	 * hash no longer matches the authority record.
+	 *
+	 * @param WP_Post $post Record.
+	 */
+	private static function is_stale_translation( WP_Post $post ): bool {
+		if ( ! class_exists( Translations::class ) ) {
+			return false;
+		}
+		return 'en' === Translations::locale( $post->ID ) && Translations::is_stale( $post->ID );
 	}
 
 	/**

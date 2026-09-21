@@ -13,6 +13,8 @@ use WP_Error;
 use WP_Post;
 use WP_REST_Request;
 
+require_once __DIR__ . '/class-publicationpolicy.php';
+
 /** WordPress adapter for the portable content contracts. */
 final class Plugin {
 	private const SCHEMA_OPTION = 'lps_content_model_schema_version';
@@ -36,9 +38,13 @@ final class Plugin {
 		Reports::boot();
 		Media::boot();
 		SearchIndex::boot();
+		TeachingRecords::boot();
+		TeachingRest::boot();
+		TeachingResources::boot();
 		add_action( 'init', array( self::class, 'register' ), 5 );
 		add_action( 'init', array( self::class, 'migrate' ), 10 );
 		add_action( 'add_meta_boxes', array( self::class, 'add_meta_boxes' ) );
+		add_action( 'save_post', array( self::class, 'persist_pending_scoped_parent' ), 9, 2 );
 		add_action( 'save_post', array( self::class, 'save_admin_fields' ), 10, 2 );
 		add_action( 'wp_after_insert_post', array( self::class, 'complete_record' ), 10, 4 );
 		add_action( 'deleted_post', array( Relationships::class, 'cleanup_deleted_post' ) );
@@ -66,6 +72,10 @@ final class Plugin {
 		foreach ( Contracts::post_types() as $post_type => $definition ) {
 			if ( 'page' === $post_type ) {
 				add_post_type_support( 'page', 'custom-fields' );
+				add_post_type_support( 'page', 'thumbnail' );
+				continue;
+			}
+			if ( in_array( $post_type, TeachingContracts::POST_TYPES, true ) ) {
 				continue;
 			}
 			$args = $definition;
@@ -83,6 +93,7 @@ final class Plugin {
 			register_post_type( $post_type, $args );
 		}
 
+		TeachingContracts::register();
 		Taxonomies::register();
 		Media::register();
 
@@ -140,6 +151,7 @@ final class Plugin {
 			update_option( self::SCHEMA_OPTION, Contracts::VERSION, false );
 		}
 		Migrations::apply();
+		TeachingMigrations::apply();
 		SearchIndex::install();
 	}
 
@@ -191,8 +203,23 @@ final class Plugin {
 		}
 		$raw_post_id = $postarr['ID'] ?? 0;
 		$post_id     = is_numeric( $raw_post_id ) ? (int) $raw_post_id : 0;
-		$incoming    = $unsanitized['meta_input'] ?? array();
-		$incoming    = is_array( $incoming ) ? $incoming : array();
+		$role        = Roles::policy_role();
+		if ( TeachingPolicy::is_scoped_role( $role ) ) {
+			$stored_post = 0 < $post_id ? get_post( $post_id ) : null;
+			if ( $stored_post instanceof WP_Post ) {
+				$scoped_error = Roles::scoped_post_error( get_current_user_id(), 'edit', $stored_post );
+			} else {
+				$grants       = Roles::teaching_grants( get_current_user_id() );
+				$scoped_error = 'lps_offering' === $post_type ? 'lps_teaching_scope_required' : TeachingPolicy::scope_error( $role, 'create', $post_type, 0, $grants, gmdate( 'c' ) );
+			}
+			if ( null !== $scoped_error ) {
+				self::$pending_errors[ $post_id ]['_lps_scope'] = $scoped_error;
+				$data['post_status']                            = $update ? Policy::scalar_string( get_post_status( $post_id ) ) : 'draft';
+				return $data;
+			}
+		}
+		$incoming = $unsanitized['meta_input'] ?? array();
+		$incoming = is_array( $incoming ) ? $incoming : array();
 		/**
 		 * Typed direct-insert metadata.
 		 *
@@ -238,9 +265,15 @@ final class Plugin {
 				$data['post_status']                             = $update ? Policy::scalar_string( get_post_status( $post_id ) ) : 'draft';
 				return $data;
 			}
+			$origin_error = PublicationPolicy::origin_consistency_error( $meta );
+			if ( null !== $origin_error ) {
+				self::$pending_errors[ $post_id ]['_lps_origin'] = $origin_error;
+				$data['post_status']                             = $update ? Policy::scalar_string( get_post_status( $post_id ) ) : 'draft';
+				return $data;
+			}
 			$record                 = array_merge( $meta, $data );
 			$relationship_source_id = Translations::source_id( $post_id ) ?? $post_id;
-			$errors                 = array_merge( Policy::publish_errors( $post_type, $record ), Relationships::publish_errors( $post_type, $relationship_source_id ) );
+			$errors                 = array_merge( Policy::publish_errors( $post_type, $record ), Relationships::publish_errors( $post_type, $relationship_source_id ), TeachingContracts::publish_errors( $post_type, $record ) );
 			if ( ! empty( $errors ) ) {
 				self::$pending_errors[ $post_id ] = $errors;
 				$data['post_status']              = $update ? Policy::scalar_string( get_post_status( $post_id ) ) : 'draft';
@@ -261,8 +294,19 @@ final class Plugin {
 		$post_id   = isset( $prepared->ID ) && is_numeric( $prepared->ID ) ? (int) $prepared->ID : Policy::sanitize_integer( $request->get_param( 'id' ) );
 		$role      = Roles::policy_role();
 		$action    = 0 < $post_id ? 'edit' : 'create';
-		if ( '' !== $role && ! Roles::current_user_can_action( $action, Roles::collection_for_post_type( $post_type ) ) ) {
-			return self::error( 'lps_collection_scope_forbidden', 'This account is not assigned to this collection or action.', 'type', array(), 403 );
+		if ( TeachingPolicy::is_scoped_role( $role ) ) {
+			$scoped_error = self::scoped_rest_error( $role, $action, $post_type, $post_id, $request );
+			if ( null !== $scoped_error ) {
+				return self::error( $scoped_error, 'This account lacks the required teaching scope for this action.', 'type' );
+			}
+			if ( 'create' === $action && isset( TeachingPolicy::RELATIONSHIP_SCOPES[ $post_type ] ) ) {
+				// The declared parent was already validated against the persisted
+				// grants; stash it so `save_post` can write the canonical row before
+				// the REST meta update checks `edit_post_meta` on the new record.
+				self::$pending_scoped_offering = Policy::sanitize_integer( $request->get_param( 'lps_parent_offering' ) );
+			}
+		} elseif ( '' !== $role && ! Roles::current_user_can_action( $action, Roles::collection_for_post_type( $post_type ) ) ) {
+			return self::error( 'lps_collection_scope_forbidden', 'This account is not assigned to this collection or action.', 'type' );
 		}
 		$incoming = $request->get_param( 'meta' );
 		$incoming = is_array( $incoming ) ? $incoming : array();
@@ -275,6 +319,9 @@ final class Plugin {
 		foreach ( array_keys( $incoming ) as $field ) {
 			if ( ! SecurityPolicy::can_write_field( $role, (string) $field, $locale ) ) {
 				return self::error( 'lps_translator_shared_field_forbidden', 'Translators may change only localized English editorial fields.', (string) $field, array(), 403 );
+			}
+			if ( ! TeachingPolicy::field_write_allowed( $role, $post_type, (string) $field ) ) {
+				return self::error( 'lps_teaching_field_forbidden', 'This scoped account may not write this field.', (string) $field );
 			}
 		}
 		$meta          = self::merged_meta( $post_type, $post_id, $incoming );
@@ -323,6 +370,15 @@ final class Plugin {
 			}
 		}
 
+		if ( isset( $incoming['_lps_origin'] ) ) {
+			$origin_error = 'en' === $locale
+				? 'lps_origin_variant_forbidden'
+				: PublicationPolicy::origin_write_error( Policy::scalar_string( get_post_meta( $post_id, '_lps_origin', true ) ), Policy::scalar_string( $incoming['_lps_origin'] ), $meta );
+			if ( null !== $origin_error ) {
+				return self::error( $origin_error, 'The record origin cannot be written this way.', '_lps_origin' );
+			}
+		}
+
 		$translation_input = array_merge( $incoming, array( 'lang' => $request->get_param( 'lang' ) ) );
 		$requested_status  = isset( $prepared->post_status ) && is_string( $prepared->post_status ) ? $prepared->post_status : Policy::scalar_string( $request->get_param( 'status' ) );
 		$requested_status  = '' === $requested_status && 0 < $post_id ? Policy::scalar_string( get_post_status( $post_id ) ) : $requested_status;
@@ -332,6 +388,10 @@ final class Plugin {
 		}
 
 		if ( 'publish' === $requested_status ) {
+			$origin_error = PublicationPolicy::origin_consistency_error( $meta );
+			if ( null !== $origin_error ) {
+				return self::error( $origin_error, 'The record origin conflicts with its stored provenance.', '_lps_origin' );
+			}
 			$stored_post = 0 < $post_id ? get_post( $post_id ) : null;
 			$record      = array_merge(
 				$meta,
@@ -343,7 +403,7 @@ final class Plugin {
 			);
 
 			$relationship_source_id = Translations::source_id( $post_id ) ?? $post_id;
-			$errors                 = array_merge( Policy::publish_errors( $post_type, $record ), Relationships::publish_errors( $post_type, $relationship_source_id ) );
+			$errors                 = array_merge( Policy::publish_errors( $post_type, $record ), Relationships::publish_errors( $post_type, $relationship_source_id ), TeachingContracts::publish_errors( $post_type, $record ) );
 			if ( ! empty( $errors ) ) {
 				$code  = reset( $errors );
 				$field = (string) array_key_first( $errors );
@@ -363,6 +423,29 @@ final class Plugin {
 	 * @return mixed
 	 */
 	public static function protect_identity_meta( mixed $check, int $object_id, string $meta_key, mixed $meta_value ): mixed {
+		if ( '_lps_origin' === $meta_key ) {
+			// An English variant never carries its own origin: provenance lives
+			// on the Portuguese authority and is read from there.
+			if ( 'en' === Translations::locale( $object_id ) ) {
+				return false;
+			}
+			$stored = Policy::scalar_string( get_post_meta( $object_id, '_lps_origin', true ) );
+			$record = array();
+			foreach ( PublicationPolicy::decision_meta_keys() as $key ) {
+				$record[ $key ] = get_post_meta( $object_id, $key, true );
+			}
+			$candidate = Policy::scalar_string( $meta_value );
+			return null === PublicationPolicy::origin_write_error( $stored, $candidate, $record ) ? $check : false;
+		}
+		if ( 'en' === Translations::locale( $object_id ) && in_array( $meta_key, PublicationPolicy::english_forbidden_provenance_keys(), true ) ) {
+			// A variant cannot mint import provenance or a Crossref identity.
+			return false;
+		}
+		if ( '_lps_term_token' === $meta_key ) {
+			$stored    = Policy::scalar_string( get_post_meta( $object_id, $meta_key, true ) );
+			$candidate = Policy::scalar_string( $meta_value );
+			return '' === $stored || hash_equals( $stored, $candidate ) ? $check : false;
+		}
 		if ( '_lps_record_id' !== $meta_key ) {
 			return $check;
 		}
@@ -371,7 +454,7 @@ final class Plugin {
 		return Policy::can_change_identity( $stored, $candidate ) ? $check : false;
 	}
 
-	/** Blocks translator writes to shared identifiers, dates, and relationship fields.
+	/** Blocks translator and scoped-role writes outside their field and grant boundaries.
 	 *
 	 * @param mixed  $check      Existing short-circuit value.
 	 * @param int    $object_id  Record ID.
@@ -383,7 +466,17 @@ final class Plugin {
 		unset( $meta_value );
 		$role   = Roles::policy_role();
 		$locale = Policy::scalar_string( get_post_meta( $object_id, '_lps_locale', true ) );
-		return SecurityPolicy::can_write_field( $role, $meta_key, $locale ) ? $check : false;
+		if ( ! SecurityPolicy::can_write_field( $role, $meta_key, $locale ) ) {
+			return false;
+		}
+		if ( ! TeachingPolicy::is_scoped_role( $role ) ) {
+			return $check;
+		}
+		$post = get_post( $object_id );
+		if ( ! $post instanceof WP_Post || ! TeachingPolicy::field_write_allowed( $role, $post->post_type, $meta_key ) ) {
+			return false;
+		}
+		return null === Roles::scoped_post_error( get_current_user_id(), 'edit', $post ) ? $check : false;
 	}
 
 	/** Removes private ownership and audit-shaped values from anonymous REST responses.
@@ -425,11 +518,31 @@ final class Plugin {
 		if ( ! isset( Contracts::post_types()[ $post->post_type ] ) || wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) ) {
 			return;
 		}
+		// Identity, provenance, timestamp and editorial-state fields are
+		// system-owned: the scoped-role field guard correctly denies them to
+		// direct writes, so the completer lifts that one guard for its own
+		// writes and restores it immediately.
+		remove_filter( 'update_post_metadata', array( self::class, 'protect_role_meta' ), 11 );
 		$now = gmdate( 'c' );
 		if ( '' === Policy::scalar_string( get_post_meta( $post_id, '_lps_record_id', true ) ) ) {
 			$prefix = str_replace( 'lps_', '', $post->post_type );
 			$prefix = str_replace( '_', '-', $prefix );
 			update_post_meta( $post_id, '_lps_record_id', 'lps:' . $prefix . ':' . wp_generate_uuid4() );
+		}
+		if ( '' === Policy::scalar_string( get_post_meta( $post_id, '_lps_origin', true ) ) ) {
+			$provenance = array();
+			foreach ( PublicationPolicy::decision_meta_keys() as $key ) {
+				$provenance[ $key ] = get_post_meta( $post_id, $key, true );
+			}
+			if ( PublicationPolicy::has_import_provenance( $provenance ) ) {
+				// Real provenance always resolves to imported, even on legacy saves.
+				update_post_meta( $post_id, '_lps_origin', PublicationPolicy::ORIGIN_IMPORTED );
+			} elseif ( ! $update ) {
+				// Only genuinely new records are marked native; a legacy record
+				// saved without provenance stays ambiguous and is reported, never
+				// automatically trusted.
+				update_post_meta( $post_id, '_lps_origin', PublicationPolicy::ORIGIN_NATIVE );
+			}
 		}
 		if ( ! $update || '' === Policy::scalar_string( get_post_meta( $post_id, '_lps_created_at', true ) ) ) {
 			update_post_meta( $post_id, '_lps_created_at', $now );
@@ -440,6 +553,29 @@ final class Plugin {
 		if ( 'publish' === $post->post_status && '' === Policy::scalar_string( get_post_meta( $post_id, '_lps_published_slug', true ) ) ) {
 			update_post_meta( $post_id, '_lps_published_slug', $post->post_name );
 		}
+		if ( 'lps_term' === $post->post_type && '' === Policy::scalar_string( get_post_meta( $post_id, '_lps_term_token', true ) ) ) {
+			$token = TeachingContracts::term_token(
+				get_post_meta( $post_id, '_lps_calendar_key', true ),
+				get_post_meta( $post_id, '_lps_term_code', true )
+			);
+			if ( '' !== $token ) {
+				update_post_meta( $post_id, '_lps_term_token', $token );
+			}
+		}
+		if ( 'lps_offering' === $post->post_type ) {
+			$term_rows = Relationships::for_source( $post_id, 'offering_term' );
+			$term_id   = Policy::sanitize_integer( $term_rows[0]['target_post_id'] ?? 0 );
+			$status    = 0 < $term_id ? TeachingContracts::temporal_status(
+				get_post_meta( $term_id, '_lps_starts_on', true ),
+				get_post_meta( $term_id, '_lps_ends_on', true ),
+				get_post_meta( $post_id, '_lps_cancelled', true ),
+				TeachingContracts::today()
+			) : '';
+			if ( '' !== $status ) {
+				update_post_meta( $post_id, '_lps_temporal_status', $status );
+			}
+		}
+		add_filter( 'update_post_metadata', array( self::class, 'protect_role_meta' ), 11, 5 );
 	}
 
 	/**
@@ -532,7 +668,7 @@ final class Plugin {
 				continue;
 			}
 			$value    = get_post_meta( $post->ID, $key, true );
-			$readonly = '_lps_record_id' === $key || '_lps_published_slug' === $key || str_ends_with( $key, '_at' ) || str_starts_with( $key, '_lps_source_' ) || str_starts_with( $key, '_lps_reviewed_source_' ) || '_lps_translation_reviewer_id' === $key;
+			$readonly = '_lps_record_id' === $key || '_lps_published_slug' === $key || '_lps_origin' === $key || str_ends_with( $key, '_at' ) || str_starts_with( $key, '_lps_source_' ) || str_starts_with( $key, '_lps_reviewed_source_' ) || str_starts_with( $key, '_lps_import_' ) || str_starts_with( $key, '_lps_crossref_' ) || str_starts_with( $key, '_lps_copy_' ) || '_lps_translation_reviewer_id' === $key;
 			$id       = 'lps-field-' . sanitize_html_class( $key );
 			echo '<p><label for="' . esc_attr( $id ) . '"><strong>' . esc_html( (string) $definition['description'] ) . '</strong></label><br>';
 			if ( 'boolean' === $definition['type'] ) {
@@ -566,7 +702,7 @@ final class Plugin {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Each typed value uses its registered sanitizer below.
 		$submitted = isset( $_POST['lps_meta'] ) && is_array( $_POST['lps_meta'] ) ? wp_unslash( $_POST['lps_meta'] ) : array();
 		foreach ( Contracts::meta_fields()[ $post->post_type ] as $key => $definition ) {
-			if ( '_lps_record_id' === $key || '_lps_published_slug' === $key || str_ends_with( $key, '_at' ) || str_starts_with( $key, '_lps_source_' ) || str_starts_with( $key, '_lps_reviewed_source_' ) || '_lps_translation_reviewer_id' === $key || in_array( $key, RelationshipPolicy::legacy_relationship_meta_keys(), true ) || '_lps_application_domains' === $key ) {
+			if ( '_lps_record_id' === $key || '_lps_published_slug' === $key || '_lps_origin' === $key || str_ends_with( $key, '_at' ) || str_starts_with( $key, '_lps_source_' ) || str_starts_with( $key, '_lps_reviewed_source_' ) || str_starts_with( $key, '_lps_import_' ) || str_starts_with( $key, '_lps_crossref_' ) || str_starts_with( $key, '_lps_copy_' ) || '_lps_translation_reviewer_id' === $key || in_array( $key, RelationshipPolicy::legacy_relationship_meta_keys(), true ) || '_lps_application_domains' === $key ) {
 				continue;
 			}
 			$value = $submitted[ $key ] ?? ( 'boolean' === $definition['type'] ? false : null );
@@ -618,6 +754,109 @@ final class Plugin {
 			echo '<li><code>' . esc_html( $code ) . '</code>: ' . esc_html( $field ) . '</li>';
 		}
 		echo '</ul></div>';
+	}
+
+	/**
+	 * Returns the first scoped REST denial, or null when the request may proceed.
+	 *
+	 * Creates of units and resources must declare their parent offering through
+	 * the `lps_parent_offering` parameter; the declared ID is validated against
+	 * the persisted grant list, so an input ID can never create its own access.
+	 * Scoped roles never create offerings directly: offering creation is an
+	 * institutional act and copy-forward is a dedicated server operation.
+	 *
+	 * @param string          $role      Scoped policy role.
+	 * @param string          $action    `create` or `edit`.
+	 * @param string          $post_type Governed record type.
+	 * @param int             $post_id   Record ID for updates.
+	 * @param WP_REST_Request $request   Current REST request.
+	 */
+	private static function scoped_rest_error( string $role, string $action, string $post_type, int $post_id, WP_REST_Request $request ): ?string {
+		$user = wp_get_current_user();
+		if ( ! SecurityPolicy::privileged_session_allowed( $role, MFA::is_enrolled( $user->ID ) ) ) {
+			return 'lps_mfa_required';
+		}
+		if ( ! in_array( $post_type, TeachingPolicy::SCOPED_POST_TYPES, true ) ) {
+			return 'lps_teaching_scope_post_type';
+		}
+		$offering_id = 0;
+		if ( 'offering' === TeachingPolicy::scope_for_post_type( $post_type ) ) {
+			if ( 0 < $post_id ) {
+				$stored = get_post( $post_id );
+				if ( ! $stored instanceof WP_Post ) {
+					return 'lps_teaching_scope_required';
+				}
+				$offering_id = Roles::persisted_offering_id( $stored );
+			} else {
+				if ( 'lps_offering' === $post_type ) {
+					return 'lps_teaching_scope_required';
+				}
+				$offering_id = Policy::sanitize_integer( $request->get_param( 'lps_parent_offering' ) );
+				$parent      = 0 < $offering_id ? get_post( $offering_id ) : null;
+				if ( ! $parent instanceof WP_Post || 'lps_offering' !== $parent->post_type ) {
+					return 'lps_teaching_scope_required';
+				}
+			}
+		}
+		$grants = Roles::teaching_grants( $user->ID );
+		$error  = TeachingPolicy::scope_error( $role, $action, $post_type, $offering_id, $grants, gmdate( 'c' ) );
+		if ( null !== $error ) {
+			return $error;
+		}
+		$author_param = $request->get_param( 'author' );
+		if ( null !== $author_param ) {
+			$author_id = Policy::sanitize_integer( $author_param );
+			$expected  = 0 < $post_id ? Policy::sanitize_integer( get_post_field( 'post_author', $post_id ) ) : $user->ID;
+			if ( $author_id !== $expected ) {
+				return 'lps_teaching_owner_forbidden';
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Offering ID declared by an in-flight scoped REST create.
+	 *
+	 * @var int|null
+	 */
+	private static ?int $pending_scoped_offering = null;
+
+	/**
+	 * Persists the validated parent offering inside `wp_insert_post`.
+	 *
+	 * `validate_rest_insert` already proved the declared `lps_parent_offering`
+	 * is a real offering inside the account's active grants. Writing the
+	 * canonical `unit_offering` or `resource_offering` row on `save_post` —
+	 * before the REST meta update checks `edit_post_meta` — keeps the new
+	 * record scoped from its first persisted state.
+	 *
+	 * @param int     $post_id Inserted record ID.
+	 * @param WP_Post $post    Inserted record.
+	 */
+	public static function persist_pending_scoped_parent( int $post_id, WP_Post $post ): void {
+		$offering_id = self::$pending_scoped_offering;
+		if ( null === $offering_id ) {
+			return;
+		}
+		self::$pending_scoped_offering = null;
+		$relationship                  = TeachingPolicy::RELATIONSHIP_SCOPES[ $post->post_type ] ?? '';
+		if ( '' === $relationship || 0 >= $offering_id ) {
+			return;
+		}
+		Relationships::replace(
+			$post_id,
+			$relationship,
+			array(
+				array(
+					'target_post_id'    => $offering_id,
+					'relationship_role' => 'unit_offering' === $relationship ? 'part-of' : 'attached-to',
+					'sort_order'        => 1,
+					'start_date'        => '',
+					'end_date'          => '',
+					'public_visibility' => true,
+				),
+			)
+		);
 	}
 
 	/**

@@ -523,6 +523,57 @@ export const ROUTES = [
     classes: ["images", "external-links"],
   },
 
+  // Teaching surfaces: landing, course detail, and the canonical offering page.
+  {
+    id: "teaching-pt",
+    template: "archive-lps_course.html",
+    locale: "pt-br",
+    path: "/pt-br/ensino/",
+    state: "populated",
+    classes: ["headings", "navigation"],
+  },
+  {
+    id: "teaching-en",
+    template: "archive-lps_course.html",
+    locale: "en",
+    path: "/en/teaching/",
+    state: "populated",
+    classes: ["headings", "navigation"],
+  },
+  {
+    id: "course-pt",
+    template: "single-lps_course.html",
+    locale: "pt-br",
+    path: "/pt-br/ensino/disciplinas/sinais-e-sistemas-fixture/",
+    state: "populated",
+    classes: ["headings", "relationships"],
+  },
+  {
+    id: "course-en",
+    template: "single-lps_course.html",
+    locale: "en",
+    path: "/en/teaching/courses/signals-and-systems-fixture/",
+    state: "populated",
+    classes: ["headings", "relationships"],
+  },
+  {
+    id: "offering-pt",
+    template: "single-lps_offering.html",
+    locale: "pt-br",
+    path: "/pt-br/ensino/disciplinas/sinais-e-sistemas-fixture/2026-2-semester/t01/",
+    state: "current",
+    // Temporal status is permanent page content announced by its visible label.
+    classes: ["headings", "relationships", "state-labels"],
+  },
+  {
+    id: "offering-en",
+    template: "single-lps_offering.html",
+    locale: "en",
+    path: "/en/teaching/courses/signals-and-systems-fixture/2026-2-semester/t01/",
+    state: "current",
+    classes: ["headings", "relationships", "state-labels"],
+  },
+
   // Error state.
   {
     id: "not-found-pt",
