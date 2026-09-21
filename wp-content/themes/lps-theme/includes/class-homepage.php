@@ -317,10 +317,13 @@ final class Homepage {
 		$html    = $sections[ $section ][0] . ' class="lps-home-section" aria-labelledby="lps-home-' . $section . '">';
 		$items   = array_values( array_filter( $records, static fn( array $record ): bool => self::reviewed_feature( $record, $locale, $today ) ) );
 		if ( 'journeys' === $section ) {
-			$html .= '<h2 id="lps-home-journeys">' . self::escape( $heading ) . '</h2><ul class="lps-home-journeys">';
+			$html .= '<p class="lps-home-kicker" aria-hidden="true">05</p><h2 id="lps-home-journeys">' . self::escape( $heading ) . '</h2><ul class="lps-home-journeys">';
+			$index = 0;
 			foreach ( self::journeys( $locale ) as $journey ) {
+				$index  ++;
 				$matches = array_values( array_filter( $items, static fn( array $record ): bool => ( $record['page_key'] ?? '' ) === $journey['page_key'] && '' !== trim( self::text( $record['cta'] ?? '' ) ) ) );
 				$html   .= '<li>';
+				$html   .= '<span class="lps-journey-index" aria-hidden="true">' . str_pad( (string) $index, 2, '0', STR_PAD_LEFT ) . '</span>';
 				$html   .= '<h3 class="lps-journey-label">' . self::escape( $journey['label'] ) . '</h3>';
 				if ( isset( $matches[0] ) ) {
 					$record = $matches[0];
@@ -341,8 +344,24 @@ final class Homepage {
 			$heading = self::text( $items[0]['title'] );
 			$html    = str_replace( ' class="lps-home-section"', ' data-source-id="' . self::escape( self::text( $items[0]['source_id'] ) ) . '" class="lps-home-section"', $html );
 		}
-		$level = 'mission' === $section ? 'h1' : 'h2';
+		$level   = 'mission' === $section ? 'h1' : 'h2';
+		$numbers = array(
+			'research'       => '02',
+			'evidence'       => '03',
+			'projects'       => '04',
+			'people'         => '06',
+			'infrastructure' => '07',
+			'latest'         => '08',
+			'partners'       => '09',
+			'contact'        => '10',
+		);
+		if ( isset( $numbers[ $section ] ) ) {
+			$html .= '<p class="lps-home-kicker" aria-hidden="true">' . $numbers[ $section ] . '</p>';
+		}
 		$html .= '<' . $level . ' id="lps-home-' . $section . '">' . self::escape( $heading ) . '</' . $level . '>';
+		if ( 'mission' === $section ) {
+			$html .= '<p class="lps-mission-meta"' . ( $english ? '' : ' lang="pt-BR"' ) . '>' . ( $english ? 'Founded in 1996 at the Federal University of Rio de Janeiro — UFRJ / COPPE' : 'Fundado em 1996 na Universidade Federal do Rio de Janeiro — UFRJ / COPPE' ) . '</p>';
+		}
 		if ( array() === $items ) {
 			return $html . '<p data-home-empty="' . $section . '">' . ( $english ? 'Reviewed information has not been published for this section.' : 'Informações revisadas ainda não foram publicadas nesta seção.' ) . '</p></section>';
 		}

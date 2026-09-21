@@ -187,11 +187,20 @@ final class Shell {
 		foreach ( $links as $label => $url ) {
 			$items .= '<li><a href="' . $url . '">' . self::escape( $label ) . '</a></li>';
 		}
-		$nav_label = $english ? 'Institutional information' : 'Informações institucionais';
-		$statement = $english ? 'Part of COPPE at the Federal University of Rio de Janeiro.' : 'Parte da COPPE na Universidade Federal do Rio de Janeiro.';
-		$home      = $english ? '/en/' : '/pt-br/';
-		$home_name = $english ? 'LPS - home' : 'LPS - início';
-		return '<footer class="lps-site-footer"><div class="lps-footer-grid lps-page-grid"><a class="lps-wordmark lps-wordmark-light" href="' . $home . '" aria-label="' . self::escape( $home_name ) . '">' . self::mark_symbol() . 'LPS</a><div><p>' . self::escape( $statement ) . '</p><p class="lps-meta">UFRJ <span aria-hidden="true">/</span> COPPE <span aria-hidden="true">/</span> LPS</p></div><nav aria-label="' . self::escape( $nav_label ) . '"><ul>' . $items . '</ul></nav></div></footer>';
+		$nav_label  = $english ? 'Institutional information' : 'Informações institucionais';
+		$statement  = $english ? 'Part of COPPE at the Federal University of Rio de Janeiro. Teaching, research and extension in signal processing and computational intelligence since 1996.' : 'Parte da COPPE na Universidade Federal do Rio de Janeiro. Ensino, pesquisa e extensão em processamento de sinais e inteligência computacional desde 1996.';
+		$home       = $english ? '/en/' : '/pt-br/';
+		$home_name  = $english ? 'LPS - home' : 'LPS - início';
+		$contact_hd = $english ? 'Contact and location' : 'Contato e localização';
+		$address    = 'Av. Athos da Silveira Ramos, 149 — Bloco H, Sala 220, Cidade Universitária, Ilha do Fundão, CEP 21941-914, Rio de Janeiro – RJ';
+		$phone      = '+55 21 3938-8205';
+		$email      = 'secretaria@lps.ufrj.br';
+		$lockup     = '<img class="lps-footer-lockup" src="/wp-content/themes/lps-theme/assets/img/mark/lps-mark-full.svg" alt="" aria-hidden="true" width="2052" height="301" loading="lazy">';
+		return '<footer class="lps-site-footer"><div class="lps-footer-grid lps-page-grid">'
+			. '<div class="lps-footer-identity">' . $lockup . '<p>' . self::escape( $statement ) . '</p><p class="lps-meta">UFRJ <span aria-hidden="true">/</span> COPPE <span aria-hidden="true">/</span> LPS</p></div>'
+			. '<div class="lps-footer-contact"><h2>' . self::escape( $contact_hd ) . '</h2><address lang="pt-BR">' . self::escape( $address ) . '</address><p><a href="tel:+552139388205">' . self::escape( $phone ) . '</a><br><a href="mailto:' . self::escape( $email ) . '">' . self::escape( $email ) . '</a></p></div>'
+			. '<nav aria-label="' . self::escape( $nav_label ) . '"><ul>' . $items . '</ul></nav></div>'
+			. '<div class="lps-footer-base lps-page-grid"><a class="lps-wordmark lps-wordmark-light" href="' . $home . '" aria-label="' . self::escape( $home_name ) . '">' . self::mark_symbol() . 'LPS</a><p class="lps-meta" lang="pt-BR">Laboratório de Processamento de Sinais</p></div></footer>';
 	}
 
 	/**
