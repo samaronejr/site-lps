@@ -358,3 +358,58 @@ No variant is published until the provenance and rights record exists and `_lps_
 - A decorative instance is `aria-hidden` and contributes no accessible name. An interactive instance carries exactly one accessible name per landmark, localised for `pt-BR` and `en`, and never duplicates an adjacent visible institution name.
 - The mark never introduces horizontal overflow at 320 CSS px or at 200% zoom. It reflows by stepping down the variant matrix, never by clipping and never by scaling below its floor.
 - The mark is static. §6 applies to it unchanged: no entrance animation, no hover motion, no gradient animation, no reveal.
+
+## Amendment M1 — Modern institutional refresh (2026-09-21)
+
+Status: binding for `wp-content/themes/lps-modern/` and `showcase/lps-modern/`
+only. The Scientific Editorial contract above keeps governing `lps-theme` and
+`showcase/scientific-editorial/` unchanged; none of the §2/§5/§7/§9 bans are
+relaxed for those paths, and their gates (`design-guardrails`, `check-theme`,
+the scientific showcase checker) keep scanning exactly the paths they scanned
+before.
+
+### Why a second theme
+
+- The laboratory asked for a more sophisticated, modern public surface that
+  follows the section grammar of FEEC/Unicamp (`fee.unicamp.br`): utility
+  topbar, sticky header with lockup, hero with stats, journey cards, research
+  grid, about band, people, infrastructure, partners, agenda/CTA, rich footer.
+- The cleared full lockup's outlined micro-lettering falls below the §3
+  legibility floor at navigation height, so header instances need a horizontal
+  lockup (waveform left, live text right) drawn for small sizes.
+- An additive theme preserves every existing gate and review while the new
+  surface matures. Only one theme is active at a time; `lps-theme` stays the
+  fallback until the laboratory formally cuts over.
+
+### Bounded deltas (lps-modern only)
+
+| Area | Modern rule | Canonical location |
+| --- | --- | --- |
+| Palette | White canvas with deep institutional blues (`brand-ink` `#0a2f5c`, `brand` `#0d4f9c`, `accent` `#0077a8`); all text pairs hold ≥ 4.5:1, large text/UI ≥ 3:1 | `theme.json` palette, `theme.css :root` |
+| Radius | `--radius-sm/md/lg/pill` (6/12/20/999px); every `border-radius` resolves to a token | `theme.json settings.custom`, `theme.css` |
+| Shadow | `--shadow-sm/md/lg`; every `box-shadow` resolves to a token or `none` | same |
+| Gradients | Three registered tokens only: `--gradient-hero`, `--gradient-cta`, `--gradient-bar`; no literal gradient function outside `:root` | `theme.css :root` |
+| Components | Topbar, sticky blurred header, hero + stats + summary card, journey/research/project/people cards, split bands, values, checklist, partner chips, CTA band, 4-column dark footer, honest empty states | `theme.css`, `class-modern-homepage.php` |
+| Headings | Sans-first (interface stack, 750, tight tracking); Source Serif 4 reserved for hero lead, quotes, and long-form reading | `theme.json`, `theme.css` |
+| Motion | Fast/standard state transitions plus a 2px card lift on hover; named properties only, full `prefers-reduced-motion` neutralisation | `theme.css` |
+| Logo | Horizontal lockups (`lps-logo-horizontal*.svg`, `lps-logo-compact*.svg`) whose waveform/reference-line geometry is byte-identical to the cleared source; header instances are decorative `<img>` inside a named home link | `assets/img/logo/`, `RIGHTS.md` there |
+
+### Invariants (unchanged from the base contract)
+
+Token-only color, visible `:focus-visible` everywhere (light variant on dark
+fills), 44px targets, 320px/200% reflow, native semantics and heading order,
+no external runtime asset, no autoplay/carousel/tracking, no invented contact,
+metric, date, or status. Curated homepage fallbacks are marked
+`data-provenance="curated-corpus"` and lose to reviewed CMS records wherever
+both exist. The waveform geometry rule stays artwork-scoped: the logo files
+above are the only waveform graphics the modern theme ships.
+
+### Gates
+
+`npm run qa:modern` (`wp-content/themes/lps-modern/scripts/check-modern.mjs`)
+enforces the modern contract: tokenized color/gradient/radius/shadow, no
+`transition: all`, reduced-motion coverage, explicit focus states, no remote
+assets, locked templates, packaged fonts, palette/custom completeness, and
+logo-geometry digests against the cleared source. `tests/js/lps-modern.test.mjs`
+pins the gate, the ten-section front-page composition, and the showcase
+markers. Working guide: `docs/design/lps-modern-guide.md`.

@@ -1,0 +1,15 @@
+/*
+Theme Name: LPS Modern
+Theme URI: https://lps.ufrj.br/
+Author: Laboratório de Processamento de Sinais (LPS) / COPPE / UFRJ
+Author URI: https://lps.ufrj.br/
+Description: Modern institutional block theme for the Signal Processing Laboratory. FEEC-inspired marketing surface (hero, journey cards, research grid, partners, agenda) over the governed LPS content model. Tokens live in theme.json; components live in assets/css/theme.css.
+Requires at least: 6.6
+Tested up to: 6.9
+Requires PHP: 8.3
+Version: 1.0.0
+License: GNU General Public License v2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: lps-modern
+Tags: block-theme, custom-colors, custom-menu, editor-style, featured-images, full-site-editing, threaded-comments, translation-ready, wide-blocks
+*/

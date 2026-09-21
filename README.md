@@ -26,6 +26,8 @@ governance has not named one, the document states the **role** and records a lau
 | --- | --- |
 | `wp-content/plugins/lps-content-model/` | Content types, taxonomies, metadata, relationships, publish gates, roles/capabilities, translation state, search index, import/export, redirects. |
 | `wp-content/themes/lps-theme/` | `theme.json` tokens, block templates, template parts, patterns, public routes and rendering. |
+| `wp-content/themes/lps-modern/` | Modern FEEC-inspired block theme (Amendment M1): hero, journey cards, research grid, horizontal logo lockups, curated-corpus fallbacks. Self-contained; never requires `lps-theme`. |
+| `showcase/lps-modern/` | Static dependency-free preview of the modern Portuguese homepage (`PORT=4177 node showcase/lps-modern/server.mjs`). |
 | `wp-content/mu-plugins/lps-security.php` | Production plugin allowlist and security headers (must-use plugin). |
 | `content/` | Inventory (`content/inventory/`), controlled vocabularies (`content/taxonomies/`), reviewed corpus (`content/corpus/`) and generated import package (`content/import/`). |
 | `scripts/` | QA lanes, migration rehearsal, backup/recovery, DNS/TLS cutover, performance and accessibility tooling. |
@@ -50,7 +52,7 @@ governance has not named one, the document states the **role** and records a lau
 QA lanes: `npm run qa`, `npm run qa:content`, `npm run qa:links`, `npm run qa:schema`,
 `npm run qa:seo`, `npm run qa:a11y`, `npm run qa:visual`, `npm run qa:security`,
 `npm run qa:infrastructure`, `npm run qa:inventory`, `npm run qa:governance`, `npm run qa:ia`,
-`npm run qa:design-system`.
+`npm run qa:design-system`, `npm run qa:modern`.
 
 ## Rebuild the local environment from scratch
 

@@ -9,6 +9,12 @@ This guide is the working summary for whoever builds or reviews a surface. It ne
 value that `DESIGN.md` and `theme.json` do not already define. Verify with
 `npm run qa:design-system`, which rejects unapproved token, radius, shadow, font and motion values.
 
+> Modern theme: DESIGN.md Amendment M1 (2026-09-21) adds a second,
+> self-contained theme, `wp-content/themes/lps-modern/`, with its own tokens,
+> preview (`showcase/lps-modern/`), guide (`docs/design/lps-modern-guide.md`),
+> and gate (`npm run qa:modern`). Nothing in this guide changes for `lps-theme`;
+> the amendment is purely additive.
+
 ## Colour tokens
 
 Every colour in a template comes from the `theme.json` palette; the same values are exposed as CSS

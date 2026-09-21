@@ -29,6 +29,7 @@
     "qa:governance": "node scripts/run-qa.mjs governance",
     "qa:ia": "node scripts/run-qa.mjs ia",
     "qa:design-system": "node scripts/run-qa.mjs design-system",
+    "qa:modern": "node wp-content/themes/lps-modern/scripts/check-modern.mjs",
     "ci": "npm run lint && npm run test && npm run build && npm run test:e2e -- --list"
   },
   "overrides": {

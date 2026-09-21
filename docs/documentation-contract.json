@@ -137,7 +137,7 @@
       "id": "design-tokens",
       "kind": "source",
       "doc": "docs/design/design-system-guide.md",
-      "reviewedAt": "2026-09-08",
+      "reviewedAt": "2026-09-21",
       "maxAgeDays": 180,
       "sources": [
         {
@@ -146,7 +146,7 @@
         },
         {
           "path": "DESIGN.md",
-          "sha256": "0bae724aeb44ce0a87c68db46d08e058128d41222bb28ce82a2a9dd79311a5b2"
+          "sha256": "9f16f247cd61f3e38265db3b240c7228f32c831711f4b14e55f3acab3bfa2739"
         }
       ]
     },
