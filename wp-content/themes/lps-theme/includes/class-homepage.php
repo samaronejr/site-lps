@@ -314,6 +314,11 @@ final class Homepage {
 		}
 		$english = 'en' === $locale;
 		$heading = $sections[ $section ][ $english ? 1 : 2 ];
+		if ( 'mission' === $section ) {
+			$heading = $english
+				? 'Signal processing and computational intelligence at COPPE/UFRJ'
+				: 'Processamento de sinais e inteligência computacional na COPPE/UFRJ';
+		}
 		$html    = $sections[ $section ][0] . ' class="lps-home-section" aria-labelledby="lps-home-' . $section . '">';
 		$items   = array_values( array_filter( $records, static fn( array $record ): bool => self::reviewed_feature( $record, $locale, $today ) ) );
 		if ( 'journeys' === $section ) {
@@ -338,17 +343,19 @@ final class Homepage {
 		}
 		$items = 'projects' === $section ? self::select_features( $items, $locale, $today ) : array_slice( $items, 0, 'mission' === $section || 'contact' === $section ? 1 : 4 );
 		if ( 'mission' === $section && isset( $items[0] ) ) {
-			$heading = self::text( $items[0]['title'] );
-			$html    = str_replace( ' class="lps-home-section"', ' data-source-id="' . self::escape( self::text( $items[0]['source_id'] ) ) . '" class="lps-home-section"', $html );
+			$html = str_replace( ' class="lps-home-section"', ' data-source-id="' . self::escape( self::text( $items[0]['source_id'] ) ) . '" class="lps-home-section"', $html );
 		}
 		$level = 'mission' === $section ? 'h1' : 'h2';
+		if ( 'mission' === $section ) {
+			$html .= '<p class="lps-home-kicker">' . ( $english ? 'SIGNAL PROCESSING LABORATORY · EST. 1996' : 'LABORATÓRIO DE PROCESSAMENTO DE SINAIS · DESDE 1996' ) . '</p>';
+		}
 		$html .= '<' . $level . ' id="lps-home-' . $section . '">' . self::escape( $heading ) . '</' . $level . '>';
 		if ( array() === $items ) {
 			return $html . '<p data-home-empty="' . $section . '">' . ( $english ? 'Reviewed information has not been published for this section.' : 'Informações revisadas ainda não foram publicadas nesta seção.' ) . '</p></section>';
 		}
 		$html .= '<div class="lps-records">';
 		foreach ( $items as $record ) {
-			$html .= '<article class="lps-record" data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '" data-record-id="' . self::escape( self::text( $record['record_id'] ?? '' ) ) . '">';
+			$html .= '<article class="lps-record lps-record-' . self::escape( $section ) . '" data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '" data-record-id="' . self::escape( self::text( $record['record_id'] ?? '' ) ) . '">';
 			if ( 'mission' !== $section ) {
 				$html .= '<h3><a href="' . self::escape( self::text( $record['url'] ) ) . '">' . self::escape( self::text( $record['title'] ) ) . '</a></h3>';
 			}

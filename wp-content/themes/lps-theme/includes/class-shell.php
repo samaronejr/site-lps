@@ -95,7 +95,7 @@ final class Shell {
 		return '<a class="lps-skip-link" href="#lps-main">' . self::escape( $skip ) . '</a>'
 			. '<header class="lps-site-header">'
 			. '<div class="lps-affiliation lps-page-grid"><p lang="pt-BR">Laboratório de Processamento de Sinais <span aria-hidden="true">/</span> UFRJ <span aria-hidden="true">/</span> COPPE</p><p class="lps-meta" lang="pt-BR">Universidade Federal do Rio de Janeiro</p></div>'
-			. '<div class="lps-masthead lps-page-grid"><a class="lps-wordmark" href="' . $home . '" aria-label="LPS - ' . ( $english ? 'home' : 'início' ) . '">' . $mark . 'LPS</a><p' . ( $english ? '' : ' lang="pt-BR"' ) . '>' . ( $english ? 'Signal Processing Laboratory' : 'Laboratório de Processamento de Sinais' ) . '</p></div>'
+			. '<div class="lps-masthead lps-page-grid"><a class="lps-wordmark" href="' . $home . '" aria-label="LPS - ' . ( $english ? 'home' : 'início' ) . '">' . $mark . '</a><p' . ( $english ? '' : ' lang="pt-BR"' ) . '>' . ( $english ? 'Signal Processing Laboratory' : 'Laboratório de Processamento de Sinais' ) . '</p></div>'
 			. '<details class="lps-shell-disclosure" open><summary>' . self::escape( $menu ) . '</summary><div class="lps-nav-panel lps-page-grid">'
 			. '<nav class="lps-primary-nav" aria-label="' . self::escape( $nav_label ) . '"><ul>' . $items . '</ul></nav>'
 			. '<div class="lps-shell-tools"><form class="lps-search" role="search" aria-label="' . self::escape( $search_label ) . '" action="' . $home . '" method="get"><label for="lps-search-input">' . self::escape( $search_label ) . '</label><div><input id="lps-search-input" name="s" type="search" autocomplete="off"><button type="submit">' . self::escape( $search_button ) . '</button></div></form>'
@@ -191,20 +191,19 @@ final class Shell {
 		$statement = $english ? 'Part of COPPE at the Federal University of Rio de Janeiro.' : 'Parte da COPPE na Universidade Federal do Rio de Janeiro.';
 		$home      = $english ? '/en/' : '/pt-br/';
 		$home_name = $english ? 'LPS - home' : 'LPS - início';
-		return '<footer class="lps-site-footer"><div class="lps-footer-grid lps-page-grid"><a class="lps-wordmark lps-wordmark-light" href="' . $home . '" aria-label="' . self::escape( $home_name ) . '">' . self::mark_symbol() . 'LPS</a><div><p>' . self::escape( $statement ) . '</p><p class="lps-meta">UFRJ <span aria-hidden="true">/</span> COPPE <span aria-hidden="true">/</span> LPS</p></div><nav aria-label="' . self::escape( $nav_label ) . '"><ul>' . $items . '</ul></nav></div></footer>';
+		return '<footer class="lps-site-footer"><div class="lps-footer-grid lps-page-grid"><a class="lps-wordmark lps-wordmark-light" href="' . $home . '" aria-label="' . self::escape( $home_name ) . '">' . self::mark_symbol() . '</a><div><p>' . self::escape( $statement ) . '</p><p class="lps-meta">UFRJ <span aria-hidden="true">/</span> COPPE <span aria-hidden="true">/</span> LPS</p></div><nav aria-label="' . self::escape( $nav_label ) . '"><ul>' . $items . '</ul></nav></div></footer>';
 	}
 
 	/**
-	 * Returns the monochrome symbol variant of the institutional mark for UI chrome.
+	 * Returns the monochrome lockup of the institutional mark for UI chrome.
 	 *
 	 * DESIGN.md §9: wherever the mark is itself an interactive affordance or sits in
 	 * UI chrome, only the monochrome derivative is used, coloured by `currentColor`
-	 * from the surrounding token — never a brand token. The symbol is the variant
-	 * without lettering, so it has no legibility floor and needs no step-down at
-	 * narrow widths; the compact and full lockups carry lettering and are reserved
-	 * for non-interactive identity surfaces.
+	 * from the surrounding token — never a brand token. The lockup keeps the supplied
+	 * waveform beside the outlined LPS lettering and descriptor, so the laboratory
+	 * identity is legible without a second text-only wordmark.
 	 *
-	 * The instance is decorative: the adjacent wordmark already names the
+	 * The instance is decorative: the containing home link already names the
 	 * institution, so the artwork is `aria-hidden` and contributes no accessible
 	 * name. The file is shipped chrome-ready; the only runtime work is a read.
 	 */
@@ -229,14 +228,14 @@ final class Shell {
 	 *                asset is missing or malformed.
 	 */
 	private static function load_mark_symbol(): string {
-		$path = dirname( __DIR__ ) . '/assets/img/mark/lps-mark-mono-symbol.svg';
+		$path = dirname( __DIR__ ) . '/assets/img/mark/lps-mark-mono.svg';
 		$svg  = is_readable( $path ) ? file_get_contents( $path ) : false; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local theme asset, not a remote URL.
 		if ( ! is_string( $svg ) || ! str_starts_with( $svg, '<svg ' ) ) {
 			return '';
 		}
 		$replaced = preg_replace(
 			'/^<svg /',
-			'<svg class="lps-mark" aria-hidden="true" focusable="false" ',
+			'<svg class="lps-mark lps-mark-lockup" aria-hidden="true" focusable="false" ',
 			trim( $svg ),
 			1
 		);

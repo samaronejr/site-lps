@@ -1235,6 +1235,423 @@ details:not(.lps-shell-disclosure) > summary {
   }
 }
 
+/* -------------------------------------------------------------------------
+ * LPS 2026 visual refresh
+ * A calmer, more legible editorial shell inspired by FEEC's clear journeys,
+ * research-led homepage rhythm, and institutional proof points. The existing
+ * token system remains the source of truth: no gradients, shadows, rounded
+ * chrome, or remote assets are introduced here.
+ * ------------------------------------------------------------------------- */
+
+.lps-site-header {
+  border-block-end: 0;
+  background: var(--color-paper);
+}
+
+.lps-affiliation {
+  padding-block: 0.625rem;
+  background: var(--color-navy);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+}
+
+.lps-affiliation p:first-child::before {
+  content: "◼";
+  margin-inline-end: var(--space-2);
+  color: var(--color-signal);
+  font-size: 0.55rem;
+  vertical-align: 0.08em;
+}
+
+.lps-masthead {
+  align-items: center;
+  padding-block: clamp(1.25rem, 3vw, 2.25rem);
+  border-block-end: var(--rule-thin) solid var(--color-rule);
+}
+
+.lps-wordmark {
+  display: inline-flex;
+  inline-size: min(100%, 26rem);
+  min-block-size: 3.5rem;
+  align-items: center;
+  color: var(--color-navy);
+  font-size: inherit;
+  line-height: normal;
+}
+
+.lps-wordmark:focus-visible {
+  outline-offset: var(--space-3);
+}
+
+.lps-wordmark .lps-mark-lockup {
+  display: block;
+  inline-size: min(100%, 26rem);
+  block-size: auto;
+  flex: 0 1 auto;
+  color: currentColor;
+}
+
+.lps-masthead > p {
+  max-inline-size: 30ch;
+  margin: 0;
+  padding-inline-start: var(--space-6);
+  border-inline-start: var(--rule-thin) solid var(--color-rule-strong);
+  color: var(--color-ink-soft);
+  font-size: var(--type-small);
+  line-height: 1.45;
+}
+
+.lps-shell-disclosure {
+  border-block: var(--rule-thin) solid var(--color-rule);
+}
+
+.lps-nav-panel {
+  padding-block: var(--space-4) var(--space-5);
+  background: var(--color-paper-raised);
+}
+
+.lps-primary-nav a {
+  letter-spacing: 0.015em;
+}
+
+.lps-primary-nav a[aria-current="page"] {
+  border-block-end-width: var(--rule-focus);
+}
+
+.lps-shell-tools {
+  align-items: center;
+}
+
+.lps-search input {
+  background: var(--color-paper);
+}
+
+.lps-search button,
+.lps-button-primary,
+.wp-block-button:not(.is-style-outline) .wp-block-button__link {
+  min-inline-size: 8rem;
+  letter-spacing: 0.015em;
+}
+
+.lps-locale {
+  border-inline-start: var(--rule-thin) solid var(--color-rule);
+  padding-inline-start: var(--space-3);
+}
+
+.lps-main-content.lps-home {
+  padding-block-start: 0;
+}
+
+.lps-home-section {
+  position: relative;
+  padding-block: clamp(3.5rem, 8vw, 7rem);
+  border-block-start: var(--rule-thin) solid var(--color-rule);
+}
+
+.lps-home-section > * {
+  min-inline-size: 0;
+}
+
+.lps-home-kicker,
+.lps-home-section:not([data-home-section="mission"]) > h2::before {
+  color: var(--color-signal-hover);
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  letter-spacing: 0.095em;
+  line-height: 1.4;
+}
+
+.lps-home-kicker {
+  margin-block-end: var(--space-4);
+}
+
+.lps-home-section[data-home-section="mission"] {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  padding-block: clamp(3.75rem, 9vw, 8rem);
+  border-block-start: var(--rule-medium) solid var(--color-navy);
+  background: var(--color-navy);
+  color: var(--color-paper-raised);
+}
+
+.lps-home-section[data-home-section="mission"]::before {
+  inset-inline-start: 0;
+  inline-size: min(9rem, 25vw);
+  border-block-start-color: var(--color-signal);
+}
+
+.lps-home-section[data-home-section="mission"] > * {
+  grid-column: 1 / -1;
+}
+
+.lps-home-section[data-home-section="mission"] .lps-home-kicker {
+  color: var(--color-paper-raised);
+}
+
+.lps-home-section[data-home-section="mission"] h1 {
+  max-inline-size: 12ch;
+  margin-block-end: var(--space-8);
+  color: var(--color-paper-raised);
+  font-size: clamp(2.65rem, 7vw, 5.4rem);
+  letter-spacing: -0.045em;
+  line-height: 0.98;
+}
+
+.lps-home-section[data-home-section="mission"] .lps-records {
+  max-inline-size: 44rem;
+}
+
+.lps-home-section[data-home-section="mission"] .lps-record {
+  padding-block: var(--space-5) 0;
+  border-block-start-color: var(--color-signal);
+}
+
+.lps-home-section[data-home-section="mission"] .lps-record p {
+  max-inline-size: 58ch;
+  color: var(--color-paper-raised);
+  font-family: var(--font-editorial);
+  font-size: var(--type-lead);
+  line-height: 1.45;
+}
+
+.lps-home-section[data-home-section="mission"] [data-home-empty] {
+  color: var(--color-paper-raised);
+}
+
+.lps-home-section:not([data-home-section="mission"]) > h2 {
+  max-inline-size: 17ch;
+  margin-block-end: var(--space-8);
+}
+
+.lps-home-section:not([data-home-section="mission"]) > h2::before {
+  display: block;
+  margin-block-end: var(--space-4);
+  content: "LPS /";
+}
+
+.lps-home-section:not([data-home-section="mission"]) .lps-records {
+  gap: 0 var(--space-8);
+}
+
+.lps-record {
+  min-inline-size: 0;
+  padding-block: var(--space-5) var(--space-6);
+  border-block-start-color: var(--color-rule-strong);
+}
+
+.lps-record h3 {
+  max-inline-size: 25ch;
+  margin-block-end: var(--space-3);
+}
+
+.lps-record h3 a {
+  color: var(--color-navy);
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.18em;
+}
+
+.lps-record h3 a:hover {
+  color: var(--color-signal-hover);
+}
+
+.lps-record p {
+  max-inline-size: 48ch;
+  color: var(--color-ink-soft);
+  font-size: var(--type-small);
+  line-height: 1.55;
+}
+
+.lps-home-section[data-home-section="research"] .lps-records,
+.lps-home-section[data-home-section="projects"] .lps-records,
+.lps-home-section[data-home-section="people"] .lps-records,
+.lps-home-section[data-home-section="latest"] .lps-records,
+.lps-home-section[data-home-section="partners"] .lps-records {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.lps-home-section[data-home-section="research"] .lps-record:nth-child(-n + 2),
+.lps-home-section[data-home-section="latest"] .lps-record:nth-child(-n + 2) {
+  border-block-start-color: var(--color-navy);
+}
+
+.lps-home-section[data-home-section="evidence"] .lps-record,
+.lps-home-section[data-home-section="infrastructure"] .lps-record,
+.lps-home-section[data-home-section="contact"] .lps-record {
+  max-inline-size: 48rem;
+}
+
+.lps-home-section[data-home-section="evidence"] .lps-record h3,
+.lps-home-section[data-home-section="infrastructure"] .lps-record h3,
+.lps-home-section[data-home-section="contact"] .lps-record h3 {
+  max-inline-size: 38ch;
+  font-size: clamp(1.5rem, 2.5vw, 2.2rem);
+}
+
+.lps-home-section[data-home-section="journeys"] {
+  padding-block-end: clamp(4rem, 8vw, 7rem);
+  background: var(--color-paper-muted);
+}
+
+.lps-home-section[data-home-section="journeys"] > h2 {
+  max-inline-size: 15ch;
+}
+
+.lps-home-journeys {
+  border-block-start: var(--rule-medium) solid var(--color-navy);
+}
+
+.lps-home-journeys > li {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+  padding-block: var(--space-5);
+  border-block-start-color: var(--color-rule-strong);
+}
+
+.lps-home-journeys > li:first-child {
+  border-block-start: 0;
+}
+
+.lps-journey-label {
+  color: var(--color-navy);
+  font-size: clamp(1.4rem, 2.2vw, 2rem);
+}
+
+.lps-journey-note {
+  margin-block-end: 0;
+}
+
+.lps-home-journeys .lps-button {
+  justify-self: start;
+  border-color: var(--color-navy);
+  background: transparent;
+}
+
+.lps-home-journeys .lps-button::after {
+  content: "↗";
+  margin-inline-start: var(--space-4);
+  font-size: 1.1em;
+}
+
+.lps-home-journeys .lps-button:hover {
+  background: var(--color-navy);
+}
+
+.lps-site-footer {
+  padding-block: clamp(3.5rem, 7vw, 6rem);
+  border-block-start: var(--rule-medium) solid var(--color-signal);
+  background: var(--color-navy-hover);
+}
+
+.lps-site-footer .lps-wordmark {
+  inline-size: min(100%, 18rem);
+}
+
+.lps-site-footer .lps-wordmark .lps-mark-lockup {
+  inline-size: min(100%, 18rem);
+}
+
+.lps-site-footer nav ul {
+  gap: var(--space-2) var(--space-4);
+}
+
+@media (min-width: 48rem) {
+  .lps-masthead .lps-wordmark {
+    grid-column: 1 / 4;
+  }
+
+  .lps-masthead > p {
+    grid-column: 5 / -1;
+  }
+
+  .lps-home-section[data-home-section="journeys"] > .lps-home-journeys {
+    grid-template-columns: subgrid;
+  }
+
+  .lps-home-journeys > li {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}
+
+@media (min-width: 64rem) {
+  .lps-masthead .lps-wordmark {
+    grid-column: 1 / 6;
+  }
+
+  .lps-masthead > p {
+    grid-column: 8 / -1;
+  }
+
+  .lps-home-section[data-home-section="mission"] {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--grid-gutter);
+  }
+
+  .lps-home-section[data-home-section="mission"] > .lps-home-kicker,
+  .lps-home-section[data-home-section="mission"] > h1 {
+    grid-column: 1 / 9;
+  }
+
+  .lps-home-section[data-home-section="mission"] > .lps-records {
+    grid-column: 9 / -1;
+    align-self: end;
+  }
+
+  .lps-home-section:not([data-home-section="mission"]) > h2 {
+    grid-column: 1 / 4;
+    grid-row: 1;
+  }
+
+  .lps-home-section:not([data-home-section="mission"]) > .lps-records,
+  .lps-home-section:not([data-home-section="mission"]) > [data-home-empty] {
+    grid-column: 4 / -1;
+    grid-row: 1;
+  }
+
+  .lps-home-section[data-home-section="journeys"] > h2 {
+    grid-column: 1 / 4;
+  }
+
+  .lps-home-section[data-home-section="journeys"] > .lps-home-journeys {
+    grid-column: 4 / -1;
+  }
+
+  .lps-home-journeys > li {
+    grid-column: 1 / -1;
+  }
+
+  .lps-home-journeys > li > .lps-journey-label {
+    grid-column: 1 / 5;
+  }
+
+  .lps-home-journeys > li > :not(.lps-journey-label) {
+    grid-column: 5 / -1;
+  }
+}
+
+@media (max-width: 47.99rem) {
+  .lps-masthead > p {
+    padding-block-start: var(--space-3);
+    padding-inline-start: 0;
+    border-block-start: var(--rule-thin) solid var(--color-rule);
+    border-inline-start: 0;
+  }
+
+  .lps-locale {
+    border-inline-start: 0;
+    padding-inline-start: 0;
+  }
+
+  .lps-home-section[data-home-section="research"] .lps-records,
+  .lps-home-section[data-home-section="projects"] .lps-records,
+  .lps-home-section[data-home-section="people"] .lps-records,
+  .lps-home-section[data-home-section="latest"] .lps-records,
+  .lps-home-section[data-home-section="partners"] .lps-records {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 @media print {
   :root {
     --color-paper: #ffffff;
