@@ -252,7 +252,6 @@ ${sectionHead({
 })}
 <div class="lps-people-grid">
 ${people
-  .slice(0, 3)
   .map((person) => personCard(locale, person))
   .join("")}
 </div>
