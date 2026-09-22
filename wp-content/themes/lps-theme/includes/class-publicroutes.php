@@ -166,9 +166,10 @@ final class PublicRoutes {
 	 * @param string             $title   Displayed name.
 	 * @param array<mixed,mixed> $meta    Stored person metadata.
 	 * @param array<int, mixed>  $history Historical project and publication links.
+	 * @param string             $summary Localized excerpt shown on cards and profiles.
 	 * @return array<string, mixed>
 	 */
-	public static function person_record( string $slug, string $title, array $meta, array $history = array() ): array {
+	public static function person_record( string $slug, string $title, array $meta, array $history = array(), string $summary = '' ): array {
 		$reviewed = self::flag( $meta, '_lps_privacy_reviewed' );
 		$status   = self::value( $meta, '_lps_person_status' );
 		$status   = in_array( $status, self::STATUSES, true ) ? $status : 'active';
@@ -190,6 +191,8 @@ final class PublicRoutes {
 			'roles'            => $roles,
 			'status'           => $status,
 			'areas'            => self::strings( $meta['_lps_research_area_ids'] ?? array() ),
+			'summary'          => $summary,
+			'research_topics'  => self::strings( $meta['_lps_topics'] ?? array() ),
 			'public_email'     => $reviewed && self::is_email( $email ) ? $email : '',
 			'privacy_reviewed' => $reviewed,
 			'photo_url'        => $publishable_photo ? $photo : '',
@@ -557,7 +560,7 @@ final class PublicRoutes {
 	public static function people( string $locale ): array {
 		$people = array();
 		foreach ( self::records( 'lps_person', $locale ) as $post ) {
-			$record             = self::person_record( $post->post_name, $post->post_title, self::meta( $post->ID ), self::history( $post, $locale ) );
+			$record             = self::person_record( $post->post_name, $post->post_title, self::meta( $post->ID ), self::history( $post, $locale ), $post->post_excerpt );
 			$record['stale']    = self::is_stale_translation( $post );
 			$record['teaching'] = self::teaching_history( $post, $locale );
 			if ( true === $record['published'] ) {

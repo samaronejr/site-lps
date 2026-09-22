@@ -497,9 +497,7 @@ final class TrustSurfaces {
 			static function ( $left, $right ): int {
 				$left_date  = is_array( $left ) ? self::text( $left['date'] ?? '' ) : '';
 				$right_date = is_array( $right ) ? self::text( $right['date'] ?? '' ) : '';
-				$left_year  = 1 === preg_match( '/\d{4}/', $left_date, $m ) ? (int) $m[0] : -1;
-				$right_year = 1 === preg_match( '/\d{4}/', $right_date, $m ) ? (int) $m[0] : -1;
-				return $right_year <=> $left_year;
+				return self::canonical_date_rank( $right_date ) <=> self::canonical_date_rank( $left_date );
 			}
 		);
 		$items = '';
@@ -577,6 +575,24 @@ final class TrustSurfaces {
 	 */
 	private static function agenda_date_label( string $date ): string {
 		return 1 === preg_match( '/^\d{4}(?:-\d{2}-\d{2}|[\sT]|$)/', $date ) ? substr( $date, 0, 4 ) : $date;
+	}
+
+	/**
+	 * Sort rank for a canonical date, newest first: full ISO dates order by
+	 * day, year-months by month, bare years and editorial labels by their
+	 * first year; records without any year sort last.
+	 *
+	 * @param string $date Stored canonical date or editorial label.
+	 * @return array{int, int, int}
+	 */
+	private static function canonical_date_rank( string $date ): array {
+		if ( 1 === preg_match( '/^(\d{4})-(\d{2})(?:-(\d{2}))?/', $date, $m ) && (int) $m[2] >= 1 && (int) $m[2] <= 12 ) {
+			return array( (int) $m[1], (int) $m[2], isset( $m[3] ) ? (int) $m[3] : 0 );
+		}
+		if ( 1 === preg_match( '/\d{4}/', $date, $m ) ) {
+			return array( (int) $m[0], 0, 0 );
+		}
+		return array( -1, 0, 0 );
 	}
 
 	/**

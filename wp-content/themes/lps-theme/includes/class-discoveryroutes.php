@@ -362,8 +362,24 @@ final class DiscoveryRoutes {
 		if ( ! isset( self::SEGMENTS[ $post_type ] ) ) {
 			return '';
 		}
+		$kind = self::listing_kind( $post_type );
+		// Landing pages render the full record set, while the main archive query
+		// is paged; only the filterable listing keeps its pagination contract.
+		$posts = $query->posts;
+		if ( in_array( $kind, array( 'research', 'projects', 'publications' ), true ) && $query->max_num_pages > 1 ) {
+			$full  = new WP_Query(
+				array_merge(
+					$query->query_vars,
+					array(
+						'nopaging'       => true,
+						'posts_per_page' => -1,
+					)
+				)
+			);
+			$posts = $full->posts;
+		}
 		$items = array();
-		foreach ( $query->posts as $post ) {
+		foreach ( $posts as $post ) {
 			if ( ! $post instanceof WP_Post ) {
 				continue;
 			}
@@ -381,7 +397,6 @@ final class DiscoveryRoutes {
 			'infrastructure' => PublicRoutes::archive_path( 'lps_infrastructure', $locale ),
 			'contact'        => TrustRoutes::page_path( 'contact', $locale ),
 		);
-		$kind  = self::listing_kind( $post_type );
 		if ( 'research' === $kind ) {
 			return DiscoverySurfaces::render_research_landing( $items, self::project_items( $locale, 3 ), $locale, $paths );
 		}

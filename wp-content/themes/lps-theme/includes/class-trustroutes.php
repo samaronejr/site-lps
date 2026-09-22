@@ -224,8 +224,17 @@ final class TrustRoutes {
 		$shared    = class_exists( TranslationPolicy::class ) ? TranslationPolicy::shared_meta_keys( $post->post_type ) : array();
 		$source_id = class_exists( Translations::class ) ? Translations::source_id( $post->ID ) ?? $post->ID : $post->ID;
 		$key       = Policy::scalar_string( get_post_meta( in_array( '_lps_page_key', $shared, true ) ? $source_id : $post->ID, '_lps_page_key', true ) );
-		return isset( self::PAGES[ $key ] ) ? '' : $content;
+		return in_array( $key, self::RENDERED_BODIES, true ) ? '' : $content;
 	}
+
+	/**
+	 * Institutional page keys whose full body is emitted by
+	 * TrustSurfaces::institutional_sections; only those may drop the authored
+	 * post content — the other keys keep printing it above the composition.
+	 *
+	 * @var array<int, string>
+	 */
+	private const RENDERED_BODIES = array( 'about', 'privacy', 'accessibility', 'visual-identity' );
 
 	/**
 	 * Keeps trust locale routes from being canonicalized away.
