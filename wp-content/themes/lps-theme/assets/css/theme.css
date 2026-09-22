@@ -1358,9 +1358,9 @@ textarea:focus-visible {
 
 .lps-utility-bar .lps-locale-switch [aria-current="true"],
 .lps-utility-bar .lps-locale-switch [aria-current="page"] {
-  background: var(--color-surface);
-  border-color: var(--color-surface);
-  color: var(--color-anchor);
+  background: var(--color-anchor-soft);
+  border-color: var(--color-anchor-soft);
+  color: var(--color-surface);
 }
 
 /* No-JS disclosure panel: closed means closed, stated explicitly rather than
