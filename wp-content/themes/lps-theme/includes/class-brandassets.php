@@ -29,21 +29,25 @@ final class BrandAssets {
 	 * @var array<string, array{path: string, sha256: string}>
 	 */
 	private const FILES = array(
-		'lps_logo_vector.svg'       => array(
+		'lps_logo_vector.svg'           => array(
 			'path'   => 'assets/brand/lps_logo_vector.svg',
 			'sha256' => 'f369f9e49c81e297d30fa8e240267667dddf8b89f0d26c494636f9429027a23b',
 		),
-		'lps_logo_compact.svg'      => array(
+		'lps_logo_compact.svg'          => array(
 			'path'   => 'assets/brand/lps_logo_compact.svg',
 			'sha256' => '3a64a8977731b5df5ab5f716a677ac60959976e74ae5c5e62ae40398c3f77fec',
 		),
-		'lps_coppe_blue.svg'        => array(
+		'lps_coppe_blue.svg'            => array(
 			'path'   => 'assets/brand/lps_coppe_blue.svg',
 			'sha256' => '5144e227ce3c4dc781d5084e48ddd03bade50103067e094aa15ca4817878a32d',
 		),
-		'lps_coppe_blue_lockup.svg' => array(
+		'lps_coppe_blue_lockup.svg'     => array(
 			'path'   => 'assets/brand/lps_coppe_blue_lockup.svg',
 			'sha256' => '301f8a662024152842752b3b695fa6bbd53c227909aa2b7988707213a9fa3de4',
+		),
+		'lps_coppe_reversed_lockup.svg' => array(
+			'path'   => 'assets/brand/lps_coppe_reversed_lockup.svg',
+			'sha256' => '40f7aff5220cc71f490097c9721df1aa8e187277b98e9df7d2d2389a9f9e36d8',
 		),
 	);
 

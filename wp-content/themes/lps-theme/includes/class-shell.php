@@ -371,10 +371,11 @@ final class Shell {
 	/**
 	 * Builds the institutional footer.
 	 *
-	 * The footer band keeps the text wordmark: the artwork's dark blues
-	 * fall below the legibility floor on the anchor fill, so only light
-	 * surfaces may carry the full-colour mark. The teaching entrance
-	 * keeps its canonical locale route beside the four utility links.
+	 * The footer band carries the same lockup as the masthead in its
+	 * reversed off-white variant, served through the brand endpoint at a
+	 * smaller size; the full-colour artwork stays off dark surfaces. The
+	 * teaching entrance keeps its canonical locale route beside the four
+	 * utility links.
 	 *
 	 * @param string $locale Supported locale slug.
 	 */
@@ -403,68 +404,8 @@ final class Shell {
 		$statement = $english ? 'Part of COPPE at the Federal University of Rio de Janeiro.' : 'Parte da COPPE na Universidade Federal do Rio de Janeiro.';
 		$home      = $english ? '/en/' : '/pt-br/';
 		$home_name = $english ? 'LPS - home' : 'LPS - início';
-		return '<footer class="lps-site-footer"><div class="lps-footer-grid lps-page-grid"><a class="lps-wordmark lps-wordmark-light" href="' . $home . '" aria-label="' . self::escape( $home_name ) . '">' . self::mark_symbol() . 'LPS</a><div><p>' . self::escape( $statement ) . '</p><p class="lps-meta">UFRJ <span aria-hidden="true">/</span> COPPE <span aria-hidden="true">/</span> LPS</p></div><nav aria-label="' . self::escape( $nav_label ) . '"><ul>' . $items . '</ul></nav></div></footer>';
-	}
-
-	/**
-	 * Returns the monochrome symbol variant of the institutional mark for UI chrome.
-	 *
-	 * DESIGN.md §9: wherever the mark is itself an interactive affordance or sits in
-	 * UI chrome, only the monochrome derivative is used, coloured by `currentColor`
-	 * from the surrounding token — never a brand token. The symbol is the variant
-	 * without lettering, so it has no legibility floor and needs no step-down at
-	 * narrow widths; the compact and full lockups carry lettering and are reserved
-	 * for non-interactive identity surfaces.
-	 *
-	 * The instance is decorative: the adjacent wordmark already names the
-	 * institution, so the artwork is `aria-hidden` and contributes no accessible
-	 * name. The file is shipped chrome-ready; the only runtime work is a read.
-	 */
-	private static function mark_symbol(): string {
-		if ( null === self::$mark_symbol ) {
-			self::$mark_symbol = self::load_mark_symbol();
-		}
-		return self::$mark_symbol;
-	}
-
-	/**
-	 * Cached monochrome mark symbol markup.
-	 *
-	 * @var string|null
-	 */
-	private static $mark_symbol = null;
-
-	/**
-	 * Reads and sanitizes the monochrome mark symbol for inline chrome use.
-	 *
-	 * @return string The sanitized SVG markup, or an empty string when the
-	 *                asset is missing or malformed.
-	 */
-	private static function load_mark_symbol(): string {
-		$path = dirname( __DIR__ ) . '/assets/img/mark/lps-mark-mono-symbol.svg';
-		$svg  = is_readable( $path ) ? file_get_contents( $path ) : false; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local theme asset, not a remote URL.
-		if ( ! is_string( $svg ) || ! str_starts_with( $svg, '<svg ' ) ) {
-			return '';
-		}
-		$replaced = preg_replace(
-			'/^<svg /',
-			'<svg class="lps-mark" aria-hidden="true" focusable="false" ',
-			trim( $svg ),
-			1
-		);
-		if ( ! is_string( $replaced ) ) {
-			return '';
-		}
-		// The symbol is inlined once per chrome surface, so document-scoped
-		// identifiers would repeat on every page (WCAG 4.1.1). The instance is
-		// decorative and aria-hidden, so its title, description, and labelling
-		// attributes are stripped along with every id.
-		$stripped = preg_replace( '#<title\b[^>]*>.*?</title>#su', '', $replaced );
-		$stripped = is_string( $stripped ) ? $stripped : $replaced;
-		$stripped = preg_replace( '#<desc\b[^>]*>.*?</desc>#su', '', $stripped );
-		$stripped = is_string( $stripped ) ? $stripped : $replaced;
-		$stripped = preg_replace( '/\s(?:id|role|aria-labelledby)="[^"]*"/', '', $stripped );
-		return is_string( $stripped ) ? $stripped : $replaced;
+		$logo    = '<img class="lps-logo lps-footer-logo" src="' . self::brand_base_url() . 'lps_coppe_reversed_lockup.svg" alt="" width="1622" height="804" loading="lazy" decoding="async">';
+		return '<footer class="lps-site-footer"><div class="lps-footer-grid lps-page-grid"><a class="lps-wordmark lps-wordmark-light" href="' . $home . '" aria-label="' . self::escape( $home_name ) . '">' . $logo . '</a><div><p>' . self::escape( $statement ) . '</p><p class="lps-meta">UFRJ <span aria-hidden="true">/</span> COPPE <span aria-hidden="true">/</span> LPS</p></div><nav aria-label="' . self::escape( $nav_label ) . '"><ul>' . $items . '</ul></nav></div></footer>';
 	}
 
 	/**

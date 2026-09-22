@@ -2811,12 +2811,18 @@ th code {
 }
 
 .lps-footer-brand .lps-wordmark {
-  inline-size: clamp(11rem, 20vw, 15rem);
+  inline-size: clamp(7.5rem, 14vw, 10rem);
 }
 
 .lps-footer-brand .lps-logo {
   block-size: auto;
   inline-size: 100%;
+}
+
+/* The footer restates the masthead lockup in off-white, half size. */
+.lps-footer-logo {
+  block-size: clamp(2.25rem, 6vw, 3rem);
+  inline-size: auto;
 }
 
 .lps-wordmark {

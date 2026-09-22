@@ -216,7 +216,7 @@ export function footer(locale) {
   return `<footer class="lps-site-footer">
 <div class="lps-footer-inner lps-page-grid">
 <div class="lps-footer-brand">
-<a class="lps-wordmark lps-wordmark-light" href="${en ? "/en/" : "/"}" aria-label="LPS — ${esc(t.home)}"><img class="lps-logo" src="/assets/img/mark/lps-mark-reversed.svg" alt="LPS — ${esc(t.brandName)}" width="2052" height="301" loading="lazy" decoding="async"></a>
+<a class="lps-wordmark lps-wordmark-light" href="${en ? "/en/" : "/"}" aria-label="LPS — ${esc(t.home)}"><img class="lps-logo" src="/assets/img/mark/lps-coppe-reversed-lockup.svg" alt="LPS — ${esc(t.brandName)}" width="1622" height="804" loading="lazy" decoding="async"></a>
 <p>${esc(en ? "Part of COPPE at the Federal University of Rio de Janeiro." : "Parte da COPPE na Universidade Federal do Rio de Janeiro.")}</p>
 <address>
 ${esc(site.address.line1)}<br>
