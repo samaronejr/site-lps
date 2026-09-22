@@ -404,7 +404,7 @@ final class Shell {
 		$statement = $english ? 'Part of COPPE at the Federal University of Rio de Janeiro.' : 'Parte da COPPE na Universidade Federal do Rio de Janeiro.';
 		$home      = $english ? '/en/' : '/pt-br/';
 		$home_name = $english ? 'LPS - home' : 'LPS - início';
-		$logo    = '<img class="lps-logo lps-footer-logo" src="' . self::brand_base_url() . 'lps_coppe_reversed_lockup.svg" alt="" width="1622" height="804" loading="lazy" decoding="async">';
+		$logo      = '<img class="lps-logo lps-footer-logo" src="' . self::brand_base_url() . 'lps_coppe_reversed_lockup.svg" alt="" width="1622" height="804" loading="lazy" decoding="async">';
 		return '<footer class="lps-site-footer"><div class="lps-footer-grid lps-page-grid"><a class="lps-wordmark lps-wordmark-light" href="' . $home . '" aria-label="' . self::escape( $home_name ) . '">' . $logo . '</a><div><p>' . self::escape( $statement ) . '</p><p class="lps-meta">UFRJ <span aria-hidden="true">/</span> COPPE <span aria-hidden="true">/</span> LPS</p></div><nav aria-label="' . self::escape( $nav_label ) . '"><ul>' . $items . '</ul></nav></div></footer>';
 	}
 
