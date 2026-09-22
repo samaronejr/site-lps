@@ -2138,30 +2138,42 @@ textarea:focus-visible {
 /* Agenda: date block + entry, as in the reference institution's event list. */
 .lps-agenda {
   display: grid;
-  gap: 0;
+  gap: var(--space-4);
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
 .lps-agenda > li {
-  align-items: stretch;
+  align-items: center;
   background: var(--color-surface);
-  border-block-start: var(--rule-hairline);
+  border: 1px solid var(--color-card-rule);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
   display: grid;
   gap: var(--space-5);
   grid-template-columns: auto minmax(0, 1fr) auto;
   padding: var(--space-5);
-  transition: background-color var(--motion-fast) var(--ease-state);
+  transition:
+    box-shadow var(--motion-fast) var(--ease-state),
+    transform var(--motion-fast) var(--ease-state);
 }
 
 .lps-agenda > li:hover {
-  background: var(--color-wash-action-subtle);
+  box-shadow: var(--shadow-card-lift, var(--shadow-card));
+  transform: translateY(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lps-agenda > li:hover {
+    transform: none;
+  }
 }
 
 .lps-event-date {
   align-items: center;
-  background: var(--color-anchor);
+  background: linear-gradient(160deg, var(--color-anchor-soft), var(--color-anchor-deep));
+  border-radius: var(--radius-card);
   color: var(--color-surface);
   display: grid;
   font-family: var(--font-mono);
