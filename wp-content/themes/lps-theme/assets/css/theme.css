@@ -2226,20 +2226,26 @@ textarea:focus-visible {
 
 .lps-people-grid {
   display: grid;
-  gap: 0;
-  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+  grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
 }
 
 .lps-person-card {
   background: var(--color-surface);
-  border-block-start: var(--rule-hairline);
+  border: 1px solid var(--color-card-rule);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
   display: grid;
   gap: var(--space-4);
-  padding: var(--space-6) var(--space-6) var(--space-6) 0;
+  padding: var(--space-6);
+  transition:
+    border-color 240ms cubic-bezier(0.32, 0.72, 0, 1),
+    box-shadow 240ms cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 .lps-person-card:hover {
-  box-shadow: var(--shadow-none);
+  border-color: var(--color-rule-hover);
+  box-shadow: var(--shadow-card-hover, var(--shadow-card));
 }
 
 .lps-person-header {
@@ -2252,11 +2258,12 @@ textarea:focus-visible {
 .lps-monogram,
 .lps-person-no-photo {
   align-items: center;
-  background: var(--color-anchor);
+  background: var(--gradient-monogram);
+  border-radius: 0.875rem;
   color: var(--color-surface);
   display: grid;
   font-family: var(--font-display);
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: 600;
   block-size: 3.5rem;
   inline-size: 3.5rem;
@@ -2266,7 +2273,7 @@ textarea:focus-visible {
 }
 
 .lps-monogram--memoriam {
-  background: var(--color-text-muted);
+  background: var(--gradient-monogram-memoriam);
 }
 
 .lps-person-card h3 {
@@ -2290,11 +2297,16 @@ textarea:focus-visible {
   padding: 0;
 }
 
+.lps-person-card .lps-term-token > li {
+  border-radius: var(--radius-pill);
+  padding: 0.25rem 0.75rem;
+}
+
 .lps-person-contact {
-  align-items: center;
+  align-items: baseline;
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-3);
+  gap: var(--space-3) var(--space-4);
   margin-block-start: auto;
 }
 
