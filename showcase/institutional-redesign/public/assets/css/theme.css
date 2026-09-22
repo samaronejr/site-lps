@@ -2176,19 +2176,20 @@ textarea:focus-visible {
   border-radius: var(--radius-card);
   color: var(--color-surface);
   display: grid;
+  align-content: center;
+  block-size: 4.25rem;
   font-family: var(--font-mono);
-  inline-size: auto;
+  inline-size: 8rem;
   justify-items: center;
-  min-inline-size: 4.5rem;
-  padding: var(--space-3);
+  padding: var(--space-2);
   text-align: center;
 }
 
 .lps-event-date strong {
   font-family: var(--font-display);
-  font-size: 1.5rem;
+  font-size: 1.125rem;
   font-weight: 600;
-  line-height: 1;
+  line-height: 1.1;
 }
 
 .lps-event-date span {
