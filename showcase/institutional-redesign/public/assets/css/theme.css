@@ -2095,6 +2095,7 @@ textarea:focus-visible {
 }
 
 .lps-location .lps-facts dd {
+  border-block-start: 0;
   padding-inline-start: 0;
 }
 
