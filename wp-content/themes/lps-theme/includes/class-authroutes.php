@@ -279,8 +279,9 @@ final class AuthRoutes {
 		$raw_remember = isset( $_POST['rememberme'] ) ? wp_unslash( $_POST['rememberme'] ) : '';
 		$remember     = 'forever' === ( is_string( $raw_remember ) ? sanitize_key( $raw_remember ) : '' );
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized as a scalar on the next line.
-		$raw_target = isset( $_POST['redirect_to'] ) ? wp_unslash( $_POST['redirect_to'] ) : '';
-		$redirect   = is_string( $raw_target ) ? sanitize_url( $raw_target ) : '';
+		$raw_target        = isset( $_POST['redirect_to'] ) ? wp_unslash( $_POST['redirect_to'] ) : '';
+		$redirect          = is_string( $raw_target ) ? sanitize_url( $raw_target ) : '';
+		$redirect_inferred = false;
 		if ( '' === $redirect ) {
 			// The two-factor challenge reads `redirect_to` straight from the request
 			// (isset(), not empty()) and core's wp_safe_redirect() cannot fall back on
@@ -292,6 +293,7 @@ final class AuthRoutes {
 				$candidate = get_user_by( 'email', $log );
 			}
 			$redirect                = self::default_target( $candidate, $locale );
+			$redirect_inferred       = true;
 			$_POST['redirect_to']    = $redirect;
 			$_REQUEST['redirect_to'] = $redirect;
 		}
@@ -299,6 +301,13 @@ final class AuthRoutes {
 		if ( '' === $log || '' === $pwd ) {
 			$state['error']     = 'empty';
 			$state['attempted'] = $log;
+			if ( $redirect_inferred ) {
+				// An inferred destination must be recomputed from the submitted
+				// username on every attempt — carrying it into the re-rendered
+				// form would send a corrected login to the previous username's
+				// landing page.
+				$state['redirect_to'] = '';
+			}
 			self::render( $locale, $state );
 			return;
 		}
@@ -314,6 +323,9 @@ final class AuthRoutes {
 		if ( is_wp_error( $user ) ) {
 			$state['error']     = 'credentials';
 			$state['attempted'] = $log;
+			if ( $redirect_inferred ) {
+				$state['redirect_to'] = '';
+			}
 			self::render( $locale, $state );
 			return;
 		}
