@@ -1,111 +1,164 @@
 /*
- * Public primitives for the unified LPS identity (DESIGN.md replacement
- * contract, frozen by plan task-07). The token layer below mirrors the
- * theme.json slugs and docs/design/design-contract.json verbatim — palette,
- * families, sizes and spacing — and every visual value in this file resolves
- * through these variables. Depth stays flat: box-shadow is always none, and
- * the only radius is the 4px control radius; imagery stays rectangular.
+ * LPS institutional design system — 2026 revision.
  *
- * Self-hosted IBM Plex (SIL OFL 1.1, Reserved Font Name "Plex") is subsetted
- * to ASCII, Latin-1 (full pt-BR diacritics) and general punctuation; the
- * system stacks remain the documented fallback while the woff2 loads
- * (font-display: swap). No remote font requests are ever made.
+ * Direction: institutional brutalism, moderated. The laboratory is an
+ * engineering laboratory inside COPPE/UFRJ, so the surface is built like a
+ * technical document — heavy rules, numbered sections, uppercase field labels,
+ * monospaced data, square corners, one loud display face — and then relaxed
+ * where the reader needs air: generous section rhythm, one claim per band, and
+ * a strict reading measure.
+ *
+ * The reference for the institutional grammar is fee.unicamp.br (slim utility
+ * bar over a matte masthead, one claim per band, card grids, dated agenda,
+ * service band, multi-column footer). What is deliberately not copied is the
+ * softness: this revision has no drop shadows on surfaces, no rounded cards and
+ * no decorative gradients on content. Depth is drawn with rules, plates and
+ * offsets, which survive greyscale printing and high-contrast modes.
+ *
+ * Colour comes from the owner-supplied LPS artwork: its waveform blue and cyan.
+ * The two registered mark values (#094c92, #00aff1) stay mark-only — the
+ * interface palette below is contracted separately so the artwork can be
+ * re-registered without repainting the site.
+ *
+ * Type: Space Grotesk (display), Inter (interface), JetBrains Mono (data
+ * labels). All three are self-hosted, SIL OFL 1.1, subset to the latin block
+ * that covers the full pt-BR diacritic set, and budgeted at 80.6 KiB total.
+ * No remote font, image or script request is made anywhere in this file.
+ *
+ * Accessibility floor is unchanged and non-negotiable: WCAG 2.2 AA and eMAG,
+ * >= 4.5:1 for text, >= 3:1 for large text and UI graphics, visible focus on
+ * every interactive element, 44px targets, working without JavaScript, reflow
+ * at 320 CSS px and 200% zoom, reduced-motion honoured.
  */
 
+/* ----------------------------------------------------------------------------
+ * 1. Self-hosted type
+ * ------------------------------------------------------------------------- */
+
 @font-face {
-  font-family: "IBM Plex Sans";
-  src: url("../fonts/ibm-plex-sans-regular.woff2") format("woff2");
+  font-family: "Inter";
+  src: url("../fonts/inter-regular.woff2") format("woff2");
   font-style: normal;
   font-weight: 400;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "IBM Plex Sans";
-  src: url("../fonts/ibm-plex-sans-medium.woff2") format("woff2");
+  font-family: "Inter";
+  src: url("../fonts/inter-semibold.woff2") format("woff2");
   font-style: normal;
-  font-weight: 450 550;
+  font-weight: 600;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "IBM Plex Sans";
-  src: url("../fonts/ibm-plex-sans-semibold.woff2") format("woff2");
+  font-family: "Space Grotesk";
+  src: url("../fonts/space-grotesk-semibold.woff2") format("woff2");
   font-style: normal;
-  font-weight: 600 650;
+  font-weight: 600;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "IBM Plex Sans";
-  src: url("../fonts/ibm-plex-sans-bold.woff2") format("woff2");
-  font-style: normal;
-  font-weight: 700 750;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "IBM Plex Mono";
-  src: url("../fonts/ibm-plex-mono-regular.woff2") format("woff2");
+  font-family: "JetBrains Mono";
+  src: url("../fonts/jetbrains-mono-regular.woff2") format("woff2");
   font-style: normal;
   font-weight: 400;
   font-display: swap;
 }
 
-@font-face {
-  font-family: "IBM Plex Mono";
-  src: url("../fonts/ibm-plex-mono-semibold.woff2") format("woff2");
-  font-style: normal;
-  font-weight: 500 700;
-  font-display: swap;
-}
+/* ----------------------------------------------------------------------------
+ * 2. Tokens
+ * ------------------------------------------------------------------------- */
 
 :root {
-  /* Color — theme.json settings.color.palette, 17 slugs. */
-  --color-canvas: #f5f7fa;
+  --color-canvas: #f4f7fb;
   --color-surface: #ffffff;
-  --color-anchor: #12304a;
-  --color-anchor-deep: #0c2237;
-  --color-action: #165a96;
-  --color-action-hover: #0f4a7e;
-  --color-text: #182b3a;
-  --color-text-muted: #526477;
-  --color-rule-quiet: #d7e0e8;
-  --color-boundary-strong: #74869a;
-  --color-success: #216e4e;
-  --color-warning: #7a4a00;
-  --color-error: #a12622;
-  --color-info-wash: #ddecef;
-  --color-success-wash: #e0ece5;
-  --color-warning-wash: #f2e8d2;
-  --color-error-wash: #f2deda;
-  /* Focus-ring separation on anchor bands and other dark fills; not a palette
-     entry. */
+  --color-surface-alt: #e9eff6;
+  --color-anchor: #071a2f;
+  --color-anchor-deep: #04101f;
+  --color-anchor-soft: #123a63;
+  --color-action: #1b5fcc;
+  --color-action-hover: #14499c;
+  --color-action-light: #2f7ae5;
+  --color-wash-action: #dbe8fa;
+  --color-wash-action-subtle: #f0f5fd;
+  --color-accent: #0fb5e4;
+  --color-accent-soft: #62d8f3;
+  --color-accent-wash: #d6f3fb;
+  --color-text: #0a1626;
+  --color-text-muted: #495a70;
+  --color-text-soft: #586a80;
+  --color-rule-quiet: #d7e0ea;
+  --color-rule-hover: #9aabbd;
+  --color-boundary-strong: #75899f;
+  --color-success: #0d6b48;
+  --color-warning: #8a4708;
+  --color-error: #b3261e;
+  --color-success-wash: #e3f0e9;
+  --color-warning-wash: #f8ecd8;
+  --color-error-wash: #fce7e4;
+  --color-info-wash: #f0f5fd;
+  --color-info-rule: #b9d1f0;
+  --color-warning-rule: #e7cfa1;
+  --color-error-rule: #f0c2bc;
+  --color-accent-ink: #04536c;
+  --color-warning-ink: #5c3800;
+  --color-error-ink: #6f1712;
+  --color-print-ink: #000000;
+  --color-print-rule: #999999;
   --color-focus-on-dark: #ffffff;
-
-  /* Type roles — IBM Plex Sans owns interface and reading; the mono is scoped
-     to codes, identifiers and tabular metadata only. */
-  --font-interface:
-    "IBM Plex Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-mono:
-    "IBM Plex Mono", ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
-  --type-display: clamp(2rem, 5vw, 3.5rem);
-  /* Display bounded by its own measure: 11cqi keeps the longest Portuguese
-     mission word ("Processamento", 7.4em) and the three-line statement
-     (8.8em) inside the statement column at every width, so the H1 never
-     breaks mid-word. Resolves against the nearest inline-size container. */
-  --type-display-fit: clamp(1.75rem, 11cqi, var(--type-display));
-  --type-h1: clamp(1.75rem, 4vw, 2.75rem);
-  --type-h2: clamp(1.375rem, 2.5vw, 2rem);
-  --type-h3: clamp(1.125rem, 1.8vw, 1.375rem);
-  --type-h4: 1.125rem;
-  --type-lead: clamp(1.125rem, 1.6vw, 1.25rem);
+  --color-on-dark: #e4ecf5;
+  --color-on-dark-body: #cbdaeb;
+  --color-on-dark-address: #b6cadf;
+  --color-on-dark-meta: #9db2c8;
+  --color-on-dark-lead: #d3e2f1;
+  --color-on-dark-code: #eef5fc;
+  --overlay-light-04: rgba(255, 255, 255, 0.04);
+  --overlay-light-06: rgba(255, 255, 255, 0.06);
+  --overlay-light-12: rgba(255, 255, 255, 0.12);
+  --overlay-light-14: rgba(255, 255, 255, 0.14);
+  --overlay-light-16: rgba(255, 255, 255, 0.16);
+  --overlay-light-18: rgba(255, 255, 255, 0.18);
+  --overlay-light-50: rgba(255, 255, 255, 0.5);
+  --gradient-hero: linear-gradient(180deg, var(--color-anchor) 0%, var(--color-anchor-deep) 100%);
+  --gradient-signal-bar: linear-gradient(90deg, var(--color-action) 0%, var(--color-accent) 100%);
+  --gradient-signal-bar-soft: linear-gradient(90deg, var(--color-accent-soft) 0%, var(--color-action-light) 100%);
+  --gradient-monogram: linear-gradient(160deg, var(--color-anchor-soft), var(--color-action-hover));
+  --gradient-monogram-memoriam: linear-gradient(160deg, var(--color-text-muted), var(--color-text-soft));
+  --gradient-page-header: linear-gradient(180deg, var(--color-surface) 0%, var(--color-canvas) 100%);
+  --gradient-timeline: linear-gradient(180deg, var(--color-action), var(--color-accent));
+  --gradient-rule-grid:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 calc(100% - 1px),
+      color-mix(in srgb, var(--color-on-dark) 9%, transparent) calc(100% - 1px) 100%
+    ),
+    repeating-linear-gradient(
+      180deg,
+      transparent 0 calc(100% - 1px),
+      color-mix(in srgb, var(--color-on-dark) 9%, transparent) calc(100% - 1px) 100%
+    );
+  --gradient-cta: linear-gradient(120deg, var(--color-anchor-soft), var(--color-anchor-deep));
+  --font-display: "Space Grotesk", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-interface: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
+  --type-display: clamp(2.5rem, 6.4vw, 4.75rem);
+  --type-h1: clamp(2rem, 4.4vw, 3.25rem);
+  --type-h2: clamp(1.5rem, 2.6vw, 2.125rem);
+  --type-h3: clamp(1.1875rem, 1.5vw, 1.4rem);
+  --type-h4: 1.0625rem;
+  --type-lead: clamp(1.0625rem, 1.3vw, 1.25rem);
   --type-body: 1rem;
   --type-reading: 1.125rem;
   --type-small: 0.875rem;
   --type-meta: 0.75rem;
-
-  /* Spacing — theme.json settings.spacing.spacingSizes. */
+  --lh-tight: 1.02;
+  --lh-heading: 1.1;
+  --lh-body: 1.6;
+  --lh-reading: 1.65;
+  --tracking-tight: -0.028em;
+  --tracking-label: 0.14em;
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -118,35 +171,52 @@
   --space-16: 4rem;
   --space-20: 5rem;
   --space-24: 6rem;
-
-  /* Grid and geometry. */
-  --grid-max: 80rem;
-  --grid-gutter: var(--space-4);
-  --grid-padding: clamp(var(--space-4), 4vw, var(--space-10));
+  --section-y: clamp(3.25rem, 6vw, 6rem);
+  --grid-max: 82.5rem;
+  --grid-gutter: clamp(var(--space-4), 4.2vw, var(--space-12));
   --control-min: 2.75rem;
-  --line-thin: 0.0625rem;
-  --line-medium: 0.125rem;
-  --line-focus: 0.1875rem;
-  --focus-offset: 0.1875rem;
-  --press-shift: 0.0625rem;
-  --radius-control: 4px;
-  --radius-image: 0;
-  --shadow-none: none;
+  --radius-xs: 2px;
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+  --radius-xl: 4px;
+  --radius-pill: 999px;
+  --radius-control: var(--radius-sm);
+  --radius-image: var(--radius-sm);
+  --line-thin: 1px;
+  --line-medium: 2px;
+  --line-heavy: 3px;
+  --line-focus: 3px;
+  --focus-offset: 2px;
   --measure-reading: 68ch;
-  --measure-interface: 72ch;
-  --measure-lead: 62ch;
-
-  /* Rule primitives — complete border values (DESIGN.md §11). */
+  --measure-lead: 60ch;
+  --measure-interface: 74ch;
+  --sidebar-w: 17rem;
+  --shadow-xs: 0 1px 0 var(--color-rule-quiet);
+  --shadow-sm: 2px 2px 0 var(--color-rule-quiet);
+  --shadow-md: 4px 4px 0 var(--color-rule-quiet);
+  --shadow-lg: 6px 6px 0 var(--color-anchor-soft);
+  --shadow-ring: 0 0 0 1px var(--color-rule-quiet);
+  --shadow-nav-current: inset 0 -3px 0 0 var(--color-accent-ink);
+  --shadow-none: none;
   --rule-hairline: var(--line-thin) solid var(--color-rule-quiet);
   --rule-boundary: var(--line-medium) solid var(--color-boundary-strong);
   --rule-anchor: var(--line-medium) solid var(--color-anchor);
+  --rule-heavy: var(--line-heavy) solid var(--color-anchor);
+  --rule-accent: var(--line-heavy) solid var(--color-accent);
   --rule-focus: var(--line-focus) solid var(--color-action);
-
-  /* Motion — state response only, never layout. */
   --motion-fast: 120ms;
-  --motion-standard: 180ms;
+  --motion-standard: 200ms;
+  --motion-slow: 340ms;
   --ease-state: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --signal-line: url("../img/mark/lps-mark-mono-symbol.svg");
+  --signal-line-dark: url("../img/mark/lps-mark-mono-symbol.svg");
 }
+
+/* ----------------------------------------------------------------------------
+ * 3. Base
+ * ------------------------------------------------------------------------- */
 
 *,
 *::before,
@@ -157,20 +227,25 @@
 html {
   min-inline-size: 0;
   overflow-x: clip;
+  /* Anchor jumps are instant: no forced smooth scrolling, no scroll hijack. */
+  scroll-padding-block-start: 6rem;
   background: var(--color-canvas);
   color: var(--color-text);
   font-family: var(--font-interface);
   font-size: var(--type-body);
-  scroll-behavior: auto;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   min-inline-size: 0;
   margin: 0;
-  overflow-wrap: break-word;
   background: var(--color-canvas);
   color: var(--color-text);
-  line-height: 1.6;
+  font-size: var(--type-body);
+  line-height: var(--lh-body);
+  overflow-wrap: break-word;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 img,
@@ -180,6 +255,10 @@ canvas {
   display: block;
   max-inline-size: 100%;
   block-size: auto;
+}
+
+svg {
+  fill: currentColor;
 }
 
 button,
@@ -197,128 +276,2667 @@ a {
   touch-action: manipulation;
 }
 
+hr {
+  border: 0;
+  border-block-start: var(--rule-hairline);
+  margin-block: var(--space-10);
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-anchor-deep);
+}
+
+/* ----------------------------------------------------------------------------
+ * 4. Typography
+ * ------------------------------------------------------------------------- */
+
 h1,
 h2,
 h3,
 h4,
-p,
-ol,
-ul,
-dl,
-figure {
-  margin-block-start: 0;
-}
-
-/* Sans-led hierarchy: display, headings, navigation and controls use the
-   interface stack (DESIGN.md §4 role table). */
-h1,
-h2,
-h3,
-h4 {
-  color: var(--color-text);
-  font-family: var(--font-interface);
+h5,
+h6 {
+  margin: 0 0 var(--space-3);
+  color: var(--color-anchor);
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--lh-heading);
   text-wrap: balance;
 }
 
 h1 {
-  margin-block-end: var(--space-6);
   font-size: var(--type-h1);
-  font-weight: 700;
-  line-height: 1.15;
 }
 
 h2 {
-  margin-block-end: var(--space-6);
   font-size: var(--type-h2);
-  font-weight: 650;
-  line-height: 1.2;
 }
 
 h3 {
-  margin-block-end: var(--space-3);
   font-size: var(--type-h3);
-  font-weight: 650;
-  line-height: 1.25;
+  letter-spacing: -0.02em;
 }
 
 h4 {
   font-size: var(--type-h4);
-  font-weight: 650;
-  line-height: 1.3;
+  letter-spacing: -0.012em;
 }
 
-p,
-li,
-dd {
-  max-inline-size: var(--measure-interface);
+h5,
+h6 {
+  font-family: var(--font-interface);
+  font-size: var(--type-body);
+  font-weight: 600;
 }
 
-:where(a) {
+p {
+  margin: 0 0 var(--space-4);
+}
+
+p:last-child {
+  margin-block-end: 0;
+}
+
+a {
   color: var(--color-action);
-  text-decoration-line: underline;
-  text-decoration-thickness: var(--line-thin);
-  text-underline-offset: var(--space-1);
-  transition:
-    color var(--motion-fast) var(--ease-state),
-    text-decoration-thickness var(--motion-fast) var(--ease-state);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
 }
 
-:where(a):hover {
+a:hover {
   color: var(--color-action-hover);
-  text-decoration-thickness: var(--line-medium);
+  text-decoration-thickness: 2px;
 }
 
-:where(a):active {
-  color: var(--color-anchor);
+strong,
+b {
+  font-weight: 600;
 }
 
-/* Focus is a 3px action outline with a 3px offset on every interactive
-   element; it is never clipped or covered. */
+small {
+  font-size: var(--type-small);
+}
+
+abbr[title] {
+  text-decoration-color: var(--color-boundary-strong);
+  text-underline-offset: 0.2em;
+}
+
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+:where(code, kbd, samp) {
+  background: var(--color-surface-alt);
+  border-radius: var(--radius-xs);
+  padding: 0.12em 0.36em;
+}
+
+pre {
+  background: var(--color-anchor-deep);
+  border-radius: var(--radius-sm);
+  color: var(--color-on-dark-code);
+  overflow-x: auto;
+  padding: var(--space-5);
+}
+
+blockquote {
+  border-inline-start: var(--rule-accent);
+  color: var(--color-text-muted);
+  margin: var(--space-6) 0;
+  padding-inline-start: var(--space-5);
+}
+
+figcaption,
+.lps-caption {
+  color: var(--color-text-muted);
+  font-size: var(--type-small);
+  margin-block-start: var(--space-2);
+}
+
+/* The field label: uppercase monospace with an index bar. It is the visual
+   signature of the direction and the reason section heads read as a document. */
+.lps-kicker {
+  align-items: center;
+  color: var(--color-action);
+  display: flex;
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  font-weight: 400;
+  gap: var(--space-3);
+  letter-spacing: var(--tracking-label);
+  line-height: 1.4;
+  margin: 0 0 var(--space-4);
+  text-transform: uppercase;
+}
+
+.lps-kicker::before {
+  background: var(--color-accent-ink);
+  content: "";
+  flex: 0 0 auto;
+  block-size: 0.75rem;
+  inline-size: 0.75rem;
+}
+
+.lps-kicker:empty::before {
+  display: none;
+}
+
+.lps-lead {
+  color: var(--color-text-muted);
+  font-size: var(--type-lead);
+  line-height: 1.6;
+  max-inline-size: var(--measure-lead);
+  text-wrap: pretty;
+}
+
+.lps-meta {
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  letter-spacing: 0.02em;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.lps-reading,
+.lps-prose,
+.lps-abstract {
+  line-height: var(--lh-reading);
+  max-inline-size: var(--measure-reading);
+}
+
+.lps-breakable {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.lps-visually-hidden {
+  block-size: 1px;
+  clip-path: inset(50%);
+  inline-size: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+}
+
+/* Inline link with a trailing arrow, drawn in CSS so it needs no glyph the
+   subset fonts would have to carry. */
+.lps-more {
+  align-items: center;
+  display: inline-flex;
+  font-size: var(--type-small);
+  font-weight: 600;
+  gap: var(--space-2);
+  text-decoration: none;
+}
+
+.lps-more::after {
+  background: currentColor;
+  block-size: 1px;
+  content: "";
+  inline-size: 1.25rem;
+  transform: scaleX(1);
+  transform-origin: left center;
+  transition: transform var(--motion-standard) var(--ease-state);
+}
+
+.lps-more:hover::after,
+.lps-more:focus-visible::after {
+  transform: scaleX(1.6);
+}
+
+/* ----------------------------------------------------------------------------
+ * 5. Focus, skip link
+ * ------------------------------------------------------------------------- */
+
 :where(a, button, input, select, textarea, summary, [tabindex], video[controls]):focus-visible {
   outline: var(--rule-focus);
   outline-offset: var(--focus-offset);
 }
 
-/* On anchor fills the action outline falls under the 3:1 graphic floor, so
-   dark bands switch the outline to the documented separation token. */
-:where(.lps-site-footer, .lps-affiliation, .lps-home-section[data-home-section="journeys"])
-:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+/* On anchor fills the action outline falls under the 3:1 graphic floor, so the
+   dark bands switch to the documented on-dark separation token. */
+.lps-on-dark :focus-visible,
+.lps-site-footer :focus-visible,
+.lps-hero :focus-visible,
+.lps-utility-bar :focus-visible {
   outline-color: var(--color-focus-on-dark);
 }
 
-.lps-visually-hidden {
-  position: absolute;
-  inline-size: var(--line-thin);
-  block-size: var(--line-thin);
-  padding: 0;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
+.lps-skip-link {
+  background: var(--color-accent);
+  color: var(--color-anchor-deep);
+  font-size: var(--type-small);
+  font-weight: 600;
+  inline-size: max-content;
+  inset-block-start: 0;
+  inset-inline-start: var(--space-4);
+  padding: var(--space-3) var(--space-5);
+  position: fixed;
+  text-decoration: none;
+  transform: translateY(-120%);
+  transition: transform var(--motion-standard) var(--ease-state);
+  z-index: 60;
 }
 
-/* 4/8/12-column page grid, max 80rem, gutters on the spacing scale. */
-.lps-page-grid {
-  display: grid;
-  inline-size: min(100%, var(--grid-max));
+.lps-skip-link:focus {
+  color: var(--color-anchor-deep);
+  transform: translateY(0);
+}
+
+/* ----------------------------------------------------------------------------
+ * 6. Layout
+ * ------------------------------------------------------------------------- */
+
+.lps-page-grid,
+.wp-block-group.lps-page-grid {
   margin-inline: auto;
-  padding-inline: var(--grid-padding);
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  column-gap: var(--grid-gutter);
+  max-inline-size: var(--grid-max);
+  padding-inline: var(--grid-gutter);
+  inline-size: 100%;
 }
 
-.lps-page-grid > * {
+.lps-main-content {
+  display: block;
+  padding-block-end: var(--space-16);
+}
+
+main > * + *,
+.lps-stack > * + * {
+  margin-block-start: var(--space-6);
+}
+
+.lps-section {
+  padding-block: var(--section-y);
+}
+
+.lps-section + .lps-section {
+  border-block-start: var(--rule-hairline);
+}
+
+.lps-section--tint {
+  background: var(--color-surface);
+}
+
+.lps-section--alt {
+  background: var(--color-surface-alt);
+}
+
+.lps-section--flush {
+  padding-block-start: 0;
+}
+
+.lps-section-head {
+  align-items: end;
+  display: grid;
+  gap: var(--space-6);
+  grid-template-columns: minmax(0, 1fr);
+  margin-block-end: clamp(var(--space-6), 3vw, var(--space-10));
+  padding-block-start: var(--space-5);
+  position: relative;
+}
+
+.lps-section-head::before {
+  background: var(--color-anchor);
+  block-size: var(--line-heavy);
+  content: "";
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  position: absolute;
+  inline-size: 3.5rem;
+}
+
+@media (min-width: 56rem) {
+  .lps-section-head {
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  }
+
+  .lps-section-head > :last-child {
+    justify-self: end;
+  }
+}
+
+.lps-section-head h2 {
+  font-size: var(--type-h1);
+  margin-block-end: 0;
+  max-inline-size: 26ch;
+}
+
+.lps-section-head--center {
+  justify-items: center;
+  text-align: center;
+}
+
+.lps-section-head--center::before {
+  inset-inline-start: calc(50% - 1.75rem);
+}
+
+.lps-section-head--center h2,
+.lps-section-head--center .lps-lead {
+  margin-inline: auto;
+}
+
+.lps-split {
+  display: grid;
+  gap: clamp(var(--space-6), 4vw, var(--space-12));
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 60rem) {
+  .lps-split {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .lps-split--aside-left {
+    grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+  }
+}
+
+.lps-grid {
+  display: grid;
+  gap: clamp(var(--space-5), 2.4vw, var(--space-8));
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 44rem) {
+  .lps-grid--2,
+  .lps-grid--3,
+  .lps-grid--4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 64rem) {
+  .lps-grid--3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .lps-grid--4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Sidebar layout for inner pages (sticky "on this page" navigation). */
+.lps-with-aside {
+  display: grid;
+  gap: clamp(var(--space-6), 4vw, var(--space-12));
+  grid-template-columns: minmax(0, 1fr);
+  margin-block-start: var(--space-10);
+}
+
+@media (min-width: 62rem) {
+  .lps-with-aside {
+    grid-template-columns: minmax(0, 1fr) var(--sidebar-w);
+  }
+
+  .lps-with-aside--left {
+    grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+  }
+}
+
+.lps-aside {
+  align-self: start;
+}
+
+.lps-aside--start {
+  align-self: start;
+}
+
+.lps-logo-slot {
+  align-items: center;
+  display: inline-flex;
+}
+
+@media (min-width: 62rem) {
+  .lps-aside {
+    position: sticky;
+    top: 7rem;
+  }
+}
+
+.lps-toc {
+  background: var(--color-surface);
+  border: var(--rule-hairline);
+  border-block-start: var(--rule-heavy);
+  padding: var(--space-5);
+}
+
+.lps-toc h2,
+.lps-toc h3 {
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  font-weight: 400;
+  letter-spacing: var(--tracking-label);
+  margin-block-end: var(--space-4);
+  text-transform: uppercase;
+}
+
+.lps-toc ul {
+  display: grid;
+  gap: var(--space-1);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lps-toc li + li {
+  border-block-start: var(--rule-hairline);
+  margin-block-start: var(--space-1);
+  padding-block-start: var(--space-1);
+}
+
+.lps-toc a {
+  display: block;
+  font-size: var(--type-small);
+  padding-block: var(--space-2);
+  text-decoration: none;
+}
+
+.lps-toc a:hover {
+  color: var(--color-action-hover);
+  text-decoration: underline;
+}
+
+/* ----------------------------------------------------------------------------
+ * 7. Buttons, tags, routes
+ * ------------------------------------------------------------------------- */
+
+.lps-button,
+a.lps-button,
+button.lps-button,
+input[type="submit"].lps-button,
+.wp-block-button__link {
+  align-items: center;
+  background: var(--color-action);
+  border: var(--line-thin) solid var(--color-action);
+  border-radius: var(--radius-control);
+  color: var(--color-surface);
+  cursor: pointer;
+  display: inline-flex;
+  font-family: var(--font-interface);
+  font-size: var(--type-small);
+  font-weight: 600;
+  gap: var(--space-2);
+  justify-content: center;
+  line-height: 1.2;
+  min-block-size: var(--control-min);
+  padding: var(--space-3) var(--space-5);
+  text-align: center;
+  text-decoration: none;
+  transition:
+    background-color var(--motion-fast) var(--ease-state),
+    border-color var(--motion-fast) var(--ease-state),
+    transform var(--motion-fast) var(--ease-state);
+}
+
+.lps-button:hover,
+.wp-block-button__link:hover {
+  background: var(--color-action-hover);
+  border-color: var(--color-action-hover);
+  box-shadow: var(--shadow-sm);
+  color: var(--color-surface);
+  text-decoration: none;
+  transform: translate(-1px, -1px);
+}
+
+.lps-button:active,
+.wp-block-button__link:active {
+  transform: translate(0, 0);
+  box-shadow: var(--shadow-none);
+}
+
+.lps-button-primary,
+a.lps-button-primary {
+  background: var(--color-action);
+  border-color: var(--color-action);
+  color: var(--color-surface);
+}
+
+.lps-button-ghost,
+a.lps-button-ghost {
+  background: var(--color-surface);
+  border-color: var(--color-anchor);
+  color: var(--color-anchor);
+}
+
+.lps-button-ghost:hover,
+a.lps-button-ghost:hover {
+  background: var(--color-anchor);
+  border-color: var(--color-anchor);
+  color: var(--color-surface);
+}
+
+.lps-button-quiet,
+a.lps-button-quiet {
+  background: transparent;
+  border-color: transparent;
+  color: var(--color-action);
+  padding-inline: var(--space-3);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.lps-button-quiet:hover,
+a.lps-button-quiet:hover {
+  background: var(--color-wash-action-subtle);
+  color: var(--color-action-hover);
+}
+
+.lps-on-dark .lps-button-ghost,
+.lps-hero .lps-button-ghost,
+.lps-site-footer .lps-button-ghost {
+  background: transparent;
+  border-color: var(--color-surface);
+  color: var(--color-surface);
+}
+
+.lps-on-dark .lps-button-ghost:hover,
+.lps-hero .lps-button-ghost:hover,
+.lps-site-footer .lps-button-ghost:hover {
+  background: var(--color-surface);
+  border-color: var(--color-surface);
+  color: var(--color-anchor);
+}
+
+.lps-button-row,
+.lps-hero-actions,
+.lps-home-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.lps-tag {
+  align-items: center;
+  background: var(--color-surface);
+  border: var(--line-thin) solid var(--color-boundary-strong);
+  border-radius: var(--radius-xs);
+  color: var(--color-text-muted);
+  display: inline-flex;
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.6rem;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.lps-tag--quiet {
+  background: var(--color-surface-alt);
+  border-color: var(--color-rule-quiet);
+  color: var(--color-text-muted);
+}
+
+.lps-tag--accent {
+  background: var(--color-accent-wash);
+  border-color: var(--color-accent-ink);
+  color: var(--color-accent-ink);
+}
+
+.lps-tag-row,
+.lps-term-token {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.lps-term-token {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lps-term-token > li,
+.lps-term-token > span {
+  align-items: center;
+  background: var(--color-surface-alt);
+  border-radius: var(--radius-xs);
+  color: var(--color-text-muted);
+  display: inline-flex;
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  padding: 0.2rem 0.55rem;
+}
+
+/* ----------------------------------------------------------------------------
+ * 8. Shell — utility bar, masthead, navigation
+ * ------------------------------------------------------------------------- */
+
+.lps-site-header {
+  background: var(--color-surface);
+  border-block-end: var(--rule-hairline);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.lps-utility-bar {
+  background: var(--color-anchor);
+  border-block-end: var(--line-heavy) solid var(--color-accent);
+  color: var(--color-on-dark);
+  font-size: var(--type-small);
+}
+
+.lps-utility-inner {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  justify-content: space-between;
+  min-block-size: 2.5rem;
+  padding-block: var(--space-2);
+}
+
+.lps-utility-inner p {
+  color: var(--color-on-dark-meta);
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  letter-spacing: 0.06em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.lps-utility-links {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lps-utility-links a {
+  color: var(--color-on-dark);
+  font-size: var(--type-small);
+  text-decoration: none;
+}
+
+.lps-utility-links a:hover,
+.lps-utility-links a[aria-current="page"] {
+  color: var(--color-surface);
+  text-decoration: underline;
+  text-decoration-color: var(--color-accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.3em;
+}
+
+/* The session link: outlined in the utility band, filled once the visitor has a
+   session, so the current state is readable at a glance. */
+.lps-session-link {
+  align-items: center;
+  border: var(--line-thin) solid var(--color-on-dark-meta);
+  border-radius: var(--radius-xs);
+  color: var(--color-surface);
+  display: inline-flex;
+  font-size: var(--type-meta);
+  font-weight: 600;
+  gap: var(--space-2);
+  letter-spacing: 0.08em;
+  min-block-size: 1.75rem;
+  padding: var(--space-1) var(--space-3);
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.lps-session-link:hover {
+  background: var(--color-surface);
+  color: var(--color-anchor);
+}
+
+.lps-session-link--active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-anchor-deep);
+}
+
+.lps-session-link--active:hover {
+  background: var(--color-accent-soft);
+  color: var(--color-anchor-deep);
+}
+
+.lps-masthead {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4) var(--space-8);
+  justify-content: space-between;
+  padding-block: var(--space-4) var(--space-6);
+}
+
+.lps-brand {
+  align-items: center;
+  display: inline-flex;
+  flex: 0 1 auto;
+  gap: var(--space-4);
+  min-inline-size: 0;
+  text-decoration: none;
+}
+
+.lps-brand:hover {
+  text-decoration: none;
+}
+
+/* The artwork alone carries the identity, at a size the lockup's lettering can
+   be read from: no text is repeated beside it. */
+.lps-logo {
+  block-size: auto;
+  inline-size: clamp(13rem, 52vw, 27rem);
+  max-inline-size: 100%;
+}
+
+/* The shell's own lettering tier is retired with the descriptor: identity is
+   the artwork, and the laboratory name lives in the title, the footer and the
+   structured data. */
+.lps-brand-text {
+  display: none;
+}
+
+.lps-shell-tools {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-4);
+  justify-content: flex-end;
   min-inline-size: 0;
 }
 
-.lps-main-content > * {
-  grid-column: 1 / -1;
+/* Primary navigation: a ruled tier under the masthead on wide viewports, the
+   native disclosure panel otherwise. */
+.lps-primary-nav {
+  min-inline-size: 0;
 }
 
-.lps-stack {
+.lps-primary-nav > ul {
+  align-items: stretch;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lps-nav-item {
+  position: relative;
+}
+
+.lps-nav-link,
+.lps-primary-nav a {
+  align-items: center;
+  border-radius: 0;
+  color: var(--color-anchor);
+  display: inline-flex;
+  font-family: var(--font-interface);
+  font-size: var(--type-small);
+  font-weight: 600;
+  gap: var(--space-2);
+  letter-spacing: 0.01em;
+  min-block-size: var(--control-min);
+  padding: var(--space-2) var(--space-4);
+  text-decoration: none;
+  transition: background-color var(--motion-fast) var(--ease-state), color var(--motion-fast) var(--ease-state);
+}
+
+.lps-nav-link:hover,
+.lps-primary-nav a:hover {
+  background: var(--color-wash-action-subtle);
+  color: var(--color-action-hover);
+}
+
+.lps-primary-nav a[aria-current="page"],
+.lps-nav-link[aria-current="page"] {
+  background: transparent;
+  box-shadow: var(--shadow-nav-current);
+  color: var(--color-anchor);
+}
+
+.lps-nav-caret {
+  block-size: 0.35rem;
+  border-block-end: 1.5px solid currentColor;
+  border-inline-end: 1.5px solid currentColor;
+  inline-size: 0.35rem;
+  rotate: 45deg;
+  translate: 0 -1px;
+}
+
+/* Dropdown: opens on hover for pointer users and on focus for keyboards, with no
+   script. The submenu stays in the DOM and is reachable by tab order. */
+.lps-nav-menu {
+  background: var(--color-surface);
+  border: var(--rule-hairline);
+  border-block-start: var(--line-heavy) solid var(--color-accent);
+  box-shadow: var(--shadow-md);
+  display: none;
+  inset-block-start: 100%;
+  inset-inline-start: 0;
+  list-style: none;
+  margin: 0;
+  min-inline-size: 16rem;
+  padding: var(--space-2);
+  position: absolute;
+  z-index: 55;
+}
+
+@media (min-width: 60rem) {
+  .lps-nav-item:hover > .lps-nav-menu,
+  .lps-nav-item:focus-within > .lps-nav-menu {
+    display: block;
+  }
+}
+
+.lps-nav-menu a {
+  display: block;
+  min-block-size: 2.25rem;
+  padding: var(--space-2) var(--space-3);
+}
+
+.lps-shell-disclosure {
+  border-block-start: var(--rule-hairline);
+}
+
+.lps-shell-disclosure > summary {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  font-size: var(--type-small);
+  font-weight: 600;
+  gap: var(--space-3);
+  justify-content: space-between;
+  list-style: none;
+  min-block-size: var(--control-min);
+  padding-block: var(--space-3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.lps-shell-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.lps-shell-disclosure > summary::after {
+  block-size: 0.5rem;
+  border-block-end: 2px solid var(--color-action);
+  border-inline-end: 2px solid var(--color-action);
+  content: "";
+  inline-size: 0.5rem;
+  transform: rotate(45deg);
+  transition: transform var(--motion-standard) var(--ease-state);
+}
+
+.lps-shell-disclosure[open] > summary::after {
+  transform: rotate(225deg);
+}
+
+.lps-nav-panel {
+  display: grid;
+  gap: var(--space-4);
+  padding-block-end: var(--space-6);
+}
+
+.lps-search {
+  display: grid;
+  gap: var(--space-2);
+  min-inline-size: min(20rem, 100%);
+}
+
+.lps-search label {
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.lps-search > div,
+.lps-search-form .lps-search-row {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.lps-search button {
+  background: var(--color-anchor);
+  border: var(--line-thin) solid var(--color-anchor);
+  border-radius: var(--radius-control);
+  color: var(--color-surface);
+  cursor: pointer;
+  flex: 0 0 auto;
+  font-size: var(--type-small);
+  font-weight: 600;
+  min-block-size: var(--control-min);
+  padding-inline: var(--space-4);
+  transition: background-color var(--motion-fast) var(--ease-state);
+}
+
+.lps-search button:hover {
+  background: var(--color-action);
+  border-color: var(--color-action);
+}
+
+.lps-search input[type="search"],
+.lps-search input[type="text"],
+input[type="search"],
+input[type="text"],
+input[type="email"],
+input[type="url"],
+input[type="number"],
+input[type="tel"],
+select,
+textarea {
+  background: var(--color-surface);
+  border: var(--line-thin) solid var(--color-boundary-strong);
+  border-radius: var(--radius-control);
+  color: var(--color-text);
+  font-size: var(--type-small);
+  inline-size: 100%;
+  min-block-size: var(--control-min);
+  padding: var(--space-2) var(--space-3);
+  transition: border-color var(--motion-fast) var(--ease-state);
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+  border-color: var(--color-rule-hover);
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  border-color: var(--color-action);
+}
+
+.lps-locale ul,
+.lps-locale-switch ul {
+  align-items: center;
+  display: flex;
+  gap: var(--space-2) var(--space-3);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lps-locale,
+.lps-locale-switch {
+  align-items: center;
+  display: inline-flex;
+  gap: var(--space-1);
+}
+
+.lps-locale-switch a,
+.lps-locale-switch span {
+  align-items: center;
+  border: var(--line-thin) solid transparent;
+  border-radius: var(--radius-xs);
+  color: var(--color-text-muted);
+  display: inline-flex;
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  min-block-size: 2rem;
+  padding: var(--space-1) var(--space-3);
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.lps-locale-switch a:hover {
+  border-color: var(--color-boundary-strong);
+  color: var(--color-action-hover);
+}
+
+.lps-locale-switch [aria-current="true"],
+.lps-locale-switch [aria-current="page"] {
+  background: var(--color-anchor);
+  border-color: var(--color-anchor);
+  color: var(--color-surface);
+}
+
+.lps-utility-bar .lps-locale-switch a {
+  color: var(--color-on-dark);
+}
+
+.lps-utility-bar .lps-locale-switch a:hover {
+  background: var(--overlay-light-12);
+  border-color: var(--overlay-light-50);
+  color: var(--color-surface);
+}
+
+.lps-utility-bar .lps-locale-switch [aria-current="true"],
+.lps-utility-bar .lps-locale-switch [aria-current="page"] {
+  background: var(--color-surface);
+  border-color: var(--color-surface);
+  color: var(--color-anchor);
+}
+
+/* No-JS disclosure panel: closed means closed, stated explicitly rather than
+   relying on the user agent, so a serialised or re-parsed document behaves the
+   same as the original. */
+.lps-shell-disclosure:not([open]) > .lps-nav-panel {
+  display: none;
+}
+
+/* The desktop navigation row: a second, ruled tier under the masthead, exactly
+   as the reference institution separates identity from navigation. */
+.lps-masthead-nav {
+  border-block-start: var(--rule-hairline);
+}
+
+.lps-masthead-nav .lps-primary-nav > ul {
+  justify-content: flex-start;
+}
+
+/* ----------------------------------------------------------------------------
+   Navigation geometry
+   ----------------------------------------------------------------------------
+   The shell ships one navigation source, so nothing is duplicated for
+   assistive technology. Two shapes are supported from the same stylesheet:
+
+   1. A header with a dedicated desktop tier (`.lps-masthead-nav`) hides the
+      disclosure above the breakpoint.
+   2. A header with only the native disclosure is permanently open above the
+      breakpoint: the toggle is not rendered and the panel lays out as a
+      navigation row. The closed-state rule is neutralized, and the same
+      treatment is applied through `::details-content` so the panel stays
+      visible under both the legacy and the content-visibility model.
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 59.999rem) {
+  .lps-masthead-nav {
+    display: none;
+  }
+}
+
+@media (min-width: 60rem) {
+  .lps-masthead-nav {
+    display: block;
+  }
+
+  .lps-site-header:has(.lps-masthead-nav) .lps-shell-disclosure {
+    display: none;
+  }
+
+  .lps-shell-disclosure > summary {
+    display: none;
+  }
+
+  .lps-shell-disclosure::details-content {
+    content-visibility: visible;
+  }
+
+  .lps-shell-disclosure:not([open]) > .lps-nav-panel {
+    display: flex;
+  }
+
+  .lps-nav-panel {
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-6);
+    justify-content: space-between;
+  }
+}
+
+.lps-nav-panel .lps-primary-nav > ul {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.lps-nav-panel .lps-shell-tools {
+  justify-content: flex-start;
+}
+
+.lps-nav-panel .lps-search {
+  inline-size: 100%;
+}
+
+/* ----------------------------------------------------------------------------
+ * 9. Hero — the one claim, on the anchor band
+ * ------------------------------------------------------------------------- */
+
+.lps-hero {
+  background: var(--gradient-hero);
+  color: var(--color-surface);
+  isolation: isolate;
+  overflow: clip;
+  position: relative;
+}
+
+/* The band's rule grid: 1px hairlines every 5rem, drawn on the band itself so
+   the layout reads as a measured page rather than an empty field. */
+.lps-hero::before {
+  background-image: var(--gradient-rule-grid);
+  background-size: 5rem 5rem;
+  content: "";
+  inset: 0;
+  position: absolute;
+  z-index: -1;
+}
+
+.lps-hero::after {
+  background-image: var(--signal-line-dark);
+  background-position: right -6rem bottom -3rem;
+  background-repeat: no-repeat;
+  background-size: auto 120%;
+  content: "";
+  filter: none;
+  inset: 0;
+  opacity: 0.14;
+  position: absolute;
+  z-index: -1;
+}
+
+.lps-hero-inner {
+  display: grid;
+  gap: clamp(var(--space-8), 5vw, var(--space-16));
+  grid-template-columns: minmax(0, 1fr);
+  padding-block: clamp(var(--space-12), 8vw, var(--space-24)) clamp(var(--space-10), 6vw, var(--space-16));
+}
+
+@media (min-width: 64rem) {
+  .lps-hero-inner {
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.65fr);
+  }
+}
+
+.lps-hero .lps-kicker {
+  color: var(--color-accent);
+}
+
+.lps-hero .lps-kicker::before {
+  background: var(--color-accent-ink);
+}
+
+.lps-hero-title {
+  color: var(--color-surface);
+  font-family: var(--font-display);
+  font-size: var(--type-display);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: var(--lh-tight);
+  margin-block: 0 var(--space-6);
+  max-inline-size: 24ch;
+  text-wrap: balance;
+}
+
+.lps-hero-lead {
+  color: var(--color-on-dark-lead);
+  font-size: var(--type-lead);
+  line-height: 1.6;
+  margin-block-end: var(--space-8);
+  max-inline-size: 48ch;
+}
+
+.lps-hero-support {
+  align-self: end;
+  background: transparent;
+  border: var(--line-thin) solid var(--overlay-light-18);
+  border-block-start: var(--line-heavy) solid var(--color-accent);
+  padding: var(--space-6);
+}
+
+.lps-hero-support h2 {
+  color: var(--color-surface);
+  font-size: var(--type-h4);
+  letter-spacing: -0.01em;
+  margin-block-end: var(--space-4);
+}
+
+.lps-hero-support ul {
+  display: grid;
+  gap: var(--space-3);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lps-hero-support li {
+  align-items: start;
+  color: var(--color-on-dark);
+  display: grid;
+  font-size: var(--type-small);
+  gap: var(--space-3);
+  grid-template-columns: auto minmax(0, 1fr);
+  line-height: 1.5;
+}
+
+.lps-hero-support li::before {
+  background: var(--color-accent);
+  content: "";
+  block-size: 0.375rem;
+  inline-size: 0.375rem;
+  margin-block-start: 0.45rem;
+}
+
+/* Stat band — the "1996 / 4 / 310 m²" strip under the hero, ruled like a table
+   header rather than boxed like a widget. */
+.lps-stat-band {
+  background: var(--color-surface);
+  border-block-end: var(--rule-hairline);
+}
+
+.lps-stat-band ul {
+  display: grid;
+  gap: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+@media (min-width: 56rem) {
+  .lps-stat-band ul {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.lps-stat {
+  border-block-start: var(--rule-hairline);
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-6) var(--space-5) var(--space-6) 0;
+}
+
+@media (min-width: 56rem) {
+  .lps-stat + .lps-stat {
+    border-inline-start: var(--rule-hairline);
+    padding-inline-start: var(--space-6);
+  }
+}
+
+.lps-stat strong {
+  color: var(--color-anchor);
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3.4vw, 3rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+}
+
+.lps-stat span {
+  color: var(--color-text-muted);
+  font-size: var(--type-small);
+  line-height: 1.4;
+  max-inline-size: 22ch;
+}
+
+/* ----------------------------------------------------------------------------
+ * 10. Page header for inner pages
+ * ------------------------------------------------------------------------- */
+
+.lps-page-header {
+  background: var(--gradient-page-header);
+  border-block-end: var(--line-heavy) solid var(--color-anchor);
+  overflow: clip;
+  position: relative;
+}
+
+.lps-page-header::after {
+  background-image: var(--signal-line);
+  background-position: right -4rem bottom -2rem;
+  background-repeat: no-repeat;
+  background-size: auto 150%;
+  content: "";
+  inset: 0;
+  opacity: 0.08;
+  pointer-events: none;
+  position: absolute;
+}
+
+.lps-page-header-inner {
+  padding-block: clamp(var(--space-10), 5vw, var(--space-16)) clamp(var(--space-10), 5vw, var(--space-12));
+  position: relative;
+  z-index: 1;
+}
+
+.lps-page-title {
+  font-size: var(--type-h1);
+  margin-block: 0 var(--space-4);
+  max-inline-size: 26ch;
+}
+
+.lps-page-header .lps-lead {
+  margin-block-end: 0;
+}
+
+.lps-breadcrumbs {
+  border-block-end: var(--rule-hairline);
+  padding-block: var(--space-3);
+}
+
+.lps-breadcrumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lps-breadcrumbs li {
+  align-items: center;
+  color: var(--color-text-muted);
+  display: flex;
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  gap: var(--space-2);
+  letter-spacing: 0.04em;
+}
+
+.lps-breadcrumbs li + li::before {
+  color: var(--color-boundary-strong);
+  content: "/";
+}
+
+.lps-breadcrumbs a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.lps-breadcrumbs a:hover {
+  color: var(--color-action-hover);
+  text-decoration: underline;
+}
+
+.lps-breadcrumbs [aria-current="page"] {
+  color: var(--color-text);
+}
+
+.lps-page-header .lps-meta + .lps-page-title {
+  margin-block-start: var(--space-3);
+}
+
+/* ----------------------------------------------------------------------------
+ * 11. Cards
+ * ------------------------------------------------------------------------- */
+
+.lps-card {
+  background: var(--color-surface);
+  border: var(--rule-hairline);
+  border-block-start: var(--rule-heavy);
   display: flex;
   flex-direction: column;
+  gap: var(--space-3);
+  overflow: clip;
+  padding: var(--space-6);
+  position: relative;
+  transition:
+    border-color var(--motion-standard) var(--ease-state),
+    transform var(--motion-standard) var(--ease-out);
+}
+
+.lps-card:hover {
+  border-color: var(--color-anchor);
+  box-shadow: var(--shadow-md);
+  transform: translate(-2px, -2px);
+}
+
+.lps-card--flush {
+  padding: 0;
+}
+
+.lps-card--accent {
+  border-block-start-color: var(--color-accent);
+}
+
+.lps-card--accent:hover {
+  border-block-start-color: var(--color-accent);
+}
+
+.lps-card-body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.lps-card-media {
+  background: var(--color-anchor);
+  color: var(--color-surface);
+  display: grid;
+  min-block-size: 9rem;
+  overflow: hidden;
+  place-items: center;
+  position: relative;
+}
+
+.lps-card-media::after {
+  background-image: var(--signal-line-dark);
+  background-position: right -2rem center;
+  background-repeat: no-repeat;
+  background-size: auto 90%;
+  content: "";
+  inset: 0;
+  opacity: 0.18;
+  position: absolute;
+}
+
+.lps-card-media img {
+  block-size: 100%;
+  inline-size: 100%;
+  object-fit: cover;
+  position: relative;
+  z-index: 1;
+}
+
+.lps-card-title {
+  font-size: var(--type-h3);
+  margin: 0;
+}
+
+.lps-card-title a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.lps-card-title a:hover {
+  color: var(--color-action-hover);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+
+.lps-card p {
+  color: var(--color-text-muted);
+  font-size: var(--type-small);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.lps-card-foot {
+  align-items: center;
+  border-block-start: var(--rule-hairline);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: space-between;
+  margin-block-start: auto;
+  padding-block-start: var(--space-4);
+}
+
+.lps-card-index {
+  color: var(--color-surface-alt);
+  font-family: var(--font-display);
+  font-size: clamp(2.75rem, 5vw, 4rem);
+  font-weight: 600;
+  inset-block-start: var(--space-3);
+  inset-inline-end: var(--space-4);
+  letter-spacing: -0.05em;
+  line-height: 1;
+  position: absolute;
+  z-index: 0;
+}
+
+.lps-card--numbered {
+  padding-block-start: var(--space-8);
+}
+
+/* Journey cards (the three institutional entrances). */
+.lps-journey {
+  background: var(--color-surface);
+  border: var(--rule-hairline);
+  border-block-start: var(--rule-heavy);
+  display: grid;
+  gap: var(--space-3);
+  grid-template-rows: auto 1fr auto;
+  overflow: clip;
+  padding: var(--space-6);
+  position: relative;
+  transition: transform var(--motion-standard) var(--ease-out);
+}
+
+.lps-journey::before {
+  background: var(--gradient-signal-bar);
+  block-size: var(--line-heavy);
+  content: "";
+  inset-block-start: 0;
+  inset-inline: 0;
+  position: absolute;
+}
+
+.lps-journey:hover {
+  box-shadow: var(--shadow-md);
+  transform: translate(-2px, -2px);
+}
+
+.lps-journey .lps-journey-label,
+.lps-journey .lps-meta {
+  color: var(--color-text-soft);
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.lps-journey h3 {
+  margin: 0;
+}
+
+.lps-journey p {
+  color: var(--color-text-muted);
+  font-size: var(--type-small);
+  margin: 0;
+}
+
+.lps-journey .lps-more {
+  align-self: end;
+}
+
+.lps-home-journeys {
+  display: grid;
+  gap: clamp(var(--space-5), 2.4vw, var(--space-8));
+  grid-template-columns: minmax(0, 1fr);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+@media (min-width: 48rem) {
+  .lps-home-journeys {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.lps-home-journeys > li {
+  display: contents;
+}
+
+/* ----------------------------------------------------------------------------
+ * 12. Records, lists, timelines
+ * ------------------------------------------------------------------------- */
+
+.lps-record {
+  background: var(--color-surface);
+  border: var(--rule-hairline);
+  padding: clamp(var(--space-5), 2.4vw, var(--space-8));
+  position: relative;
+}
+
+.lps-record h1:first-child,
+.lps-record h2:first-child,
+.lps-record h3:first-child {
+  margin-block-start: 0;
+}
+
+.lps-record--featured {
+  border-block-start: var(--rule-heavy);
+}
+
+.lps-record-list {
+  display: grid;
+  gap: var(--space-4);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lps-record-list > li {
+  background: var(--color-surface);
+  border: var(--rule-hairline);
+  border-inline-start: var(--line-heavy) solid var(--color-rule-quiet);
+  padding: var(--space-5);
+  transition: border-color var(--motion-fast) var(--ease-state);
+}
+
+.lps-record-list > li:hover {
+  border-inline-start-color: var(--color-accent);
+}
+
+.lps-record-list h3,
+.lps-record-list h4 {
+  font-size: var(--type-h4);
+  margin-block: 0 var(--space-2);
+}
+
+.lps-summary {
+  color: var(--color-text-muted);
+  font-size: var(--type-small);
+  line-height: 1.6;
+}
+
+.lps-body {
+  color: var(--color-text);
+}
+
+.lps-body > * + * {
+  margin-block-start: var(--space-4);
+}
+
+.lps-home-section {
+  padding-block: var(--section-y);
+  position: relative;
+}
+
+.lps-home-section + .lps-home-section {
+  border-block-start: var(--rule-hairline);
+}
+
+.lps-home-stratum {
+  margin-block-start: var(--space-10);
+}
+
+.lps-home-stratum > .lps-kicker,
+.lps-home-stratum > h3.lps-kicker,
+.lps-home-stratum > h2.lps-kicker {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  letter-spacing: var(--tracking-label);
+  margin-block-end: var(--space-5);
+  text-transform: uppercase;
+}
+
+.lps-home-stratum > .lps-kicker::after {
+  background: var(--color-rule-quiet);
+  content: "";
+  display: block;
+  block-size: 1px;
+  inline-size: 100%;
+  margin-block-start: var(--space-3);
+}
+
+/* Timeline (history, process steps): a ruled ladder, numbers in the gutter. */
+.lps-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+.lps-timeline > li {
+  border-block-start: var(--rule-hairline);
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  padding-block: var(--space-5);
+  position: relative;
+}
+
+@media (max-width: 43.999rem) {
+  .lps-timeline > li {
+    gap: var(--space-3);
+    grid-template-columns: 4rem minmax(0, 1fr);
+  }
+}
+
+.lps-timeline .lps-timeline-year {
+  color: var(--color-anchor);
+  font-family: var(--font-mono);
+  font-size: var(--type-small);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  padding-block-start: 0.15rem;
+  text-align: right;
+}
+
+.lps-timeline p {
+  color: var(--color-text-muted);
+  font-size: var(--type-small);
+  margin: 0;
+  max-inline-size: var(--measure-interface);
+}
+
+.lps-timeline h3 {
+  font-size: var(--type-h4);
+  margin-block-end: var(--space-2);
+}
+
+/* Definition list used for facts and metadata blocks. */
+.lps-facts {
+  display: grid;
+  gap: 0;
+  grid-template-columns: minmax(0, 1fr);
+  margin: 0;
+}
+
+.lps-facts dt {
+  border-block-start: var(--rule-hairline);
+  color: var(--color-text-soft);
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  letter-spacing: 0.08em;
+  padding-block-start: var(--space-3);
+  text-transform: uppercase;
+}
+
+.lps-facts dd {
+  border-block-start: var(--rule-hairline);
+  color: var(--color-text);
+  font-size: var(--type-small);
+  margin: 0;
+  max-inline-size: var(--measure-interface);
+  padding-block: var(--space-3) var(--space-5);
+}
+
+@media (min-width: 40rem) {
+  .lps-facts {
+    grid-template-columns: 14rem minmax(0, 1fr);
+  }
+
+  .lps-facts dt {
+    border-block-start: var(--rule-hairline);
+    padding-block: var(--space-3) var(--space-5);
+  }
+
+  .lps-facts dd {
+    border-block-start: var(--rule-hairline);
+    padding-inline-start: var(--space-5);
+  }
+}
+
+.lps-facts + .lps-facts {
+  border-block-start: var(--rule-heavy);
+  margin-block-start: var(--space-6);
+  padding-block-start: var(--space-6);
+}
+
+.lps-source-list {
+  display: grid;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lps-source-list li {
+  align-items: baseline;
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+.lps-source-list .lps-meta {
+  color: var(--color-text-soft);
+}
+
+/* Agenda: date block + entry, as in the reference institution's event list. */
+.lps-agenda {
+  display: grid;
+  gap: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lps-agenda > li {
+  align-items: stretch;
+  background: var(--color-surface);
+  border-block-start: var(--rule-hairline);
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  padding: var(--space-5);
+  transition: background-color var(--motion-fast) var(--ease-state);
+}
+
+.lps-agenda > li:hover {
+  background: var(--color-wash-action-subtle);
+}
+
+.lps-event-date {
+  align-items: center;
+  background: var(--color-anchor);
+  color: var(--color-surface);
+  display: grid;
+  font-family: var(--font-mono);
+  inline-size: 4.5rem;
+  justify-items: center;
+  padding: var(--space-3);
+  text-align: center;
+}
+
+.lps-event-date strong {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.lps-event-date span {
+  font-size: var(--type-meta);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.lps-agenda h3 {
+  font-size: var(--type-h4);
+  margin-block-end: var(--space-1);
+}
+
+.lps-agenda p {
+  color: var(--color-text-muted);
+  font-size: var(--type-small);
+  margin: 0;
+}
+
+.lps-event-venue,
+.lps-event-state,
+.lps-temporal-status,
+.lps-opportunity-state,
+.lps-status {
+  color: var(--color-text-soft);
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.lps-status {
+  align-items: center;
+  background: var(--color-surface-alt);
+  border-radius: var(--radius-xs);
+  display: inline-flex;
+  padding: 0.15rem 0.55rem;
+}
+
+.lps-status-warning {
+  background: var(--color-warning-wash);
+  color: var(--color-warning-ink);
+}
+
+.lps-status-error {
+  background: var(--color-error-wash);
+  color: var(--color-error-ink);
+}
+
+.lps-status-success {
+  background: var(--color-success-wash);
+  color: var(--color-success);
+}
+
+.lps-tenure,
+.lps-deadline,
+.lps-doi,
+.lps-reviewed-at,
+.lps-result-count,
+.lps-search-count {
+  color: var(--color-text-soft);
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+}
+
+/* ----------------------------------------------------------------------------
+ * 13. People
+ * ------------------------------------------------------------------------- */
+
+.lps-people-grid {
+  display: grid;
+  gap: 0;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.lps-person-card {
+  background: var(--color-surface);
+  border-block-start: var(--rule-hairline);
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-6) var(--space-6) var(--space-6) 0;
+}
+
+.lps-person-card:hover {
+  box-shadow: var(--shadow-none);
+}
+
+.lps-person-header {
+  align-items: center;
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+.lps-monogram,
+.lps-person-no-photo {
+  align-items: center;
+  background: var(--color-anchor);
+  color: var(--color-surface);
+  display: grid;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  block-size: 3.5rem;
+  inline-size: 3.5rem;
+  letter-spacing: 0.02em;
+  align-content: center;
+  justify-items: center;
+}
+
+.lps-monogram--memoriam {
+  background: var(--color-text-muted);
+}
+
+.lps-person-card h3 {
+  font-size: var(--type-h4);
+  margin: 0;
+}
+
+.lps-person-card .lps-role {
+  color: var(--color-text-muted);
+  font-size: var(--type-small);
+  line-height: 1.45;
+  margin: var(--space-1) 0 0;
+}
+
+.lps-person-roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lps-person-contact {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-block-start: auto;
+}
+
+.lps-person-photo {
+  inline-size: 100%;
+}
+
+.lps-person-record {
+  background: var(--color-surface-alt);
+  padding: var(--space-5);
+}
+
+.lps-team-row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: space-between;
+}
+
+.lps-team-role {
+  color: var(--color-text-soft);
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  text-transform: uppercase;
+}
+
+.lps-person-teaching {
+  margin-block-start: var(--space-4);
+}
+
+/* ----------------------------------------------------------------------------
+ * 14. Tables
+ * ------------------------------------------------------------------------- */
+
+.lps-table-scroll {
+  background: var(--color-surface);
+  border-block-start: var(--rule-heavy);
+  overflow-x: auto;
+}
+
+table,
+.wp-block-table table {
+  border-collapse: collapse;
+  inline-size: 100%;
+  min-inline-size: 34rem;
+}
+
+caption {
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  letter-spacing: 0.06em;
+  padding: var(--space-4) 0;
+  text-align: start;
+  text-transform: uppercase;
+}
+
+th,
+td {
+  border-block-end: var(--rule-hairline);
+  padding: var(--space-4) var(--space-5) var(--space-4) 0;
+  text-align: start;
+  vertical-align: top;
+}
+
+thead th {
+  background: transparent;
+  border-block-end: var(--line-medium) solid var(--color-anchor);
+  color: var(--color-text-soft);
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+tbody tr:last-child th,
+tbody tr:last-child td {
+  border-block-end: 0;
+}
+
+tbody tr:hover {
+  background: var(--color-wash-action-subtle);
+}
+
+td code,
+th code {
+  white-space: nowrap;
+}
+
+.lps-course-code {
+  color: var(--color-anchor);
+  font-family: var(--font-mono);
+  font-size: var(--type-small);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.lps-offering-list,
+.lps-offering-identity,
+.lps-publications,
+.lps-publication,
+.lps-research-area,
+.lps-project,
+.lps-relations,
+.lps-verification,
+.lps-citation-downloads,
+.lps-handoff,
+.lps-claim-source,
+.lps-report-contact {
+  display: grid;
+  gap: var(--space-3);
+}
+
+/* ----------------------------------------------------------------------------
+ * 15. Notices
+ * ------------------------------------------------------------------------- */
+
+.lps-alert,
+.lps-claims-warning,
+.lps-translation-notice,
+.lps-contact-unavailable,
+.lps-material-note {
+  background: var(--color-info-wash);
+  border: var(--rule-hairline);
+  border-inline-start: var(--line-heavy) solid var(--color-anchor);
+  color: var(--color-anchor);
+  font-size: var(--type-small);
+  padding: var(--space-5);
+}
+
+.lps-alert p:last-child,
+.lps-claims-warning p:last-child {
+  margin-block-end: 0;
+}
+
+.lps-alert-error {
+  background: var(--color-error-wash);
+  border-color: var(--color-error-rule);
+  border-inline-start-color: var(--color-error);
+  color: var(--color-error-ink);
+}
+
+.lps-alert-info {
+  background: var(--color-info-wash);
+  border-color: var(--color-info-rule);
+}
+
+.lps-alert-warning,
+.lps-claims-warning,
+.lps-contact-unavailable {
+  background: var(--color-warning-wash);
+  border-color: var(--color-warning-rule);
+  border-inline-start-color: var(--color-warning);
+  color: var(--color-warning-ink);
+}
+
+.lps-material-note {
+  background: var(--color-surface-alt);
+  border-color: var(--color-rule-quiet);
+  border-inline-start-color: var(--color-text-soft);
+  color: var(--color-text-muted);
+}
+
+.lps-empty,
+.lps-empty-state,
+.lps-search-empty {
+  background: var(--color-surface);
+  border: var(--rule-hairline);
+  border-block-start: var(--rule-heavy);
+  color: var(--color-text-muted);
+  padding: clamp(var(--space-6), 3vw, var(--space-10));
+  text-align: center;
+}
+
+.lps-empty h2,
+.lps-empty-state h2 {
+  font-size: var(--type-h3);
+}
+
+.lps-empty-state .lps-kicker {
+  justify-content: center;
+}
+
+.lps-empty-state .lps-kicker::before {
+  display: none;
+}
+
+.lps-field-hint {
+  color: var(--color-text-soft);
+  font-size: var(--type-small);
+  margin-block-start: var(--space-1);
+}
+
+/* ----------------------------------------------------------------------------
+ * 16. Search and facets
+ * ------------------------------------------------------------------------- */
+
+.lps-search-surface,
+.lps-search-form {
+  background: var(--color-surface);
+  border: var(--rule-hairline);
+  border-block-start: var(--rule-heavy);
+  display: grid;
+  gap: var(--space-4);
+  padding: clamp(var(--space-5), 2.4vw, var(--space-8));
+}
+
+.lps-search-form .lps-search-row {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.lps-search-facets {
+  display: grid;
+  gap: var(--space-6);
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 48rem) {
+  .lps-search-facets {
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  }
+}
+
+.lps-search-facet {
+  border-block-start: var(--rule-hairline);
+  padding-block-start: var(--space-5);
+}
+
+.lps-search-facet h2,
+.lps-search-facet h3 {
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  font-weight: 400;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.lps-search-facet-values {
+  display: grid;
+  gap: var(--space-2);
+  list-style: none;
+  margin: var(--space-4) 0 0;
+  padding: 0;
+}
+
+.lps-search-facet-value {
+  align-items: center;
+  display: flex;
+  gap: var(--space-3);
+  font-size: var(--type-small);
+}
+
+.lps-search-results {
+  display: grid;
+  gap: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lps-search-result {
+  border-block-start: var(--rule-hairline);
+  display: grid;
+  gap: var(--space-3);
+  padding-block: var(--space-5);
+}
+
+.lps-search-result h3 {
+  font-size: var(--type-h4);
+  margin: 0;
+}
+
+.lps-search-kind {
+  color: var(--color-action-hover);
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.lps-search-range,
+.lps-search-hint,
+.lps-search-empty-hint,
+.lps-search-prompt {
+  color: var(--color-text-muted);
+  font-size: var(--type-small);
+}
+
+.lps-search-pagination,
+.lps-pagination {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: center;
+  margin-block-start: var(--space-8);
+}
+
+.lps-search-pagination a,
+.lps-pagination a {
+  align-items: center;
+  background: var(--color-surface);
+  border: var(--line-thin) solid var(--color-boundary-strong);
+  border-radius: var(--radius-xs);
+  display: inline-flex;
+  font-size: var(--type-small);
+  min-block-size: var(--control-min);
+  padding: var(--space-2) var(--space-4);
+  text-decoration: none;
+}
+
+.lps-search-pagination a:hover,
+.lps-pagination a:hover {
+  border-color: var(--color-anchor);
+  color: var(--color-action-hover);
+}
+
+.lps-search-pagination [aria-current="page"],
+.lps-pagination [aria-current="page"] {
+  background: var(--color-wash-action);
+  border-color: var(--color-action);
+  color: var(--color-action-hover);
+}
+
+/* ----------------------------------------------------------------------------
+ * 17. Editorial and dashboard surfaces
+ * ------------------------------------------------------------------------- */
+
+.lps-dashboard-section {
+  background: var(--color-surface);
+  border: var(--rule-hairline);
+  border-block-start: var(--rule-heavy);
+  margin-block-start: var(--space-8);
+  padding: clamp(var(--space-5), 2.4vw, var(--space-8));
+}
+
+.lps-dashboard-form,
+.lps-field,
+.lps-fieldset,
+.lps-checkbox {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.lps-dashboard-form {
+  gap: var(--space-5);
+}
+
+.lps-fieldset {
+  border: var(--rule-hairline);
+  padding: var(--space-5);
+}
+
+.lps-fieldset legend {
+  color: var(--color-text-soft);
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  letter-spacing: var(--tracking-label);
+  padding-inline: var(--space-2);
+  text-transform: uppercase;
+}
+
+.lps-checkbox {
+  align-items: center;
+  display: flex;
+  gap: var(--space-3);
+}
+
+.lps-task-list {
+  display: grid;
+  gap: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lps-task-link {
+  align-items: center;
+  border-block-start: var(--rule-hairline);
+  display: flex;
+  gap: var(--space-3);
+  justify-content: space-between;
+  padding: var(--space-4) 0;
+  text-decoration: none;
+}
+
+.lps-task-link:hover {
+  color: var(--color-action-hover);
+}
+
+.lps-proposal-diff,
+.lps-migration-diff {
+  background: var(--color-surface-alt);
+  font-family: var(--font-mono);
+  font-size: var(--type-small);
+  padding: var(--space-5);
+}
+
+/* ----------------------------------------------------------------------------
+ * 18. Footer
+ * ------------------------------------------------------------------------- */
+
+.lps-site-footer {
+  background: var(--color-anchor-deep);
+  border-block-start: var(--line-heavy) solid var(--color-accent);
+  color: var(--color-on-dark-body);
+  margin-block-start: var(--space-16);
+  overflow: clip;
+  position: relative;
+}
+
+.lps-site-footer::before {
+  background-image: var(--signal-line-dark);
+  background-position: right -4rem top -1rem;
+  background-repeat: no-repeat;
+  background-size: auto 200%;
+  block-size: 8rem;
+  content: "";
+  filter: none;
+  inset-block-start: 0;
+  inset-inline: 0;
+  opacity: 0.1;
+  pointer-events: none;
+  position: absolute;
+}
+
+.lps-footer-inner {
+  display: grid;
+  gap: clamp(var(--space-6), 3vw, var(--space-10));
+  grid-template-columns: minmax(0, 1fr);
+  padding-block: clamp(var(--space-10), 5vw, var(--space-16)) var(--space-8);
+  position: relative;
+}
+
+@media (min-width: 44rem) {
+  .lps-footer-inner {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 68rem) {
+  .lps-footer-inner {
+    grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr));
+  }
+}
+
+.lps-footer-brand {
+  display: grid;
+  gap: var(--space-4);
+  justify-items: start;
+}
+
+.lps-footer-brand .lps-logo,
+.lps-footer-brand .lps-wordmark {
+  inline-size: clamp(11rem, 20vw, 15rem);
+}
+
+.lps-wordmark {
+  align-items: center;
+  color: var(--color-surface);
+  display: inline-flex;
+  font-family: var(--font-display);
+  font-size: 1.375rem;
+  font-weight: 600;
+  gap: var(--space-3);
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+
+.lps-wordmark-light,
+.lps-wordmark-light:hover {
+  color: var(--color-surface);
+}
+
+.lps-site-footer h2,
+.lps-site-footer h3 {
+  border-block-end: var(--rule-hairline);
+  color: var(--color-surface);
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  font-weight: 400;
+  letter-spacing: var(--tracking-label);
+  margin-block-end: var(--space-4);
+  padding-block-end: var(--space-2);
+  text-transform: uppercase;
+}
+
+.lps-site-footer p,
+.lps-site-footer li,
+.lps-site-footer address {
+  color: var(--color-on-dark-address);
+  font-size: var(--type-small);
+  font-style: normal;
+  line-height: 1.6;
+}
+
+.lps-site-footer ul {
+  display: grid;
+  gap: var(--space-3);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lps-site-footer a {
+  color: var(--color-on-dark);
+  text-decoration: none;
+}
+
+.lps-site-footer a:hover {
+  color: var(--color-surface);
+  text-decoration: underline;
+  text-decoration-color: var(--color-accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.26em;
+}
+
+.lps-footer-grid {
+  align-items: start;
+  display: grid;
   gap: var(--space-6);
 }
+
+.lps-footer-bottom {
+  border-block-start: var(--rule-hairline);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4) var(--space-6);
+  justify-content: space-between;
+  padding-block: var(--space-6);
+}
+
+.lps-footer-bottom p,
+.lps-footer-bottom li {
+  color: var(--color-on-dark-meta);
+  font-size: var(--type-meta);
+}
+
+.lps-footer-bottom ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+}
+
+.lps-footer-affiliation {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.lps-footer-mark {
+  block-size: 2.5rem;
+  inline-size: auto;
+}
+
+/* ----------------------------------------------------------------------------
+ * 19. Utilities
+ * ------------------------------------------------------------------------- */
+
+.lps-units {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.lps-rule-hairline {
+  border-block-start: var(--rule-hairline);
+}
+
+.lps-shadow-none {
+  box-shadow: none;
+}
+
+.lps-text-center {
+  text-align: center;
+}
+
+.lps-flow > * + * {
+  margin-block-start: var(--space-4);
+}
+
+.lps-mt-0 { margin-block-start: 0; }
+.lps-mt-4 { margin-block-start: var(--space-4); }
+.lps-mt-6 { margin-block-start: var(--space-6); }
+.lps-mt-8 { margin-block-start: var(--space-8); }
+.lps-mt-10 { margin-block-start: var(--space-10); }
+
+.lps-mb-0 { margin-block-end: 0; }
+.lps-mb-4 { margin-block-end: var(--space-4); }
+.lps-mb-6 { margin-block-end: var(--space-6); }
+
+/* CTA band, closing a page with one action. */
+.lps-cta-band {
+  background: var(--gradient-cta);
+  border-block-start: var(--line-heavy) solid var(--color-accent);
+  color: var(--color-surface);
+  display: grid;
+  gap: var(--space-6);
+  overflow: clip;
+  padding: clamp(var(--space-8), 4vw, var(--space-12));
+  position: relative;
+}
+
+.lps-cta-band::after {
+  background-image: var(--signal-line-dark);
+  background-position: right -3rem bottom -2rem;
+  background-repeat: no-repeat;
+  background-size: auto 160%;
+  content: "";
+  inset: 0;
+  opacity: 0.12;
+  pointer-events: none;
+  position: absolute;
+}
+
+.lps-cta-band > * {
+  position: relative;
+  z-index: 1;
+}
+
+.lps-cta-band h2 {
+  color: var(--color-surface);
+  font-size: var(--type-h2);
+  margin: 0;
+  max-inline-size: 26ch;
+}
+
+.lps-cta-band p {
+  color: var(--color-on-dark-lead);
+  margin: 0;
+  max-inline-size: var(--measure-lead);
+}
+
+@media (min-width: 56rem) {
+  .lps-cta-band--split {
+    align-items: center;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  }
+
+  .lps-cta-band--split .lps-button-row {
+    justify-content: flex-end;
+  }
+}
+
+/* Partner / funder band: a ruled row of names, not a row of chips. */
+.lps-logo-band {
+  align-items: stretch;
+  border-block-start: var(--rule-hairline);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lps-logo-band li {
+  align-items: center;
+  border-block-end: var(--rule-hairline);
+  color: var(--color-text-muted);
+  display: flex;
+  font-family: var(--font-mono);
+  font-size: var(--type-small);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  padding: var(--space-4) var(--space-6) var(--space-4) 0;
+  text-transform: uppercase;
+}
+
+.lps-logo-band li + li {
+  border-inline-start: var(--rule-hairline);
+  padding-inline-start: var(--space-6);
+}
+
+.lps-logo-band li:hover {
+  color: var(--color-anchor);
+}
+
+.lps-logo-band--dark li {
+  border-color: var(--overlay-light-18);
+  color: var(--color-on-dark);
+}
+
+/* ============================================================================
+ * 19b. Product surfaces
+ * ----------------------------------------------------------------------------
+ * The class vocabulary the theme actually renders — listings, records,
+ * dashboards, teaching, materials, discovery filters — carried over from the
+ * shipped theme and re-expressed on the tokens above. A selector reaches this
+ * section only because nothing above styles it: where the 2026 design already
+ * owns a class, that class is styled once, above, and is absent here.
+ * ========================================================================= */
 
 .lps-cluster {
   display: flex;
@@ -327,59 +2945,11 @@ dd {
   align-items: center;
 }
 
-.lps-content-limiter {
-  max-inline-size: var(--measure-reading);
-}
-
-/* Long-form reading keeps the interface family at the reading size and
-   measure; the retired serif role is not reintroduced anywhere. */
-.lps-reading {
-  max-inline-size: var(--measure-reading);
-  font-size: var(--type-reading);
-  line-height: 1.65;
-}
-
-.lps-lead {
-  max-inline-size: var(--measure-lead);
-  color: var(--color-text-muted);
-  font-size: var(--type-lead);
-  line-height: 1.55;
-}
-
-.lps-summary {
-  max-inline-size: var(--measure-lead);
-  color: var(--color-text-muted);
-}
-
-.lps-meta,
-.lps-kicker,
-.lps-status,
-.lps-event-date,
-.lps-event-venue,
-.lps-deadline,
-.lps-reviewed-at,
-.lps-journey-label,
-.lps-claim-source,
 .lps-listing-count,
 .lps-people-count,
-.lps-result-count,
-.lps-search-count,
-.lps-search-range,
 .lps-facet-count,
-.lps-tenure,
-.lps-role,
 .lps-disambiguation,
-.lps-search-kind,
-.lps-news-listing time,
-.lps-opportunity-state,
-.lps-event-state,
-.lps-term-token,
-.lps-temporal-status,
-.lps-section,
-.lps-team-role,
-.lps-offering-identity,
-.wp-block-post-date,
-.wp-block-post-terms {
+.lps-news-listing time {
   font-family: var(--font-mono);
   font-size: var(--type-meta);
   font-variant-numeric: tabular-nums;
@@ -388,194 +2958,22 @@ dd {
   line-height: 1.4;
 }
 
-.lps-meta,
 .lps-listing-count,
 .lps-people-count,
-.lps-result-count,
-.lps-search-count,
-.lps-search-range,
 .lps-facet-count,
-.lps-tenure,
-.lps-search-hint,
-.lps-search-prompt,
-.lps-search-empty,
-.lps-search-empty-hint,
-.lps-role,
-.lps-disambiguation,
-.lps-search-kind,
-.lps-opportunity-state,
-.lps-event-state,
-.lps-event-date,
-.lps-event-venue,
-.lps-deadline,
-.lps-reviewed-at,
-.lps-claim-source,
-.lps-term-token,
-.lps-temporal-status,
-.lps-section,
-.lps-team-role,
-.lps-offering-identity {
+.lps-disambiguation {
   color: var(--color-text-muted);
 }
 
-.lps-kicker,
-.lps-journey-label {
-  color: var(--color-action);
-}
 
-.lps-skip-link {
-  position: fixed;
-  inset-block-start: var(--space-2);
-  inset-inline-start: var(--space-2);
-  z-index: 20;
-  padding: var(--space-3) var(--space-4);
-  transform: translateY(-200%);
-  background: var(--color-surface);
-  color: var(--color-anchor);
-  font-weight: 700;
-}
-
-.lps-skip-link:focus {
-  transform: translateY(0);
-}
-
-.lps-site-header {
-  border-block-end: var(--rule-anchor);
-}
-
-/* Institutional affiliation strip: identity surface, not a page band. */
-.lps-affiliation {
-  max-inline-size: none;
-  padding-block: var(--space-2);
-  background: var(--color-anchor);
-  color: var(--color-surface);
-  font-size: var(--type-small);
-}
-
-.lps-affiliation p {
-  grid-column: 1 / -1;
-  margin: 0;
-  color: inherit;
-}
-
-.lps-affiliation .lps-meta {
-  display: none;
-}
-
-.lps-masthead {
-  align-items: end;
-  padding-block: var(--space-6);
-}
-
-.lps-masthead > * {
-  grid-column: 1 / -1;
-}
-
-.lps-masthead p {
-  margin: var(--space-2) 0 0;
-  color: var(--color-text-muted);
-}
-
-/* Masthead brand: the responsive artwork swap, with the text wordmark as
-   the no-artwork fallback. The artwork keeps its intrinsic ratio; the box
-   holds the contract band — 220px on narrow slots, 280px on desktop. The
-   footer keeps the text wordmark on the anchor fill. */
-.lps-brand {
-  display: inline-block;
-  inline-size: 220px;
-  max-inline-size: 100%;
-  color: var(--color-anchor);
-  font-family: var(--font-interface);
-  font-size: var(--type-h1);
-  font-weight: 700;
-  line-height: 0.9;
-  text-decoration: none;
-}
-
-.lps-logo {
-  display: block;
-  inline-size: 100%;
-  max-inline-size: 100%;
-  block-size: auto;
-}
-
-/* Long translated labels wrap by phrase inside the grid instead of forcing
-   a horizontal overflow at the narrowest supported width. */
-.lps-primary-nav ul,
-.lps-site-footer ul {
-  min-inline-size: 0;
-}
-
-.lps-primary-nav a,
-.lps-site-footer a {
-  min-inline-size: 0;
-  overflow-wrap: anywhere;
-}
-
-.lps-wordmark {
-  color: var(--color-anchor);
-  font-family: var(--font-interface);
-  font-size: var(--type-h1);
-  font-weight: 700;
-  line-height: 0.9;
-  text-decoration: none;
-}
-
-/*
- * Institutional mark (DESIGN.md 9). Only the monochrome symbol derivative ever
- * appears inside UI chrome: it takes its colour from the surrounding token
- * through currentColor, never from a brand token, and it carries no lettering,
- * so it has no legibility floor to step down from. The width is expressed in
- * em so the artwork tracks the wordmark's fluid type size; flex-wrap on the
- * wordmark plus min-inline-size: 0 here let the mark shrink or wrap instead of
- * overflowing at 320 CSS px or 200% zoom.
- */
 .lps-mark {
-  inline-size: 2.95em;
+  inline-size: 2.5em;
   min-inline-size: 0;
   block-size: auto;
   flex-shrink: 1;
 }
 
-.lps-shell-disclosure {
-  border-block-start: var(--rule-hairline);
-}
-
-.lps-shell-disclosure > summary {
-  display: flex;
-  min-block-size: var(--control-min);
-  align-items: center;
-  justify-content: space-between;
-  padding-inline: var(--space-4);
-  color: var(--color-anchor);
-  cursor: pointer;
-  font-weight: 700;
-  list-style: none;
-}
-
-.lps-shell-disclosure > summary::after {
-  content: "+";
-  font-family: var(--font-mono);
-}
-
-.lps-shell-disclosure[open] > summary::after {
-  content: "−";
-}
-
-.lps-nav-panel {
-  padding-block: var(--space-4) var(--space-6);
-  row-gap: var(--space-6);
-}
-
-.lps-primary-nav,
-.lps-shell-tools {
-  grid-column: 1 / -1;
-}
-
-.lps-primary-nav ul,
-.lps-locale ul,
-.lps-site-footer ul,
-.lps-breadcrumbs ol {
+.lps-locale ul {
   display: flex;
   flex-wrap: wrap;
   gap: 0 var(--space-4);
@@ -584,57 +2982,17 @@ dd {
   list-style: none;
 }
 
-.lps-primary-nav a,
 .lps-locale a,
-.lps-locale span,
-.lps-site-footer a {
+.lps-locale span {
   display: inline-flex;
   min-block-size: var(--control-min);
   align-items: center;
 }
 
-.lps-primary-nav a {
-  color: var(--color-text);
-  font-size: var(--type-small);
-  font-weight: 650;
-  text-decoration: none;
-}
-
-.lps-primary-nav a:hover {
-  color: var(--color-action-hover);
-  text-decoration-line: underline;
-  text-decoration-thickness: var(--line-medium);
-  text-underline-offset: var(--space-1);
-}
-
-.lps-primary-nav a:active {
-  color: var(--color-anchor);
-}
-
-/* Current page is a 3px action rule plus weight 750, never color alone. */
-.lps-primary-nav a[aria-current="page"],
 .lps-locale a[aria-current="page"] {
-  border-block-end: var(--rule-focus);
+  border-block-end: var(--line-heavy) solid var(--color-accent);
   color: var(--color-anchor);
-  font-weight: 750;
-}
-
-.lps-shell-tools {
-  display: grid;
-  gap: var(--space-4);
-  align-items: end;
-}
-
-.lps-search label {
-  display: block;
-  margin-block-end: var(--space-2);
-  font-size: var(--type-small);
-  font-weight: 700;
-}
-
-.lps-search > div {
-  display: flex;
-  min-inline-size: 0;
+  font-weight: 600;
 }
 
 .lps-locale a,
@@ -651,51 +3009,11 @@ dd {
   text-decoration: line-through;
 }
 
-.lps-breadcrumbs {
-  padding-block: var(--space-4);
-  border-block-end: var(--rule-hairline);
-}
-
-.lps-breadcrumbs ol {
-  grid-column: 1 / -1;
-  gap: var(--space-2);
-  font-size: var(--type-small);
-}
-
-.lps-breadcrumbs li + li::before {
-  content: "/";
-  margin-inline-end: var(--space-2);
-  color: var(--color-boundary-strong);
-}
-
-.lps-main-content {
-  padding-block: var(--space-12) var(--space-20);
-}
-
-.wp-block-post-content {
-  font-size: var(--type-reading);
-  line-height: 1.65;
-}
-
-.wp-block-post-content > :where(p, ul, ol, h2, h3, h4, blockquote) {
-  max-inline-size: var(--measure-reading);
-}
-
-.wp-block-post-content :where(code, pre),
-.lps-breakable {
-  overflow-wrap: anywhere;
-  font-family: var(--font-mono);
-}
-
-/* Metadata-forward record rows: the row lays its parts on the spacing scale
-   and lets long rows wrap; metadata carries the mono tabular treatment. */
 .lps-event-listing li,
 .lps-opportunity-listing li,
 .lps-news-listing li,
 .lps-members li,
-.lps-publications li,
 .lps-people li,
-.lps-relations li,
 .lps-access-links li,
 .lps-authors li,
 .lps-funders li,
@@ -713,9 +3031,7 @@ dd {
 .lps-opportunity-listing li > p,
 .lps-news-listing li > p,
 .lps-members li > p,
-.lps-publications li > p,
 .lps-people li > p,
-.lps-relations li > p,
 .lps-access-links li > .lps-meta,
 .lps-authors li > p,
 .lps-funders li > p,
@@ -727,8 +3043,6 @@ dd {
   margin-block: var(--space-1) 0;
 }
 
-/* Discovery listings: a labeled filter group, an announced count, and
-   hairline-separated record rows. */
 .lps-listing {
   display: grid;
   gap: var(--space-6);
@@ -791,23 +3105,10 @@ dd {
 .lps-access-links,
 .lps-members,
 .lps-funders,
-.lps-publications,
-.lps-authors,
-.lps-relations {
+.lps-authors {
   margin-block-start: 0;
   padding-inline-start: 0;
   list-style: none;
-}
-
-/* Discovery record pages: relationship groups and the access section are
-   strata separated by hairlines, matching the homepage module grammar. */
-.lps-research-area > h2,
-.lps-project > h2,
-.lps-publication > h2 {
-  margin-block: var(--space-10) var(--space-4);
-  padding-block-start: var(--space-6);
-  border-block-start: var(--rule-hairline);
-  font-size: var(--type-h3);
 }
 
 .lps-access {
@@ -829,73 +3130,6 @@ dd {
   align-items: center;
 }
 
-.lps-doi {
-  overflow-wrap: anywhere;
-}
-
-.lps-empty {
-  color: var(--color-text-muted);
-}
-
-.wp-block-post-template {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.wp-block-post-template > li,
-.lps-record {
-  padding-block: var(--space-6);
-  border-block-start: var(--rule-hairline);
-}
-
-.lps-record h3,
-.lps-record h4 {
-  margin-block-end: var(--space-2);
-}
-
-.lps-record > .lps-meta {
-  margin-block-end: var(--space-2);
-}
-
-.lps-record p {
-  margin-block: 0;
-  color: var(--color-text-muted);
-}
-
-.wp-block-post-template .wp-block-post-title {
-  font-size: var(--type-h3);
-}
-
-figure,
-.wp-block-image,
-.wp-block-gallery {
-  margin-block: var(--space-8);
-}
-
-/* Governed media inside a record row keeps a tighter rhythm than a standalone
-   figure so the row's hairline separation stays readable. */
-.lps-record .lps-media {
-  margin-block: 0 var(--space-4);
-}
-
-/* Homepage media slots crop to a uniform 3:2 frame; the governed focal point
-   (rendered as object-position) decides which part of the image stays in
-   frame, so a cleared image never distorts to fit the slot. */
-.lps-home-section .lps-media img {
-  display: block;
-  inline-size: 100%;
-  block-size: auto;
-  aspect-ratio: 3 / 2;
-  object-fit: cover;
-}
-
-.lps-home-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-}
-
 .lps-home-links {
   margin-block-start: var(--space-4);
 }
@@ -904,118 +3138,12 @@ figure,
   margin-inline-start: var(--space-5);
 }
 
-figcaption,
-.wp-element-caption {
-  max-inline-size: var(--measure-interface);
-  margin-block-start: var(--space-3);
-  color: var(--color-text-muted);
-  font-size: var(--type-small);
-  line-height: 1.5;
-}
-
-/* Homepage modules are differentiated bands, not uniform text rows. Each band
-   bleeds to the viewport edge while its content stays on the page grid: the
-   section is centered on its parent and padded by exactly the distance to the
-   parent's content edge plus the grid gutter. */
 .lps-main-content.lps-home {
   padding-block: 0;
 }
 
-.lps-home-section {
-  position: relative;
-  left: 50%;
-  display: grid;
-  inline-size: 100vw;
-  padding-block: var(--space-16);
-  padding-inline: calc((100vw - 100%) / 2 + var(--grid-padding));
-  transform: translateX(-50%);
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  column-gap: var(--grid-gutter);
-}
-
-.lps-home-section > * {
-  grid-column: 1 / -1;
-  min-inline-size: 0;
-}
-
-/* Band rhythm: canvas and surface alternate; adjacent modules never share a
-   band color. Journeys is the single interior anchor band; research and
-   latest share the surface band so they read as the page's evidence core. */
-.lps-home-section[data-home-section="research"],
-.lps-home-section[data-home-section="latest"] {
-  background: var(--color-surface);
-}
-
-/* Strata inside a module separate by rule and spacing, never by cards. */
-.lps-home-stratum {
-  padding-block-start: var(--space-12);
-  border-block-start: var(--rule-hairline);
-}
-
-/* The contact handoff closes the partners module with a strong top rule. */
 .lps-home-handoff {
   border-block-start: var(--line-medium) solid var(--color-boundary-strong);
-}
-
-.lps-home-section[data-home-section="journeys"] {
-  background: var(--color-anchor);
-  color: var(--color-surface);
-}
-
-.lps-home-section[data-home-section="journeys"] :where(h2, p, li) {
-  color: inherit;
-}
-
-.lps-home-section[data-home-section="journeys"] a {
-  color: var(--color-surface);
-}
-
-.lps-home-section[data-home-section="journeys"] span[aria-disabled="true"] {
-  color: var(--color-rule-quiet);
-}
-
-/* The audience label sits on anchor, so it inherits the band's surface text
-   color instead of the action kicker color used on light bands. */
-.lps-home-section[data-home-section="journeys"] .lps-journey-label {
-  color: inherit;
-}
-
-.lps-home-section[data-home-section="mission"] h1 {
-  max-inline-size: var(--measure-lead);
-  font-size: var(--type-display);
-}
-
-/* Custom properties cannot fall back through the cascade, so the fitted size
-   is gated on container-unit support. */
-@supports (font-size: 1cqi) {
-  .lps-home-section[data-home-section="mission"] h1 {
-    font-size: var(--type-display-fit);
-  }
-}
-
-.lps-home-section[data-home-section="mission"] .lps-record {
-  container-type: inline-size;
-  max-inline-size: var(--measure-lead);
-  padding-block: 0;
-  border: 0;
-  font-size: var(--type-lead);
-}
-
-.lps-home-journeys {
-  display: grid;
-  gap: var(--space-6);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.lps-home-journeys > li {
-  display: grid;
-  gap: var(--space-3);
-  align-content: start;
-  justify-items: start;
-  padding-block-start: var(--space-4);
-  border-block-start: var(--rule-hairline);
 }
 
 .lps-editorial-section {
@@ -1027,260 +3155,33 @@ figcaption,
   grid-column: 1 / -1;
 }
 
-.lps-handoff {
-  padding-block: var(--space-8);
-  border-block-start: var(--rule-hairline);
-}
-
-/* Tables: caption names the purpose; the inner .lps-table-scroll wrapper
-   alone owns horizontal scroll on narrow viewports and takes keyboard focus.
-   The figure keeps only its width constraint so the two boxes never scroll
-   or border twice. */
-.wp-block-table {
-  max-inline-size: 100%;
-}
-
-.lps-table-scroll {
-  max-inline-size: 100%;
-  overflow-x: auto;
-  border-block-start: var(--rule-anchor);
-}
-
-.lps-table-scroll:focus-visible {
-  outline: var(--rule-focus);
-  outline-offset: var(--focus-offset);
-}
-
-table {
-  inline-size: 100%;
-  min-inline-size: 50rem;
-  border-collapse: collapse;
-  font-size: var(--type-small);
-}
-
-caption {
-  padding-block: var(--space-4);
-  font-size: var(--type-h4);
-  font-weight: 650;
-  text-align: start;
-}
-
-th,
-td {
-  padding: var(--space-3) var(--space-4);
-  border-block-end: var(--rule-hairline);
-  text-align: start;
-  vertical-align: top;
-}
-
-thead th {
-  color: var(--color-text-muted);
-  font-family: var(--font-mono);
-  font-size: var(--type-meta);
-  letter-spacing: 0.04em;
-}
-
-tbody tr:hover,
-tbody tr:focus-within {
-  background: var(--color-surface);
-}
-
-.lps-status,
-.lps-role,
-.lps-disambiguation,
-.lps-search-kind,
-.lps-opportunity-state,
-.lps-event-state {
+.lps-disambiguation {
   display: inline-block;
   padding-inline-start: var(--space-3);
-  border-inline-start: var(--line-focus) solid currentColor;
-}
-
-.lps-status-success {
-  color: var(--color-success);
-}
-
-.lps-status-warning {
-  color: var(--color-warning);
-}
-
-.lps-status-error {
-  color: var(--color-error);
-}
-
-/* Alerts: left action rule over a semantic wash; never a floating toast. */
-.lps-alert {
-  display: grid;
-  gap: var(--space-4);
-  padding: var(--space-5);
-  border-inline-start: var(--rule-focus);
-  color: var(--color-text);
-  grid-template-columns: minmax(0, 1fr);
-}
-
-.lps-alert-info {
-  background: var(--color-info-wash);
+  border-inline-start: var(--line-heavy) solid var(--color-accent);
 }
 
 .lps-alert-success {
   background: var(--color-success-wash);
 }
 
-.lps-alert-warning,
-.lps-event-notice,
-.lps-contact-unavailable,
-.lps-translation-notice,
-.lps-claims-warning {
+.lps-event-notice {
   background: var(--color-warning-wash);
 }
 
-.lps-alert-error {
-  background: var(--color-error-wash);
-}
-
 .lps-event-notice,
-.lps-contact-unavailable,
-.lps-translation-notice,
-.lps-claims-warning,
 .lps-search-error {
   padding: var(--space-4) var(--space-5);
-  border-inline-start: var(--rule-focus);
+  border-inline-start: var(--rule-accent);
 }
 
-.lps-alert :where(h2, h3, h4) {
-  margin-block-end: 0;
-}
-
-.lps-alert p {
-  margin-block: 0;
-}
-
-:where(input:not([type="checkbox"], [type="radio"]), select, textarea) {
-  min-block-size: var(--control-min);
-  inline-size: 100%;
-  padding: var(--space-3) var(--space-4);
-  border: var(--rule-boundary);
-  border-radius: var(--radius-control);
-  background: var(--color-surface);
-}
-
-.lps-search input {
-  min-block-size: var(--control-min);
-  min-inline-size: 0;
-  inline-size: 100%;
-  padding: var(--space-3);
-  border: var(--rule-boundary);
-  border-radius: var(--radius-control);
-  background: var(--color-surface);
-}
-
-:where(input, select, textarea)[aria-invalid="true"] {
-  border-color: var(--color-error);
-}
-
-:where(input, select, textarea):disabled {
-  background: var(--color-canvas);
-  color: var(--color-text-muted);
-}
-
-/* Validation messages name the field, the cause, and the repair; the error
-   color is a supporting cue, never the only signal. The message is essential
-   text, so it keeps the 16px body floor rather than the caption size. */
 .lps-field-error {
   color: var(--color-error);
   font-size: var(--type-body);
   font-weight: 650;
 }
 
-.lps-field-hint {
-  color: var(--color-text-muted);
-  font-size: var(--type-small);
-}
-
-/* Buttons: 4px control radius, action fill for primary, 2px strong boundary
-   for secondary; the only spatial response is a 1px press. */
-.lps-search button,
-.lps-button,
-.wp-element-button,
-.wp-block-button__link {
-  display: inline-flex;
-  min-block-size: var(--control-min);
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-3) var(--space-5);
-  border: var(--rule-boundary);
-  border-radius: var(--radius-control);
-  box-shadow: var(--shadow-none);
-  background: var(--color-surface);
-  color: var(--color-action);
-  cursor: pointer;
-  font-family: var(--font-interface);
-  font-size: var(--type-small);
-  font-weight: 700;
-  line-height: 1.2;
-  text-decoration: none;
-  transition:
-    background-color var(--motion-fast) var(--ease-state),
-    color var(--motion-fast) var(--ease-state),
-    border-color var(--motion-fast) var(--ease-state),
-    transform var(--motion-fast) var(--ease-state);
-}
-
-.lps-search button,
-.lps-button-primary,
-.wp-block-button:not(.is-style-outline) .wp-block-button__link {
-  border-color: var(--color-action);
-  background: var(--color-action);
-  color: var(--color-surface);
-}
-
-.lps-search button:hover,
-.lps-button:hover,
-.wp-element-button:hover,
-.wp-block-button__link:hover {
-  border-color: var(--color-action-hover);
-  background: var(--color-action-hover);
-  color: var(--color-surface);
-}
-
-.lps-search button:active,
-.lps-button:active,
-.wp-element-button:active,
-.wp-block-button__link:active {
-  transform: translateY(var(--press-shift));
-}
-
-.lps-button:disabled,
-.lps-button[aria-disabled="true"],
-.wp-element-button:disabled,
-.wp-block-button__link[aria-disabled="true"] {
-  border-color: var(--color-rule-quiet);
-  background: var(--color-canvas);
-  color: var(--color-text-muted);
-  cursor: default;
-}
-
-/* On the anchor journeys band the button inverts to a surface fill; declared
-   after the base button rules so the cascade order matches the specificity
-   order. */
-.lps-home-section[data-home-section="journeys"] .lps-button {
-  border-color: var(--color-surface);
-  background: var(--color-surface);
-  color: var(--color-anchor);
-}
-
-.lps-home-section[data-home-section="journeys"] .lps-button:hover {
-  border-color: var(--color-canvas);
-  background: var(--color-canvas);
-  color: var(--color-anchor-deep);
-}
-
-/* Target size, WCAG 2.2 SC 2.5.8. A control inside a link cluster, a pagination
-   list, or a filter row is not inline in a sentence, so it carries its own target
-   instead of inheriting the line box of surrounding text. */
-.lps-search-pagination ul,
-.lps-listing nav ul,
-.wp-block-query-pagination {
+.lps-listing nav ul {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
@@ -1289,11 +3190,8 @@ tbody tr:focus-within {
   list-style: none;
 }
 
-.lps-search-pagination a,
-.lps-search-pagination li > span,
 .lps-listing nav a,
-.lps-listing nav li > span,
-.wp-block-query-pagination a {
+.lps-listing nav li > span {
   display: inline-flex;
   min-inline-size: var(--control-min);
   min-block-size: var(--control-min);
@@ -1302,366 +3200,16 @@ tbody tr:focus-within {
   padding-inline: var(--space-2);
 }
 
-/* A link that is the whole paragraph is not inline in a sentence, so it also
-   carries its own 44px target instead of the bare line box. */
-.lps-main-content p > a:only-child,
-.lps-citation-downloads a,
-.lps-handoff a,
-.lps-report-contact a {
-  display: inline-flex;
-  min-block-size: var(--control-min);
-  align-items: center;
-}
-
-.lps-citation-downloads {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-4);
-}
-
-.lps-search-facet-value {
-  display: flex;
-  min-block-size: var(--control-min);
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.lps-search-facet-value input[type="checkbox"] {
-  inline-size: 1.5rem;
-  block-size: 1.5rem;
-  margin: 0;
-}
-
-details:not(.lps-shell-disclosure) {
-  padding-block: var(--space-4);
-  border-block: var(--rule-hairline);
-}
-
-details:not(.lps-shell-disclosure) > summary {
-  min-block-size: var(--control-min);
-  cursor: pointer;
-  font-weight: 700;
-}
-
-/* Documented empty/error states, never a blank region. */
-.lps-empty-state,
 .lps-not-found {
   max-inline-size: var(--measure-lead);
   padding-block: var(--space-12);
   border-block: var(--rule-anchor);
 }
 
-.lps-main-content > .wp-block-post-title,
-.lps-main-content > .wp-block-query-title,
-.lps-main-content > .wp-block-post-content,
-.lps-main-content > .wp-block-query,
 .lps-main-content > .lps-not-found {
   grid-column: 1 / -1;
 }
 
-/* Footer: compact anchor band carrying affiliation, utility routes and the
-   reporting contact. */
-.lps-site-footer {
-  padding-block: var(--space-8);
-  background: var(--color-anchor);
-  color: var(--color-surface);
-}
-
-.lps-footer-grid {
-  align-items: start;
-  row-gap: var(--space-6);
-}
-
-.lps-footer-grid > * {
-  grid-column: 1 / -1;
-}
-
-.lps-wordmark-light,
-.lps-site-footer a,
-.lps-site-footer .lps-meta {
-  color: var(--color-surface);
-}
-
-.lps-site-footer p {
-  margin-block-end: var(--space-2);
-}
-
-[lang="zh-Hans"],
-[lang="ja"],
-[lang="ko"] {
-  word-break: normal;
-  line-break: strict;
-  letter-spacing: normal;
-}
-
-@media (min-width: 48rem) {
-  :root {
-    --grid-gutter: var(--space-6);
-  }
-
-  .lps-page-grid,
-  .lps-home-section {
-    grid-template-columns: repeat(8, minmax(0, 1fr));
-  }
-
-  .lps-affiliation p:first-child {
-    grid-column: 1 / 6;
-  }
-
-  .lps-affiliation .lps-meta {
-    display: block;
-    grid-column: 6 / -1;
-    text-align: end;
-  }
-
-  .lps-masthead .lps-brand,
-  .lps-masthead .lps-wordmark {
-    grid-column: 1 / 5;
-  }
-
-  .lps-masthead p {
-    grid-column: 5 / -1;
-    margin: 0;
-  }
-
-  .lps-shell-tools {
-    grid-template-columns: minmax(16rem, 1fr) auto auto;
-  }
-
-  .lps-home-journeys {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  /* Dated rows: the metadata column leads, title and summary follow. */
-  .lps-home-section[data-home-section="latest"] > .lps-record {
-    display: grid;
-    grid-template-columns: minmax(8rem, auto) 1fr;
-    column-gap: var(--grid-gutter);
-  }
-
-  .lps-home-section[data-home-section="latest"] > .lps-record > .lps-meta {
-    grid-column: 1;
-    grid-row: 1 / span 2;
-  }
-
-  .lps-home-section[data-home-section="latest"] > .lps-record > h3,
-  .lps-home-section[data-home-section="latest"] > .lps-record > p:not(.lps-meta) {
-    grid-column: 2;
-  }
-
-  /* The featured latest row leads with its governed image. */
-  .lps-home-section[data-home-section="latest"] > .lps-record--featured {
-    grid-template-columns: minmax(14rem, 2fr) 3fr;
-  }
-
-  .lps-home-section[data-home-section="latest"] > .lps-record--featured > .lps-media {
-    grid-column: 1;
-    grid-row: 1 / span 3;
-  }
-
-  .lps-home-section[data-home-section="latest"] > .lps-record--featured > .lps-meta,
-  .lps-home-section[data-home-section="latest"] > .lps-record--featured > h3,
-  .lps-home-section[data-home-section="latest"] > .lps-record--featured > p:not(.lps-meta) {
-    grid-column: 2;
-    grid-row: auto;
-  }
-
-  .lps-main-content > .wp-block-post-title,
-  .lps-main-content > .wp-block-query-title,
-  .lps-main-content > .wp-block-post-content,
-  .lps-main-content > .wp-block-query,
-  .lps-main-content > .lps-not-found,
-  .lps-main-content > .lps-institutional[data-page="collaboration"],
-  .lps-main-content > .lps-journeys {
-    grid-column: 2 / 8;
-  }
-
-  .lps-editorial-section > :first-child {
-    grid-column: 1 / 3;
-  }
-
-  .lps-editorial-section > :not(:first-child) {
-    grid-column: 3 / -1;
-  }
-
-  .lps-footer-grid .lps-wordmark {
-    grid-column: 1 / 3;
-  }
-
-  .lps-footer-grid > div {
-    grid-column: 3 / 6;
-  }
-
-  .lps-footer-grid nav {
-    grid-column: 6 / -1;
-  }
-}
-
-@media (min-width: 64rem) {
-  :root {
-    --grid-gutter: var(--space-8);
-  }
-
-  .lps-page-grid,
-  .lps-home-section {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-  }
-
-  .lps-affiliation p:first-child {
-    grid-column: 1 / 9;
-  }
-
-  .lps-affiliation .lps-meta {
-    grid-column: 9 / -1;
-  }
-
-  .lps-masthead .lps-brand,
-  .lps-masthead .lps-wordmark {
-    grid-column: 1 / 4;
-    inline-size: 280px;
-  }
-
-  .lps-masthead p {
-    grid-column: 6 / -1;
-  }
-
-  .lps-shell-disclosure > summary {
-    display: none;
-  }
-
-  .lps-shell-disclosure:not([open]) > .lps-nav-panel,
-  .lps-nav-panel {
-    display: grid;
-  }
-
-  /* The disclosure ships closed so the mobile header stays compact; at desktop
-     the panel is always visible. Engines that hide closed details content via
-     ::details-content (content-visibility) cannot be overridden by a display
-     rule on the child, so the pseudo-element is forced visible here. Engines
-     without the pseudo-element ignore the rule and use the display rule above. */
-  .lps-shell-disclosure::details-content {
-    content-visibility: visible;
-  }
-
-  .lps-primary-nav {
-    grid-column: 1 / 9;
-  }
-
-  .lps-shell-tools {
-    grid-column: 9 / -1;
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-
-  .lps-search {
-    grid-column: 1 / -1;
-  }
-
-  .lps-main-content {
-    padding-block: var(--space-16) var(--space-24);
-  }
-
-  .lps-main-content.lps-home {
-    padding-block: 0;
-  }
-
-  /* Section label owns three columns at the subsection scale — the spec's
-     two-column label cannot hold a Portuguese h2 without mid-word wrapping;
-     primary content owns seven, leaving two for notes. */
-  .lps-home-section > h2 {
-    grid-column: 1 / 4;
-    grid-row: 1;
-    font-size: var(--type-h3);
-  }
-
-  .lps-home-section > :not(h1, h2) {
-    grid-column: 4 / 11;
-  }
-
-  .lps-home-section[data-home-section="mission"] > * {
-    grid-column: 1 / 11;
-  }
-
-  /* The header's anchor base rule already separates the mission from the
-     shell; the tighter lead-in keeps H1, lead, CTA and figure inside the
-     800px first viewport at 1280 (DESIGN.md module 1). */
-  .lps-home-section[data-home-section="mission"] {
-    padding-block-start: var(--space-12);
-  }
-
-  /* The latest module keeps full-width dated rows below its label. */
-  .lps-home-section[data-home-section="latest"] > h2 {
-    grid-column: 1 / -1;
-  }
-
-  .lps-home-section[data-home-section="latest"] > .lps-record {
-    grid-column: 1 / -1;
-  }
-
-  /* Mission feature: statement spans seven columns, the figure five. */
-  .lps-home-section[data-home-section="mission"] > .lps-record {
-    grid-column: 1 / 8;
-  }
-
-  .lps-home-section[data-home-section="mission"] > .lps-media {
-    grid-column: 8 / -1;
-    margin-block: 0;
-  }
-
-  /* Strata inside a module keep the module's two-column rhythm: the stratum
-     label owns the left rail, its records the content column. The element
-     selector keeps this rule level with the section's generic child rule. */
-  .lps-home-section > section.lps-home-stratum {
-    grid-column: 1 / -1;
-    display: grid;
-    grid-template-columns: subgrid;
-  }
-
-  .lps-home-stratum > :is(h2, h3) {
-    grid-column: 1 / 4;
-  }
-
-  .lps-home-stratum > :not(:is(h2, h3)) {
-    grid-column: 4 / 11;
-  }
-
-  .lps-main-content > .wp-block-post-title,
-  .lps-main-content > .wp-block-query-title,
-  .lps-main-content > .wp-block-post-content,
-  .lps-main-content > .wp-block-query,
-  .lps-main-content > .lps-not-found,
-  .lps-main-content > .lps-institutional[data-page="collaboration"],
-  .lps-main-content > .lps-journeys {
-    grid-column: 3 / 10;
-  }
-
-  .lps-editorial-section > :first-child {
-    grid-column: 1 / 4;
-  }
-
-  .lps-editorial-section > :not(:first-child) {
-    grid-column: 4 / 11;
-  }
-
-  .lps-footer-grid .lps-wordmark {
-    grid-column: 1 / 3;
-  }
-
-  .lps-footer-grid > div {
-    grid-column: 3 / 9;
-  }
-
-  .lps-footer-grid nav {
-    grid-column: 9 / -1;
-  }
-}
-
-/* -------------------------------------------------------------------------
-   Public, trust, and search surfaces: record pages, the verification aside,
-   faceted search, and listing rows in the institutional system.
-   ------------------------------------------------------------------------- */
-
-/* People listing: labelled select facets wrap into a cluster; the count is
-   announced through role=status in the markup. */
 .lps-people form {
   display: flex;
   flex-wrap: wrap;
@@ -1684,12 +3232,9 @@ details:not(.lps-shell-disclosure) > summary {
 .lps-contact-roles,
 .lps-collaboration-journeys,
 .lps-history,
-.lps-person-contact,
 .lps-teaching-history,
 .lps-course-list,
-.lps-offering-list,
-.lps-teaching-team,
-.lps-units {
+.lps-teaching-team {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -1702,18 +3247,13 @@ details:not(.lps-shell-disclosure) > summary {
 .lps-collaboration-journeys > li,
 .lps-history > li,
 .lps-claims li,
-.lps-person-contact > li,
 .lps-teaching-history > li,
 .lps-course-list > li,
-.lps-offering-list > li,
-.lps-teaching-team > li,
-.lps-units > li {
+.lps-teaching-team > li {
   padding-block: var(--space-4);
   border-block-start: var(--rule-hairline);
 }
 
-/* People directory: cohort sections separate by rule and spacing, matching
-   the record-page strata grammar. */
 .lps-people-cohort > h2 {
   margin-block: var(--space-10) var(--space-4);
   padding-block-start: var(--space-6);
@@ -1721,58 +3261,17 @@ details:not(.lps-shell-disclosure) > summary {
   font-size: var(--type-h3);
 }
 
-/* Person profile: the header, portrait, contact cluster, teaching history
-   and historical record are strata, not cards. */
-.lps-person-header {
-  margin-block-end: var(--space-6);
-}
-
-.lps-person-roles {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2) var(--space-4);
-  margin-block: var(--space-2) 0;
-}
-
-.lps-person-no-photo {
-  color: var(--color-text-muted);
-}
-
-.lps-person-teaching > h2,
-.lps-person-record > h2 {
-  margin-block: var(--space-10) var(--space-4);
-  padding-block-start: var(--space-6);
-  border-block-start: var(--rule-hairline);
-  font-size: var(--type-h3);
-}
-
-.lps-teaching-group > h3,
-.lps-offering-group > h3 {
+.lps-teaching-group > h3 {
   margin-block: var(--space-6) var(--space-2);
   font-size: var(--type-h4);
 }
 
-/* Teaching surfaces: the offering identity line and the cancelled notice
-   reuse the trust-state grammar; units keep stable anchors. */
-.lps-offering-identity {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2) var(--space-4);
-}
-
-.lps-units > li {
-  scroll-margin-block-start: var(--space-4);
-}
-
-/* The offering's back-to-course link sits inside the record, so it drops the
-   shell breadcrumb's band padding and bottom rule. */
 .lps-offering .lps-breadcrumb {
   padding-block: 0;
   border-block-end: 0;
   font-size: var(--type-small);
 }
 
-/* Derived states keep an explicit text label; color only supports it. */
 .lps-event[data-state="cancelled"] .lps-event-state,
 .lps-event[data-state="postponed"] .lps-event-state,
 .lps-event-listing li[data-state="cancelled"] .lps-event-state,
@@ -1780,20 +3279,17 @@ details:not(.lps-shell-disclosure) > summary {
   color: var(--color-warning);
 }
 
-.lps-person-photo,
 .lps-org-logo {
   max-inline-size: 16rem;
   margin-block: var(--space-4);
 }
 
-/* The external-collaborator disclaimer is a persistent notice, not metadata. */
 .lps-external {
   padding: var(--space-4) var(--space-5);
-  border-inline-start: var(--rule-focus);
+  border-inline-start: var(--rule-accent);
   background: var(--color-info-wash);
 }
 
-/* Infrastructure facilities: sourced claims and grouped evidence links. */
 .lps-infra article {
   padding-block: var(--space-6);
   border-block-start: var(--rule-hairline);
@@ -1807,103 +3303,15 @@ details:not(.lps-shell-disclosure) > summary {
   font-size: var(--type-h4);
 }
 
-/* Institutional trust layout: the verification aside follows the article
-   content in source order and docks beside long copy at desktop measure. */
-.lps-verification {
-  margin-block-start: var(--space-6);
-  padding: var(--space-5);
-  border: var(--rule-hairline);
-  background: var(--color-surface);
-}
-
-.lps-verification h2,
 .lps-claims h3 {
   font-size: var(--type-h4);
-}
-
-/* Search surface: the section stacks form, status, results, and pagination. */
-.lps-search-surface {
-  display: grid;
-  gap: var(--space-6);
-}
-
-.lps-search-surface > * {
-  margin-block: 0;
-}
-
-.lps-search-form {
-  display: grid;
-  max-inline-size: var(--measure-interface);
-  gap: var(--space-4);
-}
-
-.lps-search-form > p {
-  display: grid;
-  margin-block: 0;
-  gap: var(--space-2);
-}
-
-.lps-search-hint {
-  font-size: var(--type-small);
-}
-
-.lps-search-facets {
-  display: grid;
-  margin: 0;
-  padding: var(--space-4);
-  border: var(--rule-hairline);
-  gap: var(--space-4);
-}
-
-.lps-search-facets > legend {
-  font-size: var(--type-h4);
-  font-weight: 700;
-}
-
-.lps-search-facet {
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
-
-.lps-search-facet legend {
-  padding: 0;
-  font-weight: 700;
-}
-
-.lps-search-facet-values {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2) var(--space-6);
-}
-
-.lps-search-results {
-  display: grid;
-  gap: var(--space-6);
-}
-
-.lps-search-result > p {
-  margin-block: var(--space-1) 0;
-  color: var(--color-text-muted);
 }
 
 .lps-search-error {
   background: var(--color-error-wash);
 }
 
-.lps-search-pagination {
-  display: grid;
-  gap: var(--space-3);
-}
-
-/* -------------------------------------------------------------------------
-   Teaching surfaces: course directory, offering detail, units and materials.
-   Operate mode (DESIGN.md §7.3): dense, orderly resource rows separated by
-   hairlines; metadata stays in the mono role; state text is never color-only.
-   ------------------------------------------------------------------------- */
-
 .lps-course-list,
-.lps-offering-list,
 .lps-materials,
 .lps-teaching-team,
 .lps-offering-toc ul {
@@ -1913,20 +3321,17 @@ details:not(.lps-shell-disclosure) > summary {
 }
 
 .lps-course-list > li,
-.lps-offering-list > li,
 .lps-materials > li {
   padding-block: var(--space-4);
   border-block-start: var(--rule-hairline);
 }
 
-.lps-course-list > li > h2,
-.lps-offering-list > li > h3 {
+.lps-course-list > li > h2 {
   margin-block-end: var(--space-1);
   font-size: var(--type-h4);
 }
 
 .lps-course-list > li > p,
-.lps-offering-list > li > p,
 .lps-materials > li > p {
   margin-block: var(--space-1) 0;
 }
@@ -1938,8 +3343,6 @@ details:not(.lps-shell-disclosure) > summary {
   font-size: var(--type-h3);
 }
 
-/* The contents strip is navigation, not a section: it keeps its own compact
-   rhythm and never inherits the stratum's top rule. */
 .lps-offering-toc {
   margin-block: var(--space-6) 0;
   padding: var(--space-4) var(--space-5);
@@ -1970,12 +3373,6 @@ details:not(.lps-shell-disclosure) > summary {
   margin-block-end: var(--space-2);
 }
 
-.lps-offering-identity {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1) var(--space-4);
-}
-
 .lps-teaching-team > li {
   display: flex;
   flex-wrap: wrap;
@@ -1983,31 +3380,6 @@ details:not(.lps-shell-disclosure) > summary {
   gap: var(--space-1) var(--space-3);
   padding-block: var(--space-2);
   border-block-start: var(--rule-hairline);
-}
-
-.lps-team-role {
-  color: var(--color-text-muted);
-  font-family: var(--font-mono);
-  font-size: var(--type-meta);
-  font-variant-numeric: tabular-nums;
-  font-weight: 500;
-  letter-spacing: 0.075em;
-}
-
-.lps-units {
-  margin: 0;
-  padding-inline-start: var(--space-6);
-}
-
-.lps-units > li {
-  padding-block: var(--space-4);
-  border-block-start: var(--rule-hairline);
-}
-
-.lps-units > li::marker {
-  color: var(--color-text-muted);
-  font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums;
 }
 
 .lps-units .lps-materials {
@@ -2026,223 +3398,12 @@ details:not(.lps-shell-disclosure) > summary {
   overflow-wrap: anywhere;
 }
 
-/* Withdrawn and pending materials keep an explicit notice, never a dead
-   link; the warning wash marks withdrawal, the info wash marks pending. */
-.lps-material-note {
-  padding: var(--space-3) var(--space-4);
-  border-inline-start: var(--rule-focus);
-  background: var(--color-info-wash);
-}
-
 .lps-material-note-warning {
   background: var(--color-warning-wash);
 }
 
 .lps-offering-history {
   margin-block-start: var(--space-10);
-}
-
-/* Desktop two-column trust grid. This block lives in its own media query ahead
-   of the placement lists below because the stylesheet lint enforces ascending
-   specificity in source order: `.lps-institutional` must precede every
-   `.lps-main-content > .lps-institutional` rule. Source position changes nothing
-   rendered — each media query applies at its own width — and the placement
-   lists only set grid-column, which never conflicts with display/columns. */
-@media (min-width: 64rem) {
-  .lps-institutional {
-    display: grid;
-    column-gap: var(--grid-gutter);
-    grid-template-columns: minmax(0, 1fr) minmax(16rem, 20rem);
-  }
-}
-
-@media (min-width: 48rem) {
-  .lps-main-content > .lps-person,
-  .lps-main-content > .lps-org,
-  .lps-main-content > .lps-opportunity,
-  .lps-main-content > .lps-event,
-  .lps-main-content > .lps-news,
-  .lps-main-content > .lps-research-area,
-  .lps-main-content > .lps-project,
-  .lps-main-content > .lps-publication,
-  .lps-main-content > .lps-teaching {
-    grid-column: 2 / 8;
-  }
-
-  /* Directory and listing surfaces keep a wider measure than reading pages:
-     filters and grouped rows need the extra columns to stay on one line. */
-  .lps-main-content > .lps-people,
-  .lps-main-content > .lps-listing,
-  .lps-main-content > .lps-infra,
-  .lps-main-content > .lps-institutional,
-  .lps-main-content > .lps-news-listing,
-  .lps-main-content > .lps-event-listing,
-  .lps-main-content > .lps-opportunity-listing,
-  .lps-main-content > .lps-contact-roles,
-  .lps-main-content > .lps-contact-unavailable,
-  .lps-main-content > .lps-empty {
-    grid-column: 1 / -1;
-  }
-}
-
-@media (min-width: 64rem) {
-  .lps-main-content > .lps-person,
-  .lps-main-content > .lps-org,
-  .lps-main-content > .lps-opportunity,
-  .lps-main-content > .lps-event,
-  .lps-main-content > .lps-news,
-  .lps-main-content > .lps-research-area,
-  .lps-main-content > .lps-project,
-  .lps-main-content > .lps-publication,
-  .lps-main-content > .lps-teaching {
-    grid-column: 3 / 10;
-  }
-
-  .lps-main-content > .lps-people,
-  .lps-main-content > .lps-listing,
-  .lps-main-content > .lps-infra,
-  .lps-main-content > .lps-institutional,
-  .lps-main-content > .lps-news-listing,
-  .lps-main-content > .lps-event-listing,
-  .lps-main-content > .lps-opportunity-listing,
-  .lps-main-content > .lps-contact-roles,
-  .lps-main-content > .lps-contact-unavailable,
-  .lps-main-content > .lps-empty {
-    grid-column: 2 / 12;
-  }
-
-  .lps-institutional > :not(.lps-verification) {
-    grid-column: 1;
-  }
-
-  /* The aside spans the article's implicit rows so it can stick beside the
-     copy; the explicit grid has one row, so the span reaches across them. */
-  .lps-institutional > .lps-verification {
-    position: sticky;
-    top: var(--space-4);
-    align-self: start;
-    margin-block-start: 0;
-    grid-column: 2;
-    grid-row: 1 / span 99;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  /* Declared at the same specificity as the component rules that set a duration,
-     and after them, so the cascade neutralizes motion without `!important`. A
-     zero-specificity `:where()` block was overridden by the button rules. The
-     band-centering transform on .lps-home-section is layout, not motion, and is
-     deliberately not zeroed. */
-  a,
-  button,
-  input,
-  select,
-  textarea,
-  summary,
-  .lps-search button,
-  .lps-button,
-  .wp-element-button,
-  .wp-block-button__link {
-    animation-duration: 0.01ms;
-    animation-iteration-count: 1;
-    scroll-behavior: auto;
-    transition-duration: 0.01ms;
-  }
-
-  .lps-search button:active,
-  .lps-button:active,
-  .wp-element-button:active,
-  .wp-block-button__link:active {
-    transform: none;
-  }
-}
-
-@media print {
-  .lps-skip-link,
-  .lps-shell-disclosure,
-  .lps-breadcrumbs,
-  .lps-site-footer nav,
-  .wp-block-button,
-  form[role="search"],
-  .lps-offering-toc,
-  .lps-offering-history {
-    display: none;
-  }
-
-  .lps-affiliation {
-    border-block-end: var(--line-medium) solid var(--color-text);
-    background: var(--color-surface);
-    color: var(--color-text);
-  }
-
-  /* The footer keeps its affiliation context in print; only its navigation is
-     stripped as an interaction-only control. */
-  .lps-site-footer {
-    border-block-start: var(--line-medium) solid var(--color-text);
-    background: var(--color-surface);
-    color: var(--color-text);
-  }
-
-  .lps-site-footer a,
-  .lps-site-footer .lps-meta,
-  .lps-wordmark-light {
-    color: var(--color-text);
-  }
-
-  .lps-home-section {
-    position: static;
-    inline-size: auto;
-    padding-inline: 0;
-    transform: none;
-  }
-
-  .lps-home-section[data-home-section="journeys"] {
-    background: var(--color-surface);
-    color: var(--color-text);
-  }
-
-  .lps-home-section[data-home-section="journeys"] :where(h2, p, li),
-  .lps-home-section[data-home-section="journeys"] a {
-    color: var(--color-text);
-  }
-
-  a[href^="http"]::after {
-    content: " (" attr(href) ")";
-    overflow-wrap: anywhere;
-    font-family: var(--font-mono);
-    font-size: var(--type-meta);
-  }
-
-  /* Material downloads are root-relative addresses, so the external-link
-     rule never prints them; they get the same explicit destination. */
-  .lps-materials a[href^="/"]::after {
-    content: " (" attr(href) ")";
-    overflow-wrap: anywhere;
-    font-family: var(--font-mono);
-    font-size: var(--type-meta);
-  }
-
-  figure,
-  table,
-  .lps-alert,
-  .lps-empty-state,
-  .lps-main-content > .lps-not-found,
-  .lps-units > li,
-  .lps-materials > li,
-  .lps-offering-list > li,
-  .lps-course-list > li {
-    break-inside: avoid;
-  }
-
-  thead {
-    display: table-header-group;
-  }
-}
-
-/* Faculty task dashboard (Operate mode): compact task list, structured
-   forms and status chips on the shared tokens. */
-.lps-status-info {
-  color: var(--color-action);
 }
 
 .lps-dashboard-main {
@@ -2261,7 +3422,7 @@ details:not(.lps-shell-disclosure) > summary {
   display: block;
   padding: var(--space-4) var(--space-5);
   border: var(--rule-boundary);
-  border-radius: var(--radius-control);
+  border-radius: var(--radius-xs);
   font-weight: 700;
   text-decoration: none;
 }
@@ -2271,72 +3432,104 @@ details:not(.lps-shell-disclosure) > summary {
   color: var(--color-action-hover);
 }
 
-.lps-dashboard-section,
-.lps-dashboard-form {
-  margin-block-start: var(--space-8);
-  padding-block-start: var(--space-5);
-  border-block-start: var(--rule-hairline);
+/* ----------------------------------------------------------------------------
+ * 20. WordPress block shims
+ * ------------------------------------------------------------------------- */
+
+.wp-block-group,
+.wp-block-query,
+.wp-block-post-content,
+.wp-block-table {
+  min-inline-size: 0;
 }
 
-.lps-dashboard-form .lps-field {
-  max-inline-size: 38rem;
+.wp-block-group.alignwide {
+  max-inline-size: var(--grid-max);
 }
 
-.lps-record-list {
-  display: grid;
-  gap: var(--space-3);
-  padding-inline-start: var(--space-5);
+.wp-block-group.alignfull {
+  max-inline-size: none;
 }
 
-.lps-record-list .lps-record {
-  padding-block-end: var(--space-3);
-  border-block-end: var(--rule-hairline);
+.wp-block-query-title {
+  font-size: var(--type-h2);
 }
 
-.lps-record form {
-  margin-block-start: var(--space-3);
+.wp-block-post-terms a {
+  text-decoration: none;
 }
 
-.lps-button-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
+.alignleft {
+  float: left;
+  margin: 0 var(--space-5) var(--space-4) 0;
 }
 
-.lps-fieldset {
-  margin-block: var(--space-4);
-  padding: var(--space-4);
-  border: var(--rule-hairline);
-  max-inline-size: 38rem;
+.alignright {
+  float: right;
+  margin: 0 0 var(--space-4) var(--space-5);
 }
 
-.lps-team-row {
-  display: grid;
-  gap: var(--space-3);
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+.aligncenter {
+  margin-inline: auto;
 }
 
-.lps-checkbox {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
+/* ----------------------------------------------------------------------------
+ * 21. Motion preferences and print
+ * ------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  /* Every transition in this stylesheet takes its duration from a --motion-*
+     token, so the guard redefines the tokens instead of shouting !important over
+     the component rules: the cascade neutralizes motion at its source, and a
+     component added later cannot forget to opt in. */
+  :root {
+    --motion-fast: 0.01ms;
+    --motion-standard: 0.01ms;
+    --motion-slow: 0.01ms;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  .lps-card:hover,
+  .lps-journey:hover,
+  .lps-button:hover {
+    transform: none;
+  }
+
+  .lps-more::after {
+    inline-size: 1.25rem;
+  }
 }
 
-.lps-checkbox input {
-  inline-size: auto;
-  min-block-size: auto;
-}
+@media print {
+  .lps-site-header,
+  .lps-skip-link,
+  .lps-aside,
+  .lps-cta-band,
+  .lps-session-link,
+  .lps-site-footer {
+    display: none;
+  }
 
-.lps-proposal-diff {
-  display: grid;
-  gap: var(--space-2);
-  grid-template-columns: minmax(8rem, max-content) minmax(0, 1fr);
-}
+  body {
+    background: var(--color-surface);
+    color: var(--color-print-ink);
+  }
 
-.lps-proposal-diff dt {
-  font-weight: 650;
-}
+  .lps-card,
+  .lps-record,
+  .lps-toc,
+  table,
+  figure {
+    border-color: var(--color-print-rule);
+    box-shadow: none;
+    break-inside: avoid;
+  }
 
-.lps-proposal-diff dd {
-  margin: 0;
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+  }
 }

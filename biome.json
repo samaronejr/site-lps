@@ -4,6 +4,7 @@
     "includes": [
       "**",
       "!!dist",
+      "!!showcase/institutional-redesign/public",
       "!!node_modules",
       "!!vendor",
       "!!.wp-env",

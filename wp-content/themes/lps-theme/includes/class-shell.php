@@ -16,6 +16,50 @@ require_once __DIR__ . '/class-searchsurfaces.php';
 /** Owns the bilingual global shell and its native, no-JavaScript controls. */
 final class Shell {
 	/**
+	 * Frozen sign-in path segments per locale.
+	 *
+	 * The sign-in surface and the professor area are one route family: the form
+	 * posts back to itself and hands the visitor to the area, so both segments
+	 * are declared together and never localized ad hoc.
+	 *
+	 * @var array<string, string>
+	 */
+	private const SIGNIN_SEGMENTS = array(
+		'pt-br' => 'entrar',
+		'en'    => 'sign-in',
+	);
+
+	/**
+	 * Frozen professor-area path segments per locale.
+	 *
+	 * @var array<string, string>
+	 */
+	private const MEMBER_SEGMENTS = array(
+		'pt-br' => 'area-do-professor',
+		'en'    => 'faculty-area',
+	);
+
+	/**
+	 * Frozen utility (task-level) destinations shown above the masthead.
+	 *
+	 * @var array<string, array<string, string>>
+	 */
+	private const UTILITY_LINKS = array(
+		'pt-br' => array(
+			'Publicações'    => '/pt-br/publicacoes/',
+			'Infraestrutura' => '/pt-br/infraestrutura/',
+			'Contato'        => '/pt-br/contato/',
+			'Acessibilidade' => '/pt-br/acessibilidade/',
+		),
+		'en'    => array(
+			'Publications'   => '/en/publications/',
+			'Infrastructure' => '/en/infrastructure/',
+			'Contact'        => '/en/contact/',
+			'Accessibility'  => '/en/accessibility/',
+		),
+	);
+
+	/**
 	 * Returns the frozen primary navigation for one locale.
 	 *
 	 * @param string $locale Supported locale slug.
@@ -53,6 +97,59 @@ final class Shell {
 				'url'   => $english ? '/en/news/' : '/pt-br/noticias/',
 			),
 		);
+	}
+
+	/**
+	 * Returns the branded sign-in path of one locale.
+	 *
+	 * @param string $locale Supported locale slug.
+	 */
+	public static function signin_path( string $locale ): string {
+		$segment = self::SIGNIN_SEGMENTS[ $locale ] ?? self::SIGNIN_SEGMENTS['pt-br'];
+		return '/' . $locale . '/' . $segment . '/';
+	}
+
+	/**
+	 * Returns the professor-area path of one locale.
+	 *
+	 * @param string $locale Supported locale slug.
+	 */
+	public static function member_path( string $locale ): string {
+		$segment = self::MEMBER_SEGMENTS[ $locale ] ?? self::MEMBER_SEGMENTS['pt-br'];
+		return '/' . $locale . '/' . $segment . '/';
+	}
+
+	/**
+	 * Returns the task-level utility destinations of one locale.
+	 *
+	 * @param string $locale Supported locale slug.
+	 * @return array<string, string> Label to path.
+	 */
+	public static function utility_links( string $locale ): array {
+		return self::UTILITY_LINKS[ $locale ] ?? self::UTILITY_LINKS['pt-br'];
+	}
+
+	/**
+	 * Builds the session link of the utility band.
+	 *
+	 * The link is the only place the public shell acknowledges the session: it
+	 * names the sign-in surface while signed out and the professor area while
+	 * signed in, so a returning professor reaches their own working surface
+	 * without a second navigation model. Both states render the same element —
+	 * only the destination and the state class differ — so a cookieless page
+	 * cache never serves a layout that disagrees with the session.
+	 *
+	 * @param string $locale Supported locale slug.
+	 */
+	private static function session_link( string $locale ): string {
+		$english = 'en' === $locale;
+		$signed  = function_exists( 'is_user_logged_in' ) && is_user_logged_in();
+		$label   = $signed
+			? ( $english ? 'My area' : 'Minha área' )
+			: ( $english ? 'Sign in' : 'Entrar' );
+		$url     = $signed ? self::member_path( $locale ) : self::signin_path( $locale );
+		return '<a class="lps-session-link' . ( $signed ? ' lps-session-link--active' : '' ) . '" href="'
+			. self::escape( $url ) . '">' . self::escape( $label ) . '</a>';
 	}
 
 	/**
@@ -101,11 +198,22 @@ final class Shell {
 				'en'    => '/en/',
 			)
 		);
-		$mark           = self::masthead_brand();
+		$mark          = self::masthead_brand();
+		$quick_label   = $english ? 'Quick access' : 'Acesso rápido';
+		$utility_items = '';
+		foreach ( self::utility_links( $locale ) as $label => $url ) {
+			$current        = rtrim( $path, '/' ) === rtrim( $url, '/' ) ? ' aria-current="page"' : '';
+			$utility_items .= '<li><a' . $current . ' href="' . self::escape( $url ) . '">' . self::escape( $label ) . '</a></li>';
+		}
 		return '<a class="lps-skip-link" href="#lps-main">' . self::escape( $skip ) . '</a>'
 			. '<header class="lps-site-header">'
-			. '<div class="lps-affiliation lps-page-grid"><p lang="pt-BR">Laboratório de Processamento de Sinais <span aria-hidden="true">/</span> UFRJ <span aria-hidden="true">/</span> COPPE</p><p class="lps-meta" lang="pt-BR">Universidade Federal do Rio de Janeiro</p></div>'
-			. '<div class="lps-masthead lps-page-grid"><a class="lps-brand" href="' . $home . '" aria-label="LPS — ' . ( $english ? 'home' : 'início' ) . '">' . $mark . '</a><p' . ( $english ? '' : ' lang="pt-BR"' ) . '>' . ( $english ? 'Signal Processing Laboratory' : 'Laboratório de Processamento de Sinais' ) . '</p></div>'
+			. '<div class="lps-affiliation lps-utility-bar"><div class="lps-utility-inner lps-page-grid"><p lang="pt-BR">Laboratório de Processamento de Sinais <span aria-hidden="true">/</span> UFRJ <span aria-hidden="true">/</span> COPPE</p><p class="lps-meta" lang="pt-BR">Universidade Federal do Rio de Janeiro</p><nav aria-label="' . self::escape( $quick_label ) . '"><ul class="lps-utility-links">' . $utility_items . '</ul></nav>' . self::session_link( $locale ) . '</div></div>'
+			// The masthead is the artwork alone: the lockup already sets the
+			// laboratory name in type, so repeating it in HTML beside the mark would
+			// say it twice and crowd the mark. The home link keeps its accessible
+			// name, and the affiliation band above still names the institution in a
+			// language-tagged Portuguese paragraph.
+			. '<div class="lps-masthead lps-page-grid"><a class="lps-brand" href="' . $home . '" aria-label="LPS — ' . ( $english ? 'home' : 'início' ) . '">' . $mark . '</a></div>'
 			. '<details class="lps-shell-disclosure"><summary>' . self::escape( $menu ) . '</summary><div class="lps-nav-panel lps-page-grid">'
 			. '<nav class="lps-primary-nav" aria-label="' . self::escape( $nav_label ) . '"><ul>' . $items . '</ul></nav>'
 			. '<div class="lps-shell-tools"><form class="lps-search" role="search" action="' . $search_action . '" method="get"><label for="lps-search-input">' . self::escape( $search_label ) . '</label><div><input id="lps-search-input" name="q" type="search" autocomplete="off"><button type="submit">' . self::escape( $search_button ) . '</button></div></form>'
@@ -142,7 +250,7 @@ final class Shell {
 		// unnamed for assistive technology that ignores the link's aria-label.
 		// The logo never claims a priority hint: fetchpriority is reserved for
 		// the single LCP image so the brand mark cannot compete with it.
-		return '<img class="lps-logo" src="' . self::escape( $sources['full'] ) . '" srcset="' . self::escape( $sources['compact'] ) . ' 1x, ' . self::escape( $sources['full'] ) . ' 2x" sizes="220px" alt="LPS" width="2052" height="301">';
+		return '<img class="lps-logo" src="' . self::escape( $sources['full'] ) . '" srcset="' . self::escape( $sources['compact'] ) . ' 1x, ' . self::escape( $sources['full'] ) . ' 2x" sizes="288px" alt="LPS" width="2052" height="301">';
 	}
 
 	/**

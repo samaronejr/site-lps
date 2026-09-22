@@ -512,9 +512,81 @@ export function collectLocalSvgReferences(source) {
 
 /* ------------------------------------------------------------------ CSS --- */
 
+/**
+ * "Signal" revision effect policy: an effect is permitted when it is declared once
+ * as a token and referenced everywhere else. A gradient therefore lives in a
+ * --gradient-* custom property in the token layer; a shadow or a radius must name a
+ * --shadow-* / --radius-* token. The decorative rule is unchanged in spirit — a
+ * surface may not invent an effect — but the design system may now own one.
+ *
+ * The finding codes are the ones the repository already speaks: an effect that
+ * escapes the token layer is still reported as a gradient/shadow/rounded surface.
+ */
+const GRADIENT_TOKEN_NAME = /^--gradient-[\w-]+$/;
+
+/**
+ * A gradient is legal only as a --gradient-* token declared in the token layer.
+ * Anywhere else — a surface property, or a differently named custom property —
+ * it is a second source of truth for an effect and stays a finding.
+ */
+function gradientEscapesTokenLayer(declaration) {
+  if (!CSS_GRADIENT.test(declaration.value)) return false;
+  if (declaration.isCustomProperty) return !GRADIENT_TOKEN_NAME.test(declaration.property);
+  return true;
+}
+
+/** An effect declaration is legal only when it names the token that owns it. */
+function effectEscapesTokens(declaration) {
+  if (declaration.isCustomProperty) return false;
+  const { property, value } = declaration;
+  if (property === "box-shadow" || property === "text-shadow") {
+    const text = value.trim();
+    return !/^(?:none|inherit|initial|unset)$/i.test(text) && !/var\(--shadow-[\w-]+\)/.test(text);
+  }
+  if (property === "border-radius") {
+    return value
+      .split(/\s+/)
+      .some((part) => !/var\(--radius-[\w-]+\)/.test(part) && !/^0(?:px)?$/.test(part));
+  }
+  return false;
+}
+
+function effectFindings({ declaration, selector, file, line }) {
+  const findings = [];
+  const where = `${selector} { ${declaration.property} }`;
+  const span = /^(none|inherit|initial|unset)$/i.test(declaration.value.trim())
+    ? ""
+    : ` (${declaration.value.trim().slice(0, 72)})`;
+  if (gradientEscapesTokenLayer(declaration)) {
+    findings.push(
+      finding(
+        "GRADIENT_ON_SURFACE",
+        `${file}:${line} ${where} composes a gradient outside the token layer. A gradient is declared once as a --gradient-* token in :root and referenced with var().`,
+        { file, selector, property: declaration.property, detail: declaration.value, line },
+      ),
+    );
+  }
+  if (effectEscapesTokens(declaration)) {
+    const isShadow =
+      declaration.property === "box-shadow" || declaration.property === "text-shadow";
+    const token = isShadow ? "--shadow-*" : "--radius-*";
+    findings.push(
+      finding(
+        isShadow ? "SHADOW_SURFACE" : "ROUNDED_SURFACE",
+        `${file}:${line} ${where}${span} is written as a literal. Depth and shape are declared once as ${token} tokens and referenced with var().`,
+        { file, selector, property: declaration.property, detail: declaration.value, line },
+      ),
+    );
+  }
+  return findings;
+}
+
 export function auditStylesheet({ source, file, lineOffset = 0, selectorOverride = null }) {
   const findings = [];
-  const { declarations, balanced, opened, closed } = scanDeclarations(source);
+  // Comments are documentation: strip them so a quoted property or hex value is
+  // never read as a declaration.
+  const source_ = source.replace(/\/\*[\s\S]*?\*\//g, " ");
+  const { declarations, balanced, opened, closed } = scanDeclarations(source_);
 
   if (!balanced) {
     findings.push(
@@ -533,15 +605,7 @@ export function auditStylesheet({ source, file, lineOffset = 0, selectorOverride
     const selector = selectorOverride ?? declaration.selector;
     const where = `${selector} { ${declaration.property} }`;
 
-    if (CSS_GRADIENT.test(declaration.value)) {
-      findings.push(
-        finding(
-          "GRADIENT_ON_SURFACE",
-          `${file}:${line} ${where} uses a CSS gradient. DESIGN.md 7 permits no gradient on any surface; the mark's ${MARK_GRADIENT_ID} lives inside the artwork and is not a CSS gradient.`,
-          { file, selector, property: declaration.property, detail: declaration.value, line },
-        ),
-      );
-    }
+    findings.push(...effectFindings({ declaration, selector, file, line }));
 
     if (declaration.isCustomProperty) continue;
 

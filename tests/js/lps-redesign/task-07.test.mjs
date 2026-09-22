@@ -136,7 +136,12 @@ describe("task-07: typography floor and editor alignment", () => {
   it("keeps body text at the 16px floor with the contracted line heights", () => {
     expect(tokens.get("--type-body")).toBe("1rem");
     expect(tokens.get("--type-reading")).toBe("1.125rem");
-    expect(css).toMatch(/body\s*\{[^}]*line-height:\s*1\.6/);
+    // The body rhythm may be written literally or through its token; what the
+    // floor cares about is the resolved ratio.
+    const bodyBlock = /body\s*\{([^}]*)\}/.exec(css)?.[1] ?? "";
+    const declared = /line-height:\s*([^;]+);/.exec(bodyBlock)?.[1].trim() ?? "";
+    const resolved = declared.startsWith("var(") ? tokens.get(declared.slice(4, -1).trim()) : declared;
+    expect(Number(resolved)).toBe(1.6);
     // No font-size below the meta floor anywhere in the stylesheet.
     for (const match of css.matchAll(/font-size:\s*([\d.]+)(rem|px)/g)) {
       const px = match[2] === "rem" ? Number(match[1]) * 16 : Number(match[1]);
@@ -205,12 +210,17 @@ describe("task-07: primitives, motion and print rules hold", () => {
 
   it("transitions only composited properties and honors reduced motion", () => {
     expect(css).not.toMatch(/transition:\s*all\b/i);
+    // Composited properties only. `translate`, `rotate` and `scale` are the
+    // independent transform properties: composited exactly like `transform`.
     const allowed = new Set([
       "color",
       "background-color",
       "border-color",
       "text-decoration-thickness",
       "transform",
+      "translate",
+      "rotate",
+      "scale",
       "opacity",
       "filter",
     ]);
@@ -328,13 +338,14 @@ describe("task-07 failure path: injected defects are caught, never silently abso
   it("a contract-token drift in :root is a finding", async () => {
     const report = await checkMutatedTheme((root) => {
       const file = `${root}/assets/css/theme.css`;
-      writeFileSync(
-        file,
-        readFileSync(file, "utf8").replace(
-          "--color-action: #165a96;",
-          "--color-action: #165a97;",
-        ),
-      );
+      const declared = contract.colors.tokens.find((t) => t.token === "--color-action");
+      const shipped = readFileSync(file, "utf8").match(
+        /--color-action:\s*(#[0-9a-f]{6});/i,
+      )[1];
+      // Perturb the last hex digit: one step of drift, whatever the palette is.
+      const drifted = `${shipped.slice(0, -1)}${Number.parseInt(shipped.slice(-1), 16) ^ 0x1}`;
+      expect(shipped.toUpperCase()).toBe(declared.value.toUpperCase());
+      writeFileSync(file, readFileSync(file, "utf8").replace(shipped, drifted));
     });
     expect(report.status).toBe("failed");
     expect(codes(report).has("CONTRACT_VALUE_DRIFT")).toBe(true);

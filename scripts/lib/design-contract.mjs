@@ -42,7 +42,7 @@ const REQUIRED_PAIRS = [
 ];
 const REQUIRED_SEMANTIC_ROLES = ["success", "warning", "error"];
 const REQUIRED_NAV = [
-  "O LPS",
+  "Sobre",
   "Pesquisa",
   "Pessoas",
   "Ensino",
@@ -59,7 +59,7 @@ const REQUIRED_BANS = [
   "marquee",
   "autoplay media",
 ];
-const EXPECTED_DIALS = { designVariance: 3, motionIntensity: 2, visualDensity: 5 };
+const EXPECTED_DIALS = { designVariance: 4, motionIntensity: 3, visualDensity: 6 };
 const SOURCE_LOGO_SHA256 = "f369f9e49c81e297d30fa8e240267667dddf8b89f0d26c494636f9429027a23b";
 
 /** Patterns that may never appear inside a token value or spec string. */
@@ -139,7 +139,9 @@ export function validateContract(contract, { root = ROOT } = {}) {
 
   // --- Color tokens ----------------------------------------------------------
   const tokens = new Map();
-  for (const token of contract.colors?.tokens ?? []) {
+  // Palette tokens and CSS-only primitives both resolve in a pair; the palette is
+  // what theme.json mirrors, the primitives are stylesheet-internal roles.
+  for (const token of [...(contract.colors?.tokens ?? []), ...(contract.colors?.primitives ?? [])]) {
     if (!token.token || !token.role || !token.usage) {
       add("MISSING_TOKEN_ROLE", `Color token ${token.token ?? "(unnamed)"} lacks role or usage.`);
     }
@@ -210,8 +212,27 @@ export function validateContract(contract, { root = ROOT } = {}) {
   }
 
   // --- Geometry -----------------------------------------------------------------
-  if (contract.geometry?.controlRadius !== "4px") {
-    add("RADIUS_VIOLATION", "Control radius must be exactly 4px.");
+  // The revision relaxed the single-radius rule into a declared scale: a surface may
+  // only use a radius that exists as a token, and the control radius must be one of
+  // them, between 4px and 8px (comfortable at 44px targets without becoming a pill).
+  const radiusScale = contract.geometry?.radiusScale ?? [];
+  const controlRadius = contract.geometry?.controlRadius ?? "";
+  // The floor stays declared-scale and bounded; the 4px minimum belonged to the
+  // 2026-09-18 soft-corner direction and was retired with it.
+  if (
+    !/^[0-9]+px$/.test(controlRadius) ||
+    Number.parseInt(controlRadius, 10) < 0 ||
+    Number.parseInt(controlRadius, 10) > 8
+  ) {
+    add("RADIUS_VIOLATION", `Control radius must be a declared 0-8px value; got "${controlRadius}".`);
+  }
+  for (const radius of [controlRadius, contract.geometry?.imageRadius ?? ""]) {
+    if (!radiusScale.some((entry) => entry.value === radius)) {
+      add("RADIUS_VIOLATION", `Radius ${radius} is not part of the declared radius scale.`);
+    }
+  }
+  if (radiusScale.length < 3) {
+    add("RADIUS_VIOLATION", "The radius scale must declare at least the control, nested and card radii.");
   }
 
   // --- Logo -----------------------------------------------------------------------
@@ -233,8 +254,22 @@ export function validateContract(contract, { root = ROOT } = {}) {
   }
 
   const compact = (logo.variants ?? []).find((v) => v.id === "compact");
-  if (!compact) {
-    add("MISSING_MOBILE_LOGO_RULE", "No compact logo variant is declared for mobile.");
+  // A mobile rule is satisfied either by a dedicated compact variant (the
+  // 2026-09-18 shape) or by a recorded scaling rule with a legibility floor
+  // (the 2026-09-21 shape, where the masthead carries artwork alone).
+  const mobile = logo.mobile ?? null;
+  if (!compact && !mobile) {
+    add(
+      "MISSING_MOBILE_LOGO_RULE",
+      "No compact logo variant and no recorded mobile scaling rule are declared.",
+    );
+  } else if (!compact && mobile) {
+    if (!/^[1-9][0-9]*$/.test(String(mobile.minimumWidthPx ?? ""))) {
+      add("MISSING_MOBILE_LOGO_RULE", "The mobile logo rule lacks a minimum rendered width.");
+    }
+    if (!/mobile|width/i.test(mobile.rule ?? "")) {
+      add("MISSING_MOBILE_LOGO_RULE", "The mobile logo rule does not state the scaling rule.");
+    }
   } else {
     const compactPath = resolve(root, compact.path ?? "");
     if (!existsSync(compactPath)) {
@@ -268,8 +303,9 @@ export function validateContract(contract, { root = ROOT } = {}) {
     }
   }
   const logoRules = (logo.rules ?? []).join(" ").toLowerCase();
-  if (!/mobile/.test(logoRules) || !/compact/.test(logoRules)) {
-    add("MISSING_MOBILE_LOGO_RULE", "Logo rules do not state the mobile compact-variant rule.");
+  const mobileRecorded = /mobile/.test(logoRules) && /(compact|scale|floor)/.test(logoRules);
+  if (!mobileRecorded && !mobile) {
+    add("MISSING_MOBILE_LOGO_RULE", "Logo rules do not state the mobile rule.");
   }
   if (!/amendment/.test(logoRules) || !/ufrj|coppe/.test(logoRules)) {
     add(

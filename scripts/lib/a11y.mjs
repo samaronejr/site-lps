@@ -852,6 +852,38 @@ export function cssTokens(css) {
   return tokens;
 }
 
+/**
+ * Resolves `var()` chains inside a token map to literal values.
+ *
+ * A role token may name a primitive (`--color-surface: var(--color-paper-000)`),
+ * so every consumer that measures a value — contrast, contract generation, drift
+ * comparison — must follow the chain rather than compare the reference. `cssTokens`
+ * deliberately stays literal: it reports what the stylesheet declares. A cycle or
+ * an unknown reference leaves the declaration untouched, which the callers surface
+ * as a missing or unresolvable token rather than a silent pass.
+ *
+ * @param {Map<string, string>} tokens
+ * @param {number} [limit] chain depth guard
+ * @returns {Map<string, string>} the same names with resolved values
+ */
+export function resolveTokens(tokens, limit = 12) {
+  const cache = new Map();
+  const follow = (name, depth) => {
+    if (cache.has(name)) return cache.get(name);
+    const declared = tokens.get(name);
+    if (declared === undefined) return undefined;
+    const reference = /^var\(\s*(--[\w-]+)\s*\)$/.exec(declared);
+    if (!reference || depth >= limit) return declared;
+    const resolved = follow(reference[1], depth + 1);
+    const result = resolved === undefined ? declared : resolved;
+    cache.set(name, result);
+    return result;
+  };
+  const resolved = new Map();
+  for (const name of tokens.keys()) resolved.set(name, follow(name, 0));
+  return resolved;
+}
+
 /** Converts a hex colour to sRGB channels. */
 function channels(hex) {
   const clean = hex.replace("#", "").trim();
@@ -974,7 +1006,8 @@ const THRESHOLD = { text: 4.5, large: 3, ui: 3 };
 /** Audits the shipped stylesheet for contrast, focus, motion, print, and target size. */
 export function auditStylesheet(css, source = "assets/css/theme.css") {
   const findings = [];
-  const tokens = cssTokens(css);
+  // Role tokens may reference primitives, so measurement follows the chain.
+  const tokens = resolveTokens(cssTokens(css));
   const add = (code, impact, criterion, selector, message) =>
     findings.push({ code, impact, criterion, route: source, page: source, selector, message });
 

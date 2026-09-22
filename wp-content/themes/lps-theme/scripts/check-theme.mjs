@@ -7,6 +7,7 @@ import {
   auditThemeJson,
   collectLocalSvgReferences,
 } from "../../../../scripts/lib/design-guardrails.mjs";
+import { resolveTokens } from "../../../../scripts/lib/a11y.mjs";
 
 const themeRoot = resolve(new URL("../", import.meta.url).pathname);
 
@@ -35,6 +36,25 @@ const RETIRED_TOKENS = [
 const RETIRED_FAMILIES = ["Source Serif 4", "source-serif"];
 
 /**
+ * Comments are documentation, not style. They are stripped before every scan so a
+ * hex value or a property name quoted in a comment (including this file's own policy
+ * notes) can never be read as a declaration.
+ */
+const stripComments = (source) => source.replace(/\/\*[\s\S]*?\*\//g, " ");
+
+/**
+ * Effect policy for the "Signal" revision: an effect may exist, but only as a token.
+ * A gradient lives in a custom property (the token layer) and surfaces reference it
+ * through var(); a shadow or a radius must name a --shadow-* / --radius-* token.
+ * A literal is a finding, because it is a second source of truth for a design value.
+ */
+const TOKENIZED_GRADIENT = /\b(?:repeating-)?(?:linear|radial|conic)-gradient\s*\(/i;
+const shadowAllowed = (value) =>
+  /^(?:none|inherit|initial|unset)$/i.test(value.trim()) || /var\(--shadow-[\w-]+\)/.test(value);
+const radiusAllowed = (value) =>
+  /var\(--radius-[\w-]+\)/.test(value) || /^0(?:px)?$/.test(value.trim());
+
+/**
  * Audits one theme directory. `root` defaults to the shipped theme; tests may
  * point it at a copied, mutated fixture root. Contract-sync checks run only
  * when docs/design/design-contract.json exists beside the theme's repo root,
@@ -51,23 +71,33 @@ export async function checkTheme(root = themeRoot) {
   const theme = JSON.parse(themeSource);
   const findings = [];
   const add = (code, detail) => findings.push({ code, detail });
-  const rootRanges = [...css.matchAll(/(?:^|\})\s*:root\s*\{([^}]*)\}/gms)].map((match) => [
-    match.index,
-    match.index + match[0].length,
-  ]);
+  const scannableCss = stripComments(css);
+  const rootRanges = [...scannableCss.matchAll(/(?:^|\})\s*:root\s*\{([^}]*)\}/gms)].map(
+    (match) => [match.index, match.index + match[0].length],
+  );
   const insideRoot = (index) => rootRanges.some(([start, end]) => index >= start && index <= end);
 
-  for (const match of css.matchAll(/#[0-9a-f]{3,8}\b|\brgba?\([^)]*\)|\bhsla?\([^)]*\)/gi)) {
+  // Colour literals belong to the token layer and nowhere else.
+  for (const match of scannableCss.matchAll(
+    /#[0-9a-f]{3,8}\b|\brgba?\([^)]*\)|\bhsla?\([^)]*\)/gi,
+  )) {
     if (!insideRoot(match.index)) add("UNTOKENIZED_COLOR", match[0]);
   }
-  for (const match of css.matchAll(/(?:box|text)-shadow\s*:\s*([^;]+);/gi)) {
-    if (!/var\(--shadow-none\)/.test(match[1])) add("SHADOW_SURFACE", match[1].trim());
+  // Gradients exist as --gradient-* tokens; a surface references one.
+  for (const match of scannableCss.matchAll(/([\w-]+)\s*:\s*([^;{}]+);/g)) {
+    if (!TOKENIZED_GRADIENT.test(match[2])) continue;
+    const declarationStart = (match.index ?? 0) + match[0].indexOf(":");
+    if (insideRoot(match.index ?? 0)) continue;
+    if (/^\s*var\(--gradient-[\w-]+\)\s*$/i.test(match[2])) continue;
+    add("GRADIENT_ON_SURFACE", `${match[1]}: ${match[2].trim().slice(0, 80)}`);
   }
-  // The contract permits exactly two radii: the 4px control radius and the
-  // rectangular image radius. A literal or any other token is a finding.
-  for (const match of css.matchAll(/border-radius\s*:\s*([^;]+);/gi)) {
-    if (!/var\(--radius-(?:control|image)\)|^0$/i.test(match[1].trim()))
-      add("ROUNDED_SURFACE", match[1].trim());
+  for (const match of scannableCss.matchAll(/(?:box|text)-shadow\s*:\s*([^;]+);/gi)) {
+    if (!shadowAllowed(match[1])) add("SHADOW_SURFACE", match[1].trim());
+  }
+  for (const match of scannableCss.matchAll(/border-radius\s*:\s*([^;]+);/gi)) {
+    for (const part of match[1].split(/\s+/)) {
+      if (!radiusAllowed(part)) add("ROUNDED_SURFACE", part.trim());
+    }
   }
   if (/transition\s*:\s*all\b/i.test(css)) add("TRANSITION_ALL", "transition: all");
   if (
@@ -80,7 +110,9 @@ export async function checkTheme(root = themeRoot) {
   if (
     /<(?:img|script|link)\b[^>]+https?:/i.test(
       (
-        await Promise.all(templateNames.map((name) => readFile(`${root}/templates/${name}`, "utf8")))
+        await Promise.all(
+          templateNames.map((name) => readFile(`${root}/templates/${name}`, "utf8")),
+        )
       ).join("\n"),
     )
   ) {
@@ -136,26 +168,25 @@ export async function checkTheme(root = themeRoot) {
         add("UNLOCKED_TEMPLATE", `${relative}: ${name}`);
       }
     }
-    const colorScan = markup.replace(/(?:href|src)="#[^"]*"|url\(#[^)]*\)/g, "");
+    const colorScan = stripComments(markup).replace(/(?:href|src)="#[^"]*"|url\(#[^)]*\)/g, "");
     for (const match of colorScan.matchAll(
       /#[0-9a-f]{3,8}\b|\brgba?\([^)]*\)|\bhsla?\([^)]*\)/gi,
     )) {
       add("UNTOKENIZED_COLOR", `${relative}: ${match[0]}`);
     }
     for (const match of markup.matchAll(/(?:box|text)-shadow\s*:\s*([^;"<]+)/gi)) {
-      if (!/var\(--shadow-none\)/.test(match[1])) {
+      if (!shadowAllowed(match[1])) {
         add("SHADOW_SURFACE", `${relative}: ${match[1].trim()}`);
       }
     }
     for (const match of markup.matchAll(/border-radius\s*:\s*([^;"<]+)/gi)) {
-      if (!/var\(--radius-(?:control|image)\)|^0(?:px)?$/i.test(match[1].trim())) {
-        add("ROUNDED_SURFACE", `${relative}: ${match[1].trim()}`);
+      for (const part of match[1].split(/\s+/)) {
+        if (!radiusAllowed(part)) add("ROUNDED_SURFACE", `${relative}: ${part.trim()}`);
       }
     }
-    // Block-JSON radius accepts only the contract's 4px control radius or an
-    // explicit zero; anything else is a rounded surface.
+    // Block-JSON radius accepts a declared scale token or an explicit zero.
     for (const match of markup.matchAll(/"radius"\s*:\s*"([^"]*)"/g)) {
-      if (!/^(|0|0px|4px|0\.25rem)$/.test(match[1])) {
+      if (!/^(|0|0px|var\(--radius-[\w-]+\))$/.test(match[1])) {
         add("ROUNDED_SURFACE", `${relative}: "radius":"${match[1]}"`);
       }
     }
@@ -186,15 +217,33 @@ export async function checkTheme(root = themeRoot) {
   const requiredTokens = [
     "--color-canvas",
     "--color-surface",
+    "--color-surface-alt",
     "--color-anchor",
     "--color-anchor-deep",
+    "--color-anchor-soft",
     "--color-action",
     "--color-action-hover",
+    "--color-action-light",
+    "--color-wash-action",
+    "--color-wash-action-subtle",
+    "--color-accent",
+    "--color-accent-soft",
+    "--color-accent-wash",
     "--color-text",
     "--color-text-muted",
+    "--color-text-soft",
     "--color-rule-quiet",
+    "--color-rule-hover",
     "--color-boundary-strong",
     "--color-focus-on-dark",
+    "--color-on-dark",
+    "--color-on-dark-body",
+    "--color-on-dark-address",
+    "--color-on-dark-meta",
+    "--color-on-dark-lead",
+    "--color-accent-ink",
+    "--color-warning-ink",
+    "--color-error-ink",
     "--font-interface",
     "--font-mono",
     "--grid-max",
@@ -202,13 +251,29 @@ export async function checkTheme(root = themeRoot) {
     "--motion-fast",
     "--motion-standard",
     "--ease-state",
-    "--radius-control",
-    "--radius-image",
+    "--radius-xs",
+    "--radius-sm",
+    "--radius-md",
+    "--radius-lg",
+    "--radius-xl",
+    "--radius-pill",
+    "--shadow-none",
+    "--shadow-xs",
+    "--shadow-sm",
+    "--shadow-md",
+    "--shadow-lg",
+    "--gradient-hero",
+    "--gradient-signal-bar",
+    "--gradient-monogram",
+    "--gradient-page-header",
+    "--gradient-timeline",
+    "--gradient-cta",
+    "--signal-line",
+    "--signal-line-dark",
     "--rule-hairline",
     "--rule-boundary",
     "--rule-anchor",
     "--rule-focus",
-    "--shadow-none",
   ];
   for (const token of requiredTokens) {
     if (!css.includes(`${token}:`)) add("MISSING_TOKEN", token);
@@ -226,14 +291,12 @@ export async function checkTheme(root = themeRoot) {
     if (themeSource.includes(family)) add("RETIRED_TOKEN", `theme.json: ${family}`);
   }
 
-  // Sans-led hierarchy: the h1-h4 block must resolve to the interface stack,
-  // and no heading rule may reintroduce a non-interface family.
-  if (
-    !/h1,\s*\n?\s*h2,\s*\n?\s*h3,\s*\n?\s*h4\s*\{[^}]*font-family:\s*var\(--font-interface\)/s.test(
-      css,
-    )
-  ) {
-    add("HEADING_STACK", "headings must resolve to --font-interface");
+  // Display-led hierarchy (2026 revision): the h1-h4 block must resolve to the
+  // display stack and no heading rule may reintroduce a third family. The
+  // display family owns headings and statistics only; the interface family owns
+  // body, navigation, controls and tables.
+  if (!/h1,\s*\n?\s*h2,[^{]*\{[^}]*font-family:\s*var\(--font-display\)/s.test(css)) {
+    add("HEADING_STACK", "headings must resolve to --font-display");
   }
   for (const match of css.matchAll(/([^{}]+)\{[^{}]*font-family:\s*([^;}]+)/g)) {
     const selector = match[1];
@@ -241,9 +304,9 @@ export async function checkTheme(root = themeRoot) {
     if (
       /h[1-6]/.test(selector) &&
       !selector.includes(".") &&
-      !/var\(--font-interface\)/.test(family)
+      !/var\(--font-(?:display|interface)\)/.test(family)
     ) {
-      add("HEADING_STACK", `non-interface headings: ${selector.trim()}`);
+      add("HEADING_STACK", `non-display headings: ${selector.trim()}`);
     }
   }
 
@@ -251,13 +314,23 @@ export async function checkTheme(root = themeRoot) {
   const requiredSlugs = [
     "canvas",
     "surface",
+    "surface-alt",
     "anchor",
     "anchor-deep",
+    "anchor-soft",
     "action",
     "action-hover",
+    "action-light",
+    "wash-action",
+    "wash-action-subtle",
+    "accent",
+    "accent-soft",
+    "accent-wash",
     "text",
     "text-muted",
+    "text-soft",
     "rule-quiet",
+    "rule-hover",
     "boundary-strong",
     "success",
     "warning",
@@ -289,13 +362,19 @@ export async function checkTheme(root = themeRoot) {
     const contract = JSON.parse(
       await readFile(resolve(root, "../../../docs/design/design-contract.json"), "utf8"),
     );
-    const cssTokens = new Map();
+    // First declaration wins: the canonical :root block leads the stylesheet and
+    // any later :root block is a conditional override (e.g. the reduced-motion
+    // guard redefining the --motion-* tokens), which must not be read as drift.
+    const declared = new Map();
     for (const range of rootRanges) {
-      const body = css.slice(range[0], range[1]);
+      const body = scannableCss.slice(range[0], range[1]);
       for (const match of body.matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)) {
-        cssTokens.set(match[1], match[2].trim());
+        if (!declared.has(match[1])) declared.set(match[1], match[2].trim());
       }
     }
+    // A role token may name a primitive, so the contract compares resolved
+    // values rather than references.
+    const cssTokens = resolveTokens(declared);
     for (const token of contract.colors?.tokens ?? []) {
       const actual = cssTokens.get(token.token);
       if (actual === undefined) {

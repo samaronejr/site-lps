@@ -4,6 +4,21 @@ import { describe, expect, test } from "vitest";
 const themeRoot = "wp-content/themes/lps-theme";
 const read = (path) => readFileSync(`${themeRoot}/${path}`, "utf8");
 
+/**
+ * The machine-readable contract is the single source of truth: theme.json is a
+ * rendering of it for the editor, and assets/css/theme.css a rendering of it for
+ * the site (check-theme.mjs holds the stylesheet to the same values). Reading the
+ * expected palette from the contract keeps this test honest across a design
+ * revision instead of pinning a palette that has been superseded.
+ */
+const contract = JSON.parse(
+  readFileSync("docs/design/design-contract.json", "utf8"),
+);
+const contractPalette = contract.colors.tokens.map(({ slug, value }) => ({
+  slug,
+  color: value,
+}));
+
 describe("LPS block theme contract", () => {
   test("declares the binding palette, typography, spacing, and control-radius settings", () => {
     // Given: the production block theme configuration.
@@ -44,50 +59,21 @@ describe("LPS block theme contract", () => {
     });
     expect(theme.settings.blocks["core/image"]).toEqual({ border: { radius: false } });
 
-    // Then: the unified canvas carries the full status set, washes included.
-    // The dark-surface focus token is a CSS-only primitive, not a palette slug.
-    expect(theme.settings.color.palette).toHaveLength(17);
-    expect(theme.settings.color.palette.map(({ slug }) => slug)).toEqual([
-      "canvas",
-      "surface",
-      "anchor",
-      "anchor-deep",
-      "action",
-      "action-hover",
-      "text",
-      "text-muted",
-      "rule-quiet",
-      "boundary-strong",
-      "success",
-      "warning",
-      "error",
-      "info-wash",
-      "success-wash",
-      "warning-wash",
-      "error-wash",
-    ]);
-    const colors = Object.fromEntries(
-      theme.settings.color.palette.map(({ slug, color }) => [slug, color]),
+    // Then: the editor palette is exactly the machine contract's colour set,
+    // in contract order — no more, no fewer, no hand-picked values.
+    expect(theme.settings.color.palette).toHaveLength(contractPalette.length);
+    expect(theme.settings.color.palette.map(({ slug }) => slug)).toEqual(
+      contractPalette.map(({ slug }) => slug),
     );
-    expect(colors).toMatchObject({
-      canvas: "#F5F7FA",
-      surface: "#FFFFFF",
-      anchor: "#12304A",
-      "anchor-deep": "#0C2237",
-      action: "#165A96",
-      "action-hover": "#0F4A7E",
-      text: "#182B3A",
-      "text-muted": "#526477",
-      "rule-quiet": "#D7E0E8",
-      "boundary-strong": "#74869A",
-      success: "#216E4E",
-      warning: "#7A4A00",
-      error: "#A12622",
-      "info-wash": "#DDECEF",
-      "success-wash": "#E0ECE5",
-      "warning-wash": "#F2E8D2",
-      "error-wash": "#F2DEDA",
-    });
+    expect(
+      Object.fromEntries(
+        theme.settings.color.palette.map(({ slug, color }) => [slug, color]),
+      ),
+    ).toEqual(Object.fromEntries(contractPalette.map(({ slug, color }) => [slug, color])));
+    // The dark-surface focus token is a CSS-only primitive, never a palette slug.
+    expect(theme.settings.color.palette.map(({ slug }) => slug)).not.toContain(
+      "focus-on-dark",
+    );
 
     // Then: the sans-led interface role leads and the mono is scoped to
     // identifiers; the retired serif role ships no family and no font files.
@@ -175,7 +161,7 @@ describe("LPS block theme contract", () => {
 
     // Then: links and buttons keep the institutional action treatment.
     expect(styles.elements.link.color.text).toBe("var:preset|color|action");
-    expect(styles.elements.button.border.radius).toBe("4px");
+    expect(styles.elements.button.border.radius).toBe(contract.geometry.controlRadius);
     expect(styles.elements.button.color).toEqual({
       background: "var:preset|color|action",
       text: "var:preset|color|surface",

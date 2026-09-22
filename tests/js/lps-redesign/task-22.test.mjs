@@ -89,14 +89,29 @@ describe("task-22: shipped payload stays inside the approved budgets", () => {
   it("the stylesheet carries no animation payload beyond reduced-motion guards", async () => {
     const css = await read(`${THEME_ROOT}/assets/css/theme.css`);
     expect(css).not.toContain("@keyframes");
-    // Transitions are limited to cheap state properties (color, transform and
-    // the link underline thickness) and are neutralized inside the
-    // prefers-reduced-motion block.
+    // Transitions are limited to cheap state properties — the composited family
+    // (colour, the independent transforms, opacity, filter) and the link
+    // underline thickness — and are neutralized inside the
+    // prefers-reduced-motion block. Paint-only properties (box-shadow,
+    // text-shadow) and layout properties stay out: they repaint or reflow on
+    // every frame of the hover.
     expect(css).toContain("prefers-reduced-motion");
+    const composited = [
+      "color",
+      "background-color",
+      "border-color",
+      "transform",
+      "translate",
+      "rotate",
+      "scale",
+      "opacity",
+      "filter",
+      "text-decoration-thickness",
+    ];
     for (const match of css.matchAll(/transition:\s*([^;]+);/g)) {
       for (const part of match[1].split(",")) {
         const prop = part.trim().split(/\s+/)[0];
-        expect(["color", "background-color", "border-color", "transform", "text-decoration-thickness"]).toContain(prop);
+        expect(composited).toContain(prop);
       }
     }
   });
