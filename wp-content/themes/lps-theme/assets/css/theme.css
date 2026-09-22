@@ -2088,6 +2088,16 @@ textarea:focus-visible {
   padding-inline-start: 0;
 }
 
+/* The location summary keeps the term-over-value stack at every width so
+   the short labels sit directly above their contact lines. */
+.lps-location .lps-facts {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.lps-location .lps-facts dd {
+  padding-inline-start: 0;
+}
+
 .lps-facts + .lps-facts {
   border-block-start: var(--rule-heavy);
   margin-block-start: var(--space-6);
