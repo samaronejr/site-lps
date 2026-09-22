@@ -31,6 +31,10 @@
  * at 320 CSS px and 200% zoom, reduced-motion honoured.
  */
 
+/* biome-ignore-all lint/style/noDescendingSpecificity: sections are ordered by
+ * component, not ascending specificity — the flagged generic list/footer rules
+ * never share elements with the component-scoped selectors that precede them */
+
 /* ----------------------------------------------------------------------------
  * 1. Self-hosted type
  * ------------------------------------------------------------------------- */
@@ -136,7 +140,11 @@
     var(--color-action-light) 100%
   );
   --gradient-monogram: linear-gradient(160deg, var(--color-anchor-soft), var(--color-action-hover));
-  --gradient-event-date: linear-gradient(160deg, var(--color-anchor-soft), var(--color-anchor-deep));
+  --gradient-event-date: linear-gradient(
+    160deg,
+    var(--color-anchor-soft),
+    var(--color-anchor-deep)
+  );
   --gradient-partner-fade: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
   --gradient-monogram-memoriam: linear-gradient(
     160deg,
