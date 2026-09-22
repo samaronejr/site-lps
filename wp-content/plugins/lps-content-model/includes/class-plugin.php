@@ -332,7 +332,17 @@ final class Plugin {
 			return self::error( $reverse_error, 'Reverse relationships are derived and cannot be submitted manually.', '_lps_relationships' );
 		}
 		foreach ( array_keys( $incoming ) as $meta_key ) {
-			if ( in_array( $meta_key, RelationshipPolicy::legacy_relationship_meta_keys(), true ) ) {
+			if ( ! in_array( $meta_key, RelationshipPolicy::legacy_relationship_meta_keys(), true ) ) {
+				continue;
+			}
+			// The block editor echoes every REST-exposed meta back unchanged on
+			// each save; only a value that actually differs from storage is a
+			// write attempt that must cross the relationship boundary.
+			$stored = get_post_meta( $post_id, $meta_key, true );
+			$sent   = $incoming[ $meta_key ];
+			$stored = is_array( $stored ) ? $stored : array();
+			$sent   = is_array( $sent ) ? $sent : ( null === $sent || '' === $sent ? array() : array( $sent ) );
+			if ( array_map( array( Policy::class, 'sanitize_integer' ), $stored ) !== array_map( array( Policy::class, 'sanitize_integer' ), $sent ) ) {
 				return self::error( 'lps_relationship_table_required', 'Relationships must be written through the canonical relationship boundary.', $meta_key );
 			}
 		}
