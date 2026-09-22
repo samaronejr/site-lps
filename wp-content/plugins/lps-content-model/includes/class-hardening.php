@@ -162,7 +162,7 @@ final class Hardening {
 		$script_src  = $admin
 			? "'self' 'unsafe-inline'"
 			: "'self' 'nonce-$nonce'";
-		$script_attr = $admin ? "'unsafe-inline'" : "'none'";
+		$script_attr = "'none'";
 		$headers     = array(
 			'Content-Security-Policy'           => "default-src 'none'; script-src $script_src; script-src-attr $script_attr; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; media-src 'self'; connect-src 'self'; frame-src $frames; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'",
 			'X-Content-Type-Options'            => 'nosniff',

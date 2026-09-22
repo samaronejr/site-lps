@@ -122,7 +122,7 @@ async function main() {
     body: `${pageHeader({
       kicker: "Erro 404",
       title: "Página não encontrada",
-      lead: 'O endereço que você procurou não existe ou foi movido. <span lang="en">The page you are looking for does not exist or has moved.</span>',
+      lead: "O endereço que você procurou não existe ou foi movido. The page you are looking for does not exist or has moved.",
     })}
 <div class="lps-page-grid">
 <p><a class="lps-button" href="/">Voltar ao início</a> <a class="lps-button lps-button-ghost" href="/en/">Back to the English home</a></p>
