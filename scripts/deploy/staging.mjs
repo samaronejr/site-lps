@@ -702,6 +702,28 @@ function portPids(port) {
   return [...pids];
 }
 
+// Walk /proc parent links: is `pid` the process `root` or one of its
+// descendants? Server CLIs that spawn socket-owning workers pass the
+// listener check through this, not just an exact pid match.
+function isDescendantOf(pid, root) {
+  let cursor = pid;
+  for (let depth = 0; depth < 32; depth++) {
+    if (cursor === root) return true;
+    if (cursor <= 1) return false;
+    let ppid = 0;
+    try {
+      const stat = readFileSync(`/proc/${cursor}/stat`, "utf8");
+      // comm may contain spaces/parens; ppid follows the last ')'.
+      ppid = Number(stat.slice(stat.lastIndexOf(")") + 2).split(" ")[1]);
+    } catch {
+      return false;
+    }
+    if (!Number.isFinite(ppid) || ppid <= 0) return false;
+    cursor = ppid;
+  }
+  return false;
+}
+
 async function sleepMs(ms) {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -713,9 +735,9 @@ async function sleepMs(ms) {
  * boot, so a spawn that died EADDRINUSE still reported ok and the pid file
  * ended up holding the dead child's pid while the real listener ran
  * untracked. This version stops whatever owns the port first, waits for a
- * Ready! line written after this spawn started, then requires the spawned
- * pid to be the live :ORIGIN_PORT listener and the release health endpoint
- * to report the release that was just flipped to.
+ * Ready! line written after this spawn started, then requires a descendant
+ * of the spawned pid to be the live :ORIGIN_PORT listener and the release
+ * health endpoint to report the release that was just flipped to.
  */
 async function serveOrigin() {
   const siteDir = currentRelease();
@@ -751,10 +773,11 @@ async function serveOrigin() {
     } catch {}
     return { ok: false, reason: "origin did not report Ready! within 240s" };
   }
-  // The spawned process must be the live listener on the origin port; a
-  // Ready! line alone does not prove the socket was bound.
+  // The spawned process (or a worker it spawned) must be the live listener
+  // on the origin port; a Ready! line alone does not prove the socket was
+  // bound. `--workers` makes a child worker own the socket.
   const listeners = portPids(ORIGIN_PORT);
-  if (!pidAlive(child.pid) || !listeners.includes(child.pid)) {
+  if (!pidAlive(child.pid) || !listeners.some((pid) => isDescendantOf(pid, child.pid))) {
     try {
       process.kill(child.pid, "SIGTERM");
     } catch {}
@@ -824,7 +847,7 @@ async function serveEdge() {
     } catch {}
     return { ok: false, reason: "edge did not report ready within 30s" };
   }
-  if (!pidAlive(child.pid) || !portPids(HTTPS_PORT).includes(child.pid)) {
+  if (!pidAlive(child.pid) || !portPids(HTTPS_PORT).some((pid) => isDescendantOf(pid, child.pid))) {
     try {
       process.kill(child.pid, "SIGTERM");
     } catch {}
