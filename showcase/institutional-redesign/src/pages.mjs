@@ -363,7 +363,7 @@ function aboutPage(locale) {
     meta: `${en ? "Founded" : "Fundação"} ${site.founded} · ${t(site.affiliation, locale)}`,
   })}
 <div class="lps-page-grid">
-<div class="lps-with-aside">
+<div class="lps-with-aside lps-with-aside--single">
 <div class="lps-flow">
 <section class="lps-section lps-section--flush" id="historia" aria-labelledby="about-history">
 ${sectionHead({ kicker: en ? "History" : "História", title: en ? "A timeline of the laboratory" : "Linha do tempo do laboratório", id: "about-history" })}
@@ -441,13 +441,6 @@ ${facts([
 </div>
 </section>
 </div>
-${aside(locale, [
-  { id: "historia", label: { "pt-BR": "História", en: "History" } },
-  { id: "missao", label: { "pt-BR": "Missão e visão", en: "Mission and vision" } },
-  { id: "identidade", label: { "pt-BR": "Marca", en: "Brand" } },
-  { id: "parceiros", label: { "pt-BR": "Parceiros", en: "Partners" } },
-  { id: "localizacao", label: { "pt-BR": "Localização", en: "Location" } },
-])}
 </div>
 </div>`;
 

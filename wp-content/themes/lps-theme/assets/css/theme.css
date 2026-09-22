@@ -694,6 +694,10 @@ main > * + *,
   .lps-with-aside--left {
     grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
   }
+
+  .lps-with-aside--single {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .lps-aside {
