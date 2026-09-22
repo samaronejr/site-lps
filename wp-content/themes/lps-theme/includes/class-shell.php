@@ -260,7 +260,10 @@ final class Shell {
 	public static function logo_sources(): array {
 		$base = self::brand_base_url();
 		if ( '' === $base ) {
-			return array( 'full' => '', 'compact' => '' );
+			return array(
+				'full'    => '',
+				'compact' => '',
+			);
 		}
 		return array(
 			'full'    => $base . 'lps_coppe_blue_lockup.svg',
