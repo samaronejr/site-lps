@@ -432,7 +432,7 @@ ${facts([
 <div class="lps-map-card">
 <iframe
   title="${esc(en ? "Map showing the laboratory at the UFRJ Technology Centre" : "Mapa do laboratório no Centro de Tecnologia da UFRJ")}"
-  src="https://maps.google.com/maps?q=${encodeURIComponent("Centro de Tecnologia UFRJ Bloco H Ilha do Fundão")}&amp;z=16&amp;output=embed"
+  src="https://maps.google.com/maps?hl=${en ? "en-US" : "pt-BR"}&amp;ll=-22.862347,-43.229037&amp;output=embed&amp;q=-22.861981,-43.228811&amp;z=17"
   loading="lazy"
   referrerpolicy="no-referrer-when-downgrade"
   allowfullscreen
