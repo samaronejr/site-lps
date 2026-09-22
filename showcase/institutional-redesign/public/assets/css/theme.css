@@ -2339,7 +2339,7 @@ textarea:focus-visible {
   box-shadow: var(--shadow-card);
   max-block-size: 19rem;
   overflow: auto;
-  scrollbar-color: var(--color-accent) var(--color-wash-action-subtle);
+  scrollbar-color: var(--color-rule-hover) var(--color-wash-action-subtle);
   scrollbar-width: thin;
 }
 
@@ -2352,7 +2352,7 @@ textarea:focus-visible {
 }
 
 .lps-table-scroll::-webkit-scrollbar-thumb {
-  background: var(--color-accent);
+  background: var(--color-rule-hover);
   border-radius: var(--radius-pill);
 }
 
