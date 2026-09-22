@@ -43,6 +43,8 @@ final class SearchSurfaces {
 			'previous'       => 'Página anterior',
 			'next'           => 'Próxima página',
 			'page'           => 'Página',
+			'previous_short' => 'Anterior',
+			'next_short'     => 'Próxima',
 			'one_result'     => '1 resultado',
 			'many_results'   => '%d resultados',
 			'no_results'     => '0 resultado',
@@ -71,6 +73,8 @@ final class SearchSurfaces {
 			'previous'       => 'Previous page',
 			'next'           => 'Next page',
 			'page'           => 'Page',
+			'previous_short' => 'Previous',
+			'next_short'     => 'Next',
 			'one_result'     => '1 result',
 			'many_results'   => '%d results',
 			'no_results'     => '0 results',
@@ -284,9 +288,12 @@ final class SearchSurfaces {
 	 */
 	private static function form( string $query, string $record, array $facets, array $facet_counts, array $definitions, string $locale, string $action ): string {
 		$html  = '<form class="lps-search-form" method="get" action="' . self::esc( $action ) . '" role="search" aria-label="' . self::esc( self::copy( 'legend', $locale ) ) . '">';
-		$html .= '<p><label for="lps-search-q">' . self::esc( self::copy( 'label', $locale ) ) . '</label>';
-		$html .= '<input type="search" id="lps-search-q" name="q" value="' . self::esc( $query ) . '" minlength="2" maxlength="100" aria-describedby="lps-search-hint">';
-		$html .= '<span class="lps-search-hint" id="lps-search-hint">' . self::esc( self::copy( 'hint', $locale ) ) . '</span></p>';
+		$html .= '<label for="lps-search-q">' . self::esc( self::copy( 'label', $locale ) ) . '</label>';
+		$html .= '<div class="lps-search-row">';
+		$html .= '<input type="search" id="lps-search-q" name="q" value="' . self::esc( $query ) . '" minlength="2" maxlength="100" autocomplete="off" aria-describedby="lps-search-hint">';
+		$html .= '<button class="lps-button lps-button-primary" type="submit">' . self::esc( self::copy( 'submit', $locale ) ) . '</button>';
+		$html .= '</div>';
+		$html .= '<p class="lps-search-hint" id="lps-search-hint">' . self::esc( self::copy( 'hint', $locale ) ) . '</p>';
 		$html .= '<p><label for="lps-search-record">' . self::esc( self::copy( 'record', $locale ) ) . '</label>';
 		$html .= '<select id="lps-search-record" name="record">';
 		$html .= '<option value=""' . ( '' === $record ? ' selected' : '' ) . '>' . self::esc( self::copy( 'all', $locale ) ) . '</option>';
@@ -301,20 +308,19 @@ final class SearchSurfaces {
 				if ( array() === $values ) {
 					continue;
 				}
-				$html .= '<fieldset class="lps-search-facet"><legend>' . self::esc( self::facet_label( $facet, $locale ) ) . '</legend><div class="lps-search-facet-values">';
+				$html .= '<fieldset class="lps-search-facet"><legend>' . self::esc( self::facet_label( $facet, $locale ) ) . '</legend><ul class="lps-search-facet-values">';
 				foreach ( $values as $value => $count ) {
 					$id      = 'lps-facet-' . $facet . '-' . preg_replace( '/[^a-z0-9-]/', '', (string) $value );
 					$checked = in_array( (string) $value, $facets[ $facet ] ?? array(), true ) ? ' checked' : '';
-					$html   .= '<span class="lps-search-facet-value">';
+					$html   .= '<li class="lps-search-facet-value">';
 					$html   .= '<input type="checkbox" id="' . self::esc( (string) $id ) . '" name="' . self::esc( $facet ) . '[]" value="' . self::esc( (string) $value ) . '"' . $checked . '>';
 					$html   .= '<label for="' . self::esc( (string) $id ) . '">' . self::esc( self::facet_value_label( $facet, (string) $value, $locale ) ) . ' <span class="lps-facet-count">(' . self::number( $count ) . ')</span></label>';
-					$html   .= '</span>';
+					$html   .= '</li>';
 				}
-				$html .= '</div></fieldset>';
+				$html .= '</ul></fieldset>';
 			}
 			$html .= '</fieldset>';
 		}
-		$html .= '<p><button class="lps-button lps-button-primary" type="submit">' . self::esc( self::copy( 'submit', $locale ) ) . '</button></p>';
 		return $html . '</form>';
 	}
 
@@ -326,7 +332,8 @@ final class SearchSurfaces {
 	 */
 	private static function results( array $result, string $locale ): string {
 		$items = isset( $result['items'] ) && is_array( $result['items'] ) ? $result['items'] : array();
-		$html  = '<ol class="lps-search-results" aria-label="' . self::esc( self::copy( 'results', $locale ) ) . '">';
+		$html  = '<h2 id="lps-search-results" class="lps-mt-8">' . self::esc( self::copy( 'results', $locale ) ) . '</h2>';
+		$html .= '<ol class="lps-search-results lps-mt-4" aria-labelledby="lps-search-results">';
 		foreach ( $items as $item ) {
 			if ( ! is_array( $item ) ) {
 				continue;
@@ -336,12 +343,12 @@ final class SearchSurfaces {
 			$summary = self::text( $item['summary'] ?? '' );
 			$type    = self::type_label( self::text( $item['post_type'] ?? '' ), $locale );
 			$html   .= '<li class="lps-search-result">';
-			$html   .= '' === $url ? '<span>' . self::esc( $title ) . '</span>' : '<a href="' . self::esc( $url ) . '">' . self::esc( $title ) . '</a>';
 			if ( '' !== $type ) {
-				$html .= ' <span class="lps-search-kind">' . self::esc( $type ) . '</span>';
+				$html .= '<p class="lps-search-kind">' . self::esc( $type ) . '</p>';
 			}
+			$html .= '<h3>' . ( '' === $url ? self::esc( $title ) : '<a href="' . self::esc( $url ) . '">' . self::esc( $title ) . '</a>' ) . '</h3>';
 			if ( '' !== $summary ) {
-				$html .= '<p>' . self::esc( $summary ) . '</p>';
+				$html .= '<p class="lps-summary">' . self::esc( $summary ) . '</p>';
 			}
 			$html .= '</li>';
 		}
@@ -368,6 +375,13 @@ final class SearchSurfaces {
 		$last     = min( $total, $current * $per_page );
 		$html     = '<nav class="lps-search-pagination" aria-label="' . self::esc( self::copy( 'pagination', $locale ) ) . '">';
 		$html    .= '<p class="lps-search-range">' . self::esc( sprintf( self::copy( 'showing', $locale ), $first, $last, $total ) ) . '</p><ul>';
+		$previous = self::copy( 'previous', $locale );
+		if ( 1 < $current ) {
+			$url   = SearchRoutes::canonical_url( $action, $state, $current - 1 );
+			$html .= '<li><a class="lps-search-step" href="' . self::esc( $url ) . '" aria-label="' . self::esc( $previous ) . '">' . self::esc( self::copy( 'previous_short', $locale ) ) . '</a></li>';
+		} else {
+			$html .= '<li><span class="lps-search-step" aria-disabled="true">' . self::esc( self::copy( 'previous_short', $locale ) ) . '</span></li>';
+		}
 		for ( $page = 1; $page <= $pages; $page++ ) {
 			$label = self::copy( 'page', $locale ) . ' ' . $page;
 			if ( $page === $current ) {
@@ -376,6 +390,14 @@ final class SearchSurfaces {
 			}
 			$url   = SearchRoutes::canonical_url( $action, $state, $page );
 			$html .= '<li><a href="' . self::esc( $url ) . '" aria-label="' . self::esc( $label ) . '">' . $page . '</a></li>';
+		}
+		$html .= '<li><span class="lps-meta">' . self::esc( $current . ' / ' . $pages ) . '</span></li>';
+		$next  = self::copy( 'next', $locale );
+		if ( $current < $pages ) {
+			$url   = SearchRoutes::canonical_url( $action, $state, $current + 1 );
+			$html .= '<li><a class="lps-search-step" href="' . self::esc( $url ) . '" aria-label="' . self::esc( $next ) . '">' . self::esc( self::copy( 'next_short', $locale ) ) . '</a></li>';
+		} else {
+			$html .= '<li><span class="lps-search-step" aria-disabled="true">' . self::esc( self::copy( 'next_short', $locale ) ) . '</span></li>';
 		}
 		return $html . '</ul></nav>';
 	}

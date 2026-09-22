@@ -2,6 +2,12 @@
 /**
  * Research, project, and publication discovery surfaces.
  *
+ * The renderers compose in the showcase vocabulary (`showcase/institutional-
+ * redesign/public/`): kicker-led page headers, `lps-body lps-reading`
+ * editorial containers, `lps-section` bands with section-heads, `lps-card`
+ * grids for related projects, and `lps-record-list` rows for filtered
+ * listings — no class here is invented for the theme.
+ *
  * @package LPS\Theme
  */
 
@@ -89,6 +95,10 @@ final class DiscoverySurfaces {
 	/**
 	 * Renders a research area with its published projects.
 	 *
+	 * Mirrors the showcase composition: a kicker-led page header, the
+	 * editorial body in the shared reading container, and the related
+	 * projects as a card grid — the same treatment `/projetos/` gives them.
+	 *
 	 * @param array<string, mixed> $record   Research area record.
 	 * @param array<int, mixed>    $projects Published projects in this area.
 	 * @param string               $locale   Supported locale slug.
@@ -99,20 +109,27 @@ final class DiscoverySurfaces {
 		$summary = self::text( $record['summary'] ?? '' );
 		$body    = self::text( $record['body'] ?? '' );
 		$html    = '<article class="lps-research-area">';
+		$html   .= '<div class="lps-page-header"><div class="lps-page-header-inner lps-page-grid">';
+		$html   .= '<p class="lps-kicker">' . self::esc( $english ? 'Research' : 'Pesquisa' ) . '</p>';
 		$html   .= '<h1>' . self::esc( $title ) . '</h1>';
 		if ( '' !== $summary ) {
-			$html .= '<p class="lps-summary">' . self::esc( $summary ) . '</p>';
+			$html .= '<p class="lps-lead">' . self::esc( $summary ) . '</p>';
 		}
+		$html .= '</div></div>';
 		if ( '' !== $body ) {
 			$html .= '<div class="lps-body lps-reading">' . self::rich( $body ) . '</div>';
 		}
-		// The projects stratum is a named section of record rows, not a bare list.
-		$html .= '<h2>' . self::esc( $english ? 'Projects' : 'Projetos' ) . '</h2>';
+		// The projects stratum is a named section of related record cards.
+		$html .= '<section class="lps-section" aria-labelledby="area-projects">';
+		$html .= '<div class="lps-section-head"><div>'
+			. '<p class="lps-kicker">' . self::esc( $english ? 'Research' : 'Pesquisa' ) . '</p>'
+			. '<h2 id="area-projects">' . self::esc( $english ? 'Projects' : 'Projetos' ) . '</h2>'
+			. '</div></div>';
 		if ( array() === $projects ) {
-			$html .= '<p class="lps-empty">' . self::esc( $english ? 'No published projects in this area' : 'Nenhum projeto publicado nesta área' ) . '</p>';
+			$html .= '<p class="lps-empty">' . self::esc( $english ? 'No published projects in this area' : 'Nenhum projeto publicado nesta área' ) . '</p></section>';
 			return $html . '</article>';
 		}
-		$html .= '<ul class="lps-area-projects">';
+		$html .= '<div class="lps-grid lps-grid--2">';
 		foreach ( $projects as $project ) {
 			if ( ! is_array( $project ) ) {
 				continue;
@@ -122,21 +139,35 @@ final class DiscoverySurfaces {
 			if ( '' === $project_title ) {
 				continue;
 			}
-			$html           .= '<li class="lps-record"><h3>';
+			$html           .= '<article class="lps-card"><div class="lps-card-body">';
+			$html           .= '<h3 class="lps-card-title">';
 			$html           .= '' === $project_url ? self::esc( $project_title ) : '<a href="' . self::esc( $project_url ) . '">' . self::esc( $project_title ) . '</a>';
 			$html           .= '</h3>';
 			$project_summary = self::text( $project['summary'] ?? '' );
 			if ( '' !== $project_summary ) {
 				$html .= '<p>' . self::esc( $project_summary ) . '</p>';
 			}
-			$html .= '</li>';
+			$html .= '</div>';
+			$meta  = self::meta_parts(
+				array(
+					self::project_status_label( self::text( $project['status'] ?? '' ), $locale ),
+					self::text( $project['partner'] ?? '' ),
+				)
+			);
+			if ( '' !== $meta ) {
+				$html .= '<div class="lps-card-foot"><span class="lps-meta">' . $meta . '</span></div>';
+			}
+			$html .= '</article>';
 		}
-		$html .= '</ul>';
-		return $html . '</article>';
+		$html .= '</div>';
+		return $html . '</section></article>';
 	}
 
 	/**
 	 * Renders a project with summary before technical body.
+	 *
+	 * The header announces status and dates first, then the named sections
+	 * for the team, funders and produced publications.
 	 *
 	 * @param array<string, mixed> $record        Project record.
 	 * @param array<string, mixed> $relationships Derived relationships.
@@ -159,19 +190,26 @@ final class DiscoverySurfaces {
 			$status_class .= ' lps-status-warning';
 		}
 		$html  = '<article class="lps-project">';
+		$html .= '<div class="lps-page-header"><div class="lps-page-header-inner lps-page-grid">';
+		$html .= '<p class="lps-kicker">' . self::esc( $english ? 'Project' : 'Projeto' ) . '</p>';
 		$html .= '<h1>' . self::esc( $title ) . '</h1>';
 		$html .= '<p class="lps-meta"><span class="' . $status_class . '">' . self::esc( $status_label ) . '</span>';
 		$html .= self::project_dates_meta( $record, $locale );
 		$html .= '</p>';
 		if ( '' !== $summary ) {
-			$html .= '<p class="lps-summary">' . self::esc( $summary ) . '</p>';
+			$html .= '<p class="lps-lead">' . self::esc( $summary ) . '</p>';
 		}
+		$html .= '</div></div>';
 		if ( '' !== $body ) {
 			$html .= '<div class="lps-body lps-reading">' . self::rich( $body ) . '</div>';
 		}
 		$members = isset( $relationships['members'] ) && is_array( $relationships['members'] ) ? $relationships['members'] : array();
 		if ( array() !== $members ) {
-			$html .= '<h2>' . self::esc( $english ? 'Team' : 'Equipe' ) . '</h2>';
+			$html .= '<section class="lps-section" aria-labelledby="project-team">';
+			$html .= '<div class="lps-section-head"><div>'
+				. '<p class="lps-kicker">' . self::esc( $english ? 'Project' : 'Projeto' ) . '</p>'
+				. '<h2 id="project-team">' . self::esc( $english ? 'Team' : 'Equipe' ) . '</h2>'
+				. '</div></div>';
 			$html .= '<ul class="lps-members">';
 			foreach ( $members as $member ) {
 				if ( ! is_array( $member ) ) {
@@ -193,11 +231,15 @@ final class DiscoverySurfaces {
 					$html .= '<li>' . self::esc( $name ) . '</li>';
 				}
 			}
-			$html .= '</ul>';
+			$html .= '</ul></section>';
 		}
 		$funders = isset( $relationships['funders'] ) && is_array( $relationships['funders'] ) ? $relationships['funders'] : array();
 		if ( array() !== $funders ) {
-			$html .= '<h2>' . self::esc( $english ? 'Funders' : 'Financiadores' ) . '</h2>';
+			$html .= '<section class="lps-section" aria-labelledby="project-funders">';
+			$html .= '<div class="lps-section-head"><div>'
+				. '<p class="lps-kicker">' . self::esc( $english ? 'Funding' : 'Fomento' ) . '</p>'
+				. '<h2 id="project-funders">' . self::esc( $english ? 'Funders' : 'Financiadores' ) . '</h2>'
+				. '</div></div>';
 			$html .= '<ul class="lps-funders">';
 			foreach ( $funders as $funder ) {
 				if ( ! is_array( $funder ) ) {
@@ -211,11 +253,15 @@ final class DiscoverySurfaces {
 					$html .= '<li>' . self::esc( $name ) . '</li>';
 				}
 			}
-			$html .= '</ul>';
+			$html .= '</ul></section>';
 		}
 		$publications = isset( $relationships['publications'] ) && is_array( $relationships['publications'] ) ? $relationships['publications'] : array();
 		if ( array() !== $publications ) {
-			$html .= '<h2>' . self::esc( $english ? 'Publications' : 'Publicações' ) . '</h2>';
+			$html .= '<section class="lps-section" aria-labelledby="project-publications">';
+			$html .= '<div class="lps-section-head"><div>'
+				. '<p class="lps-kicker">' . self::esc( $english ? 'Outputs' : 'Resultados' ) . '</p>'
+				. '<h2 id="project-publications">' . self::esc( $english ? 'Publications' : 'Publicações' ) . '</h2>'
+				. '</div></div>';
 			$html .= '<ul class="lps-publications">';
 			foreach ( $publications as $publication ) {
 				if ( ! is_array( $publication ) ) {
@@ -229,7 +275,7 @@ final class DiscoverySurfaces {
 					$html .= '<li>' . self::esc( $pub_title ) . '</li>';
 				}
 			}
-			$html .= '</ul>';
+			$html .= '</ul></section>';
 		}
 		$html .= '</article>';
 		return $html;
@@ -237,6 +283,10 @@ final class DiscoverySurfaces {
 
 	/**
 	 * Renders a publication preserving authoritative order.
+	 *
+	 * Metadata leads the record (date, venue, type), then the editorial
+	 * summary, the abstract in its reading container, ordered authors, the
+	 * access block and related records.
 	 *
 	 * @param array<string, mixed> $record    Publication record.
 	 * @param array<int, mixed>    $authors   Ordered authors.
@@ -253,6 +303,8 @@ final class DiscoverySurfaces {
 		$venue    = trim( self::text( $record['venue'] ?? '' ) );
 		$type     = trim( self::text( $record['type'] ?? '' ) );
 		$html     = '<article class="lps-publication">';
+		$html    .= '<div class="lps-page-header"><div class="lps-page-header-inner lps-page-grid">';
+		$html    .= '<p class="lps-kicker">' . self::esc( $english ? 'Publication' : 'Publicação' ) . '</p>';
 		$html    .= '<h1>' . self::esc( $title ) . '</h1>';
 		// Metadata leads the record: precision-aware date, venue, and the
 		// controlled publication-type key.
@@ -274,11 +326,22 @@ final class DiscoverySurfaces {
 		if ( '' !== $summary ) {
 			$html .= '<p class="lps-summary">' . self::esc( $summary ) . '</p>';
 		}
+		$html .= '</div></div>';
 		if ( '' !== $abstract ) {
+			$html .= '<section class="lps-section" aria-labelledby="publication-abstract">';
+			$html .= '<div class="lps-section-head"><div>'
+				. '<p class="lps-kicker">' . self::esc( $english ? 'Publication' : 'Publicação' ) . '</p>'
+				. '<h2 id="publication-abstract">' . self::esc( $english ? 'Abstract' : 'Resumo' ) . '</h2>'
+				. '</div></div>';
 			$html .= '<div class="lps-abstract lps-reading">' . self::esc( $abstract ) . '</div>';
+			$html .= '</section>';
 		}
 		if ( array() !== $authors ) {
-			$html .= '<h2>' . self::esc( $english ? 'Authors' : 'Autores' ) . '</h2>';
+			$html .= '<section class="lps-section" aria-labelledby="publication-authors">';
+			$html .= '<div class="lps-section-head"><div>'
+				. '<p class="lps-kicker">' . self::esc( $english ? 'Authorship' : 'Autoria' ) . '</p>'
+				. '<h2 id="publication-authors">' . self::esc( $english ? 'Authors' : 'Autores' ) . '</h2>'
+				. '</div></div>';
 			$html .= '<ul class="lps-authors">';
 			foreach ( $authors as $author ) {
 				if ( ! is_array( $author ) ) {
@@ -298,7 +361,7 @@ final class DiscoverySurfaces {
 				}
 				$html .= '<li>' . $item . '</li>';
 			}
-			$html .= '</ul>';
+			$html .= '</ul></section>';
 		}
 		$html .= '<section class="lps-access">';
 		$html .= '<h2>' . self::esc( $english ? 'Access and downloads' : 'Acesso e downloads' ) . '</h2>';
@@ -356,7 +419,11 @@ final class DiscoverySurfaces {
 				'preprint-of' => $english ? 'Preprint of' : 'Preprint de',
 				'output-of'   => $english ? 'Output of' : 'Produto de',
 			);
-			$html       .= '<h2>' . self::esc( $english ? 'Related records' : 'Registros relacionados' ) . '</h2>';
+			$html       .= '<section class="lps-section" aria-labelledby="publication-relations">';
+			$html       .= '<div class="lps-section-head"><div>'
+				. '<p class="lps-kicker">' . self::esc( $english ? 'Publication' : 'Publicação' ) . '</p>'
+				. '<h2 id="publication-relations">' . self::esc( $english ? 'Related records' : 'Registros relacionados' ) . '</h2>'
+				. '</div></div>';
 			$html       .= '<ul class="lps-relations">';
 			foreach ( $relations as $relation ) {
 				if ( ! is_array( $relation ) ) {
@@ -377,7 +444,7 @@ final class DiscoverySurfaces {
 				}
 				$html .= '</li>';
 			}
-			$html .= '</ul>';
+			$html .= '</ul></section>';
 		}
 		$html .= '</article>';
 		return $html;
@@ -450,6 +517,10 @@ final class DiscoverySurfaces {
 	/**
 	 * Renders a server-rendered listing with GET filters and pagination.
 	 *
+	 * The form and its pinned controls are unchanged; the result rows adopt
+	 * the showcase `lps-record-list` treatment (title, summary, meta) and the
+	 * pager the shared `lps-search-pagination` cluster.
+	 *
 	 * @param string               $kind       Listing kind.
 	 * @param array<int, mixed>    $items      Listing rows.
 	 * @param array<string, mixed> $filters    Active filters.
@@ -505,7 +576,7 @@ final class DiscoverySurfaces {
 		$html .= '</p></fieldset></form>';
 		$html .= '<p class="lps-listing-count" role="status">' . self::esc( self::listing_count_label( count( $items ), $locale ) ) . '</p>';
 		$html .= '<h2>' . self::esc( $english ? 'Results' : 'Resultados' ) . '</h2>';
-		$html .= '<ul class="lps-listing-results">';
+		$html .= '<ul class="lps-listing-results lps-record-list">';
 		foreach ( $items as $item ) {
 			if ( ! is_array( $item ) ) {
 				continue;
@@ -514,13 +585,13 @@ final class DiscoverySurfaces {
 			$url     = self::safe_url( self::text( $item['url'] ?? '' ) );
 			$summary = self::text( $item['summary'] ?? '' );
 			$meta    = self::text( $item['meta'] ?? '' );
-			$html   .= '<li class="lps-record">';
+			$html   .= '<li>';
+			$html   .= '<h3><a href="' . self::esc( $url ) . '">' . self::esc( $title ) . '</a></h3>';
+			if ( '' !== $summary ) {
+				$html .= '<p class="lps-summary">' . self::esc( $summary ) . '</p>';
+			}
 			if ( '' !== $meta ) {
 				$html .= '<p class="lps-meta">' . self::esc( $meta ) . '</p>';
-			}
-			$html .= '<h3><a href="' . self::esc( $url ) . '">' . self::esc( $title ) . '</a></h3>';
-			if ( '' !== $summary ) {
-				$html .= '<p>' . self::esc( $summary ) . '</p>';
 			}
 			$html .= '</li>';
 		}
@@ -530,7 +601,7 @@ final class DiscoverySurfaces {
 		$current = self::num( $pagination['current'] ?? 1 );
 		$total   = self::num( $pagination['total'] ?? 1 );
 		$query   = $active;
-		$html   .= '<nav aria-label="' . self::esc( $nav_label ) . '"><ul>';
+		$html   .= '<nav class="lps-search-pagination" aria-label="' . self::esc( $nav_label ) . '"><ul>';
 		for ( $page = 1; $page <= $total; $page++ ) {
 			if ( $page === $current ) {
 				$html .= '<li aria-current="page"><span>' . $page . '</span></li>';
@@ -718,15 +789,25 @@ final class DiscoverySurfaces {
 	}
 
 	/**
-	 * Escapes one text value for markup.
+	 * Joins non-empty metadata parts with the middot separator.
 	 *
-	 * @param string $value Untrusted text value.
+	 * @param array<int, string> $parts Metadata values.
 	 */
-			/**
-			 * Converts boundary input to string.
-			 *
-			 * @param mixed $value Boundary input.
-			 */
+	private static function meta_parts( array $parts ): string {
+		$clean = array();
+		foreach ( $parts as $part ) {
+			if ( '' !== $part ) {
+				$clean[] = self::esc( $part );
+			}
+		}
+		return implode( ' · ', $clean );
+	}
+
+	/**
+	 * Converts boundary input to string.
+	 *
+	 * @param mixed $value Boundary input.
+	 */
 	private static function text( mixed $value ): string {
 		if ( is_string( $value ) ) {
 			return $value;
@@ -746,11 +827,6 @@ final class DiscoverySurfaces {
 		return is_numeric( $value ) ? (int) $value : 0;
 	}
 
-	/**
-	 * Escapes one text value for markup.
-	 *
-	 * @param string $value Untrusted text value.
-	 */
 	/**
 	 * Renders stored editorial content as sanitised HTML.
 	 *
