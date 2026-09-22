@@ -1304,6 +1304,9 @@ export const partnerLogos = [
   { name: "Marinha do Brasil", file: "marinha.png" },
   { name: "RENAFAE", file: "renafae.png" },
   { name: "Rede-TB", file: "rede-tb.png" },
+  { name: "CNPq", file: "cnpq.png" },
+  { name: "European Union", file: "eu.png" },
+  { name: "FAPERJ", file: "faperj.gif" },
 ];
 
 /** Contact page. */

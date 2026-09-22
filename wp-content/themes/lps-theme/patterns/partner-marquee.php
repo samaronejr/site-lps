@@ -29,6 +29,9 @@ $lps_partners    = array(
 	array( 'Marinha do Brasil', 'marinha.png' ),
 	array( 'RENAFAE', 'renafae.png' ),
 	array( 'Rede-TB', 'rede-tb.png' ),
+	array( 'CNPq', 'cnpq.png' ),
+	array( 'European Union', 'eu.png' ),
+	array( 'FAPERJ', 'faperj.gif' ),
 );
 
 $lps_partner_items = '';

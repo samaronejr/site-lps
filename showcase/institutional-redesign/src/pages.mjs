@@ -300,9 +300,7 @@ ${news
     "National Instruments",
     "Samsung",
     "Murabei",
-    "CNPq",
     "CAPES",
-    "FAPERJ",
   ];
 
   const partnersBlock = section({
