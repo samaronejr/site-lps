@@ -400,8 +400,28 @@ final class PublicRoutes {
 		add_filter( 'rewrite_rules_array', array( self::class, 'register_routes' ), 998 );
 		add_filter( 'query_vars', array( self::class, 'register_query_vars' ) );
 		add_filter( 'redirect_canonical', array( self::class, 'keep_locale_route' ), 10, 2 );
+		add_filter( 'post_type_link', array( self::class, 'canonical_record_link' ), 10, 2 );
 		add_filter( 'language_attributes', array( self::class, 'route_language_attributes' ), 210 );
 		add_action( 'template_redirect', array( self::class, 'guard_withheld_records' ), 5 );
+	}
+
+	/**
+	 * Points governed record permalinks at their localized public routes.
+	 *
+	 * The locale routes are the canonical addresses; the raw CPT permalink
+	 * (e.g. `/pt-br/lps_person/{slug}/`) then 301s to them through WordPress's
+	 * own canonical redirect instead of serving an empty template.
+	 *
+	 * @param string  $permalink Default post permalink.
+	 * @param WP_Post $post      Record being linked.
+	 */
+	public static function canonical_record_link( string $permalink, WP_Post $post ): string {
+		if ( ! isset( self::SEGMENTS[ $post->post_type ] ) ) {
+			return $permalink;
+		}
+		$locale = class_exists( Translations::class ) ? Translations::locale( $post->ID ) : self::text( get_post_meta( $post->ID, '_lps_locale', true ) );
+		$path   = self::single_path( $post->post_type, $locale, $post->post_name );
+		return '' === $path || ! function_exists( 'home_url' ) ? $permalink : home_url( $path );
 	}
 
 	/**

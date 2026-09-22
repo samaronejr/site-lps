@@ -958,7 +958,8 @@ final class Homepage {
 			}
 			$html .= '</ul>';
 		}
-		$html .= '<div class="lps-person-contact"><a class="lps-more" href="' . self::escape( self::text( $record['url'] ) ) . '">' . self::escape( $english ? 'Learn more' : 'Saiba mais' ) . '</a>';
+		$profile = '' !== $slug ? ( $english ? '/en/people/' : '/pt-br/pessoas/' ) . $slug . '/' : self::text( $record['url'] );
+		$html   .= '<div class="lps-person-contact"><a class="lps-more" href="' . self::escape( $profile ) . '">' . self::escape( $english ? 'Learn more' : 'Saiba mais' ) . '</a>';
 		if ( '' !== $email ) {
 			$html .= '<a class="lps-meta" href="mailto:' . self::escape( $email ) . '">' . self::escape( $email ) . '</a>';
 		}
