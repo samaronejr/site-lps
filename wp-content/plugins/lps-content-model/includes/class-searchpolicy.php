@@ -136,10 +136,10 @@ final class SearchPolicy {
 			'level' => array( 'undergraduate', 'graduate', 'extension' ),
 		),
 		'lps_offering'    => array(
-			'status'      => array( 'current', 'previous' ),
-			'term'        => array(),
-			'level'       => array( 'undergraduate', 'graduate', 'extension' ),
-			'instructor'  => array(),
+			'status'     => array( 'current', 'previous' ),
+			'term'       => array(),
+			'level'      => array( 'undergraduate', 'graduate', 'extension' ),
+			'instructor' => array(),
 		),
 		'lps_resource'    => array(
 			'type'     => array(),

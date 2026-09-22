@@ -264,16 +264,16 @@ final class TaskDashboard {
 	public static function state_label( string $state, string $locale ): string {
 		$english = 'en' === $locale;
 		$labels  = array(
-			'draft'      => $english ? 'Draft' : 'Rascunho',
-			'in-review'  => $english ? 'In review' : 'Em revisão',
-			'scheduled'  => $english ? 'Scheduled' : 'Agendado',
-			'public'     => $english ? 'Public' : 'Público',
-			'withdrawn'  => $english ? 'Withdrawn' : 'Retirado',
-			'archived'   => $english ? 'Archived' : 'Arquivado',
-			'pending'    => $english ? 'Pending review' : 'Aguardando revisão',
-			'approved'   => $english ? 'Approved' : 'Aprovado',
-			'rejected'   => $english ? 'Rejected' : 'Rejeitado',
-			'denied'     => $english ? 'Access denied' : 'Acesso negado',
+			'draft'        => $english ? 'Draft' : 'Rascunho',
+			'in-review'    => $english ? 'In review' : 'Em revisão',
+			'scheduled'    => $english ? 'Scheduled' : 'Agendado',
+			'public'       => $english ? 'Public' : 'Público',
+			'withdrawn'    => $english ? 'Withdrawn' : 'Retirado',
+			'archived'     => $english ? 'Archived' : 'Arquivado',
+			'pending'      => $english ? 'Pending review' : 'Aguardando revisão',
+			'approved'     => $english ? 'Approved' : 'Aprovado',
+			'rejected'     => $english ? 'Rejected' : 'Rejeitado',
+			'denied'       => $english ? 'Access denied' : 'Acesso negado',
 			'scan-pending' => $english ? 'Scan pending' : 'Verificação pendente',
 			'scan-failed'  => $english ? 'Scan failed' : 'Verificação falhou',
 		);
@@ -289,33 +289,33 @@ final class TaskDashboard {
 	public static function field_label( string $field, string $locale ): string {
 		$english = 'en' === $locale;
 		$labels  = array(
-			'post_excerpt'       => $english ? 'Summary' : 'Resumo',
-			'post_content'       => $english ? 'Body' : 'Conteúdo',
-			'post_title'         => $english ? 'Title' : 'Título',
-			'_lps_public_email'  => $english ? 'Public e-mail' : 'E-mail público',
-			'_lps_orcid'         => 'ORCID',
-			'_lps_lattes_url'    => $english ? 'Lattes URL' : 'URL do Lattes',
-			'_lps_scholar_url'   => $english ? 'Scholar URL' : 'URL do Scholar',
-			'_lps_website_url'   => $english ? 'Website URL' : 'URL do site',
-			'_lps_canonical_date' => $english ? 'Publication date' : 'Data de publicação',
-			'_lps_anchor'        => $english ? 'Anchor' : 'Âncora',
-			'_lps_position'      => $english ? 'Position' : 'Posição',
-			'_lps_topic_date'    => $english ? 'Topic date' : 'Data do tópico',
-			'_lps_resource_type' => $english ? 'Resource type' : 'Tipo de material',
+			'post_excerpt'           => $english ? 'Summary' : 'Resumo',
+			'post_content'           => $english ? 'Body' : 'Conteúdo',
+			'post_title'             => $english ? 'Title' : 'Título',
+			'_lps_public_email'      => $english ? 'Public e-mail' : 'E-mail público',
+			'_lps_orcid'             => 'ORCID',
+			'_lps_lattes_url'        => $english ? 'Lattes URL' : 'URL do Lattes',
+			'_lps_scholar_url'       => $english ? 'Scholar URL' : 'URL do Scholar',
+			'_lps_website_url'       => $english ? 'Website URL' : 'URL do site',
+			'_lps_canonical_date'    => $english ? 'Publication date' : 'Data de publicação',
+			'_lps_anchor'            => $english ? 'Anchor' : 'Âncora',
+			'_lps_position'          => $english ? 'Position' : 'Posição',
+			'_lps_topic_date'        => $english ? 'Topic date' : 'Data do tópico',
+			'_lps_resource_type'     => $english ? 'Resource type' : 'Tipo de material',
 			'_lps_resource_language' => $english ? 'Resource language' : 'Idioma do material',
-			'_lps_external_url'  => $english ? 'External URL' : 'URL externa',
-			'_lps_release_state' => $english ? 'Release state' : 'Estado de publicação',
-			'_lps_release_at'    => $english ? 'Release at' : 'Publicar em',
-			'_lps_schedule'      => $english ? 'Schedule' : 'Horários',
-			'_lps_venue'         => $english ? 'Venue' : 'Local',
+			'_lps_external_url'      => $english ? 'External URL' : 'URL externa',
+			'_lps_release_state'     => $english ? 'Release state' : 'Estado de publicação',
+			'_lps_release_at'        => $english ? 'Release at' : 'Publicar em',
+			'_lps_schedule'          => $english ? 'Schedule' : 'Horários',
+			'_lps_venue'             => $english ? 'Venue' : 'Local',
 			'_lps_syllabus_snapshot' => $english ? 'Syllabus snapshot' : 'Ementa publicada',
-			'new_term_id'        => $english ? 'Target term' : 'Período de destino',
-			'new_section'        => $english ? 'Target section' : 'Turma de destino',
-			'team'               => $english ? 'Teaching team' : 'Equipe docente',
-			'team_reviewed'      => $english ? 'Team review' : 'Revisão da equipe',
-			'note'               => $english ? 'Review note' : 'Nota de revisão',
-			'file'               => $english ? 'File' : 'Arquivo',
-			'fields'             => $english ? 'Fields' : 'Campos',
+			'new_term_id'            => $english ? 'Target term' : 'Período de destino',
+			'new_section'            => $english ? 'Target section' : 'Turma de destino',
+			'team'                   => $english ? 'Teaching team' : 'Equipe docente',
+			'team_reviewed'          => $english ? 'Team review' : 'Revisão da equipe',
+			'note'                   => $english ? 'Review note' : 'Nota de revisão',
+			'file'                   => $english ? 'File' : 'Arquivo',
+			'fields'                 => $english ? 'Fields' : 'Campos',
 		);
 		return $labels[ $field ] ?? $field;
 	}
@@ -333,22 +333,22 @@ final class TaskDashboard {
 	public static function notice_message( string $code, string $locale ): string {
 		$english  = 'en' === $locale;
 		$messages = array(
-			'saved'            => $english ? 'Saved. The record stays a draft until it is published.' : 'Salvo. O registro continua rascunho até ser publicado.',
-			'created'          => $english ? 'Created as a draft.' : 'Criado como rascunho.',
-			'published'        => $english ? 'Published. The public link is now live.' : 'Publicado. O link público está ativo.',
-			'submitted'        => $english ? 'Submitted for review. An editor will decide it.' : 'Enviado para revisão. Um editor decidirá.',
-			'proposal-sent'    => $english ? 'Profile proposal sent for review.' : 'Proposta de perfil enviada para revisão.',
+			'saved'             => $english ? 'Saved. The record stays a draft until it is published.' : 'Salvo. O registro continua rascunho até ser publicado.',
+			'created'           => $english ? 'Created as a draft.' : 'Criado como rascunho.',
+			'published'         => $english ? 'Published. The public link is now live.' : 'Publicado. O link público está ativo.',
+			'submitted'         => $english ? 'Submitted for review. An editor will decide it.' : 'Enviado para revisão. Um editor decidirá.',
+			'proposal-sent'     => $english ? 'Profile proposal sent for review.' : 'Proposta de perfil enviada para revisão.',
 			'proposal-approved' => $english ? 'Profile proposal approved and applied.' : 'Proposta de perfil aprovada e aplicada.',
 			'proposal-rejected' => $english ? 'Profile proposal rejected; the note explains the required fix.' : 'Proposta de perfil rejeitada; a nota explica a correção necessária.',
-			'reviewed'         => $english ? 'Review recorded.' : 'Revisão registrada.',
-			'copied'           => $english ? 'Next-term draft created. An editor still needs to publish it.' : 'Rascunho do próximo período criado. Um editor ainda precisa publicá-lo.',
-			'copy-replayed'    => $english ? 'This copy already ran; the existing draft was reused.' : 'Esta cópia já foi executada; o rascunho existente foi reutilizado.',
-			'version-uploaded' => $english ? 'File stored and version minted. Select it on a resource to publish.' : 'Arquivo armazenado e versão registrada. Selecione-a em um material para publicar.',
-			'version-selected' => $english ? 'Version selected on the resource.' : 'Versão selecionada no material.',
-			'released'         => $english ? 'Material released for public download.' : 'Material liberado para download público.',
-			'scheduled'        => $english ? 'Material scheduled for release.' : 'Material agendado para publicação.',
-			'withdrawn'        => $english ? 'Material withdrawn from public delivery.' : 'Material retirado da entrega pública.',
-			'logged-out'       => $english ? 'Your session ended. Sign in again to continue.' : 'Sua sessão terminou. Entre novamente para continuar.',
+			'reviewed'          => $english ? 'Review recorded.' : 'Revisão registrada.',
+			'copied'            => $english ? 'Next-term draft created. An editor still needs to publish it.' : 'Rascunho do próximo período criado. Um editor ainda precisa publicá-lo.',
+			'copy-replayed'     => $english ? 'This copy already ran; the existing draft was reused.' : 'Esta cópia já foi executada; o rascunho existente foi reutilizado.',
+			'version-uploaded'  => $english ? 'File stored and version minted. Select it on a resource to publish.' : 'Arquivo armazenado e versão registrada. Selecione-a em um material para publicar.',
+			'version-selected'  => $english ? 'Version selected on the resource.' : 'Versão selecionada no material.',
+			'released'          => $english ? 'Material released for public download.' : 'Material liberado para download público.',
+			'scheduled'         => $english ? 'Material scheduled for release.' : 'Material agendado para publicação.',
+			'withdrawn'         => $english ? 'Material withdrawn from public delivery.' : 'Material retirado da entrega pública.',
+			'logged-out'        => $english ? 'Your session ended. Sign in again to continue.' : 'Sua sessão terminou. Entre novamente para continuar.',
 		);
 		return $messages[ $code ] ?? $code;
 	}
@@ -362,60 +362,60 @@ final class TaskDashboard {
 	public static function error_message( string $code, string $locale ): string {
 		$english  = 'en' === $locale;
 		$messages = array(
-			'lps_dashboard_field_forbidden'   => $english ? 'This field is not editable from the dashboard.' : 'Este campo não é editável pelo painel.',
-			'lps_dashboard_proposal_empty'    => $english ? 'Fill at least one field before submitting.' : 'Preencha ao menos um campo antes de enviar.',
-			'lps_dashboard_nonce'             => $english ? 'The form expired. Submit it again.' : 'O formulário expirou. Envie novamente.',
-			'lps_dashboard_forbidden'         => $english ? 'Your account cannot perform this action.' : 'Sua conta não pode executar esta ação.',
-			'lps_dashboard_scope'             => $english ? 'This offering is outside your assigned scope.' : 'Esta oferta está fora do seu escopo atribuído.',
-			'lps_dashboard_review_note'       => $english ? 'A rejection needs a note explaining the required fix.' : 'Uma rejeição precisa de uma nota explicando a correção necessária.',
-			'lps_dashboard_upload'            => $english ? 'The file upload failed; try again with a valid file.' : 'O envio do arquivo falhou; tente novamente com um arquivo válido.',
-			'lps_dashboard_login'             => $english ? 'Sign in to use the dashboard.' : 'Entre para usar o painel.',
-			'lps_required_title'              => $english ? 'A title is required.' : 'Um título é obrigatório.',
-			'lps_required_summary'            => $english ? 'A summary is required.' : 'Um resumo é obrigatório.',
-			'lps_required_body'               => $english ? 'Body text is required.' : 'O texto é obrigatório.',
-			'lps_invalid_email'               => $english ? 'Enter a valid e-mail address.' : 'Informe um e-mail válido.',
-			'lps_invalid_url'                 => $english ? 'Enter a valid URL.' : 'Informe uma URL válida.',
-			'lps_invalid_orcid'               => $english ? 'Enter the ORCID in the 0000-0000-0000-0000 format.' : 'Informe o ORCID no formato 0000-0000-0000-0000.',
-			'lps_required_section_key'        => $english ? 'A section key is required.' : 'Uma turma é obrigatória.',
-			'lps_required_anchor'             => $english ? 'A stable anchor is required.' : 'Uma âncora estável é obrigatória.',
-			'lps_invalid_unit_position'       => $english ? 'Position must be a positive number.' : 'A posição deve ser um número positivo.',
-			'lps_invalid_resource_type'       => $english ? 'Choose a valid material type.' : 'Escolha um tipo de material válido.',
-			'lps_invalid_resource_language'   => $english ? 'Enter a valid language tag.' : 'Informe uma etiqueta de idioma válida.',
-			'lps_invalid_topic_date'          => $english ? 'Use the YYYY-MM-DD date format.' : 'Use o formato de data AAAA-MM-DD.',
-			'lps_invalid_release_state'       => $english ? 'Choose a valid release state.' : 'Escolha um estado de publicação válido.',
-			'lps_release_at_required'         => $english ? 'A scheduled release needs a date and time.' : 'Uma publicação agendada precisa de data e hora.',
-			'lps_resource_rights_not_approved' => $english ? 'The rights review must be approved before release.' : 'A revisão de direitos precisa estar aprovada antes da publicação.',
+			'lps_dashboard_field_forbidden'           => $english ? 'This field is not editable from the dashboard.' : 'Este campo não é editável pelo painel.',
+			'lps_dashboard_proposal_empty'            => $english ? 'Fill at least one field before submitting.' : 'Preencha ao menos um campo antes de enviar.',
+			'lps_dashboard_nonce'                     => $english ? 'The form expired. Submit it again.' : 'O formulário expirou. Envie novamente.',
+			'lps_dashboard_forbidden'                 => $english ? 'Your account cannot perform this action.' : 'Sua conta não pode executar esta ação.',
+			'lps_dashboard_scope'                     => $english ? 'This offering is outside your assigned scope.' : 'Esta oferta está fora do seu escopo atribuído.',
+			'lps_dashboard_review_note'               => $english ? 'A rejection needs a note explaining the required fix.' : 'Uma rejeição precisa de uma nota explicando a correção necessária.',
+			'lps_dashboard_upload'                    => $english ? 'The file upload failed; try again with a valid file.' : 'O envio do arquivo falhou; tente novamente com um arquivo válido.',
+			'lps_dashboard_login'                     => $english ? 'Sign in to use the dashboard.' : 'Entre para usar o painel.',
+			'lps_required_title'                      => $english ? 'A title is required.' : 'Um título é obrigatório.',
+			'lps_required_summary'                    => $english ? 'A summary is required.' : 'Um resumo é obrigatório.',
+			'lps_required_body'                       => $english ? 'Body text is required.' : 'O texto é obrigatório.',
+			'lps_invalid_email'                       => $english ? 'Enter a valid e-mail address.' : 'Informe um e-mail válido.',
+			'lps_invalid_url'                         => $english ? 'Enter a valid URL.' : 'Informe uma URL válida.',
+			'lps_invalid_orcid'                       => $english ? 'Enter the ORCID in the 0000-0000-0000-0000 format.' : 'Informe o ORCID no formato 0000-0000-0000-0000.',
+			'lps_required_section_key'                => $english ? 'A section key is required.' : 'Uma turma é obrigatória.',
+			'lps_required_anchor'                     => $english ? 'A stable anchor is required.' : 'Uma âncora estável é obrigatória.',
+			'lps_invalid_unit_position'               => $english ? 'Position must be a positive number.' : 'A posição deve ser um número positivo.',
+			'lps_invalid_resource_type'               => $english ? 'Choose a valid material type.' : 'Escolha um tipo de material válido.',
+			'lps_invalid_resource_language'           => $english ? 'Enter a valid language tag.' : 'Informe uma etiqueta de idioma válida.',
+			'lps_invalid_topic_date'                  => $english ? 'Use the YYYY-MM-DD date format.' : 'Use o formato de data AAAA-MM-DD.',
+			'lps_invalid_release_state'               => $english ? 'Choose a valid release state.' : 'Escolha um estado de publicação válido.',
+			'lps_release_at_required'                 => $english ? 'A scheduled release needs a date and time.' : 'Uma publicação agendada precisa de data e hora.',
+			'lps_resource_rights_not_approved'        => $english ? 'The rights review must be approved before release.' : 'A revisão de direitos precisa estar aprovada antes da publicação.',
 			'lps_resource_accessibility_not_approved' => $english ? 'The accessibility review must be approved before release.' : 'A revisão de acessibilidade precisa estar aprovada antes da publicação.',
-			'lps_resource_version_or_url_required' => $english ? 'Attach a file version or an external URL first.' : 'Anexe uma versão de arquivo ou uma URL externa primeiro.',
-			'lps_resource_version_missing'    => $english ? 'The selected version does not exist.' : 'A versão selecionada não existe.',
-			'lps_copy_forward_team_review_required' => $english ? 'Confirm the reviewed teaching team before copying.' : 'Confirme a equipe docente revisada antes de copiar.',
-			'lps_teaching_team_required'      => $english ? 'The new offering needs a teaching team with a lead.' : 'A nova oferta precisa de uma equipe docente com responsável.',
-			'lps_copy_forward_calendar_mismatch' => $english ? 'The target term belongs to a different calendar.' : 'O período de destino pertence a outro calendário.',
-			'lps_offering_identity_conflict'  => $english ? 'This term and section already exist for the course.' : 'Este período e turma já existem para a disciplina.',
-			'lps_teaching_scope_required'     => $english ? 'This record is outside your assigned scope.' : 'Este registro está fora do seu escopo atribuído.',
-			'lps_teaching_grant_revoked'      => $english ? 'Your grant on this offering was revoked.' : 'Sua permissão nesta oferta foi revogada.',
-			'lps_teaching_grant_expired'      => $english ? 'Your grant on this offering expired.' : 'Sua permissão nesta oferta expirou.',
-			'lps_teaching_action_forbidden'   => $english ? 'Your role cannot perform this action.' : 'Seu papel não pode executar esta ação.',
-			'lps_teaching_publish_type_forbidden' => $english ? 'This record type cannot be published from your scope.' : 'Este tipo de registro não pode ser publicado pelo seu escopo.',
-			'lps_teaching_field_forbidden'    => $english ? 'This field is outside your editable set.' : 'Este campo está fora do seu conjunto editável.',
-			'lps_mfa_required'                => $english ? 'Multi-factor enrollment is required for this action.' : 'A verificação em duas etapas é obrigatória para esta ação.',
-			'lps_invalid_state_transition'    => $english ? 'The stored state cannot move to the requested one.' : 'O estado atual não pode mudar para o solicitado.',
-			'lps_teaching_publish_denied'     => $english ? 'The publish gate denied the record; fix the named fields.' : 'A publicação foi negada; corrija os campos indicados.',
-			'lps_teaching_offering_invalid'   => $english ? 'The offering record does not exist.' : 'O registro da oferta não existe.',
-			'lps_teaching_term_invalid'       => $english ? 'The term record does not exist.' : 'O registro do período não existe.',
-			'lps_teaching_unit_invalid'       => $english ? 'The unit record does not exist.' : 'O registro da unidade não existe.',
-			'lps_teaching_course_invalid'     => $english ? 'The course record does not exist.' : 'O registro da disciplina não existe.',
-			'lps_teaching_locale_forbidden'   => $english ? 'This record is authored on the Portuguese authority.' : 'Este registro é editado na autoridade em português.',
-			'lps_teaching_variant_exists'     => $english ? 'The English variant already exists.' : 'A variante em inglês já existe.',
-			'lps_teaching_translation_required' => $english ? 'The Portuguese authority record is required first.' : 'O registro em português é obrigatório primeiro.',
-			'lps_unsafe_html'                 => $english ? 'The body contains markup the contract forbids.' : 'O texto contém marcação proibida pelo contrato.',
-			'lps_immutable_published_slug'    => $english ? 'A published slug is immutable.' : 'Um slug publicado é imutável.',
-			'lps_invalid_version_id'          => $english ? 'The version identifier is malformed.' : 'O identificador da versão é inválido.',
-			'lps_teaching_upload_required'    => $english ? 'Choose a file to upload.' : 'Escolha um arquivo para enviar.',
-			'lps_teaching_read_failed'        => $english ? 'The uploaded file could not be read.' : 'O arquivo enviado não pôde ser lido.',
-			'lps_teaching_registry_error'     => $english ? 'The version registry could not record the upload.' : 'O registro de versões não pôde gravar o envio.',
-			'lps_teaching_executable_name_forbidden' => $english ? 'This file type is not accepted.' : 'Este tipo de arquivo não é aceito.',
-			'lps_storage_root_unwritable'     => $english ? 'The storage root is not writable; contact an administrator.' : 'O armazenamento não está gravável; contate um administrador.',
+			'lps_resource_version_or_url_required'    => $english ? 'Attach a file version or an external URL first.' : 'Anexe uma versão de arquivo ou uma URL externa primeiro.',
+			'lps_resource_version_missing'            => $english ? 'The selected version does not exist.' : 'A versão selecionada não existe.',
+			'lps_copy_forward_team_review_required'   => $english ? 'Confirm the reviewed teaching team before copying.' : 'Confirme a equipe docente revisada antes de copiar.',
+			'lps_teaching_team_required'              => $english ? 'The new offering needs a teaching team with a lead.' : 'A nova oferta precisa de uma equipe docente com responsável.',
+			'lps_copy_forward_calendar_mismatch'      => $english ? 'The target term belongs to a different calendar.' : 'O período de destino pertence a outro calendário.',
+			'lps_offering_identity_conflict'          => $english ? 'This term and section already exist for the course.' : 'Este período e turma já existem para a disciplina.',
+			'lps_teaching_scope_required'             => $english ? 'This record is outside your assigned scope.' : 'Este registro está fora do seu escopo atribuído.',
+			'lps_teaching_grant_revoked'              => $english ? 'Your grant on this offering was revoked.' : 'Sua permissão nesta oferta foi revogada.',
+			'lps_teaching_grant_expired'              => $english ? 'Your grant on this offering expired.' : 'Sua permissão nesta oferta expirou.',
+			'lps_teaching_action_forbidden'           => $english ? 'Your role cannot perform this action.' : 'Seu papel não pode executar esta ação.',
+			'lps_teaching_publish_type_forbidden'     => $english ? 'This record type cannot be published from your scope.' : 'Este tipo de registro não pode ser publicado pelo seu escopo.',
+			'lps_teaching_field_forbidden'            => $english ? 'This field is outside your editable set.' : 'Este campo está fora do seu conjunto editável.',
+			'lps_mfa_required'                        => $english ? 'Multi-factor enrollment is required for this action.' : 'A verificação em duas etapas é obrigatória para esta ação.',
+			'lps_invalid_state_transition'            => $english ? 'The stored state cannot move to the requested one.' : 'O estado atual não pode mudar para o solicitado.',
+			'lps_teaching_publish_denied'             => $english ? 'The publish gate denied the record; fix the named fields.' : 'A publicação foi negada; corrija os campos indicados.',
+			'lps_teaching_offering_invalid'           => $english ? 'The offering record does not exist.' : 'O registro da oferta não existe.',
+			'lps_teaching_term_invalid'               => $english ? 'The term record does not exist.' : 'O registro do período não existe.',
+			'lps_teaching_unit_invalid'               => $english ? 'The unit record does not exist.' : 'O registro da unidade não existe.',
+			'lps_teaching_course_invalid'             => $english ? 'The course record does not exist.' : 'O registro da disciplina não existe.',
+			'lps_teaching_locale_forbidden'           => $english ? 'This record is authored on the Portuguese authority.' : 'Este registro é editado na autoridade em português.',
+			'lps_teaching_variant_exists'             => $english ? 'The English variant already exists.' : 'A variante em inglês já existe.',
+			'lps_teaching_translation_required'       => $english ? 'The Portuguese authority record is required first.' : 'O registro em português é obrigatório primeiro.',
+			'lps_unsafe_html'                         => $english ? 'The body contains markup the contract forbids.' : 'O texto contém marcação proibida pelo contrato.',
+			'lps_immutable_published_slug'            => $english ? 'A published slug is immutable.' : 'Um slug publicado é imutável.',
+			'lps_invalid_version_id'                  => $english ? 'The version identifier is malformed.' : 'O identificador da versão é inválido.',
+			'lps_teaching_upload_required'            => $english ? 'Choose a file to upload.' : 'Escolha um arquivo para enviar.',
+			'lps_teaching_read_failed'                => $english ? 'The uploaded file could not be read.' : 'O arquivo enviado não pôde ser lido.',
+			'lps_teaching_registry_error'             => $english ? 'The version registry could not record the upload.' : 'O registro de versões não pôde gravar o envio.',
+			'lps_teaching_executable_name_forbidden'  => $english ? 'This file type is not accepted.' : 'Este tipo de arquivo não é aceito.',
+			'lps_storage_root_unwritable'             => $english ? 'The storage root is not writable; contact an administrator.' : 'O armazenamento não está gravável; contate um administrador.',
 		);
 		return $messages[ $code ] ?? ( $english ? 'The action was denied (' . $code . ').' : 'A ação foi negada (' . $code . ').' );
 	}
@@ -441,8 +441,8 @@ final class TaskDashboard {
 	 * @return array<int, int>
 	 */
 	public static function granted_offering_ids( int $user_id ): array {
-		$ids  = array();
-		$now  = gmdate( 'c' );
+		$ids = array();
+		$now = gmdate( 'c' );
 		foreach ( Roles::teaching_grants( $user_id ) as $grant ) {
 			if ( 'offering' === $grant['scope'] && TeachingPolicy::grant_is_active( $grant, $now ) ) {
 				$ids[] = $grant['offering_id'];
@@ -482,15 +482,18 @@ final class TaskDashboard {
 		if ( 0 < $linked && 'lps_person' === get_post_type( $linked ) ) {
 			return $linked;
 		}
-		$authored = array_map( 'intval', (array) get_posts(
-			array(
-				'post_type'      => 'lps_person',
-				'post_status'    => 'any',
-				'author'         => $user_id,
-				'posts_per_page' => 50,
-				'fields'         => 'ids',
+		$authored = array_map(
+			'intval',
+			(array) get_posts(
+				array(
+					'post_type'      => 'lps_person',
+					'post_status'    => 'any',
+					'author'         => $user_id,
+					'posts_per_page' => 50,
+					'fields'         => 'ids',
+				)
 			)
-		) );
+		);
 		if ( 1 === count( $authored ) ) {
 			return (int) $authored[0];
 		}
@@ -549,14 +552,14 @@ final class TaskDashboard {
 			'news'      => array(),
 			'proposals' => array(),
 		);
-		$user = get_user_by( 'id', $user_id );
-		$role = $user instanceof WP_User ? Roles::policy_role( $user ) : '';
+		$user  = get_user_by( 'id', $user_id );
+		$role  = $user instanceof WP_User ? Roles::policy_role( $user ) : '';
 		if ( '' === $role || TeachingPolicy::is_scoped_role( $role ) ) {
 			return $queue;
 		}
 		$assigned = Roles::assigned_collections( $user_id );
 		if ( SecurityPolicy::allows( $role, 'review', 'news', $assigned ) || SecurityPolicy::allows( $role, 'publish', 'news', $assigned ) ) {
-			$allowed  = ! in_array( $role, array( 'contributor', 'translator', 'section-editor' ), true ) || in_array( 'news', $assigned, true );
+			$allowed = ! in_array( $role, array( 'contributor', 'translator', 'section-editor' ), true ) || in_array( 'news', $assigned, true );
 			if ( $allowed ) {
 				$posts = get_posts(
 					array(
@@ -584,12 +587,13 @@ final class TaskDashboard {
 			}
 		}
 		if ( SecurityPolicy::allows( $role, 'review', 'person', $assigned ) || SecurityPolicy::allows( $role, 'edit', 'person', $assigned ) ) {
-			$allowed  = ! in_array( $role, array( 'contributor', 'translator', 'section-editor' ), true ) || in_array( 'person', $assigned, true );
+			$allowed = ! in_array( $role, array( 'contributor', 'translator', 'section-editor' ), true ) || in_array( 'person', $assigned, true );
 			if ( $allowed ) {
 				$people = get_posts(
 					array(
 						'post_type'      => 'lps_person',
 						'post_status'    => 'any',
+						// phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- Bounded selector list for the dashboard, not a public query.
 						'posts_per_page' => 200,
 						'fields'         => 'ids',
 					)
@@ -619,36 +623,39 @@ final class TaskDashboard {
 	 * @return array<string, mixed>
 	 */
 	public static function model_for_user( WP_User $user, string $locale ): array {
-		$role        = Roles::policy_role( $user );
+		$role         = Roles::policy_role( $user );
 		$offering_ids = self::granted_offering_ids( $user->ID );
-		$offerings   = array();
+		$offerings    = array();
 		foreach ( $offering_ids as $offering_id ) {
 			$workspace = self::offering_workspace( $offering_id, $user, $locale );
 			if ( null !== $workspace ) {
 				$offerings[] = $workspace;
 			}
 		}
-		$person_id   = self::person_for_user( $user->ID );
-		$news_scope  = self::has_news_scope( $user->ID );
-		$may_review  = '' !== $role && ! TeachingPolicy::is_scoped_role( $role )
+		$person_id  = self::person_for_user( $user->ID );
+		$news_scope = self::has_news_scope( $user->ID );
+		$may_review = '' !== $role && ! TeachingPolicy::is_scoped_role( $role )
 			&& ( SecurityPolicy::allows( $role, 'review' ) || SecurityPolicy::allows( $role, 'publish' ) );
-		$tasks       = self::tasks_for_role( $role, array() !== $offerings, $news_scope, 0 < $person_id, $may_review );
+		$tasks      = self::tasks_for_role( $role, array() !== $offerings, $news_scope, 0 < $person_id, $may_review );
 		return array(
-			'role'        => $role,
-			'user'        => $user,
-			'tasks'       => $tasks,
-			'offerings'   => $offerings,
-			'news'        => $news_scope ? self::news_for_user( $user->ID ) : array(),
-			'person_id'   => $person_id,
-			'proposals'   => 0 < $person_id ? self::proposals_for_person( $person_id ) : array(),
-			'review'      => $may_review ? self::review_queue( $user->ID ) : array( 'news' => array(), 'proposals' => array() ),
-			'terms'       => self::published_terms(),
-			'courses'     => self::published_courses(),
-			'people'      => self::people_options(),
-			'news_scope'  => $news_scope,
-			'may_review'  => $may_review,
-			'mfa'         => MFA::is_enrolled( $user->ID ),
-			'mfa_needed'  => SecurityPolicy::requires_mfa( $role ) && ! MFA::is_enrolled( $user->ID ),
+			'role'       => $role,
+			'user'       => $user,
+			'tasks'      => $tasks,
+			'offerings'  => $offerings,
+			'news'       => $news_scope ? self::news_for_user( $user->ID ) : array(),
+			'person_id'  => $person_id,
+			'proposals'  => 0 < $person_id ? self::proposals_for_person( $person_id ) : array(),
+			'review'     => $may_review ? self::review_queue( $user->ID ) : array(
+				'news'      => array(),
+				'proposals' => array(),
+			),
+			'terms'      => self::published_terms(),
+			'courses'    => self::published_courses(),
+			'people'     => self::people_options(),
+			'news_scope' => $news_scope,
+			'may_review' => $may_review,
+			'mfa'        => MFA::is_enrolled( $user->ID ),
+			'mfa_needed' => SecurityPolicy::requires_mfa( $role ) && ! MFA::is_enrolled( $user->ID ),
 		);
 	}
 
@@ -698,7 +705,7 @@ final class TaskDashboard {
 			if ( ! $resource instanceof WP_Post || 'lps_resource' !== $resource->post_type || 'trash' === $resource->post_status ) {
 				continue;
 			}
-			$unit_rows = Relationships::for_source( $resource_id, 'resource_unit' );
+			$unit_rows   = Relationships::for_source( $resource_id, 'resource_unit' );
 			$resources[] = array(
 				'id'                   => $resource_id,
 				'title'                => $resource->post_title,
@@ -815,6 +822,7 @@ final class TaskDashboard {
 				'post_status'    => 'publish',
 				'posts_per_page' => 50,
 				'fields'         => 'ids',
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Term ordering requires the meta key.
 				'meta_key'       => '_lps_starts_on',
 				'orderby'        => 'meta_value',
 				'order'          => 'DESC',
@@ -839,7 +847,7 @@ final class TaskDashboard {
 	 * @return array<int, array{id: int, title: string, code: string}>
 	 */
 	public static function published_courses(): array {
-		$posts = get_posts(
+		$posts   = get_posts(
 			array(
 				'post_type'      => 'lps_course',
 				'post_status'    => 'publish',
@@ -863,6 +871,7 @@ final class TaskDashboard {
 	/**
 	 * Returns published people for the team selector.
 	 *
+	 * @param array<int> $include_ids Extra person IDs to keep selectable.
 	 * @return array<int, array{id: int, title: string}>
 	 */
 	public static function people_options( array $include_ids = array() ): array {
@@ -870,6 +879,7 @@ final class TaskDashboard {
 			array(
 				'post_type'      => 'lps_person',
 				'post_status'    => 'publish',
+				// phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- Bounded selector list for the dashboard, not a public query.
 				'posts_per_page' => 200,
 				'fields'         => 'ids',
 				'orderby'        => 'title',
@@ -911,7 +921,7 @@ final class TaskDashboard {
 		if ( 0 >= $person_id ) {
 			self::fail( 'lps_dashboard_forbidden' );
 		}
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Every field is sanitized inside proposal_errors/normalize_proposal.
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing -- Every field is sanitized inside proposal_errors/normalize_proposal.
 		$fields = isset( $_POST['fields'] ) && is_array( $_POST['fields'] ) ? wp_unslash( $_POST['fields'] ) : array();
 		$errors = self::proposal_errors( array( 'fields' => $fields ) );
 		if ( array() !== $errors ) {
@@ -921,7 +931,12 @@ final class TaskDashboard {
 		$proposals   = self::proposals_for_person( $person_id );
 		$proposals[] = array(
 			'id'           => wp_generate_uuid4(),
-			'fields'       => self::normalize_proposal( array( 'id' => 'x', 'fields' => $fields ) )['fields'],
+			'fields'       => self::normalize_proposal(
+				array(
+					'id'     => 'x',
+					'fields' => $fields,
+				)
+			)['fields'],
 			'note'         => '',
 			'state'        => 'pending',
 			'submitted_at' => gmdate( 'c' ),
@@ -929,7 +944,15 @@ final class TaskDashboard {
 			'reviewer_id'  => 0,
 		);
 		self::system_meta( $person_id, self::PROPOSALS_META, $proposals );
-		Audit::record( 'submit', $person_id, 0, array( 'decision' => 'profile-proposal', 'fields' => array_keys( $proposals[ count( $proposals ) - 1 ]['fields'] ) ) );
+		Audit::record(
+			'submit',
+			$person_id,
+			0,
+			array(
+				'decision' => 'profile-proposal',
+				'fields'   => array_keys( $proposals[ count( $proposals ) - 1 ]['fields'] ),
+			)
+		);
 		self::succeed( 'proposal-sent' );
 	}
 
@@ -1143,7 +1166,15 @@ final class TaskDashboard {
 			$errors['_lps_canonical_date'] = 'lps_invalid_topic_date';
 		}
 		if ( array() !== $errors ) {
-			self::recall( 'news', array( 'title' => $title, 'excerpt' => $excerpt, 'content' => $content, 'canonical_date' => $date ) );
+			self::recall(
+				'news',
+				array(
+					'title'          => $title,
+					'excerpt'        => $excerpt,
+					'content'        => $content,
+					'canonical_date' => $date,
+				)
+			);
 			self::fail( (string) reset( $errors ), (string) array_key_first( $errors ) );
 		}
 		$post_id = self::post_int( 'id' );
@@ -1230,11 +1261,11 @@ final class TaskDashboard {
 		if ( '' === TeachingContracts::normalize_operation_id( $operation_id ) ) {
 			$operation_id = 'copy-' . wp_generate_uuid4();
 		}
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Every row is normalized inside team_from_input.
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing -- Every row is normalized inside team_from_input.
 		$team     = self::team_from_input( isset( $_POST['team'] ) && is_array( $_POST['team'] ) ? wp_unslash( $_POST['team'] ) : array() );
 		$reviewed = '1' === self::post_text( 'team_reviewed' );
 		$selected = array();
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Every ID is normalized inside selected_version_ids.
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing -- Every ID is normalized inside selected_version_ids.
 		foreach ( isset( $_POST['versions'] ) && is_array( $_POST['versions'] ) ? wp_unslash( $_POST['versions'] ) : array() as $candidate ) {
 			$selected[] = Policy::scalar_string( $candidate );
 		}
@@ -1251,7 +1282,14 @@ final class TaskDashboard {
 			)
 		);
 		if ( $result instanceof WP_Error ) {
-			self::recall( 'copy-' . $source_id, array( 'new_term_id' => self::post_int( 'new_term_id' ), 'new_section' => self::post_text( 'new_section' ), 'title' => self::post_text( 'title' ) ) );
+			self::recall(
+				'copy-' . $source_id,
+				array(
+					'new_term_id' => self::post_int( 'new_term_id' ),
+					'new_section' => self::post_text( 'new_section' ),
+					'title'       => self::post_text( 'title' ),
+				)
+			);
 			self::fail( (string) $result->get_error_code(), self::error_field( $result ) );
 		}
 		self::succeed( ! empty( $result['replayed'] ) ? 'copy-replayed' : 'copied' );
@@ -1267,7 +1305,7 @@ final class TaskDashboard {
 		if ( ! Roles::current_user_can_action( 'create', 'teaching' ) ) {
 			self::fail( 'lps_dashboard_forbidden' );
 		}
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Every row is normalized inside team_from_input.
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing -- Every row is normalized inside team_from_input.
 		$team   = self::team_from_input( isset( $_POST['team'] ) && is_array( $_POST['team'] ) ? wp_unslash( $_POST['team'] ) : array() );
 		$input  = array(
 			'title'     => self::post_text( 'title' ),
@@ -1334,7 +1372,15 @@ final class TaskDashboard {
 			}
 			self::system_meta( $post_id, '_lps_state', 'draft' );
 			self::system_meta( $post_id, self::REVIEW_NOTE_META, $note );
-			Audit::record( 'review', $post_id, 0, array( 'decision' => 'reject', 'note' => $note ) );
+			Audit::record(
+				'review',
+				$post_id,
+				0,
+				array(
+					'decision' => 'reject',
+					'note'     => $note,
+				)
+			);
 			self::succeed( 'reviewed' );
 		}
 		if ( 'proposal' === $kind ) {
@@ -1379,7 +1425,15 @@ final class TaskDashboard {
 				}
 			}
 			self::system_meta( $person_id, self::PROPOSALS_META, $proposals );
-			Audit::record( 'review', $person_id, 0, array( 'decision' => 'profile-' . $decision, 'proposal_id' => $proposal_id ) );
+			Audit::record(
+				'review',
+				$person_id,
+				0,
+				array(
+					'decision'    => 'profile-' . $decision,
+					'proposal_id' => $proposal_id,
+				)
+			);
 			self::succeed( 'approve' === $decision ? 'proposal-approved' : 'proposal-rejected' );
 		}
 		self::fail( 'lps_dashboard_forbidden' );
@@ -1460,7 +1514,7 @@ final class TaskDashboard {
 	 * @param string $key Field name.
 	 */
 	private static function post_text( string $key ): string {
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized as a scalar on return.
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing -- Sanitized as a scalar on return.
 		$value = isset( $_POST[ $key ] ) ? wp_unslash( $_POST[ $key ] ) : '';
 		return is_scalar( $value ) ? sanitize_text_field( (string) $value ) : '';
 	}
@@ -1471,7 +1525,7 @@ final class TaskDashboard {
 	 * @param string $key Field name.
 	 */
 	private static function post_int( string $key ): int {
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized as an integer on return.
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing -- Sanitized as an integer on return.
 		$value = isset( $_POST[ $key ] ) ? wp_unslash( $_POST[ $key ] ) : 0;
 		return Policy::sanitize_integer( $value );
 	}
@@ -1482,7 +1536,7 @@ final class TaskDashboard {
 	 * @return array{name: string, tmp_name: string}|null
 	 */
 	private static function posted_file(): ?array {
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- The upload boundary validates the payload itself.
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing -- The upload boundary validates the payload itself.
 		$file = isset( $_FILES['file'] ) && is_array( $_FILES['file'] ) ? $_FILES['file'] : null;
 		if ( null === $file ) {
 			return null;

@@ -70,11 +70,11 @@ final class ImportPackage {
 			if ( null !== $source_error ) {
 				$errors[] = self::error( $source_error, "records.$index" );
 			}
-			$claim_error       = MigrationPolicy::claim_error( $record );
+			$claim_error = MigrationPolicy::claim_error( $record );
 			if ( null !== $claim_error ) {
 				$errors[] = self::error( $claim_error, "records.$index.claims" );
 			}
-			$meta              = is_array( $record['meta'] ?? null ) ? $record['meta'] : array();
+			$meta = is_array( $record['meta'] ?? null ) ? $record['meta'] : array();
 			if ( 'lps_publication' === $type ) {
 				$doi = self::text( $meta['_lps_doi'] ?? '' );
 				if ( '' !== $doi && isset( $dois[ $doi ] ) ) {

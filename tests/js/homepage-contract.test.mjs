@@ -12,43 +12,45 @@ describe("research-first homepage integration", () => {
     expect(template).toContain('"lock":{"move":true,"remove":true}');
     expect(template).not.toMatch(/carousel|autoplay|placeholder/i);
     expect(read("functions.php")).toContain("Homepage::class");
-    // Eight visual modules maximum: evidence nests inside research and the
-    // contact handoff inside partners, so neither has its own block.
+    // Seven visual modules maximum: projects, evidence and infrastructure
+    // nest inside research as strata and the contact handoff inside
+    // partners, so none of them has its own block.
     const sections = [...template.matchAll(/wp:lps-theme\/homepage \{"section":"([a-z]+)"/g)].map(
       (match) => match[1],
     );
     expect(sections).toEqual([
       "mission",
-      "journeys",
       "research",
-      "projects",
-      "people",
-      "infrastructure",
       "latest",
+      "teaching",
+      "people",
+      "journeys",
       "partners",
     ]);
   });
 
   test("uses the approved sequence without startup or decorative patterns", () => {
     const homepage = read("includes/class-homepage.php");
-    const sequence = [
+    // The renderer emits data-home-section dynamically per block, so the
+    // canonical order lives in its section and stratum registries.
+    const sectionKeys = [
+      ...homepage.matchAll(
+        /^\s*'(mission|research|latest|teaching|people|journeys|partners)'\s*=>\s*array/gm,
+      ),
+    ].map((match) => match[1]);
+    expect(sectionKeys).toEqual([
       "mission",
       "research",
-      "evidence",
-      "projects",
-      "journeys",
-      "people",
-      "infrastructure",
       "latest",
+      "teaching",
+      "people",
+      "journeys",
       "partners",
-      "contact",
-    ];
-    let cursor = -1;
-    for (const section of sequence) {
-      const next = homepage.indexOf(`data-home-section="${section}"`);
-      expect(next).toBeGreaterThan(cursor);
-      cursor = next;
-    }
+    ]);
+    const stratumKeys = [
+      ...homepage.matchAll(/^\s*'(projects|evidence|infrastructure|contact)'\s*=>\s*array\(\s*'/gm),
+    ].map((match) => match[1]);
+    expect(stratumKeys).toEqual(["projects", "evidence", "infrastructure", "contact"]);
     expect(homepage).not.toMatch(/carousel|autoplay|waveform|lorem ipsum|placeholder/i);
   });
 
@@ -59,7 +61,7 @@ describe("research-first homepage integration", () => {
     const noticed = [...homepage.matchAll(/empty_notice\( '([a-z]+)'/g)]
       .map((match) => match[1])
       .sort();
-    expect(noticed).toEqual(["contact", "contact", "mission"]);
+    expect(noticed).toEqual(["contact", "mission"]);
     expect(homepage).toContain('aria-disabled="true"');
     expect(homepage).toContain("Information not published");
     expect(homepage).toContain("Informações não publicadas");

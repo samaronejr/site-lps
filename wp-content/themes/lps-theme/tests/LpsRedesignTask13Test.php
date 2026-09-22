@@ -31,7 +31,7 @@ final class LpsRedesignTask13Test extends TestCase {
 	 * @return array{course: array<string, mixed>, offerings: array<int, array<string, mixed>>, current: array<string, mixed>, completed: array<string, mixed>}
 	 */
 	private static function fixture(): array {
-		$current = array(
+		$current   = array(
 			'title'           => 'Sinais e Sistemas — Turma T01 (2026.2)',
 			'url'             => '/pt-br/ensino/disciplinas/sinais-e-sistemas/2026-2-semester/t01/',
 			'section_key'     => 't01',
@@ -141,38 +141,38 @@ final class LpsRedesignTask13Test extends TestCase {
 					'updated_at'           => '2026-09-01T12:00:00+00:00',
 				),
 				array(
-					'title'                => 'Repositório de notebooks',
-					'type'                 => 'notebook',
-					'language'             => 'en',
-					'unit_anchor'          => 'unidade-2',
-					'effective_state'      => 'released',
-					'external_url'         => 'https://example.org/notebooks',
-					'updated_at'           => '',
+					'title'           => 'Repositório de notebooks',
+					'type'            => 'notebook',
+					'language'        => 'en',
+					'unit_anchor'     => 'unidade-2',
+					'effective_state' => 'released',
+					'external_url'    => 'https://example.org/notebooks',
+					'updated_at'      => '',
 				),
 				array(
-					'title'                => 'Prova de 2025',
-					'type'                 => 'document',
-					'language'             => 'pt-br',
-					'unit_anchor'          => '',
-					'effective_state'      => 'withdrawn',
-					'download_url'         => '/lps-resource/99999999-8888-7777-6666-555555555555/',
-					'updated_at'           => '2026-09-10T08:00:00+00:00',
+					'title'           => 'Prova de 2025',
+					'type'            => 'document',
+					'language'        => 'pt-br',
+					'unit_anchor'     => '',
+					'effective_state' => 'withdrawn',
+					'download_url'    => '/lps-resource/99999999-8888-7777-6666-555555555555/',
+					'updated_at'      => '2026-09-10T08:00:00+00:00',
 				),
 				array(
-					'title'                => 'Slides agendados',
-					'type'                 => 'slides',
-					'language'             => 'pt-br',
-					'unit_anchor'          => '',
-					'effective_state'      => 'scheduled',
-					'download_url'         => '/lps-resource/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/',
+					'title'           => 'Slides agendados',
+					'type'            => 'slides',
+					'language'        => 'pt-br',
+					'unit_anchor'     => '',
+					'effective_state' => 'scheduled',
+					'download_url'    => '/lps-resource/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/',
 				),
 				array(
-					'title'                => 'Rascunho interno',
-					'type'                 => 'document',
-					'language'             => 'pt-br',
-					'unit_anchor'          => '',
-					'effective_state'      => 'draft',
-					'download_url'         => '/lps-resource/dddddddd-eeee-ffff-0000-111111111111/',
+					'title'           => 'Rascunho interno',
+					'type'            => 'document',
+					'language'        => 'pt-br',
+					'unit_anchor'     => '',
+					'effective_state' => 'draft',
+					'download_url'    => '/lps-resource/dddddddd-eeee-ffff-0000-111111111111/',
 				),
 			),
 			'siblings'        => $base['offerings'],
@@ -320,10 +320,10 @@ final class LpsRedesignTask13Test extends TestCase {
 		$html = TeachingSurfaces::offering( self::offering_fixture(), 'pt-br' );
 
 		// The unit-1 material renders inside the unit-1 list item.
-		$unit_one = strpos( $html, 'id="unidade-1"' );
-		$unit_two = strpos( $html, 'id="unidade-2"' );
-		$apostila = strpos( $html, 'Apostila de convolução' );
-		$notebook = strpos( $html, 'Repositório de notebooks' );
+		$unit_one          = strpos( $html, 'id="unidade-1"' );
+		$unit_two          = strpos( $html, 'id="unidade-2"' );
+		$apostila          = strpos( $html, 'Apostila de convolução' );
+		$notebook          = strpos( $html, 'Repositório de notebooks' );
 		$materials_section = strpos( $html, 'id="materiais"' );
 		self::assertIsInt( $unit_one );
 		self::assertIsInt( $unit_two );
@@ -341,9 +341,9 @@ final class LpsRedesignTask13Test extends TestCase {
 	}
 
 	public function test_offering_without_materials_shows_the_explicit_notice(): void {
-		$fixture             = self::offering_fixture();
+		$fixture              = self::offering_fixture();
 		$fixture['materials'] = array();
-		$html                = TeachingSurfaces::offering( $fixture, 'pt-br' );
+		$html                 = TeachingSurfaces::offering( $fixture, 'pt-br' );
 		self::assertStringContainsString( 'Materiais ainda não publicados.', $html );
 		self::assertStringContainsString( 'id="materiais"', $html );
 	}
@@ -376,7 +376,15 @@ final class LpsRedesignTask13Test extends TestCase {
 			'accessibility_review' => 'approved',
 		);
 		self::assertSame( 'download', TeachingSurfaces::material_state( $released_download ) );
-		self::assertSame( 'external', TeachingSurfaces::material_state( array( 'effective_state' => 'released', 'external_url' => 'https://x.example' ) ) );
+		self::assertSame(
+			'external',
+			TeachingSurfaces::material_state(
+				array(
+					'effective_state' => 'released',
+					'external_url'    => 'https://x.example',
+				)
+			)
+		);
 		self::assertSame( 'scan-pending', TeachingSurfaces::material_state( array_merge( $released_download, array( 'scan_state' => 'pending' ) ) ) );
 		self::assertSame( 'unavailable', TeachingSurfaces::material_state( array_merge( $released_download, array( 'rights_review' => 'pending' ) ) ) );
 		self::assertSame( 'unavailable', TeachingSurfaces::material_state( array( 'effective_state' => 'released' ) ) );
@@ -387,7 +395,7 @@ final class LpsRedesignTask13Test extends TestCase {
 	}
 
 	public function test_scan_pending_and_unavailable_rows_show_state_text_without_links(): void {
-		$fixture = self::offering_fixture();
+		$fixture              = self::offering_fixture();
 		$fixture['materials'] = array(
 			array(
 				'title'                => 'Arquivo em verificação',
@@ -412,7 +420,7 @@ final class LpsRedesignTask13Test extends TestCase {
 				'accessibility_review' => 'approved',
 			),
 		);
-		$html = TeachingSurfaces::offering( $fixture, 'pt-br' );
+		$html                 = TeachingSurfaces::offering( $fixture, 'pt-br' );
 		self::assertStringContainsString( 'Verificação de segurança pendente', $html );
 		self::assertStringContainsString( 'temporariamente indisponível', $html );
 		self::assertStringNotContainsString( 'scanpending-0000', $html );
@@ -420,12 +428,12 @@ final class LpsRedesignTask13Test extends TestCase {
 	}
 
 	public function test_untrusted_markup_is_escaped_everywhere(): void {
-		$fixture = self::offering_fixture();
-		$fixture['title']               = 'Turma <script>alert(1)</script>';
+		$fixture                            = self::offering_fixture();
+		$fixture['title']                   = 'Turma <script>alert(1)</script>';
 		$fixture['materials'][0]['title']   = 'Apostila <img src=x onerror=alert(1)>';
 		$fixture['materials'][0]['summary'] = 'Resumo <b>seguro</b>';
 		$fixture['team'][0]['name']         = 'Docente <em>nome</em>';
-		$html = TeachingSurfaces::offering( $fixture, 'pt-br' );
+		$html                               = TeachingSurfaces::offering( $fixture, 'pt-br' );
 		self::assertStringNotContainsString( '<script>', $html );
 		self::assertStringNotContainsString( '<img', $html );
 		self::assertStringContainsString( 'Turma &lt;script&gt;', $html );

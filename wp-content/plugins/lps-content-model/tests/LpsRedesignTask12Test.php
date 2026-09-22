@@ -60,7 +60,7 @@ final class Task12SearchStorage implements SearchStorage {
 	 * @param array<string, mixed> $row Indexed row.
 	 */
 	public function insert_record( array $row ): bool {
-		$post_id                 = is_numeric( $row['post_id'] ?? 0 ) ? (int) $row['post_id'] : 0;
+		$post_id                = is_numeric( $row['post_id'] ?? 0 ) ? (int) $row['post_id'] : 0;
 		$this->rows[ $post_id ] = $row;
 		return true;
 	}
@@ -337,7 +337,16 @@ final class LpsRedesignTask12Test extends TestCase {
 		self::assertFalse( SearchIndex::is_publicly_visible( self::resource( array( '_lps_accessibility_review' => 'rejected' ) ) ) );
 		self::assertFalse( SearchIndex::is_publicly_visible( self::resource( array( '_lps_scan_state' => 'pending' ) ) ) );
 		self::assertFalse( SearchIndex::is_publicly_visible( self::resource( array( 'offering_visible' => false ) ) ) );
-		self::assertFalse( SearchIndex::is_publicly_visible( self::resource( array( 'offering_visible' => true, '_lps_state' => 'in_review' ) ) ) );
+		self::assertFalse(
+			SearchIndex::is_publicly_visible(
+				self::resource(
+					array(
+						'offering_visible' => true,
+						'_lps_state'       => 'in_review',
+					)
+				)
+			)
+		);
 	}
 
 	/**
@@ -345,7 +354,12 @@ final class LpsRedesignTask12Test extends TestCase {
 	 */
 	public function test_effective_release_state_is_shared_by_contracts_and_resources(): void {
 		$now = self::NOW;
-		foreach ( array( 'released' => 'released', 'withdrawn' => 'withdrawn', 'draft' => 'draft', 'bogus' => 'draft' ) as $state => $expected ) {
+		foreach ( array(
+			'released'  => 'released',
+			'withdrawn' => 'withdrawn',
+			'draft'     => 'draft',
+			'bogus'     => 'draft',
+		) as $state => $expected ) {
 			self::assertSame( $expected, TeachingContracts::effective_release_state( $state, '', $now ) );
 			self::assertSame( $expected, TeachingResources::effective_release_state( $state, '', $now ) );
 		}
@@ -375,7 +389,15 @@ final class LpsRedesignTask12Test extends TestCase {
 				)
 			)
 		);
-		SearchIndex::synchronize( $storage, self::resource( array( 'post_id' => 303, 'title' => 'Material publicado' ) ) );
+		SearchIndex::synchronize(
+			$storage,
+			self::resource(
+				array(
+					'post_id' => 303,
+					'title'   => 'Material publicado',
+				)
+			)
+		);
 
 		// The scheduled row is indexed — but invisible before its release time.
 		self::assertArrayHasKey( 302, $storage->rows );
@@ -412,7 +434,12 @@ final class LpsRedesignTask12Test extends TestCase {
 		SearchIndex::synchronize( $storage, self::resource( array( 'post_id' => 305 ) ) );
 		self::assertArrayHasKey( 305, $storage->rows );
 
-		$withdrawn = self::resource( array( 'post_id' => 305, '_lps_release_state' => 'withdrawn' ) );
+		$withdrawn = self::resource(
+			array(
+				'post_id'            => 305,
+				'_lps_release_state' => 'withdrawn',
+			)
+		);
 		SearchIndex::synchronize( $storage, $withdrawn );
 		self::assertArrayNotHasKey( 305, $storage->rows );
 		self::assertSame( 0, SearchIndex::search( $storage, '', 'apostila', 'pt-br', array(), 1, 20, self::NOW )['total'] );

@@ -92,9 +92,9 @@ final class LpsRedesignTask15Test extends TestCase {
 	}
 
 	public function test_offering_copy_fields_snapshots_the_course_syllabus_when_absent(): void {
-		$meta                              = self::offering_meta();
-		$meta['_lps_syllabus_snapshot']    = '';
-		$fields                            = TeachingCopy::offering_copy_fields( $meta, 'Ementa do curso' );
+		$meta                           = self::offering_meta();
+		$meta['_lps_syllabus_snapshot'] = '';
+		$fields                         = TeachingCopy::offering_copy_fields( $meta, 'Ementa do curso' );
 		self::assertSame( 'Ementa do curso', $fields['_lps_syllabus_snapshot'], 'an absent snapshot falls back to the course syllabus' );
 
 		$meta['_lps_syllabus_snapshot'] = '  ';
@@ -134,7 +134,7 @@ final class LpsRedesignTask15Test extends TestCase {
 
 		// An unreleased resource that references a selected version is reset,
 		// never a copy blocker — selection validity is gated at plan level.
-		$draft = array_merge( $released, array( '_lps_release_state' => 'draft' ) );
+		$draft    = array_merge( $released, array( '_lps_release_state' => 'draft' ) );
 		$decision = TeachingCopy::resource_copy_decision( $draft, $selected, self::NOW );
 		self::assertNull( $decision['error'] );
 		self::assertFalse( $decision['reuse'] );
@@ -154,7 +154,7 @@ final class LpsRedesignTask15Test extends TestCase {
 				'_lps_release_at'    => '2999-01-01T00:00:00+00:00',
 			)
 		);
-		$decision = TeachingCopy::resource_copy_decision( $scheduled, $selected, self::NOW );
+		$decision  = TeachingCopy::resource_copy_decision( $scheduled, $selected, self::NOW );
 		self::assertNull( $decision['error'] );
 		self::assertFalse( $decision['reuse'] );
 		$decision = TeachingCopy::resource_copy_decision( $scheduled, array(), self::NOW );
@@ -162,7 +162,7 @@ final class LpsRedesignTask15Test extends TestCase {
 		self::assertFalse( $decision['carry_public'] );
 
 		// A due schedule is already public, so its version may be selected.
-		$due = array_merge(
+		$due      = array_merge(
 			$released,
 			array(
 				'_lps_release_state' => 'scheduled',

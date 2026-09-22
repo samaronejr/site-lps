@@ -232,7 +232,9 @@ final class Homepage {
 				'post_type'   => 'page',
 				'post_status' => 'publish',
 				'numberposts' => 1,
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Identity lookup requires the meta key.
 				'meta_key'    => '_lps_page_key',
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Identity lookup requires the meta value.
 				'meta_value'  => 'home',
 			)
 		) as $candidate ) {
@@ -515,12 +517,12 @@ final class Homepage {
 	 * Renders the research module: linked areas plus the projects, evidence,
 	 * and infrastructure strata in one band.
 	 *
-	 * @param string                                             $html    Opened section tag.
-	 * @param string                                             $heading Localized module heading.
-	 * @param array<int, array<string, mixed>>                   $items   Reviewed snapshot.
-	 * @param string                                             $locale  Supported locale.
-	 * @param string                                             $today   Institutional date.
-	 * @param array<string, array{0: string, 1: string}>         $strata  Localized stratum headings.
+	 * @param string                                     $html    Opened section tag.
+	 * @param string                                     $heading Localized module heading.
+	 * @param array<int, array<string, mixed>>           $items   Reviewed snapshot.
+	 * @param string                                     $locale  Supported locale.
+	 * @param string                                     $today   Institutional date.
+	 * @param array<string, array{0: string, 1: string}> $strata  Localized stratum headings.
 	 */
 	private static function research_module( string $html, string $heading, array $items, string $locale, string $today, array $strata ): string {
 		$english = 'en' === $locale;
@@ -547,7 +549,7 @@ final class Homepage {
 			$inner = array() === $areas || $first ? 'h3' : 'h4';
 			$body .= '<section class="lps-home-stratum" data-home-section="' . $key . '" aria-labelledby="lps-home-' . $key . '"><' . $level . ' class="lps-kicker" id="lps-home-' . $key . '">' . self::escape( $strata[ $key ][ $english ? 0 : 1 ] ) . '</' . $level . '>';
 			foreach ( $records as $record ) {
-				$meta = 'evidence' === $key ? self::provenance_meta( $record, $locale ) : '';
+				$meta  = 'evidence' === $key ? self::provenance_meta( $record, $locale ) : '';
 				$body .= self::record_markup( $record, $locale, $meta, $inner, 'projects' === $key || 'infrastructure' === $key );
 			}
 			$body .= '</section>';

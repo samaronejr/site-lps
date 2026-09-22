@@ -77,7 +77,16 @@ final class LpsRedesignTask11Test extends TestCase {
 			'about'          => '',
 		);
 		foreach ( $pages as $key => $section ) {
-			self::assertSame( $section, Homepage::record_section( array( 'type' => 'page', 'page_key' => $key ) ), $key );
+			self::assertSame(
+				$section,
+				Homepage::record_section(
+					array(
+						'type'     => 'page',
+						'page_key' => $key,
+					)
+				),
+				$key
+			);
 		}
 	}
 
@@ -93,7 +102,7 @@ final class LpsRedesignTask11Test extends TestCase {
 			$this->record( 'evidence', 'pt-br', array( 'source_id' => 'src:evidence' ) ),
 			$this->record( 'infrastructure', 'pt-br', array( 'source_id' => 'src:infra' ) ),
 		);
-		$html = Homepage::section_markup( 'research', 'pt-br', $records, self::TODAY );
+		$html    = Homepage::section_markup( 'research', 'pt-br', $records, self::TODAY );
 		self::assertStringContainsString( 'aria-labelledby="lps-home-research"', $html );
 		self::assertMatchesRegularExpression( '/<h2 id="lps-home-research">Pesquisa<\/h2>/', $html );
 		foreach ( array( 'projects', 'evidence', 'infrastructure' ) as $stratum ) {
@@ -120,11 +129,37 @@ final class LpsRedesignTask11Test extends TestCase {
 	/** The latest module differentiates the featured row from dated rows. */
 	public function test_latest_module_feature_and_dated_rows(): void {
 		$records = array(
-			$this->record( 'latest', 'en', array( 'source_id' => 'src:newest', 'date' => '2026-09-18', 'type' => 'lps_news' ) ),
-			$this->record( 'latest', 'en', array( 'source_id' => 'src:older', 'date' => '2026-09-01', 'type' => 'lps_event', 'event_status' => 'scheduled', 'venue' => 'LPS auditorium' ) ),
-			$this->record( 'latest', 'en', array( 'source_id' => 'src:oldest', 'date' => '2026-08-20', 'type' => 'lps_publication' ) ),
+			$this->record(
+				'latest',
+				'en',
+				array(
+					'source_id' => 'src:newest',
+					'date'      => '2026-09-18',
+					'type'      => 'lps_news',
+				)
+			),
+			$this->record(
+				'latest',
+				'en',
+				array(
+					'source_id'    => 'src:older',
+					'date'         => '2026-09-01',
+					'type'         => 'lps_event',
+					'event_status' => 'scheduled',
+					'venue'        => 'LPS auditorium',
+				)
+			),
+			$this->record(
+				'latest',
+				'en',
+				array(
+					'source_id' => 'src:oldest',
+					'date'      => '2026-08-20',
+					'type'      => 'lps_publication',
+				)
+			),
 		);
-		$html = Homepage::section_markup( 'latest', 'en', $records, self::TODAY );
+		$html    = Homepage::section_markup( 'latest', 'en', $records, self::TODAY );
 		self::assertSame( 1, substr_count( $html, 'lps-record--featured' ) );
 		// The featured row is the newest record, not the first input row.
 		self::assertLessThan( strpos( $html, 'src:older' ), strpos( $html, 'src:newest' ) );
@@ -136,7 +171,10 @@ final class LpsRedesignTask11Test extends TestCase {
 
 	/** The teaching entrance persists in both locales with its canonical route. */
 	public function test_teaching_entrance_is_persistent_and_localized(): void {
-		foreach ( array( 'pt-br' => array( 'Ensino', 'Disciplinas e materiais', '/pt-br/ensino/' ), 'en' => array( 'Teaching', 'Courses and materials', '/en/teaching/' ) ) as $locale => $expected ) {
+		foreach ( array(
+			'pt-br' => array( 'Ensino', 'Disciplinas e materiais', '/pt-br/ensino/' ),
+			'en'    => array( 'Teaching', 'Courses and materials', '/en/teaching/' ),
+		) as $locale => $expected ) {
 			$html = Homepage::section_markup( 'teaching', $locale, array(), self::TODAY );
 			self::assertStringContainsString( 'data-home-section="teaching"', $html );
 			self::assertStringContainsString( '<h2 id="lps-home-teaching">' . $expected[0] . '</h2>', $html );
@@ -156,7 +194,10 @@ final class LpsRedesignTask11Test extends TestCase {
 
 	/** The mission module pins the two first-viewport actions in both states. */
 	public function test_mission_primary_links_render_with_and_without_a_record(): void {
-		foreach ( array( 'pt-br' => array( 'Conheça a pesquisa', 'Disciplinas e materiais' ), 'en' => array( 'Explore the research', 'Courses and materials' ) ) as $locale => $labels ) {
+		foreach ( array(
+			'pt-br' => array( 'Conheça a pesquisa', 'Disciplinas e materiais' ),
+			'en'    => array( 'Explore the research', 'Courses and materials' ),
+		) as $locale => $labels ) {
 			foreach ( array( array(), array( $this->record( 'mission', $locale ) ) ) as $records ) {
 				$html = Homepage::section_markup( 'mission', $locale, $records, self::TODAY );
 				self::assertStringContainsString( 'data-home-action="research"', $html );
@@ -238,7 +279,7 @@ final class LpsRedesignTask11Test extends TestCase {
 			'rights_status'  => 'cleared',
 			'privacy_status' => 'reviewed',
 		);
-		$html = MediaPolicy::render_image( $usage, $asset );
+		$html  = MediaPolicy::render_image( $usage, $asset );
 		self::assertStringNotContainsString( 'object-position', $html );
 		self::assertStringNotContainsString( 'style=', $html );
 	}

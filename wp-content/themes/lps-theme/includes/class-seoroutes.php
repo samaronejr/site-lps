@@ -419,12 +419,12 @@ final class SeoRoutes {
 		$post   = is_singular() ? get_queried_object() : null;
 		$post   = $post instanceof WP_Post ? $post : null;
 
-		$site      = self::site_identity( $locale );
-		$site_url  = self::site_url();
-		$section   = null === $post ? self::archive_section( $path, $locale ) : ( self::SECTIONS[ $post->post_type ][ $locale ] ?? '' );
-		$title     = null === $post ? self::archive_title( $path, $locale ) : (string) get_the_title( $post );
-		$summary   = null === $post ? self::archive_summary( $path, $locale ) : (string) $post->post_excerpt;
-		$middle    = null;
+		$site     = self::site_identity( $locale );
+		$site_url = self::site_url();
+		$section  = null === $post ? self::archive_section( $path, $locale ) : ( self::SECTIONS[ $post->post_type ][ $locale ] ?? '' );
+		$title    = null === $post ? self::archive_title( $path, $locale ) : (string) get_the_title( $post );
+		$summary  = null === $post ? self::archive_summary( $path, $locale ) : (string) $post->post_excerpt;
+		$middle   = null;
 		if ( null !== SearchRoutes::match_path( $path ) ) {
 			// The search page is a singular page record, so its title and
 			// description come from the route state, not the stored page.
@@ -1020,10 +1020,10 @@ final class SeoRoutes {
 	/**
 	 * Builds the breadcrumb trail of a document.
 	 *
-	 * @param string                          $path    Canonical path.
-	 * @param string                          $locale  Locale slug.
-	 * @param string                          $section Localized section label.
-	 * @param string                          $title   Document title.
+	 * @param string                                 $path    Canonical path.
+	 * @param string                                 $locale  Locale slug.
+	 * @param string                                 $section Localized section label.
+	 * @param string                                 $title   Document title.
 	 * @param array{name: string, path: string}|null $middle Optional intermediate crumb, such as the course of an offering.
 	 * @return array<int, array<string, string>>
 	 */

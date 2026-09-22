@@ -239,12 +239,13 @@ final class Relationships {
 		 * @var array<int, array<string, mixed>> $rows
 		 */
 		$rows = $wpdb->get_results(
+			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Placeholder count is derived from the sanitized ID list.
 			$wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Placeholder count is derived from the sanitized ID list.
 				"SELECT source_post_id, target_post_id, relationship_role, sort_order, start_date, end_date, public_visibility FROM %i WHERE relationship_type = %s AND source_post_id IN ({$placeholders}) ORDER BY source_post_id ASC, sort_order ASC, relationship_id ASC",
 				array_merge( array( $table, $relationship_type ), $ids )
 			),
 			'ARRAY_A'
+			// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 		);
 		foreach ( is_array( $rows ) ? $rows : array() as $row ) {
 			$source = Policy::sanitize_integer( $row['source_post_id'] ?? 0 );

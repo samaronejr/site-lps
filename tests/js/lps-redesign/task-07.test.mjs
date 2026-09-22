@@ -103,13 +103,15 @@ describe("task-07: contract tokens are frozen identically in theme.json and them
   });
 });
 
-describe("task-07: self-hosted IBM Plex delivery", () => {
-  it("ships the six approved woff2 faces with swap and no remote font request", () => {
+describe("task-07: self-hosted font delivery", () => {
+  it("ships the four approved woff2 faces with swap and no remote font request", () => {
     const faces = [...css.matchAll(/@font-face\s*\{([^}]*)\}/g)].map((m) => m[1]);
-    expect(faces).toHaveLength(6);
+    expect(faces).toHaveLength(4);
     for (const block of faces) {
       expect(block).toMatch(/font-display:\s*swap/);
-      expect(block).toMatch(/url\("\.\.\/fonts\/ibm-plex-(sans|mono)-[a-z]+\.woff2"\)/);
+      expect(block).toMatch(
+        /url\("\.\.\/fonts\/(inter|jetbrains-mono|space-grotesk)-[a-z]+\.woff2"\)/,
+      );
     }
     expect(css).not.toMatch(/@import|url\(["']?https?:/i);
     expect(JSON.stringify(theme)).not.toMatch(/https?:\/\/[^"]*\.(?:woff2?|ttf|otf)/i);
@@ -118,7 +120,9 @@ describe("task-07: self-hosted IBM Plex delivery", () => {
   it("keeps the OFL 1.1 license beside the vendored files and records the fallback", () => {
     const license = readFileSync(`${THEME}/assets/fonts/OFL.txt`, "utf8");
     expect(license).toContain("SIL OPEN FONT LICENSE Version 1.1");
-    expect(license).toContain('Reserved Font Name "Plex"');
+    for (const family of ["Inter", "Space Grotesk", "JetBrains Mono"]) {
+      expect(license).toContain(family);
+    }
     // The recorded fallback: both stacks degrade to system families.
     expect(tokens.get("--font-interface")).toContain("system-ui");
     expect(tokens.get("--font-mono")).toContain("ui-monospace");
@@ -126,8 +130,8 @@ describe("task-07: self-hosted IBM Plex delivery", () => {
 
   it("preloads only the two first-paint faces through the asset policy", () => {
     const policy = readFileSync(`${THEME}/includes/class-assetpolicy.php`, "utf8");
-    expect(policy).toContain("ibm-plex-sans-regular.woff2");
-    expect(policy).toContain("ibm-plex-sans-semibold.woff2");
+    expect(policy).toContain("inter-regular.woff2");
+    expect(policy).toContain("space-grotesk-semibold.woff2");
     expect(policy).not.toContain("source-serif");
   });
 });
@@ -164,11 +168,9 @@ describe("task-07: typography floor and editor alignment", () => {
     expect(theme.styles.blocks["core/post-content"].typography.fontFamily).toBe(
       "var:preset|font-family|interface",
     );
-    // The editor's font picker offers only the two approved roles.
-    expect(theme.settings.typography.fontFamilies.map((f) => f.slug)).toEqual([
-      "interface",
-      "mono",
-    ]);
+    // The editor's font picker offers exactly the contract's approved families.
+    const contractSlugs = contract.typography.families.map((f) => f.token.replace("--font-", ""));
+    expect(theme.settings.typography.fontFamilies.map((f) => f.slug)).toEqual(contractSlugs);
   });
 });
 

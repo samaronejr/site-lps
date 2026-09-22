@@ -291,7 +291,7 @@ final class Delivery {
 			// purge origin so related and locale targets still resolve.
 			$permalink = home_url( '/' );
 		}
-		$targets   = CachePolicy::purge_targets(
+		$targets = CachePolicy::purge_targets(
 			array(
 				'permalink'    => is_string( $permalink ) ? $permalink : '',
 				'archives'     => self::archive_urls( $post ),

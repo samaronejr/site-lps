@@ -27,7 +27,7 @@ describe("LPS block theme contract", () => {
     expect(theme.version).toBe(3);
     expect(theme.settings.appearanceTools).toBe(false);
     expect(theme.settings.useRootPaddingAwareAlignments).toBe(true);
-    expect(theme.settings.layout).toEqual({ contentSize: "68ch", wideSize: "80rem" });
+    expect(theme.settings.layout).toEqual({ contentSize: "68ch", wideSize: "82.5rem" });
     expect(theme.settings.color.custom).toBe(false);
     expect(theme.settings.color.customDuotone).toBe(false);
     expect(theme.settings.color.customGradient).toBe(false);
@@ -69,21 +69,26 @@ describe("LPS block theme contract", () => {
     // The dark-surface focus token is a CSS-only primitive, never a palette slug.
     expect(theme.settings.color.palette.map(({ slug }) => slug)).not.toContain("focus-on-dark");
 
-    // Then: the sans-led interface role leads and the mono is scoped to
-    // identifiers; the retired serif role ships no family and no font files.
-    expect(theme.settings.typography.fontFamilies.map(({ slug }) => slug)).toEqual([
-      "interface",
-      "mono",
-    ]);
+    // Then: the display, interface and mono roles map to the contracted
+    // families — derived from the contract like the palette above, so a
+    // type revision cannot drift between contract and theme.
+    const contractFamilies = contract.typography.families.map((family) =>
+      family.token.replace("--font-", ""),
+    );
+    expect(theme.settings.typography.fontFamilies.map(({ slug }) => slug)).toEqual(
+      contractFamilies,
+    );
     const families = Object.fromEntries(
       theme.settings.typography.fontFamilies.map(({ slug, ...rest }) => [slug, rest]),
     );
-    expect(families.interface.fontFamily).toContain("IBM Plex Sans");
+    expect(families.display.fontFamily).toContain("Space Grotesk");
+    expect(families.display.fontFace).toHaveLength(1);
+    expect(families.interface.fontFamily).toContain("Inter");
     expect(families.interface.fontFamily).toContain("system-ui");
-    expect(families.interface.fontFace).toHaveLength(4);
-    expect(families.mono.fontFamily).toContain("IBM Plex Mono");
+    expect(families.interface.fontFace).toHaveLength(2);
+    expect(families.mono.fontFamily).toContain("JetBrains Mono");
     expect(families.mono.fontFamily).toContain("ui-monospace");
-    expect(families.mono.fontFace).toHaveLength(2);
+    expect(families.mono.fontFace).toHaveLength(1);
     for (const family of theme.settings.typography.fontFamilies) {
       for (const face of family.fontFace ?? []) {
         expect(face.fontDisplay).toBe("swap");
@@ -134,14 +139,14 @@ describe("LPS block theme contract", () => {
     expect(styles.typography.fontFamily).toBe("var:preset|font-family|interface");
     expect(styles.typography.fontSize).toBe("var:preset|font-size|body");
 
-    // Then: headings are sans-led with the contracted per-level weights.
+    // Then: headings are display-led at the contracted semibold weight.
     expect(styles.elements.heading.color.text).toBe("var:preset|color|text");
-    expect(styles.elements.heading.typography.fontFamily).toBe("var:preset|font-family|interface");
-    expect(styles.elements.h1.typography.fontFamily).toBe("var:preset|font-family|interface");
-    expect(styles.elements.h1.typography.fontWeight).toBe("700");
+    expect(styles.elements.heading.typography.fontFamily).toBe("var:preset|font-family|display");
+    expect(styles.elements.h1.typography.fontFamily).toBe("var:preset|font-family|display");
+    expect(styles.elements.h1.typography.fontWeight).toBe("600");
     for (const level of ["h2", "h3", "h4"]) {
-      expect(styles.elements[level].typography.fontFamily).toBe("var:preset|font-family|interface");
-      expect(styles.elements[level].typography.fontWeight).toBe("650");
+      expect(styles.elements[level].typography.fontFamily).toBe("var:preset|font-family|display");
+      expect(styles.elements[level].typography.fontWeight).toBe("600");
     }
 
     // Then: long-form reading stays on the interface family at the reading
@@ -177,18 +182,18 @@ describe("LPS block theme contract", () => {
     // Then: fonts are local woff2 with swap, and the theme has no remote
     // imports or copied logo asset.
     for (const face of [
-      "ibm-plex-sans-regular.woff2",
-      "ibm-plex-sans-medium.woff2",
-      "ibm-plex-sans-semibold.woff2",
-      "ibm-plex-sans-bold.woff2",
-      "ibm-plex-mono-regular.woff2",
-      "ibm-plex-mono-semibold.woff2",
+      "inter-regular.woff2",
+      "inter-semibold.woff2",
+      "jetbrains-mono-regular.woff2",
+      "space-grotesk-semibold.woff2",
     ]) {
       expect(css).toContain(`../fonts/${face}`);
     }
     expect(css).not.toMatch(/@import|url\(["']?https?:/i);
     expect(license).toContain("SIL OPEN FONT LICENSE Version 1.1");
-    expect(license).toContain('Reserved Font Name "Plex"');
+    for (const family of ["Inter", "Space Grotesk", "JetBrains Mono"]) {
+      expect(license).toContain(family);
+    }
   });
 
   test("renders the native shell disclosure closed on mobile and always open on desktop", () => {

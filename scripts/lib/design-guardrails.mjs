@@ -62,6 +62,14 @@ export const MARK_PATH_SHA256 = new Set([
   "94bdafe6b664fce30cb718194d2bb50d0ec3aef2edc54241336ad54453e89691",
   "e55e0e1b289489e30652996f81ebb6ce777a8efb7fc91a16f1a6ddb0f64b398e",
   "303285c12ba25b5ed7aefc8d022b55b8ef460bd5479366768f55b1d238058e29",
+  // The same COPPE/Poli/UFRJ lockup artwork re-serialised at reduced float
+  // precision (identical geometry, smaller bytes): baseline, wave-and-lps,
+  // COPPE block, descriptor lines, and the reversed lockup's flattened path.
+  "185797e88a9c284f3e53d19f9fd4414c8dee5548e2ec5d2f2ecf072f238ece2f",
+  "c1edd36513677bb3ef27f5c87bd4dc08df771cf5784394b25a7cf0cffab166ef",
+  "c05ee27687a0fe72954a6887127fae47cddfbd0a3caf26563ff83d80199dd30f",
+  "b3afb41551d34a93ef2448a97fa2616a2b1ce11eed716075289d8d94a9adbe11",
+  "8e7a7a2ca68d79cfe6c31700cd302999b6517aef8eade55d1a90537de1ab8c22",
 ]);
 export const MARK_GRADIENT_SHA256 = new Set([
   "532ff2aed9b4c04f837d7b2229f41dda2948a8007d46c87ca5cb38ef7448ce65", // wave-gradient

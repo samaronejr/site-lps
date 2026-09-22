@@ -198,9 +198,9 @@ final class Shell {
 				'en'    => '/en/',
 			)
 		);
-		$mark          = self::masthead_brand();
-		$quick_label   = $english ? 'Quick access' : 'Acesso rápido';
-		$utility_items = '';
+		$mark           = self::masthead_brand();
+		$quick_label    = $english ? 'Quick access' : 'Acesso rápido';
+		$utility_items  = '';
 		foreach ( self::utility_links( $locale ) as $label => $url ) {
 			$current        = rtrim( $path, '/' ) === rtrim( $url, '/' ) ? ' aria-current="page"' : '';
 			$utility_items .= '<li><a' . $current . ' href="' . self::escape( $url ) . '">' . self::escape( $label ) . '</a></li>';
@@ -584,8 +584,8 @@ final class Shell {
 		if ( ! function_exists( 'is_front_page' ) || is_front_page() || is_404() ) {
 			return '';
 		}
-		$path    = self::request_path();
-		$locale  = self::current_locale( $path );
+		$path   = self::request_path();
+		$locale = self::current_locale( $path );
 		if ( null !== TeachingRoutes::match_path( $path ) ) {
 			// Teaching routes carry their full context: landing, course, and the
 			// offering's section crumb — the same trail the JSON-LD graph emits.
@@ -824,10 +824,10 @@ final class Shell {
 			$locale      = self::current_locale( $path );
 			$counterpart = SearchRoutes::search_path( 'pt-br' === $locale ? 'en' : 'pt-br' );
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only propagation of the current search query.
-			$query = isset( $_GET['q'] ) && is_string( $_GET['q'] ) ? trim( sanitize_text_field( wp_unslash( $_GET['q'] ) ) ) : '';
+			$query  = isset( $_GET['q'] ) && is_string( $_GET['q'] ) ? trim( sanitize_text_field( wp_unslash( $_GET['q'] ) ) ) : '';
 			$suffix = '' === $query ? '' : '?q=' . rawurlencode( $query );
 			return array(
-				$locale => $path . $suffix,
+				$locale                              => $path . $suffix,
 				'pt-br' === $locale ? 'en' : 'pt-br' => $counterpart . $suffix,
 			);
 		}
@@ -863,7 +863,7 @@ final class Shell {
 		$counterpart = SeoRoutes::counterpart_path( $path, $locale );
 		if ( '' !== $counterpart ) {
 			$variants = array(
-				$locale => $path,
+				$locale                              => $path,
 				'pt-br' === $locale ? 'en' : 'pt-br' => $counterpart,
 			);
 			// The search form state survives the language switch so a reader

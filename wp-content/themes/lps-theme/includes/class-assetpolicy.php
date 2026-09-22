@@ -50,8 +50,8 @@ final class AssetPolicy {
 
 	/** Self-hosted subset faces preloaded for the first paint. */
 	private const PRELOADED_FONTS = array(
-		'assets/fonts/ibm-plex-sans-regular.woff2',
-		'assets/fonts/ibm-plex-sans-semibold.woff2',
+		'assets/fonts/inter-regular.woff2',
+		'assets/fonts/space-grotesk-semibold.woff2',
 	);
 
 	/**

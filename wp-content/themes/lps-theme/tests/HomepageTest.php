@@ -82,32 +82,52 @@ final class HomepageTest extends \PHPUnit\Framework\TestCase {
 				'2026-09-03',
 				true,
 			),
-			'unpublished' => array(
-				self::eligible_native( array( 'status' => 'draft', '_lps_state' => 'draft' ) ),
+			'unpublished'                        => array(
+				self::eligible_native(
+					array(
+						'status'     => 'draft',
+						'_lps_state' => 'draft',
+					)
+				),
 				'2026-09-03',
 				false,
 			),
-			'stale English' => array(
+			'stale English'                      => array(
 				self::eligible_native( array( 'stale' => true ) ),
 				'2026-09-03',
 				false,
 			),
-			'expired' => array(
-				self::eligible_native( array( 'locale' => 'pt-br', 'featured_until' => '2026-09-02' ) ),
+			'expired'                            => array(
+				self::eligible_native(
+					array(
+						'locale'         => 'pt-br',
+						'featured_until' => '2026-09-02',
+					)
+				),
 				'2026-09-03',
 				false,
 			),
-			'missing provenance' => array(
-				self::eligible_native( array( 'locale' => 'pt-br', '_lps_record_id' => '' ) ),
+			'missing provenance'                 => array(
+				self::eligible_native(
+					array(
+						'locale'         => 'pt-br',
+						'_lps_record_id' => '',
+					)
+				),
 				'2026-09-03',
 				false,
 			),
-			'ambiguous origin' => array(
-				self::eligible_native( array( '_lps_origin' => '', '_lps_record_id' => '' ) ),
+			'ambiguous origin'                   => array(
+				self::eligible_native(
+					array(
+						'_lps_origin'    => '',
+						'_lps_record_id' => '',
+					)
+				),
 				'2026-09-03',
 				false,
 			),
-			'unreviewed import' => array(
+			'unreviewed import'                  => array(
 				self::eligible_native(
 					array(
 						'_lps_origin'              => 'native',
@@ -118,7 +138,7 @@ final class HomepageTest extends \PHPUnit\Framework\TestCase {
 				'2026-09-03',
 				false,
 			),
-			'reviewed import' => array(
+			'reviewed import'                    => array(
 				self::eligible_native(
 					array(
 						'_lps_origin'              => 'imported',
@@ -151,10 +171,38 @@ final class HomepageTest extends \PHPUnit\Framework\TestCase {
 	 */
 	public function test_feature_selection_is_explicit_bounded_and_ordered(): void {
 		$records = array(
-			self::eligible_native( array( 'source_id' => 'lps:project:3', '_lps_record_id' => 'lps:project:3', 'feature_order' => 3, 'featured_until' => '' ) ),
-			self::eligible_native( array( 'source_id' => 'lps:project:1', '_lps_record_id' => 'lps:project:1', 'feature_order' => 1, 'featured_until' => '' ) ),
-			self::eligible_native( array( 'source_id' => 'lps:project:2', '_lps_record_id' => 'lps:project:2', 'feature_order' => 2, 'featured_until' => '' ) ),
-			self::eligible_native( array( 'source_id' => 'lps:project:4', '_lps_record_id' => 'lps:project:4', 'feature_order' => 4, 'featured_until' => '' ) ),
+			self::eligible_native(
+				array(
+					'source_id'      => 'lps:project:3',
+					'_lps_record_id' => 'lps:project:3',
+					'feature_order'  => 3,
+					'featured_until' => '',
+				)
+			),
+			self::eligible_native(
+				array(
+					'source_id'      => 'lps:project:1',
+					'_lps_record_id' => 'lps:project:1',
+					'feature_order'  => 1,
+					'featured_until' => '',
+				)
+			),
+			self::eligible_native(
+				array(
+					'source_id'      => 'lps:project:2',
+					'_lps_record_id' => 'lps:project:2',
+					'feature_order'  => 2,
+					'featured_until' => '',
+				)
+			),
+			self::eligible_native(
+				array(
+					'source_id'      => 'lps:project:4',
+					'_lps_record_id' => 'lps:project:4',
+					'feature_order'  => 4,
+					'featured_until' => '',
+				)
+			),
 		);
 
 		self::assertSame(
@@ -165,7 +213,13 @@ final class HomepageTest extends \PHPUnit\Framework\TestCase {
 
 	/** A record with no governed media degrades to text, never a broken box. */
 	public function test_missing_media_degrades_to_text_without_placeholder(): void {
-		$markup = Homepage::feature_media_markup( array( 'title' => 'Projeto validado', 'image' => null ), 'pt-br' );
+		$markup = Homepage::feature_media_markup(
+			array(
+				'title' => 'Projeto validado',
+				'image' => null,
+			),
+			'pt-br'
+		);
 
 		self::assertSame( '', $markup );
 	}
@@ -224,7 +278,13 @@ final class HomepageTest extends \PHPUnit\Framework\TestCase {
 	/** A reviewed focal point renders as the governed object-position. */
 	public function test_focal_point_renders_object_position(): void {
 		$media          = $this->cleared_media();
-		$media['asset'] = array_merge( $media['asset'], array( 'focal_x' => 0.25, 'focal_y' => 0.8 ) );
+		$media['asset'] = array_merge(
+			$media['asset'],
+			array(
+				'focal_x' => 0.25,
+				'focal_y' => 0.8,
+			)
+		);
 		$record         = array_replace( $this->record( 'mission', 'pt-br' ), array( 'media' => $media ) );
 		$markup         = Homepage::feature_media_markup( $record, 'pt-br', 'hero' );
 
@@ -317,7 +377,7 @@ final class HomepageTest extends \PHPUnit\Framework\TestCase {
 				'venue'        => 'Auditório do LPS',
 			)
 		);
-		$html = Homepage::section_markup( 'latest', 'pt-br', array( $event ), '2026-09-06' );
+		$html  = Homepage::section_markup( 'latest', 'pt-br', array( $event ), '2026-09-06' );
 		self::assertStringContainsString( '<time datetime="2026-10-01">2026-10-01</time>', $html );
 		self::assertStringContainsString( 'Eventos', $html );
 		self::assertStringContainsString( 'Cancelado', $html );
@@ -383,16 +443,37 @@ final class HomepageTest extends \PHPUnit\Framework\TestCase {
 				array( '_lps_state' => 'archived' ),
 				array( 'stale' => true ),
 				array( 'locale' => 'en' === $locale ? 'pt-br' : 'en' ),
-				array( '_lps_origin' => 'imported', '_lps_import_source_id' => 'record-001', '_lps_import_review_state' => 'candidate' ),
-				array( '_lps_origin' => '', '_lps_record_id' => '' ),
+				array(
+					'_lps_origin'              => 'imported',
+					'_lps_import_source_id'    => 'record-001',
+					'_lps_import_review_state' => 'candidate',
+				),
+				array(
+					'_lps_origin'    => '',
+					'_lps_record_id' => '',
+				),
 				array( '_lps_owner_user_id' => 0 ),
 				array( '_lps_review_date' => '2026-09-05' ),
 				array( 'featured_until' => '2026-09-05' ),
 				array( 'featured_from' => '2026-09-07' ),
 				array( 'url' => 'javascript:alert(1)' ),
 			) as $change ) {
-				$rejected = array_replace( $this->record( 'latest', $locale ), array( 'title' => 'REJECTED_RECORD', 'summary' => 'REJECTED_SUMMARY', 'date' => '2026-09-01' ), $change );
-				$valid    = array_replace( $this->record( 'latest', $locale ), array( 'source_id' => 'source:valid', 'date' => '2026-09-02' ) );
+				$rejected = array_replace(
+					$this->record( 'latest', $locale ),
+					array(
+						'title'   => 'REJECTED_RECORD',
+						'summary' => 'REJECTED_SUMMARY',
+						'date'    => '2026-09-01',
+					),
+					$change
+				);
+				$valid    = array_replace(
+					$this->record( 'latest', $locale ),
+					array(
+						'source_id' => 'source:valid',
+						'date'      => '2026-09-02',
+					)
+				);
 				$html     = Homepage::section_markup( 'latest', $locale, array( $rejected, $valid ), '2026-09-06' );
 				self::assertStringNotContainsString( 'REJECTED_RECORD', $html );
 				self::assertStringNotContainsString( 'REJECTED_SUMMARY', $html );

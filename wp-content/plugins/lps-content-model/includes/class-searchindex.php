@@ -367,7 +367,7 @@ final class SearchIndex {
 	/**
 	 * Adds the lifecycle column when dbDelta could not.
 	 *
-	 * dbDelta emits `ADD COLUMN ... AFTER`, which the SQLite driver cannot
+	 * The dbDelta routine emits `ADD COLUMN ... AFTER`, which the SQLite driver cannot
 	 * place; a plain `ADD COLUMN` with a literal default is the portable
 	 * repair. On MySQL dbDelta has already added the column, so this path is
 	 * only reached where the fallback statement is valid.
@@ -712,17 +712,17 @@ final class SearchIndex {
 			$external_url = self::text( $shared['_lps_external_url'] ?? '' );
 			$download     = class_exists( TeachingResources::class ) ? TeachingResources::download_url( $post->ID ) : '';
 			return array(
-				'code'              => $course_code,
-				'course_title'      => trim( $course_title . ' ' . $offering_title ),
-				'resource_type'     => self::text( $shared['_lps_resource_type'] ?? '' ),
-				'language'          => self::text( $shared['_lps_resource_language'] ?? '' ),
-				'offering_visible'  => $visible,
-				'lifecycle'         => array(
+				'code'             => $course_code,
+				'course_title'     => trim( $course_title . ' ' . $offering_title ),
+				'resource_type'    => self::text( $shared['_lps_resource_type'] ?? '' ),
+				'language'         => self::text( $shared['_lps_resource_language'] ?? '' ),
+				'offering_visible' => $visible,
+				'lifecycle'        => array(
 					'release_state' => self::text( $shared['_lps_release_state'] ?? '' ),
 					'release_at'    => self::text( $shared['_lps_release_at'] ?? '' ),
 				),
-				'url'               => '' !== $external_url ? $external_url : $download,
-				'facets'            => array(
+				'url'              => '' !== $external_url ? $external_url : $download,
+				'facets'           => array(
 					'type'     => array( self::text( $shared['_lps_resource_type'] ?? '' ) ),
 					'language' => array( self::text( $shared['_lps_resource_language'] ?? '' ) ),
 				),

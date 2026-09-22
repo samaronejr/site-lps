@@ -64,13 +64,13 @@ describe("task-22: shipped payload stays inside the approved budgets", () => {
     expect(policy).toMatch(
       /public static function front_end_scripts\(\): array \{\s*return array\(\);/,
     );
-    expect(policy).toContain("ibm-plex-sans-regular.woff2");
-    expect(policy).toContain("ibm-plex-sans-semibold.woff2");
-    // The approved payload is exactly the six vendored IBM Plex faces.
+    expect(policy).toContain("inter-regular.woff2");
+    expect(policy).toContain("space-grotesk-semibold.woff2");
+    // The approved payload is exactly the four vendored faces.
     const css = await read(`${THEME_ROOT}/assets/css/theme.css`);
-    const faces = [...css.matchAll(/font-family:\s*'([^']+)'/g)].map((m) => m[1]);
+    const faces = [...css.matchAll(/font-family:\s*["']([^"']+)["']/g)].map((m) => m[1]);
     for (const face of new Set(faces)) {
-      expect(face).toMatch(/^IBM Plex/);
+      expect(face).toMatch(/^(Inter|Space Grotesk|JetBrains Mono)$/);
     }
     expect(css).not.toMatch(/url\(\s*['"]?https?:/);
     expect(css).not.toContain("@import");
@@ -299,8 +299,8 @@ describe("task-22: measurement reporting is honest about laboratory data", () =>
 
   it("the hosting doc names the actually shipped font payload", async () => {
     const doc = await read(HOSTING_DOC);
-    expect(doc).toContain("ibm-plex-sans-regular.woff2");
-    expect(doc).toContain("ibm-plex-sans-semibold.woff2");
+    expect(doc).toContain("inter-regular.woff2");
+    expect(doc).toContain("space-grotesk-semibold.woff2");
     expect(doc).not.toContain("source-serif-4");
   });
 });

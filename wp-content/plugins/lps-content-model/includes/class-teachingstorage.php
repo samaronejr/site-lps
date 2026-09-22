@@ -98,7 +98,7 @@ final class TeachingStorage {
 		$public_root  = self::text( $config['public_root'] ?? '' );
 		if ( '' === $storage_root || ! is_dir( $storage_root ) ) {
 			$errors[] = 'lps_storage_root_missing';
-		} elseif ( ! is_writable( $storage_root ) ) {
+		} elseif ( ! is_writable( $storage_root ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable -- Local ops-volume check outside WP_Filesystem scope.
 			$errors[] = 'lps_storage_root_unwritable';
 		}
 		if ( '' === $public_root || ! is_dir( $public_root ) ) {
@@ -301,7 +301,7 @@ final class TeachingStorage {
 		if ( null !== $error ) {
 			return self::result( $error );
 		}
-		$bytes = file_get_contents( $tmp_name );
+		$bytes = file_get_contents( $tmp_name ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local upload tmp file, not a remote resource.
 		if ( false === $bytes ) {
 			return self::result( 'lps_teaching_read_failed' );
 		}
@@ -343,17 +343,17 @@ final class TeachingStorage {
 		}
 		$record = $intake['record'];
 		$dir    = self::state_dir( self::text( $config['storage_root'] ), 'quarantined' );
-		if ( ! is_dir( $dir ) && ! mkdir( $dir, 0750, true ) && ! is_dir( $dir ) ) {
+		if ( ! is_dir( $dir ) && ! mkdir( $dir, 0750, true ) && ! is_dir( $dir ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir -- Local ops-volume directory.
 			return self::result( 'lps_storage_write_failed' );
 		}
 		$target = $dir . '/' . self::text( $record['key'] );
-		if ( ! rename( $tmp_name, $target ) ) {
+		if ( ! rename( $tmp_name, $target ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename -- Local ops-volume move.
 			if ( ! copy( $tmp_name, $target ) ) {
 				return self::result( 'lps_storage_write_failed' );
 			}
-			unlink( $tmp_name );
+			unlink( $tmp_name ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink -- Local upload tmp cleanup.
 		}
-		chmod( $target, 0640 );
+		chmod( $target, 0640 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_chmod -- Local ops-volume permissions.
 		return self::result( null, $record );
 	}
 
@@ -526,7 +526,7 @@ final class TeachingStorage {
 			return false;
 		}
 		$path = self::storage_path( self::text( $config['storage_root'] ?? '' ), $record );
-		return is_file( $path ) ? unlink( $path ) : false;
+		return is_file( $path ) ? unlink( $path ) : false; // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink -- Local ops-volume cleanup.
 	}
 
 	/**
@@ -656,13 +656,13 @@ final class TeachingStorage {
 			);
 		}
 		$dir = self::state_dir( $root, $state );
-		if ( ! is_dir( $dir ) && ! mkdir( $dir, 0750, true ) && ! is_dir( $dir ) ) {
+		if ( ! is_dir( $dir ) && ! mkdir( $dir, 0750, true ) && ! is_dir( $dir ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir -- Local ops-volume directory.
 			return array(
 				'error'  => 'lps_storage_write_failed',
 				'record' => $record,
 			);
 		}
-		if ( ! rename( $from, $dir . '/' . self::text( $record['key'] ?? '' ) ) ) {
+		if ( ! rename( $from, $dir . '/' . self::text( $record['key'] ?? '' ) ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename -- Local ops-volume move.
 			return array(
 				'error'  => 'lps_storage_write_failed',
 				'record' => $record,

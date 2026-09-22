@@ -55,6 +55,7 @@ final class DashboardSurfaces {
 			. '<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
 			. '<meta name="robots" content="noindex, nofollow">'
 			. '<title>' . self::esc( $title . ' — LPS' ) . '</title>'
+			// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet -- Standalone dashboard document outside wp_head; the theme stylesheet is emitted directly.
 			. ( '' !== $css_url ? '<link rel="stylesheet" href="' . self::esc( $css_url ) . '">' : '' )
 			. '</head><body class="lps-dashboard">'
 			. $header
@@ -106,9 +107,11 @@ final class DashboardSurfaces {
 		$html .= '</ul></nav>';
 		if ( array() === ( $model['offerings'] ?? array() ) ) {
 			$html .= '<div class="lps-alert lps-alert-info" data-dashboard-empty="offerings"><p>'
-				. self::esc( $english
+				. self::esc(
+					$english
 					? 'No offering is assigned to your account yet. When an editor assigns one, it appears here with its units, materials and copy-forward task.'
-					: 'Nenhuma oferta está atribuída à sua conta ainda. Quando um editor atribuir uma, ela aparece aqui com suas unidades, materiais e a tarefa de cópia.' )
+					: 'Nenhuma oferta está atribuída à sua conta ainda. Quando um editor atribuir uma, ela aparece aqui com suas unidades, materiais e a tarefa de cópia.'
+				)
 				. '</p></div>';
 		} else {
 			$html .= '<section class="lps-dashboard-section" aria-labelledby="lps-dash-offerings"><h2 id="lps-dash-offerings">'
@@ -118,7 +121,7 @@ final class DashboardSurfaces {
 				$html    .= '<li class="lps-record">'
 					. '<a href="' . self::esc( DashboardRoutes::view_path( 'offering', $locale, (int) $offering['id'] ) ) . '">' . self::esc( self::text( $offering['title'] ?? '' ) ) . '</a>'
 					. ' ' . self::chip( self::text( $offering['state'] ?? 'draft' ), $locale )
-					. self::identity_line( $offering, $locale )
+					. self::identity_line( $offering )
 					. '</li>';
 			}
 			$html .= '</ul></section>';
@@ -162,11 +165,11 @@ final class DashboardSurfaces {
 				. self::esc( $english ? 'This offering is outside your assigned scope.' : 'Esta oferta está fora do seu escopo atribuído.' )
 				. '</p></div>';
 		}
-		$html  = '<section class="lps-dashboard-offering" data-dashboard-view="offering" data-offering-id="' . (int) $id . '">';
-		$html .= '<p class="lps-kicker">' . self::esc( $english ? 'Offering workspace' : 'Área da oferta' ) . '</p>';
-		$html .= '<h2>' . self::esc( self::text( $offering['title'] ?? '' ) ) . '</h2>';
-		$html .= '<p>' . self::chip( self::text( $offering['state'] ?? 'draft' ), $locale ) . '</p>';
-		$html .= self::identity_line( $offering, $locale );
+		$html   = '<section class="lps-dashboard-offering" data-dashboard-view="offering" data-offering-id="' . (int) $id . '">';
+		$html  .= '<p class="lps-kicker">' . self::esc( $english ? 'Offering workspace' : 'Área da oferta' ) . '</p>';
+		$html  .= '<h2>' . self::esc( self::text( $offering['title'] ?? '' ) ) . '</h2>';
+		$html  .= '<p>' . self::chip( self::text( $offering['state'] ?? 'draft' ), $locale ) . '</p>';
+		$html  .= self::identity_line( $offering );
 		$public = self::safe_url( self::text( $offering['public_url'] ?? '' ) );
 		$edit   = self::safe_url( self::text( $offering['edit_url'] ?? '' ) );
 		if ( '' !== $public ) {
@@ -197,9 +200,11 @@ final class DashboardSurfaces {
 				. '</p></div>';
 		}
 		$html  = '<section class="lps-dashboard-news" data-dashboard-view="news">';
-		$html .= '<p class="lps-summary">' . self::esc( $english
+		$html .= '<p class="lps-summary">' . self::esc(
+			$english
 			? 'Submissions enter review as drafts; an editor approves or returns them with a note. A saved draft is never public.'
-			: 'Os envios entram em revisão como rascunhos; um editor aprova ou devolve com uma nota. Um rascunho salvo nunca é público.' ) . '</p>';
+			: 'Os envios entram em revisão como rascunhos; um editor aprova ou devolve com uma nota. Um rascunho salvo nunca é público.'
+		) . '</p>';
 		$items = is_array( $model['news'] ?? null ) ? $model['news'] : array();
 		if ( array() !== $items ) {
 			$html .= '<ul class="lps-record-list">';
@@ -250,9 +255,11 @@ final class DashboardSurfaces {
 		$person_id = (int) ( $model['person_id'] ?? 0 );
 		if ( 0 >= $person_id ) {
 			return '<div class="lps-alert lps-alert-info" data-dashboard-view="profile-unresolved"><p>'
-				. self::esc( $english
+				. self::esc(
+					$english
 					? 'Your account is not linked to one person record yet. When a teaching team names exactly one person across your offerings, the profile proposal form appears here.'
-					: 'Sua conta ainda não está ligada a um único registro de pessoa. Quando uma equipe docente nomear exatamente uma pessoa nas suas ofertas, o formulário de proposta de perfil aparece aqui.' )
+					: 'Sua conta ainda não está ligada a um único registro de pessoa. Quando uma equipe docente nomear exatamente uma pessoa nas suas ofertas, o formulário de proposta de perfil aparece aqui.'
+				)
 				. '</p></div>';
 		}
 		$person  = function_exists( 'get_post' ) ? get_post( $person_id ) : null;
@@ -264,14 +271,16 @@ final class DashboardSurfaces {
 			}
 			$current[ $field ] = function_exists( 'get_post_meta' ) ? (string) get_post_meta( $person_id, $field, true ) : '';
 		}
-		$recall  = self::recall( 'profile' );
+		$recall        = self::recall( 'profile' );
 		$recall_fields = is_array( $recall['fields'] ?? null ) ? $recall['fields'] : array();
-		$html    = '<section class="lps-dashboard-profile" data-dashboard-view="profile">';
-		$html   .= '<p class="lps-summary">' . self::esc( $english
+		$html          = '<section class="lps-dashboard-profile" data-dashboard-view="profile">';
+		$html         .= '<p class="lps-summary">' . self::esc(
+			$english
 			? 'Profile changes are proposals: an editor reviews them before the public record changes. The current value is shown beside each field.'
-			: 'Alterações de perfil são propostas: um editor as revisa antes de o registro público mudar. O valor atual aparece ao lado de cada campo.' ) . '</p>';
-		$html   .= '<h2>' . self::esc( $person instanceof \WP_Post ? $person->post_title : '' ) . '</h2>';
-		$html   .= '<section class="lps-dashboard-form" aria-labelledby="lps-profile-form"><h3 id="lps-profile-form">'
+			: 'Alterações de perfil são propostas: um editor as revisa antes de o registro público mudar. O valor atual aparece ao lado de cada campo.'
+		) . '</p>';
+		$html         .= '<h2>' . self::esc( $person instanceof \WP_Post ? $person->post_title : '' ) . '</h2>';
+		$html         .= '<section class="lps-dashboard-form" aria-labelledby="lps-profile-form"><h3 id="lps-profile-form">'
 			. self::esc( $english ? 'Propose profile changes' : 'Propor alterações de perfil' ) . '</h3>'
 			. self::form_open( 'lps_dashboard_profile' );
 		foreach ( TaskDashboard::proposal_fields() as $field ) {
@@ -285,7 +294,7 @@ final class DashboardSurfaces {
 			$type  = '_lps_public_email' === $field ? 'email' : 'text';
 			$html .= self::field( 'fields[' . $field . ']', $label, $type, $value, $locale, false, $hint );
 		}
-		$html .= self::submit( $english ? 'Send proposal for review' : 'Enviar proposta para revisão' ) . '</form></section>';
+		$html     .= self::submit( $english ? 'Send proposal for review' : 'Enviar proposta para revisão' ) . '</form></section>';
 		$proposals = is_array( $model['proposals'] ?? null ) ? $model['proposals'] : array();
 		if ( array() !== $proposals ) {
 			$html .= '<section class="lps-dashboard-section" aria-labelledby="lps-proposal-history"><h3 id="lps-proposal-history">'
@@ -316,12 +325,17 @@ final class DashboardSurfaces {
 				. self::esc( $english ? 'Your account has no review queue.' : 'Sua conta não tem fila de revisão.' )
 				. '</p></div>';
 		}
-		$queue = is_array( $model['review'] ?? null ) ? $model['review'] : array( 'news' => array(), 'proposals' => array() );
+		$queue = is_array( $model['review'] ?? null ) ? $model['review'] : array(
+			'news'      => array(),
+			'proposals' => array(),
+		);
 		$html  = '<section class="lps-dashboard-review" data-dashboard-view="review">';
-		$html .= '<p class="lps-summary">' . self::esc( $english
+		$html .= '<p class="lps-summary">' . self::esc(
+			$english
 			? 'Approve publishes the item; reject returns it to draft with a note the author sees. A rejection always needs the note.'
-			: 'Aprovar publica o item; rejeitar o devolve a rascunho com uma nota que o autor vê. Uma rejeição sempre precisa da nota.' ) . '</p>';
-		$news = is_array( $queue['news'] ?? null ) ? $queue['news'] : array();
+			: 'Aprovar publica o item; rejeitar o devolve a rascunho com uma nota que o autor vê. Uma rejeição sempre precisa da nota.'
+		) . '</p>';
+		$news  = is_array( $queue['news'] ?? null ) ? $queue['news'] : array();
 		$html .= '<section class="lps-dashboard-section" aria-labelledby="lps-review-news"><h2 id="lps-review-news">'
 			. self::esc( $english ? 'News submissions' : 'Notícias enviadas' ) . '</h2>';
 		if ( array() === $news ) {
@@ -329,8 +343,8 @@ final class DashboardSurfaces {
 		} else {
 			$html .= '<ul class="lps-record-list">';
 			foreach ( $news as $item ) {
-				$item   = self::record( $item );
-				$html  .= '<li class="lps-record"><strong>' . self::esc( self::text( $item['title'] ?? '' ) ) . '</strong>'
+				$item  = self::record( $item );
+				$html .= '<li class="lps-record"><strong>' . self::esc( self::text( $item['title'] ?? '' ) ) . '</strong>'
 					. ' <span class="lps-meta">' . self::esc( self::text( $item['date'] ?? '' ) ) . '</span>'
 					. '<p>' . self::esc( self::text( $item['summary'] ?? '' ) ) . '</p>'
 					. self::review_form( 'news', (int) $item['id'], 0, '', $locale )
@@ -338,7 +352,7 @@ final class DashboardSurfaces {
 			}
 			$html .= '</ul>';
 		}
-		$html .= '</section>';
+		$html     .= '</section>';
 		$proposals = is_array( $queue['proposals'] ?? null ) ? $queue['proposals'] : array();
 		$html     .= '<section class="lps-dashboard-section" aria-labelledby="lps-review-proposals"><h2 id="lps-review-proposals">'
 			. self::esc( $english ? 'Profile proposals' : 'Propostas de perfil' ) . '</h2>';
@@ -381,9 +395,11 @@ final class DashboardSurfaces {
 		$terms   = is_array( $model['terms'] ?? null ) ? $model['terms'] : array();
 		$people  = is_array( $model['people'] ?? null ) ? $model['people'] : array();
 		$html    = '<section class="lps-dashboard-create" data-dashboard-view="create">';
-		$html   .= '<p class="lps-summary">' . self::esc( $english
+		$html   .= '<p class="lps-summary">' . self::esc(
+			$english
 			? 'An offering binds one course to one term and section with its teaching team. The record starts as a draft.'
-			: 'Uma oferta liga uma disciplina a um período e turma com sua equipe docente. O registro começa como rascunho.' ) . '</p>';
+			: 'Uma oferta liga uma disciplina a um período e turma com sua equipe docente. O registro começa como rascunho.'
+		) . '</p>';
 		$html   .= self::form_open( 'lps_dashboard_offering' )
 			. self::field( 'title', TaskDashboard::field_label( 'post_title', $locale ), 'text', self::text( $recall['title'] ?? '' ), $locale, true )
 			. self::textarea( 'excerpt', TaskDashboard::field_label( 'post_excerpt', $locale ), self::text( $recall['excerpt'] ?? '' ), $locale, true )
@@ -463,7 +479,15 @@ final class DashboardSurfaces {
 					if ( 'released' !== self::text( $resource['release_state'] ?? '' ) ) {
 						$html .= self::release_form( (int) $resource['id'], $locale );
 					} else {
-						$html .= self::action_form( 'lps_dashboard_release', array( 'resource_id' => (int) $resource['id'], 'release_action' => 'withdraw' ), $english ? 'Withdraw' : 'Retirar', 'withdraw-resource' );
+						$html .= self::action_form(
+							'lps_dashboard_release',
+							array(
+								'resource_id'    => (int) $resource['id'],
+								'release_action' => 'withdraw',
+							),
+							$english ? 'Withdraw' : 'Retirar',
+							'withdraw-resource'
+						);
 					}
 					if ( 'publish' !== self::text( $resource['status'] ?? '' ) ) {
 						$html .= self::action_form( 'lps_dashboard_publish', array( 'post_id' => (int) $resource['id'] ), $english ? 'Publish material' : 'Publicar material', 'publish-resource' );
@@ -525,7 +549,10 @@ final class DashboardSurfaces {
 		}
 		$types = array();
 		foreach ( TeachingContracts::RESOURCE_TYPES as $type ) {
-			$types[] = array( 'id' => $type, 'title' => $type );
+			$types[] = array(
+				'id'    => $type,
+				'title' => $type,
+			);
 		}
 		return '<section class="lps-dashboard-form" aria-labelledby="lps-resource-form"><h3 id="lps-resource-form">'
 			. self::esc( $english ? 'Add a material' : 'Adicionar material' ) . '</h3>'
@@ -564,15 +591,17 @@ final class DashboardSurfaces {
 		$team    = is_array( $offering['team'] ?? null ) ? $offering['team'] : array();
 		// The current team may hold unpublished people; the option list must
 		// include them so the reviewed-team submit is not blocked.
-		$team_ids = array_map( static fn( $member ): int => (int) ( self::record( $member )['person_id'] ?? 0 ), $team );
-		$people   = class_exists( TaskDashboard::class ) ? TaskDashboard::people_options( $team_ids ) : ( is_array( $model['people'] ?? null ) ? $model['people'] : array() );
-		$reusable = is_array( $offering['reusable'] ?? null ) ? $offering['reusable'] : array();
+		$team_ids  = array_map( static fn( $member ): int => (int) ( self::record( $member )['person_id'] ?? 0 ), $team );
+		$people    = class_exists( TaskDashboard::class ) ? TaskDashboard::people_options( $team_ids ) : ( is_array( $model['people'] ?? null ) ? $model['people'] : array() );
+		$reusable  = is_array( $offering['reusable'] ?? null ) ? $offering['reusable'] : array();
 		$operation = function_exists( 'wp_generate_uuid4' ) ? 'copy-' . wp_generate_uuid4() : 'copy-' . (string) (int) $offering['id'];
-		$html    = '<section class="lps-dashboard-form" aria-labelledby="lps-copy-form"><h3 id="lps-copy-form">'
+		$html      = '<section class="lps-dashboard-form" aria-labelledby="lps-copy-form"><h3 id="lps-copy-form">'
 			. self::esc( $english ? 'Copy to the next term' : 'Copiar para o próximo período' ) . '</h3>'
-			. '<p class="lps-field-hint">' . self::esc( $english
+			. '<p class="lps-field-hint">' . self::esc(
+				$english
 				? 'The copy creates a draft offering on the target term with the reviewed team and the selected cleared materials. An editor still publishes it.'
-				: 'A cópia cria uma oferta em rascunho no período de destino com a equipe revisada e os materiais selecionados. Um editor ainda a publica.' ) . '</p>'
+				: 'A cópia cria uma oferta em rascunho no período de destino com a equipe revisada e os materiais selecionados. Um editor ainda a publica.'
+			) . '</p>'
 			. self::form_open( 'lps_dashboard_copy' )
 			. self::hidden( 'offering_id', (string) (int) $offering['id'] )
 			. self::hidden( 'operation_id', $operation )
@@ -606,7 +635,10 @@ final class DashboardSurfaces {
 		$english = 'en' === $locale;
 		$roles   = array();
 		foreach ( TeachingContracts::TEAM_ROLES as $role ) {
-			$roles[] = array( 'id' => $role, 'title' => $role );
+			$roles[] = array(
+				'id'    => $role,
+				'title' => $role,
+			);
 		}
 		$rows = max( 1, count( $selected ) );
 		$html = '<fieldset class="lps-fieldset" data-team-fields><legend>' . self::esc( TaskDashboard::field_label( 'team', $locale ) ) . '</legend>';
@@ -736,9 +768,8 @@ final class DashboardSurfaces {
 	 * Renders the offering identity line (course, term, section).
 	 *
 	 * @param array<string, mixed> $offering Offering workspace model.
-	 * @param string               $locale   Supported locale slug.
 	 */
-	private static function identity_line( array $offering, string $locale ): string {
+	private static function identity_line( array $offering ): string {
 		$identity = self::record( $offering['identity'] ?? array() );
 		$parts    = array_filter(
 			array(
@@ -844,7 +875,7 @@ final class DashboardSurfaces {
 				'view'  => 'create',
 			),
 		);
-		$links = array();
+		$links   = array();
 		foreach ( $tasks as $task ) {
 			$key = is_string( $task ) ? $task : '';
 			if ( ! isset( $map[ $key ] ) ) {
@@ -918,8 +949,8 @@ final class DashboardSurfaces {
 	 * @param string $hint     Current-value hint.
 	 */
 	private static function field( string $name, string $label, string $type, string $value, string $locale, bool $required, string $hint = '' ): string {
-		$id    = 'lps-f-' . sanitize_key( str_replace( array( '[', ']' ), array( '-', '' ), $name ) );
-		$html  = '<p class="lps-field"><label for="' . self::esc( $id ) . '">' . self::esc( $label ) . ( $required ? ' <span aria-hidden="true">*</span>' : '' ) . '</label>'
+		$id   = 'lps-f-' . sanitize_key( str_replace( array( '[', ']' ), array( '-', '' ), $name ) );
+		$html = '<p class="lps-field"><label for="' . self::esc( $id ) . '">' . self::esc( $label ) . ( $required ? ' <span aria-hidden="true">*</span>' : '' ) . '</label>'
 			. '<input id="' . self::esc( $id ) . '" name="' . self::esc( $name ) . '" type="' . self::esc( $type ) . '" value="' . self::esc( $value ) . '"' . ( $required ? ' required' : '' ) . '>';
 		if ( '' !== $hint ) {
 			$html .= '<span class="lps-field-hint">' . self::esc( ( 'en' === $locale ? 'Current: ' : 'Atual: ' ) . $hint ) . '</span>';
@@ -938,8 +969,8 @@ final class DashboardSurfaces {
 	 * @param string $hint     Current-value hint.
 	 */
 	private static function textarea( string $name, string $label, string $value, string $locale, bool $required, string $hint = '' ): string {
-		$id    = 'lps-f-' . sanitize_key( str_replace( array( '[', ']' ), array( '-', '' ), $name ) );
-		$html  = '<p class="lps-field"><label for="' . self::esc( $id ) . '">' . self::esc( $label ) . ( $required ? ' <span aria-hidden="true">*</span>' : '' ) . '</label>'
+		$id   = 'lps-f-' . sanitize_key( str_replace( array( '[', ']' ), array( '-', '' ), $name ) );
+		$html = '<p class="lps-field"><label for="' . self::esc( $id ) . '">' . self::esc( $label ) . ( $required ? ' <span aria-hidden="true">*</span>' : '' ) . '</label>'
 			. '<textarea id="' . self::esc( $id ) . '" name="' . self::esc( $name ) . '" rows="4"' . ( $required ? ' required' : '' ) . '>' . self::esc( $value ) . '</textarea>';
 		if ( '' !== $hint ) {
 			$html .= '<span class="lps-field-hint">' . self::esc( ( 'en' === $locale ? 'Current: ' : 'Atual: ' ) . $hint ) . '</span>';
@@ -958,8 +989,8 @@ final class DashboardSurfaces {
 	 * @param bool                             $required Whether the field is required.
 	 */
 	private static function select( string $name, string $label, array $options, string|int $selected, string $locale, bool $required ): string {
-		$id    = 'lps-f-' . sanitize_key( str_replace( array( '[', ']' ), array( '-', '' ), $name ) );
-		$html  = '<p class="lps-field"><label for="' . self::esc( $id ) . '">' . self::esc( $label ) . ( $required ? ' <span aria-hidden="true">*</span>' : '' ) . '</label>'
+		$id   = 'lps-f-' . sanitize_key( str_replace( array( '[', ']' ), array( '-', '' ), $name ) );
+		$html = '<p class="lps-field"><label for="' . self::esc( $id ) . '">' . self::esc( $label ) . ( $required ? ' <span aria-hidden="true">*</span>' : '' ) . '</label>'
 			. '<select id="' . self::esc( $id ) . '" name="' . self::esc( $name ) . '"' . ( $required ? ' required' : '' ) . '>'
 			. '<option value="">' . self::esc( 'en' === $locale ? '— Select —' : '— Selecione —' ) . '</option>';
 		foreach ( $options as $option ) {
@@ -970,7 +1001,7 @@ final class DashboardSurfaces {
 			if ( '' !== $extra && $extra !== $text ) {
 				$text = '' === $text ? $extra : $text . ' (' . $extra . ')';
 			}
-			$mark = (string) $selected === $value ? ' selected' : '';
+			$mark  = (string) $selected === $value ? ' selected' : '';
 			$html .= '<option value="' . self::esc( $value ) . '"' . $mark . '>' . self::esc( $text ) . '</option>';
 		}
 		return $html . '</select></p>';
