@@ -230,12 +230,11 @@ ${esc(site.address.city)}<br>
 ${columnsMarkup}
 </div>
 <div class="lps-footer-bottom lps-page-grid">
-<p>${esc(en ? `© ${new Date().getFullYear()} LPS/UFRJ. Content published under institutional responsibility.` : `© ${new Date().getFullYear()} LPS/UFRJ. Conteúdo publicado sob responsabilidade institucional.`)}</p>
+<p>${esc(en ? `© ${new Date().getFullYear()} Signal Processing Laboratory. All rights reserved.` : `© ${new Date().getFullYear()} Laboratório de Processamento de Sinais. Todos os direitos reservados.`)}</p>
 <ul>
 <li><a href="${site.external.pee}">PEE/COPPE</a></li>
 <li><a href="${site.external.coppe}">COPPE</a></li>
 <li><a href="${site.external.ufrj}">UFRJ</a></li>
-<li><a href="${site.external.legacy}">${esc(en ? "Previous site" : "Site anterior")}</a></li>
 </ul>
 </div>
 </footer>`;
