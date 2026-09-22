@@ -120,7 +120,7 @@ final class Homepage {
 		if ( ! class_exists( PublicationPolicy::class ) ) {
 			return false;
 		}
-		return PublicationPolicy::visibility_decision( $record, PublicationPolicy::SURFACE_FEATURE, $locale, $today )['visible'];
+		return PublicationPolicy::visibility_decision( self::string_keyed( $record ), PublicationPolicy::SURFACE_FEATURE, $locale, $today )['visible'];
 	}
 
 	/**
@@ -129,7 +129,7 @@ final class Homepage {
 	 * @param array<int, mixed> $records Candidate records.
 	 * @param string            $locale  Requested locale slug.
 	 * @param string            $today   Current date in YYYY-MM-DD.
-	 * @return array<int, array<mixed, mixed>>
+	 * @return array<int, array<string, mixed>>
 	 */
 	public static function select_features( array $records, string $locale, string $today ): array {
 		$eligible = array();
@@ -137,6 +137,7 @@ final class Homepage {
 			if ( ! is_array( $record ) ) {
 				continue;
 			}
+			$record = self::string_keyed( $record );
 			if ( isset( $record['feature_order'] ) && self::eligible_feature( $record, $locale, $today ) ) {
 				$eligible[] = $record;
 			}
@@ -171,8 +172,8 @@ final class Homepage {
 	 */
 	public static function feature_media_markup( array $record, string $locale, string $placement = 'content' ): string {
 		$media = $record['media'] ?? array();
-		$usage = is_array( $media ) && is_array( $media['usage'] ?? null ) ? $media['usage'] : array();
-		$asset = is_array( $media ) && is_array( $media['asset'] ?? null ) ? $media['asset'] : array();
+		$usage = is_array( $media ) ? self::string_keyed( $media['usage'] ?? null ) : array();
+		$asset = is_array( $media ) ? self::string_keyed( $media['asset'] ?? null ) : array();
 		if ( array() !== $usage && class_exists( MediaPolicy::class ) ) {
 			$usage['locale']    = $locale;
 			$usage['placement'] = 'hero' === $placement ? 'hero' : 'content';
@@ -223,7 +224,7 @@ final class Homepage {
 		if ( 0 < $queried && 'home' === get_post_meta( $queried, '_lps_page_key', true ) ) {
 			return $queried;
 		}
-		$front = (int) get_option( 'page_on_front' );
+		$front = self::num( get_option( 'page_on_front' ) );
 		if ( 0 < $front && 'home' === get_post_meta( $front, '_lps_page_key', true ) ) {
 			return $front;
 		}
@@ -238,9 +239,7 @@ final class Homepage {
 				'meta_value'  => 'home',
 			)
 		) as $candidate ) {
-			if ( $candidate instanceof WP_Post ) {
-				return $candidate->ID;
-			}
+			return $candidate->ID;
 		}
 		return 0;
 	}
@@ -436,10 +435,7 @@ final class Homepage {
 		if ( 'latest' === $section ) {
 			return self::latest_module( $html, $heading, $items, $locale );
 		}
-		if ( 'people' === $section ) {
-			return self::people_module( $html, $heading, $items, $locale );
-		}
-		return '';
+		return self::people_module( $html, $heading, $items, $locale );
 	}
 
 	/**
@@ -853,6 +849,25 @@ final class Homepage {
 	 */
 	private static function num( mixed $value ): int {
 		return is_numeric( $value ) ? (int) $value : 0;
+	}
+
+	/**
+	 * Narrows a boundary record to a string-keyed map.
+	 *
+	 * @param mixed $value Boundary input.
+	 * @return array<string, mixed>
+	 */
+	private static function string_keyed( mixed $value ): array {
+		if ( ! is_array( $value ) ) {
+			return array();
+		}
+		$map = array();
+		foreach ( $value as $key => $item ) {
+			if ( is_string( $key ) ) {
+				$map[ $key ] = $item;
+			}
+		}
+		return $map;
 	}
 
 	/**

@@ -293,7 +293,7 @@ final class Delivery {
 		}
 		$targets = CachePolicy::purge_targets(
 			array(
-				'permalink'    => is_string( $permalink ) ? $permalink : '',
+				'permalink'    => $permalink,
 				'archives'     => self::archive_urls( $post ),
 				'translations' => self::translation_urls( $post ),
 				'terms'        => self::term_urls( $post ),
@@ -358,7 +358,7 @@ final class Delivery {
 					}
 				}
 				foreach ( Relationships::reverse_for( $authority, 'offering_course' ) as $row ) {
-					$urls = array_merge( $urls, self::offering_urls( (int) ( $row['source_post_id'] ?? 0 ) ) );
+					$urls = array_merge( $urls, self::offering_urls( (int) $row['source_post_id'] ) );
 				}
 				break;
 			case 'lps_term':
@@ -366,7 +366,7 @@ final class Delivery {
 					$urls[] = home_url( TeachingRecords::landing_path( $locale ) );
 				}
 				foreach ( Relationships::reverse_for( $authority, 'offering_term' ) as $row ) {
-					$urls = array_merge( $urls, self::offering_urls( (int) ( $row['source_post_id'] ?? 0 ) ) );
+					$urls = array_merge( $urls, self::offering_urls( (int) $row['source_post_id'] ) );
 				}
 				break;
 			case 'lps_offering':
@@ -377,17 +377,17 @@ final class Delivery {
 				break;
 			case 'lps_unit':
 				foreach ( Relationships::for_source( $authority, 'unit_offering' ) as $row ) {
-					$urls = array_merge( $urls, self::offering_urls( (int) ( $row['target_post_id'] ?? 0 ) ) );
+					$urls = array_merge( $urls, self::offering_urls( (int) $row['target_post_id'] ) );
 				}
 				break;
 			case 'lps_resource':
 				foreach ( Relationships::for_source( $authority, 'resource_offering' ) as $row ) {
-					$urls = array_merge( $urls, self::offering_urls( (int) ( $row['target_post_id'] ?? 0 ) ) );
+					$urls = array_merge( $urls, self::offering_urls( (int) $row['target_post_id'] ) );
 				}
 				break;
 			case 'lps_person':
 				foreach ( Relationships::reverse_for( $authority, 'teaching_team' ) as $row ) {
-					$urls = array_merge( $urls, self::offering_urls( (int) ( $row['source_post_id'] ?? 0 ) ) );
+					$urls = array_merge( $urls, self::offering_urls( (int) $row['source_post_id'] ) );
 				}
 				break;
 			default:
@@ -445,7 +445,7 @@ final class Delivery {
 		$urls = array();
 		foreach ( Relationships::for_source( $offering_id, 'teaching_team' ) as $member ) {
 			foreach ( array( 'pt-br', 'en' ) as $locale ) {
-				$person = self::localized_post( (int) ( $member['target_post_id'] ?? 0 ), $locale );
+				$person = self::localized_post( (int) $member['target_post_id'], $locale );
 				if ( $person instanceof \WP_Post ) {
 					$permalink = get_permalink( $person->ID );
 					if ( is_string( $permalink ) && '' !== $permalink ) {

@@ -1025,7 +1025,7 @@ final class SeoRoutes {
 	 * @param string                                 $section Localized section label.
 	 * @param string                                 $title   Document title.
 	 * @param array{name: string, path: string}|null $middle Optional intermediate crumb, such as the course of an offering.
-	 * @return array<int, array<string, string>>
+	 * @return array<int, array{name: string, path: string}>
 	 */
 	private static function breadcrumb_trail( string $path, string $locale, string $section, string $title, ?array $middle = null ): array {
 		$home  = '/' . $locale . '/';
@@ -1048,7 +1048,7 @@ final class SeoRoutes {
 				break;
 			}
 		}
-		if ( null !== $middle && '' !== self::text( $middle['name'] ?? '' ) && '' !== self::text( $middle['path'] ?? '' ) ) {
+		if ( null !== $middle && '' !== $middle['name'] && '' !== $middle['path'] ) {
 			$trail[] = $middle;
 		}
 		$trail[] = array(
@@ -1413,10 +1413,10 @@ final class SeoRoutes {
 		}
 		$names = array();
 		foreach ( Relationships::for_source( $authority, 'teaching_team' ) as $row ) {
-			if ( ! (bool) ( $row['public_visibility'] ?? false ) ) {
+			if ( ! $row['public_visibility'] ) {
 				continue;
 			}
-			$person = self::localized_variant( (int) ( $row['target_post_id'] ?? 0 ), $locale );
+			$person = self::localized_variant( (int) $row['target_post_id'], $locale );
 			if ( $person instanceof WP_Post && 'publish' === $person->post_status ) {
 				$names[] = (string) get_the_title( $person );
 			}
@@ -1438,7 +1438,7 @@ final class SeoRoutes {
 		$site_url = self::site_url();
 		$urls     = array();
 		foreach ( Relationships::reverse_for( $course_authority, 'offering_course' ) as $row ) {
-			$offering = self::localized_variant( (int) ( $row['source_post_id'] ?? 0 ), $locale );
+			$offering = self::localized_variant( (int) $row['source_post_id'], $locale );
 			if ( ! $offering instanceof WP_Post || 'publish' !== $offering->post_status ) {
 				continue;
 			}
