@@ -412,7 +412,9 @@ ${sectionHead({ kicker: en ? "Identity" : "Identidade", title: en ? "The laborat
     .join("")}
 <p><a class="lps-more" href="${link(locale, "/identidade-visual/", "/en/visual-identity/")}">${esc(en ? "Mark applications and files" : "Aplicações e arquivos da marca")}</a></p>
 </div>
-<div class="lps-card lps-card--flush"><div class="lps-card-media" style="min-block-size:14rem"></div></div>
+<div class="lps-card lps-card--flush"><div class="lps-card-media lps-card-media--plain" style="min-block-size:14rem" aria-hidden="true">
+<img src="/assets/img/mark/lps-mark-reversed.svg" alt="" width="2052" height="301" loading="lazy" decoding="async" style="object-fit:contain;padding:var(--space-8);background:transparent">
+</div></div>
 </div>
 </section>
 <section class="lps-section" id="parceiros" aria-labelledby="about-partners">
