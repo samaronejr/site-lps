@@ -1721,7 +1721,7 @@ textarea:focus-visible {
 .lps-card:hover {
   border-color: var(--color-anchor);
   box-shadow: var(--shadow-md);
-  transform: translate(-2px, -2px);
+  transform: translateY(-2px);
 }
 
 .lps-card--flush {
@@ -1741,6 +1741,18 @@ textarea:focus-visible {
   flex: 1 1 auto;
   flex-direction: column;
   gap: var(--space-3);
+}
+
+.lps-card--accent .lps-card-body::before {
+  background: var(--color-teal-deep);
+  border-radius: var(--radius-pill);
+  block-size: 3px;
+  content: "";
+  inline-size: 3.5rem;
+}
+
+.lps-card-body > .lps-term-token {
+  margin-block-start: auto;
 }
 
 .lps-card-media {
@@ -1780,6 +1792,7 @@ textarea:focus-visible {
 
 .lps-card-title {
   font-size: var(--type-h3);
+  letter-spacing: -0.02em;
   margin: 0;
 }
 
