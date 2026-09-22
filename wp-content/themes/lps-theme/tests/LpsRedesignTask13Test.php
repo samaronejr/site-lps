@@ -192,7 +192,7 @@ final class LpsRedesignTask13Test extends TestCase {
 		self::assertStringContainsString( 'Análise de sinais contínuos e discretos.', $html );
 		// The current-offering shortcut links straight into the live section.
 		self::assertStringContainsString( 'Turma em andamento', $html );
-		self::assertStringContainsString( $fixture['current']['url'], $html );
+		self::assertStringContainsString( self::text( $fixture['current']['url'] ), $html );
 	}
 
 	public function test_landing_empty_state_is_explicit(): void {
@@ -222,7 +222,7 @@ final class LpsRedesignTask13Test extends TestCase {
 		self::assertStringContainsString( '2026.2', $html );
 		self::assertStringContainsString( '2025.2', $html );
 		// The completed term stays linked, never archived away.
-		self::assertStringContainsString( $fixture['completed']['url'], $html );
+		self::assertStringContainsString( self::text( $fixture['completed']['url'] ), $html );
 		self::assertStringContainsString( 'Concluída', $html );
 	}
 
@@ -428,12 +428,16 @@ final class LpsRedesignTask13Test extends TestCase {
 	}
 
 	public function test_untrusted_markup_is_escaped_everywhere(): void {
-		$fixture                            = self::offering_fixture();
-		$fixture['title']                   = 'Turma <script>alert(1)</script>';
-		$fixture['materials'][0]['title']   = 'Apostila <img src=x onerror=alert(1)>';
-		$fixture['materials'][0]['summary'] = 'Resumo <b>seguro</b>';
-		$fixture['team'][0]['name']         = 'Docente <em>nome</em>';
-		$html                               = TeachingSurfaces::offering( $fixture, 'pt-br' );
+		$fixture                 = self::offering_fixture();
+		$fixture['title']        = 'Turma <script>alert(1)</script>';
+		$materials               = self::rows( $fixture, 'materials' );
+		$materials[0]['title']   = 'Apostila <img src=x onerror=alert(1)>';
+		$materials[0]['summary'] = 'Resumo <b>seguro</b>';
+		$fixture['materials']    = $materials;
+		$team                    = self::rows( $fixture, 'team' );
+		$team[0]['name']         = 'Docente <em>nome</em>';
+		$fixture['team']         = $team;
+		$html                    = TeachingSurfaces::offering( $fixture, 'pt-br' );
 		self::assertStringNotContainsString( '<script>', $html );
 		self::assertStringNotContainsString( '<img', $html );
 		self::assertStringContainsString( 'Turma &lt;script&gt;', $html );
@@ -451,5 +455,30 @@ final class LpsRedesignTask13Test extends TestCase {
 		self::assertSame( 'Completed', TeachingSurfaces::temporal_label( 'completed', 'en' ) );
 		// Unknown keys pass through so a new status never renders blank.
 		self::assertSame( 'future-key', TeachingSurfaces::temporal_label( 'future-key', 'en' ) );
+	}
+
+	/**
+	 * Reads one list-of-records field of the offering fixture.
+	 *
+	 * @param array<string, mixed> $fixture Offering fixture.
+	 * @param string               $key     Field name.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private static function rows( array $fixture, string $key ): array {
+		$value = $fixture[ $key ] ?? null;
+		if ( ! is_array( $value ) ) {
+			self::fail( $key . ' must be an array' );
+		}
+		/** @var array<int, array<string, mixed>> $value */
+		return $value;
+	}
+
+	/**
+	 * Converts boundary input to string.
+	 *
+	 * @param mixed $value Boundary input.
+	 */
+	private static function text( mixed $value ): string {
+		return is_scalar( $value ) ? (string) $value : '';
 	}
 }

@@ -225,11 +225,12 @@ final class Roles {
 		if ( null !== $error ) {
 			return self::scope_wp_error( $error );
 		}
-		$grants[ $grant_index ]['revoked_at'] = gmdate( 'c' );
-		self::$grant_syncing                  = true;
+		$grant                  = $grants[ $grant_index ];
+		$grant['revoked_at']    = gmdate( 'c' );
+		$grants[ $grant_index ] = $grant;
+		self::$grant_syncing    = true;
 		update_user_meta( $target_user_id, self::GRANTS_META, $grants );
 		self::$grant_syncing = false;
-		$grant               = $grants[ $grant_index ];
 		Audit::record(
 			'revoke-scope',
 			$target_user_id,
@@ -652,13 +653,13 @@ final class Roles {
 		foreach ( $indexes as $index ) {
 			self::revoke_scope( $user_id, $index );
 		}
-		$raw_scope   = isset( $_POST['lps_grant_scope'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['lps_grant_scope'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Cast to string then sanitized.
+		$raw_scope   = isset( $_POST['lps_grant_scope'] ) ? sanitize_text_field( Policy::scalar_string( wp_unslash( $_POST['lps_grant_scope'] ) ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Read as a scalar then sanitized.
 		$scope       = sanitize_key( $raw_scope );
-		$raw_offer   = isset( $_POST['lps_grant_offering'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['lps_grant_offering'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Cast to string then sanitized.
+		$raw_offer   = isset( $_POST['lps_grant_offering'] ) ? sanitize_text_field( Policy::scalar_string( wp_unslash( $_POST['lps_grant_offering'] ) ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Read as a scalar then sanitized.
 		$offering_id = Policy::sanitize_integer( $raw_offer );
-		$raw_role    = isset( $_POST['lps_grant_role'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['lps_grant_role'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Cast to string then sanitized.
+		$raw_role    = isset( $_POST['lps_grant_role'] ) ? sanitize_text_field( Policy::scalar_string( wp_unslash( $_POST['lps_grant_role'] ) ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Read as a scalar then sanitized.
 		$grant_role  = sanitize_key( $raw_role );
-		$expires     = isset( $_POST['lps_grant_expires'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['lps_grant_expires'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Cast to string then sanitized.
+		$expires     = isset( $_POST['lps_grant_expires'] ) ? sanitize_text_field( Policy::scalar_string( wp_unslash( $_POST['lps_grant_expires'] ) ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Read as a scalar then sanitized.
 		if ( '' !== $scope || 0 < $offering_id || '' !== $grant_role || '' !== $expires ) {
 			self::grant_scope( $user_id, $scope, $offering_id, $grant_role, $expires );
 		}

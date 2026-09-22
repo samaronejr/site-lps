@@ -208,7 +208,12 @@ final class Contracts {
 			),
 		);
 
-		$specific = array_merge( $specific, TeachingContracts::specific_meta_fields( array( self::class, 'field' ) ) );
+		/**
+		 * Teaching-contract field leaves are all produced by the FieldDefinition factories.
+		 *
+		 * @var array<string, array<string, FieldDefinition>> $specific
+		 */
+		$specific = array_merge( $specific, TeachingContracts::specific_meta_fields( array( self::class, 'teaching_field' ) ) );
 
 		$result = array();
 		foreach ( array_keys( self::post_types() ) as $post_type ) {
@@ -329,5 +334,23 @@ final class Contracts {
 			'sanitize_callback' => $callback,
 			'auth_callback'     => array( Policy::class, 'can_edit_meta' ),
 		);
+	}
+
+	/**
+	 * Builds one typed metadata definition for the teaching contract tables.
+	 *
+	 * The teaching contract declares its field factory against a zero-argument
+	 * auth callback shape; the runtime callback still receives WordPress'
+	 * four auth arguments, so the wrapper forwards them all through defaults.
+	 *
+	 * @param string $type        REST primitive type.
+	 * @param string $description Accessible editor description.
+	 * @param string $sanitizer   Sanitizer selector.
+	 * @return array{type: string, single: bool, description: string, show_in_rest: bool, sanitize_callback: callable(mixed): mixed, auth_callback: callable(): bool}
+	 */
+	public static function teaching_field( string $type, string $description, string $sanitizer ): array {
+		$definition                  = self::field( $type, $description, $sanitizer );
+		$definition['auth_callback'] = static fn ( mixed $allowed = null, string $meta_key = '', int $object_id = 0, int $user_id = 0 ): bool => Policy::can_edit_meta( $allowed, $meta_key, $object_id, $user_id );
+		return $definition;
 	}
 }

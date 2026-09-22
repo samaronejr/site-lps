@@ -617,7 +617,13 @@ final class PublicRoutes {
 		if ( ! is_array( $history ) || ! is_array( $history['entries'] ?? null ) ) {
 			return array();
 		}
-		return $history['entries'];
+		/**
+		 * History entries are record maps as declared by the teaching contract.
+		 *
+		 * @var array<int, array<string, mixed>> $entries
+		 */
+		$entries = $history['entries'];
+		return $entries;
 	}
 
 	/**

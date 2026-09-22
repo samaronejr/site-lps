@@ -126,12 +126,12 @@ final class DashboardRoutes {
 			return null;
 		}
 		$sub  = isset( $parts[3] ) && '' !== $parts[3] ? $parts[3] : '';
-		$id   = isset( $parts[4] ) && '' !== $parts[4] ? (int) $parts[4] : 0;
+		$id   = isset( $parts[4] ) ? (int) $parts[4] : 0;
 		$view = 'home';
 		if ( '' !== $sub ) {
 			$view = '';
 			foreach ( self::VIEWS as $key => $segments ) {
-				if ( ( $segments[ $locale ] ?? '' ) === $sub ) {
+				if ( $segments[ $locale ] === $sub ) {
 					$view = $key;
 					break;
 				}

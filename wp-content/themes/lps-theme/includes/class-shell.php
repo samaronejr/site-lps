@@ -207,7 +207,7 @@ final class Shell {
 		}
 		return '<a class="lps-skip-link" href="#lps-main">' . self::escape( $skip ) . '</a>'
 			. '<header class="lps-site-header">'
-			. '<div class="lps-affiliation lps-utility-bar"><div class="lps-utility-inner lps-page-grid"><p lang="pt-BR">Laboratório de Processamento de Sinais <span aria-hidden="true">/</span> UFRJ <span aria-hidden="true">/</span> COPPE</p><p class="lps-meta" lang="pt-BR">Universidade Federal do Rio de Janeiro</p><nav aria-label="' . self::escape( $quick_label ) . '"><ul class="lps-utility-links">' . $utility_items . '</ul></nav>' . self::session_link( $locale ) . '</div></div>'
+			. '<div class="lps-affiliation lps-utility-bar"><div class="lps-utility-inner lps-page-grid"><p lang="pt-BR">Laboratório de Processamento de Sinais <span aria-hidden="true">/</span> UFRJ <span aria-hidden="true">/</span> COPPE</p><p class="lps-meta" lang="pt-BR">Universidade Federal do Rio de Janeiro</p>' . ( $english ? '<p>Signal Processing Laboratory</p>' : '' ) . '<nav aria-label="' . self::escape( $quick_label ) . '"><ul class="lps-utility-links">' . $utility_items . '</ul></nav>' . self::session_link( $locale ) . '</div></div>'
 			// The masthead is the artwork alone: the lockup already sets the
 			// laboratory name in type, so repeating it in HTML beside the mark would
 			// say it twice and crowd the mark. The home link keeps its accessible
@@ -832,29 +832,26 @@ final class Shell {
 			);
 		}
 		if ( function_exists( 'is_singular' ) && is_singular() && function_exists( 'pll_get_post_translations' ) && function_exists( 'get_queried_object_id' ) ) {
-			$result       = array();
-			$translations = pll_get_post_translations( get_queried_object_id() );
-			if ( is_array( $translations ) ) {
-				foreach ( $translations as $slug => $post_id ) {
-					if ( ! is_int( $post_id ) || ( 'pt-br' !== $slug && 'en' !== $slug ) ) {
-						continue;
-					}
-					$post = get_post( $post_id );
-					if ( ! $post instanceof WP_Post || 'publish' !== $post->post_status ) {
-						continue;
-					}
-					if ( ! SeoRoutes::publicly_visible( $post, $slug ) ) {
-						continue;
-					}
-					$canonical = SeoRoutes::record_path( $post, $slug );
-					if ( '' !== $canonical ) {
-						$result[ $slug ] = $canonical;
-						continue;
-					}
-					$url = get_permalink( $post_id );
-					if ( is_string( $url ) ) {
-						$result[ $slug ] = $url;
-					}
+			$result = array();
+			foreach ( pll_get_post_translations( get_queried_object_id() ) as $slug => $post_id ) {
+				if ( 'pt-br' !== $slug && 'en' !== $slug ) {
+					continue;
+				}
+				$post = get_post( $post_id );
+				if ( ! $post instanceof WP_Post || 'publish' !== $post->post_status ) {
+					continue;
+				}
+				if ( ! SeoRoutes::publicly_visible( $post, $slug ) ) {
+					continue;
+				}
+				$canonical = SeoRoutes::record_path( $post, $slug );
+				if ( '' !== $canonical ) {
+					$result[ $slug ] = $canonical;
+					continue;
+				}
+				$url = get_permalink( $post_id );
+				if ( is_string( $url ) ) {
+					$result[ $slug ] = $url;
 				}
 			}
 			return $result;
@@ -862,20 +859,10 @@ final class Shell {
 		$locale      = self::current_locale( $path );
 		$counterpart = SeoRoutes::counterpart_path( $path, $locale );
 		if ( '' !== $counterpart ) {
-			$variants = array(
+			return array(
 				$locale                              => $path,
 				'pt-br' === $locale ? 'en' : 'pt-br' => $counterpart,
 			);
-			// The search form state survives the language switch so a reader
-			// never loses the term they typed.
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only propagation of the current search query.
-			$query = isset( $_GET['q'] ) && is_string( $_GET['q'] ) ? trim( sanitize_text_field( wp_unslash( $_GET['q'] ) ) ) : '';
-			if ( '' !== $query && null !== SearchRoutes::match_path( $path ) ) {
-				foreach ( $variants as $slug => $variant_path ) {
-					$variants[ $slug ] = $variant_path . '?q=' . rawurlencode( $query );
-				}
-			}
-			return $variants;
 		}
 		return array(
 			'pt-br' => '/pt-br/',

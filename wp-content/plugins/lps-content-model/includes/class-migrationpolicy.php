@@ -86,10 +86,10 @@ final class MigrationPolicy {
 		}
 		if ( in_array( $record['type'] ?? '', self::CATALOG_SOURCED_TYPES, true ) ) {
 			$meta = is_array( $record['meta'] ?? null ) ? $record['meta'] : array();
-			if ( 'lps_course' === ( $record['type'] ?? '' ) && '' === self::text( $meta['_lps_catalog_source_url'] ?? '' ) ) {
+			if ( 'lps_course' === $record['type'] && '' === self::text( $meta['_lps_catalog_source_url'] ?? '' ) ) {
 				return 'lps_import_course_source_required';
 			}
-			if ( 'lps_term' === ( $record['type'] ?? '' ) && '' === self::text( $meta['_lps_term_source'] ?? '' ) ) {
+			if ( 'lps_term' === $record['type'] && '' === self::text( $meta['_lps_term_source'] ?? '' ) ) {
 				return 'lps_import_course_source_required';
 			}
 		}

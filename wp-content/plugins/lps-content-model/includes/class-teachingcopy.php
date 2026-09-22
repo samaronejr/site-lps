@@ -257,7 +257,7 @@ final class TeachingCopy {
 		if ( ! $source instanceof WP_Post || 'lps_offering' !== $source->post_type || 'trash' === $source->post_status ) {
 			return self::error( 'lps_teaching_offering_invalid', 'The correction requires an existing source offering record.', 'source_offering_id', 404 );
 		}
-		$fields      = is_array( $input['fields'] ?? null ) ? $input['fields'] : array();
+		$fields      = self::string_keyed( $input['fields'] ?? null );
 		$field_error = self::correction_fields_error( $fields );
 		if ( null !== $field_error ) {
 			return self::error( $field_error, 'The correction fields violate the propagation contract.', 'fields' );
@@ -329,8 +329,8 @@ final class TeachingCopy {
 			array(
 				'operation_id'          => $operation_id,
 				'decision'              => 'propagate-correction',
-				'fields'                => array_keys( $sanitized ),
-				'affected_offering_ids' => $affected,
+				'fields'                => implode( ',', array_keys( $sanitized ) ),
+				'affected_offering_ids' => implode( ',', array_map( 'strval', $affected ) ),
 			)
 		);
 		return $manifest;
@@ -430,7 +430,7 @@ final class TeachingCopy {
 	 * @return array<string, mixed>
 	 */
 	public static function resource_copy_fields( array $source_meta, array $decision ): array {
-		$carry_public = true === ( $decision['carry_public'] ?? false );
+		$carry_public = true === $decision['carry_public'];
 		$fields       = array();
 		foreach ( self::RESOURCE_COPY_META as $key ) {
 			$fields[ $key ] = Policy::scalar_string( $source_meta[ $key ] ?? '' );
@@ -455,7 +455,7 @@ final class TeachingCopy {
 		}
 		foreach ( $fields as $key => $value ) {
 			unset( $value );
-			if ( ! is_string( $key ) || ! in_array( $key, TeachingContracts::CORRECTABLE_OFFERING_FIELDS, true ) ) {
+			if ( ! in_array( $key, TeachingContracts::CORRECTABLE_OFFERING_FIELDS, true ) ) {
 				return 'lps_correction_field_forbidden';
 			}
 		}
@@ -519,15 +519,15 @@ final class TeachingCopy {
 		usort(
 			$rows,
 			static function ( array $left, array $right ): int {
-				$left_unit  = get_post( Policy::sanitize_integer( $left['source_post_id'] ?? 0 ) );
-				$right_unit = get_post( Policy::sanitize_integer( $right['source_post_id'] ?? 0 ) );
+				$left_unit  = get_post( Policy::sanitize_integer( $left['source_post_id'] ) );
+				$right_unit = get_post( Policy::sanitize_integer( $right['source_post_id'] ) );
 				$left_pos   = $left_unit instanceof WP_Post ? Policy::sanitize_integer( get_post_meta( $left_unit->ID, '_lps_position', true ) ) : 0;
 				$right_pos  = $right_unit instanceof WP_Post ? Policy::sanitize_integer( get_post_meta( $right_unit->ID, '_lps_position', true ) ) : 0;
 				return $left_pos <=> $right_pos;
 			}
 		);
 		foreach ( $rows as $row ) {
-			$unit_id = Policy::sanitize_integer( $row['source_post_id'] ?? 0 );
+			$unit_id = Policy::sanitize_integer( $row['source_post_id'] );
 			$unit    = 0 < $unit_id ? get_post( $unit_id ) : null;
 			if ( ! $unit instanceof WP_Post || 'lps_unit' !== $unit->post_type || 'trash' === $unit->post_status ) {
 				continue;
@@ -572,7 +572,7 @@ final class TeachingCopy {
 	 */
 	private static function copy_resources( int $source_id, int $new_id, array $unit_map, array $selected, string $now, array &$resource_ids, string $operation_id ): array|WP_Error {
 		foreach ( Relationships::reverse_for( $source_id, 'resource_offering' ) as $row ) {
-			$resource_id = Policy::sanitize_integer( $row['source_post_id'] ?? 0 );
+			$resource_id = Policy::sanitize_integer( $row['source_post_id'] );
 			$resource    = 0 < $resource_id ? get_post( $resource_id ) : null;
 			if ( ! $resource instanceof WP_Post || 'lps_resource' !== $resource->post_type || 'trash' === $resource->post_status ) {
 				continue;
@@ -632,7 +632,7 @@ final class TeachingCopy {
 	private static function reusable_version_ids( int $source_id, string $now ): array {
 		$eligible = array();
 		foreach ( Relationships::reverse_for( $source_id, 'resource_offering' ) as $row ) {
-			$resource_id = Policy::sanitize_integer( $row['source_post_id'] ?? 0 );
+			$resource_id = Policy::sanitize_integer( $row['source_post_id'] );
 			$resource    = 0 < $resource_id ? get_post( $resource_id ) : null;
 			if ( ! $resource instanceof WP_Post || 'lps_resource' !== $resource->post_type || 'trash' === $resource->post_status ) {
 				continue;
@@ -689,8 +689,9 @@ final class TeachingCopy {
 		if ( ! is_array( $stored ) || array() === $stored ) {
 			return null;
 		}
-		$stored['replayed'] = true;
-		return $stored;
+		$manifest             = self::string_keyed( $stored );
+		$manifest['replayed'] = true;
+		return $manifest;
 	}
 
 	/**
@@ -735,13 +736,13 @@ final class TeachingCopy {
 		$resource_ids = array();
 		$selected     = array();
 		foreach ( Relationships::reverse_for( $new_id, 'unit_offering' ) as $row ) {
-			$unit_id = Policy::sanitize_integer( $row['source_post_id'] ?? 0 );
+			$unit_id = Policy::sanitize_integer( $row['source_post_id'] );
 			if ( 0 < $unit_id ) {
 				$unit_ids[] = $unit_id;
 			}
 		}
 		foreach ( Relationships::reverse_for( $new_id, 'resource_offering' ) as $row ) {
-			$resource_id = Policy::sanitize_integer( $row['source_post_id'] ?? 0 );
+			$resource_id = Policy::sanitize_integer( $row['source_post_id'] );
 			if ( 0 >= $resource_id ) {
 				continue;
 			}
@@ -867,7 +868,7 @@ final class TeachingCopy {
 		$definitions = Contracts::meta_fields()['lps_offering'] ?? array();
 		$sanitized   = array();
 		foreach ( $fields as $key => $value ) {
-			if ( ! is_string( $key ) || ! in_array( $key, TeachingContracts::CORRECTABLE_OFFERING_FIELDS, true ) ) {
+			if ( ! in_array( $key, TeachingContracts::CORRECTABLE_OFFERING_FIELDS, true ) ) {
 				continue;
 			}
 			$sanitized[ $key ] = isset( $definitions[ $key ]['sanitize_callback'] )
@@ -923,6 +924,25 @@ final class TeachingCopy {
 			$meta[ $key ] = get_post_meta( $post_id, $key, true );
 		}
 		return $meta;
+	}
+
+	/**
+	 * Narrows a boundary payload to a string-keyed map.
+	 *
+	 * @param mixed $value Boundary input.
+	 * @return array<string, mixed>
+	 */
+	private static function string_keyed( mixed $value ): array {
+		if ( ! is_array( $value ) ) {
+			return array();
+		}
+		$map = array();
+		foreach ( $value as $key => $item ) {
+			if ( is_string( $key ) ) {
+				$map[ $key ] = $item;
+			}
+		}
+		return $map;
 	}
 
 	/**
