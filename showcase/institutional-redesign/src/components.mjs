@@ -85,7 +85,7 @@ const href = (target, locale) => (typeof target === "string" ? target : pick(tar
 function brandMarkup(locale) {
   const t = ui(locale);
   return `<a class="lps-brand" href="${locale === "en" ? "/en/" : "/"}" aria-label="${esc(t.brandLinkLabel)}">
-<span class="lps-logo-slot"><img class="lps-logo" src="/assets/img/mark/lps-coppe-blue-lockup.svg" alt="" width="1622" height="804" decoding="async"></span>
+<span class="lps-logo-slot"><img class="lps-logo" src="/assets/brand/lps_coppe_blue_lockup.svg" alt="" width="1622" height="804" decoding="async"></span>
 </a>`;
 }
 
@@ -216,7 +216,7 @@ export function footer(locale) {
   return `<footer class="lps-site-footer">
 <div class="lps-footer-inner lps-page-grid">
 <div class="lps-footer-brand">
-<a class="lps-wordmark lps-wordmark-light" href="${en ? "/en/" : "/"}" aria-label="LPS — ${esc(t.home)}"><img class="lps-logo" src="/assets/img/mark/lps-coppe-reversed-lockup.svg" alt="LPS — ${esc(t.brandName)}" width="1622" height="804" loading="lazy" decoding="async"></a>
+<a class="lps-wordmark lps-wordmark-light" href="${en ? "/en/" : "/"}" aria-label="LPS — ${esc(t.home)}"><img class="lps-logo" src="/assets/brand/lps_coppe_reversed_lockup.svg" alt="LPS — ${esc(t.brandName)}" width="1622" height="804" loading="lazy" decoding="async"></a>
 <address>
 ${esc(site.address.line1)}<br>
 ${esc(site.address.line2)}<br>
@@ -364,7 +364,9 @@ export function courseTable(locale, rows, caption) {
       const title = href
         ? `<a href="${href}">${esc(pick(row.title, locale))}</a>`
         : esc(pick(row.title, locale));
-      return `<tr><td><span class="lps-course-code">${esc(row.code)}</span></td><th scope="row">${title}</th><td>${esc(row.professor)}</td><td><span class="lps-level ${variant}">${esc(level)}</span></td></tr>`;
+      const code =
+        row.code === "—" ? esc(row.code) : `<span class="lps-course-code">${esc(row.code)}</span>`;
+      return `<tr><td>${code}</td><th scope="row">${title}</th><td>${esc(row.professor)}</td><td><span class="lps-level ${variant}">${esc(level)}</span></td></tr>`;
     })
     .join("")}</tbody>
 </table>

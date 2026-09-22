@@ -29,6 +29,20 @@ These were the brittle spots found on `devin-fix-cloud` — re-verify whenever a
 
 Playwright recipe: `const { chromium } = createRequire('/home/ubuntu/repos/site-lps/package.json')('playwright-core');` then `chromium.launch({ executablePath: '/home/ubuntu/.local/bin/google-chrome' })` — playwright-core ships in repo node_modules; run scripts from /tmp via createRequire since bare import resolution walks up from the script dir.
 
-## WordPress theme
+## WordPress staging site (runs locally via Playground)
 
-No PHP runtime on this box — the theme is NOT end-to-end testable here; restrict UI testing to the showcase. `scripts/check-theme.mjs` exists as a static gate (CSS-referenced fonts exist).
+A full WP staging site CAN run on this box via `scripts/deploy/staging.mjs` (WordPress Playground, PHP 8.3, SQLite):
+
+```bash
+export PATH=/tmp/node-v24.20.0-linux-x64/bin:$PATH   # REQUIRED — a serve spawned without it dies ("nohup: failed to run command 'node'") and the edge keeps listening but 502s everything
+node /home/ubuntu/repos/site-lps/scripts/deploy/staging.mjs serve   # (re)starts origin :8927 + TLS edge :8443 idempotently
+```
+
+- Public URL `https://127.0.0.1:8443` (self-signed — playwright needs `ignoreHTTPSErrors: true`); edge proxies to origin `http://127.0.0.1:8927`. Live release = `.omo/staging/current` symlink → `.omo/staging/releases/<id>/`. Shared SQLite DB at `.omo/staging/ops/db/.ht.sqlite` (query with python3 `sqlite3` — no sqlite3 CLI installed).
+- If `8443` returns 502 instantly: the origin died; run `serve` again. `.omo/staging/ops/logs/origin.log` shows boot/serve history.
+- **Admin login (user `samarone`, administrator role)**: password is a provisioned secret (`LPS_STAGING_PASSWORD` via `env` binding). TOTP is enforced: after `/pt-br/entrar/` creds POST, the stock `wp-login.php?action=validate_2fa` page asks `authcode`. If the saved TOTP secrets are malformed, read the seed from the DB (`SELECT meta_value FROM wp_usermeta WHERE user_id=2 AND meta_key='_two_factor_totp_key'` — base32), generate the 6-digit code with HMAC-SHA1 TOTP in-process; use it and discard (never log the seed). Deterministic path: do the whole flow via `context.request` POSTs — the entrar creds POST returns the 2FA form INLINE (200, not a redirect); parse its hidden inputs (provider/wp-auth-id/wp-auth-nonce) then POST authcode to `wp-login.php?action=validate_2fa`. Browser-context cookies then authenticate page visits; save with `ctx.storageState`.
+- **Edge denylist gotcha**: `scripts/deploy/edge.mjs` `denied()` 403s any URL containing `/includes/`, `/tests/`, `debug`, `.log/.sql/.sqlite` — this catches legitimate plugin assets like `two-factor/includes/qrcode-generator/qrcode.js` (403 on profile.php). `/wp-includes/` is NOT affected (segment match).
+- **Theme CSP**: `lps-content-model/includes/class-hardening.php` sends a nonced CSP (`script-src 'self' 'nonce-…'`) on ALL responses incl. wp-admin — WP core inline scripts (userSettings, _wpColorScheme, no-js→js swap) are blocked by design; an `admin_globals()` shim restores ajaxurl/pagenow only. Expect ~10 "Refused to execute inline script" console lines per admin page.
+- Post-login landing is stock `/wp-admin/`; the themed member area is `/pt-br/painel/` (+ `/en/dashboard/`, `/pt-br/painel/revisao/`, `/pt-br/painel/nova-oferta/`). `/pt-br/area-do-professor/` 302s into painel.
+- Desktop header renders the disclosure nav panel permanently open (vertical nav column + tools) — `.lps-masthead-nav` is never emitted by the shell; check whether that's still intended vs DESIGN.md's "navigation row".
+- `scripts/check-theme.mjs` exists as a static gate (CSS-referenced fonts exist).

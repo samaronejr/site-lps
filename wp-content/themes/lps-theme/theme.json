@@ -119,7 +119,7 @@
         {
           "slug": "success",
           "name": "Success",
-          "color": "#0D6B48"
+          "color": "#04536C"
         },
         {
           "slug": "warning",
@@ -139,7 +139,7 @@
         {
           "slug": "success-wash",
           "name": "Success wash",
-          "color": "#E3F0E9"
+          "color": "#D6F3FB"
         },
         {
           "slug": "warning-wash",

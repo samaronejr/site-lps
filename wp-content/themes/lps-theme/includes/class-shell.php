@@ -214,6 +214,7 @@ final class Shell {
 			// name, and the affiliation band above still names the institution in a
 			// language-tagged Portuguese paragraph.
 			. '<div class="lps-masthead lps-page-grid"><a class="lps-brand" href="' . $home . '" aria-label="LPS — ' . ( $english ? 'home' : 'início' ) . '">' . $mark . '</a></div>'
+			. '<div class="lps-masthead-nav lps-page-grid"><nav class="lps-primary-nav" aria-label="' . self::escape( $nav_label ) . '"><ul>' . $items . '</ul></nav></div>'
 			. '<details class="lps-shell-disclosure"><summary>' . self::escape( $menu ) . '</summary><div class="lps-nav-panel lps-page-grid">'
 			. '<nav class="lps-primary-nav" aria-label="' . self::escape( $nav_label ) . '"><ul>' . $items . '</ul></nav>'
 			. '<div class="lps-shell-tools"><form class="lps-search" role="search" action="' . $search_action . '" method="get"><label for="lps-search-input">' . self::escape( $search_label ) . '</label><div><input id="lps-search-input" name="q" type="search" autocomplete="off"><button type="submit">' . self::escape( $search_button ) . '</button></div></form>'

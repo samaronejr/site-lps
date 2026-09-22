@@ -138,6 +138,17 @@ final class AuthRoutes {
 				$redirect = $requested;
 			}
 		}
+		// Core's auth_redirect builds the return target from $_SERVER['HTTP_HOST'],
+		// which is the internal origin behind a reverse-proxy edge. Loopback
+		// authority is rewritten to the declared home so the sign-in flow stays
+		// on the public surface end to end.
+		$redirect_host = wp_parse_url( $redirect, PHP_URL_HOST );
+		$home_url      = function_exists( 'home_url' ) ? home_url( '/' ) : '';
+		$home_host     = wp_parse_url( $home_url, PHP_URL_HOST );
+		if ( is_string( $redirect_host ) && is_string( $home_host ) && '' !== $redirect_host && $redirect_host !== $home_host && in_array( $redirect_host, array( '127.0.0.1', 'localhost', '::1' ), true ) ) {
+			$replaced = preg_replace( '~^[a-z][a-z0-9+.-]*://[^/?#]+~i', untrailingslashit( $home_url ), $redirect, 1 );
+			$redirect = is_string( $replaced ) ? $replaced : $redirect;
+		}
 		if ( '' !== $redirect ) {
 			$query['redirect_to'] = $redirect;
 		}

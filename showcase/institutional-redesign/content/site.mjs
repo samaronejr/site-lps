@@ -2160,7 +2160,7 @@ export const opportunities = {
       },
     },
     {
-      title: { "pt-BR": "Mestrado e doutorado", en: "Master and doctorate" },
+      title: { "pt-BR": "Mestrado e doutorado", en: "Master's and doctoral programs" },
       body: {
         "pt-BR":
           "Seleção pelo Programa de Engenharia Elétrica da COPPE, com possibilidade de orientação na área de Inteligência Computacional.",
@@ -2202,14 +2202,6 @@ export const opportunities = {
 export const about = {
   history: [
     {
-      year: "1996",
-      text: {
-        "pt-BR":
-          "Fundação do Laboratório de Processamento de Sinais na UFRJ, dedicado a ensino, pesquisa e extensão.",
-        en: "Founding of the Signal Processing Laboratory at UFRJ, dedicated to teaching, research and extension.",
-      },
-    },
-    {
       year: "1988",
       text: {
         "pt-BR":
@@ -2223,6 +2215,14 @@ export const about = {
         "pt-BR":
           "Cursos de redes neurais iniciados, com forte atuação de divulgação da área nas engenharias no Brasil.",
         en: "Neural network courses begin, with strong dissemination of the field across Brazilian engineering.",
+      },
+    },
+    {
+      year: "1996",
+      text: {
+        "pt-BR":
+          "Fundação do Laboratório de Processamento de Sinais na UFRJ, dedicado a ensino, pesquisa e extensão.",
+        en: "Founding of the Signal Processing Laboratory at UFRJ, dedicated to teaching, research and extension.",
       },
     },
     {
@@ -2645,6 +2645,10 @@ export const member = {
     subjectsAreas: {
       "pt-BR": "Áreas em que leciona, segundo a página do professor:",
       en: "Areas taught, according to the professor's own page:",
+    },
+    subjectsEmptyTitle: {
+      "pt-BR": "Nenhuma disciplina registrada",
+      en: "No registered courses",
     },
     subjectsEmpty: {
       "pt-BR":

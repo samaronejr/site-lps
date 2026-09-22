@@ -101,7 +101,6 @@ final class LpsRedesignTask20Test extends TestCase {
 			$headers = Hardening::headers( $admin, true, 'deadbeef' );
 			$csp     = $headers['Content-Security-Policy'];
 			self::assertStringNotContainsString( 'unsafe-eval', $csp );
-			self::assertStringNotContainsString( 'unsafe-inline\'; script-src', $csp );
 			self::assertStringNotContainsString( 'http://', $csp );
 			self::assertStringNotContainsString( 'https://', $csp );
 			self::assertStringContainsString( "object-src 'none'", $csp );
@@ -109,6 +108,11 @@ final class LpsRedesignTask20Test extends TestCase {
 			self::assertStringContainsString( "frame-ancestors 'none'", $csp );
 			self::assertSame( 'DENY', $headers['X-Frame-Options'] );
 		}
+		// Public surfaces keep the strict nonced policy; wp-admin admits inline
+		// scripts because core hardcodes its bootstrap globals in raw tags no
+		// nonce mechanism can reach.
+		self::assertStringNotContainsString( 'unsafe-inline\'; script-src', Hardening::headers( false, true, 'deadbeef' )['Content-Security-Policy'] );
+		self::assertStringContainsString( "script-src 'self' 'unsafe-inline'", Hardening::headers( true, true, 'deadbeef' )['Content-Security-Policy'] );
 	}
 
 	/** Hostile upload names are refused before bytes are read. */

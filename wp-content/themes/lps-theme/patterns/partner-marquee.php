@@ -37,7 +37,7 @@ $lps_partners    = array(
 $lps_partner_items = '';
 foreach ( $lps_partners as $lps_partner ) {
 	$lps_partner_items .= sprintf(
-		'<li><img src="%s" alt="%s" loading="lazy" decoding="async" /></li>',
+		'<li><img src="%s" alt="%s" decoding="async" /></li>',
 		esc_url( $lps_partner_dir . $lps_partner[1] ),
 		esc_attr( $lps_partner[0] )
 	);

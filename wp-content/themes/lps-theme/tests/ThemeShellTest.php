@@ -274,11 +274,13 @@ final class ThemeShellTest extends \PHPUnit\Framework\TestCase {
 		foreach ( $positions as $position ) {
 			self::assertNotFalse( $position );
 		}
+		// The desktop navigation tier precedes the disclosure; the disclosure's
+		// own copy of the nav (and the tools inside it) follows the summary.
 		self::assertTrue(
 			$positions['skip'] < $positions['banner']
-			&& $positions['banner'] < $positions['summary']
-			&& $positions['summary'] < $positions['nav']
-			&& $positions['nav'] < $positions['search']
+			&& $positions['banner'] < $positions['nav']
+			&& $positions['nav'] < $positions['summary']
+			&& $positions['summary'] < $positions['search']
 			&& $positions['search'] < $positions['locale']
 			&& $positions['locale'] < $positions['cta']
 		);

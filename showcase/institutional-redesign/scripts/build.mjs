@@ -16,7 +16,7 @@ import { cp, mkdir, readdir, rm, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { breadcrumbs, document } from "../src/components.mjs";
+import { breadcrumbs, document, pageHeader } from "../src/components.mjs";
 import { routes } from "../src/pages.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -45,6 +45,9 @@ async function copyAssets() {
 
   // Brand artwork: the four approved variants plus the favicon set.
   await cp(join(themeRoot, "assets", "img", "mark"), join(outRoot, "assets", "img", "mark"), {
+    recursive: true,
+  });
+  await cp(join(themeRoot, "assets", "brand"), join(outRoot, "assets", "brand"), {
     recursive: true,
   });
 
@@ -108,6 +111,24 @@ async function main() {
       await writePage(route, locale);
     }
   }
+
+  // Branded 404 so unknown URLs land inside the site chrome instead of a
+  // bare server error page (hosts serve this file for unmatched routes).
+  const notFound = document("pt-br", {
+    title: "Página não encontrada — LPS/UFRJ",
+    description: "A página solicitada não foi encontrada / The requested page was not found.",
+    path: "/404.html",
+    canonicalPath: "/404.html",
+    body: `${pageHeader({
+      kicker: "Erro 404",
+      title: "Página não encontrada",
+      lead: "O endereço que você procurou não existe ou foi movido. The page you are looking for does not exist or has moved.",
+    })}
+<div class="lps-page-grid">
+<p><a class="lps-button" href="/">Voltar ao início</a> <a class="lps-button lps-button-ghost" href="/en/">Back to the English home</a></p>
+</div>`,
+  });
+  await writeFile(join(outRoot, "404.html"), notFound, "utf8");
 
   // A sitemap for the preview, so the route set is inspectable without clicking.
   const urls = routes.flatMap((route) => [route.pt, route.en]);
