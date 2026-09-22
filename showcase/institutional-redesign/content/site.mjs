@@ -42,7 +42,7 @@ export const site = {
     note: { "pt-BR": "Ramal 8205", en: "Extension 8205" },
   },
   emails: {
-    office: "natmourajr@lps.ufrj.br",
+    office: "secretaria@lps.ufrj.br",
   },
   external: {
     pee: "https://www.pee.ufrj.br/",
@@ -2041,8 +2041,8 @@ export const news = [
       "pt-BR": "Primeira atuação de redes neurais na seleção online de elétrons do ATLAS",
       en: "First neural network in ATLAS online electron selection",
     },
-    date: "2019-01-01",
-    dateLabel: { "pt-BR": "2019", en: "2019" },
+    date: "2018-01-01",
+    dateLabel: { "pt-BR": "2018", en: "2018" },
     summary: {
       "pt-BR":
         "Um esforço colaborativo atualizou a classificação online de elétrons baseada em redes neurais artificiais — contribuição de grande importância para o experimento.",
@@ -2061,8 +2061,8 @@ export const news = [
     dateLabel: { "pt-BR": "Desde 1988", en: "Since 1988" },
     summary: {
       "pt-BR":
-        "Iniciada em 1988 no LPS, a colaboração em processamento de sinais para física de altas energias gerou um grande número de teses e publicações e segue ativa.",
-      en: "Started in 1988 at LPS, the collaboration on signal processing for high-energy physics has produced a large number of theses and publications and remains active.",
+        "Iniciada em 1988 na UFRJ/COPPE, a colaboração em processamento de sinais para física de altas energias gerou um grande número de teses e publicações e segue ativa.",
+      en: "Started in 1988 at UFRJ/COPPE, the collaboration on signal processing for high-energy physics has produced a large number of theses and publications and remains active.",
     },
     source: "https://sites.google.com/lps.ufrj.br/caloba/in%C3%ADcio",
   },
@@ -2173,12 +2173,12 @@ export const opportunities = {
   howto: {
     "pt-BR": [
       "Acompanhe as chamadas publicadas nesta página e nos canais institucionais do PEE/COPPE.",
-      "Contate a coordenação do laboratório para verificar disponibilidade de vagas e requisitos do projeto.",
+      "Contate a secretaria do laboratório para verificar disponibilidade de vagas e requisitos do projeto.",
       "Para ingresso em mestrado ou doutorado, o caminho formal é a seleção do Programa de Engenharia Elétrica da COPPE/UFRJ.",
     ],
     en: [
       "Follow the calls published on this page and on the PEE/COPPE institutional channels.",
-      "Contact the laboratory coordination to check availability and project requirements.",
+      "Contact the laboratory office to check availability and project requirements.",
       "For master or doctoral admission, the formal route is the selection process of the Electrical Engineering Program at COPPE/UFRJ.",
     ],
   },
@@ -2322,38 +2322,33 @@ export const partnerLogos = [
 export const contact = {
   channels: [
     {
-      title: { "pt-BR": "Coordenação do laboratório", en: "Laboratory coordination" },
+      title: { "pt-BR": "Secretaria do laboratório", en: "Laboratory office" },
+      body: {
+        "pt-BR": "Para assuntos administrativos, projetos, estágios e visitas técnicas.",
+        en: "For administrative matters, projects, internships and technical visits.",
+      },
+      items: [{ label: "secretaria@lps.ufrj.br", href: "mailto:secretaria@lps.ufrj.br" }],
+    },
+    {
+      title: { "pt-BR": "Coordenação", en: "Coordination" },
       body: {
         "pt-BR":
-          "A coordenação do laboratório recebe assuntos administrativos, projetos, estágios e visitas técnicas.",
-        en: "The laboratory coordination receives administrative matters, projects, internships and technical visits.",
+          "A coordenação do laboratório é exercida pelo Prof. Natanael Nunes de Moura Junior.",
+        en: "The laboratory is coordinated by Prof. Natanael Nunes de Moura Junior.",
       },
       items: [
         { label: "Prof. Natanael Nunes de Moura Junior", href: "/pessoas/natanael/" },
-        { label: "natmourajr@lps.ufrj.br", href: "mailto:natmourajr@lps.ufrj.br" },
-      ],
-    },
-    {
-      title: { "pt-BR": "Endereço", en: "Address" },
-      body: {
-        "pt-BR": "O laboratório fica no Centro de Tecnologia da UFRJ, Ilha do Fundão.",
-        en: "The laboratory sits at the UFRJ Technology Centre, Ilha do Fundão.",
-      },
-      items: [
-        {
-          label: "Av. Athos da Silveira Ramos, 149 — Bloco H, sala 220",
-          href: "https://www.google.com/maps/search/?api=1&query=Centro+de+Tecnologia+Bloco+H+UFRJ",
-        },
+        { label: "(21) 3938-8205", href: "tel:+552139388205" },
       ],
     },
     {
       title: { "pt-BR": "Imprensa e comunicação", en: "Press and communication" },
       body: {
         "pt-BR":
-          "Pedidos de entrevista e uso da marca devem ser encaminhados à coordenação, que responde em nome do laboratório.",
-        en: "Interview requests and brand usage must be sent to the coordination, which answers on behalf of the laboratory.",
+          "Pedidos de entrevista e uso da marca devem ser encaminhados à secretaria, que responde em nome do laboratório.",
+        en: "Interview requests and brand usage must be sent to the office, which answers on behalf of the laboratory.",
       },
-      items: [{ label: "natmourajr@lps.ufrj.br", href: "mailto:natmourajr@lps.ufrj.br" }],
+      items: [{ label: "secretaria@lps.ufrj.br", href: "mailto:secretaria@lps.ufrj.br" }],
     },
   ],
   buildings: [
@@ -2381,8 +2376,8 @@ export const accessibility = {
   },
   contact: {
     "pt-BR":
-      "Um canal formal de relato de problemas de acessibilidade ainda não foi nomeado pela instituição. Até que exista, a coordenação do laboratório recebe relatos pelo e-mail",
-    en: "A formal channel for reporting accessibility problems has not yet been named by the institution. Until it exists, the laboratory coordination receives reports at",
+      "Um canal formal de relato de problemas de acessibilidade ainda não foi nomeado pela instituição. Até que exista, a secretaria do laboratório recebe relatos pelo e-mail",
+    en: "A formal channel for reporting accessibility problems has not yet been named by the institution. Until it exists, the laboratory office receives reports at",
   },
 };
 
@@ -2500,8 +2495,8 @@ export const member = {
       title: { "pt-BR": "Primeiro acesso e ajuda", en: "First access and help" },
       steps: [
         {
-          "pt-BR": "A conta é criada pela coordenação do laboratório, com o e-mail institucional.",
-          en: "The account is created by the laboratory coordination, with the institutional email address.",
+          "pt-BR": "A conta é criada pela secretaria do laboratório, com o e-mail institucional.",
+          en: "The account is created by the laboratory office, with the institutional email address.",
         },
         {
           "pt-BR":
@@ -2514,8 +2509,8 @@ export const member = {
         },
         {
           "pt-BR":
-            "Problemas de acesso são tratados por natmourajr@lps.ufrj.br; nunca compartilhe a senha.",
-          en: "Access problems are handled by natmourajr@lps.ufrj.br; never share your password.",
+            "Problemas de acesso são tratados por secretaria@lps.ufrj.br; nunca compartilhe a senha.",
+          en: "Access problems are handled by secretaria@lps.ufrj.br; never share your password.",
         },
       ],
     },

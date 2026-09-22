@@ -449,7 +449,7 @@ ${facts([
     term: en ? "Phone" : "Telefone",
     description: `${site.phone.label} — ${t(site.phone.note, locale)}`,
   },
-  { term: en ? "Coordination" : "Coordenação", description: site.emails.office },
+  { term: en ? "Administrative office" : "Secretaria", description: site.emails.office },
 ])}
 <p><a class="lps-more" href="https://www.google.com/maps/search/?api=1&amp;query=${encodeURIComponent(site.address.full)}" target="_blank" rel="noopener">${esc(en ? "Open in Google Maps" : "Abrir no Google Maps")}</a></p>
 </div>
@@ -946,6 +946,7 @@ ${card({
   body: en
     ? "The Caloba cluster — SLURM-managed multi-node compute with CPU and GPU partitions, Singularity containers and Proxmox virtualization — plus Maestro, the laboratory's workload-orchestration stack used for high-energy physics jobs."
     : "O cluster Caloba — computação multi-nó gerenciada por SLURM com partições CPU e GPU, contêineres Singularity e virtualização Proxmox — além do Maestro, a pilha de orquestração de workloads do laboratório usada em tarefas de física de altas energias.",
+  foot: `<ul class="lps-source-list"><li><a class="lps-meta" href="https://lps-ufrj-br.github.io/datacenter/" rel="external">${esc(en ? "Datacenter documentation" : "Documentação do datacenter")}</a></li><li><a class="lps-meta" href="https://lps-ufrj-br.github.io/maestro-lightning/" rel="external">Maestro</a></li></ul>`,
 })}
 </div>
 </section>
@@ -979,7 +980,7 @@ ${sectionHead({ kicker: en ? "Location" : "Localização", title: en ? "Visit th
       description: `${site.phone.label} (${t(site.phone.note, locale)})`,
     },
     {
-      term: en ? "Coordination" : "Coordenação",
+      term: en ? "Office" : "Secretaria",
       description: site.emails.office,
       html: `<a href="mailto:${site.emails.office}">${esc(site.emails.office)}</a>`,
     },
@@ -987,8 +988,8 @@ ${sectionHead({ kicker: en ? "Location" : "Localização", title: en ? "Visit th
 <div>${card({
     title: en ? "Technical visits and meetings" : "Visitas técnicas e reuniões",
     body: en
-      ? "The laboratory has a lecture and meeting room and receives technical visits by appointment. Requests go through the laboratory coordination."
-      : "O laboratório dispõe de sala de palestras e reuniões e recebe visitas técnicas com agendamento. Os pedidos são feitos pela coordenação do laboratório.",
+      ? "The laboratory has a lecture and meeting room and receives technical visits by appointment. Requests go through the laboratory office."
+      : "O laboratório dispõe de sala de palestras e reuniões e recebe visitas técnicas com agendamento. Os pedidos são feitos pela secretaria do laboratório.",
     action: {
       href: link(locale, "/contato/", "/en/contact/"),
       label: en ? "Request a visit" : "Solicitar visita",
@@ -1042,10 +1043,10 @@ ${t(opportunities.howto, locale)
   .join("")}
 </ol>
 <div class="lps-mt-10">${ctaBand({
-    title: en ? "Talk to the laboratory coordination" : "Fale com a coordenação do laboratório",
+    title: en ? "Talk to the laboratory office" : "Fale com a secretaria do laboratório",
     body: en
-      ? "The coordination answers questions on availability, requirements and documents before you apply."
-      : "A coordenação responde dúvidas sobre disponibilidade, requisitos e documentos antes da candidatura.",
+      ? "The office answers questions on availability, requirements and documents before you apply."
+      : "A secretaria responde dúvidas sobre disponibilidade, requisitos e documentos antes da candidatura.",
     actions: [
       { href: `mailto:${site.emails.office}`, label: site.emails.office },
       {
@@ -1208,8 +1209,8 @@ function contactPage(locale) {
     kicker: en ? "Contact" : "Contato",
     title: en ? "Contact the laboratory" : "Fale com o laboratório",
     lead: en
-      ? "The laboratory coordination is the first stop for administrative matters, projects, technical visits and press requests."
-      : "A coordenação do laboratório é o primeiro caminho para assuntos administrativos, projetos, visitas técnicas e pedidos de imprensa.",
+      ? "The laboratory office is the first stop for administrative matters, projects, technical visits and press requests."
+      : "A secretaria do laboratório é o primeiro caminho para assuntos administrativos, projetos, visitas técnicas e pedidos de imprensa.",
   })}
 <div class="lps-page-grid">
 <section class="lps-section lps-section--flush" aria-labelledby="contact-channels">
@@ -1249,8 +1250,8 @@ ${sectionHead({ kicker: en ? "Pending" : "Pendências", title: en ? "Contacts st
 ${card({
   title: en ? "Accessibility reporting" : "Relato de acessibilidade",
   body: en
-    ? "No formal accessibility reporting channel has been named. Until it is, the coordination receives accessibility reports and forwards them to the responsible team."
-    : "Nenhum canal formal de relato de acessibilidade foi nomeado. Até que exista, a coordenação recebe os relatos e os encaminha à equipe responsável.",
+    ? "No formal accessibility reporting channel has been named. Until it is, the office receives accessibility reports and forwards them to the responsible team."
+    : "Nenhum canal formal de relato de acessibilidade foi nomeado. Até que exista, a secretaria recebe os relatos e os encaminha à equipe responsável.",
 })}
 ${card({
   title: en ? "Privacy and personal data" : "Privacidade e dados pessoais",
@@ -1316,7 +1317,7 @@ ${checklist.map((item) => `<li>${esc(item)}</li>`).join("")}
 <section class="lps-section" aria-labelledby="a11y-report">
 ${sectionHead({ kicker: en ? "Reporting" : "Relato", title: en ? "Found a barrier?" : "Encontrou uma barreira?", id: "a11y-report" })}
 ${alert({ tone: "warning", body: `${t(accessibility.contact, locale)} ${site.emails.office}.` })}
-<p class="lps-mt-6">${esc(en ? "Reports are answered by the laboratory coordination while a named channel is pending institutional decision." : "Os relatos são respondidos pela coordenação do laboratório enquanto o canal nomeado aguarda decisão institucional.")}</p>
+<p class="lps-mt-6">${esc(en ? "Reports are answered by the laboratory office while a named channel is pending institutional decision." : "Os relatos são respondidos pela secretaria do laboratório enquanto o canal nomeado aguarda decisão institucional.")}</p>
 </section>
 <section class="lps-section">
 ${ctaBand({
@@ -1492,7 +1493,7 @@ ${sectionHead({ kicker: en ? "Usage" : "Uso", title: en ? "Rules that keep the m
     title: en ? "Brand package" : "Pacote da marca",
     body: en
       ? "The laboratory keeps the official files — blue and white signal, blue and white full mark, and the complete brand package — in its own drive, available through the administrative office."
-      : "O laboratório mantém os arquivos oficiais — sinal azul e branco, marca completa azul e branca, e o pacote completo da marca — em seu próprio drive, disponibilizado pela coordenação do laboratório.",
+      : "O laboratório mantém os arquivos oficiais — sinal azul e branco, marca completa azul e branca, e o pacote completo da marca — em seu próprio drive, disponibilizado pela secretaria administrativa.",
     action: {
       href: `mailto:${site.emails.office}`,
       label: en ? "Request the files" : "Solicitar os arquivos",
@@ -1612,8 +1613,8 @@ ${sample
 ${ctaBand({
   title: en ? "Nothing matched?" : "Não encontrou?",
   body: en
-    ? "The laboratory coordination can point you to the right record or person."
-    : "A coordenação do laboratório pode indicar o registro ou a pessoa certa.",
+    ? "The laboratory office can point you to the right record or person."
+    : "A secretaria do laboratório pode indicar o registro ou a pessoa certa.",
   actions: [{ href: link(locale, "/contato/", "/en/contact/"), label: en ? "Contact" : "Contato" }],
 })}
 </section>

@@ -296,15 +296,15 @@ final class AuthSurfaces {
 		foreach ( $rows as $row ) {
 			$items .= '<li class="lps-signin-audience-item"><h3>' . self::esc( $row[0] ) . '</h3><p>' . self::esc( $row[1] ) . '</p></li>';
 		}
-		$secretariat = 'natmourajr@lps.ufrj.br';
+		$secretariat = 'secretaria@lps.ufrj.br';
 		return '<section class="lps-signin-audience" aria-labelledby="lps-signin-audience-title">'
 			. '<h2 id="lps-signin-audience-title">' . self::esc( $english ? 'Who signs in here' : 'Quem entra por aqui' ) . '</h2>'
 			. '<ul class="lps-signin-audience-list">' . $items . '</ul>'
 			. '<div class="lps-signin-note"><h3>' . self::esc( $english ? 'Accounts and security' : 'Contas e segurança' ) . '</h3>'
 			. '<p>' . self::esc(
 				$english
-					? 'Accounts are issued by the laboratory coordination and are individual — never shared.'
-					: 'As contas são abertas pela coordenação do laboratório e são individuais — nunca compartilhadas.'
+					? 'Accounts are issued by the laboratory secretariat and are individual — never shared.'
+					: 'As contas são abertas pela secretaria do laboratório e são individuais — nunca compartilhadas.'
 			) . ' <a class="lps-breakable" href="mailto:' . self::esc( $secretariat ) . '">' . self::esc( $secretariat ) . '</a></p>'
 			. '<p>' . self::esc(
 				$english
