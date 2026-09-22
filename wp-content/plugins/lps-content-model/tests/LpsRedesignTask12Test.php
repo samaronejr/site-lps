@@ -14,6 +14,7 @@ require_once dirname( __DIR__ ) . '/includes/class-searchstorage.php';
 require_once dirname( __DIR__ ) . '/includes/class-teachingresources.php';
 require_once dirname( __DIR__, 3 ) . '/themes/lps-theme/includes/class-searchsurfaces.php';
 
+use LPS\ContentModel\Policy;
 use LPS\ContentModel\SearchIndex;
 use LPS\ContentModel\SearchPolicy;
 use LPS\ContentModel\SearchStorage;
@@ -60,7 +61,7 @@ final class Task12SearchStorage implements SearchStorage {
 	 * @param array<string, mixed> $row Indexed row.
 	 */
 	public function insert_record( array $row ): bool {
-		$post_id                = is_numeric( $row['post_id'] ?? 0 ) ? (int) $row['post_id'] : 0;
+		$post_id                = Policy::sanitize_integer( $row['post_id'] ?? 0 );
 		$this->rows[ $post_id ] = $row;
 		return true;
 	}
@@ -249,8 +250,8 @@ final class LpsRedesignTask12Test extends TestCase {
 		self::assertStringContainsString( 'engenharia eletrica', self::text( $row['medium_terms'] ) );
 		self::assertStringContainsString( 'calculo iii', self::text( $row['low_terms'] ) );
 		self::assertStringContainsString( 'ementa de sinais', self::text( $row['low_terms'] ) );
-		$facets = json_decode( self::text( $row['facets'] ), true );
-		self::assertSame( array( 'undergraduate' ), $facets['level'] );
+		$facets = self::decoded( self::text( $row['facets'] ) );
+		self::assertSame( array( 'undergraduate' ), $facets['level'] ?? null );
 	}
 
 	/**
@@ -266,14 +267,14 @@ final class LpsRedesignTask12Test extends TestCase {
 		self::assertStringContainsString( 't01', self::text( $row['medium_terms'] ) );
 		self::assertStringContainsString( '2026-2-semester', self::text( $row['exact_terms'] ) );
 		self::assertStringContainsString( 'lps-101', self::text( $row['exact_terms'] ) );
-		$facets = json_decode( self::text( $row['facets'] ), true );
-		self::assertSame( array( 'current' ), $facets['status'] );
-		self::assertSame( array( '2026-2-semester' ), $facets['term'] );
-		self::assertSame( array( 'docente-sinais', 'colega-convidado' ), $facets['instructor'] );
-		$lifecycle = json_decode( self::text( $row['lifecycle'] ), true );
-		self::assertSame( '2026-08-01', $lifecycle['starts_on'] );
-		self::assertSame( '2026-12-15', $lifecycle['ends_on'] );
-		self::assertFalse( $lifecycle['cancelled'] );
+		$facets = self::decoded( self::text( $row['facets'] ) );
+		self::assertSame( array( 'current' ), $facets['status'] ?? null );
+		self::assertSame( array( '2026-2-semester' ), $facets['term'] ?? null );
+		self::assertSame( array( 'docente-sinais', 'colega-convidado' ), $facets['instructor'] ?? null );
+		$lifecycle = self::decoded( self::text( $row['lifecycle'] ) );
+		self::assertSame( '2026-08-01', $lifecycle['starts_on'] ?? null );
+		self::assertSame( '2026-12-15', $lifecycle['ends_on'] ?? null );
+		self::assertFalse( $lifecycle['cancelled'] ?? null );
 	}
 
 	/**
@@ -292,11 +293,11 @@ final class LpsRedesignTask12Test extends TestCase {
 		self::assertStringNotContainsString( 'segredo-', $encoded );
 		self::assertStringNotContainsString( 'lps-file-', $encoded );
 		self::assertStringNotContainsString( 'lpsver:', $encoded );
-		$facets = json_decode( self::text( $row['facets'] ), true );
-		self::assertSame( array( 'document' ), $facets['type'] );
-		self::assertSame( array( 'pt-br' ), $facets['language'] );
-		$lifecycle = json_decode( self::text( $row['lifecycle'] ), true );
-		self::assertSame( 'released', $lifecycle['release_state'] );
+		$facets = self::decoded( self::text( $row['facets'] ) );
+		self::assertSame( array( 'document' ), $facets['type'] ?? null );
+		self::assertSame( array( 'pt-br' ), $facets['language'] ?? null );
+		$lifecycle = self::decoded( self::text( $row['lifecycle'] ) );
+		self::assertSame( 'released', $lifecycle['release_state'] ?? null );
 	}
 
 	/**
@@ -481,7 +482,9 @@ final class LpsRedesignTask12Test extends TestCase {
 		$rows = $storage->rows_for( 'pt-br', 'lps_offering' );
 		foreach ( $rows as &$row ) {
 			if ( 201 === $row['post_id'] ) {
-				$row['lifecycle']['ends_on'] = '2026-09-01';
+				$lifecycle            = self::field( $row, 'lifecycle' );
+				$lifecycle['ends_on'] = '2026-09-01';
+				$row['lifecycle']     = $lifecycle;
 			}
 		}
 		unset( $row );
@@ -491,8 +494,10 @@ final class LpsRedesignTask12Test extends TestCase {
 		// A cancelled offering is previous, never current.
 		foreach ( $rows as &$row ) {
 			if ( 201 === $row['post_id'] ) {
-				$row['lifecycle']['cancelled'] = true;
-				$row['lifecycle']['ends_on']   = '2026-12-15';
+				$lifecycle              = self::field( $row, 'lifecycle' );
+				$lifecycle['cancelled'] = true;
+				$lifecycle['ends_on']   = '2026-12-15';
+				$row['lifecycle']       = $lifecycle;
 			}
 		}
 		unset( $row );
@@ -625,6 +630,37 @@ final class LpsRedesignTask12Test extends TestCase {
 		self::assertSame( 'Graduação', SearchSurfaces::facet_value_label( 'level', 'undergraduate', 'pt-br' ) );
 		// Open-vocabulary values render their stored slug.
 		self::assertSame( '2026-2-semester', SearchSurfaces::facet_value_label( 'term', '2026-2-semester', 'pt-br' ) );
+	}
+
+	/**
+	 * Decodes one JSON object field of a stored index row.
+	 *
+	 * @param string $json Encoded field.
+	 * @return array<string, mixed>
+	 */
+	private static function decoded( string $json ): array {
+		$value = json_decode( $json, true );
+		if ( ! is_array( $value ) ) {
+			self::fail( 'the stored field must decode to an object' );
+		}
+		/** @var array<string, mixed> $value */
+		return $value;
+	}
+
+	/**
+	 * Reads one array-valued field of a hydrated index row.
+	 *
+	 * @param array<string, mixed> $row Hydrated row.
+	 * @param string               $key Field name.
+	 * @return array<string, mixed>
+	 */
+	private static function field( array $row, string $key ): array {
+		$value = $row[ $key ] ?? null;
+		if ( ! is_array( $value ) ) {
+			self::fail( $key . ' must be an array' );
+		}
+		/** @var array<string, mixed> $value */
+		return $value;
 	}
 
 	/**

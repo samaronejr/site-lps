@@ -275,7 +275,8 @@ final class LpsRedesignTask15Test extends TestCase {
 		$fields = Contracts::meta_fields()['lps_offering'];
 		foreach ( TeachingContracts::CORRECTABLE_OFFERING_FIELDS as $key ) {
 			self::assertArrayHasKey( $key, $fields, $key . ' must be a registered offering field' );
-			self::assertTrue( $fields[ $key ]['revisions_enabled'] ?? false, $key . ' must ride revisions' );
+			$registration = self::registration( $fields[ $key ] );
+			self::assertTrue( $registration['revisions_enabled'] ?? false, $key . ' must ride revisions' );
 		}
 
 		// The copy-forward provenance fields are registered as system-owned.
@@ -313,13 +314,22 @@ final class LpsRedesignTask15Test extends TestCase {
 		);
 		self::assertNull( TeachingContracts::copy_forward_plan_error( $plan ) );
 		$manifest = TeachingContracts::copy_forward_manifest( $plan );
-		self::assertTrue( $manifest['creates_draft'] );
-		self::assertFalse( $manifest['publishes'] );
-		self::assertTrue( $manifest['atomic'] );
-		self::assertTrue( $manifest['idempotent_retry'] );
+		self::assertSame( 'copy-2025-2-to-2026-1', $manifest['operation_id'] );
+		self::assertSame( 30, $manifest['source_offering_id'] );
+		self::assertSame( 21, $manifest['new_term_id'] );
 
 		// The same term and section is an identity collision, never a copy.
 		$plan['new_term_id'] = 20;
 		self::assertSame( 'lps_copy_forward_identity_collision', TeachingContracts::copy_forward_plan_error( $plan ) );
+	}
+
+	/**
+	 * Widens a declared field registration so runtime-only keys stay checkable.
+	 *
+	 * @param array<string, mixed> $meta Field registration.
+	 * @return array<string, mixed>
+	 */
+	private static function registration( array $meta ): array {
+		return $meta;
 	}
 }

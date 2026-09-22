@@ -43,9 +43,38 @@ final class LpsRedesignTask04Test extends TestCase {
 		$file = self::FIXTURE_DIR . '/' . $name . '.json';
 		self::assertFileExists( $file );
 		$fixture = json_decode( (string) file_get_contents( $file ), true, 512, JSON_THROW_ON_ERROR );
-		self::assertSame( 1, $fixture['schemaVersion'], $name . ' schemaVersion must equal 1' );
-		self::assertTrue( $fixture['synthetic'], $name . ' must declare synthetic data' );
+		if ( ! is_array( $fixture ) ) {
+			self::fail( $name . ' must decode to an object' );
+		}
+		self::assertSame( 1, $fixture['schemaVersion'] ?? null, $name . ' schemaVersion must equal 1' );
+		self::assertTrue( $fixture['synthetic'] ?? null, $name . ' must declare synthetic data' );
+		/** @var array<string, mixed> $fixture */
 		return $fixture;
+	}
+
+	/**
+	 * Reads one list-of-records field of a decoded fixture.
+	 *
+	 * @param array<string, mixed> $fixture Decoded fixture.
+	 * @param string               $key     Field name.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private static function rows( array $fixture, string $key ): array {
+		$value = $fixture[ $key ] ?? null;
+		if ( ! is_array( $value ) ) {
+			self::fail( $key . ' must be an array' );
+		}
+		/** @var array<int, array<string, mixed>> $value */
+		return $value;
+	}
+
+	/**
+	 * Converts boundary input to string.
+	 *
+	 * @param mixed $value Boundary input.
+	 */
+	private static function text( mixed $value ): string {
+		return is_scalar( $value ) ? (string) $value : '';
 	}
 
 	/**
@@ -517,22 +546,23 @@ final class LpsRedesignTask04Test extends TestCase {
 
 	public function test_faculty_fixture_accounts_conform_to_the_scope_contract(): void {
 		$faculty = self::load_fixture( 'faculty' );
-		$people  = array_column( $faculty['people'], null, 'id' );
-		foreach ( $faculty['accounts'] as $account ) {
+		$people  = array_column( self::rows( $faculty, 'people' ), null, 'id' );
+		foreach ( self::rows( $faculty, 'accounts' ) as $account ) {
+			$login = self::text( $account['login'] ?? '' );
 			self::assertFalse(
-				SecurityPolicy::shared_account_name_forbidden( $account['login'] ),
-				$account['login'] . ' must be an individual account name'
+				SecurityPolicy::shared_account_name_forbidden( $login ),
+				$login . ' must be an individual account name'
 			);
-			self::assertArrayHasKey( $account['person'], $people, 'accounts reference Person records' );
+			self::assertArrayHasKey( self::text( $account['person'] ?? '' ), $people, 'accounts reference Person records' );
 			if ( 'professor' === $account['role'] ) {
-				self::assertTrue( $account['mfaEnrolled'], $account['id'] . ' publishes publicly and must enroll MFA' );
+				self::assertTrue( $account['mfaEnrolled'] ?? null, self::text( $account['id'] ?? '' ) . ' publishes publicly and must enroll MFA' );
 			}
 			if ( 'delegate' === $account['role'] ) {
-				self::assertFalse( $account['mfaEnrolled'], $account['id'] . ' never publishes, so MFA is not required' );
+				self::assertFalse( $account['mfaEnrolled'] ?? null, self::text( $account['id'] ?? '' ) . ' never publishes, so MFA is not required' );
 			}
-			self::assertContains( $account['role'], TeachingPolicy::SCOPED_ROLES );
+			self::assertContains( $account['role'] ?? null, TeachingPolicy::SCOPED_ROLES );
 		}
-		foreach ( $faculty['people'] as $person ) {
+		foreach ( self::rows( $faculty, 'people' ) as $person ) {
 			self::assertArrayNotHasKey( 'userId', $person, 'public Person records carry no account key' );
 			self::assertArrayNotHasKey( 'account', $person );
 		}
