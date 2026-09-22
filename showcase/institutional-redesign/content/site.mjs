@@ -42,7 +42,7 @@ export const site = {
     note: { "pt-BR": "Ramal 8205", en: "Extension 8205" },
   },
   emails: {
-    office: "secretaria@lps.ufrj.br",
+    office: "natmourajr@lps.ufrj.br",
   },
   external: {
     pee: "https://www.pee.ufrj.br/",
@@ -249,8 +249,8 @@ export const research = {
   title: { "pt-BR": "Linhas de pesquisa", en: "Research areas" },
   lead: {
     "pt-BR":
-      "As principais áreas de atuação são a instrumentação eletrônica, o processamento analógico e digital de sinais, a engenharia de software e a inteligência computacional.",
-    en: "The main areas of activity are electronic instrumentation, analog and digital signal processing, software engineering and computational intelligence.",
+      "As principais áreas de atuação são o processamento digital de sinais, a modelagem de dados supervisionada e não supervisionada, a engenharia de características, os sistemas de recomendação, a análise de séries temporais e a detecção de falhas, fraudes e novidades.",
+    en: "The main areas of activity are digital signal processing, supervised and unsupervised data modelling, feature engineering, recommender systems, time-series analysis and fault, fraud and novelty detection.",
   },
   areas: [
     {
@@ -262,13 +262,8 @@ export const research = {
         en: "Filtering, compression, estimation and detection of signals in noisy, high-rate environments.",
       },
       topics: {
-        "pt-BR": [
-          "Filtragem adaptativa",
-          "Compressão de sinais",
-          "Estimação de energia",
-          "Detecção de novidade",
-        ],
-        en: ["Adaptive filtering", "Signal compression", "Energy estimation", "Novelty detection"],
+        "pt-BR": ["Compressão de sinais", "Estimação de energia", "Detecção de novidade"],
+        en: ["Signal compression", "Energy estimation", "Novelty detection"],
       },
     },
     {
@@ -402,7 +397,7 @@ export const projects = [
       en: "Online filtering system for the ATLAS experiment (CERN), with neural-network electron classification — the first time a neural method took part in the online electron selection of the experiment.",
     },
     area: "fisica-de-altas-energias",
-    period: "2018 —",
+    period: { "pt-BR": "Em andamento", en: "Ongoing" },
     partners: { "pt-BR": ["CERN · ATLAS", "UFRJ"], en: ["CERN · ATLAS", "UFRJ"] },
     tags: {
       "pt-BR": ["Trigger", "Redes neurais", "HEP"],
@@ -419,7 +414,7 @@ export const projects = [
       en: "Simulation and reconstruction of high-energy physics events, with workload orchestration for large data volumes.",
     },
     area: "fisica-de-altas-energias",
-    period: "2018 —",
+    period: { "pt-BR": "Em andamento", en: "Ongoing" },
     partners: { "pt-BR": ["CERN · ATLAS"], en: ["CERN · ATLAS"] },
     tags: {
       "pt-BR": ["Simulação", "Workflows", "Computação científica"],
@@ -439,7 +434,7 @@ export const projects = [
       en: "Novelty detection, contact classification, target tracking and towed-array sonar technology, in partnership with the Brazilian Navy Research Institute.",
     },
     area: "sonar-e-sinais-acusticos",
-    period: "2016 —",
+    period: { "pt-BR": "Em andamento", en: "Ongoing" },
     partners: {
       "pt-BR": ["Marinha do Brasil", "Instituto de Pesquisas da Marinha"],
       en: ["Brazilian Navy", "Navy Research Institute"],
@@ -462,11 +457,8 @@ export const projects = [
       en: "Reservoir monitoring with advanced signal analysis techniques, within the Libra consortium.",
     },
     area: "modelagem-e-analise-de-dados",
-    period: "2020 —",
-    partners: {
-      "pt-BR": ["Consórcio de Libra", "Petrobras"],
-      en: ["Libra Consortium", "Petrobras"],
-    },
+    period: { "pt-BR": "Em andamento", en: "Ongoing" },
+    partners: { "pt-BR": ["Consórcio de Libra"], en: ["Libra Consortium"] },
     tags: {
       "pt-BR": ["Óleo e gás", "Sísmica", "Séries temporais"],
       en: ["Oil and gas", "Seismic", "Time series"],
@@ -485,8 +477,8 @@ export const projects = [
       en: "Digital-twin prototype focused on process safety in an offshore plant, integrating data, computational models and machine learning.",
     },
     area: "deteccao-e-monitoramento",
-    period: "2021 —",
-    partners: { "pt-BR": ["CENPES/Petrobras"], en: ["CENPES/Petrobras"] },
+    period: { "pt-BR": "Em andamento", en: "Ongoing" },
+    partners: { "pt-BR": [], en: [] },
     tags: {
       "pt-BR": ["Gêmeo digital", "MLOps", "Risco operacional"],
       en: ["Digital twin", "MLOps", "Operational risk"],
@@ -505,11 +497,85 @@ export const projects = [
       en: "Bringing artificial intelligence into dynamic process-safety barrier management, supporting decision-making in critical scenarios.",
     },
     area: "deteccao-e-monitoramento",
-    period: "2019 —",
+    period: { "pt-BR": "Em andamento", en: "Ongoing" },
     partners: { "pt-BR": ["CENPES/Petrobras"], en: ["CENPES/Petrobras"] },
     tags: {
       "pt-BR": ["Confiabilidade", "Modelagem probabilística", "IA"],
       en: ["Reliability", "Probabilistic modelling", "AI"],
+    },
+    source: "https://sites.google.com/lps.ufrj.br/namourajr/in%C3%ADcio",
+  },
+  {
+    slug: "lorenzetti",
+    title: { "pt-BR": "Lorenzetti", en: "Lorenzetti" },
+    summary: {
+      "pt-BR":
+        "Framework do laboratório para simulação de eventos em calorímetros, utilizado nas frentes de simulação e filtragem do experimento ATLAS.",
+      en: "The laboratory's framework for calorimeter event simulation, used in the simulation and filtering fronts of the ATLAS experiment.",
+    },
+    area: "fisica-de-altas-energias",
+    period: { "pt-BR": "Em andamento", en: "Ongoing" },
+    partners: { "pt-BR": ["CERN · ATLAS"], en: ["CERN · ATLAS"] },
+    tags: {
+      "pt-BR": ["Simulação", "Calorimetria", "HEP"],
+      en: ["Simulation", "Calorimetry", "HEP"],
+    },
+    source: "https://sites.google.com/lps.ufrj.br/lps/projetos",
+  },
+  {
+    slug: "glance",
+    title: { "pt-BR": "Glance", en: "Glance" },
+    summary: {
+      "pt-BR":
+        "Frente do laboratório associada ao sistema Glance de monitoramento e qualidade de dados do experimento ATLAS.",
+      en: "Laboratory front associated with the Glance data-quality and monitoring system of the ATLAS experiment.",
+    },
+    area: "fisica-de-altas-energias",
+    period: { "pt-BR": "Em andamento", en: "Ongoing" },
+    partners: { "pt-BR": ["CERN · ATLAS"], en: ["CERN · ATLAS"] },
+    tags: {
+      "pt-BR": ["Monitoramento", "Qualidade de dados", "HEP"],
+      en: ["Monitoring", "Data quality", "HEP"],
+    },
+    source: "https://sites.google.com/lps.ufrj.br/lps/projetos",
+  },
+  {
+    slug: "diagnostico-tuberculose",
+    title: {
+      "pt-BR": "Diagnóstico auxiliado de tuberculose por radiografia",
+      en: "Computer-aided tuberculosis diagnosis by chest X-ray",
+    },
+    summary: {
+      "pt-BR":
+        "Diagnóstico auxiliado por computador para exclusão de tuberculose ativa a partir de radiografias de tórax.",
+      en: "Computer-aided diagnosis for active-tuberculosis exclusion from chest X-rays.",
+    },
+    area: "deteccao-e-monitoramento",
+    period: { "pt-BR": "Em andamento", en: "Ongoing" },
+    partners: { "pt-BR": [], en: [] },
+    tags: {
+      "pt-BR": ["Saúde", "Diagnóstico por imagem", "Classificação"],
+      en: ["Health", "Imaging diagnosis", "Classification"],
+    },
+    source: "https://sites.google.com/lps.ufrj.br/namourajr/in%C3%ADcio",
+  },
+  {
+    slug: "cabos-submarinos",
+    title: {
+      "pt-BR": "Modelagem de falhas em cabos submarinos",
+      en: "Fault modelling for submarine cables",
+    },
+    summary: {
+      "pt-BR":
+        "Modelagem e detecção de falhas em cabos submarinos, frente de aplicação de análise de sinais e aprendizado de máquina.",
+      en: "Modelling and detection of faults in submarine cables, an application front for signal analysis and machine learning.",
+    },
+    area: "deteccao-e-monitoramento",
+    period: { "pt-BR": "Em andamento", en: "Ongoing" },
+    partners: { "pt-BR": [], en: [] },
+    tags: {
+      "pt-BR": ["Detecção de falhas", "Submarino", "Sensores"],
+      en: ["Fault detection", "Underwater", "Sensors"],
     },
     source: "https://sites.google.com/lps.ufrj.br/namourajr/in%C3%ADcio",
   },
@@ -551,12 +617,14 @@ export const people = [
     teaching: {
       "pt-BR": [
         "Aprendizado Profundo",
+        "Redes Neurais Feedforward (CPE 721)",
         "Aprendizado por Kernel",
         "Tópicos Especiais em Aprendizado de Máquina",
         "Compactação de Sinais",
       ],
       en: [
         "Deep Learning",
+        "Feedforward Neural Networks (CPE 721)",
         "Kernel Learning",
         "Special Topics in Machine Learning",
         "Signal Compression",
@@ -609,10 +677,7 @@ export const people = [
         "He is the LPS coordinator in the laboratory institutional profile at COPPE EMBRAPII.",
       ],
     },
-    teaching: {
-      "pt-BR": ["Processamento de sinais", "Instrumentação eletrônica"],
-      en: ["Signal processing", "Electronic instrumentation"],
-    },
+    teaching: null,
     links: [{ label: "Lattes", href: "http://lattes.cnpq.br/1404632471755241" }],
     email: "seixas@lps.ufrj.br",
     notes: [],
@@ -628,24 +693,21 @@ export const people = [
       en: "Full professor (Emeritus) at UFRJ · COPPE and Polytechnic School · Member of the Brazilian National Academy of Engineering",
     },
     areas: {
-      "pt-BR": [
-        "Processamento de sinais",
-        "Redes neurais",
-        "Filtros ativos",
-        "História da ciência",
-      ],
-      en: ["Signal processing", "Neural networks", "Active filters", "History of science"],
+      "pt-BR": ["Processamento de sinais", "Redes neurais", "Filtros ativos"],
+      en: ["Signal processing", "Neural networks", "Active filters"],
     },
     bio: {
       "pt-BR": [
         "Engenheiro Eletrônico (UFRJ, 1969), M.Sc.EE (UFRJ, 1970), Dr. Ing. (U. Grenoble I, 1974) e Livre Docente (UFRJ, 1987). Ingressou como docente na UFRJ em 1974.",
         "Em 1988 foi o iniciador e coordenador por dez anos da colaboração entre a UFRJ e o CERN na área de processamento de sinais para física de altas energias, colaboração que gerou um grande número de teses e publicações.",
         "Foi presidente do Conselho Nacional de Redes Neurais (1995-1999) e da Sociedade Brasileira de Automática (1999-2001). Recebeu a comenda da Ordem Nacional do Mérito Científico em 2007 e foi eleito membro da Academia Nacional de Engenharia em 2013.",
+        "Pesquisador 1A do CNPq por mais de 15 anos, foi vice-diretor da Escola Politécnica e coordenador do Programa de Engenharia Elétrica e da COPPETEC; é assessor científico da FAPERJ e presidiu de honra o IEEE ISCAS 2011.",
       ],
       en: [
         "Electronic engineer (UFRJ, 1969), M.Sc.EE (UFRJ, 1970), Dr. Ing. (U. Grenoble I, 1974) and Livre Docente (UFRJ, 1987). He joined UFRJ as a lecturer in 1974.",
         "In 1988 he started and coordinated for ten years the UFRJ–CERN collaboration on signal processing for high-energy physics, a collaboration that produced a large number of theses and publications.",
         "He chaired the Brazilian National Council for Neural Networks (1995-1999) and the Brazilian Society for Automation (1999-2001). He received the National Order of Scientific Merit in 2007 and was elected to the Brazilian National Academy of Engineering in 2013.",
+        "A CNPq 1A researcher for over 15 years, he was vice-director of the Polytechnic School and coordinator of both the Electrical Engineering Program and COPPETEC; he is a scientific advisor to FAPERJ and was honorary chairman of IEEE ISCAS 2011.",
       ],
     },
     teaching: {
@@ -844,7 +906,10 @@ export const people = [
         "His interests included energy harvesting with electrostatic generators, switched-current filter structures, high-frequency continuous-time filter design, multiple resonance networks, analog microelectronics, radio-frequency circuits and the history of science.",
       ],
     },
-    teaching: null,
+    teaching: {
+      "pt-BR": ["EEL-362 Circuitos Elétricos II"],
+      en: ["EEL-362 Electric Circuits II"],
+    },
     links: [{ label: "Lattes", href: "http://lattes.cnpq.br/7901653289226815" }],
     email: null,
     notes: [],
@@ -857,7 +922,7 @@ export const teaching = {
     {
       code: "CPE-721",
       title: { "pt-BR": "Redes Neurais Feedforward", en: "Feedforward Neural Networks" },
-      professor: "Luiz Pereira Calôba",
+      professor: "Luiz Pereira Calôba · Natanael Nunes de Moura Junior",
       level: { "pt-BR": "Pós-graduação", en: "Graduate" },
       slug: {
         "pt-BR": "cpe721-redes-neurais-feedforward",
@@ -907,6 +972,12 @@ export const teaching = {
       level: { "pt-BR": "Extensão", en: "Extension" },
       slug: { "pt-BR": "revisao-acelerada-de-programacao", en: "accelerated-programming-review" },
     },
+    {
+      code: "—",
+      title: { "pt-BR": "Aprendizado Profundo", en: "Deep Learning" },
+      professor: "Natanael Nunes de Moura Junior",
+      level: { "pt-BR": "Pós-graduação", en: "Graduate" },
+    },
   ],
   undergraduate: [
     {
@@ -923,30 +994,15 @@ export const teaching = {
       },
     },
     {
-      code: "EEL710",
-      title: {
-        "pt-BR": "Instrumentação e Técnicas de Medidas",
-        en: "Instrumentation and Measurement Techniques",
-      },
+      code: "—",
+      title: { "pt-BR": "Sistemas Lineares I", en: "Linear Systems I" },
       professor: "Natanael Nunes de Moura Junior",
       level: { "pt-BR": "Graduação", en: "Undergraduate" },
     },
     {
-      code: "—",
-      title: { "pt-BR": "Computação I (laboratório)", en: "Computing I (laboratory)" },
-      professor: "Natanael Nunes de Moura Junior",
-      level: { "pt-BR": "Graduação", en: "Undergraduate" },
-    },
-    {
-      code: "—",
-      title: { "pt-BR": "Sistemas Lineares I e II", en: "Linear Systems I and II" },
-      professor: "Natanael Nunes de Moura Junior",
-      level: { "pt-BR": "Graduação", en: "Undergraduate" },
-    },
-    {
-      code: "—",
-      title: { "pt-BR": "Teoria Eletromagnética II", en: "Electromagnetic Theory II" },
-      professor: "Natanael Nunes de Moura Junior",
+      code: "EEL362",
+      title: { "pt-BR": "Circuitos Elétricos II", en: "Electric Circuits II" },
+      professor: "Antônio Carlos M. de Queiroz (in memoriam)",
       level: { "pt-BR": "Graduação", en: "Undergraduate" },
     },
   ],
@@ -1859,47 +1915,63 @@ export const courses = [
   },
 ];
 
-/** Facilities and capabilities. Source: COPPE EMBRAPII institutional profile. */
+/** Facilities and capabilities. Source: LPS datacenter docs and the lab's own pages. */
 export const infrastructure = {
   facts: [
-    { value: "310 m²", label: { "pt-BR": "Área construída", en: "Floor area" } },
-    { value: "≈40", label: { "pt-BR": "Computadores pessoais", en: "Personal computers" } },
-    { value: "1", label: { "pt-BR": "Sala acústica", en: "Acoustic room" } },
     {
-      value: "1",
-      label: { "pt-BR": "Sala de palestras e reuniões", en: "Lecture and meeting room" },
+      value: "Caloba",
+      label: { "pt-BR": "Cluster HPC próprio (SLURM)", en: "Own HPC cluster (SLURM)" },
+    },
+    {
+      value: "CPU + GPU",
+      label: { "pt-BR": "Filas de processamento", en: "Compute partitions" },
+    },
+    {
+      value: "Singularity",
+      label: { "pt-BR": "Contêineres para workloads", en: "Workload containers" },
+    },
+    {
+      value: "Bloco H, s. 220",
+      label: { "pt-BR": "Sede no Centro de Tecnologia", en: "Headquarters at CT" },
     },
   ],
   capabilities: [
     {
-      "pt-BR": "Instrumentação eletrônica e processamento analógico e digital de sinais",
-      en: "Electronic instrumentation and analog and digital signal processing",
+      "pt-BR": "Processamento digital de sinais e aprendizado de máquina",
+      en: "Digital signal processing and machine learning",
     },
     {
-      "pt-BR": "Engenharia de software e desenvolvimento de dispositivos programáveis",
-      en: "Software engineering and programmable device development",
+      "pt-BR": "Modelagem de dados supervisionada e não supervisionada",
+      en: "Supervised and unsupervised data modeling",
     },
     {
-      "pt-BR": "Equipamentos de instrumentação para desenvolvimento e análise de sistemas",
-      en: "Instrumentation equipment for system development and analysis",
+      "pt-BR": "Cluster Caloba multi-nó com partições CPU e GPU gerenciado por SLURM",
+      en: "Caloba multi-node cluster with CPU and GPU partitions managed by SLURM",
     },
     {
-      "pt-BR": "Domínio computacional próprio (domínio LPS) com cerca de 40 postos de trabalho",
-      en: "Own computing domain (LPS domain) with about 40 workstations",
+      "pt-BR": "Contêineres Singularity e virtualização (Proxmox) para workloads reproduzíveis",
+      en: "Singularity containers and virtualization (Proxmox) for reproducible workloads",
     },
   ],
   partners: [
     "Petrobras",
-    "Eletrobras",
-    "Embraer",
+    "Eletrobras Cepel",
     "Inmetro",
-    "Empresa de Pesquisa Energética",
-    "OLX",
-    "National Instruments",
-    "Samsung",
-    "Murabei",
+    "IPQM",
+    "IRD",
+    "CBPF",
+    "Ceparm",
+    "Embrapa",
+    "HUCFF",
+    "Argonne National Laboratory",
+    "Brookhaven National Laboratory",
+    "UFJF",
+    "UFF",
+    "PPGEE/UFBA",
+    "RENAFAE",
+    "Rede-TB",
   ],
-  funders: ["CNPq", "CAPES", "FAPERJ"],
+  funders: ["CNPq", "CAPES", "FAPERJ", "FAPESP", "FAPERGS", "União Europeia"],
   collaboration: [
     {
       title: { "pt-BR": "Pesquisa contratada e P&D", en: "Contract research and R&D" },
@@ -2101,12 +2173,12 @@ export const opportunities = {
   howto: {
     "pt-BR": [
       "Acompanhe as chamadas publicadas nesta página e nos canais institucionais do PEE/COPPE.",
-      "Contate a secretaria do laboratório para verificar disponibilidade de vagas e requisitos do projeto.",
+      "Contate a coordenação do laboratório para verificar disponibilidade de vagas e requisitos do projeto.",
       "Para ingresso em mestrado ou doutorado, o caminho formal é a seleção do Programa de Engenharia Elétrica da COPPE/UFRJ.",
     ],
     en: [
       "Follow the calls published on this page and on the PEE/COPPE institutional channels.",
-      "Contact the laboratory office to check availability and project requirements.",
+      "Contact the laboratory coordination to check availability and project requirements.",
       "For master or doctoral admission, the formal route is the selection process of the Electrical Engineering Program at COPPE/UFRJ.",
     ],
   },
@@ -2250,32 +2322,38 @@ export const partnerLogos = [
 export const contact = {
   channels: [
     {
-      title: { "pt-BR": "Secretaria do laboratório", en: "Laboratory office" },
+      title: { "pt-BR": "Coordenação do laboratório", en: "Laboratory coordination" },
       body: {
-        "pt-BR": "Para assuntos administrativos, projetos, estágios e visitas técnicas.",
-        en: "For administrative matters, projects, internships and technical visits.",
-      },
-      items: [{ label: "secretaria@lps.ufrj.br", href: "mailto:secretaria@lps.ufrj.br" }],
-    },
-    {
-      title: { "pt-BR": "Coordenação", en: "Coordination" },
-      body: {
-        "pt-BR": "Coordenação do laboratório no perfil institucional da COPPE EMBRAPII.",
-        en: "Laboratory coordination in the COPPE EMBRAPII institutional profile.",
+        "pt-BR":
+          "A coordenação do laboratório recebe assuntos administrativos, projetos, estágios e visitas técnicas.",
+        en: "The laboratory coordination receives administrative matters, projects, internships and technical visits.",
       },
       items: [
-        { label: "Prof. José Manoel de Seixas", href: "mailto:seixas@lps.ufrj.br" },
-        { label: "(21) 3938-8205", href: "tel:+552139388205" },
+        { label: "Prof. Natanael Nunes de Moura Junior", href: "/pessoas/natanael/" },
+        { label: "natmourajr@lps.ufrj.br", href: "mailto:natmourajr@lps.ufrj.br" },
+      ],
+    },
+    {
+      title: { "pt-BR": "Endereço", en: "Address" },
+      body: {
+        "pt-BR": "O laboratório fica no Centro de Tecnologia da UFRJ, Ilha do Fundão.",
+        en: "The laboratory sits at the UFRJ Technology Centre, Ilha do Fundão.",
+      },
+      items: [
+        {
+          label: "Av. Athos da Silveira Ramos, 149 — Bloco H, sala 220",
+          href: "https://www.google.com/maps/search/?api=1&query=Centro+de+Tecnologia+Bloco+H+UFRJ",
+        },
       ],
     },
     {
       title: { "pt-BR": "Imprensa e comunicação", en: "Press and communication" },
       body: {
         "pt-BR":
-          "Pedidos de entrevista e uso da marca devem ser encaminhados à secretaria, que responde em nome do laboratório.",
-        en: "Interview requests and brand usage must be sent to the office, which answers on behalf of the laboratory.",
+          "Pedidos de entrevista e uso da marca devem ser encaminhados à coordenação, que responde em nome do laboratório.",
+        en: "Interview requests and brand usage must be sent to the coordination, which answers on behalf of the laboratory.",
       },
-      items: [{ label: "secretaria@lps.ufrj.br", href: "mailto:secretaria@lps.ufrj.br" }],
+      items: [{ label: "natmourajr@lps.ufrj.br", href: "mailto:natmourajr@lps.ufrj.br" }],
     },
   ],
   buildings: [
@@ -2303,8 +2381,8 @@ export const accessibility = {
   },
   contact: {
     "pt-BR":
-      "Um canal formal de relato de problemas de acessibilidade ainda não foi nomeado pela instituição. Até que exista, a secretaria do laboratório recebe relatos pelo e-mail",
-    en: "A formal channel for reporting accessibility problems has not yet been named by the institution. Until it exists, the laboratory office receives reports at",
+      "Um canal formal de relato de problemas de acessibilidade ainda não foi nomeado pela instituição. Até que exista, a coordenação do laboratório recebe relatos pelo e-mail",
+    en: "A formal channel for reporting accessibility problems has not yet been named by the institution. Until it exists, the laboratory coordination receives reports at",
   },
 };
 
@@ -2422,8 +2500,8 @@ export const member = {
       title: { "pt-BR": "Primeiro acesso e ajuda", en: "First access and help" },
       steps: [
         {
-          "pt-BR": "A conta é criada pela secretaria do laboratório, com o e-mail institucional.",
-          en: "The account is created by the laboratory office, with the institutional email address.",
+          "pt-BR": "A conta é criada pela coordenação do laboratório, com o e-mail institucional.",
+          en: "The account is created by the laboratory coordination, with the institutional email address.",
         },
         {
           "pt-BR":
@@ -2436,8 +2514,8 @@ export const member = {
         },
         {
           "pt-BR":
-            "Problemas de acesso são tratados por secretaria@lps.ufrj.br; nunca compartilhe a senha.",
-          en: "Access problems are handled by secretaria@lps.ufrj.br; never share your password.",
+            "Problemas de acesso são tratados por natmourajr@lps.ufrj.br; nunca compartilhe a senha.",
+          en: "Access problems are handled by natmourajr@lps.ufrj.br; never share your password.",
         },
       ],
     },

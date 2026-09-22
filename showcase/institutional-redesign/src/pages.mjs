@@ -218,7 +218,7 @@ ${projects
     card({
       title: t(project.title, locale),
       body: t(project.summary, locale),
-      meta: project.period,
+      meta: t(project.period, locale),
       tags: t(project.tags, locale),
       href: link(locale, "/projetos/", "/en/projects/"),
       media: true,
@@ -303,18 +303,6 @@ ${news
 </div>`,
   });
 
-  // Partners and funders with no logo in the marks set ride the marquee as
-  // text chips alongside the images.
-  const partnerNames = [
-    "Embraer",
-    en ? "Energy Research Company" : "Empresa de Pesquisa Energética",
-    "OLX",
-    "National Instruments",
-    "Samsung",
-    "Murabei",
-    "CAPES",
-  ];
-
   const partnersBlock = section({
     id: "parceiros",
     labelledBy: "home-partners",
@@ -342,12 +330,10 @@ ${partnerLogos
       `<li><img src="/assets/img/partners/${logo.file}" alt="${esc(logo.name)}" loading="lazy" decoding="async" /></li>`,
   )
   .join("\n")}
-${partnerNames.map((partner) => `<li class="lps-partner-chip">${esc(partner)}</li>`).join("\n")}
-${[...partnerLogos, ...partnerNames]
-  .map((item) =>
-    typeof item === "string"
-      ? `<li class="lps-partner-chip" aria-hidden="true">${esc(item)}</li>`
-      : `<li aria-hidden="true"><img src="/assets/img/partners/${item.file}" alt="" loading="lazy" decoding="async" /></li>`,
+${partnerLogos
+  .map(
+    (logo) =>
+      `<li aria-hidden="true"><img src="/assets/img/partners/${logo.file}" alt="" loading="lazy" decoding="async" /></li>`,
   )
   .join("\n")}
 </ul>
@@ -463,7 +449,7 @@ ${facts([
     term: en ? "Phone" : "Telefone",
     description: `${site.phone.label} — ${t(site.phone.note, locale)}`,
   },
-  { term: en ? "Administrative office" : "Secretaria", description: site.emails.office },
+  { term: en ? "Coordination" : "Coordenação", description: site.emails.office },
 ])}
 <p><a class="lps-more" href="https://www.google.com/maps/search/?api=1&amp;query=${encodeURIComponent(site.address.full)}" target="_blank" rel="noopener">${esc(en ? "Open in Google Maps" : "Abrir no Google Maps")}</a></p>
 </div>
@@ -530,7 +516,7 @@ ${projects
       title: t(project.title, locale),
       body: t(project.summary, locale),
       tags: t(project.tags, locale),
-      meta: project.period,
+      meta: t(project.period, locale),
     }),
   )
   .join("")}
@@ -552,16 +538,19 @@ ${sectionHead({ kicker: en ? "Infrastructure" : "Infraestrutura", title: en ? "C
 <div class="lps-grid lps-grid--3">
 ${[
   {
-    value: "310 m²",
-    label: { "pt-BR": "Área do laboratório no Bloco H", en: "Laboratory area in Building H" },
+    value: "Caloba",
+    label: { "pt-BR": "Cluster HPC do laboratório (SLURM)", en: "Laboratory HPC cluster (SLURM)" },
   },
   {
-    value: "≈40",
-    label: { "pt-BR": "Postos de trabalho no domínio LPS", en: "Workstations in the LPS domain" },
+    value: "CPU + GPU",
+    label: { "pt-BR": "Filas de processamento do cluster", en: "Cluster compute partitions" },
   },
   {
-    value: "24/7",
-    label: { "pt-BR": "Operação da colaboração ATLAS", en: "ATLAS collaboration operation" },
+    value: "1988",
+    label: {
+      "pt-BR": "Início da colaboração UFRJ–CERN",
+      en: "Start of the UFRJ–CERN collaboration",
+    },
   },
 ]
   .map(
@@ -631,7 +620,7 @@ ${projects
       body: t(project.summary, locale),
       tags: t(project.tags, locale),
       media: true,
-      meta: `${project.period} · ${t(project.partners, locale).join(", ")}`,
+      meta: `${[t(project.period, locale), t(project.partners, locale).join(", ")].filter(Boolean).join(" · ")}`,
       foot: `<span class="lps-meta">${esc(en ? "Source" : "Fonte")}: ${sourceLabel(project.source, locale)}</span>`,
     }),
   )
@@ -940,11 +929,11 @@ function infrastructurePage(locale) {
     kicker: en ? "Infrastructure" : "Infraestrutura",
     title: en ? "Facilities and capabilities" : "Instalações e capacidades",
     lead: en
-      ? "A 310 m² laboratory in Building H of the UFRJ Technology Centre, with an acoustic room, a lecture room and about 40 workstations in its own computing domain."
-      : "Um laboratório de 310 m² no Bloco H do Centro de Tecnologia da UFRJ, com sala acústica, sala de palestras e cerca de 40 postos de trabalho em domínio computacional próprio.",
+      ? "Headquartered in Building H, room 220 of the UFRJ Technology Centre, the laboratory runs its own computing infrastructure: the Caloba SLURM cluster with CPU and GPU partitions, Singularity containers and the Maestro workload-orchestration stack."
+      : "Com sede no Bloco H, sala 220 do Centro de Tecnologia da UFRJ, o laboratório mantém infraestrutura computacional própria: o cluster SLURM Caloba com partições CPU e GPU, contêineres Singularity e a pilha de orquestração Maestro.",
     meta: en
-      ? "Source: COPPE EMBRAPII institutional profile."
-      : "Fonte: perfil institucional COPPE EMBRAPII.",
+      ? "Source: LPS datacenter documentation (lps-ufrj-br.github.io/datacenter)."
+      : "Fonte: documentação do datacenter do LPS (lps-ufrj-br.github.io/datacenter).",
   })}
 <div class="lps-page-grid">
 <section class="lps-section lps-section--flush" aria-labelledby="infra-facts">
@@ -953,16 +942,16 @@ ${statBand(locale, infrastructure.facts).replace("lps-stat-band", "lps-stat-band
 <div class="lps-grid lps-grid--2 lps-mt-10">
 ${card({ title: en ? "Capabilities" : "Capacidades", body: tl(infrastructure.capabilities, locale).join(" · ") })}
 ${card({
-  title: en ? "Equipment" : "Equipamentos",
+  title: en ? "Computing" : "Computação",
   body: en
-    ? "State-of-the-art instrumentation equipment for system development and analysis, plus software for programmable device development."
-    : "Equipamentos de instrumentação no estado da arte para desenvolvimento e análise de sistemas, além de software para desenvolvimento de dispositivos programáveis.",
+    ? "The Caloba cluster — SLURM-managed multi-node compute with CPU and GPU partitions, Singularity containers and Proxmox virtualization — plus Maestro, the laboratory's workload-orchestration stack used for high-energy physics jobs."
+    : "O cluster Caloba — computação multi-nó gerenciada por SLURM com partições CPU e GPU, contêineres Singularity e virtualização Proxmox — além do Maestro, a pilha de orquestração de workloads do laboratório usada em tarefas de física de altas energias.",
 })}
 </div>
 </section>
 <section class="lps-section" id="parcerias" aria-labelledby="infra-partners">
-${sectionHead({ kicker: en ? "Partnerships" : "Parcerias", title: en ? "Who the laboratory works with" : "Com quem o laboratório trabalha", id: "infra-partners", lead: en ? "Companies, funding agencies and international collaborations recorded in the public institutional profile." : "Empresas, agências de fomento e colaborações internacionais registradas no perfil institucional público." })}
-<h3 class="lps-kicker">${esc(en ? "Companies" : "Empresas")}</h3>
+${sectionHead({ kicker: en ? "Partnerships" : "Parcerias", title: en ? "Who the laboratory works with" : "Com quem o laboratório trabalha", id: "infra-partners", lead: en ? "Companies, funding agencies and international collaborations documented on the laboratory's public pages." : "Empresas, agências de fomento e colaborações internacionais documentadas nas páginas públicas do laboratório." })}
+<h3 class="lps-kicker">${esc(en ? "Institutions and companies" : "Instituições e empresas")}</h3>
 <ul class="lps-logo-band">${infrastructure.partners.map((partner) => `<li>${esc(partner)}</li>`).join("")}</ul>
 <h3 class="lps-kicker lps-mt-8">${esc(en ? "Funding agencies" : "Agências de fomento")}</h3>
 <ul class="lps-logo-band">${infrastructure.funders.map((funder) => `<li>${esc(funder)}</li>`).join("")}</ul>
@@ -990,7 +979,7 @@ ${sectionHead({ kicker: en ? "Location" : "Localização", title: en ? "Visit th
       description: `${site.phone.label} (${t(site.phone.note, locale)})`,
     },
     {
-      term: en ? "Office" : "Secretaria",
+      term: en ? "Coordination" : "Coordenação",
       description: site.emails.office,
       html: `<a href="mailto:${site.emails.office}">${esc(site.emails.office)}</a>`,
     },
@@ -998,8 +987,8 @@ ${sectionHead({ kicker: en ? "Location" : "Localização", title: en ? "Visit th
 <div>${card({
     title: en ? "Technical visits and meetings" : "Visitas técnicas e reuniões",
     body: en
-      ? "The laboratory has a lecture and meeting room and receives technical visits by appointment. Requests go through the laboratory office."
-      : "O laboratório dispõe de sala de palestras e reuniões e recebe visitas técnicas com agendamento. Os pedidos são feitos pela secretaria do laboratório.",
+      ? "The laboratory has a lecture and meeting room and receives technical visits by appointment. Requests go through the laboratory coordination."
+      : "O laboratório dispõe de sala de palestras e reuniões e recebe visitas técnicas com agendamento. Os pedidos são feitos pela coordenação do laboratório.",
     action: {
       href: link(locale, "/contato/", "/en/contact/"),
       label: en ? "Request a visit" : "Solicitar visita",
@@ -1053,10 +1042,10 @@ ${t(opportunities.howto, locale)
   .join("")}
 </ol>
 <div class="lps-mt-10">${ctaBand({
-    title: en ? "Talk to the laboratory office" : "Fale com a secretaria do laboratório",
+    title: en ? "Talk to the laboratory coordination" : "Fale com a coordenação do laboratório",
     body: en
-      ? "The office answers questions on availability, requirements and documents before you apply."
-      : "A secretaria responde dúvidas sobre disponibilidade, requisitos e documentos antes da candidatura.",
+      ? "The coordination answers questions on availability, requirements and documents before you apply."
+      : "A coordenação responde dúvidas sobre disponibilidade, requisitos e documentos antes da candidatura.",
     actions: [
       { href: `mailto:${site.emails.office}`, label: site.emails.office },
       {
@@ -1219,8 +1208,8 @@ function contactPage(locale) {
     kicker: en ? "Contact" : "Contato",
     title: en ? "Contact the laboratory" : "Fale com o laboratório",
     lead: en
-      ? "The laboratory office is the first stop for administrative matters, projects, technical visits and press requests."
-      : "A secretaria do laboratório é o primeiro caminho para assuntos administrativos, projetos, visitas técnicas e pedidos de imprensa.",
+      ? "The laboratory coordination is the first stop for administrative matters, projects, technical visits and press requests."
+      : "A coordenação do laboratório é o primeiro caminho para assuntos administrativos, projetos, visitas técnicas e pedidos de imprensa.",
   })}
 <div class="lps-page-grid">
 <section class="lps-section lps-section--flush" aria-labelledby="contact-channels">
@@ -1260,8 +1249,8 @@ ${sectionHead({ kicker: en ? "Pending" : "Pendências", title: en ? "Contacts st
 ${card({
   title: en ? "Accessibility reporting" : "Relato de acessibilidade",
   body: en
-    ? "No formal accessibility reporting channel has been named. Until it is, the office receives accessibility reports and forwards them to the responsible team."
-    : "Nenhum canal formal de relato de acessibilidade foi nomeado. Até que exista, a secretaria recebe os relatos e os encaminha à equipe responsável.",
+    ? "No formal accessibility reporting channel has been named. Until it is, the coordination receives accessibility reports and forwards them to the responsible team."
+    : "Nenhum canal formal de relato de acessibilidade foi nomeado. Até que exista, a coordenação recebe os relatos e os encaminha à equipe responsável.",
 })}
 ${card({
   title: en ? "Privacy and personal data" : "Privacidade e dados pessoais",
@@ -1327,7 +1316,7 @@ ${checklist.map((item) => `<li>${esc(item)}</li>`).join("")}
 <section class="lps-section" aria-labelledby="a11y-report">
 ${sectionHead({ kicker: en ? "Reporting" : "Relato", title: en ? "Found a barrier?" : "Encontrou uma barreira?", id: "a11y-report" })}
 ${alert({ tone: "warning", body: `${t(accessibility.contact, locale)} ${site.emails.office}.` })}
-<p class="lps-mt-6">${esc(en ? "Reports are answered by the laboratory office while a named channel is pending institutional decision." : "Os relatos são respondidos pela secretaria do laboratório enquanto o canal nomeado aguarda decisão institucional.")}</p>
+<p class="lps-mt-6">${esc(en ? "Reports are answered by the laboratory coordination while a named channel is pending institutional decision." : "Os relatos são respondidos pela coordenação do laboratório enquanto o canal nomeado aguarda decisão institucional.")}</p>
 </section>
 <section class="lps-section">
 ${ctaBand({
@@ -1503,7 +1492,7 @@ ${sectionHead({ kicker: en ? "Usage" : "Uso", title: en ? "Rules that keep the m
     title: en ? "Brand package" : "Pacote da marca",
     body: en
       ? "The laboratory keeps the official files — blue and white signal, blue and white full mark, and the complete brand package — in its own drive, available through the administrative office."
-      : "O laboratório mantém os arquivos oficiais — sinal azul e branco, marca completa azul e branca, e o pacote completo da marca — em seu próprio drive, disponibilizado pela secretaria administrativa.",
+      : "O laboratório mantém os arquivos oficiais — sinal azul e branco, marca completa azul e branca, e o pacote completo da marca — em seu próprio drive, disponibilizado pela coordenação do laboratório.",
     action: {
       href: `mailto:${site.emails.office}`,
       label: en ? "Request the files" : "Solicitar os arquivos",
@@ -1623,8 +1612,8 @@ ${sample
 ${ctaBand({
   title: en ? "Nothing matched?" : "Não encontrou?",
   body: en
-    ? "The laboratory office can point you to the right record or person."
-    : "A secretaria do laboratório pode indicar o registro ou a pessoa certa.",
+    ? "The laboratory coordination can point you to the right record or person."
+    : "A coordenação do laboratório pode indicar o registro ou a pessoa certa.",
   actions: [{ href: link(locale, "/contato/", "/en/contact/"), label: en ? "Contact" : "Contato" }],
 })}
 </section>
