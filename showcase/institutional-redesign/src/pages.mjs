@@ -30,7 +30,6 @@ import {
 } from "../content/site.mjs";
 import {
   alert,
-  aside,
   card,
   courseTable,
   ctaBand,
@@ -489,7 +488,7 @@ function researchPage(locale) {
     lead: t(research.lead, locale),
   })}
 <div class="lps-page-grid">
-<div class="lps-with-aside">
+<div class="lps-with-aside lps-with-aside--single">
 <div class="lps-flow">
 <section class="lps-section lps-section--flush" id="linhas" aria-labelledby="research-areas">
 ${sectionHead({ kicker: en ? "Areas" : "Áreas", title: en ? "Six research fronts" : "Seis frentes de pesquisa", id: "research-areas" })}
@@ -573,14 +572,6 @@ ${card({ title: en ? "International collaboration" : "Colaboração internaciona
     ],
   })}</div>
 </section>
-</div>
-${aside(locale, [
-  { id: "linhas", label: { "pt-BR": "Linhas de pesquisa", en: "Research areas" } },
-  { id: "projetos", label: { "pt-BR": "Projetos", en: "Projects" } },
-  { id: "evidencias", label: { "pt-BR": "Produção", en: "Outputs" } },
-  { id: "infraestrutura", label: { "pt-BR": "Infraestrutura", en: "Infrastructure" } },
-  { id: "contato", label: { "pt-BR": "Contato", en: "Contact" } },
-])}
 </div>
 </div>
 </div>`;
@@ -1744,7 +1735,7 @@ function personPageFor(person) {
       lead: t(person.affiliation, locale),
     })}
 <div class="lps-page-grid">
-<div class="lps-with-aside">
+<div class="lps-with-aside lps-with-aside--single">
 <div class="lps-stack">
 <section class="lps-section lps-section--flush" aria-labelledby="person-about">
 ${sectionHead({ kicker: en ? "Background" : "Trajetória", title: t(copy.about, locale), id: "person-about" })}
@@ -1831,13 +1822,6 @@ ${ctaBand({
 })}
 </section>
 </div>
-${aside(locale, [
-  { id: "person-about", label: copy.about },
-  { id: "person-areas", label: copy.areas },
-  { id: "person-subjects", label: copy.subjects },
-  { id: "person-notes", label: copy.notes },
-  { id: "person-where", label: copy.where },
-])}
 </div>
 </div>`;
 
