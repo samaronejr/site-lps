@@ -2613,7 +2613,11 @@ textarea:focus-visible {
   background-attachment: local, local, scroll, scroll;
   background-color: var(--color-surface);
   background-repeat: no-repeat;
-  background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
+  background-size:
+    40px 100%,
+    40px 100%,
+    14px 100%,
+    14px 100%;
   border: 1px solid var(--color-card-rule);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
