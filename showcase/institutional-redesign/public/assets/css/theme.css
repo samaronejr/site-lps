@@ -2440,6 +2440,24 @@ textarea:focus-visible {
   opacity: 1;
 }
 
+/* Name-only partners ride the same marquee as text chips. */
+.lps-partner-chip {
+  border-block-end: var(--rule-hairline);
+  border-block-start: var(--rule-hairline);
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--type-small);
+  letter-spacing: 0.04em;
+  opacity: 0.75;
+  padding-block: var(--space-2);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.lps-partner-track--roomy {
+  animation-duration: 90s;
+}
+
 @keyframes lps-partner-drift {
   from {
     transform: translateX(-50%);

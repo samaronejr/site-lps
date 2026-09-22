@@ -291,6 +291,20 @@ ${news
 </div>`,
   });
 
+  // Partners and funders with no logo in the marks set ride the marquee as
+  // text chips alongside the images.
+  const partnerNames = [
+    "Embraer",
+    en ? "Energy Research Company" : "Empresa de Pesquisa Energética",
+    "OLX",
+    "National Instruments",
+    "Samsung",
+    "Murabei",
+    "CNPq",
+    "CAPES",
+    "FAPERJ",
+  ];
+
   const partnersBlock = section({
     id: "parceiros",
     labelledBy: "home-partners",
@@ -309,14 +323,24 @@ ${sectionHead({
     label: `${u.seeAll} →`,
   },
 })}
-<ul class="lps-logo-band">
-${infrastructure.partners.map((partner) => `<li>${esc(partner)}</li>`).join("")}
+<div class="lps-partner-marquee">
+<ul class="lps-partner-track lps-partner-track--roomy">
+${partnerLogos
+  .map(
+    (logo) =>
+      `<li><img src="/assets/img/partners/${logo.file}" alt="${esc(logo.name)}" loading="lazy" decoding="async" /></li>`,
+  )
+  .join("\n")}
+${partnerNames.map((partner) => `<li class="lps-partner-chip">${esc(partner)}</li>`).join("\n")}
+${[...partnerLogos, ...partnerNames]
+  .map((item) =>
+    typeof item === "string"
+      ? `<li class="lps-partner-chip" aria-hidden="true">${esc(item)}</li>`
+      : `<li aria-hidden="true"><img src="/assets/img/partners/${item.file}" alt="" loading="lazy" decoding="async" /></li>`,
+  )
+  .join("\n")}
 </ul>
-<ul class="lps-logo-band lps-mt-6">
-${infrastructure.funders.map((funder) => `<li>${esc(funder)}</li>`).join("")}
-<li>CERN · ATLAS</li>
-<li>${esc(en ? "Brazilian Navy" : "Marinha do Brasil")}</li>
-</ul>
+</div>
 </div>`,
   });
 
