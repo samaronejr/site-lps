@@ -3669,10 +3669,15 @@ a.lps-button-ghost {
   background: var(--gradient-band);
   border-radius: var(--radius-dish);
   box-shadow: var(--shadow-stat);
-  margin-block: -3.5rem var(--space-10);
+  margin-block: var(--space-4) var(--space-10);
   padding: var(--space-8) var(--space-8);
   position: relative;
   z-index: 1;
+}
+
+/* Only the home band overlaps: it sits directly under the navy hero. */
+.lps-hero + .lps-stat-band ul {
+  margin-block-start: -3.5rem;
 }
 
 .lps-stat {
