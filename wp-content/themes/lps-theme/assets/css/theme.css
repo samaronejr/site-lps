@@ -3560,6 +3560,11 @@ th code {
   border-image: var(--gradient-topbar) 1;
 }
 
+/* The Colabore pill must share the input row, not the whole search form. */
+.lps-shell-tools > .lps-button {
+  align-self: flex-end;
+}
+
 /* Nav reads like FEEC's: display weight, teal underline for hover/current. */
 .lps-nav-link,
 .lps-primary-nav a {
