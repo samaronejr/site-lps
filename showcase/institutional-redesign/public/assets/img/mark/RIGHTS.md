@@ -92,7 +92,7 @@ repository's own Chromium; they carry no additional artwork.
 | `lps-mark-mono.svg` | `be0dbbe9fce819407d6428d177d6854fe8d95165650c402c1c26c37764f1e436` |
 | `lps-mark-mono-symbol.svg` | `8ae547aeadf67db23429c7d90b1303a05c6271349e7b907ac14ab000d505b1d6` |
 | `lps-coppe-blue.svg` | `5144e227ce3c4dc781d5084e48ddd03bade50103067e094aa15ca4817878a32d` |
-| `lps-coppe-blue-lockup.svg` | `d12175f0fe7316f1b65e5f924ef98f64a214768652354e9ee5c87b928e6a76d6` |
+| `lps-coppe-blue-lockup.svg` | `301f8a662024152842752b3b695fa6bbd53c227909aa2b7988707213a9fa3de4` |
 | `lps-mark-reversed.svg` | `57e3379373d85ebd7bf281723266e40aa9b2006546c02d51132b61ec3e79b0c6` |
 | `lps-mark-favicon.svg` | `2f4acc76326e012caf407ece8da1379dd8480f3f4bb9a2ea558f4b73f4e3f5d1` |
 | `lps-mark-icon.svg` | `ca7aeecd8caf486c0ca2a46a5501b8926ba440f3139f87a5579eaf1d67d504ea` |

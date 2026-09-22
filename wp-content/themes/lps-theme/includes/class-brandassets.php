@@ -43,7 +43,7 @@ final class BrandAssets {
 		),
 		'lps_coppe_blue_lockup.svg' => array(
 			'path'   => 'assets/brand/lps_coppe_blue_lockup.svg',
-			'sha256' => 'd12175f0fe7316f1b65e5f924ef98f64a214768652354e9ee5c87b928e6a76d6',
+			'sha256' => '301f8a662024152842752b3b695fa6bbd53c227909aa2b7988707213a9fa3de4',
 		),
 	);
 

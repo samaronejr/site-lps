@@ -243,14 +243,14 @@ final class Shell {
 		// unnamed for assistive technology that ignores the link's aria-label.
 		// The logo never claims a priority hint: fetchpriority is reserved for
 		// the single LCP image so the brand mark cannot compete with it.
-		return '<img class="lps-logo" src="' . self::escape( $sources['full'] ) . '" srcset="' . self::escape( $sources['compact'] ) . ' 1x, ' . self::escape( $sources['full'] ) . ' 2x" sizes="190px" alt="LPS" width="1600" height="780">';
+		return '<img class="lps-logo" src="' . self::escape( $sources['full'] ) . '" srcset="' . self::escape( $sources['compact'] ) . ' 1x, ' . self::escape( $sources['full'] ) . ' 2x" sizes="190px" alt="LPS" width="1622" height="804">';
 	}
 
 	/**
 	 * Resolves the masthead artwork sources: the COPPE/UFRJ lockup in its
 	 * tight-crop variant for both slots — a faithful swap, never a crop.
 	 *
-	 * The lockup (≈2.05:1) holds the descriptive COPPE · POLI · UFRJ
+	 * The lockup (≈2.02:1) holds the descriptive COPPE · POLI · UFRJ
 	 * lettering at the ~90px rendered height of the masthead slot, so one
 	 * source serves both density descriptors.
 	 *

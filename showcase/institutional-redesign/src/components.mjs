@@ -85,7 +85,7 @@ const href = (target, locale) => (typeof target === "string" ? target : pick(tar
 function brandMarkup(locale) {
   const t = ui(locale);
   return `<a class="lps-brand" href="${locale === "en" ? "/en/" : "/"}" aria-label="${esc(t.brandLinkLabel)}">
-<span class="lps-logo-slot"><img class="lps-logo" src="/assets/img/mark/lps-coppe-blue-lockup.svg" alt="" width="1600" height="780" decoding="async"></span>
+<span class="lps-logo-slot"><img class="lps-logo" src="/assets/img/mark/lps-coppe-blue-lockup.svg" alt="" width="1622" height="804" decoding="async"></span>
 </a>`;
 }
 
