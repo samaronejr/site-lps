@@ -261,8 +261,22 @@ final class AuthRoutes {
 		$raw_remember = isset( $_POST['rememberme'] ) ? wp_unslash( $_POST['rememberme'] ) : '';
 		$remember     = 'forever' === ( is_string( $raw_remember ) ? sanitize_key( $raw_remember ) : '' );
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized as a scalar on the next line.
-		$raw_target           = isset( $_POST['redirect_to'] ) ? wp_unslash( $_POST['redirect_to'] ) : '';
-		$redirect             = is_string( $raw_target ) ? sanitize_url( $raw_target ) : '';
+		$raw_target = isset( $_POST['redirect_to'] ) ? wp_unslash( $_POST['redirect_to'] ) : '';
+		$redirect   = is_string( $raw_target ) ? sanitize_url( $raw_target ) : '';
+		if ( '' === $redirect ) {
+			// The two-factor challenge reads `redirect_to` straight from the request
+			// (isset(), not empty()) and core's wp_safe_redirect() cannot fall back on
+			// an empty location — an empty hidden field strands a verified sign-in on
+			// a blank page. Resolve the post-login default before wp_signon() so the
+			// challenge form and its validation both carry a real destination.
+			$candidate = function_exists( 'get_user_by' ) ? get_user_by( 'login', $log ) : false;
+			if ( ! $candidate && function_exists( 'get_user_by' ) && str_contains( $log, '@' ) ) {
+				$candidate = get_user_by( 'email', $log );
+			}
+			$redirect                = self::default_target( $candidate, $locale );
+			$_POST['redirect_to']    = $redirect;
+			$_REQUEST['redirect_to'] = $redirect;
+		}
 		$state['redirect_to'] = $redirect;
 		if ( '' === $log || '' === $pwd ) {
 			$state['error']     = 'empty';
