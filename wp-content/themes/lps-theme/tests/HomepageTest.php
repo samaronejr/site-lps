@@ -335,7 +335,7 @@ final class HomepageTest extends \PHPUnit\Framework\TestCase {
 				'date'  => '2026-09-01',
 			)
 		);
-		$html = Homepage::section_markup( 'latest', 'en', array( $dated ), '2026-09-06' );
+		$html  = Homepage::section_markup( 'latest', 'en', array( $dated ), '2026-09-06' );
 		self::assertStringNotContainsString( 'lps-card-media', $html );
 		self::assertStringNotContainsString( '<img', $html );
 		self::assertStringContainsString( 'lps-event-date', $html );
