@@ -402,7 +402,32 @@ final class PublicRoutes {
 		add_filter( 'redirect_canonical', array( self::class, 'keep_locale_route' ), 10, 2 );
 		add_filter( 'post_type_link', array( self::class, 'canonical_record_link' ), 10, 2 );
 		add_filter( 'language_attributes', array( self::class, 'route_language_attributes' ), 210 );
+		add_action( 'template_redirect', array( self::class, 'canonicalize_record_request' ), 4 );
 		add_action( 'template_redirect', array( self::class, 'guard_withheld_records' ), 5 );
+	}
+
+	/**
+	 * Redirects a governed record's raw CPT permalink to its public route.
+	 *
+	 * `post_type_link` already returns the locale route for `get_permalink`,
+	 * but `/lps_person/{slug}/` etc. are registered CPT addresses WordPress
+	 * treats as canonical on their own, so requests must be moved explicitly.
+	 */
+	public static function canonicalize_record_request(): void {
+		if ( ! function_exists( 'is_singular' ) || ! is_singular() || ! function_exists( 'wp_safe_redirect' ) ) {
+			return;
+		}
+		$post = function_exists( 'get_post' ) ? get_post() : null;
+		if ( ! $post instanceof WP_Post || ! isset( self::SEGMENTS[ $post->post_type ] ) ) {
+			return;
+		}
+		$canonical = self::canonical_record_link( (string) get_permalink( $post ), $post );
+		$target    = is_string( wp_parse_url( $canonical, PHP_URL_PATH ) ) ? (string) wp_parse_url( $canonical, PHP_URL_PATH ) : '';
+		$request   = self::request_path();
+		if ( '' !== $target && untrailingslashit( $target ) !== untrailingslashit( $request ) && function_exists( 'home_url' ) ) {
+			wp_safe_redirect( home_url( $target ), 301 );
+			exit;
+		}
 	}
 
 	/**
