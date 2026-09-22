@@ -52,6 +52,13 @@ async function copyAssets() {
   await cp(join(themeRoot, "assets", "img", "decor"), join(outRoot, "assets", "img", "decor"), {
     recursive: true,
   });
+
+  // Partner marks shown in the about-page marquee.
+  await cp(
+    join(themeRoot, "assets", "img", "partners"),
+    join(outRoot, "assets", "img", "partners"),
+    { recursive: true },
+  );
 }
 
 async function writePage(route, locale) {

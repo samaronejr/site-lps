@@ -2372,6 +2372,68 @@ textarea:focus-visible {
   margin-block-start: var(--space-4);
 }
 
+/* Partner logo marquee: a duplicated track drifts slowly left to right; the
+   second (aria-hidden) half makes the wrap seamless. Pauses on hover and
+   stands still under reduced-motion. */
+.lps-partner-marquee {
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 8%,
+    #000 92%,
+    transparent
+  );
+  overflow: hidden;
+  padding-block: var(--space-4);
+}
+
+.lps-partner-track {
+  align-items: center;
+  animation: lps-partner-drift 60s linear infinite;
+  display: flex;
+  gap: var(--space-10);
+  inline-size: max-content;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lps-partner-marquee:hover .lps-partner-track,
+.lps-partner-marquee:focus-within .lps-partner-track {
+  animation-play-state: paused;
+}
+
+.lps-partner-track img {
+  block-size: 3.25rem;
+  filter: grayscale(1);
+  inline-size: auto;
+  opacity: 0.75;
+  transition:
+    filter 240ms cubic-bezier(0.32, 0.72, 0, 1),
+    opacity 240ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.lps-partner-track img:hover {
+  filter: grayscale(0);
+  opacity: 1;
+}
+
+@keyframes lps-partner-drift {
+  from {
+    transform: translateX(-50%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lps-partner-track {
+    animation: none;
+  }
+}
+
 /* ----------------------------------------------------------------------------
  * 14. Tables
  * ------------------------------------------------------------------------- */

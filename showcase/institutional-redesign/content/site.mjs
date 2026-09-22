@@ -1284,6 +1284,28 @@ export const about = {
   },
 };
 
+/** Partner institutions shown in the marquee on the about page. */
+export const partnerLogos = [
+  { name: "Eletrobras Cepel", file: "eletrobras-cepel.png" },
+  { name: "Inmetro", file: "inmetro.png" },
+  { name: "IPqM — Instituto de Pesquisas da Marinha", file: "ipqm.png" },
+  { name: "IRD — Instituto de Radioproteção e Dosimetria", file: "ird.png" },
+  { name: "CERN", file: "cern.png" },
+  { name: "PPGEE — Universidade Federal da Bahia", file: "ppgee-ufba.png" },
+  { name: "UFF — Universidade Federal Fluminense", file: "uff.png" },
+  { name: "UFJF — Universidade Federal de Juiz de Fora", file: "ufjf.png" },
+  { name: "Argonne National Laboratory", file: "argonne.png" },
+  { name: "Brookhaven National Laboratory", file: "brookhaven.png" },
+  { name: "CBPF — Centro Brasileiro de Pesquisas Físicas", file: "cbpf.png" },
+  { name: "CEPARM", file: "ceparm.png" },
+  { name: "Embrapa", file: "embrapa.png" },
+  { name: "HUCFF — Hospital Universitário Clementino Fraga Filho", file: "hucff.png" },
+  { name: "Petrobras", file: "petrobras.gif" },
+  { name: "Marinha do Brasil", file: "marinha.png" },
+  { name: "RENAFAE", file: "renafae.png" },
+  { name: "Rede-TB", file: "rede-tb.png" },
+];
+
 /** Contact page. */
 export const contact = {
   channels: [

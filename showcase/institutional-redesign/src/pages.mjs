@@ -18,6 +18,7 @@ import {
   member,
   news,
   opportunities,
+  partnerLogos,
   people,
   privacy,
   projects,
@@ -392,6 +393,25 @@ ${sectionHead({ kicker: en ? "Identity" : "Identidade", title: en ? "The laborat
 <div class="lps-card lps-card--flush"><div class="lps-card-media" style="min-block-size:14rem"></div></div>
 </div>
 </section>
+<section class="lps-section" id="parceiros" aria-labelledby="about-partners">
+${sectionHead({ kicker: en ? "Partners" : "Parceiros", title: en ? "Institutions working with the laboratory" : "Instituições que atuam com o laboratório", id: "about-partners" })}
+<div class="lps-partner-marquee">
+<ul class="lps-partner-track">
+${partnerLogos
+  .map(
+    (logo) =>
+      `<li><img src="/assets/img/partners/${logo.file}" alt="${esc(logo.name)}" loading="lazy" decoding="async" /></li>`,
+  )
+  .join("")}
+${partnerLogos
+  .map(
+    (logo) =>
+      `<li aria-hidden="true"><img src="/assets/img/partners/${logo.file}" alt="" loading="lazy" decoding="async" /></li>`,
+  )
+  .join("")}
+</ul>
+</div>
+</section>
 <section class="lps-section" id="localizacao" aria-labelledby="about-location">
 ${sectionHead({ kicker: en ? "Location" : "Localização", title: en ? "Where the laboratory is" : "Onde o laboratório está", id: "about-location" })}
 <div class="lps-grid lps-grid--2">
@@ -422,6 +442,7 @@ ${aside(locale, [
   { id: "historia", label: { "pt-BR": "História", en: "History" } },
   { id: "missao", label: { "pt-BR": "Missão e visão", en: "Mission and vision" } },
   { id: "identidade", label: { "pt-BR": "Marca", en: "Brand" } },
+  { id: "parceiros", label: { "pt-BR": "Parceiros", en: "Partners" } },
   { id: "localizacao", label: { "pt-BR": "Localização", en: "Location" } },
 ])}
 </div>
