@@ -414,27 +414,30 @@ ${partnerLogos
 </section>
 <section class="lps-section" id="localizacao" aria-labelledby="about-location">
 ${sectionHead({ kicker: en ? "Location" : "Localização", title: en ? "Where the laboratory is" : "Onde o laboratório está", id: "about-location" })}
-<div class="lps-grid lps-grid--2">
-${facts([
-  { term: en ? "Address" : "Endereço", description: site.address.line1 },
-  { term: en ? "Building" : "Bloco", description: site.address.line2 },
-  { term: en ? "Campus" : "Campus", description: site.address.line3 },
-  { term: en ? "Postcode" : "CEP", description: site.address.city },
-])}
+<div class="lps-location">
+<div>
 ${facts([
   {
-    term: en ? "Telephone" : "Telefone",
+    term: en ? "Address" : "Endereço",
+    description: `${site.address.line1} — ${site.address.line2} — ${site.address.line3} — ${site.address.city}`,
+  },
+  {
+    term: en ? "Phone" : "Telefone",
     description: `${site.phone.label} — ${t(site.phone.note, locale)}`,
   },
-  { term: en ? "Office" : "Secretaria", description: site.emails.office },
-  { term: en ? "Programme" : "Programa", description: "PEE/COPPE — UFRJ" },
-  {
-    term: en ? "Directions" : "Como chegar",
-    description: en
-      ? "Building H of the Technology Centre, University City, Fundão Island."
-      : "Bloco H do Centro de Tecnologia, Cidade Universitária, Ilha do Fundão.",
-  },
+  { term: en ? "Administrative office" : "Secretaria", description: site.emails.office },
 ])}
+<p><a class="lps-more" href="https://www.google.com/maps/search/?api=1&amp;query=${encodeURIComponent(site.address.full)}" target="_blank" rel="noopener">${esc(en ? "Open in Google Maps" : "Abrir no Google Maps")}</a></p>
+</div>
+<div class="lps-map-card">
+<iframe
+  title="${esc(en ? "Map showing the laboratory at the UFRJ Technology Centre" : "Mapa do laboratório no Centro de Tecnologia da UFRJ")}"
+  src="https://maps.google.com/maps?q=${encodeURIComponent("Centro de Tecnologia UFRJ Bloco H Ilha do Fundão")}&amp;z=16&amp;output=embed"
+  loading="lazy"
+  referrerpolicy="no-referrer-when-downgrade"
+  allowfullscreen
+></iframe>
+</div>
 </div>
 </section>
 </div>
