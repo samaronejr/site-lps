@@ -862,20 +862,10 @@ final class Shell {
 		$locale      = self::current_locale( $path );
 		$counterpart = SeoRoutes::counterpart_path( $path, $locale );
 		if ( '' !== $counterpart ) {
-			$variants = array(
+			return array(
 				$locale                              => $path,
 				'pt-br' === $locale ? 'en' : 'pt-br' => $counterpart,
 			);
-			// The search form state survives the language switch so a reader
-			// never loses the term they typed.
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only propagation of the current search query.
-			$query = isset( $_GET['q'] ) && is_string( $_GET['q'] ) ? trim( sanitize_text_field( wp_unslash( $_GET['q'] ) ) ) : '';
-			if ( '' !== $query && null !== SearchRoutes::match_path( $path ) ) {
-				foreach ( $variants as $slug => $variant_path ) {
-					$variants[ $slug ] = $variant_path . '?q=' . rawurlencode( $query );
-				}
-			}
-			return $variants;
 		}
 		return array(
 			'pt-br' => '/pt-br/',

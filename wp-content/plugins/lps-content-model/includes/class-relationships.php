@@ -247,7 +247,7 @@ final class Relationships {
 			'ARRAY_A'
 			// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 		);
-		foreach ( is_array( $rows ) ? $rows : array() as $row ) {
+		foreach ( $rows as $row ) {
 			$source = Policy::sanitize_integer( $row['source_post_id'] ?? 0 );
 			if ( isset( $grouped[ $source ] ) ) {
 				$grouped[ $source ][] = self::cast_relationship_row( $row );

@@ -700,10 +700,16 @@ final class TeachingSurfaces {
 	 * Narrows one boundary value to a record map.
 	 *
 	 * @param mixed $value Boundary input.
-	 * @return array<mixed>
+	 * @return array<string, mixed>
 	 */
 	private static function record( mixed $value ): array {
-		return is_array( $value ) ? $value : array();
+		/**
+		 * WordPress record payloads are string-keyed maps by contract.
+		 *
+		 * @var array<string, mixed> $record
+		 */
+		$record = is_array( $value ) ? $value : array();
+		return $record;
 	}
 
 	/**

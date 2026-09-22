@@ -159,6 +159,7 @@ final class BrandAssets {
 	 * Serves one artwork file through the REST fallback route.
 	 *
 	 * @param mixed $request REST request.
+	 * @return array{file: string, content_type: string, sha256: string, bytes: string}|\WP_Error
 	 */
 	public static function rest_serve( mixed $request ): array|\WP_Error {
 		$file = is_object( $request ) && method_exists( $request, 'get_param' ) ? $request->get_param( 'file' ) : null;
@@ -255,14 +256,14 @@ final class BrandAssets {
 		// is three levels above the theme directory.
 		if ( function_exists( 'get_template_directory' ) ) {
 			$theme = get_template_directory();
-			if ( is_string( $theme ) && '' !== $theme ) {
+			if ( '' !== $theme ) {
 				$roots[] = dirname( $theme ) . '/' . $relative;
 				$roots[] = rtrim( $theme, '/' ) . '/' . $relative;
 			}
 		}
 		if ( function_exists( 'get_stylesheet_directory' ) ) {
 			$sheet = get_stylesheet_directory();
-			if ( is_string( $sheet ) && '' !== $sheet ) {
+			if ( '' !== $sheet ) {
 				$roots[] = dirname( $sheet ) . '/' . $relative;
 				$roots[] = rtrim( $sheet, '/' ) . '/' . $relative;
 			}

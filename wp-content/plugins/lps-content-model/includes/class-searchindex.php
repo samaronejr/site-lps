@@ -361,7 +361,7 @@ final class SearchIndex {
 	 */
 	private static function has_lifecycle_column( wpdb $database ): bool {
 		$columns = $database->get_col( 'SHOW COLUMNS FROM ' . self::table_name( $database->prefix ), 0 );
-		return is_array( $columns ) && in_array( 'lifecycle', $columns, true );
+		return in_array( 'lifecycle', $columns, true );
 	}
 
 	/**
@@ -503,22 +503,22 @@ final class SearchIndex {
 		switch ( $post->post_type ) {
 			case 'lps_person':
 				foreach ( Relationships::reverse_for( $authority, 'teaching_team' ) as $row ) {
-					$targets[] = self::number( $row['source_post_id'] ?? 0 );
+					$targets[] = self::number( $row['source_post_id'] );
 				}
 				break;
 			case 'lps_term':
 				foreach ( Relationships::reverse_for( $authority, 'offering_term' ) as $row ) {
-					$targets[] = self::number( $row['source_post_id'] ?? 0 );
+					$targets[] = self::number( $row['source_post_id'] );
 				}
 				break;
 			case 'lps_course':
 				foreach ( Relationships::reverse_for( $authority, 'offering_course' ) as $row ) {
-					$targets[] = self::number( $row['source_post_id'] ?? 0 );
+					$targets[] = self::number( $row['source_post_id'] );
 				}
 				break;
 			case 'lps_offering':
 				foreach ( Relationships::reverse_for( $authority, 'resource_offering' ) as $row ) {
-					$targets[] = self::number( $row['source_post_id'] ?? 0 );
+					$targets[] = self::number( $row['source_post_id'] );
 				}
 				break;
 			default:
@@ -910,12 +910,12 @@ final class SearchIndex {
 	}
 
 	/**
-	 * Encodes facet values for storage.
+	 * Encodes a sanitized string-keyed payload for storage.
 	 *
-	 * @param array<string, array<int, string>> $facets Sanitized facet values.
+	 * @param array<string, mixed> $values Sanitized storage payload.
 	 */
-	private static function encode( array $facets ): string {
-		return (string) json_encode( $facets, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ); // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- storage payload written without WordPress loaded in unit tests.
+	private static function encode( array $values ): string {
+		return (string) json_encode( $values, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ); // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- storage payload written without WordPress loaded in unit tests.
 	}
 
 	/**
