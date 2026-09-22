@@ -2089,13 +2089,20 @@ textarea:focus-visible {
 }
 
 /* The location summary keeps the term-over-value stack at every width so
-   the short labels sit directly above their contact lines. */
+   the short labels sit directly above their contact lines; dividers hug the
+   end of each row rather than floating between label and text. */
 .lps-location .lps-facts {
   grid-template-columns: minmax(0, 1fr);
 }
 
-.lps-location .lps-facts dd {
+.lps-location .lps-facts dt:not(:first-child) {
   border-block-start: 0;
+}
+
+.lps-location .lps-facts dd {
+  border-block-end: var(--rule-hairline);
+  border-block-start: 0;
+  padding-block: var(--space-1) var(--space-4);
   padding-inline-start: 0;
 }
 
@@ -2447,7 +2454,7 @@ textarea:focus-visible {
 
 /* Location split: contact facts beside an embedded map card. */
 .lps-location {
-  align-items: start;
+  align-items: center;
   display: grid;
   gap: var(--space-8);
 }
