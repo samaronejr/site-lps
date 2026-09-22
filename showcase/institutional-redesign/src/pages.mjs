@@ -1598,7 +1598,7 @@ ${sectionHead({ kicker: en ? "Public page" : "Página pública", title: t(copy.p
 ${card({
   title: person.name,
   body: t(copy.page.body, locale),
-  foot: `<span class="lps-button-row"><a class="lps-button lps-button-primary" href="${en ? "/en/dashboard/" : "/painel/"}">${esc(t(copy.page.edit, locale))}</a><a class="lps-more" href="${personPath(person, locale)}">${esc(t(copy.page.view, locale))}</a></span>`,
+  foot: `<span class="lps-button-row"><a class="lps-button lps-button-primary" href="${en ? "/en/sign-in/" : "/entrar/"}">${esc(t(copy.page.edit, locale))}</a><a class="lps-more" href="${personPath(person, locale)}">${esc(t(copy.page.view, locale))}</a></span>`,
 })}
 </section>
 <section class="lps-section" aria-labelledby="area-subjects">
@@ -1628,7 +1628,7 @@ ${
         .join("")}</ul>`
     : alert({ tone: "info", body: t(copy.notes.empty, locale) })
 }
-<form class="lps-dashboard-form lps-mt-8" method="post" action="${en ? "/en/faculty-area/notes/" : "/area-do-professor/notas/"}">
+<form class="lps-dashboard-form lps-mt-8" method="post" action="${en ? "/en/sign-in/" : "/entrar/"}">
 <fieldset class="lps-fieldset">
 <legend>${esc(t(copy.notes.form.legend, locale))}</legend>
 <p class="lps-field"><label for="note-title">${esc(t(copy.notes.form.title, locale))}</label><input id="note-title" name="title" type="text" required></p>
