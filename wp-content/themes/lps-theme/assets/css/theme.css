@@ -2507,6 +2507,42 @@ th code {
   margin-block-start: var(--space-1);
 }
 
+/* The federated entry on the sign-in surface: a hairline rule carries the
+   "or" divider, then the provider button under the credential form. */
+.lps-sso {
+  margin-block-start: var(--space-6);
+}
+
+.lps-sso-rule {
+  align-items: center;
+  color: var(--color-text-muted);
+  display: flex;
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  gap: var(--space-3);
+  letter-spacing: 0.08em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.lps-sso-rule::before,
+.lps-sso-rule::after {
+  border-block-start: var(--rule-hairline);
+  content: "";
+  flex: 1;
+}
+
+.lps-sso-google {
+  gap: var(--space-3);
+  margin-block-start: var(--space-4);
+}
+
+.lps-sso-icon {
+  block-size: 1.125rem;
+  flex: none;
+  inline-size: 1.125rem;
+}
+
 /* ----------------------------------------------------------------------------
  * 16. Search and facets
  * ------------------------------------------------------------------------- */

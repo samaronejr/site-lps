@@ -102,15 +102,15 @@ final class AuthSurfaces {
 	 * @param array<string, mixed> $state  Surface state.
 	 */
 	private static function form( string $locale, array $state ): string {
-		$english    = 'en' === $locale;
-		$action     = Shell::signin_path( $locale );
-		$redirect   = self::text( $state['redirect_to'] ?? '' );
-		$attempted  = self::text( $state['attempted'] ?? '' );
-		$lost       = function_exists( 'wp_lostpassword_url' )
+		$english   = 'en' === $locale;
+		$action    = Shell::signin_path( $locale );
+		$redirect  = self::text( $state['redirect_to'] ?? '' );
+		$attempted = self::text( $state['attempted'] ?? '' );
+		$lost      = function_exists( 'wp_lostpassword_url' )
 			? wp_lostpassword_url( $action )
 			: '/wp-login.php?action=lostpassword';
-		$notice     = self::notice( $locale, self::text( $state['error'] ?? '' ) );
-		$aria       = '' !== $notice ? ' aria-describedby="lps-signin-error"' : '';
+		$notice    = self::notice( $locale, self::text( $state['error'] ?? '' ) );
+		$aria      = '' !== $notice ? ' aria-describedby="lps-signin-error"' : '';
 		return '<section class="lps-signin" aria-labelledby="lps-signin-title">'
 			. '<h2 id="lps-signin-title">' . self::esc( $english ? 'Institutional account access' : 'Acesso com conta institucional' ) . '</h2>'
 			. $notice
@@ -136,7 +136,46 @@ final class AuthSurfaces {
 					? 'The password is verified by WordPress itself, and it is never stored by this site.'
 					: 'A senha é verificada pelo próprio WordPress e nunca é armazenada por este site.'
 			) . '</p>'
-			. '</form></section>';
+			. '</form>'
+			. self::google_block( $locale, $redirect )
+			. '</section>';
+	}
+
+	/**
+	 * Renders the Google Workspace entry, when the OAuth credentials exist.
+	 *
+	 * The button is a plain link to the OAuth endpoint — the state that binds
+	 * the attempt lives in a transient, so a static link is the whole
+	 * affordance and the flow survives a cookieless page cache.
+	 *
+	 * @param string $locale    Supported locale slug.
+	 * @param string $redirect  Requested post-login destination.
+	 */
+	private static function google_block( string $locale, string $redirect ): string {
+		if ( ! class_exists( 'LPS\Theme\GoogleOauth' ) || ! GoogleOauth::configured() ) {
+			return '';
+		}
+		$english = 'en' === $locale;
+		return '<div class="lps-sso" aria-label="'
+			. self::esc( $english ? 'Google Workspace sign-in' : 'Entrar com Google Workspace' )
+			. '"><p class="lps-sso-rule"><span>'
+			. self::esc( $english ? 'or' : 'ou' )
+			. '</span></p><a class="lps-button lps-button-ghost lps-sso-google" href="'
+			. self::esc( GoogleOauth::start_url( $locale, $redirect ) )
+			. '"><svg class="lps-sso-icon" viewBox="0 0 18 18" aria-hidden="true" focusable="false">'
+			. '<path d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z" fill="#4285F4"/>'
+			. '<path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z" fill="#34A853"/>'
+			. '<path d="M3.97 10.71a5.4 5.4 0 0 1 0-3.42V4.96H.96a9 9 0 0 0 0 8.08l3.01-2.33z" fill="#FBBC05"/>'
+			. '<path d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.59C13.46.9 11.43 0 9 0A9 9 0 0 0 .96 4.96l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z" fill="#EA4335"/>'
+			. '</svg><span>'
+			. self::esc( $english ? 'Sign in with Google' : 'Entrar com Google' )
+			. '</span></a><p class="lps-field-hint">'
+			. self::esc(
+				$english
+					? 'Open to accounts on the @lps.ufrj.br domain that already exist here.'
+					: 'Aberto a contas do domínio @lps.ufrj.br que já existam aqui.'
+			)
+			. '</p></div>';
 	}
 
 	/**
@@ -155,12 +194,52 @@ final class AuthSurfaces {
 			return '';
 		}
 		$english = 'en' === $locale;
-		$title   = 'empty' === $error
+		if ( str_starts_with( $error, 'sso' ) ) {
+			return self::sso_notice( $locale, $error );
+		}
+		$title = 'empty' === $error
 			? ( $english ? 'Enter your username and password' : 'Informe usuário e senha' )
 			: ( $english ? 'It was not possible to sign in' : 'Não foi possível entrar' );
-		$body    = $english
+		$body  = $english
 			? 'The username or the password does not match an account. For privacy, an unknown account and a wrong password return the same message.'
 			: 'O usuário ou a senha não correspondem a uma conta. Por privacidade, usuário inexistente e senha incorreta retornam a mesma mensagem.';
+		return '<div class="lps-alert lps-alert-error" id="lps-signin-error" role="alert"><p><strong>'
+			. self::esc( $title ) . '</strong> ' . self::esc( $body ) . '</p></div>';
+	}
+
+	/**
+	 * Renders the Google-flow failure notice for one error key.
+	 *
+	 * Each key names a distinct, actionable state — an expired attempt, an
+	 * out-of-domain Google account, an identity with no matching site
+	 * account — so the copy tells the visitor what to do rather than
+	 * echoing a protocol error. Failures that would reveal whether an
+	 * account exists collapse into the generic key.
+	 *
+	 * @param string $locale Supported locale slug.
+	 * @param string $error  Error key sent by the OAuth route.
+	 */
+	private static function sso_notice( string $locale, string $error ): string {
+		$english  = 'en' === $locale;
+		$messages = array(
+			'sso'             => $english
+				? 'Sign-in with Google failed. Try again — if it keeps failing, use your password or ask the team.'
+				: 'Não foi possível entrar com Google. Tente de novo — se persistir, use sua senha ou fale com a equipe.',
+			'sso_domain'      => $english
+				? 'Google sign-in only accepts accounts on the @lps.ufrj.br domain.'
+				: 'O acesso com Google aceita apenas contas do domínio @lps.ufrj.br.',
+			'sso_unlinked'    => $english
+				? 'No account on this site matches that Google e-mail yet. Ask a site administrator to create it, or sign in with your password.'
+				: 'Nenhuma conta deste site corresponde a esse e-mail Google ainda. Peça a um administrador para criá-la, ou entre com sua senha.',
+			'sso_state'       => $english
+				? 'That sign-in attempt expired. Start again and complete the Google step without going back.'
+				: 'A tentativa de login expirou. Comece de novo e conclua a etapa do Google sem voltar.',
+			'sso_unavailable' => $english
+				? 'Google sign-in is not configured on this site yet. Use your password.'
+				: 'O acesso com Google ainda não está configurado neste site. Use sua senha.',
+		);
+		$body     = $messages[ $error ] ?? $messages['sso'];
+		$title    = $english ? 'It was not possible to sign in' : 'Não foi possível entrar';
 		return '<div class="lps-alert lps-alert-error" id="lps-signin-error" role="alert"><p><strong>'
 			. self::esc( $title ) . '</strong> ' . self::esc( $body ) . '</p></div>';
 	}
@@ -176,11 +255,11 @@ final class AuthSurfaces {
 	 * @param array<string, mixed> $state  Surface state.
 	 */
 	private static function signed_in( string $locale, array $state ): string {
-		$english  = 'en' === $locale;
-		$name     = self::text( $state['user_name'] ?? '' );
-		$role     = self::text( $state['user_role'] ?? '' );
-		$logout   = function_exists( 'wp_logout_url' ) ? wp_logout_url( Shell::signin_path( $locale ) ) : '/wp-login.php?action=logout';
-		$links    = '<li><a href="' . self::esc( Shell::member_path( $locale ) ) . '">'
+		$english = 'en' === $locale;
+		$name    = self::text( $state['user_name'] ?? '' );
+		$role    = self::text( $state['user_role'] ?? '' );
+		$logout  = function_exists( 'wp_logout_url' ) ? wp_logout_url( Shell::signin_path( $locale ) ) : '/wp-login.php?action=logout';
+		$links   = '<li><a href="' . self::esc( Shell::member_path( $locale ) ) . '">'
 			. self::esc( $english ? 'My area' : 'Minha área' ) . '</a></li>'
 			. '<li><a href="' . self::esc( self::dashboard_path( $locale ) ) . '">'
 			. self::esc( $english ? 'Task dashboard' : 'Painel de tarefas' ) . '</a></li>';

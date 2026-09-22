@@ -32,6 +32,7 @@ namespace LPS\Theme;
 
 require_once __DIR__ . '/class-authsurfaces.php';
 require_once __DIR__ . '/class-dashboardroutes.php';
+require_once __DIR__ . '/class-googleoauth.php';
 require_once __DIR__ . '/class-shell.php';
 
 /** Binds the branded sign-in surface and the member gateway to their frozen locale routes. */
@@ -64,6 +65,10 @@ final class AuthRoutes {
 					continue;
 				}
 				$auth[ $locale . '/' . $segment . '/?$' ] = 'index.php?lps_auth=' . $kind . '&lang=' . $locale;
+			}
+			$signin = self::segment( 'signin', $locale );
+			if ( '' !== $signin ) {
+				$auth[ $locale . '/' . $signin . '/google/?$' ] = 'index.php?lps_auth=google&lang=' . $locale;
 			}
 		}
 		return array_merge( $auth, $rules );
@@ -150,8 +155,14 @@ final class AuthRoutes {
 	 */
 	public static function match_path( string $path ): ?array {
 		$clean = '/' . trim( $path, '/' ) . '/';
-		if ( 1 !== preg_match( '#^/(pt-br|en)/([^/]+?)/?$#', $clean, $parts ) ) {
+		if ( 1 !== preg_match( '#^/(pt-br|en)/([^/]+?)(?:/(google))?/?$#', $clean, $parts ) ) {
 			return null;
+		}
+		if ( isset( $parts[3] ) && self::segment( 'signin', $parts[1] ) === $parts[2] ) {
+			return array(
+				'kind'   => 'google',
+				'locale' => $parts[1],
+			);
 		}
 		foreach ( array( 'signin', 'member' ) as $kind ) {
 			if ( self::segment( $kind, $parts[1] ) === $parts[2] ) {
@@ -174,6 +185,10 @@ final class AuthRoutes {
 		header( 'X-Robots-Tag: noindex, nofollow' );
 		if ( 'member' === $route['kind'] ) {
 			self::serve_member( $route['locale'] );
+			return;
+		}
+		if ( 'google' === $route['kind'] ) {
+			GoogleOauth::serve( $route['locale'] );
 			return;
 		}
 		if ( self::is_post() ) {
@@ -278,8 +293,12 @@ final class AuthRoutes {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- A read-only destination parameter needs no nonce (same contract as core's redirect_to) and is sanitized on the next line.
 		$raw_redirect = isset( $_GET['redirect_to'] ) ? wp_unslash( $_GET['redirect_to'] ) : '';
 		$redirect     = is_string( $raw_redirect ) ? sanitize_url( $raw_redirect ) : '';
-		$state        = array(
-			'error'       => '',
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- A read-only notice key, whitelisted below.
+		$raw_sso   = isset( $_GET['sso_error'] ) ? wp_unslash( $_GET['sso_error'] ) : '';
+		$sso_error = is_string( $raw_sso ) ? sanitize_key( $raw_sso ) : '';
+		$sso_keys  = array( 'sso', 'sso_domain', 'sso_unlinked', 'sso_state', 'sso_unavailable' );
+		$state     = array(
+			'error'       => in_array( $sso_error, $sso_keys, true ) ? $sso_error : '',
 			'attempted'   => '',
 			'redirect_to' => $redirect,
 			'signed_in'   => false,
@@ -308,7 +327,7 @@ final class AuthRoutes {
 	 * @param mixed  $user   Signed-in account.
 	 * @param string $locale Supported locale slug.
 	 */
-	private static function default_target( mixed $user, string $locale ): string {
+	public static function default_target( mixed $user, string $locale ): string {
 		if ( $user instanceof \WP_User && function_exists( 'user_can' ) && user_can( $user, 'manage_options' ) ) {
 			return function_exists( 'admin_url' ) ? admin_url() : '/wp-admin/';
 		}
