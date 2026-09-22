@@ -492,7 +492,17 @@ final class TrustSurfaces {
 	public static function render_news_listing( array $records, string $locale, array $events = array(), ?DateTimeImmutable $now = null ): string {
 		$english = 'en' === $locale;
 		$now     = $now instanceof DateTimeImmutable ? $now : new DateTimeImmutable( 'now' );
-		$items   = '';
+		usort(
+			$records,
+			static function ( $left, $right ): int {
+				$left_date  = is_array( $left ) ? self::text( $left['date'] ?? '' ) : '';
+				$right_date = is_array( $right ) ? self::text( $right['date'] ?? '' ) : '';
+				$left_year  = 1 === preg_match( '/\d{4}/', $left_date, $m ) ? (int) $m[0] : -1;
+				$right_year = 1 === preg_match( '/\d{4}/', $right_date, $m ) ? (int) $m[0] : -1;
+				return $right_year <=> $left_year;
+			}
+		);
+		$items = '';
 		foreach ( $records as $record ) {
 			if ( ! is_array( $record ) ) {
 				continue;
