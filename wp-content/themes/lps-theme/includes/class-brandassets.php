@@ -29,11 +29,11 @@ final class BrandAssets {
 	 * @var array<string, array{path: string, sha256: string}>
 	 */
 	private const FILES = array(
-		'lps_logo_vector.svg'  => array(
+		'lps_logo_vector.svg'       => array(
 			'path'   => 'assets/brand/lps_logo_vector.svg',
 			'sha256' => 'f369f9e49c81e297d30fa8e240267667dddf8b89f0d26c494636f9429027a23b',
 		),
-		'lps_logo_compact.svg' => array(
+		'lps_logo_compact.svg'      => array(
 			'path'   => 'assets/brand/lps_logo_compact.svg',
 			'sha256' => '3a64a8977731b5df5ab5f716a677ac60959976e74ae5c5e62ae40398c3f77fec',
 		),
