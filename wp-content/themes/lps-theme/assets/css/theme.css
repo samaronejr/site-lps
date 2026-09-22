@@ -86,10 +86,10 @@
   --color-accent: #0fb5e4;
   --color-accent-soft: #62d8f3;
   --color-accent-wash: #d6f3fb;
-  --color-lime: #b0d361;
-  --color-lime-deep: #4e7d17;
-  --color-lime-ink: #41690f;
-  --color-lime-wash: rgba(176, 211, 97, 0.16);
+  --color-teal: #2dd4bf;
+  --color-teal-deep: #0f766e;
+  --color-teal-ink: #115e59;
+  --color-teal-wash: rgba(45, 212, 191, 0.16);
   --color-navy-bright: #0e4c86;
   --color-card-rule: rgba(18, 48, 74, 0.1);
   --color-text: #0a1626;
@@ -145,9 +145,9 @@
       transparent 0 calc(100% - 1px),
       color-mix(in srgb, var(--color-on-dark) 9%, transparent) calc(100% - 1px) 100%
     );
-  --gradient-cta: linear-gradient(100deg, #4e7d17 0%, #0f3d6b 100%);
+  --gradient-cta: linear-gradient(100deg, #0f766e 0%, #0f3d6b 100%);
   --gradient-band: linear-gradient(115deg, var(--color-anchor-deep) 0%, #0d3460 58%, var(--color-navy-bright) 100%);
-  --gradient-topbar: linear-gradient(90deg, #8fbf3c 0%, var(--color-navy-bright) 100%);
+  --gradient-topbar: linear-gradient(90deg, #14b8a6 0%, var(--color-navy-bright) 100%);
   --font-display: "Space Grotesk", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-interface: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
@@ -212,7 +212,7 @@
   --shadow-stat: 0 14px 34px rgba(10, 42, 72, 0.12);
   --shadow-cta: 0 10px 24px rgba(15, 61, 107, 0.26);
   --shadow-cta-hover: 0 14px 30px rgba(15, 61, 107, 0.32);
-  --shadow-nav-current: inset 0 -4px 0 0 var(--color-lime);
+  --shadow-nav-current: inset 0 -4px 0 0 var(--color-teal);
   --shadow-none: none;
   --rule-hairline: var(--line-thin) solid var(--color-rule-quiet);
   --rule-boundary: var(--line-medium) solid var(--color-boundary-strong);
@@ -3549,7 +3549,7 @@ th code {
 }
 
 /* ----------------------------------------------------------------------------
- * 22. FEEC-direction reskin — navy + lime, pill CTAs, rounded navy dishes,
+ * 22. FEEC-direction reskin — navy + teal, pill CTAs, rounded navy dishes,
  *     soft card shadows, node-web motif (reference: fee.unicamp.br).
  * ------------------------------------------------------------------------- */
 
@@ -3560,7 +3560,7 @@ th code {
   border-image: var(--gradient-topbar) 1;
 }
 
-/* Nav reads like FEEC's: display weight, lime underline for hover/current. */
+/* Nav reads like FEEC's: display weight, teal underline for hover/current. */
 .lps-nav-link,
 .lps-primary-nav a {
   font-family: var(--font-display);
@@ -3595,11 +3595,11 @@ th code {
 }
 
 .lps-hero .lps-kicker {
-  color: var(--color-lime);
+  color: var(--color-teal);
 }
 
 .lps-hero .lps-kicker::before {
-  background: var(--color-lime);
+  background: var(--color-teal);
 }
 
 .lps-hero-title {
@@ -3607,7 +3607,7 @@ th code {
 }
 
 .lps-hero-accent {
-  color: var(--color-lime);
+  color: var(--color-teal);
 }
 
 .lps-hero-lead {
@@ -3616,16 +3616,16 @@ th code {
 
 .lps-hero-support {
   border: var(--line-thin) solid var(--overlay-light-18);
-  border-block-start: var(--line-heavy) solid var(--color-lime);
+  border-block-start: var(--line-heavy) solid var(--color-teal);
   border-radius: var(--radius-card);
 }
 
 .lps-hero-support li::before {
-  background: var(--color-lime);
+  background: var(--color-teal);
   border-radius: var(--radius-pill);
 }
 
-/* Buttons become FEEC pills: lime→navy gradient primary, outlined ghost. */
+/* Buttons become FEEC pills: teal→navy gradient primary, outlined ghost. */
 .lps-button,
 a.lps-button,
 button.lps-button,
@@ -3691,7 +3691,7 @@ a.lps-button-ghost {
 }
 
 .lps-stat strong {
-  color: var(--color-lime);
+  color: var(--color-teal);
   font-weight: 700;
 }
 
@@ -3699,9 +3699,9 @@ a.lps-button-ghost {
   color: var(--color-on-dark);
 }
 
-/* Section heads: navy tick becomes a lime one. */
+/* Section heads: navy tick becomes a teal one. */
 .lps-section-head::before {
-  background: var(--color-lime-deep);
+  background: var(--color-teal-deep);
   border-radius: var(--radius-pill);
   inline-size: 3.5rem;
 }
@@ -3723,7 +3723,7 @@ a.lps-button-ghost {
   font-weight: 700;
 }
 
-/* Journey tiles: navy dishes with lime labels, like FEEC's course cards.
+/* Journey tiles: navy dishes with teal labels, like FEEC's course cards.
    The home list renders items as real cards rather than a flat index. */
 .lps-home-journeys > li.lps-journey {
   display: grid;
@@ -3746,7 +3746,7 @@ a.lps-button-ghost {
 
 .lps-journey .lps-journey-label,
 .lps-journey .lps-meta {
-  color: var(--color-lime);
+  color: var(--color-teal);
 }
 
 .lps-journey h3,
@@ -3759,27 +3759,27 @@ a.lps-button-ghost {
 }
 
 .lps-journey .lps-more {
-  color: var(--color-lime);
+  color: var(--color-teal);
 }
 
-/* Inline more-links take the lime-deeper hue that survives on white. */
+/* Inline more-links take the teal-deeper hue that survives on white. */
 .lps-more {
-  color: var(--color-lime-deep);
+  color: var(--color-teal-deep);
   font-weight: 700;
 }
 
-/* Kicker on light surfaces becomes a lime-wash pill. */
+/* Kicker on light surfaces becomes a teal-wash pill. */
 .lps-kicker {
-  background: var(--color-lime-wash);
+  background: var(--color-teal-wash);
   border-radius: var(--radius-pill);
-  color: var(--color-lime-ink);
+  color: var(--color-teal-ink);
   display: inline-flex;
   font-weight: 600;
   padding: 0.4rem 1rem;
 }
 
 .lps-kicker::before {
-  background: var(--color-lime-deep);
+  background: var(--color-teal-deep);
   border-radius: var(--radius-pill);
   block-size: 0.5rem;
   inline-size: 0.5rem;
@@ -3788,18 +3788,18 @@ a.lps-button-ghost {
 /* Hero keeps its own flat kicker treatment. */
 .lps-hero .lps-kicker {
   background: transparent;
-  color: var(--color-lime);
+  color: var(--color-teal);
   padding: 0;
 }
 
 .lps-hero .lps-kicker::before {
-  background: var(--color-lime);
+  background: var(--color-teal);
   border-radius: 0;
   block-size: 0.75rem;
   inline-size: 0.75rem;
 }
 
-/* CTA band: lime→navy gradient dish with the node-web echo. */
+/* CTA band: teal→navy gradient dish with the node-web echo. */
 .lps-cta-band {
   background: var(--gradient-cta);
   border-block-start: 0;
@@ -3820,13 +3820,13 @@ a.lps-button-ghost {
   color: var(--color-anchor);
 }
 
-/* Footer: lime replaces cyan as the dark accent. */
+/* Footer: teal replaces cyan as the dark accent. */
 .lps-site-footer {
-  border-block-start-color: var(--color-lime);
+  border-block-start-color: var(--color-teal);
 }
 
 .lps-site-footer a:hover {
-  text-decoration-color: var(--color-lime);
+  text-decoration-color: var(--color-teal);
 }
 
 .lps-site-footer h2,
@@ -3834,7 +3834,7 @@ a.lps-button-ghost {
   border-block-end-color: var(--overlay-light-14);
 }
 
-/* Page headers on inner pages keep the light field but gain the lime tick. */
+/* Page headers on inner pages keep the light field but gain the teal tick. */
 .lps-page-header {
   border-block-end: 0;
 }
