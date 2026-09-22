@@ -292,7 +292,8 @@ function denied(pathname) {
   )
     return 403;
   if (/\/\.[^/]/.test(pathname) || pathname.startsWith("/.")) return 403;
-  if (/(?:\/tests\/|\/includes\/|debug|\.log$|\.sql$|\.sqlite$)/i.test(pathname)) return 403;
+  if (/(?:\/tests\/|debug|\.log$|\.sql$|\.sqlite$)/i.test(pathname)) return 403;
+  if (/\/includes\/[^/]*\.(?:php|inc|module|html)$/i.test(pathname)) return 403;
   if (UPLOADS_EXEC.test(pathname)) return 403;
   return 0;
 }

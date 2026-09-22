@@ -143,11 +143,11 @@
       "sources": [
         {
           "path": "wp-content/themes/lps-theme/theme.json",
-          "sha256": "a44568515a782d98ae71fcf18b76b3390abd92402a112575491ad0b141139a9e"
+          "sha256": "4c3044af13db2dfff6a2c69d0a4a78f2d1675549dfeb549fd6b11da4e33c5b75"
         },
         {
           "path": "DESIGN.md",
-          "sha256": "2070a296b78663612e1b780778f6e2668d7d50eeb71fc2679420db1e58b126da"
+          "sha256": "da040f8d5a4d91d99d88e3fd5de672058d896e8adb142fb25b306da6ab97d883"
         }
       ]
     },

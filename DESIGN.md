@@ -185,8 +185,8 @@ per-pair expectations is `design-contract.json → colors`.
 | Quiet rule | `--color-rule-quiet` | `#D7E0E8` | Decorative separators only; never the sole boundary of a control | MEASURED |
 | Strong boundary | `--color-boundary-strong` | `#74869A` | Necessary light-surface control boundaries (3.74:1 on surface) | MEASURED |
 | Focus on dark | `--color-focus-on-dark` | `#FFFFFF` | Focus outline on anchor bands and other dark fills | MEASURED |
-| Success / Warning / Error | `--color-success` `#216E4E`, `--color-warning` `#7A4A00`, `--color-error` `#A12622` | Status text/icon plus label; never color alone | CARRIED |
-| Washes | `--color-info-wash` `#DDECEF`, `--color-success-wash` `#E0ECE5`, `--color-warning-wash` `#F2E8D2`, `--color-error-wash` `#F2DEDA` | Alert backgrounds | CARRIED |
+| Success / Warning / Error | `--color-success` `#04536C`, `--color-warning` `#8A4708`, `--color-error` `#B3261E` | Status text/icon plus label; never color alone | CARRIED |
+| Washes | `--color-info-wash` `#F0F5FD`, `--color-success-wash` `#D6F3FB`, `--color-warning-wash` `#F8ECD8`, `--color-error-wash` `#FCE7E4` | Alert backgrounds | CARRIED |
 
 ### Color rules
 

@@ -103,10 +103,10 @@
   --color-rule-quiet: #d7e0ea;
   --color-rule-hover: #9aabbd;
   --color-boundary-strong: #75899f;
-  --color-success: #0d6b48;
+  --color-success: #04536c;
   --color-warning: #8a4708;
   --color-error: #b3261e;
-  --color-success-wash: #e3f0e9;
+  --color-success-wash: #d6f3fb;
   --color-warning-wash: #f8ecd8;
   --color-error-wash: #fce7e4;
   --color-info-wash: #f0f5fd;
@@ -132,6 +132,7 @@
   --overlay-light-16: rgba(255, 255, 255, 0.16);
   --overlay-light-18: rgba(255, 255, 255, 0.18);
   --overlay-light-50: rgba(255, 255, 255, 0.5);
+  --overlay-ink-22: rgba(9, 33, 58, 0.22);
   --gradient-hero: linear-gradient(180deg, var(--color-anchor) 0%, var(--color-anchor-deep) 100%);
   --gradient-signal-bar: linear-gradient(90deg, var(--color-action) 0%, var(--color-accent) 100%);
   --gradient-signal-bar-soft: linear-gradient(
@@ -146,6 +147,18 @@
     var(--color-anchor-deep)
   );
   --gradient-partner-fade: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  --gradient-scroll-cover-left: linear-gradient(90deg, var(--color-surface) 30%, transparent);
+  --gradient-scroll-cover-right: linear-gradient(90deg, transparent, var(--color-surface) 70%);
+  --gradient-scroll-shadow-left: radial-gradient(
+    farthest-side at 0 50%,
+    var(--overlay-ink-22),
+    transparent
+  );
+  --gradient-scroll-shadow-right: radial-gradient(
+    farthest-side at 100% 50%,
+    var(--overlay-ink-22),
+    transparent
+  );
   --gradient-monogram-memoriam: linear-gradient(
     160deg,
     var(--color-text-muted),
@@ -1014,8 +1027,11 @@ a.lps-button-quiet:hover {
 }
 
 .lps-utility-links a {
+  align-items: center;
   color: var(--color-on-dark);
+  display: inline-flex;
   font-size: var(--type-small);
+  min-block-size: 1.5rem;
   text-decoration: none;
 }
 
@@ -1231,6 +1247,7 @@ a.lps-button-quiet:hover {
   list-style: none;
   min-block-size: var(--control-min);
   padding-block: var(--space-3);
+  padding-inline: var(--grid-gutter);
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -1645,6 +1662,13 @@ textarea:focus-visible {
   font-size: var(--type-small);
   line-height: 1.4;
   max-inline-size: 22ch;
+}
+
+@media (max-width: 40rem) {
+  .lps-stat strong {
+    font-size: clamp(1.375rem, 7vw, 2rem);
+    overflow-wrap: anywhere;
+  }
 }
 
 /* ----------------------------------------------------------------------------
@@ -2238,6 +2262,30 @@ textarea:focus-visible {
   transform: translateY(-2px);
 }
 
+@media (max-width: 40rem) {
+  .lps-agenda > li {
+    align-items: start;
+    gap: var(--space-4);
+    grid-template-columns: 1fr;
+  }
+
+  .lps-agenda .lps-event-date {
+    justify-self: start;
+  }
+}
+
+@media (max-width: 40rem) {
+  .lps-utility-links a,
+  .lps-more,
+  .lps-meta a,
+  .lps-breadcrumbs a,
+  .lps-site-footer a {
+    align-items: center;
+    display: inline-flex;
+    min-block-size: 2.5rem;
+  }
+}
+
 .lps-event-date {
   align-items: center;
   background: var(--gradient-event-date);
@@ -2362,7 +2410,7 @@ textarea:focus-visible {
 
 @media (min-width: 60rem) {
   .lps-people-grid {
-    grid-auto-columns: calc((100% - 3 * var(--space-5)) / 4);
+    grid-auto-columns: calc((100% - 3 * var(--space-5)) / 4.15);
   }
 }
 
@@ -2557,7 +2605,15 @@ textarea:focus-visible {
 /* The card caps at roughly four data rows; taller result sets scroll
    vertically under the sticky header row instead of pushing the page. */
 .lps-table-scroll {
-  background: var(--color-surface);
+  background:
+    var(--gradient-scroll-cover-left),
+    var(--gradient-scroll-cover-right) 100% 0,
+    var(--gradient-scroll-shadow-left),
+    var(--gradient-scroll-shadow-right) 100% 0;
+  background-attachment: local, local, scroll, scroll;
+  background-color: var(--color-surface);
+  background-repeat: no-repeat;
+  background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
   border: 1px solid var(--color-card-rule);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
@@ -4177,12 +4233,12 @@ a.lps-button-ghost {
   }
 }
 
-.lps-stat strong {
+.lps-stat-band .lps-stat strong {
   color: var(--color-teal);
   font-weight: 700;
 }
 
-.lps-stat span {
+.lps-stat-band .lps-stat span {
   color: var(--color-on-dark);
 }
 

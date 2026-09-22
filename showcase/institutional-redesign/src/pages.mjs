@@ -327,13 +327,13 @@ ${sectionHead({
 ${partnerLogos
   .map(
     (logo) =>
-      `<li><img src="/assets/img/partners/${logo.file}" alt="${esc(logo.name)}" loading="lazy" decoding="async" /></li>`,
+      `<li><img src="/assets/img/partners/${logo.file}" alt="${esc(logo.name)}" decoding="async" /></li>`,
   )
   .join("\n")}
 ${partnerLogos
   .map(
     (logo) =>
-      `<li aria-hidden="true"><img src="/assets/img/partners/${logo.file}" alt="" loading="lazy" decoding="async" /></li>`,
+      `<li aria-hidden="true"><img src="/assets/img/partners/${logo.file}" alt="" decoding="async" /></li>`,
   )
   .join("\n")}
 </ul>
@@ -412,7 +412,7 @@ ${sectionHead({ kicker: en ? "Identity" : "Identidade", title: en ? "The laborat
 <p><a class="lps-more" href="${link(locale, "/identidade-visual/", "/en/visual-identity/")}">${esc(en ? "Mark applications and files" : "Aplicações e arquivos da marca")}</a></p>
 </div>
 <div class="lps-card lps-card--flush"><div class="lps-card-media lps-card-media--plain" style="min-block-size:14rem;background:var(--color-surface)" aria-hidden="true">
-<img src="/assets/img/mark/lps-coppe-blue-lockup.svg" alt="" width="1622" height="804" loading="lazy" decoding="async" style="object-fit:contain;padding:var(--space-6);background:transparent">
+<img src="/assets/brand/lps_coppe_blue_lockup.svg" alt="" width="1622" height="804" loading="lazy" decoding="async" style="object-fit:contain;padding:var(--space-6);background:transparent">
 </div></div>
 </div>
 </section>
@@ -424,13 +424,13 @@ ${sectionHead({ kicker: en ? "Partners" : "Parceiros", title: en ? "Institutions
 ${partnerLogos
   .map(
     (logo) =>
-      `<li><img src="/assets/img/partners/${logo.file}" alt="${esc(logo.name)}" loading="lazy" decoding="async" /></li>`,
+      `<li><img src="/assets/img/partners/${logo.file}" alt="${esc(logo.name)}" decoding="async" /></li>`,
   )
   .join("")}
 ${partnerLogos
   .map(
     (logo) =>
-      `<li aria-hidden="true"><img src="/assets/img/partners/${logo.file}" alt="" loading="lazy" decoding="async" /></li>`,
+      `<li aria-hidden="true"><img src="/assets/img/partners/${logo.file}" alt="" decoding="async" /></li>`,
   )
   .join("")}
 </ul>
@@ -1396,7 +1396,7 @@ function identityPage(locale) {
       surface: "light",
     },
     {
-      src: "/assets/img/mark/lps-mark-compact.svg",
+      src: "/assets/brand/lps_logo_compact.svg",
       title: en ? "Compact mark, colour" : "Marca compacta, colorida",
       body: en
         ? "Constrained places: mobile masthead, cards, e-mail signatures."
@@ -1404,7 +1404,7 @@ function identityPage(locale) {
       surface: "light",
     },
     {
-      src: "/assets/img/mark/lps-mark-reversed.svg",
+      src: "/assets/brand/lps_coppe_reversed_lockup.svg",
       title: en ? "Full mark, reversed" : "Marca completa, reversa",
       body: en
         ? "Dark navy surfaces: footer, covers, presentation closing slides."
@@ -1412,7 +1412,7 @@ function identityPage(locale) {
       surface: "dark",
     },
     {
-      src: "/assets/img/mark/lps-mark-mono-symbol.svg",
+      src: "/assets/img/mark/lps-mark-favicon.svg",
       title: en ? "Signal only, mono" : "Somente o sinal, monocromático",
       body: en
         ? "Decorative or ruled contexts where colour cannot be printed."
@@ -1422,7 +1422,7 @@ function identityPage(locale) {
       h: 520,
     },
     {
-      src: "/assets/img/mark/lps-coppe-blue.svg",
+      src: "/assets/brand/lps_coppe_blue.svg",
       title: en ? "COPPE/Poli/UFRJ lockup" : "Marca conjunta COPPE/Poli/UFRJ",
       body: en
         ? "Official institutional artwork pairing the LPS mark with COPPE, Poli and UFRJ lettering."
@@ -1458,7 +1458,7 @@ ${sectionHead({ kicker: en ? "Applications" : "Aplicações", title: en ? "Appro
 ${applications
   .map(
     (item) => `<article class="lps-card lps-card--flush">
-<div class="lps-card-media lps-card-media--plain" style="min-block-size:11rem;background:${item.surface === "dark" ? "var(--c-navy-900)" : "var(--c-surface)"}" aria-hidden="true">
+<div class="lps-card-media lps-card-media--plain" style="min-block-size:11rem;background:${item.surface === "dark" ? "var(--color-anchor)" : "var(--color-surface)"}" aria-hidden="true">
 <img src="${item.src}" alt="" width="${item.w ?? 2052}" height="${item.h ?? 301}" loading="lazy" decoding="async" style="object-fit:contain;padding:1.5rem;background:transparent">
 </div>
 <div class="lps-card-body" style="padding:var(--space-6)">
@@ -1739,7 +1739,7 @@ ${sectionHead({ kicker: en ? "Teaching" : "Docência", title: t(copy.subjects.ti
 <tbody>${courses
     .map(
       (course) =>
-        `<tr><td><span class="lps-course-code">${esc(course.code)}</span></td><th scope="row">${esc(t(course.title, locale))}</th><td><span class="lps-level ${t(course.level, "en") === "Graduate" ? "lps-level-grad" : "lps-level-undergrad"}">${esc(t(course.level, locale))}</span></td><td>2026.2</td><td><span class="lps-status lps-status-success">${esc(t(copy.subjects.state, locale))}</span></td></tr>`,
+        `<tr><td>${course.code === "—" ? esc(course.code) : `<span class="lps-course-code">${esc(course.code)}</span>`}</td><th scope="row">${esc(t(course.title, locale))}</th><td><span class="lps-level ${t(course.level, "en") === "Graduate" ? "lps-level-grad" : "lps-level-undergrad"}">${esc(t(course.level, locale))}</span></td><td>2026.2</td><td><span class="lps-status lps-status-success">${esc(t(copy.subjects.state, locale))}</span></td></tr>`,
     )
     .join("\n")}</tbody>
 </table>
@@ -1856,7 +1856,7 @@ ${
 <tbody>${courses
         .map(
           (course) =>
-            `<tr><td><span class="lps-course-code">${esc(course.code)}</span></td><th scope="row">${esc(t(course.title, locale))}</th><td>${esc(t(course.level, locale))}</td></tr>`,
+            `<tr><td>${course.code === "—" ? esc(course.code) : `<span class="lps-course-code">${esc(course.code)}</span>`}</td><th scope="row">${esc(t(course.title, locale))}</th><td>${esc(t(course.level, locale))}</td></tr>`,
         )
         .join("")}</tbody>
 </table>
@@ -1870,7 +1870,7 @@ ${
               .map((area) => `<li>${esc(area)}</li>`)
               .join("")}</ul>`
           : ""
-      }${alert({ tone: "info", title: t(copy.subjects, locale), body: t(copy.subjectsEmpty, locale) })}`
+      }${alert({ tone: "info", title: t(copy.subjectsEmptyTitle ?? copy.subjects, locale), body: t(copy.subjectsEmpty, locale) })}`
 }
 </section>
 <section class="lps-section" aria-labelledby="person-notes">

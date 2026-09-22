@@ -61,6 +61,43 @@ add_action(
 	}
 );
 
+/*
+ * wp-login screens — the Two Factor challenge step in particular — otherwise
+ * render stock WordPress chrome mid-flow. The site lockup, the anchor palette
+ * and the home link keep the hand-off inside the laboratory's identity.
+ */
+add_action(
+	'login_enqueue_scripts',
+	static function (): void {
+		$mark = get_theme_file_uri( 'assets/brand/lps_coppe_blue_lockup.svg' );
+		wp_register_style( 'lps-login', false, array(), wp_get_theme()->get( 'Version' ) );
+		wp_enqueue_style( 'lps-login' );
+		wp_add_inline_style(
+			'lps-login',
+			'body.login{background:#0b1f33;background-image:none;color:#eaf1f8;}'
+			. '#login h1 a{background-image:url(' . esc_url_raw( $mark ) . ');background-position:center center;background-repeat:no-repeat;background-size:contain;height:5.5rem;width:17rem;}'
+			. '.login #backtoblog a,.login #nav a,.login .privacy-policy-page-link a{color:#b8d4ee;}'
+			. '.login #backtoblog a:hover,.login #nav a:hover{color:#fff;}'
+			. '.login form{background:#fff;border:1px solid #d4e2ef;box-shadow:0 10px 30px rgba(4,16,31,.28);}'
+			. '.login .privacy-policy-page-link{color:#b8d4ee;}'
+		);
+	}
+);
+
+add_filter(
+	'login_headerurl',
+	static function (): string {
+		return home_url( '/' );
+	}
+);
+
+add_filter(
+	'login_headertext',
+	static function (): string {
+		return 'Laboratório de Processamento de Sinais — UFRJ/COPPE';
+	}
+);
+
 add_action(
 	'init',
 	static function (): void {
