@@ -11,6 +11,7 @@ import {
   about,
   accessibility,
   contact,
+  courses,
   events,
   hero,
   infrastructure,
@@ -24,6 +25,8 @@ import {
   projects,
   publications,
   research,
+  resourceLanguages,
+  resourceTypes,
   site,
   teaching,
   utilityLinks,
@@ -49,6 +52,18 @@ const { ui } = strings;
 const t = (value, locale) => pick(value, locale);
 
 const link = (locale, pt, en) => (locale === "en" ? en : pt);
+
+/** Records that still reference the legacy site keep their source as plain
+ * text — the content was migrated, so nothing links back out. */
+const LEGACY_HOST = /sites\.google\.com|classroom\.google\.com/;
+const sourceLabel = (url, locale) => {
+  const text = LEGACY_HOST.test(url)
+    ? locale === "en"
+      ? "Previous site"
+      : "Site anterior"
+    : new URL(url).hostname;
+  return `<span class="lps-meta">${esc(text)}</span>`;
+};
 
 /** Localized list: one localized value per element. */
 const tl = (value, locale) =>
@@ -251,9 +266,7 @@ ${sectionHead({
   action: { href: link(locale, "/pessoas/", "/en/people/"), label: `${u.seeAll} →` },
 })}
 <div class="lps-people-grid">
-${people
-  .map((person) => personCard(locale, person))
-  .join("")}
+${people.map((person) => personCard(locale, person)).join("")}
 </div>
 </div>`,
   });
@@ -282,7 +295,7 @@ ${news
 <h3>${esc(t(item.title, locale))}</h3>
 <p>${esc(t(item.summary, locale))}</p>
 </div>
-<a class="lps-more" href="${t(item.source, locale)}" rel="external">${esc(en ? "Source" : "Fonte")}</a>
+<span class="lps-more">${esc(en ? "Source" : "Fonte")}: ${sourceLabel(t(item.source, locale), locale)}</span>
 </li>`,
   )
   .join("")}
@@ -617,7 +630,7 @@ ${projects
       tags: t(project.tags, locale),
       media: true,
       meta: `${project.period} · ${t(project.partners, locale).join(", ")}`,
-      foot: `<a class="lps-meta" href="${project.source}" rel="external">${esc(en ? "Public source" : "Fonte pública")}</a>`,
+      foot: `<span class="lps-meta">${esc(en ? "Source" : "Fonte")}: ${sourceLabel(project.source, locale)}</span>`,
     }),
   )
   .join("")}
@@ -761,24 +774,13 @@ ${teaching.materials
       title: t(material.title, locale),
       body: t(material.body, locale),
       action: material.link
-        ? { href: material.link.href, label: t(material.link.label, locale) }
+        ? { href: t(material.link.href, locale), label: t(material.link.label, locale) }
         : null,
     }),
   )
   .join("")}
 </div>
-${alert({
-  tone: "warning",
-  title: en
-    ? "Course material lives outside this domain"
-    : "O material didático está fora deste domínio",
-  body: en
-    ? "Syllabi, problem sets and support material are published on the professors' own pages. Migration of that material into the institutional site requires each author's rights review — it is linked, not copied."
-    : "Planos de aula, listas e material de apoio são publicados nas páginas próprias dos professores. A migração desse material para o site institucional exige análise de direitos de cada autor — ele é referenciado, não copiado.",
-}).replace(
-  '<div class="lps-alert lps-alert-warning">',
-  '<div class="lps-alert lps-alert-warning lps-mt-8">',
-)}
+
 </section>
 <section class="lps-section">
 ${ctaBand({
@@ -803,6 +805,126 @@ ${ctaBand({
       ? "Graduate and undergraduate courses taught by the Signal Processing Laboratory at UFRJ/COPPE."
       : "Disciplinas de pós-graduação e graduação ministradas pelo Laboratório de Processamento de Sinais da UFRJ/COPPE.",
     body,
+  };
+}
+
+/* ---------------------------------------------------------------------------
+ * Course subpages — documented course content published on this domain.
+ * ------------------------------------------------------------------------ */
+
+function materialList(items, locale) {
+  return `<ul class="lps-record-list">${items
+    .map((item) => {
+      const meta = `${t(resourceTypes[item.type] ?? item.type, locale)} · ${t(
+        resourceLanguages[item.language] ?? item.language,
+        locale,
+      )}`;
+      return `<li><h3><a href="${item.url}" rel="external">${esc(t(item.title, locale))}</a></h3><p class="lps-summary">${esc(
+        t(item.summary, locale),
+      )}</p><p class="lps-meta">${esc(meta)}</p></li>`;
+    })
+    .join("")}</ul>`;
+}
+
+function coursePageFor(course) {
+  return (locale) => {
+    const en = locale === "en";
+    const professorHref = personPath({ slug: course.professorSlug }, locale);
+    const offeringFacts = [];
+    offeringFacts.push({
+      term: en ? "Professor" : "Professor",
+      html: `<a href="${professorHref}">${esc(course.professor)}</a>`,
+    });
+    offeringFacts.push({
+      term: en ? "Program" : "Programa",
+      description: t(course.program, locale),
+    });
+    if (course.term) {
+      offeringFacts.push({
+        term: en ? "Offering" : "Oferta",
+        html: `${esc(t(course.term, locale))}${course.status ? ` · <em>${esc(t(course.status, locale))}</em>` : ""}`,
+      });
+      offeringFacts.push({
+        term: en ? "Period" : "Período",
+        description: t(course.termDates, locale),
+      });
+    }
+    if (course.venue) {
+      offeringFacts.push({ term: en ? "Venue" : "Local", description: course.venue });
+    }
+
+    const body = `${pageHeader({
+      kicker: `${course.code} · ${t(course.level, locale)}`,
+      title: t(course.title, locale),
+      lead: t(course.summary, locale),
+    })}
+<div class="lps-page-grid">
+<section class="lps-section lps-section--flush" aria-labelledby="course-about">
+${sectionHead({ kicker: en ? "Course" : "Disciplina", title: en ? "About the course" : "Sobre a disciplina", id: "course-about" })}
+${facts(offeringFacts)}
+<div class="lps-reading lps-mt-8"><p>${esc(t(course.body, locale))}</p></div>
+</section>
+${
+  course.syllabus
+    ? `<section class="lps-section" aria-labelledby="course-syllabus">
+${sectionHead({ kicker: en ? "Syllabus" : "Ementa", title: en ? "Course contents" : "Conteúdo da disciplina", id: "course-syllabus" })}
+<ul class="lps-term-token">${t(course.syllabus, locale)
+        .map((item) => `<li>${esc(item)}</li>`)
+        .join("")}</ul>
+</section>`
+    : ""
+}
+${
+  course.bibliography
+    ? `<section class="lps-section" aria-labelledby="course-bibliography">
+${sectionHead({ kicker: en ? "References" : "Bibliografia", title: en ? "Bibliography" : "Bibliografia", id: "course-bibliography" })}
+<ul class="lps-record-list">${t(course.bibliography, locale)
+        .map((item) => `<li><h3>${esc(item)}</h3></li>`)
+        .join("")}</ul>
+</section>`
+    : ""
+}
+${
+  course.units?.length
+    ? `<section class="lps-section" aria-labelledby="course-units">
+${sectionHead({ kicker: en ? "Units" : "Unidades", title: en ? "Units and materials" : "Unidades e materiais", id: "course-units" })}
+<ol class="lps-course-units">${course.units
+        .map(
+          (unit, index) => `<li>
+<h3>${index + 1}. ${esc(t(unit.title, locale))}</h3>
+${unit.body ? `<p class="lps-summary">${esc(t(unit.body, locale))}</p>` : ""}
+${unit.materials?.length ? materialList(unit.materials, locale) : ""}
+</li>`,
+        )
+        .join("")}</ol>
+</section>`
+    : ""
+}
+${
+  course.materials?.length
+    ? `<section class="lps-section" aria-labelledby="course-materials">
+${sectionHead({ kicker: en ? "Materials" : "Materiais", title: en ? "Course materials" : "Materiais da disciplina", id: "course-materials" })}
+${materialList(course.materials, locale)}
+</section>`
+    : ""
+}
+${
+  !course.term
+    ? alert({
+        tone: "info",
+        body: en
+          ? "There is no active offering registered for this course; the material is kept for reference."
+          : "Não há oferta ativa registrada para esta disciplina; o material é mantido para consulta.",
+      })
+    : ""
+}
+</div>`;
+
+    return {
+      title: `${course.code} — ${t(course.title, locale)} — LPS/UFRJ`,
+      description: t(course.summary, locale),
+      body,
+    };
   };
 }
 
@@ -977,7 +1099,7 @@ ${news
 <div>
 <h3>${esc(t(item.title, locale))}</h3>
 <p>${esc(t(item.summary, locale))}</p>
-<p class="lps-meta lps-mt-4">${esc(en ? "Source" : "Fonte")}: <a href="${item.source}" rel="external">${esc(new URL(item.source).hostname)}</a></p>
+<p class="lps-meta lps-mt-4">${esc(en ? "Source" : "Fonte")}: ${sourceLabel(item.source, locale)}</p>
 </div>
 <span class="lps-meta">${esc(t(item.dateLabel, locale))}</span>
 </li>`,
@@ -1005,7 +1127,7 @@ ${card({
   body: en
     ? "The laboratory site hosted on Google Sites remains the record for older material, including opportunities announcements and professor pages."
     : "O site do laboratório hospedado no Google Sites permanece como registro do material antigo, incluindo avisos de oportunidades e páginas de professores.",
-  action: { href: site.external.legacy, label: en ? "Open previous site" : "Abrir site anterior" },
+  action: null,
 })}
 ${card({
   title: en ? "Lossless redirects are planned" : "Redirecionamentos sem perda estão planejados",
@@ -1378,11 +1500,11 @@ ${sectionHead({ kicker: en ? "Usage" : "Uso", title: en ? "Rules that keep the m
 <div>${card({
     title: en ? "Brand package" : "Pacote da marca",
     body: en
-      ? "The laboratory keeps the official files — blue and white signal, blue and white full mark, and the complete brand package — in its own drive, linked from the previous site."
-      : "O laboratório mantém os arquivos oficiais — sinal azul e branco, marca completa azul e branca, e o pacote completo da marca — em seu próprio drive, com link no site anterior.",
+      ? "The laboratory keeps the official files — blue and white signal, blue and white full mark, and the complete brand package — in its own drive, available through the administrative office."
+      : "O laboratório mantém os arquivos oficiais — sinal azul e branco, marca completa azul e branca, e o pacote completo da marca — em seu próprio drive, disponibilizado pela secretaria administrativa.",
     action: {
-      href: "https://sites.google.com/lps.ufrj.br/lps/sobre/identidade-visual",
-      label: en ? "Official files" : "Arquivos oficiais",
+      href: `mailto:${site.emails.office}`,
+      label: en ? "Request the files" : "Solicitar os arquivos",
     },
   })}</div>
 </div>
@@ -1638,7 +1760,7 @@ ${
     ? `<ul class="lps-record-list">${person.notes
         .map(
           (note) =>
-            `<li><h3><a href="${note.href}">${esc(t(note.title, locale))}</a></h3><p class="lps-summary">${esc(t(note.summary, locale))}</p></li>`,
+            `<li><h3><a href="${t(note.href, locale)}">${esc(t(note.title, locale))}</a></h3><p class="lps-summary">${esc(t(note.summary, locale))}</p></li>`,
         )
         .join("")}</ul>`
     : alert({ tone: "info", body: t(copy.notes.empty, locale) })
@@ -1766,7 +1888,7 @@ ${
     ? `<ul class="lps-record-list">${person.notes
         .map(
           (note) =>
-            `<li><h3><a href="${note.href}">${esc(t(note.title, locale))}</a></h3><p class="lps-summary">${esc(t(note.summary, locale))}</p></li>`,
+            `<li><h3><a href="${t(note.href, locale)}">${esc(t(note.title, locale))}</a></h3><p class="lps-summary">${esc(t(note.summary, locale))}</p></li>`,
         )
         .join("")}</ul>`
     : alert({ tone: "info", body: t(copy.notesEmpty, locale) })
@@ -1854,6 +1976,18 @@ export const routes = [
     breadcrumb: { "pt-BR": "Ensino", en: "Teaching" },
     build: teachingPage,
   },
+  ...courses.map((course) => ({
+    pt: `/ensino/disciplinas/${course.slug}/`,
+    en: `/en/teaching/courses/${course.enSlug}/`,
+    breadcrumb: { "pt-BR": course.title["pt-BR"], en: course.title.en },
+    parents: [
+      {
+        href: { "pt-BR": "/ensino/", en: "/en/teaching/" },
+        label: { "pt-BR": "Ensino", en: "Teaching" },
+      },
+    ],
+    build: coursePageFor(course),
+  })),
   {
     pt: "/infraestrutura/",
     en: "/en/infrastructure/",

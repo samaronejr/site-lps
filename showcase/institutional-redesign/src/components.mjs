@@ -355,7 +355,16 @@ export function courseTable(locale, rows, caption) {
     .map((row) => {
       const level = pick(row.level, locale);
       const variant = level === "Graduate" ? "lps-level-grad" : "lps-level-undergrad";
-      return `<tr><td><span class="lps-course-code">${esc(row.code)}</span></td><th scope="row">${esc(pick(row.title, locale))}</th><td>${esc(row.professor)}</td><td><span class="lps-level ${variant}">${esc(level)}</span></td></tr>`;
+      const slug = row.slug ? pick(row.slug, locale) : null;
+      const href = slug
+        ? locale === "en"
+          ? `/en/teaching/courses/${slug}/`
+          : `/ensino/disciplinas/${slug}/`
+        : null;
+      const title = href
+        ? `<a href="${href}">${esc(pick(row.title, locale))}</a>`
+        : esc(pick(row.title, locale));
+      return `<tr><td><span class="lps-course-code">${esc(row.code)}</span></td><th scope="row">${title}</th><td>${esc(row.professor)}</td><td><span class="lps-level ${variant}">${esc(level)}</span></td></tr>`;
     })
     .join("")}</tbody>
 </table>

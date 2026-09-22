@@ -568,16 +568,7 @@ export const people = [
       { label: "LinkedIn", href: "https://www.linkedin.com/in/natanael-moura-junior-425a3294/" },
     ],
     email: "natmourajr@lps.ufrj.br",
-    notes: [
-      {
-        title: { "pt-BR": "Página do professor — disciplinas e material de aula", en: "Faculty page — courses and class materials" },
-        href: "https://sites.google.com/lps.ufrj.br/namourajr",
-        summary: {
-          "pt-BR": "Página mantida pelo professor com a ementa e o material das disciplinas de graduação e pós-graduação.",
-          en: "Professor-maintained page with syllabi and material for the undergraduate and graduate courses.",
-        },
-      },
-    ],
+    notes: [],
   },
   {
     slug: "jose-manoel-de-seixas",
@@ -624,16 +615,7 @@ export const people = [
     },
     links: [{ label: "Lattes", href: "http://lattes.cnpq.br/1404632471755241" }],
     email: "seixas@lps.ufrj.br",
-    notes: [
-      {
-        title: { "pt-BR": "Página do professor", en: "Faculty page" },
-        href: "https://sites.google.com/lps.ufrj.br/seixas",
-        summary: {
-          "pt-BR": "Página mantida pelo professor, com atuação, disciplinas e orientações.",
-          en: "Professor-maintained page with research activity, courses and supervision.",
-        },
-      },
-    ],
+    notes: [],
   },
   {
     slug: "luiz-pereira-caloba",
@@ -680,11 +662,33 @@ export const people = [
     email: "caloba@lps.ufrj.br",
     notes: [
       {
-        title: { "pt-BR": "Página do professor — redes neurais e circuitos", en: "Faculty page — neural networks and circuits" },
-        href: "https://sites.google.com/lps.ufrj.br/caloba",
+        title: {
+          "pt-BR": "CPE-721 — Redes Neurais Feedforward",
+          en: "CPE-721 — Feedforward Neural Networks",
+        },
+        href: {
+          "pt-BR": "/ensino/disciplinas/cpe721-redes-neurais-feedforward/",
+          en: "/en/teaching/courses/cpe721-feedforward-neural-networks/",
+        },
         summary: {
-          "pt-BR": "Página mantida pelo professor, com o histórico das disciplinas de redes neurais que o laboratório oferece desde 1989.",
-          en: "Professor-maintained page with the history of the neural-network courses the laboratory has offered since 1989.",
+          "pt-BR":
+            "Ementa e material da disciplina clássica de redes neurais que o laboratório oferece desde 1989.",
+          en: "Syllabus and material for the classic neural-network course the laboratory has offered since 1989.",
+        },
+      },
+      {
+        title: {
+          "pt-BR": "CPE-722 — Redes Neurais Não Supervisionadas",
+          en: "CPE-722 — Unsupervised Neural Networks",
+        },
+        href: {
+          "pt-BR": "/ensino/disciplinas/cpe722-redes-neurais-nao-supervisionadas/",
+          en: "/en/teaching/courses/cpe722-unsupervised-neural-networks/",
+        },
+        summary: {
+          "pt-BR":
+            "Ementa e séries de exercícios da disciplina de redes não supervisionadas e agrupamentos.",
+          en: "Syllabus and exercise series for the unsupervised networks and clustering course.",
         },
       },
     ],
@@ -748,19 +752,59 @@ export const people = [
     email: "jodafons@lps.ufrj.br",
     notes: [
       {
-        title: { "pt-BR": "CPE-886 — Quantum Machine Learning", en: "CPE-886 — Quantum Machine Learning" },
-        href: "https://sites.google.com/lps.ufrj.br/jodafons/pee/cpe-886-quantum-machine-learning",
+        title: {
+          "pt-BR": "EEL710 — Instrumentação e Técnicas de Medidas",
+          en: "EEL710 — Instrumentation and Measurement Techniques",
+        },
+        href: {
+          "pt-BR": "/ensino/disciplinas/eel710-instrumentacao-e-tecnicas-de-medidas/",
+          en: "/en/teaching/courses/eel710-instrumentation-and-measurement-techniques/",
+        },
         summary: {
-          "pt-BR": "Plano de aula, listas e material de apoio publicados pelo professor para a disciplina de pós-graduação.",
-          en: "Syllabus, problem sets and supporting material published by the professor for the graduate course.",
+          "pt-BR": "Ementa, unidades e material da disciplina de graduação na Poli/UFRJ.",
+          en: "Syllabus, units and material for the undergraduate course at Poli/UFRJ.",
         },
       },
       {
-        title: { "pt-BR": "Página do professor", en: "Faculty page" },
-        href: "https://sites.google.com/lps.ufrj.br/jodafons",
+        title: {
+          "pt-BR": "CPE-782 — Análise de Componentes Independentes",
+          en: "CPE-782 — Independent Component Analysis",
+        },
+        href: {
+          "pt-BR": "/ensino/disciplinas/cpe782-analise-de-componentes-independentes/",
+          en: "/en/teaching/courses/cpe782-independent-component-analysis/",
+        },
         summary: {
-          "pt-BR": "Página mantida pelo professor, com disciplinas, projetos e código.",
-          en: "Professor-maintained page with courses, projects and code.",
+          "pt-BR": "Ementa, trabalhos computacionais e material da disciplina de pós-graduação.",
+          en: "Syllabus, computational assignments and material for the graduate course.",
+        },
+      },
+      {
+        title: {
+          "pt-BR": "CPE-886 — Quantum Machine Learning",
+          en: "CPE-886 — Quantum Machine Learning",
+        },
+        href: {
+          "pt-BR": "/ensino/disciplinas/cpe886-quantum-machine-learning/",
+          en: "/en/teaching/courses/cpe886-quantum-machine-learning-en/",
+        },
+        summary: {
+          "pt-BR": "Ementa, unidades e material da disciplina de pós-graduação.",
+          en: "Syllabus, units and material for the graduate course.",
+        },
+      },
+      {
+        title: {
+          "pt-BR": "RAP — Revisão Acelerada de Programação",
+          en: "RAP — Accelerated Programming Review",
+        },
+        href: {
+          "pt-BR": "/ensino/disciplinas/revisao-acelerada-de-programacao/",
+          en: "/en/teaching/courses/accelerated-programming-review/",
+        },
+        summary: {
+          "pt-BR": "Lições, exercícios e material do curso de extensão.",
+          en: "Lessons, exercises and material for the extension course.",
         },
       },
     ],
@@ -803,16 +847,7 @@ export const people = [
     teaching: null,
     links: [{ label: "Lattes", href: "http://lattes.cnpq.br/7901653289226815" }],
     email: null,
-    notes: [
-      {
-        title: { "pt-BR": "Arquivo do professor", en: "Faculty archive" },
-        href: "https://sites.google.com/lps.ufrj.br/acmq",
-        summary: {
-          "pt-BR": "Acervo mantido pelo laboratório: teoria de circuitos, microfiltros com capacitores chaveados e história da ciência.",
-          en: "Archive kept by the laboratory: circuit theory, switched-capacitor microfilters and the history of science.",
-        },
-      },
-    ],
+    notes: [],
   },
 ];
 
@@ -824,6 +859,10 @@ export const teaching = {
       title: { "pt-BR": "Redes Neurais Feedforward", en: "Feedforward Neural Networks" },
       professor: "Luiz Pereira Calôba",
       level: { "pt-BR": "Pós-graduação", en: "Graduate" },
+      slug: {
+        "pt-BR": "cpe721-redes-neurais-feedforward",
+        en: "cpe721-feedforward-neural-networks",
+      },
     },
     {
       code: "CPE-722",
@@ -833,6 +872,10 @@ export const teaching = {
       },
       professor: "Luiz Pereira Calôba",
       level: { "pt-BR": "Pós-graduação", en: "Graduate" },
+      slug: {
+        "pt-BR": "cpe722-redes-neurais-nao-supervisionadas",
+        en: "cpe722-unsupervised-neural-networks",
+      },
     },
     {
       code: "CPE-782",
@@ -842,18 +885,27 @@ export const teaching = {
       },
       professor: "João Victor da Fonseca Pinto",
       level: { "pt-BR": "Pós-graduação", en: "Graduate" },
+      slug: {
+        "pt-BR": "cpe782-analise-de-componentes-independentes",
+        en: "cpe782-independent-component-analysis",
+      },
     },
     {
       code: "CPE-886",
       title: { "pt-BR": "Quantum Machine Learning", en: "Quantum Machine Learning" },
       professor: "João Victor da Fonseca Pinto",
       level: { "pt-BR": "Pós-graduação", en: "Graduate" },
+      slug: {
+        "pt-BR": "cpe886-quantum-machine-learning",
+        en: "cpe886-quantum-machine-learning-en",
+      },
     },
     {
       code: "RAP-2026",
-      title: { "pt-BR": "Regime de Aluno Participante", en: "Participating Student Scheme" },
+      title: { "pt-BR": "Revisão Acelerada de Programação", en: "Accelerated Programming Review" },
       professor: "João Victor da Fonseca Pinto",
-      level: { "pt-BR": "Pós-graduação", en: "Graduate" },
+      level: { "pt-BR": "Extensão", en: "Extension" },
+      slug: { "pt-BR": "revisao-acelerada-de-programacao", en: "accelerated-programming-review" },
     },
   ],
   undergraduate: [
@@ -865,6 +917,10 @@ export const teaching = {
       },
       professor: "João Victor da Fonseca Pinto",
       level: { "pt-BR": "Graduação", en: "Undergraduate" },
+      slug: {
+        "pt-BR": "eel710-instrumentacao-e-tecnicas-de-medidas",
+        en: "eel710-instrumentation-and-measurement-techniques",
+      },
     },
     {
       code: "EEL710",
@@ -897,16 +953,19 @@ export const teaching = {
   materials: [
     {
       title: {
-        "pt-BR": "Páginas de disciplina no site do professor",
-        en: "Course pages on the professor site",
+        "pt-BR": "Páginas das disciplinas",
+        en: "Course pages",
       },
       body: {
         "pt-BR":
-          "Planos de aula, listas e material de apoio das disciplinas CPE-721, CPE-722, CPE-782, CPE-886 e EEL710 são publicados nas páginas próprias dos professores, mantidas fora deste domínio.",
-        en: "Syllabi, problem sets and supporting material for CPE-721, CPE-722, CPE-782, CPE-886 and EEL710 are published on the professors' own pages, maintained outside this domain.",
+          "Planos de aula, ementas, listas e material de apoio das disciplinas documentadas do laboratório são publicados neste domínio, organizados em unidades por oferta.",
+        en: "Syllabi, problem sets and supporting material for the laboratory's documented courses are published on this domain, organized into per-offering units.",
       },
       link: {
-        href: "https://sites.google.com/lps.ufrj.br/jodafons/pee/cpe-886-quantum-machine-learning",
+        href: {
+          "pt-BR": "/ensino/disciplinas/cpe886-quantum-machine-learning/",
+          en: "/en/teaching/courses/cpe886-quantum-machine-learning-en/",
+        },
         label: { "pt-BR": "Exemplo: CPE-886", en: "Example: CPE-886" },
       },
     },
@@ -921,6 +980,884 @@ export const teaching = {
     },
   ],
 };
+
+/** Material types → display labels for course resource rows. */
+export const resourceTypes = {
+  document: { "pt-BR": "documento", en: "document" },
+  slides: { "pt-BR": "slides", en: "slides" },
+  notebook: { "pt-BR": "notebook", en: "notebook" },
+  dataset: { "pt-BR": "conjunto de dados", en: "dataset" },
+  link: { "pt-BR": "link", en: "link" },
+  other: { "pt-BR": "outro", en: "other" },
+};
+
+export const resourceLanguages = {
+  "pt-BR": { "pt-BR": "Português", en: "Portuguese" },
+  en: { "pt-BR": "Inglês", en: "English" },
+};
+
+/**
+ * Course subpages. Built from the course material documented on the
+ * professors' pages, so the content lives on this site instead of pointing
+ * back to the legacy one.
+ */
+export const courses = [
+  {
+    slug: "eel710-instrumentacao-e-tecnicas-de-medidas",
+    enSlug: "eel710-instrumentation-and-measurement-techniques",
+    code: "EEL710",
+    title: {
+      "pt-BR": "Instrumentação e Técnicas de Medidas",
+      en: "Instrumentation and Measurement Techniques",
+    },
+    level: { "pt-BR": "Graduação", en: "Undergraduate" },
+    program: {
+      "pt-BR": "Engenharia Eletrônica e de Computação (Poli/UFRJ)",
+      en: "Electronic and Computer Engineering (Poli/UFRJ)",
+    },
+    professorSlug: "joao-victor-da-fonseca-pinto",
+    professor: "João Victor da Fonseca Pinto",
+    term: { "pt-BR": "2º semestre de 2026", en: "Second semester of 2026" },
+    termDates: {
+      "pt-BR": "3 de agosto de 2026 a 19 de dezembro de 2026",
+      en: "August 3, 2026 to December 19, 2026",
+    },
+    status: { "pt-BR": "Em andamento", en: "In progress" },
+    venue: "COPPE/UFRJ — Bloco H, sala 220",
+    summary: {
+      "pt-BR":
+        "Disciplina de graduação da Poli/UFRJ que cobre aspectos teóricos e práticos de instrumentação e medidas em engenharia elétrica.",
+      en: "Undergraduate course at Poli/UFRJ covering theoretical and practical aspects of instrumentation and measurement in electrical engineering.",
+    },
+    body: {
+      "pt-BR":
+        "A disciplina apresenta a teoria de medição aplicada às medidas em engenharia elétrica, cobrindo parâmetros estatísticos, sensores e instrumentos eletrônicos de medição, além dos critérios e das ferramentas utilizadas na elaboração de projetos de instrumentação. Oferecida à Poli/UFRJ, a matéria é organizada em unidades temáticas com material de apoio publicado em cada página da disciplina.",
+      en: "The course presents measurement theory applied to electrical engineering measurements, covering statistical parameters, sensors, electronic measurement instruments and the criteria and tools used in instrumentation project design. Offered at Poli/UFRJ, the course is organized into thematic units with supporting material published on the course page.",
+    },
+    syllabus: {
+      "pt-BR": [
+        "Definição e propósito da medição",
+        "Sistema internacional de medidas",
+        "Caracterização estatística da medida",
+        "Propagação de erros",
+        "Protocolos de calibração",
+        "Análise de distribuições",
+        "Análise de regressão",
+        "Testes de hipóteses",
+        "Sensores e transdutores",
+        "Instrumentos de medição",
+        "Projeto de instrumentação",
+      ],
+      en: [
+        "Definition and purpose of measurement",
+        "International system of units",
+        "Statistical characterization of measurements",
+        "Error propagation",
+        "Calibration protocols",
+        "Distribution analysis",
+        "Regression analysis",
+        "Hypothesis testing",
+        "Sensors and transducers",
+        "Measurement instruments",
+        "Instrumentation design",
+      ],
+    },
+    bibliography: {
+      "pt-BR": [
+        "Métodos Instrumentais de Medidas, João Victor da Fonseca Pinto, vol. I",
+        "Métodos Instrumentais de Medidas, João Victor da Fonseca Pinto, vol. II",
+      ],
+      en: [
+        "Métodos Instrumentais de Medidas, João Victor da Fonseca Pinto, vol. I",
+        "Métodos Instrumentais de Medidas, João Victor da Fonseca Pinto, vol. II",
+      ],
+    },
+    units: [
+      {
+        title: { "pt-BR": "Planejamento e regras", en: "Planning and rules" },
+        body: {
+          "pt-BR":
+            "Orientações de trabalho, provas, trabalhos, recuperação e regras da disciplina, além do calendário de aulas.",
+          en: "Work guidance, exams, assignments, make-up rules and course regulations, plus the class calendar.",
+        },
+        materials: [
+          {
+            title: "Planejamento da disciplina",
+            summary: {
+              "pt-BR": "Organização e calendário da disciplina.",
+              en: "Course organization and calendar.",
+            },
+            type: "document",
+            language: "pt-BR",
+            url: "https://drive.google.com/file/d/1rxEygMUch5EaTeO2WKKqdeWz2hNRZS88/view?usp=drive_link",
+          },
+          {
+            title: { "pt-BR": "Regras da disciplina", en: "Course rules" },
+            summary: {
+              "pt-BR": "Diretrizes de avaliação, provas e trabalhos.",
+              en: "Assessment, exam and assignment guidelines.",
+            },
+            type: "document",
+            language: "pt-BR",
+            url: "https://drive.google.com/file/d/1QKhA85-P_cVjtcu07ZTKecPrDWUkXLeh/view?usp=drive_link",
+          },
+          {
+            title: { "pt-BR": "Calendário de aulas", en: "Class calendar" },
+            summary: {
+              "pt-BR": "Cronograma de aulas, provas e entregas.",
+              en: "Schedule of classes, exams and deadlines.",
+            },
+            type: "document",
+            language: "pt-BR",
+            url: "https://drive.google.com/file/d/1-xNRViYAtXYNek0tsdBdzQlYLIoC8SVV/view?usp=drive_link",
+          },
+        ],
+      },
+      {
+        title: { "pt-BR": "Fundamentos", en: "Fundamentals" },
+        body: {
+          "pt-BR": "Introdução à disciplina e aos conceitos fundamentais de medição.",
+          en: "Introduction to the course and to the fundamental concepts of measurement.",
+        },
+        materials: [
+          {
+            title: { "pt-BR": "Introdução à disciplina", en: "Course introduction" },
+            summary: {
+              "pt-BR": "Conceitos introdutórios de instrumentação e medidas.",
+              en: "Introductory concepts of instrumentation and measurement.",
+            },
+            type: "document",
+            language: "pt-BR",
+            url: "https://docs.google.com/document/d/18d2iTdTzn2koBiLEhEgPqc-lKp4_sViM/edit?usp=sharing&ouid=112475162842380807624&rtpof=true&sd=true",
+          },
+          {
+            title: { "pt-BR": "Medidas — slides", en: "Measurements — slides" },
+            summary: {
+              "pt-BR": "Material de apresentação sobre medição.",
+              en: "Presentation material on measurement.",
+            },
+            type: "slides",
+            language: "pt-BR",
+            url: "https://drive.google.com/file/d/1A0XZfxMsYcg1QBRTE__mn3hCwg1fS76u/view?usp=drive_link",
+          },
+        ],
+      },
+      {
+        title: { "pt-BR": "Análise de distribuições", en: "Distribution analysis" },
+        body: {
+          "pt-BR": "Caracterização estatística de medidas e análise de distribuições.",
+          en: "Statistical characterization of measurements and distribution analysis.",
+        },
+        materials: [
+          {
+            title: {
+              "pt-BR": "Análise de distribuições — slides",
+              en: "Distribution analysis — slides",
+            },
+            summary: {
+              "pt-BR": "Material de apresentação da unidade.",
+              en: "Presentation material for the unit.",
+            },
+            type: "slides",
+            language: "pt-BR",
+            url: "https://drive.google.com/file/d/1fW5vvK8e3CDYxAwCVu9nVNF6Hi50jomF/view?usp=drive_link",
+          },
+        ],
+      },
+      {
+        title: { "pt-BR": "Seminários", en: "Seminars" },
+        body: {
+          "pt-BR": "Datas de apresentação dos trabalhos por grupo.",
+          en: "Presentation dates for the group assignments.",
+        },
+        materials: [
+          {
+            title: { "pt-BR": "Datas de apresentação", en: "Presentation dates" },
+            summary: {
+              "pt-BR": "Cronograma de apresentações dos grupos.",
+              en: "Group presentation schedule.",
+            },
+            type: "document",
+            language: "pt-BR",
+            url: "https://drive.google.com/file/d/1kmTtzyShAlK8MZCGHTg9SKjdnLZSq9Cn/view?usp=drive_link",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "cpe782-analise-de-componentes-independentes",
+    enSlug: "cpe782-independent-component-analysis",
+    code: "CPE-782",
+    title: {
+      "pt-BR": "Análise de Componentes Independentes (ICA)",
+      en: "Independent Component Analysis (ICA)",
+    },
+    level: { "pt-BR": "Pós-graduação", en: "Graduate" },
+    program: { "pt-BR": "PEE/COPPE", en: "PEE/COPPE" },
+    professorSlug: "joao-victor-da-fonseca-pinto",
+    professor: "João Victor da Fonseca Pinto",
+    term: { "pt-BR": "1º semestre de 2026", en: "First semester of 2026" },
+    termDates: {
+      "pt-BR": "23 de março de 2026 a 4 de julho de 2026",
+      en: "March 23, 2026 to July 4, 2026",
+    },
+    status: { "pt-BR": "Concluída", en: "Concluded" },
+    venue: "COPPE/UFRJ — Bloco H, sala 220",
+    summary: {
+      "pt-BR":
+        "Disciplina de pós-graduação do PEE/COPPE sobre análise de componentes independentes e separação cega de sinais.",
+      en: "Graduate course at PEE/COPPE on independent component analysis and blind source separation.",
+    },
+    body: {
+      "pt-BR":
+        "A disciplina cobre os fundamentos da análise de componentes independentes: modelos de mistura e separação, algoritmos baseados em negentropia e informação mútua e aplicações em processamento de sinais e imagens. A proposta inclui trabalhos computacionais aplicados sobre bases de dados documentadas.",
+      en: "The course covers the fundamentals of independent component analysis: mixture and separation models, algorithms based on negentropy and mutual information, and applications to signal and image processing. The syllabus includes computational assignments on documented datasets.",
+    },
+    syllabus: {
+      "pt-BR": [
+        "Fundamentos da análise de componentes independentes",
+        "Modelos de mistura e separação cega de sinais",
+        "Algoritmos de ICA e contraste estatístico",
+        "Aplicações em processamento de sinais e imagens",
+        "Trabalhos computacionais com bases documentadas",
+      ],
+      en: [
+        "Fundamentals of independent component analysis",
+        "Mixture models and blind source separation",
+        "ICA algorithms and statistical contrast functions",
+        "Applications to signal and image processing",
+        "Computational assignments on documented datasets",
+      ],
+    },
+    bibliography: {
+      "pt-BR": ["Independent Component Analysis, Hyvärinen, Karhunen e Oja, Wiley, 2001"],
+      en: ["Independent Component Analysis, Hyvärinen, Karhunen and Oja, Wiley, 2001"],
+    },
+    units: [
+      {
+        title: { "pt-BR": "Proposta e avaliação", en: "Proposal and assessment" },
+        body: {
+          "pt-BR": "Proposta da disciplina, calendário e critérios de avaliação.",
+          en: "Course proposal, calendar and assessment criteria.",
+        },
+        materials: [
+          {
+            title: { "pt-BR": "Proposta da disciplina", en: "Course proposal" },
+            summary: {
+              "pt-BR": "Documento de proposta e organização.",
+              en: "Course proposal and organization document.",
+            },
+            type: "document",
+            language: "pt-BR",
+            url: "https://docs.google.com/document/d/1V-YudvaOghVhBmoyx-MNxaGwQSYyOqeZ/edit?usp=drive_link&ouid=112475162842380807624&rtpof=true&sd=true",
+          },
+          {
+            title: { "pt-BR": "Calendário de aulas", en: "Class calendar" },
+            summary: {
+              "pt-BR": "Cronograma de aulas e seminários.",
+              en: "Class and seminar schedule.",
+            },
+            type: "document",
+            language: "pt-BR",
+            url: "https://drive.google.com/file/d/1FWV6mBuAP9q0kRw97-nyzHH6FjpQo-EW/view?usp=drive_link",
+          },
+        ],
+      },
+      {
+        title: { "pt-BR": "Fundamentos de ICA", en: "ICA fundamentals" },
+        body: {
+          "pt-BR": "Capítulo 2 da referência adotada: fundamentos de ICA.",
+          en: "Chapter 2 of the adopted reference: ICA fundamentals.",
+        },
+        materials: [
+          {
+            title: {
+              "pt-BR": "Capítulo 2 — Fundamentos de ICA",
+              en: "Chapter 2 — ICA fundamentals",
+            },
+            summary: { "pt-BR": "Material fundamental da unidade.", en: "Core unit material." },
+            type: "document",
+            language: "en",
+            url: "https://drive.google.com/file/d/1toN53cWMpqgtLFNOeJKswpt5pkz0ZfEp/view?usp=drive_link",
+          },
+        ],
+      },
+      {
+        title: { "pt-BR": "Trabalhos computacionais", en: "Computational assignments" },
+        body: {
+          "pt-BR": "Trabalhos aplicados de BSS com bases de dados e gabaritos.",
+          en: "Applied BSS assignments with datasets and answer keys.",
+        },
+        materials: [
+          {
+            title: { "pt-BR": "Trabalhos BSS", en: "BSS assignments" },
+            summary: {
+              "pt-BR": "Guia dos trabalhos de separação cega de fontes.",
+              en: "Guide to the blind source separation assignments.",
+            },
+            type: "document",
+            language: "pt-BR",
+            url: "https://docs.google.com/document/d/1Lfrxk4uSx89T9LM18RGfB_-Kl8DYaUx0/edit?usp=drive_link&ouid=112475162842380807624&rtpof=true&sd=true",
+          },
+          {
+            title: { "pt-BR": "Dados para trabalhos", en: "Assignment data" },
+            summary: {
+              "pt-BR": "Bases de dados dos trabalhos computacionais.",
+              en: "Datasets for the computational assignments.",
+            },
+            type: "dataset",
+            language: "en",
+            url: "https://drive.google.com/drive/folders/1Bg1ddcToqq0UbRS6zGCRsJ8ELNg1IHjE?usp=drive_link",
+          },
+          {
+            title: { "pt-BR": "Gabarito e correção", en: "Answer key and grading" },
+            summary: {
+              "pt-BR": "Materiais de correção dos trabalhos.",
+              en: "Answer-key material for the assignments.",
+            },
+            type: "dataset",
+            language: "pt-BR",
+            url: "https://drive.google.com/drive/folders/1TJuhLrhSaCDb7wlzJ89tP8Oq7cLK2vU1?usp=drive_link",
+          },
+        ],
+      },
+      {
+        title: { "pt-BR": "Seminários", en: "Seminars" },
+        body: {
+          "pt-BR": "Calendário e datas de apresentação dos seminários.",
+          en: "Seminar calendar and presentation dates.",
+        },
+        materials: [
+          {
+            title: { "pt-BR": "Datas de apresentação", en: "Presentation dates" },
+            summary: {
+              "pt-BR": "Agenda das apresentações da turma.",
+              en: "Presentation schedule for the class.",
+            },
+            type: "document",
+            language: "pt-BR",
+            url: "https://docs.google.com/document/d/1Ia8crpfe51k21WwSKDF_WxAumqGmL8lU/edit?usp=drive_link&ouid=112475162842380807624&rtpof=true&sd=true",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "cpe886-quantum-machine-learning",
+    enSlug: "cpe886-quantum-machine-learning-en",
+    code: "CPE-886",
+    title: { "pt-BR": "Quantum Machine Learning", en: "Quantum Machine Learning" },
+    level: { "pt-BR": "Pós-graduação", en: "Graduate" },
+    program: { "pt-BR": "PEE/COPPE", en: "PEE/COPPE" },
+    professorSlug: "joao-victor-da-fonseca-pinto",
+    professor: "João Victor da Fonseca Pinto",
+    term: { "pt-BR": "1º semestre de 2026", en: "First semester of 2026" },
+    termDates: {
+      "pt-BR": "23 de março de 2026 a 4 de julho de 2026",
+      en: "March 23, 2026 to July 4, 2026",
+    },
+    status: { "pt-BR": "Concluída", en: "Concluded" },
+    venue: "COPPE/UFRJ — Bloco H, sala 220",
+    summary: {
+      "pt-BR":
+        "Disciplina de pós-graduação do PEE/COPPE dedicada a fundamentos de computação quântica e algoritmos de aprendizado de máquina quânticos.",
+      en: "Graduate course at PEE/COPPE on the fundamentals of quantum computing and quantum machine-learning algorithms.",
+    },
+    body: {
+      "pt-BR":
+        "Em duas partes — fundamentos de computação quântica e algoritmos de aprendizado de máquina quânticos — a disciplina utiliza Qiskit e PennyLane e combina slides, notebooks e trabalhos com seminários e um desafio de pontos extras.",
+      en: "In two parts — quantum computing fundamentals and quantum machine-learning algorithms — the course uses Qiskit and PennyLane and combines slides, notebooks and assignments with seminars and an extra-point challenge.",
+    },
+    syllabus: {
+      "pt-BR": [
+        "Parte I — fundamentos de computação quântica",
+        "Parte II — algoritmos de aprendizado de máquina quânticos",
+        "Ferramentas: Qiskit e PennyLane",
+        "Trabalhos, seminários e desafio",
+      ],
+      en: [
+        "Part I — quantum computing fundamentals",
+        "Part II — quantum machine-learning algorithms",
+        "Tooling: Qiskit and PennyLane",
+        "Assignments, seminars and the extra-point challenge",
+      ],
+    },
+    bibliography: {
+      "pt-BR": [
+        "Machine Learning with Quantum Computers, Schuld e Petruccione, Springer, 2021",
+        "Machine Learning: Classical and Quantum, E. Combarro, 2023",
+      ],
+      en: [
+        "Machine Learning with Quantum Computers, Schuld and Petruccione, Springer, 2021",
+        "Machine Learning: Classical and Quantum, E. Combarro, 2023",
+      ],
+    },
+    units: [
+      {
+        title: { "pt-BR": "Parte I — Computação quântica", en: "Part I — Quantum computing" },
+        body: {
+          "pt-BR": "Fundamentos de computação quântica com material em Qiskit.",
+          en: "Quantum computing fundamentals with Qiskit material.",
+        },
+        materials: [
+          {
+            title: "Qiskit",
+            summary: {
+              "pt-BR": "Material de referência da unidade.",
+              en: "Reference material for the unit.",
+            },
+            type: "link",
+            language: "en",
+            url: "https://qiskit.org/learn",
+          },
+          {
+            title: { "pt-BR": "Slides 1", en: "Slides 1" },
+            summary: { "pt-BR": "Apresentação da unidade.", en: "Unit presentation." },
+            type: "slides",
+            language: "en",
+            url: "https://drive.google.com/file/d/1nfuy0RW0g9K5HYWsSUhdiVuANcyCsyip/view?usp=drive_link",
+          },
+          {
+            title: { "pt-BR": "Slides 2", en: "Slides 2" },
+            summary: { "pt-BR": "Apresentação da unidade.", en: "Unit presentation." },
+            type: "slides",
+            language: "en",
+            url: "https://drive.google.com/file/d/1kNcTZ2EY6zUpW39m8sl1PJ1dOnMGqDh0/view?usp=drive_link",
+          },
+          {
+            title: {
+              "pt-BR": "Tutorial: Deep Neural Networks with Qiskit",
+              en: "Tutorial: Deep Neural Networks with Qiskit",
+            },
+            summary: { "pt-BR": "Tutorial aplicado em Qiskit.", en: "Applied Qiskit tutorial." },
+            type: "notebook",
+            language: "en",
+            url: "https://learn.quantum.ibm.com/tutorials/10-torch-connector-and-hybrid-q-nns",
+          },
+          {
+            title: { "pt-BR": "Exemplos de QNN", en: "QNN examples" },
+            summary: {
+              "pt-BR": "Notebooks de exemplos de redes neurais quânticas.",
+              en: "Quantum neural network example notebooks.",
+            },
+            type: "link",
+            language: "en",
+            url: "https://github.com/Qiskit/qiskit-machine-learning",
+          },
+        ],
+      },
+      {
+        title: {
+          "pt-BR": "Parte II — Aprendizado de máquina quântico",
+          en: "Part II — Quantum machine learning",
+        },
+        body: {
+          "pt-BR": "Algoritmos de aprendizado de máquina quânticos.",
+          en: "Quantum machine-learning algorithms.",
+        },
+        materials: [
+          {
+            title: { "pt-BR": "Slides 1", en: "Slides 1" },
+            summary: { "pt-BR": "Apresentação da unidade.", en: "Unit presentation." },
+            type: "slides",
+            language: "en",
+            url: "https://drive.google.com/file/d/1U9b9G1lCwOVC5BYA9G3VWkOPfEYodTpB/view?usp=drive_link",
+          },
+          {
+            title: { "pt-BR": "Slides 2", en: "Slides 2" },
+            summary: { "pt-BR": "Apresentação da unidade.", en: "Unit presentation." },
+            type: "slides",
+            language: "en",
+            url: "https://drive.google.com/file/d/1Uf0Z2fuzQTeYoAhTXJZsR5H_Pi3qB3LK/view?usp=drive_link",
+          },
+          {
+            title: { "pt-BR": "Slides 3", en: "Slides 3" },
+            summary: { "pt-BR": "Apresentação da unidade.", en: "Unit presentation." },
+            type: "slides",
+            language: "en",
+            url: "https://drive.google.com/file/d/1bxYIyW85bT-JrSWXnqXnzQ_W9E0lo0zw/view?usp=drive_link",
+          },
+          {
+            title: { "pt-BR": "Slides 4", en: "Slides 4" },
+            summary: { "pt-BR": "Apresentação da unidade.", en: "Unit presentation." },
+            type: "slides",
+            language: "en",
+            url: "https://drive.google.com/file/d/1vmEmGAsCZWsZTRBztl3hBiEnJdU2kKRX/view?usp=drive_link",
+          },
+          {
+            title: { "pt-BR": "PennyLane", en: "PennyLane" },
+            summary: {
+              "pt-BR": "Material de referência da unidade.",
+              en: "Reference material for the unit.",
+            },
+            type: "link",
+            language: "en",
+            url: "https://pennylane.ai/qml/",
+          },
+        ],
+      },
+      {
+        title: { "pt-BR": "Trabalhos e seminários", en: "Assignments and seminars" },
+        body: {
+          "pt-BR": "Template de relatórios, datas de apresentação e desafio.",
+          en: "Report template, presentation dates and the challenge.",
+        },
+        materials: [
+          {
+            title: {
+              "pt-BR": "Template de trabalhos (Overleaf)",
+              en: "Assignment template (Overleaf)",
+            },
+            summary: {
+              "pt-BR": "Template oficial dos relatórios.",
+              en: "Official report template.",
+            },
+            type: "link",
+            language: "en",
+            url: "https://www.overleaf.com/read/kwmdhzrzcpfk#788aa5",
+          },
+          {
+            title: { "pt-BR": "Datas de apresentação", en: "Presentation dates" },
+            summary: {
+              "pt-BR": "Agenda das apresentações da turma.",
+              en: "Presentation schedule for the class.",
+            },
+            type: "document",
+            language: "pt-BR",
+            url: "https://docs.google.com/document/d/1dICVPM4uzF6fshc5MVqK8WL1YUjrzKNT/edit?usp=drive_link&ouid=112475162842380807624&rtpof=true&sd=true",
+          },
+          {
+            title: { "pt-BR": "Desafio pontos extras", en: "Extra-point challenge" },
+            summary: {
+              "pt-BR": "Regras do desafio de pontos extras.",
+              en: "Rules for the extra-point challenge.",
+            },
+            type: "document",
+            language: "pt-BR",
+            url: "https://docs.google.com/document/d/1j3GeIPwfcu7NY4P-DFFI2ZQfWLeNCsN2/edit?usp=drive_link&ouid=112475162842380807624&rtpof=true&sd=true",
+          },
+        ],
+      },
+    ],
+    materials: [
+      {
+        title: { "pt-BR": "Repositório GitHub", en: "GitHub repository" },
+        summary: {
+          "pt-BR": "Repositório da disciplina com notebooks e scripts.",
+          en: "Course repository with notebooks and scripts.",
+        },
+        type: "link",
+        language: "en",
+        url: "https://github.com/jodafons/quantum-machine-learning",
+      },
+      {
+        title: { "pt-BR": "Calendário de aulas", en: "Class calendar" },
+        summary: {
+          "pt-BR": "Cronograma de aulas, provas e entregas.",
+          en: "Schedule of classes, exams and deadlines.",
+        },
+        type: "document",
+        language: "pt-BR",
+        url: "https://drive.google.com/file/d/1SlvFU2U3RXv7db9Hpe6jozjQcc9MSxlF/view?usp=drive_link",
+      },
+    ],
+  },
+  {
+    slug: "revisao-acelerada-de-programacao",
+    enSlug: "accelerated-programming-review",
+    code: "RAP-2026",
+    title: {
+      "pt-BR": "Revisão Acelerada de Programação",
+      en: "Accelerated Programming Review",
+    },
+    level: { "pt-BR": "Extensão", en: "Extension" },
+    program: { "pt-BR": "Curso de extensão", en: "Extension course" },
+    professorSlug: "joao-victor-da-fonseca-pinto",
+    professor: "João Victor da Fonseca Pinto",
+    term: { "pt-BR": "1º semestre de 2026", en: "First semester of 2026" },
+    termDates: {
+      "pt-BR": "23 de março de 2026 a 4 de julho de 2026",
+      en: "March 23, 2026 to July 4, 2026",
+    },
+    status: { "pt-BR": "Concluída", en: "Concluded" },
+    venue: "COPPE/UFRJ — Bloco H, sala 220",
+    summary: {
+      "pt-BR":
+        "Curso de revisão acelerada de programação de computadores, em formato de curso de extensão.",
+      en: "An accelerated review course in computer programming, offered as an extension course.",
+    },
+    body: {
+      "pt-BR":
+        "O curso aborda python numérico, visualização, álgebra linear, boas práticas de programação, otimização, programação funcional e orientação a objetos.",
+      en: "The course covers numerical python, visualization, linear algebra, programming best practices, optimization, functional programming and object orientation.",
+    },
+    syllabus: {
+      "pt-BR": [
+        "Python numérico",
+        "Visualização",
+        "Álgebra linear",
+        "Boas práticas de programação",
+        "Otimização",
+        "Programação funcional",
+        "Orientação a objetos",
+      ],
+      en: [
+        "Numerical python",
+        "Visualization",
+        "Linear algebra",
+        "Programming best practices",
+        "Optimization",
+        "Functional programming",
+        "Object orientation",
+      ],
+    },
+    units: [
+      {
+        title: { "pt-BR": "Ambiente de trabalho", en: "Working environment" },
+        body: {
+          "pt-BR": "Guias de preparação do ambiente e links úteis.",
+          en: "Environment setup guides and useful links.",
+        },
+        materials: [
+          {
+            title: { "pt-BR": "Ambiente de desenvolvimento", en: "Development environment" },
+            summary: {
+              "pt-BR": "Configuração do ambiente de trabalho do curso.",
+              en: "Setup of the course working environment.",
+            },
+            type: "link",
+            language: "en",
+            url: "https://github.com/jodafons/rap-2026/wiki",
+          },
+          {
+            title: { "pt-BR": "Docker e Binder", en: "Docker and Binder" },
+            summary: {
+              "pt-BR": "Execução dos notebooks em ambiente pronto.",
+              en: "Running the notebooks in a ready-made environment.",
+            },
+            type: "link",
+            language: "en",
+            url: "https://mybinder.org/v2/gh/jodafons/rap-2026/HEAD",
+          },
+        ],
+      },
+      {
+        title: { "pt-BR": "Lições 2–6", en: "Lessons 2–6" },
+        body: {
+          "pt-BR": "Notebooks das aulas do curso.",
+          en: "Course lesson notebooks.",
+        },
+        materials: [
+          {
+            title: { "pt-BR": "Lição 2 — NumPy", en: "Lesson 2 — NumPy" },
+            summary: { "pt-BR": "Python numérico com NumPy.", en: "Numerical python with NumPy." },
+            type: "notebook",
+            language: "en",
+            url: "https://github.com/jodafons/rap-2026/blob/main/lessons/lesson-02.ipynb",
+          },
+          {
+            title: { "pt-BR": "Lição 3 — Matplotlib", en: "Lesson 3 — Matplotlib" },
+            summary: { "pt-BR": "Visualização de dados.", en: "Data visualization." },
+            type: "notebook",
+            language: "en",
+            url: "https://github.com/jodafons/rap-2026/blob/main/lessons/lesson-03.ipynb",
+          },
+          {
+            title: { "pt-BR": "Lição 4 — Boas práticas", en: "Lesson 4 — Best practices" },
+            summary: {
+              "pt-BR": "Boas práticas de programação.",
+              en: "Programming best practices.",
+            },
+            type: "notebook",
+            language: "en",
+            url: "https://github.com/jodafons/rap-2026/blob/main/lessons/lesson-04.ipynb",
+          },
+          {
+            title: { "pt-BR": "Lição 5 — Otimização", en: "Lesson 5 — Optimization" },
+            summary: {
+              "pt-BR": "Técnicas de otimização de código.",
+              en: "Code optimization techniques.",
+            },
+            type: "notebook",
+            language: "en",
+            url: "https://github.com/jodafons/rap-2026/blob/main/lessons/lesson-05.ipynb",
+          },
+          {
+            title: {
+              "pt-BR": "Lição 6 — Orientação a objetos",
+              en: "Lesson 6 — Object orientation",
+            },
+            summary: {
+              "pt-BR": "Programação orientada a objetos em Python.",
+              en: "Object-oriented programming in Python.",
+            },
+            type: "notebook",
+            language: "en",
+            url: "https://github.com/jodafons/rap-2026/blob/main/lessons/lesson-06.ipynb",
+          },
+        ],
+      },
+      {
+        title: { "pt-BR": "Exercícios e prova", en: "Exercises and exam" },
+        body: {
+          "pt-BR": "Exercícios do curso e prova com consulta fechada.",
+          en: "Course exercises and the closed-book exam.",
+        },
+        materials: [
+          {
+            title: { "pt-BR": "Exercícios", en: "Exercises" },
+            summary: { "pt-BR": "Listas de exercícios do curso.", en: "Course exercise lists." },
+            type: "document",
+            language: "pt-BR",
+            url: "https://github.com/jodafons/rap-2026/tree/main/exercises",
+          },
+          {
+            title: { "pt-BR": "Prova", en: "Exam" },
+            summary: { "pt-BR": "Prova com consulta fechada.", en: "Closed-book exam." },
+            type: "document",
+            language: "pt-BR",
+            url: "https://github.com/jodafons/rap-2026/tree/main/exam",
+          },
+        ],
+      },
+    ],
+    materials: [
+      {
+        title: { "pt-BR": "Repositório rap-2026", en: "rap-2026 repository" },
+        summary: {
+          "pt-BR": "Notebooks, exercícios e prova do curso.",
+          en: "Course notebooks, exercises and exam.",
+        },
+        type: "link",
+        language: "en",
+        url: "https://github.com/jodafons/rap-2026",
+      },
+      {
+        title: { "pt-BR": "Planejamento da matéria", en: "Course planning" },
+        summary: {
+          "pt-BR": "Documento de planejamento da disciplina.",
+          en: "Course planning document.",
+        },
+        type: "document",
+        language: "pt-BR",
+        url: "https://drive.google.com/file/d/1eBdW0cHBQesNh7Mcd5K0WGzzr_L1IZdF/view?usp=drive_link",
+      },
+    ],
+  },
+  {
+    slug: "cpe721-redes-neurais-feedforward",
+    enSlug: "cpe721-feedforward-neural-networks",
+    code: "CPE-721",
+    title: {
+      "pt-BR": "Redes Neurais Feedforward",
+      en: "Feedforward Neural Networks",
+    },
+    level: { "pt-BR": "Pós-graduação", en: "Graduate" },
+    program: { "pt-BR": "PEE/COPPE", en: "PEE/COPPE" },
+    professorSlug: "luiz-pereira-caloba",
+    professor: "Luiz Pereira Calôba",
+    term: null,
+    summary: {
+      "pt-BR":
+        "Disciplina clássica do laboratório, dedicada a redes neurais feedforward com forte fundamentação teórica.",
+      en: "A classic laboratory course dedicated to feedforward neural networks with a strong theoretical foundation.",
+    },
+    body: {
+      "pt-BR":
+        "Oferecida pelo laboratório desde 1989, a disciplina apresenta os fundamentos de redes neurais feedforward — topologia, algoritmos de aprendizado e o estudo de aplicações — em uma sequência de módulos teóricos acompanhados de séries de exercícios.",
+      en: "Offered by the laboratory since 1989, the course presents the fundamentals of feedforward neural networks — topology, learning algorithms and application studies — in a sequence of theoretical modules accompanied by exercise series.",
+    },
+    syllabus: {
+      "pt-BR": [
+        "Introdução e motivação das redes neurais",
+        "O perceptron e o limite linear",
+        "A arquitetura feedforward",
+        "Algoritmos de aprendizado supervisionado",
+        "Retropropagação e variantes",
+        "Estudo de aplicações",
+      ],
+      en: [
+        "Introduction and motivation of neural networks",
+        "The perceptron and the linear boundary",
+        "The feedforward architecture",
+        "Supervised learning algorithms",
+        "Backpropagation and variants",
+        "Application studies",
+      ],
+    },
+    bibliography: {
+      "pt-BR": [
+        "Neural Networks for Pattern Recognition, Christopher Bishop, Oxford University Press, 1995",
+      ],
+      en: [
+        "Neural Networks for Pattern Recognition, Christopher Bishop, Oxford University Press, 1995",
+      ],
+    },
+    materials: [
+      {
+        title: { "pt-BR": "Introdução — módulo 1", en: "Introduction — module 1" },
+        summary: { "pt-BR": "Primeiro módulo da disciplina.", en: "First module of the course." },
+        type: "document",
+        language: "pt-BR",
+        url: "https://drive.google.com/file/d/0B8u-9xaFjW0AVlc5Mjd2MDNwZVU/view?usp=drive_link&resourcekey=0-ln9uETfyaKAI9vEMBV29FQ",
+      },
+    ],
+  },
+  {
+    slug: "cpe722-redes-neurais-nao-supervisionadas",
+    enSlug: "cpe722-unsupervised-neural-networks",
+    code: "CPE-722",
+    title: {
+      "pt-BR": "Redes Neurais Não Supervisionadas e Agrupamentos",
+      en: "Unsupervised Neural Networks and Clustering",
+    },
+    level: { "pt-BR": "Pós-graduação", en: "Graduate" },
+    program: { "pt-BR": "PEE/COPPE", en: "PEE/COPPE" },
+    professorSlug: "luiz-pereira-caloba",
+    professor: "Luiz Pereira Calôba",
+    term: null,
+    summary: {
+      "pt-BR":
+        "Disciplina clássica do laboratório sobre redes neurais não supervisionadas e técnicas de agrupamento.",
+      en: "A classic laboratory course on unsupervised neural networks and clustering techniques.",
+    },
+    body: {
+      "pt-BR":
+        "A disciplina cobre as principais arquiteturas e algoritmos de redes neurais não supervisionadas — mapas auto-organizáveis, redes de Hebb e Oja, ART e análise de agrupamentos — com séries de exercícios aplicadas.",
+      en: "The course covers the main unsupervised neural network architectures and algorithms — self-organizing maps, Hebb and Oja networks, ART and clustering analysis — with applied exercise series.",
+    },
+    syllabus: {
+      "pt-BR": [
+        "Redes não supervisionadas e a análise de agrupamentos",
+        "Mapas auto-organizáveis de Kohonen",
+        "Redes de aprendizado Hebbiano e Oja",
+        "Teoria da ressonância adaptativa (ART)",
+        "Validação de agrupamentos",
+      ],
+      en: [
+        "Unsupervised networks and cluster analysis",
+        "Kohonen self-organizing maps",
+        "Hebbian and Oja learning networks",
+        "Adaptive resonance theory (ART)",
+        "Cluster validation",
+      ],
+    },
+    bibliography: {
+      "pt-BR": ["Neural Networks and Learning Machines, Simon Haykin, Pearson, 2009"],
+      en: ["Neural Networks and Learning Machines, Simon Haykin, Pearson, 2009"],
+    },
+    materials: [
+      {
+        title: { "pt-BR": "Séries de exercícios", en: "Exercise series" },
+        summary: { "pt-BR": "Listas de exercícios da disciplina.", en: "Course exercise lists." },
+        type: "document",
+        language: "pt-BR",
+        url: "https://drive.google.com/drive/folders/0B8u-9xaFjW0AX3JfbjdVS3JTRWs?resourcekey=0-xCdp1FmgDpyeCtbMfm7QIw&usp=drive_link",
+      },
+    ],
+  },
+];
 
 /** Facilities and capabilities. Source: COPPE EMBRAPII institutional profile. */
 export const infrastructure = {
@@ -1426,7 +2363,10 @@ export const member = {
       legend: { "pt-BR": "Identificação", en: "Credentials" },
       user: { "pt-BR": "Usuário ou e-mail", en: "Username or email" },
       password: { "pt-BR": "Senha", en: "Password" },
-      remember: { "pt-BR": "Manter a sessão neste navegador", en: "Keep me signed in on this device" },
+      remember: {
+        "pt-BR": "Manter a sessão neste navegador",
+        en: "Keep me signed in on this device",
+      },
       submit: { "pt-BR": "Entrar", en: "Sign in" },
       lost: { "pt-BR": "Esqueci minha senha", en: "I forgot my password" },
       hint: {
@@ -1528,7 +2468,10 @@ export const member = {
       secondFactor: { "pt-BR": "Segundo fator", en: "Second factor" },
       secondFactorValue: { "pt-BR": "Ativo", en: "Active" },
       scope: { "pt-BR": "Alcance", en: "Scope" },
-      scopeValue: { "pt-BR": "Própria página, disciplinas e material de aula", en: "Own page, courses and lesson material" },
+      scopeValue: {
+        "pt-BR": "Própria página, disciplinas e material de aula",
+        en: "Own page, courses and lesson material",
+      },
       signOut: { "pt-BR": "Encerrar sessão", en: "Sign out" },
       adminLink: { "pt-BR": "Administração do site", en: "Site administration" },
     },
@@ -1575,14 +2518,18 @@ export const member = {
         visibility: { "pt-BR": "Visível na página pública", en: "Visible on the public page" },
         submit: { "pt-BR": "Publicar", en: "Publish" },
         hint: {
-          "pt-BR": "O arquivo é anexado na biblioteca de mídia; aqui entra o endereço depois do envio.",
+          "pt-BR":
+            "O arquivo é anexado na biblioteca de mídia; aqui entra o endereço depois do envio.",
           en: "The file is attached in the media library; this field takes the address after upload.",
         },
       },
     },
     news: {
       title: { "pt-BR": "Suas notícias", en: "Your news" },
-      empty: { "pt-BR": "Nenhuma notícia publicada por esta conta.", en: "No news published by this account." },
+      empty: {
+        "pt-BR": "Nenhuma notícia publicada por esta conta.",
+        en: "No news published by this account.",
+      },
       action: { "pt-BR": "Escrever uma notícia", en: "Write a news item" },
     },
     tasks: {
