@@ -116,6 +116,7 @@ final class AuthSurfaces {
 			. $notice
 			. '<form class="lps-signin-form lps-dashboard-form" method="post" action="' . self::esc( $action ) . '">'
 			. '<input type="hidden" name="redirect_to" value="' . self::esc( $redirect ) . '">'
+			. ( function_exists( 'wp_nonce_field' ) ? wp_nonce_field( 'lps_signin', '_lps_signin_nonce', true, false ) : '' )
 			. '<p class="lps-field"><label for="lps-signin-user">'
 			. self::esc( $english ? 'Username or e-mail' : 'Usuário ou e-mail' )
 			. '</label><input id="lps-signin-user" name="log" type="text" value="' . self::esc( $attempted ) . '" autocomplete="username" autocapitalize="none" spellcheck="false" required' . $aria . '></p>'

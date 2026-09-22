@@ -17,6 +17,7 @@ use WP_User;
 final class Roles {
 	public const COLLECTIONS_META = '_lps_assigned_collections';
 	public const GRANTS_META      = '_lps_teaching_grants';
+	public const PERSON_META      = '_lps_person_id';
 
 	/**
 	 * Re-entrancy guard so only the grant helpers may persist grant metadata.
@@ -589,6 +590,47 @@ final class Roles {
 		}
 		echo '</select> <label for="lps_grant_expires">' . esc_html__( 'Expires at (optional, ISO-8601)', 'lps-content-model' ) . '</label> <input type="text" id="lps_grant_expires" name="lps_grant_expires" value="" placeholder="2027-01-01T00:00:00+00:00"></p>';
 		echo '</fieldset>';
+		self::render_person_link( $user, $may );
+	}
+
+	/** Renders the direct account-to-person-record link.
+	 *
+	 * The link is the authoritative resolution of `person_for_user`: it names
+	 * the one `lps_person` record the account owns so a professor's dashboard
+	 * profile, proposals and public page belong to them without depending on
+	 * authored-post or grant inference. Grant managers edit it; everyone else
+	 * who can edit the account reads it.
+	 *
+	 * @param WP_User $user Account being edited.
+	 * @param bool    $may  Whether the acting account may manage teaching grants.
+	 */
+	private static function render_person_link( WP_User $user, bool $may ): void {
+		$current = (int) get_user_meta( $user->ID, self::PERSON_META, true );
+		$people  = function_exists( 'get_posts' ) ? get_posts(
+			array(
+				'post_type'      => 'lps_person',
+				'post_status'    => array( 'publish', 'draft', 'private' ),
+				'posts_per_page' => 500,
+				'orderby'        => 'title',
+				'order'          => 'ASC',
+			)
+		) : array();
+		echo '<h2>' . esc_html__( 'Linked person record', 'lps-content-model' ) . '</h2>';
+		echo '<p>' . esc_html__( 'The record the account owns — its public page at /pessoas/ and the dashboard profile it proposes changes against.', 'lps-content-model' ) . '</p>';
+		if ( ! $may ) {
+			$title = 0 < $current && function_exists( 'get_post' ) && get_post( $current ) instanceof \WP_Post ? get_post( $current )->post_title : '';
+			echo '<p>' . ( '' !== $title ? esc_html( $title ) : esc_html__( 'No person record is linked to this account.', 'lps-content-model' ) ) . '</p>';
+			return;
+		}
+		echo '<p><label for="lps_person_id">' . esc_html__( 'Person record', 'lps-content-model' ) . '</label> <select id="lps_person_id" name="lps_person_id">';
+		echo '<option value="0">' . esc_html__( '— none —', 'lps-content-model' ) . '</option>';
+		foreach ( $people as $person ) {
+			if ( ! $person instanceof \WP_Post ) {
+				continue;
+			}
+			echo '<option value="' . esc_attr( (string) $person->ID ) . '" ' . selected( $current, $person->ID, false ) . '>' . esc_html( $person->post_title . ' (#' . $person->ID . ')' ) . '</option>';
+		}
+		echo '</select></p>';
 	}
 
 	/** Saves nonce-protected teaching scope grants.
@@ -621,6 +663,16 @@ final class Roles {
 		$expires     = isset( $_POST['lps_grant_expires'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['lps_grant_expires'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Cast to string then sanitized.
 		if ( '' !== $scope || 0 < $offering_id || '' !== $grant_role || '' !== $expires ) {
 			self::grant_scope( $user_id, $scope, $offering_id, $grant_role, $expires );
+		}
+		$actor = wp_get_current_user();
+		if ( TeachingPolicy::may_manage_grants( self::policy_role( $actor ), self::assigned_collections( $actor->ID ) ) && isset( $_POST['lps_person_id'] ) ) {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Cast to string then sanitized.
+			$person_id = Policy::sanitize_integer( sanitize_text_field( wp_unslash( (string) $_POST['lps_person_id'] ) ) );
+			if ( 0 < $person_id && function_exists( 'get_post' ) && get_post( $person_id ) instanceof \WP_Post && 'lps_person' === get_post_type( $person_id ) ) {
+				update_user_meta( $user_id, self::PERSON_META, $person_id );
+			} elseif ( 0 >= $person_id ) {
+				delete_user_meta( $user_id, self::PERSON_META );
+			}
 		}
 	}
 

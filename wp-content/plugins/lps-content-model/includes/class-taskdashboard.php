@@ -478,6 +478,10 @@ final class TaskDashboard {
 	 * @param int $user_id Account ID.
 	 */
 	public static function person_for_user( int $user_id ): int {
+		$linked = (int) get_user_meta( $user_id, Roles::PERSON_META, true );
+		if ( 0 < $linked && 'lps_person' === get_post_type( $linked ) ) {
+			return $linked;
+		}
 		$authored = array_map( 'intval', (array) get_posts(
 			array(
 				'post_type'      => 'lps_person',
