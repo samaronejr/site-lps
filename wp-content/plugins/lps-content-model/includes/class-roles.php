@@ -610,6 +610,7 @@ final class Roles {
 			array(
 				'post_type'      => 'lps_person',
 				'post_status'    => array( 'publish', 'draft', 'private' ),
+				// phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- A lab directory can exceed the sniff's 100 cap; the selector needs every record.
 				'posts_per_page' => 500,
 				'orderby'        => 'title',
 				'order'          => 'ASC',
