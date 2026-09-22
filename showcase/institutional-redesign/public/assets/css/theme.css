@@ -2987,7 +2987,7 @@ th code {
   }
 }
 
-@media (min-width: 52rem) {
+@media (min-width: 68rem) {
   .lps-footer-inner {
     grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr));
   }
