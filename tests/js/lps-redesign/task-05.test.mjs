@@ -24,8 +24,7 @@ const TEACHING_CONTRACTS =
   "wp-content/plugins/lps-content-model/includes/class-teachingcontracts.php";
 const IMPORT_REPOSITORY =
   "wp-content/plugins/lps-content-model/includes/class-importrepository.php";
-const SEARCH_INDEX =
-  "wp-content/plugins/lps-content-model/includes/class-searchindex.php";
+const SEARCH_INDEX = "wp-content/plugins/lps-content-model/includes/class-searchindex.php";
 const HOMEPAGE = "wp-content/themes/lps-theme/includes/class-homepage.php";
 const SEO_ROUTES = "wp-content/themes/lps-theme/includes/class-seoroutes.php";
 const BOOTSTRAP = "wp-content/plugins/lps-content-model/lps-content-model.php";
@@ -58,9 +57,7 @@ function hasImportProvenance(record) {
 function resolveOrigin(record) {
   if (hasImportProvenance(record)) return ORIGIN.IMPORTED;
   const claim = text(record._lps_origin);
-  return claim === ORIGIN.NATIVE || claim === ORIGIN.IMPORTED
-    ? claim
-    : ORIGIN.AMBIGUOUS;
+  return claim === ORIGIN.NATIVE || claim === ORIGIN.IMPORTED ? claim : ORIGIN.AMBIGUOUS;
 }
 
 /** Mirrors PublicationPolicy::origin_write_error on documented vectors. */
@@ -86,10 +83,7 @@ function reconciliationClass(record) {
   if (origin === ORIGIN.IMPORTED && text(record._lps_origin) === ORIGIN.NATIVE) {
     return "conflict";
   }
-  if (
-    origin === ORIGIN.IMPORTED &&
-    text(record._lps_import_review_state) !== "reviewed"
-  ) {
+  if (origin === ORIGIN.IMPORTED && text(record._lps_import_review_state) !== "reviewed") {
     return "unreviewed-import";
   }
   return "none";
@@ -110,19 +104,16 @@ describe("task-05: origin mirror parity on fixed vectors", () => {
   it("never lets an unreviewed import be marked native", async () => {
     const fixture = await loadFixture("publication-origin");
     for (const entry of fixture.originWriteCases) {
-      expect(
-        originWriteError(entry.stored, entry.candidate, entry.record),
-        entry.id,
-      ).toBe(entry.expectError);
+      expect(originWriteError(entry.stored, entry.candidate, entry.record), entry.id).toBe(
+        entry.expectError,
+      );
     }
   });
 
   it("classifies reconciliation rows without granting trust", async () => {
     const fixture = await loadFixture("publication-origin");
     for (const entry of fixture.reconciliationCases) {
-      expect(reconciliationClass(entry.record), entry.id).toBe(
-        entry.expectAction,
-      );
+      expect(reconciliationClass(entry.record), entry.id).toBe(entry.expectAction);
       expect(resolveOrigin(entry.record), entry.id).toBe(entry.expectOrigin);
     }
   });
@@ -155,12 +146,8 @@ describe("task-05: staleness fixture is field-specific", () => {
     const fixture = await loadFixture("publication-origin");
     for (const entry of fixture.stalenessCases) {
       const changed = { ...entry.base, ...entry.change };
-      const changedKeys = Object.keys(changed).filter(
-        (key) => changed[key] !== entry.base[key],
-      );
-      expect(changedKeys.sort(), entry.id).toEqual(
-        Object.keys(entry.change).sort(),
-      );
+      const changedKeys = Object.keys(changed).filter((key) => changed[key] !== entry.base[key]);
+      expect(changedKeys.sort(), entry.id).toEqual(Object.keys(entry.change).sort());
     }
   });
 });

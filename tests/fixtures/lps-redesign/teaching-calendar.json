@@ -57,10 +57,7 @@
       "term": "term-synthetic-2026-1",
       "section": "A",
       "temporalStatus": "current",
-      "teachingTeam": [
-        "person-synthetic-ada",
-        "person-synthetic-bento"
-      ],
+      "teachingTeam": ["person-synthetic-ada", "person-synthetic-bento"],
       "synthetic": true
     },
     {
@@ -69,9 +66,7 @@
       "term": "term-synthetic-2025-2",
       "section": "A",
       "temporalStatus": "completed",
-      "teachingTeam": [
-        "person-synthetic-ada"
-      ],
+      "teachingTeam": ["person-synthetic-ada"],
       "synthetic": true
     },
     {
@@ -80,9 +75,7 @@
       "term": "term-synthetic-2026-t1",
       "section": "B",
       "temporalStatus": "upcoming",
-      "teachingTeam": [
-        "person-synthetic-bento"
-      ],
+      "teachingTeam": ["person-synthetic-bento"],
       "synthetic": true
     }
   ],

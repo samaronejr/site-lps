@@ -1,5 +1,5 @@
-import { expect, test } from "@playwright/test";
 import { mkdir } from "node:fs/promises";
+import { expect, test } from "@playwright/test";
 
 /**
  * Task 14 — the unified LPS identity across every existing public section.
@@ -108,25 +108,47 @@ test.describe("task-14: the identity across every existing public section", () =
     // The static route set mirrors tests/fixtures/ia/routes.json (parameterized
     // families excluded) plus the search and institutional sub-pages.
     const routes = [
-      "/pt-br/", "/pt-br/sobre/", "/pt-br/sobre/historia/",
-      "/pt-br/pesquisa/", "/pt-br/projetos/", "/pt-br/pessoas/", "/pt-br/publicacoes/",
-      "/pt-br/infraestrutura/", "/pt-br/oportunidades/", "/pt-br/noticias/",
-      "/pt-br/eventos/", "/pt-br/colabore/", "/pt-br/contato/", "/pt-br/privacidade/",
-      "/pt-br/acessibilidade/", "/pt-br/ensino/", "/pt-br/busca/",
-      "/en/", "/en/about/", "/en/about/history/",
-      "/en/research/", "/en/projects/", "/en/people/", "/en/publications/",
-      "/en/infrastructure/", "/en/opportunities/", "/en/news/",
-      "/en/events/", "/en/collaborate/", "/en/contact/", "/en/privacy/",
-      "/en/accessibility/", "/en/teaching/", "/en/search/",
+      "/pt-br/",
+      "/pt-br/sobre/",
+      "/pt-br/sobre/historia/",
+      "/pt-br/pesquisa/",
+      "/pt-br/projetos/",
+      "/pt-br/pessoas/",
+      "/pt-br/publicacoes/",
+      "/pt-br/infraestrutura/",
+      "/pt-br/oportunidades/",
+      "/pt-br/noticias/",
+      "/pt-br/eventos/",
+      "/pt-br/colabore/",
+      "/pt-br/contato/",
+      "/pt-br/privacidade/",
+      "/pt-br/acessibilidade/",
+      "/pt-br/ensino/",
+      "/pt-br/busca/",
+      "/en/",
+      "/en/about/",
+      "/en/about/history/",
+      "/en/research/",
+      "/en/projects/",
+      "/en/people/",
+      "/en/publications/",
+      "/en/infrastructure/",
+      "/en/opportunities/",
+      "/en/news/",
+      "/en/events/",
+      "/en/collaborate/",
+      "/en/contact/",
+      "/en/privacy/",
+      "/en/accessibility/",
+      "/en/teaching/",
+      "/en/search/",
     ];
     // Route status checks go through the request API in parallel batches;
     // sequential page loads would exceed the test timeout on this host.
     const failures = [];
     for (let index = 0; index < routes.length; index += 6) {
       const batch = routes.slice(index, index + 6);
-      const responses = await Promise.all(
-        batch.map((route) => context.request.get(route)),
-      );
+      const responses = await Promise.all(batch.map((route) => context.request.get(route)));
       responses.forEach((response, offset) => {
         if (response.status() >= 400) {
           failures.push(`${batch[offset]} -> ${response.status()}`);
@@ -170,7 +192,9 @@ test.describe("task-14: the identity across every existing public section", () =
     await context.close();
   });
 
-  test("the co-teacher profile renders the same offering with its own role", async ({ browser }) => {
+  test("the co-teacher profile renders the same offering with its own role", async ({
+    browser,
+  }) => {
     const context = await anonymousContext(browser);
     const page = await context.newPage();
     await page.goto("/pt-br/pessoas/codocente-sinais-fixture/", { waitUntil: "domcontentloaded" });
@@ -252,7 +276,9 @@ test.describe("task-14: the identity across every existing public section", () =
     await context.close();
   });
 
-  test("the people directory groups cohorts and keeps an explicit empty state", async ({ browser }) => {
+  test("the people directory groups cohorts and keeps an explicit empty state", async ({
+    browser,
+  }) => {
     const context = await anonymousContext(browser);
     const page = await context.newPage();
 
@@ -319,7 +345,10 @@ test.describe("task-14: the identity across every existing public section", () =
       ["/pt-br/pessoas/docente-sinais-fixture/", "person-profile-pt-br.png"],
       ["/pt-br/pessoas/", "people-directory-pt-br.png"],
       ["/pt-br/ensino/disciplinas/sinais-e-sistemas-fixture/", "course-pt-br.png"],
-      ["/pt-br/ensino/disciplinas/sinais-e-sistemas-fixture/2026-2-semester/t01/", "offering-pt-br.png"],
+      [
+        "/pt-br/ensino/disciplinas/sinais-e-sistemas-fixture/2026-2-semester/t01/",
+        "offering-pt-br.png",
+      ],
       ["/pt-br/publicacoes/publicacao-demonstracao-fixture/", "publication-pt-br.png"],
       ["/pt-br/eventos/", "events-pt-br.png"],
       ["/pt-br/oportunidades/", "opportunities-pt-br.png"],

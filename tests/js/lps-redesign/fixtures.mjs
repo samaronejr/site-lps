@@ -59,9 +59,7 @@ export async function materializeFixture(name, recordId, env = process.env) {
     "invalidCases",
     "plans",
     "copyForward",
-  ].find((key) =>
-    (fixture[key] ?? []).some((entry) => entry.id === recordId),
-  );
+  ].find((key) => (fixture[key] ?? []).some((entry) => entry.id === recordId));
   if (!collection) {
     throw new Error(`${name}.json has no record with id "${recordId}"`);
   }

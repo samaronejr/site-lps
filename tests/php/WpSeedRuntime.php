@@ -64,6 +64,27 @@ namespace LPS\Tests {
 		 */
 		private static array $deleted = array();
 
+		/**
+		 * Locale slugs the Polylang dependency registered.
+		 *
+		 * @var array<int, string>
+		 */
+		private static array $languages = array();
+
+		/**
+		 * Per-record locale assignments, keyed by post identifier.
+		 *
+		 * @var array<int, string>
+		 */
+		private static array $post_languages = array();
+
+		/**
+		 * Reciprocal translation groups, keyed by each member's post identifier.
+		 *
+		 * @var array<int, array<string, int>>
+		 */
+		private static array $translations = array();
+
 		/** Clears database state while keeping the mu-plugin hook registry. */
 		public static function reset(): void {
 			self::$options         = array();
@@ -76,6 +97,9 @@ namespace LPS\Tests {
 			self::$rewrite_flushes = 0;
 			self::$deletes         = 0;
 			self::$deleted         = array();
+			self::$languages       = array();
+			self::$post_languages  = array();
+			self::$translations    = array();
 		}
 
 		/** Clears only the write counters, so one request can be measured alone. */
@@ -156,10 +180,71 @@ namespace LPS\Tests {
 		 * exercised against the same API a live activation provides.
 		 */
 		public static function activate_content_model_plugin(): void {
-			if ( class_exists( \LPS\ContentModel\Translations::class, false ) ) {
-				return;
+			if ( ! class_exists( \LPS\ContentModel\Translations::class, false ) ) {
+				$includes = dirname( __DIR__, 2 ) . '/wp-content/plugins/lps-content-model/includes';
+				require_once $includes . '/class-translationpolicy.php';
+				require_once $includes . '/class-contracts.php';
+				require_once $includes . '/class-translations.php';
 			}
-			require_once dirname( __DIR__, 2 ) . '/wp-content/plugins/lps-content-model/includes/class-translations.php';
+
+			// Activation ships the plugin's Polylang dependency: the supported
+			// locale pair is registered with it so the seed's language gate opens.
+			self::register_languages(
+				array(
+					\LPS\ContentModel\TranslationPolicy::SOURCE_LOCALE,
+					\LPS\ContentModel\TranslationPolicy::TARGET_LOCALE,
+				)
+			);
+		}
+
+		/**
+		 * Registers locale slugs the Polylang dependency publishes.
+		 *
+		 * @param array<int, string> $slugs Locale slugs.
+		 */
+		public static function register_languages( array $slugs ): void {
+			self::$languages = array_values( array_unique( array_merge( self::$languages, $slugs ) ) );
+		}
+
+		/**
+		 * Registered locale slugs, mirroring pll_languages_list.
+		 *
+		 * @return array<int, string>
+		 */
+		public static function languages(): array {
+			return self::$languages;
+		}
+
+		/** Assigns one record's locale. */
+		public static function set_post_language( int $post_id, string $slug ): void {
+			self::$post_languages[ $post_id ] = $slug;
+		}
+
+		/** Reads one record's assigned locale, or an empty string. */
+		public static function post_language( int $post_id ): string {
+			return self::$post_languages[ $post_id ] ?? '';
+		}
+
+		/**
+		 * Persists a reciprocal translation group on every member.
+		 *
+		 * @param array<string, int> $map Locale slug => post ID.
+		 * @return array<string, int> The persisted map.
+		 */
+		public static function save_post_translations( array $map ): array {
+			foreach ( $map as $post_id ) {
+				self::$translations[ $post_id ] = $map;
+			}
+			return $map;
+		}
+
+		/**
+		 * The reciprocal translation group one record belongs to.
+		 *
+		 * @return array<string, int>
+		 */
+		public static function post_translations( int $post_id ): array {
+			return self::$translations[ $post_id ] ?? array();
 		}
 
 		/**
@@ -355,6 +440,8 @@ namespace LPS\Tests {
 
 		public string $post_content;
 
+		public string $post_excerpt;
+
 		/**
 		 * Builds the object from a stored row.
 		 *
@@ -368,6 +455,7 @@ namespace LPS\Tests {
 			$this->post_parent  = $row['post_parent'];
 			$this->post_title   = $row['post_title'];
 			$this->post_content = $row['post_content'];
+			$this->post_excerpt = '';
 		}
 	}
 
@@ -585,6 +673,129 @@ namespace {
 		function flush_rewrite_rules( bool $hard = true ): void {
 			unset( $hard );
 			\LPS\Tests\WpSeedRuntime::flush_rewrite_rules();
+		}
+	}
+
+	if ( ! function_exists( 'pll_languages_list' ) ) {
+		/**
+		 * Mirrors the Polylang registered-locale list.
+		 *
+		 * @return array<int, string>
+		 */
+		function pll_languages_list(): array {
+			return \LPS\Tests\WpSeedRuntime::languages();
+		}
+	}
+
+	if ( ! function_exists( 'pll_set_post_language' ) ) {
+		/** Mirrors the Polylang per-record locale assignment. */
+		function pll_set_post_language( int $post_id, string $slug ): void {
+			\LPS\Tests\WpSeedRuntime::set_post_language( $post_id, $slug );
+		}
+	}
+
+	if ( ! function_exists( 'pll_get_post_language' ) ) {
+		/**
+		 * Mirrors the Polylang per-record locale lookup.
+		 *
+		 * @param string $field Unused field selector; only the slug form is modelled.
+		 * @return string|false Assigned locale slug or false.
+		 */
+		function pll_get_post_language( int $post_id, string $field = 'slug' ): string|false {
+			unset( $field );
+			$slug = \LPS\Tests\WpSeedRuntime::post_language( $post_id );
+			return '' === $slug ? false : $slug;
+		}
+	}
+
+	if ( ! function_exists( 'pll_save_post_translations' ) ) {
+		/**
+		 * Mirrors the Polylang reciprocal-group persistence.
+		 *
+		 * @param array<string, int> $translations Locale slug => post ID.
+		 * @return array<string, int> The persisted map.
+		 */
+		function pll_save_post_translations( array $translations ): array {
+			return \LPS\Tests\WpSeedRuntime::save_post_translations( $translations );
+		}
+	}
+
+	if ( ! function_exists( 'pll_get_post_translations' ) ) {
+		/**
+		 * Mirrors the Polylang reciprocal-group lookup.
+		 *
+		 * @return array<string, int>
+		 */
+		function pll_get_post_translations( int $post_id ): array {
+			return \LPS\Tests\WpSeedRuntime::post_translations( $post_id );
+		}
+	}
+
+	if ( ! function_exists( 'get_post' ) ) {
+		/**
+		 * Finds one stored post by identifier.
+		 *
+		 * @param string $output Unused output format.
+		 */
+		function get_post( int|\LPS\Tests\SeedPost|null $post, string $output = 'OBJECT' ): ?\LPS\Tests\SeedPost {
+			unset( $output );
+			if ( $post instanceof \LPS\Tests\SeedPost ) {
+				return $post;
+			}
+			if ( ! is_int( $post ) ) {
+				return null;
+			}
+			$row = \LPS\Tests\WpSeedRuntime::posts()[ $post ] ?? null;
+			return null === $row ? null : new \LPS\Tests\SeedPost( $row );
+		}
+	}
+
+	if ( ! function_exists( 'wp_get_post_revisions' ) ) {
+		/**
+		 * Mirrors the WordPress revision query. The runtime keeps no revision
+		 * copies, so a stored post reports its own ID as the newest revision.
+		 *
+		 * @param array<string, mixed> $args Unused query arguments.
+		 * @return array<int, \LPS\Tests\SeedPost> Revision rows, newest first.
+		 */
+		function wp_get_post_revisions( int $post_id, array $args = array() ): array {
+			unset( $args );
+			unset( $post_id );
+			return array();
+		}
+	}
+
+	if ( ! function_exists( 'get_posts' ) ) {
+		/**
+		 * Queries stored posts with the subset of arguments the seeds use.
+		 *
+		 * @param array<string, mixed> $args Query arguments.
+		 * @return array<int, mixed> Matching rows or IDs.
+		 */
+		function get_posts( array $args = array() ): array {
+			$post_type   = isset( $args['post_type'] ) && is_string( $args['post_type'] ) ? $args['post_type'] : null;
+			$post_name   = isset( $args['name'] ) && is_string( $args['name'] ) ? $args['name'] : null;
+			$post_parent = isset( $args['post_parent'] ) && is_int( $args['post_parent'] ) ? $args['post_parent'] : null;
+			$numberposts = isset( $args['numberposts'] ) && is_int( $args['numberposts'] ) ? $args['numberposts'] : -1;
+			$ids_only    = isset( $args['fields'] ) && 'ids' === $args['fields'];
+
+			$found = array();
+			foreach ( \LPS\Tests\WpSeedRuntime::posts() as $row ) {
+				if ( null !== $post_type && $row['post_type'] !== $post_type ) {
+					continue;
+				}
+				if ( null !== $post_name && $row['post_name'] !== $post_name ) {
+					continue;
+				}
+				if ( null !== $post_parent && $row['post_parent'] !== $post_parent ) {
+					continue;
+				}
+				$found[] = $ids_only ? $row['ID'] : new \LPS\Tests\SeedPost( $row );
+				if ( 0 < $numberposts && count( $found ) >= $numberposts ) {
+					break;
+				}
+			}
+			return $found;
 		}
 	}
 }

@@ -493,14 +493,14 @@ final class StructuredData {
 	public static function course( string $site_url, string $path, array $course ): array {
 		$canonical = SeoPolicy::canonical_url( $site_url, $path );
 		$node      = array(
-			'@type'     => 'Course',
-			'@id'       => $canonical . '#course',
-			'url'       => $canonical,
-			'name'      => self::text( $course['name'] ?? '' ),
-			'provider'  => array( '@id' => rtrim( $site_url, '/' ) . '/#organization' ),
-			'isPartOf'  => array( '@id' => rtrim( $site_url, '/' ) . '/#website' ),
+			'@type'    => 'Course',
+			'@id'      => $canonical . '#course',
+			'url'      => $canonical,
+			'name'     => self::text( $course['name'] ?? '' ),
+			'provider' => array( '@id' => rtrim( $site_url, '/' ) . '/#organization' ),
+			'isPartOf' => array( '@id' => rtrim( $site_url, '/' ) . '/#website' ),
 		);
-		$code = self::text( $course['code'] ?? '' );
+		$code      = self::text( $course['code'] ?? '' );
 		if ( '' !== $code ) {
 			$node['courseCode'] = $code;
 		}

@@ -434,6 +434,7 @@ final class TeachingRoutes {
 			array(
 				'post_type'              => 'lps_course',
 				'post_status'            => 'publish',
+				// phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- Bounded catalogue listing, capped for the institutional site.
 				'posts_per_page'         => 200,
 				'orderby'                => 'title',
 				'order'                  => 'ASC',
@@ -639,8 +640,8 @@ final class TeachingRoutes {
 			if ( ! $resource instanceof WP_Post || 'publish' !== $resource->post_status ) {
 				continue;
 			}
-			$resource_authority              = self::authority_id( $resource );
-			$visible[]                       = array( $resource, $resource_authority );
+			$resource_authority                 = self::authority_id( $resource );
+			$visible[]                          = array( $resource, $resource_authority );
 			$authorities[ $resource_authority ] = true;
 		}
 		if ( array() === $visible ) {

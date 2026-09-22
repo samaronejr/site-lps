@@ -76,14 +76,24 @@ final class LpsRedesignTask16Test extends TestCase {
 			array(
 				array(
 					'id'           => 'p1',
-					'fields'       => array( '_lps_orcid' => '0000-0001-2345-6789', '_lps_secret' => 'x' ),
+					'fields'       => array(
+						'_lps_orcid'  => '0000-0001-2345-6789',
+						'_lps_secret' => 'x',
+					),
 					'state'        => 'pending',
 					'submitted_at' => '2026-09-19T12:00:00+00:00',
 					'extra'        => 'dropped',
 				),
-				array( 'id' => '', 'fields' => array( '_lps_orcid' => 'x' ) ),
+				array(
+					'id'     => '',
+					'fields' => array( '_lps_orcid' => 'x' ),
+				),
 				'not-an-array',
-				array( 'id' => 'p2', 'fields' => array(), 'state' => 'bogus' ),
+				array(
+					'id'     => 'p2',
+					'fields' => array(),
+					'state'  => 'bogus',
+				),
 			)
 		);
 		self::assertCount( 1, $proposals );
@@ -113,11 +123,25 @@ final class LpsRedesignTask16Test extends TestCase {
 		);
 		self::assertSame(
 			array( '_lps_syllabus' => 'lps_dashboard_field_forbidden' ),
-			TaskDashboard::proposal_errors( array( 'fields' => array( '_lps_syllabus' => 'x', '_lps_orcid' => '0000-0001-2345-6789' ) ) )
+			TaskDashboard::proposal_errors(
+				array(
+					'fields' => array(
+						'_lps_syllabus' => 'x',
+						'_lps_orcid'    => '0000-0001-2345-6789',
+					),
+				)
+			)
 		);
 		self::assertSame(
 			array(),
-			TaskDashboard::proposal_errors( array( 'fields' => array( '_lps_orcid' => '0000-0001-2345-6789', 'post_excerpt' => 'Resumo' ) ) )
+			TaskDashboard::proposal_errors(
+				array(
+					'fields' => array(
+						'_lps_orcid'   => '0000-0001-2345-6789',
+						'post_excerpt' => 'Resumo',
+					),
+				)
+			)
 		);
 	}
 
@@ -125,15 +149,33 @@ final class LpsRedesignTask16Test extends TestCase {
 	public function test_team_from_input_filters_rows(): void {
 		self::assertSame(
 			array(
-				array( 'person_id' => 7, 'role' => 'lead' ),
-				array( 'person_id' => 9, 'role' => 'assistant' ),
+				array(
+					'person_id' => 7,
+					'role'      => 'lead',
+				),
+				array(
+					'person_id' => 9,
+					'role'      => 'assistant',
+				),
 			),
 			TaskDashboard::team_from_input(
 				array(
-					array( 'person_id' => 7, 'role' => 'lead' ),
-					array( 'person_id' => 0, 'role' => 'lead' ),
-					array( 'person_id' => 9, 'role' => 'assistant' ),
-					array( 'person_id' => 4, 'role' => 'owner' ),
+					array(
+						'person_id' => 7,
+						'role'      => 'lead',
+					),
+					array(
+						'person_id' => 0,
+						'role'      => 'lead',
+					),
+					array(
+						'person_id' => 9,
+						'role'      => 'assistant',
+					),
+					array(
+						'person_id' => 4,
+						'role'      => 'owner',
+					),
 					'junk',
 				)
 			)

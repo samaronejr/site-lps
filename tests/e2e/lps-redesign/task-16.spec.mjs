@@ -81,9 +81,14 @@ async function loginAs(target, user, pass, mfa) {
       target.locator("#wp-submit").click(),
     ]);
     if (mfa) {
-      const challenge = target.locator("#loginform input[type=submit], #loginform button[type=submit]");
+      const challenge = target.locator(
+        "#loginform input[type=submit], #loginform button[type=submit]",
+      );
       await challenge.waitFor({ state: "visible", timeout: 60_000 });
-      await Promise.all([target.waitForLoadState("domcontentloaded", { timeout: 120_000 }), challenge.click()]);
+      await Promise.all([
+        target.waitForLoadState("domcontentloaded", { timeout: 120_000 }),
+        challenge.click(),
+      ]);
     }
     const settled = await expect
       .poll(() => new URL(target.url()).pathname, { timeout: 60_000 })
@@ -264,9 +269,12 @@ test.describe("task-16: the faculty task dashboard and publication journeys", ()
     await loginAs(professorPage, "lps-t16-professor", "lps-t16-professor-pass", true);
     state.professorNonce = await restNonce(professorPage);
 
-    const professorUser = await adminPage.request.get("/wp-json/wp/v2/users?slug=lps-t16-professor", {
-      headers: { "X-WP-Nonce": state.adminNonce },
-    });
+    const professorUser = await adminPage.request.get(
+      "/wp-json/wp/v2/users?slug=lps-t16-professor",
+      {
+        headers: { "X-WP-Nonce": state.adminNonce },
+      },
+    );
     state.professorId = (await professorUser.json())[0]?.id ?? 0;
     const delegateUser = await adminPage.request.get("/wp-json/wp/v2/users?slug=lps-t16-delegate", {
       headers: { "X-WP-Nonce": state.adminNonce },
@@ -385,7 +393,12 @@ test.describe("task-16: the faculty task dashboard and publication journeys", ()
       content: "Fixture content.",
     });
     expect(courseEn.status, JSON.stringify(courseEn.body)).toBe(201);
-    await api(page, state.publisherNonce, "POST", `/teaching/records/${courseEn.body.id}/review-translation`);
+    await api(
+      page,
+      state.publisherNonce,
+      "POST",
+      `/teaching/records/${courseEn.body.id}/review-translation`,
+    );
     await publish(courseEn.body.id);
     await publish(state.coursePtId);
 
@@ -416,7 +429,12 @@ test.describe("task-16: the faculty task dashboard and publication journeys", ()
       content: "Fixture content.",
     });
     expect(offeringEn.status, JSON.stringify(offeringEn.body)).toBe(201);
-    await api(page, state.publisherNonce, "POST", `/teaching/records/${offeringEn.body.id}/review-translation`);
+    await api(
+      page,
+      state.publisherNonce,
+      "POST",
+      `/teaching/records/${offeringEn.body.id}/review-translation`,
+    );
     await publish(offeringEn.body.id);
     await publish(state.offeringPtId);
 
@@ -479,9 +497,9 @@ test.describe("task-16: the faculty task dashboard and publication journeys", ()
       position: "0",
     });
     await expect(professorPage.locator("[data-dashboard-error]")).toBeVisible({ timeout: 30_000 });
-    await expect(professorPage.locator('form[data-dashboard-form="lps_dashboard_unit"] input[name="anchor"]')).toHaveValue(
-      `unidade-${RUN}`,
-    );
+    await expect(
+      professorPage.locator('form[data-dashboard-form="lps_dashboard_unit"] input[name="anchor"]'),
+    ).toHaveValue(`unidade-${RUN}`);
 
     await submitForm(professorPage, "lps_dashboard_unit", {
       title: `Unidade ${RUN}`,
@@ -493,8 +511,15 @@ test.describe("task-16: the faculty task dashboard and publication journeys", ()
     await expect(professorPage.locator("[data-dashboard-notice]")).toBeVisible({ timeout: 30_000 });
     await expect(professorPage.locator(".lps-record-list")).toContainText(`Unidade ${RUN}`);
 
-    const units = await api(page, state.publisherNonce, "GET", `/teaching/units?offering_id=${state.offeringPtId}`);
-    const created = (units.body.items ?? units.body ?? []).find?.((row) => row.title?.includes?.(`Unidade ${RUN}`));
+    const units = await api(
+      page,
+      state.publisherNonce,
+      "GET",
+      `/teaching/units?offering_id=${state.offeringPtId}`,
+    );
+    const created = (units.body.items ?? units.body ?? []).find?.((row) =>
+      row.title?.includes?.(`Unidade ${RUN}`),
+    );
     state.unitId = created?.id ?? 0;
     if (0 === state.unitId) {
       const list = await page.request.get(`/wp-json/wp/v2/units?per_page=50&status=any`, {
@@ -530,7 +555,8 @@ test.describe("task-16: the faculty task dashboard and publication journeys", ()
       headers: { "X-WP-Nonce": state.publisherNonce },
     });
     const rows = await resources.json();
-    state.resourceId = rows.find((row) => row.title?.rendered?.includes(`Apostila ${RUN}`))?.id ?? 0;
+    state.resourceId =
+      rows.find((row) => row.title?.rendered?.includes(`Apostila ${RUN}`))?.id ?? 0;
     expect(state.resourceId, "the dashboard material must persist").toBeGreaterThan(0);
   });
 
@@ -566,7 +592,9 @@ test.describe("task-16: the faculty task dashboard and publication journeys", ()
     // The public download resolves through the guarded opaque-token route.
     const stored = await record("resources", state.resourceId);
     expect(stored.meta?._lps_release_state ?? stored._lps_release_state).toBe("released");
-    const downloadHref = await resourceRow.locator('a[href*="/lps-resource/"]').getAttribute("href");
+    const downloadHref = await resourceRow
+      .locator('a[href*="/lps-resource/"]')
+      .getAttribute("href");
     expect(downloadHref, "released material exposes the guarded download").toBeTruthy();
     const download = await page.request.get(downloadHref, {
       headers: { "X-WP-Nonce": state.publisherNonce },
@@ -574,7 +602,9 @@ test.describe("task-16: the faculty task dashboard and publication journeys", ()
     expect([200, 302]).toContain(download.status());
   });
 
-  test("the professor submits news; the editor rejects with a note; the publisher approves", async ({ browser }) => {
+  test("the professor submits news; the editor rejects with a note; the publisher approves", async ({
+    browser,
+  }) => {
     test.setTimeout(240_000);
     await ensureEditor(browser);
     await professorPage.goto("/pt-br/painel/noticias/", { waitUntil: "domcontentloaded" });
@@ -605,13 +635,19 @@ test.describe("task-16: the faculty task dashboard and publication journeys", ()
       editorPage.locator('[aria-labelledby="lps-review-news"] .lps-record-list'),
     ).toContainText(`Notícia ${RUN}`);
 
-    const reviewForm = editorPage.locator('form[data-dashboard-form="lps_dashboard_review"]').filter({ has: editorPage.locator(`input[name="post_id"][value="${state.newsId}"]`) }).first();
+    const reviewForm = editorPage
+      .locator('form[data-dashboard-form="lps_dashboard_review"]')
+      .filter({ has: editorPage.locator(`input[name="post_id"][value="${state.newsId}"]`) })
+      .first();
     await reviewForm.locator('input[name="note"]').fill("");
     await clickAndWait(editorPage, reviewForm.locator('button[value="reject"]'));
     await expect(editorPage.locator("[data-dashboard-error]")).toBeVisible({ timeout: 30_000 });
 
     await editorPage.goto("/pt-br/painel/revisao/", { waitUntil: "domcontentloaded" });
-    const reviewForm2 = editorPage.locator('form[data-dashboard-form="lps_dashboard_review"]').filter({ has: editorPage.locator(`input[name="post_id"][value="${state.newsId}"]`) }).first();
+    const reviewForm2 = editorPage
+      .locator('form[data-dashboard-form="lps_dashboard_review"]')
+      .filter({ has: editorPage.locator(`input[name="post_id"][value="${state.newsId}"]`) })
+      .first();
     await reviewForm2.locator('input[name="note"]').fill("Corrija o resumo antes de reenviar.");
     await clickAndWait(editorPage, reviewForm2.locator('button[value="reject"]'));
     await expect(editorPage.locator("[data-dashboard-notice]")).toBeVisible({ timeout: 30_000 });
@@ -633,7 +669,10 @@ test.describe("task-16: the faculty task dashboard and publication journeys", ()
 
     // The publisher approves the resubmission; the item goes public.
     await page.goto("/pt-br/painel/revisao/", { waitUntil: "domcontentloaded" });
-    const approveForm = page.locator('form[data-dashboard-form="lps_dashboard_review"]').filter({ has: page.locator(`input[name="post_id"][value="${state.newsId}"]`) }).first();
+    const approveForm = page
+      .locator('form[data-dashboard-form="lps_dashboard_review"]')
+      .filter({ has: page.locator(`input[name="post_id"][value="${state.newsId}"]`) })
+      .first();
     await clickAndWait(page, approveForm.locator('button[value="approve"]'));
     await expect(page.locator("[data-dashboard-notice]")).toBeVisible({ timeout: 30_000 });
 
@@ -660,7 +699,9 @@ test.describe("task-16: the faculty task dashboard and publication journeys", ()
     });
     await expect(professorPage.locator("[data-dashboard-error]")).toBeVisible({ timeout: 30_000 });
     await expect(
-      professorPage.locator('form[data-dashboard-form="lps_dashboard_profile"] input[name="fields[_lps_public_email]"]'),
+      professorPage.locator(
+        'form[data-dashboard-form="lps_dashboard_profile"] input[name="fields[_lps_public_email]"]',
+      ),
     ).toHaveValue(`docente-${RUN}@example.org`);
 
     await submitForm(professorPage, "lps_dashboard_profile", {
@@ -721,7 +762,8 @@ test.describe("task-16: the faculty task dashboard and publication journeys", ()
       headers: { "X-WP-Nonce": state.publisherNonce },
     });
     const rows = await offerings.json();
-    state.copiedOfferingId = rows.find((row) => row.title?.rendered?.includes(`Turma ${RUN} T03`))?.id ?? 0;
+    state.copiedOfferingId =
+      rows.find((row) => row.title?.rendered?.includes(`Turma ${RUN} T03`))?.id ?? 0;
     expect(state.copiedOfferingId, "the copy must persist as a draft").toBeGreaterThan(0);
     const copied = await record("offerings", state.copiedOfferingId);
     expect(copied.status).toBe("draft");
@@ -738,9 +780,15 @@ test.describe("task-16: the faculty task dashboard and publication journeys", ()
     });
     await expect(delegatePage.locator('[data-dashboard-view="offering"]')).toBeVisible();
     // The delegate may create and edit but never publishes or releases.
-    await expect(delegatePage.locator('form[data-dashboard-form="lps_dashboard_unit"]')).toBeVisible();
-    await expect(delegatePage.locator('form[data-dashboard-form="lps_dashboard_publish"]')).toHaveCount(0);
-    await expect(delegatePage.locator('form[data-dashboard-form="lps_dashboard_release"]')).toHaveCount(0);
+    await expect(
+      delegatePage.locator('form[data-dashboard-form="lps_dashboard_unit"]'),
+    ).toBeVisible();
+    await expect(
+      delegatePage.locator('form[data-dashboard-form="lps_dashboard_publish"]'),
+    ).toHaveCount(0);
+    await expect(
+      delegatePage.locator('form[data-dashboard-form="lps_dashboard_release"]'),
+    ).toHaveCount(0);
   });
 
   test("an out-of-scope offering is denied to the professor", async () => {

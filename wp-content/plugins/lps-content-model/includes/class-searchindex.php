@@ -361,13 +361,13 @@ final class SearchIndex {
 	 */
 	private static function has_lifecycle_column( wpdb $database ): bool {
 		$columns = $database->get_col( 'SHOW COLUMNS FROM ' . self::table_name( $database->prefix ), 0 );
-		return is_array( $columns ) && in_array( 'lifecycle', $columns, true );
+		return in_array( 'lifecycle', $columns, true );
 	}
 
 	/**
 	 * Adds the lifecycle column when dbDelta could not.
 	 *
-	 * dbDelta emits `ADD COLUMN ... AFTER`, which the SQLite driver cannot
+	 * The dbDelta routine emits `ADD COLUMN ... AFTER`, which the SQLite driver cannot
 	 * place; a plain `ADD COLUMN` with a literal default is the portable
 	 * repair. On MySQL dbDelta has already added the column, so this path is
 	 * only reached where the fallback statement is valid.
@@ -503,22 +503,22 @@ final class SearchIndex {
 		switch ( $post->post_type ) {
 			case 'lps_person':
 				foreach ( Relationships::reverse_for( $authority, 'teaching_team' ) as $row ) {
-					$targets[] = self::number( $row['source_post_id'] ?? 0 );
+					$targets[] = self::number( $row['source_post_id'] );
 				}
 				break;
 			case 'lps_term':
 				foreach ( Relationships::reverse_for( $authority, 'offering_term' ) as $row ) {
-					$targets[] = self::number( $row['source_post_id'] ?? 0 );
+					$targets[] = self::number( $row['source_post_id'] );
 				}
 				break;
 			case 'lps_course':
 				foreach ( Relationships::reverse_for( $authority, 'offering_course' ) as $row ) {
-					$targets[] = self::number( $row['source_post_id'] ?? 0 );
+					$targets[] = self::number( $row['source_post_id'] );
 				}
 				break;
 			case 'lps_offering':
 				foreach ( Relationships::reverse_for( $authority, 'resource_offering' ) as $row ) {
-					$targets[] = self::number( $row['source_post_id'] ?? 0 );
+					$targets[] = self::number( $row['source_post_id'] );
 				}
 				break;
 			default:
@@ -712,17 +712,17 @@ final class SearchIndex {
 			$external_url = self::text( $shared['_lps_external_url'] ?? '' );
 			$download     = class_exists( TeachingResources::class ) ? TeachingResources::download_url( $post->ID ) : '';
 			return array(
-				'code'              => $course_code,
-				'course_title'      => trim( $course_title . ' ' . $offering_title ),
-				'resource_type'     => self::text( $shared['_lps_resource_type'] ?? '' ),
-				'language'          => self::text( $shared['_lps_resource_language'] ?? '' ),
-				'offering_visible'  => $visible,
-				'lifecycle'         => array(
+				'code'             => $course_code,
+				'course_title'     => trim( $course_title . ' ' . $offering_title ),
+				'resource_type'    => self::text( $shared['_lps_resource_type'] ?? '' ),
+				'language'         => self::text( $shared['_lps_resource_language'] ?? '' ),
+				'offering_visible' => $visible,
+				'lifecycle'        => array(
 					'release_state' => self::text( $shared['_lps_release_state'] ?? '' ),
 					'release_at'    => self::text( $shared['_lps_release_at'] ?? '' ),
 				),
-				'url'               => '' !== $external_url ? $external_url : $download,
-				'facets'            => array(
+				'url'              => '' !== $external_url ? $external_url : $download,
+				'facets'           => array(
 					'type'     => array( self::text( $shared['_lps_resource_type'] ?? '' ) ),
 					'language' => array( self::text( $shared['_lps_resource_language'] ?? '' ) ),
 				),
@@ -910,12 +910,12 @@ final class SearchIndex {
 	}
 
 	/**
-	 * Encodes facet values for storage.
+	 * Encodes a sanitized string-keyed payload for storage.
 	 *
-	 * @param array<string, array<int, string>> $facets Sanitized facet values.
+	 * @param array<string, mixed> $values Sanitized storage payload.
 	 */
-	private static function encode( array $facets ): string {
-		return (string) json_encode( $facets, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ); // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- storage payload written without WordPress loaded in unit tests.
+	private static function encode( array $values ): string {
+		return (string) json_encode( $values, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ); // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- storage payload written without WordPress loaded in unit tests.
 	}
 
 	/**

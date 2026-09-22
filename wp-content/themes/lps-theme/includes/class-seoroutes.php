@@ -419,12 +419,12 @@ final class SeoRoutes {
 		$post   = is_singular() ? get_queried_object() : null;
 		$post   = $post instanceof WP_Post ? $post : null;
 
-		$site      = self::site_identity( $locale );
-		$site_url  = self::site_url();
-		$section   = null === $post ? self::archive_section( $path, $locale ) : ( self::SECTIONS[ $post->post_type ][ $locale ] ?? '' );
-		$title     = null === $post ? self::archive_title( $path, $locale ) : (string) get_the_title( $post );
-		$summary   = null === $post ? self::archive_summary( $path, $locale ) : (string) $post->post_excerpt;
-		$middle    = null;
+		$site     = self::site_identity( $locale );
+		$site_url = self::site_url();
+		$section  = null === $post ? self::archive_section( $path, $locale ) : ( self::SECTIONS[ $post->post_type ][ $locale ] ?? '' );
+		$title    = null === $post ? self::archive_title( $path, $locale ) : (string) get_the_title( $post );
+		$summary  = null === $post ? self::archive_summary( $path, $locale ) : (string) $post->post_excerpt;
+		$middle   = null;
 		if ( null !== SearchRoutes::match_path( $path ) ) {
 			// The search page is a singular page record, so its title and
 			// description come from the route state, not the stored page.
@@ -770,12 +770,8 @@ final class SeoRoutes {
 			$locale = self::text( get_post_meta( $post->ID, '_lps_locale', true ) );
 			return '' === $locale ? array() : array( $locale => $post );
 		}
-		$translations = pll_get_post_translations( $post->ID );
-		if ( ! is_array( $translations ) ) {
-			return array();
-		}
-		foreach ( $translations as $slug => $post_id ) {
-			if ( ! is_int( $post_id ) || ! in_array( $slug, SeoPolicy::locales(), true ) ) {
+		foreach ( pll_get_post_translations( $post->ID ) as $slug => $post_id ) {
+			if ( ! in_array( $slug, SeoPolicy::locales(), true ) ) {
 				continue;
 			}
 			$translated = get_post( $post_id );
@@ -1020,12 +1016,12 @@ final class SeoRoutes {
 	/**
 	 * Builds the breadcrumb trail of a document.
 	 *
-	 * @param string                          $path    Canonical path.
-	 * @param string                          $locale  Locale slug.
-	 * @param string                          $section Localized section label.
-	 * @param string                          $title   Document title.
+	 * @param string                                 $path    Canonical path.
+	 * @param string                                 $locale  Locale slug.
+	 * @param string                                 $section Localized section label.
+	 * @param string                                 $title   Document title.
 	 * @param array{name: string, path: string}|null $middle Optional intermediate crumb, such as the course of an offering.
-	 * @return array<int, array<string, string>>
+	 * @return array<int, array{name: string, path: string}>
 	 */
 	private static function breadcrumb_trail( string $path, string $locale, string $section, string $title, ?array $middle = null ): array {
 		$home  = '/' . $locale . '/';
@@ -1048,7 +1044,7 @@ final class SeoRoutes {
 				break;
 			}
 		}
-		if ( null !== $middle && '' !== self::text( $middle['name'] ?? '' ) && '' !== self::text( $middle['path'] ?? '' ) ) {
+		if ( null !== $middle && '' !== $middle['name'] && '' !== $middle['path'] ) {
 			$trail[] = $middle;
 		}
 		$trail[] = array(
@@ -1413,10 +1409,10 @@ final class SeoRoutes {
 		}
 		$names = array();
 		foreach ( Relationships::for_source( $authority, 'teaching_team' ) as $row ) {
-			if ( ! (bool) ( $row['public_visibility'] ?? false ) ) {
+			if ( ! $row['public_visibility'] ) {
 				continue;
 			}
-			$person = self::localized_variant( (int) ( $row['target_post_id'] ?? 0 ), $locale );
+			$person = self::localized_variant( (int) $row['target_post_id'], $locale );
 			if ( $person instanceof WP_Post && 'publish' === $person->post_status ) {
 				$names[] = (string) get_the_title( $person );
 			}
@@ -1438,7 +1434,7 @@ final class SeoRoutes {
 		$site_url = self::site_url();
 		$urls     = array();
 		foreach ( Relationships::reverse_for( $course_authority, 'offering_course' ) as $row ) {
-			$offering = self::localized_variant( (int) ( $row['source_post_id'] ?? 0 ), $locale );
+			$offering = self::localized_variant( (int) $row['source_post_id'], $locale );
 			if ( ! $offering instanceof WP_Post || 'publish' !== $offering->post_status ) {
 				continue;
 			}

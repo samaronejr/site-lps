@@ -412,7 +412,7 @@ final class SearchSurfaces {
 	public static function facet_value_label( string $facet, string $value, string $locale ): string {
 		$labels = self::FACET_VALUE_LABELS[ $facet ][ $value ] ?? null;
 		if ( is_array( $labels ) ) {
-			return $labels[ $locale ] ?? $labels['pt-br'] ?? $value;
+			return $labels[ $locale ] ?? $labels['pt-br'];
 		}
 		return $value;
 	}

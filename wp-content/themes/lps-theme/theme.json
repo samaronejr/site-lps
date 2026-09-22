@@ -6,7 +6,7 @@
     "useRootPaddingAwareAlignments": true,
     "layout": {
       "contentSize": "68ch",
-      "wideSize": "80rem"
+      "wideSize": "82.5rem"
     },
     "color": {
       "custom": false,
@@ -16,23 +16,141 @@
       "defaultGradients": false,
       "defaultPalette": false,
       "palette": [
-        { "slug": "canvas", "name": "Canvas", "color": "#F5F7FA" },
-        { "slug": "surface", "name": "Surface", "color": "#FFFFFF" },
-        { "slug": "anchor", "name": "Institutional anchor", "color": "#12304A" },
-        { "slug": "anchor-deep", "name": "Anchor depth", "color": "#0C2237" },
-        { "slug": "action", "name": "Action", "color": "#165A96" },
-        { "slug": "action-hover", "name": "Action depth", "color": "#0F4A7E" },
-        { "slug": "text", "name": "Text", "color": "#182B3A" },
-        { "slug": "text-muted", "name": "Muted text", "color": "#526477" },
-        { "slug": "rule-quiet", "name": "Quiet rule", "color": "#D7E0E8" },
-        { "slug": "boundary-strong", "name": "Strong boundary", "color": "#74869A" },
-        { "slug": "success", "name": "Success", "color": "#216E4E" },
-        { "slug": "warning", "name": "Warning", "color": "#7A4A00" },
-        { "slug": "error", "name": "Error", "color": "#A12622" },
-        { "slug": "info-wash", "name": "Info wash", "color": "#DDECEF" },
-        { "slug": "success-wash", "name": "Success wash", "color": "#E0ECE5" },
-        { "slug": "warning-wash", "name": "Warning wash", "color": "#F2E8D2" },
-        { "slug": "error-wash", "name": "Error wash", "color": "#F2DEDA" }
+        {
+          "slug": "canvas",
+          "name": "Canvas",
+          "color": "#F4F7FB"
+        },
+        {
+          "slug": "surface",
+          "name": "Surface",
+          "color": "#FFFFFF"
+        },
+        {
+          "slug": "surface-alt",
+          "name": "Alt surface",
+          "color": "#E9EFF6"
+        },
+        {
+          "slug": "anchor",
+          "name": "Institutional anchor",
+          "color": "#071A2F"
+        },
+        {
+          "slug": "anchor-deep",
+          "name": "Anchor depth",
+          "color": "#04101F"
+        },
+        {
+          "slug": "anchor-soft",
+          "name": "Anchor soft",
+          "color": "#123A63"
+        },
+        {
+          "slug": "action",
+          "name": "Action",
+          "color": "#1B5FCC"
+        },
+        {
+          "slug": "action-hover",
+          "name": "Action depth",
+          "color": "#14499C"
+        },
+        {
+          "slug": "action-light",
+          "name": "Action highlight",
+          "color": "#2F7AE5"
+        },
+        {
+          "slug": "wash-action",
+          "name": "Action wash",
+          "color": "#DBE8FA"
+        },
+        {
+          "slug": "wash-action-subtle",
+          "name": "Action wash subtle",
+          "color": "#F0F5FD"
+        },
+        {
+          "slug": "accent",
+          "name": "Waveform accent",
+          "color": "#0FB5E4"
+        },
+        {
+          "slug": "accent-soft",
+          "name": "Accent soft",
+          "color": "#62D8F3"
+        },
+        {
+          "slug": "accent-wash",
+          "name": "Accent wash",
+          "color": "#D6F3FB"
+        },
+        {
+          "slug": "text",
+          "name": "Text",
+          "color": "#0A1626"
+        },
+        {
+          "slug": "text-muted",
+          "name": "Muted text",
+          "color": "#495A70"
+        },
+        {
+          "slug": "text-soft",
+          "name": "Soft text",
+          "color": "#586A80"
+        },
+        {
+          "slug": "rule-quiet",
+          "name": "Quiet rule",
+          "color": "#D7E0EA"
+        },
+        {
+          "slug": "rule-hover",
+          "name": "Rule hover",
+          "color": "#9AABBD"
+        },
+        {
+          "slug": "boundary-strong",
+          "name": "Strong boundary",
+          "color": "#75899F"
+        },
+        {
+          "slug": "success",
+          "name": "Success",
+          "color": "#0D6B48"
+        },
+        {
+          "slug": "warning",
+          "name": "Warning",
+          "color": "#8A4708"
+        },
+        {
+          "slug": "error",
+          "name": "Error",
+          "color": "#B3261E"
+        },
+        {
+          "slug": "info-wash",
+          "name": "Info wash",
+          "color": "#F0F5FD"
+        },
+        {
+          "slug": "success-wash",
+          "name": "Success wash",
+          "color": "#E3F0E9"
+        },
+        {
+          "slug": "warning-wash",
+          "name": "Warning wash",
+          "color": "#F8ECD8"
+        },
+        {
+          "slug": "error-wash",
+          "name": "Error wash",
+          "color": "#FCE7E4"
+        }
       ]
     },
     "custom": {
@@ -43,18 +161,66 @@
       "customSpacingSize": false,
       "defaultSpacingSizes": false,
       "spacingSizes": [
-        { "slug": "1", "name": "1", "size": "0.25rem" },
-        { "slug": "2", "name": "2", "size": "0.5rem" },
-        { "slug": "3", "name": "3", "size": "0.75rem" },
-        { "slug": "4", "name": "4", "size": "1rem" },
-        { "slug": "5", "name": "5", "size": "1.25rem" },
-        { "slug": "6", "name": "6", "size": "1.5rem" },
-        { "slug": "8", "name": "8", "size": "2rem" },
-        { "slug": "10", "name": "10", "size": "2.5rem" },
-        { "slug": "12", "name": "12", "size": "3rem" },
-        { "slug": "16", "name": "16", "size": "4rem" },
-        { "slug": "20", "name": "20", "size": "5rem" },
-        { "slug": "24", "name": "24", "size": "6rem" }
+        {
+          "slug": "1",
+          "name": "1",
+          "size": "0.25rem"
+        },
+        {
+          "slug": "2",
+          "name": "2",
+          "size": "0.5rem"
+        },
+        {
+          "slug": "3",
+          "name": "3",
+          "size": "0.75rem"
+        },
+        {
+          "slug": "4",
+          "name": "4",
+          "size": "1rem"
+        },
+        {
+          "slug": "5",
+          "name": "5",
+          "size": "1.25rem"
+        },
+        {
+          "slug": "6",
+          "name": "6",
+          "size": "1.5rem"
+        },
+        {
+          "slug": "8",
+          "name": "8",
+          "size": "2rem"
+        },
+        {
+          "slug": "10",
+          "name": "10",
+          "size": "2.5rem"
+        },
+        {
+          "slug": "12",
+          "name": "12",
+          "size": "3rem"
+        },
+        {
+          "slug": "16",
+          "name": "16",
+          "size": "4rem"
+        },
+        {
+          "slug": "20",
+          "name": "20",
+          "size": "5rem"
+        },
+        {
+          "slug": "24",
+          "name": "24",
+          "size": "6rem"
+        }
       ],
       "units": ["rem", "%", "vw", "vh"]
     },
@@ -65,89 +231,152 @@
       "fluid": true,
       "fontFamilies": [
         {
-          "slug": "interface",
-          "name": "IBM Plex Sans",
-          "fontFamily": "\"IBM Plex Sans\", system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+          "slug": "display",
+          "name": "Space Grotesk",
+          "fontFamily": "\"Space Grotesk\", \"Inter\", system-ui, -apple-system, \"Segoe UI\", sans-serif",
           "fontFace": [
             {
-              "fontFamily": "IBM Plex Sans",
+              "fontFamily": "Space Grotesk",
+              "fontStyle": "normal",
+              "fontWeight": "600",
+              "fontDisplay": "swap",
+              "src": ["file:./assets/fonts/space-grotesk-semibold.woff2"]
+            }
+          ]
+        },
+        {
+          "slug": "interface",
+          "name": "Inter",
+          "fontFamily": "\"Inter\", system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+          "fontFace": [
+            {
+              "fontFamily": "Inter",
               "fontStyle": "normal",
               "fontWeight": "400",
               "fontDisplay": "swap",
-              "src": ["file:./assets/fonts/ibm-plex-sans-regular.woff2"]
+              "src": ["file:./assets/fonts/inter-regular.woff2"]
             },
             {
-              "fontFamily": "IBM Plex Sans",
+              "fontFamily": "Inter",
               "fontStyle": "normal",
-              "fontWeight": "450 550",
+              "fontWeight": "600",
               "fontDisplay": "swap",
-              "src": ["file:./assets/fonts/ibm-plex-sans-medium.woff2"]
-            },
-            {
-              "fontFamily": "IBM Plex Sans",
-              "fontStyle": "normal",
-              "fontWeight": "600 650",
-              "fontDisplay": "swap",
-              "src": ["file:./assets/fonts/ibm-plex-sans-semibold.woff2"]
-            },
-            {
-              "fontFamily": "IBM Plex Sans",
-              "fontStyle": "normal",
-              "fontWeight": "700 750",
-              "fontDisplay": "swap",
-              "src": ["file:./assets/fonts/ibm-plex-sans-bold.woff2"]
+              "src": ["file:./assets/fonts/inter-semibold.woff2"]
             }
           ]
         },
         {
           "slug": "mono",
-          "name": "IBM Plex Mono",
-          "fontFamily": "\"IBM Plex Mono\", ui-monospace, \"Cascadia Mono\", \"Segoe UI Mono\", Menlo, Consolas, monospace",
+          "name": "JetBrains Mono",
+          "fontFamily": "\"JetBrains Mono\", ui-monospace, \"Cascadia Mono\", \"Segoe UI Mono\", Menlo, Consolas, monospace",
           "fontFace": [
             {
-              "fontFamily": "IBM Plex Mono",
+              "fontFamily": "JetBrains Mono",
               "fontStyle": "normal",
               "fontWeight": "400",
               "fontDisplay": "swap",
-              "src": ["file:./assets/fonts/ibm-plex-mono-regular.woff2"]
-            },
-            {
-              "fontFamily": "IBM Plex Mono",
-              "fontStyle": "normal",
-              "fontWeight": "500 700",
-              "fontDisplay": "swap",
-              "src": ["file:./assets/fonts/ibm-plex-mono-semibold.woff2"]
+              "src": ["file:./assets/fonts/jetbrains-mono-regular.woff2"]
             }
           ]
         }
       ],
       "fontSizes": [
-        { "slug": "meta", "name": "Metadata", "size": "0.75rem" },
-        { "slug": "small", "name": "Small", "size": "0.875rem" },
-        { "slug": "body", "name": "Body", "size": "1rem", "fluid": false },
-        { "slug": "reading", "name": "Reading", "size": "1.125rem" },
-        { "slug": "lead", "name": "Lead", "size": "clamp(1.125rem, 1.6vw, 1.25rem)" },
-        { "slug": "h4", "name": "Heading 4", "size": "1.125rem" },
-        { "slug": "h3", "name": "Heading 3", "size": "clamp(1.125rem, 1.8vw, 1.375rem)" },
-        { "slug": "h2", "name": "Heading 2", "size": "clamp(1.375rem, 2.5vw, 2rem)" },
-        { "slug": "h1", "name": "Heading 1", "size": "clamp(1.75rem, 4vw, 2.75rem)" },
-        { "slug": "display", "name": "Display", "size": "clamp(2rem, 5vw, 3.5rem)" }
+        {
+          "slug": "meta",
+          "name": "Metadata",
+          "size": "0.75rem"
+        },
+        {
+          "slug": "small",
+          "name": "Small",
+          "size": "0.875rem"
+        },
+        {
+          "slug": "body",
+          "name": "Body",
+          "size": "1rem",
+          "fluid": false
+        },
+        {
+          "slug": "reading",
+          "name": "Reading",
+          "size": "1.125rem"
+        },
+        {
+          "slug": "lead",
+          "name": "Lead",
+          "size": "clamp(1.0625rem, 1.3vw, 1.25rem)"
+        },
+        {
+          "slug": "h4",
+          "name": "Heading 4",
+          "size": "1.0625rem"
+        },
+        {
+          "slug": "h3",
+          "name": "H3",
+          "size": "clamp(1.1875rem, 1.5vw, 1.4rem)"
+        },
+        {
+          "slug": "h2",
+          "name": "H2",
+          "size": "clamp(1.5rem, 2.6vw, 2.125rem)"
+        },
+        {
+          "slug": "h1",
+          "name": "Heading 1",
+          "size": "clamp(2rem, 4.4vw, 3.25rem)"
+        },
+        {
+          "slug": "display",
+          "name": "Display",
+          "size": "clamp(2.5rem, 6.4vw, 4.75rem)"
+        }
       ]
     },
-    "border": { "color": false, "radius": false, "style": false, "width": false },
-    "shadow": { "defaultPresets": false, "presets": [] },
+    "border": {
+      "color": false,
+      "radius": false,
+      "style": false,
+      "width": false
+    },
+    "shadow": {
+      "defaultPresets": false,
+      "presets": []
+    },
     "blocks": {
-      "core/button": { "border": { "radius": false }, "color": { "custom": false } },
-      "core/group": {
-        "color": { "custom": false },
-        "spacing": { "padding": true, "margin": true }
+      "core/button": {
+        "border": {
+          "radius": false
+        },
+        "color": {
+          "custom": false
+        }
       },
-      "core/image": { "border": { "radius": false } }
+      "core/group": {
+        "color": {
+          "custom": false
+        },
+        "spacing": {
+          "padding": true,
+          "margin": true
+        }
+      },
+      "core/image": {
+        "border": {
+          "radius": false
+        }
+      }
     }
   },
   "styles": {
-    "color": { "background": "var:preset|color|canvas", "text": "var:preset|color|text" },
-    "spacing": { "blockGap": "var:preset|spacing|6" },
+    "color": {
+      "background": "var:preset|color|canvas",
+      "text": "var:preset|color|text"
+    },
+    "spacing": {
+      "blockGap": "var:preset|spacing|6"
+    },
     "typography": {
       "fontFamily": "var:preset|font-family|interface",
       "fontSize": "var:preset|font-size|body",
@@ -155,48 +384,63 @@
     },
     "elements": {
       "heading": {
-        "color": { "text": "var:preset|color|text" },
-        "typography": { "fontFamily": "var:preset|font-family|interface" }
+        "color": {
+          "text": "var:preset|color|text"
+        },
+        "typography": {
+          "fontFamily": "var:preset|font-family|display",
+          "fontWeight": "600",
+          "lineHeight": "1.1"
+        }
       },
       "h1": {
         "typography": {
-          "fontFamily": "var:preset|font-family|interface",
+          "fontFamily": "var:preset|font-family|display",
           "fontSize": "var:preset|font-size|h1",
-          "fontWeight": "700",
+          "fontWeight": "600",
           "lineHeight": "1.15"
         }
       },
       "h2": {
         "typography": {
-          "fontFamily": "var:preset|font-family|interface",
+          "fontFamily": "var:preset|font-family|display",
           "fontSize": "var:preset|font-size|h2",
-          "fontWeight": "650",
+          "fontWeight": "600",
           "lineHeight": "1.2"
         }
       },
       "h3": {
         "typography": {
-          "fontFamily": "var:preset|font-family|interface",
+          "fontFamily": "var:preset|font-family|display",
           "fontSize": "var:preset|font-size|h3",
-          "fontWeight": "650",
+          "fontWeight": "600",
           "lineHeight": "1.25"
         }
       },
       "h4": {
         "typography": {
-          "fontFamily": "var:preset|font-family|interface",
+          "fontFamily": "var:preset|font-family|display",
           "fontSize": "var:preset|font-size|h4",
-          "fontWeight": "650",
+          "fontWeight": "600",
           "lineHeight": "1.3"
         }
       },
       "link": {
-        "color": { "text": "var:preset|color|action" },
-        "typography": { "textDecoration": "underline" }
+        "color": {
+          "text": "var:preset|color|action"
+        },
+        "typography": {
+          "textDecoration": "underline"
+        }
       },
       "button": {
-        "border": { "radius": "4px" },
-        "color": { "background": "var:preset|color|action", "text": "var:preset|color|surface" },
+        "border": {
+          "radius": "2px"
+        },
+        "color": {
+          "background": "var:preset|color|action",
+          "text": "var:preset|color|surface"
+        },
         "typography": {
           "fontFamily": "var:preset|font-family|interface",
           "fontSize": "var:preset|font-size|small",
@@ -215,7 +459,15 @@
     }
   },
   "templateParts": [
-    { "area": "header", "name": "header", "title": "Institutional header" },
-    { "area": "footer", "name": "footer", "title": "Institutional footer" }
+    {
+      "area": "header",
+      "name": "header",
+      "title": "Institutional header"
+    },
+    {
+      "area": "footer",
+      "name": "footer",
+      "title": "Institutional footer"
+    }
   ]
 }

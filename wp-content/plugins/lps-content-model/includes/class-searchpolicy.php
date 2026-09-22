@@ -136,10 +136,10 @@ final class SearchPolicy {
 			'level' => array( 'undergraduate', 'graduate', 'extension' ),
 		),
 		'lps_offering'    => array(
-			'status'      => array( 'current', 'previous' ),
-			'term'        => array(),
-			'level'       => array( 'undergraduate', 'graduate', 'extension' ),
-			'instructor'  => array(),
+			'status'     => array( 'current', 'previous' ),
+			'term'       => array(),
+			'level'      => array( 'undergraduate', 'graduate', 'extension' ),
+			'instructor' => array(),
 		),
 		'lps_resource'    => array(
 			'type'     => array(),
@@ -479,17 +479,11 @@ final class SearchPolicy {
 				continue;
 			}
 			$record['facets'] = self::derived_facets( $record, $now );
-			if ( ! isset( $record['facets'] ) || ! is_array( $record['facets'] ) ) {
-				continue;
-			}
 			foreach ( $record['facets'] as $facet => $values ) {
-				if ( ! is_string( $facet ) || ! isset( $counts[ $facet ] ) || ! is_array( $values ) ) {
+				if ( ! isset( $counts[ $facet ] ) ) {
 					continue;
 				}
 				foreach ( $values as $value ) {
-					if ( ! is_string( $value ) ) {
-						continue;
-					}
 					$counts[ $facet ][ $value ] = ( $counts[ $facet ][ $value ] ?? 0 ) + 1;
 				}
 			}
@@ -553,7 +547,7 @@ final class SearchPolicy {
 	 * @return array<string, array<int, string>>
 	 */
 	private static function derived_facets( array $record, string $now ): array {
-		$facets = isset( $record['facets'] ) && is_array( $record['facets'] ) ? $record['facets'] : array();
+		$facets = self::facet_map( $record['facets'] ?? null );
 		if ( 'lps_offering' !== self::text( $record['post_type'] ?? '' ) ) {
 			return $facets;
 		}
@@ -571,6 +565,32 @@ final class SearchPolicy {
 			$facets['status'] = array( self::offering_status_bucket( $temporal ) );
 		}
 		return $facets;
+	}
+
+	/**
+	 * Narrows an indexed row's facet payload to the typed contract.
+	 *
+	 * @param mixed $facets Untrusted facet payload.
+	 * @return array<string, array<int, string>>
+	 */
+	private static function facet_map( mixed $facets ): array {
+		if ( ! is_array( $facets ) ) {
+			return array();
+		}
+		$map = array();
+		foreach ( $facets as $facet => $values ) {
+			if ( ! is_string( $facet ) || ! is_array( $values ) ) {
+				continue;
+			}
+			$list = array();
+			foreach ( $values as $value ) {
+				if ( is_string( $value ) ) {
+					$list[] = $value;
+				}
+			}
+			$map[ $facet ] = $list;
+		}
+		return $map;
 	}
 
 	/**

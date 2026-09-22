@@ -80,5 +80,5 @@ export async function runSeoCli(argv, mode) {
 // Direct invocation (`node scripts/qa/seo/cli.mjs --capture ...`) runs the seo
 // lane; the schema lane always enters through `scripts/run-qa.mjs`.
 if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-	await runSeoCli(process.argv.slice(2), "seo");
+  await runSeoCli(process.argv.slice(2), "seo");
 }

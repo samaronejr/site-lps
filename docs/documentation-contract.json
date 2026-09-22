@@ -47,31 +47,19 @@
   "prerequisites": [
     {
       "doc": "README.md",
-      "tokens": [
-        "npm ci",
-        "npm run env:start",
-        "tools/composer install"
-      ]
+      "tokens": ["npm ci", "npm run env:start", "tools/composer install"]
     },
     {
       "doc": "docs/handbook/editorial-quick-start.md",
-      "tokens": [
-        "_lps_assigned_collections",
-        "Two-Factor"
-      ]
+      "tokens": ["_lps_assigned_collections", "Two-Factor"]
     },
     {
       "doc": "docs/handbook/role-workflows.md",
-      "tokens": [
-        "npm run test",
-        "tools/composer test"
-      ]
+      "tokens": ["npm run test", "tools/composer test"]
     },
     {
       "doc": "docs/handbook/translation-freshness.md",
-      "tokens": [
-        "_lps_source_hash"
-      ]
+      "tokens": ["_lps_source_hash"]
     },
     {
       "doc": "docs/handbook/publication-import-guide.md",
@@ -83,41 +71,27 @@
     },
     {
       "doc": "docs/handbook/role-acceptance-simulations.md",
-      "tokens": [
-        "npx playwright test --list"
-      ]
+      "tokens": ["npx playwright test --list"]
     },
     {
       "doc": "docs/operations/privacy-security-operations.md",
-      "tokens": [
-        "npm run build"
-      ]
+      "tokens": ["npm run build"]
     },
     {
       "doc": "docs/operations/plugin-update-policy.md",
-      "tokens": [
-        "npm ci",
-        "tools/composer install"
-      ]
+      "tokens": ["npm ci", "tools/composer install"]
     },
     {
       "doc": "docs/operations/release-runbook-index.md",
-      "tokens": [
-        "npm run build"
-      ]
+      "tokens": ["npm run build"]
     },
     {
       "doc": "docs/operations/troubleshooting.md",
-      "tokens": [
-        "npm ci",
-        "npm run env:start"
-      ]
+      "tokens": ["npm ci", "npm run env:start"]
     },
     {
       "doc": "docs/operations/evidence-retention.md",
-      "tokens": [
-        ".omo/evidence/"
-      ]
+      "tokens": [".omo/evidence/"]
     }
   ],
   "freshness": [
@@ -125,12 +99,12 @@
       "id": "content-model-contract",
       "kind": "source",
       "doc": "docs/content/data-dictionary.md",
-      "reviewedAt": "2026-09-19",
+      "reviewedAt": "2026-09-22",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
-          "sha256": "2312f60cdce0481e13e0e456ce786898ecd4a7c0c4839b8f660a1da79a2d1034"
+          "sha256": "11a6081abb473e476ba1e284d0d40edd72422e415245efd09bbe84d5755d301a"
         }
       ]
     },
@@ -164,12 +138,12 @@
       "id": "design-tokens",
       "kind": "source",
       "doc": "docs/design/design-system-guide.md",
-      "reviewedAt": "2026-09-18",
+      "reviewedAt": "2026-09-22",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "wp-content/themes/lps-theme/theme.json",
-          "sha256": "a8fdaecf872671d11ba53bfc956569d55ac63bbc970c6488b4562501f24ca941"
+          "sha256": "a44568515a782d98ae71fcf18b76b3390abd92402a112575491ad0b141139a9e"
         },
         {
           "path": "DESIGN.md",
@@ -181,12 +155,12 @@
       "id": "governance-matrix",
       "kind": "source",
       "doc": "docs/handbook/editorial-quick-start.md",
-      "reviewedAt": "2026-09-18",
+      "reviewedAt": "2026-09-22",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "tests/fixtures/governance/role-collection-matrix.json",
-          "sha256": "7999b53b29fb4f7a173d86b2cc5223dadb5c97242196dc723eb82a0fa7a92d3d"
+          "sha256": "fd694a63063b33adb7f3abb8768b69aef0df1f354808092e8574c2dd0fb80fa0"
         }
       ]
     },
@@ -207,20 +181,20 @@
       "id": "faculty-dashboard-labels",
       "kind": "source",
       "doc": "docs/handbook/guia-docente-painel.md",
-      "reviewedAt": "2026-09-19",
+      "reviewedAt": "2026-09-22",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "wp-content/themes/lps-theme/includes/class-dashboardsurfaces.php",
-          "sha256": "f2797a9486c89a46ae2d63b7c4ebb03a71a324d6a4945631fecbc8935e436ae0"
+          "sha256": "216300bdae0ad02699c1b736b8c730a09caebcd954bc3eabfe9d1fab6b0b63e7"
         },
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-taskdashboard.php",
-          "sha256": "80de4c6bcba8b8d6ec2a65e16245eb8b157aab57a8d9e234c00773f0bfa3c24c"
+          "sha256": "e25d5f1640d7e83ded98b6210dd9c3d7b24abd74f7df5e046a5128d4f4114926"
         },
         {
           "path": "wp-content/themes/lps-theme/includes/class-dashboardroutes.php",
-          "sha256": "1045b1f2c280077e11ee7930388fa1d77669f27085d5c8ace4f3abbe4d161abd"
+          "sha256": "c4739f4493fd7b43ac3ed948a724fb9901bdb50929369777e1730899e27b0ce4"
         }
       ]
     }

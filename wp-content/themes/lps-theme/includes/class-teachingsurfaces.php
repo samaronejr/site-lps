@@ -49,15 +49,15 @@ final class TeachingSurfaces {
 			if ( '' === $title ) {
 				continue;
 			}
-			$url     = self::safe_url( self::text( $course['url'] ?? '' ) );
-			$meta    = self::meta_parts(
+			$url   = self::safe_url( self::text( $course['url'] ?? '' ) );
+			$meta  = self::meta_parts(
 				array(
 					self::text( $course['code'] ?? '' ),
 					self::level_label( self::text( $course['level'] ?? '' ), $locale ),
 					self::text( $course['program'] ?? '' ),
 				)
 			);
-			$html   .= '<li class="lps-record">';
+			$html .= '<li class="lps-record">';
 			if ( '' !== $meta ) {
 				$html .= '<p class="lps-meta">' . $meta . '</p>';
 			}
@@ -66,7 +66,7 @@ final class TeachingSurfaces {
 			if ( '' !== $summary ) {
 				$html .= '<p>' . self::esc( $summary ) . '</p>';
 			}
-			$current = self::record( $course['current_offering'] ?? null );
+			$current     = self::record( $course['current_offering'] ?? null );
 			$current_url = self::safe_url( self::text( $current['url'] ?? '' ) );
 			if ( '' !== $current_url ) {
 				$label = $english ? 'Current section' : 'Turma em andamento';
@@ -89,19 +89,19 @@ final class TeachingSurfaces {
 	 * @param string                           $locale    Supported locale slug.
 	 */
 	public static function course( array $course, array $offerings, string $locale ): string {
-		$english = 'en' === $locale;
-		$html    = '<article class="lps-teaching lps-course" lang="' . self::esc( self::bcp47( $locale ) ) . '">';
-		$html   .= '<h1>' . self::esc( self::text( $course['title'] ?? '' ) ) . '</h1>';
-		$html   .= self::translation_notice( $course, $locale );
-		$html   .= self::meta_line(
+		$english       = 'en' === $locale;
+		$html          = '<article class="lps-teaching lps-course" lang="' . self::esc( self::bcp47( $locale ) ) . '">';
+		$html         .= '<h1>' . self::esc( self::text( $course['title'] ?? '' ) ) . '</h1>';
+		$html         .= self::translation_notice( $course, $locale );
+		$html         .= self::meta_line(
 			array(
 				self::text( $course['code'] ?? '' ),
 				self::level_label( self::text( $course['level'] ?? '' ), $locale ),
 				self::text( $course['program'] ?? '' ),
 			)
 		);
-		$html .= self::paragraph( self::text( $course['summary'] ?? '' ) );
-		$html .= self::body( self::text( $course['body'] ?? '' ) );
+		$html         .= self::paragraph( self::text( $course['summary'] ?? '' ) );
+		$html         .= self::body( self::text( $course['body'] ?? '' ) );
 		$prerequisites = self::text( $course['prerequisites'] ?? '' );
 		if ( '' !== $prerequisites ) {
 			$html .= '<p class="lps-meta">' . self::esc( ( $english ? 'Prerequisites: ' : 'Pré-requisitos: ' ) . $prerequisites ) . '</p>';
@@ -112,9 +112,9 @@ final class TeachingSurfaces {
 			$html .= '<div class="lps-body">' . nl2br( self::esc( $syllabus ) ) . '</div>';
 		}
 
-		$current   = array();
-		$upcoming  = array();
-		$previous  = array();
+		$current  = array();
+		$upcoming = array();
+		$previous = array();
 		foreach ( $offerings as $offering ) {
 			$offering = self::record( $offering );
 			$status   = self::text( $offering['temporal_status'] ?? '' );
@@ -143,11 +143,11 @@ final class TeachingSurfaces {
 	 * @param string               $locale   Supported locale slug.
 	 */
 	public static function offering( array $offering, string $locale ): string {
-		$english = 'en' === $locale;
-		$course  = self::record( $offering['course'] ?? null );
-		$term    = self::record( $offering['term'] ?? null );
-		$team    = self::record( $offering['team'] ?? null );
-		$units   = self::record( $offering['units'] ?? null );
+		$english   = 'en' === $locale;
+		$course    = self::record( $offering['course'] ?? null );
+		$term      = self::record( $offering['term'] ?? null );
+		$team      = self::record( $offering['team'] ?? null );
+		$units     = self::record( $offering['units'] ?? null );
 		$materials = self::record( $offering['materials'] ?? null );
 		$siblings  = self::record( $offering['siblings'] ?? null );
 		$status    = self::text( $offering['temporal_status'] ?? '' );
@@ -169,12 +169,12 @@ final class TeachingSurfaces {
 		$course_title = self::text( $course['title'] ?? '' );
 		$course_code  = self::text( $course['code'] ?? '' );
 
-		$html  = '<article class="lps-teaching lps-offering" data-state="' . self::esc( $status ) . '" lang="' . self::esc( self::bcp47( $locale ) ) . '">';
+		$html = '<article class="lps-teaching lps-offering" data-state="' . self::esc( $status ) . '" lang="' . self::esc( self::bcp47( $locale ) ) . '">';
 		if ( '' !== $course_title ) {
-			$context  = '' === $course_code ? $course_title : $course_code . ' · ' . $course_title;
-			$html    .= '<p class="lps-meta lps-offering-course">';
-			$html    .= '' === $course_url ? self::esc( $context ) : '<a href="' . self::esc( $course_url ) . '">' . self::esc( $context ) . '</a>';
-			$html    .= '</p>';
+			$context = '' === $course_code ? $course_title : $course_code . ' · ' . $course_title;
+			$html   .= '<p class="lps-meta lps-offering-course">';
+			$html   .= '' === $course_url ? self::esc( $context ) : '<a href="' . self::esc( $course_url ) . '">' . self::esc( $context ) . '</a>';
+			$html   .= '</p>';
 		}
 		$html .= '<h1>' . self::esc( self::text( $offering['title'] ?? '' ) ) . '</h1>';
 		$html .= self::translation_notice( $offering, $locale );
@@ -273,9 +273,9 @@ final class TeachingSurfaces {
 		}
 
 		if ( array() !== $siblings ) {
-			$html .= '<nav class="lps-offering-history" aria-label="' . self::esc( $english ? 'Other offerings of this course' : 'Outras ofertas desta disciplina' ) . '">';
-			$html .= '<h2>' . self::esc( $english ? 'Other offerings' : 'Outras ofertas' ) . '</h2>';
-			$html .= '<ul class="lps-offering-list">';
+			$html    .= '<nav class="lps-offering-history" aria-label="' . self::esc( $english ? 'Other offerings of this course' : 'Outras ofertas desta disciplina' ) . '">';
+			$html    .= '<h2>' . self::esc( $english ? 'Other offerings' : 'Outras ofertas' ) . '</h2>';
+			$html    .= '<ul class="lps-offering-list">';
 			$self_url = self::safe_url( self::text( $offering['url'] ?? '' ) );
 			foreach ( $siblings as $sibling ) {
 				$sibling = self::record( $sibling );
@@ -325,7 +325,7 @@ final class TeachingSurfaces {
 				self::temporal_label( $status, $locale ),
 			)
 		);
-		$html  = '<li class="lps-record" data-state="' . self::esc( $status ) . '">';
+		$html   = '<li class="lps-record" data-state="' . self::esc( $status ) . '">';
 		if ( '' !== $meta ) {
 			$html .= '<p class="lps-meta">' . $meta . '</p>';
 		}
@@ -372,7 +372,7 @@ final class TeachingSurfaces {
 		if ( '' === $title ) {
 			return '';
 		}
-		$meta = self::meta_parts(
+		$meta  = self::meta_parts(
 			array(
 				self::type_label( self::text( $material['type'] ?? '' ), $locale ),
 				self::language_label( self::text( $material['language'] ?? '' ), $locale ),
@@ -577,9 +577,9 @@ final class TeachingSurfaces {
 	private static function team_role_label( string $role, string $locale ): string {
 		$english = 'en' === $locale;
 		$labels  = array(
-			'lead'        => $english ? 'lead' : 'responsável',
-			'co-teacher'  => $english ? 'co-teacher' : 'co-docente',
-			'assistant'   => $english ? 'assistant' : 'assistente',
+			'lead'       => $english ? 'lead' : 'responsável',
+			'co-teacher' => $english ? 'co-teacher' : 'co-docente',
+			'assistant'  => $english ? 'assistant' : 'assistente',
 		);
 		return $labels[ $role ] ?? $role;
 	}
@@ -700,10 +700,16 @@ final class TeachingSurfaces {
 	 * Narrows one boundary value to a record map.
 	 *
 	 * @param mixed $value Boundary input.
-	 * @return array<mixed>
+	 * @return array<string, mixed>
 	 */
 	private static function record( mixed $value ): array {
-		return is_array( $value ) ? $value : array();
+		/**
+		 * WordPress record payloads are string-keyed maps by contract.
+		 *
+		 * @var array<string, mixed> $record
+		 */
+		$record = is_array( $value ) ? $value : array();
+		return $record;
 	}
 
 	/**

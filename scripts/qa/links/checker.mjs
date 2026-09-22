@@ -114,8 +114,9 @@ export function internalLinks(body, origins) {
  * @returns {string} Canonical origin, or an empty string.
  */
 export function canonicalOrigin(body) {
-  const canonical = body.match(/<link[^>]+rel="canonical"[^>]+href="(https?:\/\/[^"]+)"/i)
-    ?? body.match(/<meta[^>]+property="og:url"[^>]+content="(https?:\/\/[^"]+)"/i);
+  const canonical =
+    body.match(/<link[^>]+rel="canonical"[^>]+href="(https?:\/\/[^"]+)"/i) ??
+    body.match(/<meta[^>]+property="og:url"[^>]+content="(https?:\/\/[^"]+)"/i);
   if (!canonical) {
     return "";
   }

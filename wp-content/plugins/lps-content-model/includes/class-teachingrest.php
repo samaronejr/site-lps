@@ -220,20 +220,20 @@ final class TeachingRest {
 				'callback'            => array( self::class, 'propagate_correction' ),
 				'permission_callback' => array( self::class, 'may_propagate_correction' ),
 				'args'                => array(
-					'id'                     => array(
+					'id'                    => array(
 						'required'          => true,
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
 					),
-					'operation_id'           => array(
+					'operation_id'          => array(
 						'required' => true,
 						'type'     => 'string',
 					),
-					'fields'                 => array(
+					'fields'                => array(
 						'required' => true,
 						'type'     => 'object',
 					),
-					'affected_offering_ids'  => array(
+					'affected_offering_ids' => array(
 						'required' => true,
 						'type'     => 'array',
 					),
@@ -454,8 +454,8 @@ final class TeachingRest {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public static function copy_forward( WP_REST_Request $request ): WP_REST_Response|WP_Error {
-		$input                        = $request->get_params();
-		$input['source_offering_id']  = Policy::sanitize_integer( $request->get_param( 'id' ) );
+		$input                       = $request->get_params();
+		$input['source_offering_id'] = Policy::sanitize_integer( $request->get_param( 'id' ) );
 		unset( $input['rest_route'] );
 		$result = TeachingCopy::copy_forward( $input );
 		if ( $result instanceof WP_Error ) {
@@ -473,8 +473,8 @@ final class TeachingRest {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public static function propagate_correction( WP_REST_Request $request ): WP_REST_Response|WP_Error {
-		$input                        = $request->get_params();
-		$input['source_offering_id']  = Policy::sanitize_integer( $request->get_param( 'id' ) );
+		$input                       = $request->get_params();
+		$input['source_offering_id'] = Policy::sanitize_integer( $request->get_param( 'id' ) );
 		unset( $input['rest_route'] );
 		$result = TeachingCopy::propagate_correction( $input );
 		if ( $result instanceof WP_Error ) {

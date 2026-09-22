@@ -29,7 +29,7 @@ const EVIDENCE =
 const PDF_BYTES = `%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 200 200] >>\nendobj\n% task-20 fixture ${RUN}\n%%EOF\n`;
 const PDF_SHA = createHash("sha256").update(PDF_BYTES).digest("hex");
 const PHP_BYTES = "<?php echo 'task-20 payload'; ?>";
-const HTML_BYTES = '<!doctype html><html><body><script>alert(1)</script></body></html>';
+const HTML_BYTES = "<!doctype html><html><body><script>alert(1)</script></body></html>";
 
 const AUTO_LOGIN_COOKIE = { name: "playground_auto_login_already_happened", value: "1" };
 
@@ -172,7 +172,12 @@ async function upload(context, nonce, offeringId, name, contents, extra = {}) {
 
 /** Publishes one record through the gated endpoint as the publisher. */
 async function publish(id) {
-  const result = await api(publisherContext, state.publisherNonce, "POST", `/teaching/records/${id}/publish`);
+  const result = await api(
+    publisherContext,
+    state.publisherNonce,
+    "POST",
+    `/teaching/records/${id}/publish`,
+  );
   expect(result.status, `publish ${id}: ${JSON.stringify(result.body)}`).toBe(200);
   return result.body;
 }
@@ -221,7 +226,9 @@ async function publisherRead(restBase, id, params = "") {
 /** Extracts the dashboard nonce of one named form from rendered HTML. */
 function dashboardNonce(html, action) {
   const match = html.match(
-    new RegExp(`data-dashboard-form="${action}"[\\s\\S]*?name="_lps_dashboard_nonce"[^>]*value="([^"]+)"`),
+    new RegExp(
+      `data-dashboard-form="${action}"[\\s\\S]*?name="_lps_dashboard_nonce"[^>]*value="([^"]+)"`,
+    ),
   );
   return match ? match[1] : "";
 }
@@ -309,42 +316,70 @@ test.describe("task-20: adversarial security and privacy verification", () => {
     });
     expect(course.status, JSON.stringify(course.body)).toBe(201);
     state.courseId = course.body.id;
-    const courseEn = await api(publisherContext, state.publisherNonce, "POST", "/teaching/courses", {
-      title: `Course ${RUN}`,
-      slug: `course-${RUN}`,
-      locale: "en",
-      translation_of: state.courseId,
-      excerpt: "Test course.",
-      content: "Fixture content.",
-    });
+    const courseEn = await api(
+      publisherContext,
+      state.publisherNonce,
+      "POST",
+      "/teaching/courses",
+      {
+        title: `Course ${RUN}`,
+        slug: `course-${RUN}`,
+        locale: "en",
+        translation_of: state.courseId,
+        excerpt: "Test course.",
+        content: "Fixture content.",
+      },
+    );
     expect(courseEn.status, JSON.stringify(courseEn.body)).toBe(201);
-    await api(publisherContext, state.publisherNonce, "POST", `/teaching/records/${courseEn.body.id}/review-translation`);
+    await api(
+      publisherContext,
+      state.publisherNonce,
+      "POST",
+      `/teaching/records/${courseEn.body.id}/review-translation`,
+    );
     await publish(courseEn.body.id);
     await publish(state.courseId);
 
     for (const section of ["t01", "t02"]) {
-      const offering = await api(publisherContext, state.publisherNonce, "POST", "/teaching/offerings", {
-        title: `Turma ${RUN} ${section.toUpperCase()}`,
-        slug: `turma-${RUN}-${section}`,
-        excerpt: "Turma de teste.",
-        content: "Conteúdo de fixture.",
-        course_id: state.courseId,
-        term_id: state.termId,
-        section,
-        team: [{ person_id: state.personId, role: "lead" }],
-      });
+      const offering = await api(
+        publisherContext,
+        state.publisherNonce,
+        "POST",
+        "/teaching/offerings",
+        {
+          title: `Turma ${RUN} ${section.toUpperCase()}`,
+          slug: `turma-${RUN}-${section}`,
+          excerpt: "Turma de teste.",
+          content: "Conteúdo de fixture.",
+          course_id: state.courseId,
+          term_id: state.termId,
+          section,
+          team: [{ person_id: state.personId, role: "lead" }],
+        },
+      );
       expect(offering.status, JSON.stringify(offering.body)).toBe(201);
       const id = offering.body.id;
-      const offeringEn = await api(publisherContext, state.publisherNonce, "POST", "/teaching/offerings", {
-        title: `Section ${RUN} ${section.toUpperCase()}`,
-        slug: `section-${RUN}-${section}`,
-        locale: "en",
-        translation_of: id,
-        excerpt: "Test section.",
-        content: "Fixture content.",
-      });
+      const offeringEn = await api(
+        publisherContext,
+        state.publisherNonce,
+        "POST",
+        "/teaching/offerings",
+        {
+          title: `Section ${RUN} ${section.toUpperCase()}`,
+          slug: `section-${RUN}-${section}`,
+          locale: "en",
+          translation_of: id,
+          excerpt: "Test section.",
+          content: "Fixture content.",
+        },
+      );
       expect(offeringEn.status, JSON.stringify(offeringEn.body)).toBe(201);
-      await api(publisherContext, state.publisherNonce, "POST", `/teaching/records/${offeringEn.body.id}/review-translation`);
+      await api(
+        publisherContext,
+        state.publisherNonce,
+        "POST",
+        `/teaching/records/${offeringEn.body.id}/review-translation`,
+      );
       await publish(offeringEn.body.id);
       await publish(id);
       if (section === "t01") {
@@ -357,10 +392,25 @@ test.describe("task-20: adversarial security and privacy verification", () => {
     // Professor A holds an offering-scope grant on t01 and the news lane;
     // professor B holds a grant on t02 only; the delegate assists on t01.
     for (const grant of [
-      { user_login: "lps-t20-professor", offering_id: state.offeringId, role: "professor", scope: "offering" },
+      {
+        user_login: "lps-t20-professor",
+        offering_id: state.offeringId,
+        role: "professor",
+        scope: "offering",
+      },
       { user_login: "lps-t20-professor", offering_id: 0, role: "professor", scope: "news" },
-      { user_login: "lps-t20-professor-b", offering_id: state.offeringOtherId, role: "professor", scope: "offering" },
-      { user_login: "lps-t20-delegate", offering_id: state.offeringId, role: "delegate", scope: "offering" },
+      {
+        user_login: "lps-t20-professor-b",
+        offering_id: state.offeringOtherId,
+        role: "professor",
+        scope: "offering",
+      },
+      {
+        user_login: "lps-t20-delegate",
+        offering_id: state.offeringId,
+        role: "delegate",
+        scope: "offering",
+      },
     ]) {
       const result = await api(adminContext, state.adminNonce, "POST", "/test/grants", grant);
       // A duplicate grant from a prior run is the same end state.
@@ -371,7 +421,13 @@ test.describe("task-20: adversarial security and privacy verification", () => {
     }
 
     // A cleared version minted inside professor A's scope.
-    const version = await upload(profAContext, state.profANonce, state.offeringId, `apostila-${RUN}.pdf`, PDF_BYTES);
+    const version = await upload(
+      profAContext,
+      state.profANonce,
+      state.offeringId,
+      `apostila-${RUN}.pdf`,
+      PDF_BYTES,
+    );
     expect(version.status, JSON.stringify(version.body)).toBe(201);
     state.versionId = version.body.version_id;
     expect(version.body.state).toBe("cleared");
@@ -394,17 +450,32 @@ test.describe("task-20: adversarial security and privacy verification", () => {
     state.downloadUrl = resource.body.download_url;
     expect(state.downloadUrl).toMatch(/^\/lps-resource\/[0-9a-f-]{36}\/$/);
 
-    const released = await api(profAContext, state.profANonce, "POST", `/teaching/resources/${state.resourceId}/release`, {
-      state: "released",
-    });
+    const released = await api(
+      profAContext,
+      state.profANonce,
+      "POST",
+      `/teaching/resources/${state.resourceId}/release`,
+      {
+        state: "released",
+      },
+    );
     expect(released.status, JSON.stringify(released.body)).toBe(200);
-    const published = await api(profAContext, state.profANonce, "POST", `/teaching/records/${state.resourceId}/publish`);
+    const published = await api(
+      profAContext,
+      state.profANonce,
+      "POST",
+      `/teaching/records/${state.resourceId}/publish`,
+    );
     expect(published.status, JSON.stringify(published.body)).toBe(200);
 
     // The released resource serves bytes to anyone — the happy-path anchor.
     const download = await anonymous.request.get(state.downloadUrl);
     expect(download.status()).toBe(200);
-    expect(createHash("sha256").update(await download.body()).digest("hex")).toBe(PDF_SHA);
+    expect(
+      createHash("sha256")
+        .update(await download.body())
+        .digest("hex"),
+    ).toBe(PDF_SHA);
 
     // A published-but-never-released resource and a future-scheduled one.
     const draft = await api(profAContext, state.profANonce, "POST", "/teaching/resources", {
@@ -421,7 +492,12 @@ test.describe("task-20: adversarial security and privacy verification", () => {
     expect(draft.status).toBe(201);
     state.draftResourceId = draft.body.id;
     state.draftDownloadUrl = draft.body.download_url;
-    await api(profAContext, state.profANonce, "POST", `/teaching/records/${state.draftResourceId}/publish`);
+    await api(
+      profAContext,
+      state.profANonce,
+      "POST",
+      `/teaching/records/${state.draftResourceId}/publish`,
+    );
 
     const scheduled = await api(profAContext, state.profANonce, "POST", "/teaching/resources", {
       title: `Agendado ${RUN}`,
@@ -437,11 +513,22 @@ test.describe("task-20: adversarial security and privacy verification", () => {
     expect(scheduled.status).toBe(201);
     state.scheduledResourceId = scheduled.body.id;
     state.scheduledDownloadUrl = scheduled.body.download_url;
-    await api(profAContext, state.profANonce, "POST", `/teaching/resources/${state.scheduledResourceId}/release`, {
-      state: "scheduled",
-      release_at: "2999-01-01T00:00:00+00:00",
-    });
-    await api(profAContext, state.profANonce, "POST", `/teaching/records/${state.scheduledResourceId}/publish`);
+    await api(
+      profAContext,
+      state.profANonce,
+      "POST",
+      `/teaching/resources/${state.scheduledResourceId}/release`,
+      {
+        state: "scheduled",
+        release_at: "2999-01-01T00:00:00+00:00",
+      },
+    );
+    await api(
+      profAContext,
+      state.profANonce,
+      "POST",
+      `/teaching/records/${state.scheduledResourceId}/publish`,
+    );
 
     // A draft unit on offering t01 gives the dashboard a publish form whose
     // action nonce the CSRF and news-divergence tests replay.
@@ -466,14 +553,25 @@ test.describe("task-20: adversarial security and privacy verification", () => {
       meta: { _lps_resource_type: "document", _lps_resource_language: "pt-br" },
     });
     exchanges.push({
-      request: evidenceRequest("POST", "/wp-json/lps/v1/teaching/resources", { "x-as": "professor-b" }),
+      request: evidenceRequest("POST", "/wp-json/lps/v1/teaching/resources", {
+        "x-as": "professor-b",
+      }),
       response: { status: replayCreate.status, code: replayCreate.body?.code ?? null },
     });
     expect([401, 403]).toContain(replayCreate.status);
 
-    const replayUpload = await upload(profBContext, state.profBNonce, state.offeringId, `replay-${RUN}.pdf`, PDF_BYTES);
+    const replayUpload = await upload(
+      profBContext,
+      state.profBNonce,
+      state.offeringId,
+      `replay-${RUN}.pdf`,
+      PDF_BYTES,
+    );
     exchanges.push({
-      request: evidenceRequest("POST", "/wp-json/lps/v1/teaching/resource-versions (multipart, offering_id=t01)"),
+      request: evidenceRequest(
+        "POST",
+        "/wp-json/lps/v1/teaching/resource-versions (multipart, offering_id=t01)",
+      ),
       response: { status: replayUpload.status, code: replayUpload.body?.code ?? null },
     });
     expect([401, 403]).toContain(replayUpload.status);
@@ -483,13 +581,17 @@ test.describe("task-20: adversarial security and privacy verification", () => {
       ["POST", `/teaching/resources/${state.resourceId}/release`, { state: "released" }],
       ["POST", `/teaching/resources/${state.resourceId}/withdraw`, {}],
       ["POST", `/teaching/records/${state.resourceId}/publish`, {}],
-      ["POST", `/teaching/offerings/${state.offeringId}/copy-forward`, {
-        operation_id: `replay-${RUN}`,
-        new_term_id: state.termId,
-        new_section: "t99",
-        team: [{ person_id: state.personId, role: "lead" }],
-        team_reviewed: true,
-      }],
+      [
+        "POST",
+        `/teaching/offerings/${state.offeringId}/copy-forward`,
+        {
+          operation_id: `replay-${RUN}`,
+          new_term_id: state.termId,
+          new_section: "t99",
+          team: [{ person_id: state.personId, role: "lead" }],
+          team_reviewed: true,
+        },
+      ],
     ]) {
       const denied = await api(profBContext, state.profBNonce, method, path, data);
       exchanges.push({
@@ -500,13 +602,27 @@ test.describe("task-20: adversarial security and privacy verification", () => {
     }
 
     // The delegate on the same offering may edit but never publish or release.
-    const delegatePublish = await api(delegateContext, state.delegateNonce, "POST", `/teaching/records/${state.unitId}/publish`, {});
+    const delegatePublish = await api(
+      delegateContext,
+      state.delegateNonce,
+      "POST",
+      `/teaching/records/${state.unitId}/publish`,
+      {},
+    );
     exchanges.push({
-      request: evidenceRequest("POST", `/wp-json/lps/v1/teaching/records/${state.unitId}/publish`, { "x-as": "delegate" }),
+      request: evidenceRequest("POST", `/wp-json/lps/v1/teaching/records/${state.unitId}/publish`, {
+        "x-as": "delegate",
+      }),
       response: { status: delegatePublish.status, code: delegatePublish.body?.code ?? null },
     });
     expect([401, 403]).toContain(delegatePublish.status);
-    const delegateRelease = await api(delegateContext, state.delegateNonce, "POST", `/teaching/resources/${state.resourceId}/withdraw`, {});
+    const delegateRelease = await api(
+      delegateContext,
+      state.delegateNonce,
+      "POST",
+      `/teaching/resources/${state.resourceId}/withdraw`,
+      {},
+    );
     expect([401, 403]).toContain(delegateRelease.status);
 
     // Anonymous replays carry no session at all.
@@ -593,7 +709,13 @@ test.describe("task-20: adversarial security and privacy verification", () => {
     }
 
     // Forged record and version identifiers on the REST boundary.
-    const forgedPublish = await api(profAContext, state.profANonce, "POST", "/teaching/records/99999999/publish", {});
+    const forgedPublish = await api(
+      profAContext,
+      state.profANonce,
+      "POST",
+      "/teaching/records/99999999/publish",
+      {},
+    );
     expect([403, 404]).toContain(forgedPublish.status);
     const forgedScan = await api(
       profAContext,
@@ -608,7 +730,10 @@ test.describe("task-20: adversarial security and privacy verification", () => {
       response: { status: forgedPublish.status, code: forgedPublish.body?.code ?? null },
     });
     exchanges.push({
-      request: evidenceRequest("POST", `/wp-json/lps/v1/teaching/resource-versions/lpsver:${"0".repeat(64)}/scan`),
+      request: evidenceRequest(
+        "POST",
+        `/wp-json/lps/v1/teaching/resource-versions/lpsver:${"0".repeat(64)}/scan`,
+      ),
       response: { status: forgedScan.status, code: forgedScan.body?.code ?? null },
     });
 
@@ -628,7 +753,9 @@ test.describe("task-20: adversarial security and privacy verification", () => {
     // The record is published at post level — only its file release is a
     // draft — so an anonymous single read is legitimate; what must never leak
     // is storage metadata (keys, paths, version ids) or file bytes.
-    const recordRead = await anonymous.request.get(`/wp-json/wp/v2/resources/${state.draftResourceId}`);
+    const recordRead = await anonymous.request.get(
+      `/wp-json/wp/v2/resources/${state.draftResourceId}`,
+    );
     const recordBody = await recordRead.text();
     exchanges.push({
       request: evidenceRequest("GET", `/wp-json/wp/v2/resources/${state.draftResourceId}`),
@@ -656,7 +783,10 @@ test.describe("task-20: adversarial security and privacy verification", () => {
     }
 
     // Collection queries may list published records but never the draft.
-    for (const path of [`/wp-json/wp/v2/resources?status=draft`, `/wp-json/wp/v2/news?status=draft`]) {
+    for (const path of [
+      `/wp-json/wp/v2/resources?status=draft`,
+      `/wp-json/wp/v2/news?status=draft`,
+    ]) {
       const response = await anonymous.request.get(path);
       const body = await response.text();
       exchanges.push({
@@ -670,12 +800,17 @@ test.describe("task-20: adversarial security and privacy verification", () => {
 
     // A scoped professor cannot read an unpublished record outside the grant:
     // the draft unit exists only inside professor A's offering scope.
-    const crossRead = await profBContext.request.get(`/wp-json/wp/v2/units/${state.unitId}?context=edit`, {
-      headers: { "X-WP-Nonce": state.profBNonce },
-    });
+    const crossRead = await profBContext.request.get(
+      `/wp-json/wp/v2/units/${state.unitId}?context=edit`,
+      {
+        headers: { "X-WP-Nonce": state.profBNonce },
+      },
+    );
     const crossBody = await crossRead.text();
     exchanges.push({
-      request: evidenceRequest("GET", `/wp-json/wp/v2/units/${state.unitId}?context=edit`, { "x-as": "professor-b" }),
+      request: evidenceRequest("GET", `/wp-json/wp/v2/units/${state.unitId}?context=edit`, {
+        "x-as": "professor-b",
+      }),
       response: { status: crossRead.status() },
     });
     expect([401, 403, 404]).toContain(crossRead.status());
@@ -711,7 +846,10 @@ test.describe("task-20: adversarial security and privacy verification", () => {
     });
     const noNonceLocation = noNonce.headers()["location"] ?? "";
     exchanges.push({
-      request: evidenceRequest("POST", "/wp-admin/admin-post.php action=lps_dashboard_publish (no nonce)"),
+      request: evidenceRequest(
+        "POST",
+        "/wp-admin/admin-post.php action=lps_dashboard_publish (no nonce)",
+      ),
       response: { status: noNonce.status(), location: noNonceLocation },
     });
     expect([302, 403]).toContain(noNonce.status());
@@ -731,7 +869,10 @@ test.describe("task-20: adversarial security and privacy verification", () => {
     });
     const wrongLocation = wrongAction.headers()["location"] ?? "";
     exchanges.push({
-      request: evidenceRequest("POST", "/wp-admin/admin-post.php action=lps_dashboard_publish (nonce for lps_dashboard_unit)"),
+      request: evidenceRequest(
+        "POST",
+        "/wp-admin/admin-post.php action=lps_dashboard_publish (nonce for lps_dashboard_unit)",
+      ),
       response: { status: wrongAction.status(), location: wrongLocation },
     });
     expect([302, 403]).toContain(wrongAction.status());
@@ -749,17 +890,25 @@ test.describe("task-20: adversarial security and privacy verification", () => {
       maxRedirects: 0,
     });
     exchanges.push({
-      request: evidenceRequest("POST", "/wp-admin/admin-post.php action=lps_dashboard_publish", { "x-as": "anonymous" }),
+      request: evidenceRequest("POST", "/wp-admin/admin-post.php action=lps_dashboard_publish", {
+        "x-as": "anonymous",
+      }),
       response: { status: anonPost.status(), location: anonPost.headers()["location"] ?? "" },
     });
     expect([302, 400, 403, 404]).toContain(anonPost.status());
 
     // REST writes with cookies but no X-WP-Nonce run as anonymous.
-    const noRestNonce = await profAContext.request.post(`/wp-json/lps/v1/teaching/records/${state.unitId}/publish`, {
-      data: {},
-    });
+    const noRestNonce = await profAContext.request.post(
+      `/wp-json/lps/v1/teaching/records/${state.unitId}/publish`,
+      {
+        data: {},
+      },
+    );
     exchanges.push({
-      request: evidenceRequest("POST", `/wp-json/lps/v1/teaching/records/${state.unitId}/publish (cookies, no nonce)`),
+      request: evidenceRequest(
+        "POST",
+        `/wp-json/lps/v1/teaching/records/${state.unitId}/publish (cookies, no nonce)`,
+      ),
       response: { status: noRestNonce.status() },
     });
     expect([401, 403]).toContain(noRestNonce.status());
@@ -802,11 +951,19 @@ test.describe("task-20: adversarial security and privacy verification", () => {
     expect(storedTitle).not.toContain("<script>");
     expect(storedTitle).not.toContain("onerror");
     exchanges.push({
-      request: evidenceRequest("GET", `/wp-json/wp/v2/resources/${hostileId}?context=edit`, { "x-as": "publisher" }),
+      request: evidenceRequest("GET", `/wp-json/wp/v2/resources/${hostileId}?context=edit`, {
+        "x-as": "publisher",
+      }),
       response: { status: stored.status, stored_title: storedTitle },
     });
 
-    const hostilePublish = await api(profAContext, state.profANonce, "POST", `/teaching/records/${hostileId}/publish`, {});
+    const hostilePublish = await api(
+      profAContext,
+      state.profANonce,
+      "POST",
+      `/teaching/records/${hostileId}/publish`,
+      {},
+    );
     exchanges.push({
       request: evidenceRequest("POST", `/wp-json/lps/v1/teaching/records/${hostileId}/publish`),
       response: { status: hostilePublish.status, code: hostilePublish.body?.code ?? null },
@@ -830,9 +987,18 @@ test.describe("task-20: adversarial security and privacy verification", () => {
       "vector.svg",
       `control\x01name-${RUN}.pdf`,
     ]) {
-      const denied = await upload(profAContext, state.profANonce, state.offeringId, name, PDF_BYTES);
+      const denied = await upload(
+        profAContext,
+        state.profANonce,
+        state.offeringId,
+        name,
+        PDF_BYTES,
+      );
       exchanges.push({
-        request: evidenceRequest("POST", `/wp-json/lps/v1/teaching/resource-versions (name=${JSON.stringify(name)})`),
+        request: evidenceRequest(
+          "POST",
+          `/wp-json/lps/v1/teaching/resource-versions (name=${JSON.stringify(name)})`,
+        ),
         response: {
           status: denied.status,
           code: denied.body?.code ?? null,
@@ -843,7 +1009,8 @@ test.describe("task-20: adversarial security and privacy verification", () => {
         const storedName = String(denied.body?.download_name ?? "");
         expect(storedName, `${name} stored an unsafe name`).toMatch(/^[a-z0-9._-]+\.pdf$/);
         expect(storedName).not.toContain("..");
-        expect(storedName).not.toMatch(/[\/\\\x00-\x1f]/);
+        // biome-ignore lint/suspicious/noControlCharactersInRegex: the check intentionally probes unsafe filename characters
+        expect(storedName).not.toMatch(/[/\\\x00-\x1f]/);
       } else {
         expect(denied.status, name).toBe(400);
       }
@@ -863,16 +1030,31 @@ test.describe("task-20: adversarial security and privacy verification", () => {
     const exchanges = [];
 
     // PHP bytes renamed .pdf fail the magic-byte check.
-    const disguised = await upload(profAContext, state.profANonce, state.offeringId, `disguised-${RUN}.pdf`, PHP_BYTES);
+    const disguised = await upload(
+      profAContext,
+      state.profANonce,
+      state.offeringId,
+      `disguised-${RUN}.pdf`,
+      PHP_BYTES,
+    );
     exchanges.push({
-      request: evidenceRequest("POST", "/wp-json/lps/v1/teaching/resource-versions (php bytes as .pdf)"),
+      request: evidenceRequest(
+        "POST",
+        "/wp-json/lps/v1/teaching/resource-versions (php bytes as .pdf)",
+      ),
       response: { status: disguised.status, code: disguised.body?.code ?? null },
     });
     expect(disguised.status).toBe(400);
     expect(disguised.body?.code).toBe("lps_teaching_type_mismatch");
 
     // HTML bytes renamed .pdf are refused the same way.
-    const html = await upload(profAContext, state.profANonce, state.offeringId, `page-${RUN}.pdf`, HTML_BYTES);
+    const html = await upload(
+      profAContext,
+      state.profANonce,
+      state.offeringId,
+      `page-${RUN}.pdf`,
+      HTML_BYTES,
+    );
     expect(html.status).toBe(400);
 
     // A quarantined version (scan=false) can be selected but never served.
@@ -887,22 +1069,39 @@ test.describe("task-20: adversarial security and privacy verification", () => {
     expect(quarantined.status).toBe(201);
     expect(quarantined.body.state).toBe("quarantined");
 
-    const quarantinedResource = await api(profAContext, state.profANonce, "POST", "/teaching/resources", {
-      title: `Quarentena ${RUN}`,
-      offering_id: state.offeringId,
-      version_id: quarantined.body.version_id,
-      meta: {
-        _lps_resource_type: "document",
-        _lps_resource_language: "pt-br",
-        _lps_rights_review: "approved",
-        _lps_accessibility_review: "approved",
+    const quarantinedResource = await api(
+      profAContext,
+      state.profANonce,
+      "POST",
+      "/teaching/resources",
+      {
+        title: `Quarentena ${RUN}`,
+        offering_id: state.offeringId,
+        version_id: quarantined.body.version_id,
+        meta: {
+          _lps_resource_type: "document",
+          _lps_resource_language: "pt-br",
+          _lps_rights_review: "approved",
+          _lps_accessibility_review: "approved",
+        },
       },
-    });
+    );
     expect(quarantinedResource.status).toBe(201);
-    await api(profAContext, state.profANonce, "POST", `/teaching/resources/${quarantinedResource.body.id}/release`, {
-      state: "released",
-    });
-    await api(profAContext, state.profANonce, "POST", `/teaching/records/${quarantinedResource.body.id}/publish`);
+    await api(
+      profAContext,
+      state.profANonce,
+      "POST",
+      `/teaching/resources/${quarantinedResource.body.id}/release`,
+      {
+        state: "released",
+      },
+    );
+    await api(
+      profAContext,
+      state.profANonce,
+      "POST",
+      `/teaching/records/${quarantinedResource.body.id}/publish`,
+    );
     const quarantinedDownload = await anonymous.request.get(quarantinedResource.body.download_url);
     exchanges.push({
       request: evidenceRequest("GET", quarantinedResource.body.download_url),
@@ -927,12 +1126,20 @@ test.describe("task-20: adversarial security and privacy verification", () => {
     // Withdrawal is authoritative on the very next request, cached URL included.
     const before = await anonymous.request.get(state.downloadUrl);
     expect(before.status()).toBe(200);
-    const withdrawn = await api(profAContext, state.profANonce, "POST", `/teaching/resources/${state.resourceId}/withdraw`, {});
+    const withdrawn = await api(
+      profAContext,
+      state.profANonce,
+      "POST",
+      `/teaching/resources/${state.resourceId}/withdraw`,
+      {},
+    );
     expect(withdrawn.status, JSON.stringify(withdrawn.body)).toBe(200);
     const afterWithdraw = await anonymous.request.get(state.downloadUrl);
     const afterBody = await afterWithdraw.text();
     exchanges.push({
-      request: evidenceRequest("GET", state.downloadUrl, { "x-note": "previously-200 cached URL after withdraw" }),
+      request: evidenceRequest("GET", state.downloadUrl, {
+        "x-note": "previously-200 cached URL after withdraw",
+      }),
       response: { status: afterWithdraw.status(), bytes: afterBody.length },
     });
     expect(afterWithdraw.status()).toBe(404);
@@ -959,7 +1166,9 @@ test.describe("task-20: adversarial security and privacy verification", () => {
     test.setTimeout(240_000);
     const exchanges = [];
     try {
-      const down = await api(publisherContext, state.publisherNonce, "POST", "/test/scanner", { state: "down" });
+      const down = await api(publisherContext, state.publisherNonce, "POST", "/test/scanner", {
+        state: "down",
+      });
       expect(down.status).toBe(200);
       expect(down.body.state).toBe("down");
 
@@ -974,11 +1183,20 @@ test.describe("task-20: adversarial security and privacy verification", () => {
       expect(duringOutage.body.state).toBe("quarantined");
       expect(duringOutage.body.scan_verdict).toBe("error");
       exchanges.push({
-        request: evidenceRequest("POST", "/wp-json/lps/v1/teaching/resource-versions (scanner down)"),
-        response: { status: duringOutage.status, state: duringOutage.body.state, verdict: duringOutage.body.scan_verdict },
+        request: evidenceRequest(
+          "POST",
+          "/wp-json/lps/v1/teaching/resource-versions (scanner down)",
+        ),
+        response: {
+          status: duringOutage.status,
+          state: duringOutage.body.state,
+          verdict: duringOutage.body.scan_verdict,
+        },
       });
 
-      const up = await api(publisherContext, state.publisherNonce, "POST", "/test/scanner", { state: "up" });
+      const up = await api(publisherContext, state.publisherNonce, "POST", "/test/scanner", {
+        state: "up",
+      });
       expect(up.body.state).toBe("up");
       const rescanned = await api(
         profAContext,
@@ -990,7 +1208,10 @@ test.describe("task-20: adversarial security and privacy verification", () => {
       expect(rescanned.status, JSON.stringify(rescanned.body)).toBe(200);
       expect(rescanned.body.state).toBe("cleared");
       exchanges.push({
-        request: evidenceRequest("POST", `/wp-json/lps/v1/teaching/resource-versions/${duringOutage.body.version_id}/scan`),
+        request: evidenceRequest(
+          "POST",
+          `/wp-json/lps/v1/teaching/resource-versions/${duringOutage.body.version_id}/scan`,
+        ),
         response: { status: rescanned.status, state: rescanned.body.state },
       });
     } finally {
@@ -1037,14 +1258,25 @@ test.describe("task-20: adversarial security and privacy verification", () => {
     const people = await anonymous.request.get("/wp-json/wp/v2/people?per_page=5");
     expect(people.status()).toBe(200);
     const peopleBody = await people.text();
-    for (const field of ["_lps_owner_user_id", "_lps_translation_reviewer_id", "actor_user_id", "allcaps", "capabilities"]) {
+    for (const field of [
+      "_lps_owner_user_id",
+      "_lps_translation_reviewer_id",
+      "actor_user_id",
+      "allcaps",
+      "capabilities",
+    ]) {
       expect(peopleBody, `people leak ${field}`).not.toContain(field);
     }
 
     // The person history edit context requires edit access on the record.
-    const history = await anonymous.request.get(`/wp-json/lps/v1/teaching/people/${state.personId}/history?context=edit`);
+    const history = await anonymous.request.get(
+      `/wp-json/lps/v1/teaching/people/${state.personId}/history?context=edit`,
+    );
     exchanges.push({
-      request: evidenceRequest("GET", `/wp-json/lps/v1/teaching/people/${state.personId}/history?context=edit`),
+      request: evidenceRequest(
+        "GET",
+        `/wp-json/lps/v1/teaching/people/${state.personId}/history?context=edit`,
+      ),
       response: { status: history.status() },
     });
     expect([401, 403]).toContain(history.status());
@@ -1102,7 +1334,9 @@ test.describe("task-20: adversarial security and privacy verification", () => {
       headers: { "X-WP-Nonce": state.adminNonce },
     });
     exchanges.push({
-      request: evidenceRequest("POST", "/wp-json/wp/v2/plugins {slug: hello, status: active}", { "x-as": "admin" }),
+      request: evidenceRequest("POST", "/wp-json/wp/v2/plugins {slug: hello, status: active}", {
+        "x-as": "admin",
+      }),
       response: { status: activate.status() },
     });
     expect([401, 403, 404]).toContain(activate.status());
@@ -1186,9 +1420,12 @@ test.describe("task-20: adversarial security and privacy verification", () => {
     // carry no post_name until publish, so match on the title instead.
     let newsId = 0;
     for (let attempt = 0; attempt < 10 && 0 === newsId; attempt += 1) {
-      const found = await publisherContext.request.get(`/wp-json/wp/v2/news?status=draft&per_page=50&search=${encodeURIComponent(`Notícia ${RUN}`)}`, {
-        headers: { "X-WP-Nonce": state.publisherNonce },
-      });
+      const found = await publisherContext.request.get(
+        `/wp-json/wp/v2/news?status=draft&per_page=50&search=${encodeURIComponent(`Notícia ${RUN}`)}`,
+        {
+          headers: { "X-WP-Nonce": state.publisherNonce },
+        },
+      );
       const items = await found.json().catch(() => []);
       if (Array.isArray(items)) {
         const mine = items.find((item) => (item.title?.rendered ?? "").includes(`Notícia ${RUN}`));
@@ -1204,9 +1441,17 @@ test.describe("task-20: adversarial security and privacy verification", () => {
 
     // The REST publish gate denies the scoped professor: persisted_offering_id
     // resolves 0 for news and the check requires a positive offering id.
-    const restPublish = await api(profAContext, state.profANonce, "POST", `/teaching/records/${newsId}/publish`, {});
+    const restPublish = await api(
+      profAContext,
+      state.profANonce,
+      "POST",
+      `/teaching/records/${newsId}/publish`,
+      {},
+    );
     exchanges.push({
-      request: evidenceRequest("POST", `/wp-json/lps/v1/teaching/records/${newsId}/publish`, { "x-as": "professor-a (news grant)" }),
+      request: evidenceRequest("POST", `/wp-json/lps/v1/teaching/records/${newsId}/publish`, {
+        "x-as": "professor-a (news grant)",
+      }),
       response: { status: restPublish.status, code: restPublish.body?.code ?? null },
     });
     expect([401, 403], "REST publish must deny the scoped professor").toContain(restPublish.status);
@@ -1229,10 +1474,18 @@ test.describe("task-20: adversarial security and privacy verification", () => {
     const after = await publisherRead("news", newsId, "?context=edit");
     const finalStatus = after.body?.status ?? "unknown";
     exchanges.push({
-      request: evidenceRequest("POST", `/wp-admin/admin-post.php action=lps_dashboard_publish post_id=${newsId}`, {
-        "x-as": "professor-a (news grant)",
-      }),
-      response: { status: dashboardPublish.status(), location: dashboardLocation, post_status_after: finalStatus },
+      request: evidenceRequest(
+        "POST",
+        `/wp-admin/admin-post.php action=lps_dashboard_publish post_id=${newsId}`,
+        {
+          "x-as": "professor-a (news grant)",
+        },
+      ),
+      response: {
+        status: dashboardPublish.status(),
+        location: dashboardLocation,
+        post_status_after: finalStatus,
+      },
     });
 
     // The divergence is documented, not silently pinned: the REST denial is
@@ -1254,7 +1507,13 @@ test.describe("task-20: adversarial security and privacy verification", () => {
   test("security headers cover public, denied and credential surfaces", async () => {
     test.setTimeout(120_000);
     const exchanges = [];
-    for (const path of ["/pt-br/", "/wp-login.php", "/wp-json/", state.downloadUrl, "/this-path-does-not-exist"]) {
+    for (const path of [
+      "/pt-br/",
+      "/wp-login.php",
+      "/wp-json/",
+      state.downloadUrl,
+      "/this-path-does-not-exist",
+    ]) {
       const response = await anonymous.request.get(path);
       const headers = response.headers();
       exchanges.push({

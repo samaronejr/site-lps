@@ -919,12 +919,12 @@ final class TeachingResources {
 		}
 		$checksum = Policy::scalar_string( $version['checksum'] ?? '' );
 		if ( 1 === preg_match( '/^[0-9a-f]{64}$/', $checksum ) ) {
-			header( 'Digest: sha-256=:' . base64_encode( (string) hex2bin( $checksum ) ) . ':' );
+			header( 'Digest: sha-256=:' . base64_encode( (string) hex2bin( $checksum ) ) . ':' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- RFC Digest header requires base64.
 		}
 		if ( $head_only ) {
 			exit;
 		}
-		$handle = fopen( $path, 'rb' );
+		$handle = fopen( $path, 'rb' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- Streamed binary download; WP_Filesystem does not stream.
 		if ( false === $handle ) {
 			exit;
 		}
@@ -933,14 +933,14 @@ final class TeachingResources {
 		}
 		$remaining = $end - $start + 1;
 		while ( $remaining > 0 && ! feof( $handle ) ) {
-			$chunk = fread( $handle, min( 8192, $remaining ) );
+			$chunk = fread( $handle, min( 8192, $remaining ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fread -- Streamed binary download.
 			if ( false === $chunk ) {
 				break;
 			}
 			$remaining -= strlen( $chunk );
 			echo $chunk; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Binary download stream.
 		}
-		fclose( $handle );
+		fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Streamed binary download.
 		exit;
 	}
 
@@ -1115,7 +1115,7 @@ final class TeachingResources {
 	 * @param array<string, mixed> $record     Post-scan version record.
 	 */
 	private static function resync_version_consumers( string $version_id, array $record ): void {
-		$ids = get_posts(
+		$ids        = get_posts(
 			array(
 				'post_type'      => 'lps_resource',
 				'post_status'    => array( 'publish', 'draft', 'pending', 'future', 'private' ),

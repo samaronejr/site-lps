@@ -79,14 +79,7 @@ test.describe("task-07: primitives render the frozen tokens at every viewport", 
       expect(overflow).toBeLessThanOrEqual(0);
 
       // Every primitive region is present and visible.
-      for (const region of [
-        "fields",
-        "buttons",
-        "status",
-        "resources",
-        "reading",
-        "anchor-band",
-      ]) {
+      for (const region of ["fields", "buttons", "status", "resources", "reading", "anchor-band"]) {
         await expect(page.locator(`[data-fixture="${region}"]`)).toBeVisible();
       }
 
@@ -102,7 +95,11 @@ test.describe("task-07: primitives render the frozen tokens at every viewport", 
         )) {
           const overflowX = getComputedStyle(el).overflowX;
           const constrained = ["hidden", "clip", "scroll", "auto"].includes(overflowX);
-          if (constrained && el.scrollWidth > el.clientWidth + 1 && el.textContent.trim().length > 0) {
+          if (
+            constrained &&
+            el.scrollWidth > el.clientWidth + 1 &&
+            el.textContent.trim().length > 0
+          ) {
             bad.push(`${el.tagName}.${el.className}: ${el.textContent.trim().slice(0, 40)}`);
           }
         }
@@ -240,9 +237,7 @@ test.describe("task-07: the running site consumes the same tokens", () => {
     await page.evaluate(() => document.fonts.ready);
 
     // The served stylesheet carries the frozen tokens.
-    const cssResponse = await request.get(
-      "/wp-content/themes/lps-theme/assets/css/theme.css",
-    );
+    const cssResponse = await request.get("/wp-content/themes/lps-theme/assets/css/theme.css");
     expect(cssResponse.status()).toBe(200);
     const servedCss = await cssResponse.text();
     expect(servedCss).toContain("--color-canvas: #f5f7fa");
@@ -278,9 +273,7 @@ test.describe("task-07: the running site consumes the same tokens", () => {
     // Freshness gate: only run against an env that already serves the frozen
     // theme, so a stale :8888 checkout fails explicitly instead of passing on
     // the old palette.
-    const cssCheck = await page.request.get(
-      "/wp-content/themes/lps-theme/assets/css/theme.css",
-    );
+    const cssCheck = await page.request.get("/wp-content/themes/lps-theme/assets/css/theme.css");
     expect(await cssCheck.text()).toContain("--color-canvas");
 
     // The admin account is unreachable in this environment (auto-login +
@@ -301,9 +294,7 @@ test.describe("task-07: the running site consumes the same tokens", () => {
     // theme.json presets into the editor settings, and the canvas would
     // resolve the same custom properties the public surface uses.
     const payload = await page.content();
-    expect(payload).toContain(
-      '--wp--preset--font-family--interface: "IBM Plex Sans"',
-    );
+    expect(payload).toContain('--wp--preset--font-family--interface: "IBM Plex Sans"');
     expect(payload).toContain('--wp--preset--font-family--mono: "IBM Plex Mono"');
     expect(payload).not.toContain("Source Serif");
     expect(payload).not.toContain("source-serif");

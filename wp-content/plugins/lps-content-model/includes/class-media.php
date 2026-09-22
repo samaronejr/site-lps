@@ -113,7 +113,7 @@ final class Media {
 	public static function record_image( WP_Post $post ): array {
 		$usages = array();
 		$errors = array();
-		self::collect_blocks( parse_blocks( (string) $post->post_content ), $usages, $errors );
+		self::collect_blocks( array_values( parse_blocks( (string) $post->post_content ) ), $usages, $errors );
 		foreach ( $usages as $usage ) {
 			if ( ! in_array( $usage['block'] ?? '', array( 'image', 'figure', 'gallery' ), true ) ) {
 				continue;
@@ -215,7 +215,7 @@ final class Media {
 	 */
 	private static function derivative_sources( int $attachment_id, array $metadata ): array {
 		$uploads = wp_upload_dir();
-		$baseurl = is_array( $uploads ) ? MediaPolicy::string_value( $uploads['baseurl'] ?? '' ) : '';
+		$baseurl = MediaPolicy::string_value( $uploads['baseurl'] );
 		$file    = MediaPolicy::string_value( $metadata['file'] ?? '' );
 		if ( '' === $baseurl || '' === $file ) {
 			return array();

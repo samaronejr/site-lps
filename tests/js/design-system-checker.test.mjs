@@ -75,8 +75,8 @@ describe("LPS theme checker", () => {
   test("accepts the packaged woff2 fonts the stylesheet actually references", async () => {
     // Given: the shipped theme, whose @font-face rules reference subsetted woff2 files.
     const css = readFileSync("wp-content/themes/lps-theme/assets/css/theme.css", "utf8");
-    expect(css).toContain("../fonts/ibm-plex-sans-regular.woff2");
-    expect(css).toContain("../fonts/ibm-plex-sans-semibold.woff2");
+    expect(css).toContain("../fonts/inter-regular.woff2");
+    expect(css).toContain("../fonts/space-grotesk-semibold.woff2");
 
     // When: the theme design-system checker runs.
     const report = await checkTheme();
@@ -91,10 +91,7 @@ describe("LPS theme checker", () => {
     const cssPath = "wp-content/themes/lps-theme/assets/css/theme.css";
     const original = readFileSync(cssPath, "utf8");
     try {
-      writeFileSync(
-        cssPath,
-        original.replace("ibm-plex-sans-regular.woff2", "ibm-plex-sans-missing.woff2"),
-      );
+      writeFileSync(cssPath, original.replace("inter-regular.woff2", "inter-missing.woff2"));
 
       // When: the checker runs against that stylesheet.
       const report = await checkTheme();

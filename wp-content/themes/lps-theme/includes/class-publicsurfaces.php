@@ -61,7 +61,7 @@ final class PublicSurfaces {
 		$status_opts = self::status_options( $locale );
 		$cohorts     = array();
 		foreach ( $listed as $person ) {
-			$status = self::text( $person['status'] ?? '' );
+			$status               = self::text( $person['status'] ?? '' );
 			$cohorts[ $status ][] = $person;
 		}
 		$ordered_statuses = array_merge( array( 'active', 'alumni', 'in-memoriam' ), array_diff( array_keys( $cohorts ), array( 'active', 'alumni', 'in-memoriam' ) ) );
@@ -145,7 +145,7 @@ final class PublicSurfaces {
 			$external = $english ? 'External collaborator - not LPS staff' : 'Colaboração externa - não integra a equipe do LPS';
 			$html    .= '<p class="lps-external">' . self::esc( $external ) . '</p>';
 		}
-		$html .= '</header>';
+		$html     .= '</header>';
 		$reviewed  = (bool) ( $person['privacy_reviewed'] ?? false );
 		$photo_url = self::text( $person['photo_url'] ?? '' );
 		$rights    = self::text( $person['photo_rights'] ?? '' );
@@ -186,7 +186,7 @@ final class PublicSurfaces {
 		} elseif ( '' !== $start ) {
 			$html .= '<p class="lps-tenure">' . self::esc( ( $english ? 'Joined on ' : 'Ingressou em ' ) . $start ) . '</p>';
 		}
-		$html .= self::teaching_section( $person, $locale );
+		$html   .= self::teaching_section( $person, $locale );
 		$history = isset( $person['history'] ) && is_array( $person['history'] ) ? $person['history'] : array();
 		if ( array() !== $history ) {
 			$html .= '<section class="lps-person-record"><h2>' . self::esc( $english ? 'Historical record' : 'Registro histórico' ) . '</h2>';
@@ -233,8 +233,8 @@ final class PublicSurfaces {
 			if ( ! is_array( $entry ) ) {
 				continue;
 			}
-			$status = self::text( $entry['temporal_status'] ?? '' );
-			$bucket = isset( $groups[ $status ] ) ? $status : 'completed';
+			$status               = self::text( $entry['temporal_status'] ?? '' );
+			$bucket               = isset( $groups[ $status ] ) ? $status : 'completed';
 			$grouped[ $bucket ][] = $entry;
 		}
 		if ( array() === $grouped ) {
@@ -253,16 +253,16 @@ final class PublicSurfaces {
 				if ( '' === $title ) {
 					continue;
 				}
-				$url      = self::text( $entry['url'] ?? '' );
-				$term     = isset( $entry['term'] ) && is_array( $entry['term'] ) ? $entry['term'] : array();
-				$meta     = array();
-				$period   = self::text( $term['period_label'] ?? '' );
-				$section  = self::text( $entry['section_key'] ?? '' );
-				$role     = self::teaching_role_label( self::text( $entry['role'] ?? '' ), $locale );
-				$meta[]   = '' !== $period ? $period : self::text( $term['token'] ?? '' );
-				$meta[]   = '' !== $section ? strtoupper( $section ) : '';
-				$meta[]   = $role;
-				$meta     = array_values( array_filter( $meta, static fn( string $part ): bool => '' !== $part ) );
+				$url       = self::text( $entry['url'] ?? '' );
+				$term      = isset( $entry['term'] ) && is_array( $entry['term'] ) ? $entry['term'] : array();
+				$meta      = array();
+				$period    = self::text( $term['period_label'] ?? '' );
+				$section   = self::text( $entry['section_key'] ?? '' );
+				$role      = self::teaching_role_label( self::text( $entry['role'] ?? '' ), $locale );
+				$meta[]    = '' !== $period ? $period : self::text( $term['token'] ?? '' );
+				$meta[]    = '' !== $section ? strtoupper( $section ) : '';
+				$meta[]    = $role;
+				$meta      = array_values( array_filter( $meta, static fn( string $part ): bool => '' !== $part ) );
 				$cancelled = 'cancelled' === self::text( $entry['temporal_status'] ?? '' );
 				$html     .= '<li' . ( $cancelled ? ' data-state="cancelled"' : '' ) . '>';
 				$html     .= '' !== $url ? '<a href="' . self::esc( $url ) . '">' . self::esc( $title ) . '</a>' : self::esc( $title );
@@ -288,9 +288,9 @@ final class PublicSurfaces {
 	private static function teaching_role_label( string $role, string $locale ): string {
 		$english = 'en' === $locale;
 		$labels  = array(
-			'lead'        => $english ? 'Lead instructor' : 'Docente responsável',
-			'co-teacher'  => $english ? 'Co-teacher' : 'Codocente',
-			'assistant'   => $english ? 'Teaching assistant' : 'Assistente de ensino',
+			'lead'       => $english ? 'Lead instructor' : 'Docente responsável',
+			'co-teacher' => $english ? 'Co-teacher' : 'Codocente',
+			'assistant'  => $english ? 'Teaching assistant' : 'Assistente de ensino',
 		);
 		return $labels[ $role ] ?? $role;
 	}

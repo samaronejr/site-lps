@@ -145,7 +145,10 @@ async function searchText(target, route, params) {
 /** Returns the result titles rendered by one search response body. */
 function resultTitles(html) {
   return [...html.matchAll(/<li class="lps-search-result">([\s\S]*?)<\/li>/g)].map((match) =>
-    match[1].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim(),
+    match[1]
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim(),
   );
 }
 
@@ -337,7 +340,9 @@ test.describe("task-12: teaching search and change propagation", () => {
     await publish(state.offeringPrevId);
   });
 
-  test("exact code, accent-insensitive, instructor and term lookups resolve", async ({ browser }) => {
+  test("exact code, accent-insensitive, instructor and term lookups resolve", async ({
+    browser,
+  }) => {
     expect(state.offeringPtId, "graph test must run first").toBeGreaterThan(0);
     const anonymous = await anonymousContext(browser);
     try {
@@ -445,7 +450,11 @@ test.describe("task-12: teaching search and change propagation", () => {
       // A versioned resource: upload, select, release, publish.
       const version = await page.request.post("/wp-json/lps/v1/teaching/resource-versions", {
         multipart: {
-          file: { name: `apostila-${RUN}.pdf`, mimeType: "application/pdf", buffer: Buffer.from(PDF) },
+          file: {
+            name: `apostila-${RUN}.pdf`,
+            mimeType: "application/pdf",
+            buffer: Buffer.from(PDF),
+          },
           offering_id: String(state.offeringPtId),
         },
         headers: { "X-WP-Nonce": state.nonce },
@@ -696,7 +705,10 @@ test.describe("task-12: teaching search and change propagation", () => {
 
       for (const name of [state.leadName, state.coTeacherName]) {
         const hits = resultTitles(await searchText(anonymous, PT, { q: name }));
-        expect(hits.filter((title) => title.includes(`Turma ${RUN} T01`)), name).toHaveLength(1);
+        expect(
+          hits.filter((title) => title.includes(`Turma ${RUN} T01`)),
+          name,
+        ).toHaveLength(1);
       }
     } finally {
       await anonymous.close();

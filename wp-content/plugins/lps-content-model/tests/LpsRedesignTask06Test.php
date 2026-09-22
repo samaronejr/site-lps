@@ -175,14 +175,14 @@ final class LpsRedesignTask06Test extends TestCase {
 		$out     = '';
 		$central = '';
 		foreach ( $entries as $entry ) {
-			$name    = $entry['name'];
-			$data    = $entry['data'];
-			$method  = $entry['method'] ?? 0;
-			$flags   = $entry['flags'] ?? 0;
-			$payload = 8 === $method ? (string) gzdeflate( $data ) : $data;
-			$offset  = strlen( $out );
-			$crc     = crc32( $data );
-			$out    .= "PK\x03\x04" . pack( 'v', 20 ) . pack( 'v', $flags ) . pack( 'v', $method )
+			$name     = $entry['name'];
+			$data     = $entry['data'];
+			$method   = $entry['method'] ?? 0;
+			$flags    = $entry['flags'] ?? 0;
+			$payload  = 8 === $method ? (string) gzdeflate( $data ) : $data;
+			$offset   = strlen( $out );
+			$crc      = crc32( $data );
+			$out     .= "PK\x03\x04" . pack( 'v', 20 ) . pack( 'v', $flags ) . pack( 'v', $method )
 				. pack( 'v', 0 ) . pack( 'v', 0 ) . pack( 'V', $crc )
 				. pack( 'V', strlen( $payload ) ) . pack( 'V', strlen( $data ) )
 				. pack( 'v', strlen( $name ) ) . pack( 'v', 0 ) . $name . $payload;
@@ -210,8 +210,14 @@ final class LpsRedesignTask06Test extends TestCase {
 						. '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'
 						. '</Types>',
 				),
-				array( 'name' => 'word/document.xml', 'data' => '<?xml version="1.0"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body/></w:document>' ),
-				array( 'name' => '_rels/.rels', 'data' => '<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"/>' ),
+				array(
+					'name' => 'word/document.xml',
+					'data' => '<?xml version="1.0"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body/></w:document>',
+				),
+				array(
+					'name' => '_rels/.rels',
+					'data' => '<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"/>',
+				),
 			)
 		);
 	}
@@ -250,15 +256,15 @@ final class LpsRedesignTask06Test extends TestCase {
 		$config = $this->make_config();
 
 		// clean: quarantined -> scanning -> cleared, object moves with the state.
-		$record  = self::store_ok( 'a.pdf', self::upload( self::pdf_bytes() ), $config );
-		$seen    = array();
-		$existed = false;
+		$record                    = self::store_ok( 'a.pdf', self::upload( self::pdf_bytes() ), $config );
+		$seen                      = array();
+		$existed                   = false;
 		$config['scanner_adapter'] = static function ( array $request ) use ( &$seen, &$existed ): string {
 			$seen    = $request;
 			$existed = is_string( $request['path'] ?? null ) && is_file( $request['path'] );
 			return 'clean';
 		};
-		$scan = TeachingStorage::scan( $record, $config );
+		$scan                      = TeachingStorage::scan( $record, $config );
 		self::assertNull( $scan['error'] );
 		self::assertSame( 'cleared', $scan['record']['state'] );
 		self::assertSame( 'clean', $scan['record']['scan_verdict'] );
@@ -272,9 +278,9 @@ final class LpsRedesignTask06Test extends TestCase {
 		self::assertTrue( str_starts_with( $seen_path, self::config_string( $config, 'storage_root' ) ) );
 
 		// pending: stays scanning, never cleared.
-		$record = self::store_ok( 'b.pdf', self::upload( self::pdf_bytes() ), $config );
+		$record                    = self::store_ok( 'b.pdf', self::upload( self::pdf_bytes() ), $config );
 		$config['scanner_adapter'] = TeachingStorage::test_scanner( array( 'pending' ) );
-		$scan = TeachingStorage::scan( $record, $config );
+		$scan                      = TeachingStorage::scan( $record, $config );
 		self::assertNull( $scan['error'] );
 		self::assertSame( 'scanning', $scan['record']['state'] );
 		self::assertSame( 'pending', $scan['record']['scan_verdict'] );
@@ -282,23 +288,23 @@ final class LpsRedesignTask06Test extends TestCase {
 
 		// error and invalid verdicts: back to quarantined, never cleared.
 		foreach ( array( 'error', 'invalid-verdict' ) as $verdict ) {
-			$record = self::store_ok( 'c-' . $verdict . '.pdf', self::upload( self::pdf_bytes() ), $config );
+			$record                    = self::store_ok( 'c-' . $verdict . '.pdf', self::upload( self::pdf_bytes() ), $config );
 			$config['scanner_adapter'] = TeachingStorage::test_scanner( array( $verdict ) );
-			$scan = TeachingStorage::scan( $record, $config );
+			$scan                      = TeachingStorage::scan( $record, $config );
 			self::assertSame( 'quarantined', $scan['record']['state'], $verdict );
 			self::assertSame( 'lps_teaching_not_cleared', TeachingStorage::release_error( $scan['record'], $config ) );
 		}
-		$record = self::store_ok( 'd.pdf', self::upload( self::pdf_bytes() ), $config );
+		$record                    = self::store_ok( 'd.pdf', self::upload( self::pdf_bytes() ), $config );
 		$config['scanner_adapter'] = static function (): string {
 			throw new \RuntimeException( 'scanner daemon unreachable' );
 		};
-		$scan = TeachingStorage::scan( $record, $config );
+		$scan                      = TeachingStorage::scan( $record, $config );
 		self::assertSame( 'quarantined', $scan['record']['state'] );
 
 		// infected: failed, never cleared, still purgeable.
-		$record = self::store_ok( 'e.pdf', self::upload( self::pdf_bytes() ), $config );
+		$record                    = self::store_ok( 'e.pdf', self::upload( self::pdf_bytes() ), $config );
 		$config['scanner_adapter'] = TeachingStorage::test_scanner( array( 'infected' ) );
-		$scan = TeachingStorage::scan( $record, $config );
+		$scan                      = TeachingStorage::scan( $record, $config );
 		self::assertSame( 'failed', $scan['record']['state'] );
 		self::assertSame( 'lps_teaching_not_cleared', TeachingStorage::release_error( $scan['record'], $config ) );
 		self::assertTrue( TeachingStorage::purge( $scan['record'], $config ) );
@@ -368,15 +374,15 @@ final class LpsRedesignTask06Test extends TestCase {
 		$config = $this->make_config();
 		foreach (
 			array(
-				'fake.png'     => array( self::pdf_bytes(), 'lps_teaching_type_mismatch' ),
-				'fake.pdf'     => array( self::png_bytes(), 'lps_teaching_type_mismatch' ),
-				'fake.docx'    => array( self::pdf_bytes(), 'lps_teaching_type_mismatch' ),
-				'fake.pdf2'    => array( self::pdf_bytes(), 'lps_teaching_extension_forbidden' ),
-				'page.txt'     => array( "<html><body>spoof</body></html>\n", 'lps_teaching_active_markup' ),
-				'run.csv'      => array( "<?php echo 1; ?>\n", 'lps_teaching_active_markup' ),
-				'notes.txt'    => array( "see javascript:alert(1)\n", 'lps_teaching_active_markup' ),
-				'legacy.docx'  => array( "\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1" . str_repeat( "\x00", 64 ), 'lps_teaching_type_mismatch' ),
-				'raw.bin.pdf'  => array( "\x00\x01\x02\x03\x04", 'lps_teaching_type_mismatch' ),
+				'fake.png'    => array( self::pdf_bytes(), 'lps_teaching_type_mismatch' ),
+				'fake.pdf'    => array( self::png_bytes(), 'lps_teaching_type_mismatch' ),
+				'fake.docx'   => array( self::pdf_bytes(), 'lps_teaching_type_mismatch' ),
+				'fake.pdf2'   => array( self::pdf_bytes(), 'lps_teaching_extension_forbidden' ),
+				'page.txt'    => array( "<html><body>spoof</body></html>\n", 'lps_teaching_active_markup' ),
+				'run.csv'     => array( "<?php echo 1; ?>\n", 'lps_teaching_active_markup' ),
+				'notes.txt'   => array( "see javascript:alert(1)\n", 'lps_teaching_active_markup' ),
+				'legacy.docx' => array( "\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1" . str_repeat( "\x00", 64 ), 'lps_teaching_type_mismatch' ),
+				'raw.bin.pdf' => array( "\x00\x01\x02\x03\x04", 'lps_teaching_type_mismatch' ),
 			) as $name => $expect
 		) {
 			$result = TeachingStorage::store( $name, self::upload( $expect[0] ), $config );
@@ -389,27 +395,27 @@ final class LpsRedesignTask06Test extends TestCase {
 		$config = $this->make_config();
 		foreach (
 			array(
-				'../escape.pdf'              => 'lps_teaching_path_forbidden',
-				'..\\escape.pdf'             => 'lps_teaching_path_forbidden',
-				'dir/nested.pdf'             => 'lps_teaching_path_forbidden',
-				'dir\\nested.pdf'            => 'lps_teaching_path_forbidden',
-				'c:\\temp\\evil.pdf'         => 'lps_teaching_path_forbidden',
-				"name\0null.pdf"             => 'lps_teaching_path_forbidden',
-				'.hidden.pdf'                => 'lps_teaching_name_invalid',
-				'trailing.'                  => 'lps_teaching_name_invalid',
-				'trailingdot.pdf '           => 'lps_teaching_name_invalid',
+				'../escape.pdf'                 => 'lps_teaching_path_forbidden',
+				'..\\escape.pdf'                => 'lps_teaching_path_forbidden',
+				'dir/nested.pdf'                => 'lps_teaching_path_forbidden',
+				'dir\\nested.pdf'               => 'lps_teaching_path_forbidden',
+				'c:\\temp\\evil.pdf'            => 'lps_teaching_path_forbidden',
+				"name\0null.pdf"                => 'lps_teaching_path_forbidden',
+				'.hidden.pdf'                   => 'lps_teaching_name_invalid',
+				'trailing.'                     => 'lps_teaching_name_invalid',
+				'trailingdot.pdf '              => 'lps_teaching_name_invalid',
 				str_repeat( 'a', 256 ) . '.pdf' => 'lps_teaching_name_invalid',
-				'noextension'                => 'lps_teaching_extension_missing',
-				'vector.svg'                 => 'lps_teaching_executable_name_forbidden',
-				'page.html'                  => 'lps_teaching_executable_name_forbidden',
-				'shell.php'                  => 'lps_teaching_executable_name_forbidden',
-				'shell.php.pdf'              => 'lps_teaching_executable_name_forbidden',
-				'macro.docm'                 => 'lps_teaching_extension_forbidden',
-				'legacy.doc'                 => 'lps_teaching_extension_forbidden',
-				'archive.zip'                => 'lps_teaching_extension_forbidden',
-				'data.json'                  => 'lps_teaching_extension_forbidden',
-				'script.js'                  => 'lps_teaching_executable_name_forbidden',
-				'program.exe'                => 'lps_teaching_extension_forbidden',
+				'noextension'                   => 'lps_teaching_extension_missing',
+				'vector.svg'                    => 'lps_teaching_executable_name_forbidden',
+				'page.html'                     => 'lps_teaching_executable_name_forbidden',
+				'shell.php'                     => 'lps_teaching_executable_name_forbidden',
+				'shell.php.pdf'                 => 'lps_teaching_executable_name_forbidden',
+				'macro.docm'                    => 'lps_teaching_extension_forbidden',
+				'legacy.doc'                    => 'lps_teaching_extension_forbidden',
+				'archive.zip'                   => 'lps_teaching_extension_forbidden',
+				'data.json'                     => 'lps_teaching_extension_forbidden',
+				'script.js'                     => 'lps_teaching_executable_name_forbidden',
+				'program.exe'                   => 'lps_teaching_extension_forbidden',
 			) as $name => $expect
 		) {
 			$result = TeachingStorage::store( $name, self::upload( self::pdf_bytes() ), $config );
@@ -427,19 +433,83 @@ final class LpsRedesignTask06Test extends TestCase {
 		);
 		foreach (
 			array(
-				'vba'        => array( array( 'name' => 'word/vbaProject.bin', 'data' => 'x' ), 'lps_teaching_office_unsafe' ),
-				'ole'        => array( array( 'name' => 'word/embeddings/oleObject1.bin', 'data' => 'x' ), 'lps_teaching_office_unsafe' ),
-				'activex'    => array( array( 'name' => 'word/activeX/activeX1.xml', 'data' => 'x' ), 'lps_teaching_office_unsafe' ),
-				'zipslip'    => array( array( 'name' => '../evil.xml', 'data' => 'x' ), 'lps_teaching_office_unsafe' ),
-				'encrypted'  => array( array( 'name' => 'word/settings.xml', 'data' => 'x', 'flags' => 0x1 ), 'lps_teaching_office_unsafe' ),
-				'exe-member' => array( array( 'name' => 'word/media/update.exe', 'data' => 'x' ), 'lps_teaching_office_unsafe' ),
-				'php-member' => array( array( 'name' => 'word/media/run.php', 'data' => 'x' ), 'lps_teaching_office_unsafe' ),
-				'no-main'    => array( array( 'name' => 'word/styles.xml', 'data' => 'x' ), 'lps_teaching_office_package_invalid' ),
+				'vba'        => array(
+					array(
+						'name' => 'word/vbaProject.bin',
+						'data' => 'x',
+					),
+					'lps_teaching_office_unsafe',
+				),
+				'ole'        => array(
+					array(
+						'name' => 'word/embeddings/oleObject1.bin',
+						'data' => 'x',
+					),
+					'lps_teaching_office_unsafe',
+				),
+				'activex'    => array(
+					array(
+						'name' => 'word/activeX/activeX1.xml',
+						'data' => 'x',
+					),
+					'lps_teaching_office_unsafe',
+				),
+				'zipslip'    => array(
+					array(
+						'name' => '../evil.xml',
+						'data' => 'x',
+					),
+					'lps_teaching_office_unsafe',
+				),
+				'encrypted'  => array(
+					array(
+						'name'  => 'word/settings.xml',
+						'data'  => 'x',
+						'flags' => 0x1,
+					),
+					'lps_teaching_office_unsafe',
+				),
+				'exe-member' => array(
+					array(
+						'name' => 'word/media/update.exe',
+						'data' => 'x',
+					),
+					'lps_teaching_office_unsafe',
+				),
+				'php-member' => array(
+					array(
+						'name' => 'word/media/run.php',
+						'data' => 'x',
+					),
+					'lps_teaching_office_unsafe',
+				),
+				'no-main'    => array(
+					array(
+						'name' => 'word/styles.xml',
+						'data' => 'x',
+					),
+					'lps_teaching_office_package_invalid',
+				),
 			) as $label => $expect
 		) {
-			$entries = array_merge( array( array( 'name' => '[Content_Types].xml', 'data' => $types ), $doc ), array( $expect[0] ) );
+			$entries = array_merge(
+				array(
+					array(
+						'name' => '[Content_Types].xml',
+						'data' => $types,
+					),
+					$doc,
+				),
+				array( $expect[0] )
+			);
 			if ( 'no-main' === $label ) {
-				$entries = array( array( 'name' => '[Content_Types].xml', 'data' => $types ), $expect[0] );
+				$entries = array(
+					array(
+						'name' => '[Content_Types].xml',
+						'data' => $types,
+					),
+					$expect[0],
+				);
 			}
 			$result = TeachingStorage::store( 'unsafe-' . $label . '.docx', self::upload( self::zip_bytes( $entries ) ), $config );
 			self::assertSame( $expect[1], $result['error'], $label );
@@ -447,12 +517,40 @@ final class LpsRedesignTask06Test extends TestCase {
 
 		// A macro-enabled content type is denied even when the file is named .docx.
 		$macro_types = str_replace( 'document.main+xml', 'macroEnabled.main+xml', $types );
-		$result      = TeachingStorage::store( 'macro.docx', self::upload( self::zip_bytes( array( array( 'name' => '[Content_Types].xml', 'data' => $macro_types ), $doc ) ) ), $config );
+		$result      = TeachingStorage::store(
+			'macro.docx',
+			self::upload(
+				self::zip_bytes(
+					array(
+						array(
+							'name' => '[Content_Types].xml',
+							'data' => $macro_types,
+						),
+						$doc,
+					)
+				)
+			),
+			$config
+		);
 		self::assertSame( 'lps_teaching_office_unsafe', $result['error'] );
 
 		// A package whose main part declares another family is a type mismatch.
 		$ppt_types = str_replace( 'wordprocessingml.document.main+xml', 'presentationml.presentation.main+xml', $types );
-		$result    = TeachingStorage::store( 'wrong.docx', self::upload( self::zip_bytes( array( array( 'name' => '[Content_Types].xml', 'data' => $ppt_types ), $doc ) ) ), $config );
+		$result    = TeachingStorage::store(
+			'wrong.docx',
+			self::upload(
+				self::zip_bytes(
+					array(
+						array(
+							'name' => '[Content_Types].xml',
+							'data' => $ppt_types,
+						),
+						$doc,
+					)
+				)
+			),
+			$config
+		);
 		self::assertSame( 'lps_teaching_type_mismatch', $result['error'] );
 
 		// Truncated packages fail closed.
@@ -466,9 +564,9 @@ final class LpsRedesignTask06Test extends TestCase {
 			array(
 				'{"nbformat":4,"cells":"nope"}' => 'lps_teaching_notebook_invalid',
 				'{"nbformat":3,"nbformat_minor":0,"cells":[]}' => 'lps_teaching_notebook_invalid',
-				'{"nbformat":4}' => 'lps_teaching_notebook_invalid',
+				'{"nbformat":4}'                => 'lps_teaching_notebook_invalid',
 				'{"nbformat":4,"cells":[{"cell_type":"widget","source":[]}]}' => 'lps_teaching_notebook_invalid',
-				'not json at all' => 'lps_teaching_notebook_invalid',
+				'not json at all'               => 'lps_teaching_notebook_invalid',
 				'{"nbformat":4,"cells":[{"cell_type":"code","source":[],"outputs":[{"output_type":"display_data","data":{"text/html":"<script>alert(1)</script>"}}]}]}' => 'lps_teaching_notebook_active_output',
 				'{"nbformat":4,"cells":[{"cell_type":"code","source":[],"outputs":[{"output_type":"display_data","data":{"image/svg+xml":"<svg/>"}}]}]}' => 'lps_teaching_notebook_active_output',
 			) as $bytes => $expect
@@ -481,8 +579,8 @@ final class LpsRedesignTask06Test extends TestCase {
 	public function test_configuration_absence_fails_closed(): void {
 		$config = $this->make_config();
 
-		$missing                  = $config;
-		$missing['storage_root']  = self::config_string( $config, 'storage_root' ) . '/does-not-exist';
+		$missing                 = $config;
+		$missing['storage_root'] = self::config_string( $config, 'storage_root' ) . '/does-not-exist';
 		self::assertContains( 'lps_storage_root_missing', TeachingStorage::config_errors( $missing ) );
 		self::assertSame( 'lps_storage_root_missing', TeachingStorage::publication_gate_error( $missing ) );
 

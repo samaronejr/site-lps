@@ -55,6 +55,21 @@ export const MARK_PATH_SHA256 = new Set([
   "1e9df5d6f156b69731504eeb5434acced6173bc5363c2351d7f44bf07f8a5e5e", // lps-lettering
   "85372f8521d543619421ce9742620a0db2f6a61c63e1396ec306ded05a127913", // laboratory-name
   "34936098746086283bdbdf7f356db9f434ba19958bab5add5f3048258f24d22a", // computational-intelligence
+  // LPS_COPPE_Blue.svg — the COPPE/Poli/UFRJ institutional lockup (sha256
+  // 5144e227…; recorded in assets/img/mark/RIGHTS.md); four outlined
+  // artwork groups: waveform, lps monogram, COPPE block, descriptor lines.
+  "20c7897087c299c0b278a9dd59a51c75391930214170ebd5696eb6242a0467a6",
+  "94bdafe6b664fce30cb718194d2bb50d0ec3aef2edc54241336ad54453e89691",
+  "e55e0e1b289489e30652996f81ebb6ce777a8efb7fc91a16f1a6ddb0f64b398e",
+  "303285c12ba25b5ed7aefc8d022b55b8ef460bd5479366768f55b1d238058e29",
+  // The same COPPE/Poli/UFRJ lockup artwork re-serialised at reduced float
+  // precision (identical geometry, smaller bytes): baseline, wave-and-lps,
+  // COPPE block, descriptor lines, and the reversed lockup's flattened path.
+  "185797e88a9c284f3e53d19f9fd4414c8dee5548e2ec5d2f2ecf072f238ece2f",
+  "c1edd36513677bb3ef27f5c87bd4dc08df771cf5784394b25a7cf0cffab166ef",
+  "c05ee27687a0fe72954a6887127fae47cddfbd0a3caf26563ff83d80199dd30f",
+  "b3afb41551d34a93ef2448a97fa2616a2b1ce11eed716075289d8d94a9adbe11",
+  "8e7a7a2ca68d79cfe6c31700cd302999b6517aef8eade55d1a90537de1ab8c22",
 ]);
 export const MARK_GRADIENT_SHA256 = new Set([
   "532ff2aed9b4c04f837d7b2229f41dda2948a8007d46c87ca5cb38ef7448ce65", // wave-gradient
@@ -512,9 +527,81 @@ export function collectLocalSvgReferences(source) {
 
 /* ------------------------------------------------------------------ CSS --- */
 
+/**
+ * "Signal" revision effect policy: an effect is permitted when it is declared once
+ * as a token and referenced everywhere else. A gradient therefore lives in a
+ * --gradient-* custom property in the token layer; a shadow or a radius must name a
+ * --shadow-* / --radius-* token. The decorative rule is unchanged in spirit — a
+ * surface may not invent an effect — but the design system may now own one.
+ *
+ * The finding codes are the ones the repository already speaks: an effect that
+ * escapes the token layer is still reported as a gradient/shadow/rounded surface.
+ */
+const GRADIENT_TOKEN_NAME = /^--gradient-[\w-]+$/;
+
+/**
+ * A gradient is legal only as a --gradient-* token declared in the token layer.
+ * Anywhere else — a surface property, or a differently named custom property —
+ * it is a second source of truth for an effect and stays a finding.
+ */
+function gradientEscapesTokenLayer(declaration) {
+  if (!CSS_GRADIENT.test(declaration.value)) return false;
+  if (declaration.isCustomProperty) return !GRADIENT_TOKEN_NAME.test(declaration.property);
+  return true;
+}
+
+/** An effect declaration is legal only when it names the token that owns it. */
+function effectEscapesTokens(declaration) {
+  if (declaration.isCustomProperty) return false;
+  const { property, value } = declaration;
+  if (property === "box-shadow" || property === "text-shadow") {
+    const text = value.trim();
+    return !/^(?:none|inherit|initial|unset)$/i.test(text) && !/var\(--shadow-[\w-]+\)/.test(text);
+  }
+  if (property === "border-radius") {
+    return value
+      .split(/\s+/)
+      .some((part) => !/var\(--radius-[\w-]+\)/.test(part) && !/^0(?:px)?$/.test(part));
+  }
+  return false;
+}
+
+function effectFindings({ declaration, selector, file, line }) {
+  const findings = [];
+  const where = `${selector} { ${declaration.property} }`;
+  const span = /^(none|inherit|initial|unset)$/i.test(declaration.value.trim())
+    ? ""
+    : ` (${declaration.value.trim().slice(0, 72)})`;
+  if (gradientEscapesTokenLayer(declaration)) {
+    findings.push(
+      finding(
+        "GRADIENT_ON_SURFACE",
+        `${file}:${line} ${where} composes a gradient outside the token layer. A gradient is declared once as a --gradient-* token in :root and referenced with var().`,
+        { file, selector, property: declaration.property, detail: declaration.value, line },
+      ),
+    );
+  }
+  if (effectEscapesTokens(declaration)) {
+    const isShadow =
+      declaration.property === "box-shadow" || declaration.property === "text-shadow";
+    const token = isShadow ? "--shadow-*" : "--radius-*";
+    findings.push(
+      finding(
+        isShadow ? "SHADOW_SURFACE" : "ROUNDED_SURFACE",
+        `${file}:${line} ${where}${span} is written as a literal. Depth and shape are declared once as ${token} tokens and referenced with var().`,
+        { file, selector, property: declaration.property, detail: declaration.value, line },
+      ),
+    );
+  }
+  return findings;
+}
+
 export function auditStylesheet({ source, file, lineOffset = 0, selectorOverride = null }) {
   const findings = [];
-  const { declarations, balanced, opened, closed } = scanDeclarations(source);
+  // Comments are documentation: strip them so a quoted property or hex value is
+  // never read as a declaration.
+  const source_ = source.replace(/\/\*[\s\S]*?\*\//g, " ");
+  const { declarations, balanced, opened, closed } = scanDeclarations(source_);
 
   if (!balanced) {
     findings.push(
@@ -533,15 +620,7 @@ export function auditStylesheet({ source, file, lineOffset = 0, selectorOverride
     const selector = selectorOverride ?? declaration.selector;
     const where = `${selector} { ${declaration.property} }`;
 
-    if (CSS_GRADIENT.test(declaration.value)) {
-      findings.push(
-        finding(
-          "GRADIENT_ON_SURFACE",
-          `${file}:${line} ${where} uses a CSS gradient. DESIGN.md 7 permits no gradient on any surface; the mark's ${MARK_GRADIENT_ID} lives inside the artwork and is not a CSS gradient.`,
-          { file, selector, property: declaration.property, detail: declaration.value, line },
-        ),
-      );
-    }
+    findings.push(...effectFindings({ declaration, selector, file, line }));
 
     if (declaration.isCustomProperty) continue;
 

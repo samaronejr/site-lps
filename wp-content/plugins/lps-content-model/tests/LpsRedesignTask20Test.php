@@ -36,7 +36,15 @@ use PHPUnit\Framework\TestCase;
  * Proves the adversarial boundary contracts without WordPress.
  */
 final class LpsRedesignTask20Test extends TestCase {
-	/** One well-formed active grant row for scope tests. */
+	/**
+	 * One well-formed active grant row for scope tests.
+	 *
+	 * @param string               $scope       Grant scope.
+	 * @param int                  $offering_id Offering identifier the grant covers.
+	 * @param string               $role        Granted policy role.
+	 * @param array<string, mixed> $overrides   Field overrides.
+	 * @return array<string, mixed>
+	 */
 	private static function grant( string $scope = 'offering', int $offering_id = 42, string $role = 'professor', array $overrides = array() ): array {
 		return array_merge(
 			array(
@@ -70,7 +78,12 @@ final class LpsRedesignTask20Test extends TestCase {
 		// Network activation keeps the allowlist keys mapped to their timestamps.
 		self::assertSame(
 			array( 'lps-content-model/lps-content-model.php' => 1 ),
-			Hardening::network_plugins( array( 'lps-content-model/lps-content-model.php' => 1, 'evil/evil.php' => 1 ) )
+			Hardening::network_plugins(
+				array(
+					'lps-content-model/lps-content-model.php' => 1,
+					'evil/evil.php' => 1,
+				)
+			)
 		);
 	}
 
@@ -175,8 +188,8 @@ final class LpsRedesignTask20Test extends TestCase {
 			'state'             => 'published',
 			'public_visibility' => true,
 		);
-		$version = array( 'key' => 'lps-file-' . str_repeat( 'b', 32 ) );
-		$now     = '2026-09-19T00:00:00+00:00';
+		$version  = array( 'key' => 'lps-file-' . str_repeat( 'b', 32 ) );
+		$now      = '2026-09-19T00:00:00+00:00';
 
 		self::assertNull( TeachingResources::release_denial( $resource, $offering, $version, null, $now ) );
 		self::assertSame( 'lps_resource_not_found', TeachingResources::release_denial( null, $offering, $version, null, $now ) );
@@ -191,7 +204,22 @@ final class LpsRedesignTask20Test extends TestCase {
 		self::assertSame( 'lps_resource_version_mismatch', TeachingResources::release_denial( $resource, $offering, array( 'key' => 'lps-file-' . str_repeat( 'c', 32 ) ), null, $now ) );
 		self::assertSame( 'lps_resource_withdrawn', TeachingResources::release_denial( array_merge( $resource, array( 'release_state' => 'withdrawn' ) ), $offering, $version, null, $now ) );
 		self::assertSame( 'lps_resource_not_released', TeachingResources::release_denial( array_merge( $resource, array( 'release_state' => 'draft' ) ), $offering, $version, null, $now ) );
-		self::assertSame( 'lps_resource_not_released', TeachingResources::release_denial( array_merge( $resource, array( 'release_state' => 'scheduled', 'release_at' => '2027-01-01T00:00:00+00:00' ) ), $offering, $version, null, $now ) );
+		self::assertSame(
+			'lps_resource_not_released',
+			TeachingResources::release_denial(
+				array_merge(
+					$resource,
+					array(
+						'release_state' => 'scheduled',
+						'release_at'    => '2027-01-01T00:00:00+00:00',
+					)
+				),
+				$offering,
+				$version,
+				null,
+				$now
+			)
+		);
 		self::assertSame( 'lps_teaching_not_cleared', TeachingResources::release_denial( $resource, $offering, $version, 'lps_teaching_not_cleared', $now ) );
 		self::assertSame( 'lps_resource_rights_not_approved', TeachingResources::release_denial( array_merge( $resource, array( 'rights_review' => 'pending' ) ), $offering, $version, null, $now ) );
 		self::assertSame( 'lps_resource_accessibility_not_approved', TeachingResources::release_denial( array_merge( $resource, array( 'accessibility_review' => 'pending' ) ), $offering, $version, null, $now ) );
@@ -216,9 +244,30 @@ final class LpsRedesignTask20Test extends TestCase {
 
 	/** Range parsing refuses multi-range, malformed and unsatisfiable requests. */
 	public function test_range_parser_refuses_abuse(): void {
-		self::assertSame( array( 'status' => 'ok', 'start' => 0, 'end' => 9 ), TeachingResources::parse_range( 'bytes=0-9', 100 ) );
-		self::assertSame( array( 'status' => 'ok', 'start' => 90, 'end' => 99 ), TeachingResources::parse_range( 'bytes=90-', 100 ) );
-		self::assertSame( array( 'status' => 'ok', 'start' => 90, 'end' => 99 ), TeachingResources::parse_range( 'bytes=-10', 100 ) );
+		self::assertSame(
+			array(
+				'status' => 'ok',
+				'start'  => 0,
+				'end'    => 9,
+			),
+			TeachingResources::parse_range( 'bytes=0-9', 100 )
+		);
+		self::assertSame(
+			array(
+				'status' => 'ok',
+				'start'  => 90,
+				'end'    => 99,
+			),
+			TeachingResources::parse_range( 'bytes=90-', 100 )
+		);
+		self::assertSame(
+			array(
+				'status' => 'ok',
+				'start'  => 90,
+				'end'    => 99,
+			),
+			TeachingResources::parse_range( 'bytes=-10', 100 )
+		);
 		self::assertSame( 'unsatisfiable', TeachingResources::parse_range( 'bytes=0-1,5-9', 100 )['status'] );
 		self::assertSame( 'unsatisfiable', TeachingResources::parse_range( 'bytes=99-0', 100 )['status'] );
 		self::assertSame( 'unsatisfiable', TeachingResources::parse_range( 'bytes=100-200', 100 )['status'] );
@@ -256,7 +305,22 @@ final class LpsRedesignTask20Test extends TestCase {
 		// Malformed grants are never honored: a grant without a valid grantor is
 		// unusable, which the matcher buckets with expired grants — still a denial.
 		self::assertSame( 'lps_teaching_grant_expired', TeachingPolicy::scope_error( 'professor', 'edit', 'lps_unit', 42, array( self::grant( 'offering', 42, 'professor', array( 'granted_by' => 0 ) ) ), $now ) );
-		self::assertSame( 'lps_teaching_scope_required', TeachingPolicy::scope_error( 'professor', 'edit', 'lps_unit', 42, array( array( 'scope' => 'offering', 'offering_id' => 42 ) ), $now ) );
+		self::assertSame(
+			'lps_teaching_scope_required',
+			TeachingPolicy::scope_error(
+				'professor',
+				'edit',
+				'lps_unit',
+				42,
+				array(
+					array(
+						'scope'       => 'offering',
+						'offering_id' => 42,
+					),
+				),
+				$now
+			)
+		);
 		// Non-scoped roles never enter the scoped boundary.
 		self::assertSame( 'lps_teaching_role_not_scoped', TeachingPolicy::scope_error( 'administrator', 'edit', 'lps_unit', 42, $grants, $now ) );
 		// Actions outside the role matrix are denied before grant lookup.
@@ -377,14 +441,32 @@ final class LpsRedesignTask20Test extends TestCase {
 			// A quarantined or uncleared record can never be released.
 			self::assertSame(
 				'lps_teaching_not_cleared',
-				TeachingStorage::release_error( array( 'state' => 'quarantined', 'scan_verdict' => 'none' ), $valid )
+				TeachingStorage::release_error(
+					array(
+						'state'        => 'quarantined',
+						'scan_verdict' => 'none',
+					),
+					$valid
+				)
 			);
 			self::assertSame(
 				'lps_teaching_not_cleared',
-				TeachingStorage::release_error( array( 'state' => 'cleared', 'scan_verdict' => 'pending' ), $valid )
+				TeachingStorage::release_error(
+					array(
+						'state'        => 'cleared',
+						'scan_verdict' => 'pending',
+					),
+					$valid
+				)
 			);
 			self::assertNull(
-				TeachingStorage::release_error( array( 'state' => 'cleared', 'scan_verdict' => 'clean' ), $valid )
+				TeachingStorage::release_error(
+					array(
+						'state'        => 'cleared',
+						'scan_verdict' => 'clean',
+					),
+					$valid
+				)
 			);
 		} finally {
 			rmdir( $pub . '/files' );

@@ -385,7 +385,9 @@
         "_lps_storage_key": "lps-resource/018f21ce",
         "_lps_release_state": "released"
       },
-      "change": { "_lps_version_id": "lpsver:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" },
+      "change": {
+        "_lps_version_id": "lpsver:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
       "expectStale": false,
       "note": "A file/version change never forces a meaningless translation of file bytes."
     },
@@ -460,7 +462,11 @@
     },
     {
       "id": "unreviewed-import-row",
-      "record": { "_lps_origin": "imported", "_lps_import_source_id": "record-031", "_lps_import_review_state": "candidate" },
+      "record": {
+        "_lps_origin": "imported",
+        "_lps_import_source_id": "record-031",
+        "_lps_import_review_state": "candidate"
+      },
       "expectAction": "unreviewed-import",
       "expectOrigin": "imported"
     },
@@ -472,7 +478,11 @@
     },
     {
       "id": "clean-imported-row",
-      "record": { "_lps_origin": "imported", "_lps_import_source_id": "record-032", "_lps_import_review_state": "reviewed" },
+      "record": {
+        "_lps_origin": "imported",
+        "_lps_import_source_id": "record-032",
+        "_lps_import_review_state": "reviewed"
+      },
       "expectAction": "none",
       "expectOrigin": "imported"
     }

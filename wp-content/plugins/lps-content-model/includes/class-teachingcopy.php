@@ -161,12 +161,12 @@ final class TeachingCopy {
 			return self::error( $plan_error, 'The copy-forward plan violates the operation contract.', 'plan' );
 		}
 
-		$created   = array(
+		$created            = array(
 			'offering_id'  => 0,
 			'unit_ids'     => array(),
 			'resource_ids' => array(),
 		);
-		$committed = false;
+		$committed          = false;
 		self::$in_operation = true;
 		try {
 			$offering = self::create_copied_offering( $source, $source_identity, $new_term_id, $new_section, $input, $operation_id );
@@ -257,7 +257,7 @@ final class TeachingCopy {
 		if ( ! $source instanceof WP_Post || 'lps_offering' !== $source->post_type || 'trash' === $source->post_status ) {
 			return self::error( 'lps_teaching_offering_invalid', 'The correction requires an existing source offering record.', 'source_offering_id', 404 );
 		}
-		$fields = is_array( $input['fields'] ?? null ) ? $input['fields'] : array();
+		$fields      = self::string_keyed( $input['fields'] ?? null );
 		$field_error = self::correction_fields_error( $fields );
 		if ( null !== $field_error ) {
 			return self::error( $field_error, 'The correction fields violate the propagation contract.', 'fields' );
@@ -329,8 +329,8 @@ final class TeachingCopy {
 			array(
 				'operation_id'          => $operation_id,
 				'decision'              => 'propagate-correction',
-				'fields'                => array_keys( $sanitized ),
-				'affected_offering_ids' => $affected,
+				'fields'                => implode( ',', array_keys( $sanitized ) ),
+				'affected_offering_ids' => implode( ',', array_map( 'strval', $affected ) ),
 			)
 		);
 		return $manifest;
@@ -404,7 +404,7 @@ final class TeachingCopy {
 			Policy::scalar_string( $resource_view['_lps_release_at'] ?? '' ),
 			$now
 		);
-		$is_selected = '' !== $version_id && in_array( $version_id, $selected, true );
+		$is_selected  = '' !== $version_id && in_array( $version_id, $selected, true );
 		// Selection validity is gated once at plan level; an unreleased or
 		// withdrawn resource that happens to reference a selected version is
 		// reset like any other non-public resource, never a copy blocker.
@@ -425,12 +425,12 @@ final class TeachingCopy {
 	 * external URL and review states survive only for effectively released
 	 * resources (`carry_public`); everything else arrives pending review.
 	 *
-	 * @param array<string, mixed> $source_meta Source resource metadata.
+	 * @param array<string, mixed>                   $source_meta Source resource metadata.
 	 * @param array{reuse: bool, carry_public: bool} $decision Copy decision.
 	 * @return array<string, mixed>
 	 */
 	public static function resource_copy_fields( array $source_meta, array $decision ): array {
-		$carry_public = true === ( $decision['carry_public'] ?? false );
+		$carry_public = true === $decision['carry_public'];
 		$fields       = array();
 		foreach ( self::RESOURCE_COPY_META as $key ) {
 			$fields[ $key ] = Policy::scalar_string( $source_meta[ $key ] ?? '' );
@@ -455,7 +455,7 @@ final class TeachingCopy {
 		}
 		foreach ( $fields as $key => $value ) {
 			unset( $value );
-			if ( ! is_string( $key ) || ! in_array( $key, TeachingContracts::CORRECTABLE_OFFERING_FIELDS, true ) ) {
+			if ( ! in_array( $key, TeachingContracts::CORRECTABLE_OFFERING_FIELDS, true ) ) {
 				return 'lps_correction_field_forbidden';
 			}
 		}
@@ -465,12 +465,12 @@ final class TeachingCopy {
 	/**
 	 * Creates the new draft offering through the canonical boundary.
 	 *
-	 * @param WP_Post                                                         $source          Source offering record.
-	 * @param array{course_id: int, term_id: int, section_key: string}        $source_identity Canonical source identity.
-	 * @param int                                                             $new_term_id     Target term record ID.
-	 * @param string                                                          $new_section     Normalized target section key.
-	 * @param array<string, mixed>                                            $input           Boundary input.
-	 * @param string                                                          $operation_id    Operation identifier.
+	 * @param WP_Post                                                  $source          Source offering record.
+	 * @param array{course_id: int, term_id: int, section_key: string} $source_identity Canonical source identity.
+	 * @param int                                                      $new_term_id     Target term record ID.
+	 * @param string                                                   $new_section     Normalized target section key.
+	 * @param array<string, mixed>                                     $input           Boundary input.
+	 * @param string                                                   $operation_id    Operation identifier.
 	 * @return array<string, mixed>|WP_Error
 	 */
 	private static function create_copied_offering( WP_Post $source, array $source_identity, int $new_term_id, string $new_section, array $input, string $operation_id ): array|WP_Error {
@@ -507,10 +507,10 @@ final class TeachingCopy {
 	/**
 	 * Clones every unit of the source offering, preserving order.
 	 *
-	 * @param int              $source_id   Source offering record ID.
-	 * @param int              $new_id      New offering record ID.
-	 * @param array<int, int>  $unit_ids    Created unit IDs (by reference).
-	 * @param string           $operation_id Operation identifier.
+	 * @param int             $source_id   Source offering record ID.
+	 * @param int             $new_id      New offering record ID.
+	 * @param array<int, int> $unit_ids    Created unit IDs (by reference).
+	 * @param string          $operation_id Operation identifier.
 	 * @return array<int, int>|WP_Error Old unit ID to new unit ID map.
 	 */
 	private static function copy_units( int $source_id, int $new_id, array &$unit_ids, string $operation_id ): array|WP_Error {
@@ -519,15 +519,15 @@ final class TeachingCopy {
 		usort(
 			$rows,
 			static function ( array $left, array $right ): int {
-				$left_unit  = get_post( Policy::sanitize_integer( $left['source_post_id'] ?? 0 ) );
-				$right_unit = get_post( Policy::sanitize_integer( $right['source_post_id'] ?? 0 ) );
+				$left_unit  = get_post( Policy::sanitize_integer( $left['source_post_id'] ) );
+				$right_unit = get_post( Policy::sanitize_integer( $right['source_post_id'] ) );
 				$left_pos   = $left_unit instanceof WP_Post ? Policy::sanitize_integer( get_post_meta( $left_unit->ID, '_lps_position', true ) ) : 0;
 				$right_pos  = $right_unit instanceof WP_Post ? Policy::sanitize_integer( get_post_meta( $right_unit->ID, '_lps_position', true ) ) : 0;
 				return $left_pos <=> $right_pos;
 			}
 		);
 		foreach ( $rows as $row ) {
-			$unit_id = Policy::sanitize_integer( $row['source_post_id'] ?? 0 );
+			$unit_id = Policy::sanitize_integer( $row['source_post_id'] );
 			$unit    = 0 < $unit_id ? get_post( $unit_id ) : null;
 			if ( ! $unit instanceof WP_Post || 'lps_unit' !== $unit->post_type || 'trash' === $unit->post_status ) {
 				continue;
@@ -547,10 +547,10 @@ final class TeachingCopy {
 			if ( $created instanceof WP_Error ) {
 				return $created;
 			}
-			$new_unit_id          = Policy::sanitize_integer( $created['id'] ?? 0 );
-			$map[ $unit_id ]      = $new_unit_id;
-			$unit_ids[]           = $new_unit_id;
-			$step                 = self::step_error( 'unit', $operation_id );
+			$new_unit_id     = Policy::sanitize_integer( $created['id'] ?? 0 );
+			$map[ $unit_id ] = $new_unit_id;
+			$unit_ids[]      = $new_unit_id;
+			$step            = self::step_error( 'unit', $operation_id );
 			if ( null !== $step ) {
 				return $step;
 			}
@@ -561,26 +561,26 @@ final class TeachingCopy {
 	/**
 	 * Clones every resource of the source offering as a draft.
 	 *
-	 * @param int                 $source_id   Source offering record ID.
-	 * @param int                 $new_id      New offering record ID.
-	 * @param array<int, int>     $unit_map    Old unit ID to new unit ID map.
-	 * @param array<int, string>  $selected    Explicitly selected version IDs.
-	 * @param string              $now         Reference time (ISO-8601).
-	 * @param array<int, int>     $resource_ids Created resource IDs (by reference).
-	 * @param string              $operation_id Operation identifier.
+	 * @param int                $source_id   Source offering record ID.
+	 * @param int                $new_id      New offering record ID.
+	 * @param array<int, int>    $unit_map    Old unit ID to new unit ID map.
+	 * @param array<int, string> $selected    Explicitly selected version IDs.
+	 * @param string             $now         Reference time (ISO-8601).
+	 * @param array<int, int>    $resource_ids Created resource IDs (by reference).
+	 * @param string             $operation_id Operation identifier.
 	 * @return array<int, int>|WP_Error Created resource IDs.
 	 */
 	private static function copy_resources( int $source_id, int $new_id, array $unit_map, array $selected, string $now, array &$resource_ids, string $operation_id ): array|WP_Error {
 		foreach ( Relationships::reverse_for( $source_id, 'resource_offering' ) as $row ) {
-			$resource_id = Policy::sanitize_integer( $row['source_post_id'] ?? 0 );
+			$resource_id = Policy::sanitize_integer( $row['source_post_id'] );
 			$resource    = 0 < $resource_id ? get_post( $resource_id ) : null;
 			if ( ! $resource instanceof WP_Post || 'lps_resource' !== $resource->post_type || 'trash' === $resource->post_status ) {
 				continue;
 			}
-			$meta     = self::stored_meta( 'lps_resource', $resource_id );
-			$decision = self::resource_copy_decision( $meta, $selected, $now );
-			$fields   = self::resource_copy_fields( $meta, $decision );
-			$input  = array(
+			$meta      = self::stored_meta( 'lps_resource', $resource_id );
+			$decision  = self::resource_copy_decision( $meta, $selected, $now );
+			$fields    = self::resource_copy_fields( $meta, $decision );
+			$input     = array(
 				'title'       => $resource->post_title,
 				'excerpt'     => $resource->post_excerpt,
 				'content'     => $resource->post_content,
@@ -632,7 +632,7 @@ final class TeachingCopy {
 	private static function reusable_version_ids( int $source_id, string $now ): array {
 		$eligible = array();
 		foreach ( Relationships::reverse_for( $source_id, 'resource_offering' ) as $row ) {
-			$resource_id = Policy::sanitize_integer( $row['source_post_id'] ?? 0 );
+			$resource_id = Policy::sanitize_integer( $row['source_post_id'] );
 			$resource    = 0 < $resource_id ? get_post( $resource_id ) : null;
 			if ( ! $resource instanceof WP_Post || 'lps_resource' !== $resource->post_type || 'trash' === $resource->post_status ) {
 				continue;
@@ -689,8 +689,9 @@ final class TeachingCopy {
 		if ( ! is_array( $stored ) || array() === $stored ) {
 			return null;
 		}
-		$stored['replayed'] = true;
-		return $stored;
+		$manifest             = self::string_keyed( $stored );
+		$manifest['replayed'] = true;
+		return $manifest;
 	}
 
 	/**
@@ -716,7 +717,7 @@ final class TeachingCopy {
 		}
 		$data     = $error->get_error_data();
 		$existing = is_array( $data ) ? Policy::sanitize_integer( $data['existing_record'] ?? 0 ) : 0;
-		if ( 0 >= $existing || $operation_id !== Policy::scalar_string( get_post_meta( $existing, '_lps_copy_operation_id', true ) ) ) {
+		if ( 0 >= $existing || Policy::scalar_string( get_post_meta( $existing, '_lps_copy_operation_id', true ) ) !== $operation_id ) {
 			return null;
 		}
 		return self::rebuild_manifest( $existing, $operation_id );
@@ -735,13 +736,13 @@ final class TeachingCopy {
 		$resource_ids = array();
 		$selected     = array();
 		foreach ( Relationships::reverse_for( $new_id, 'unit_offering' ) as $row ) {
-			$unit_id = Policy::sanitize_integer( $row['source_post_id'] ?? 0 );
+			$unit_id = Policy::sanitize_integer( $row['source_post_id'] );
 			if ( 0 < $unit_id ) {
 				$unit_ids[] = $unit_id;
 			}
 		}
 		foreach ( Relationships::reverse_for( $new_id, 'resource_offering' ) as $row ) {
-			$resource_id = Policy::sanitize_integer( $row['source_post_id'] ?? 0 );
+			$resource_id = Policy::sanitize_integer( $row['source_post_id'] );
 			if ( 0 >= $resource_id ) {
 				continue;
 			}
@@ -867,7 +868,7 @@ final class TeachingCopy {
 		$definitions = Contracts::meta_fields()['lps_offering'] ?? array();
 		$sanitized   = array();
 		foreach ( $fields as $key => $value ) {
-			if ( ! is_string( $key ) || ! in_array( $key, TeachingContracts::CORRECTABLE_OFFERING_FIELDS, true ) ) {
+			if ( ! in_array( $key, TeachingContracts::CORRECTABLE_OFFERING_FIELDS, true ) ) {
 				continue;
 			}
 			$sanitized[ $key ] = isset( $definitions[ $key ]['sanitize_callback'] )
@@ -890,7 +891,7 @@ final class TeachingCopy {
 		if ( ! function_exists( 'wp_save_post_revision' ) ) {
 			return 0;
 		}
-		$force = static fn(): bool => false;
+		$force       = static fn(): bool => false;
 		add_filter( 'wp_save_post_revision_check_for_changes', $force, 99 );
 		$revision_id = wp_save_post_revision( $post_id );
 		remove_filter( 'wp_save_post_revision_check_for_changes', $force, 99 );
@@ -923,6 +924,25 @@ final class TeachingCopy {
 			$meta[ $key ] = get_post_meta( $post_id, $key, true );
 		}
 		return $meta;
+	}
+
+	/**
+	 * Narrows a boundary payload to a string-keyed map.
+	 *
+	 * @param mixed $value Boundary input.
+	 * @return array<string, mixed>
+	 */
+	private static function string_keyed( mixed $value ): array {
+		if ( ! is_array( $value ) ) {
+			return array();
+		}
+		$map = array();
+		foreach ( $value as $key => $item ) {
+			if ( is_string( $key ) ) {
+				$map[ $key ] = $item;
+			}
+		}
+		return $map;
 	}
 
 	/**

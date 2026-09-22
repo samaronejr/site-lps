@@ -78,10 +78,13 @@ describe("task-02 contract: token specification validates clean (happy path)", (
 
   it("gives every planned token a role and meets its declared contrast pair expectations", () => {
     const contract = loadContract(CONTRACT_PATH);
-    const tokens = new Map(contract.colors.tokens.map((t) => [t.token, t]));
-    for (const token of contract.colors.tokens) {
-      expect(token.role).toBeTruthy();
-      expect(token.usage).toBeTruthy();
+    // Pairs may reference a palette token or a declared CSS primitive (the on-dark
+    // reading tones, notice inks, focus-on-dark): both are part of the token set.
+    const all = [...contract.colors.tokens, ...(contract.colors.primitives ?? [])];
+    const tokens = new Map(all.map((t) => [t.token, t]));
+    for (const token of all) {
+      expect(token.role, token.token).toBeTruthy();
+      expect(token.usage, token.token).toBeTruthy();
     }
     for (const pair of contract.colors.pairs) {
       const ratio = contrastRatio(

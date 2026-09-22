@@ -19,6 +19,9 @@ require_once __DIR__ . '/includes/class-publicroutes.php';
 require_once __DIR__ . '/includes/class-searchroutes.php';
 require_once __DIR__ . '/includes/class-trustroutes.php';
 require_once __DIR__ . '/includes/class-seoroutes.php';
+require_once __DIR__ . '/includes/class-authsurfaces.php';
+require_once __DIR__ . '/includes/class-googleoauth.php';
+require_once __DIR__ . '/includes/class-authroutes.php';
 require_once __DIR__ . '/includes/class-dashboardroutes.php';
 require_once __DIR__ . '/includes/class-assetpolicy.php';
 require_once __DIR__ . '/includes/class-cachepolicy.php';
@@ -33,6 +36,7 @@ SearchRoutes::boot();
 TrustRoutes::boot();
 SeoRoutes::boot();
 DashboardRoutes::boot();
+AuthRoutes::boot();
 BrandAssets::boot();
 Delivery::boot();
 

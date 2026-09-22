@@ -137,7 +137,7 @@ final class Taxonomies {
 					++$created;
 					$term_id = (int) $result['term_id'];
 				} else {
-					$term_id = (int) $existing['term_id'];
+					$term_id = self::term_id( $existing );
 					$term    = get_term( $term_id, $taxonomy );
 					if ( $term instanceof WP_Term && ( $key !== $term->name || $key !== $term->slug || '' !== $term->description ) ) {
 						wp_update_term(
@@ -162,6 +162,15 @@ final class Taxonomies {
 			'restored' => $restored,
 			'errors'   => $errors,
 		);
+	}
+
+	/**
+	 * Extracts the term identifier term_exists() may return as row or scalar.
+	 *
+	 * @param array{term_id: string, term_taxonomy_id: string}|string $existing term_exists() row or scalar identifier.
+	 */
+	private static function term_id( $existing ): int {
+		return (int) ( is_array( $existing ) ? $existing['term_id'] : $existing );
 	}
 
 	/**

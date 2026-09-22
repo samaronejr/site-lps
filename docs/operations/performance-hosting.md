@@ -87,18 +87,17 @@ defect, not an acceptable implementation.
 - `wp-content/themes/lps-theme/assets/**` is immutable per release: serve
   `Cache-Control: public, max-age=31536000, immutable`. Cache busting is the theme version query
   string that WordPress appends.
-- Fonts are self-hosted, subset WOFF2. The approved payload is the six vendored IBM Plex faces
-  (`ibm-plex-sans-regular.woff2`, `ibm-plex-sans-medium.woff2`, `ibm-plex-sans-semibold.woff2`,
-  `ibm-plex-sans-bold.woff2`, `ibm-plex-mono-regular.woff2`, `ibm-plex-mono-semibold.woff2`,
-  58 KiB combined); only `ibm-plex-sans-regular.woff2` and `ibm-plex-sans-semibold.woff2` are
-  preloaded for the first paint. Preloads carry `crossorigin`, so the host must send
+- Fonts are self-hosted, subset WOFF2. The approved payload is the four vendored faces
+  (`inter-regular.woff2`, `inter-semibold.woff2`, `jetbrains-mono-regular.woff2`,
+  `space-grotesk-semibold.woff2`, 81 KiB combined); only `inter-regular.woff2` and
+  `space-grotesk-semibold.woff2` are preloaded for the first paint. Preloads carry `crossorigin`, so the host must send
   `Access-Control-Allow-Origin` for font requests if assets are served from a separate origin.
   No third-party font service may be introduced.
 - Regenerating the subsets after a font upgrade:
 
   ```sh
-  uv run --with "fonttools[woff]" pyftsubset ibm-plex-sans-<weight>.ttf \
-    --output-file=ibm-plex-sans-<weight>.woff2 --flavor=woff2 \
+  uv run --with "fonttools[woff]" pyftsubset <family>-<weight>.ttf \
+    --output-file=<family>-<weight>.woff2 --flavor=woff2 \
     --layout-features="kern,liga,clig,calt,ccmp,locl,mark,mkmk" \
     --unicodes="U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD" \
     --no-hinting --desubroutinize

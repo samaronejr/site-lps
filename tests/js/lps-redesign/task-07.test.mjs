@@ -103,13 +103,15 @@ describe("task-07: contract tokens are frozen identically in theme.json and them
   });
 });
 
-describe("task-07: self-hosted IBM Plex delivery", () => {
-  it("ships the six approved woff2 faces with swap and no remote font request", () => {
+describe("task-07: self-hosted font delivery", () => {
+  it("ships the four approved woff2 faces with swap and no remote font request", () => {
     const faces = [...css.matchAll(/@font-face\s*\{([^}]*)\}/g)].map((m) => m[1]);
-    expect(faces).toHaveLength(6);
+    expect(faces).toHaveLength(4);
     for (const block of faces) {
       expect(block).toMatch(/font-display:\s*swap/);
-      expect(block).toMatch(/url\("\.\.\/fonts\/ibm-plex-(sans|mono)-[a-z]+\.woff2"\)/);
+      expect(block).toMatch(
+        /url\("\.\.\/fonts\/(inter|jetbrains-mono|space-grotesk)-[a-z]+\.woff2"\)/,
+      );
     }
     expect(css).not.toMatch(/@import|url\(["']?https?:/i);
     expect(JSON.stringify(theme)).not.toMatch(/https?:\/\/[^"]*\.(?:woff2?|ttf|otf)/i);
@@ -118,7 +120,9 @@ describe("task-07: self-hosted IBM Plex delivery", () => {
   it("keeps the OFL 1.1 license beside the vendored files and records the fallback", () => {
     const license = readFileSync(`${THEME}/assets/fonts/OFL.txt`, "utf8");
     expect(license).toContain("SIL OPEN FONT LICENSE Version 1.1");
-    expect(license).toContain('Reserved Font Name "Plex"');
+    for (const family of ["Inter", "Space Grotesk", "JetBrains Mono"]) {
+      expect(license).toContain(family);
+    }
     // The recorded fallback: both stacks degrade to system families.
     expect(tokens.get("--font-interface")).toContain("system-ui");
     expect(tokens.get("--font-mono")).toContain("ui-monospace");
@@ -126,8 +130,8 @@ describe("task-07: self-hosted IBM Plex delivery", () => {
 
   it("preloads only the two first-paint faces through the asset policy", () => {
     const policy = readFileSync(`${THEME}/includes/class-assetpolicy.php`, "utf8");
-    expect(policy).toContain("ibm-plex-sans-regular.woff2");
-    expect(policy).toContain("ibm-plex-sans-semibold.woff2");
+    expect(policy).toContain("inter-regular.woff2");
+    expect(policy).toContain("space-grotesk-semibold.woff2");
     expect(policy).not.toContain("source-serif");
   });
 });
@@ -136,7 +140,14 @@ describe("task-07: typography floor and editor alignment", () => {
   it("keeps body text at the 16px floor with the contracted line heights", () => {
     expect(tokens.get("--type-body")).toBe("1rem");
     expect(tokens.get("--type-reading")).toBe("1.125rem");
-    expect(css).toMatch(/body\s*\{[^}]*line-height:\s*1\.6/);
+    // The body rhythm may be written literally or through its token; what the
+    // floor cares about is the resolved ratio.
+    const bodyBlock = /body\s*\{([^}]*)\}/.exec(css)?.[1] ?? "";
+    const declared = /line-height:\s*([^;]+);/.exec(bodyBlock)?.[1].trim() ?? "";
+    const resolved = declared.startsWith("var(")
+      ? tokens.get(declared.slice(4, -1).trim())
+      : declared;
+    expect(Number(resolved)).toBe(1.6);
     // No font-size below the meta floor anywhere in the stylesheet.
     for (const match of css.matchAll(/font-size:\s*([\d.]+)(rem|px)/g)) {
       const px = match[2] === "rem" ? Number(match[1]) * 16 : Number(match[1]);
@@ -157,11 +168,9 @@ describe("task-07: typography floor and editor alignment", () => {
     expect(theme.styles.blocks["core/post-content"].typography.fontFamily).toBe(
       "var:preset|font-family|interface",
     );
-    // The editor's font picker offers only the two approved roles.
-    expect(theme.settings.typography.fontFamilies.map((f) => f.slug)).toEqual([
-      "interface",
-      "mono",
-    ]);
+    // The editor's font picker offers exactly the contract's approved families.
+    const contractSlugs = contract.typography.families.map((f) => f.token.replace("--font-", ""));
+    expect(theme.settings.typography.fontFamilies.map((f) => f.slug)).toEqual(contractSlugs);
   });
 });
 
@@ -187,9 +196,10 @@ describe("task-07: contrast is verified on light and dark contexts", () => {
       ["--color-surface", "--color-action-hover", 4.5],
     ];
     for (const [fg, bg, min] of pairs) {
-      expect(contrastRatio(tokens.get(fg), tokens.get(bg)), `${fg} on ${bg}`).toBeGreaterThanOrEqual(
-        min,
-      );
+      expect(
+        contrastRatio(tokens.get(fg), tokens.get(bg)),
+        `${fg} on ${bg}`,
+      ).toBeGreaterThanOrEqual(min);
     }
   });
 });
@@ -205,12 +215,17 @@ describe("task-07: primitives, motion and print rules hold", () => {
 
   it("transitions only composited properties and honors reduced motion", () => {
     expect(css).not.toMatch(/transition:\s*all\b/i);
+    // Composited properties only. `translate`, `rotate` and `scale` are the
+    // independent transform properties: composited exactly like `transform`.
     const allowed = new Set([
       "color",
       "background-color",
       "border-color",
       "text-decoration-thickness",
       "transform",
+      "translate",
+      "rotate",
+      "scale",
       "opacity",
       "filter",
     ]);
@@ -328,13 +343,12 @@ describe("task-07 failure path: injected defects are caught, never silently abso
   it("a contract-token drift in :root is a finding", async () => {
     const report = await checkMutatedTheme((root) => {
       const file = `${root}/assets/css/theme.css`;
-      writeFileSync(
-        file,
-        readFileSync(file, "utf8").replace(
-          "--color-action: #165a96;",
-          "--color-action: #165a97;",
-        ),
-      );
+      const declared = contract.colors.tokens.find((t) => t.token === "--color-action");
+      const shipped = readFileSync(file, "utf8").match(/--color-action:\s*(#[0-9a-f]{6});/i)[1];
+      // Perturb the last hex digit: one step of drift, whatever the palette is.
+      const drifted = `${shipped.slice(0, -1)}${Number.parseInt(shipped.slice(-1), 16) ^ 0x1}`;
+      expect(shipped.toUpperCase()).toBe(declared.value.toUpperCase());
+      writeFileSync(file, readFileSync(file, "utf8").replace(shipped, drifted));
     });
     expect(report.status).toBe("failed");
     expect(codes(report).has("CONTRACT_VALUE_DRIFT")).toBe(true);
@@ -363,5 +377,4 @@ describe("task-07 failure path: injected defects are caught, never silently abso
     );
     expect(clipped(injected).length).toBeGreaterThan(0);
   });
-
 });

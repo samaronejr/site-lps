@@ -16,6 +16,50 @@ require_once __DIR__ . '/class-searchsurfaces.php';
 /** Owns the bilingual global shell and its native, no-JavaScript controls. */
 final class Shell {
 	/**
+	 * Frozen sign-in path segments per locale.
+	 *
+	 * The sign-in surface and the professor area are one route family: the form
+	 * posts back to itself and hands the visitor to the area, so both segments
+	 * are declared together and never localized ad hoc.
+	 *
+	 * @var array<string, string>
+	 */
+	private const SIGNIN_SEGMENTS = array(
+		'pt-br' => 'entrar',
+		'en'    => 'sign-in',
+	);
+
+	/**
+	 * Frozen professor-area path segments per locale.
+	 *
+	 * @var array<string, string>
+	 */
+	private const MEMBER_SEGMENTS = array(
+		'pt-br' => 'area-do-professor',
+		'en'    => 'faculty-area',
+	);
+
+	/**
+	 * Frozen utility (task-level) destinations shown above the masthead.
+	 *
+	 * @var array<string, array<string, string>>
+	 */
+	private const UTILITY_LINKS = array(
+		'pt-br' => array(
+			'Publicações'    => '/pt-br/publicacoes/',
+			'Infraestrutura' => '/pt-br/infraestrutura/',
+			'Contato'        => '/pt-br/contato/',
+			'Acessibilidade' => '/pt-br/acessibilidade/',
+		),
+		'en'    => array(
+			'Publications'   => '/en/publications/',
+			'Infrastructure' => '/en/infrastructure/',
+			'Contact'        => '/en/contact/',
+			'Accessibility'  => '/en/accessibility/',
+		),
+	);
+
+	/**
 	 * Returns the frozen primary navigation for one locale.
 	 *
 	 * @param string $locale Supported locale slug.
@@ -53,6 +97,59 @@ final class Shell {
 				'url'   => $english ? '/en/news/' : '/pt-br/noticias/',
 			),
 		);
+	}
+
+	/**
+	 * Returns the branded sign-in path of one locale.
+	 *
+	 * @param string $locale Supported locale slug.
+	 */
+	public static function signin_path( string $locale ): string {
+		$segment = self::SIGNIN_SEGMENTS[ $locale ] ?? self::SIGNIN_SEGMENTS['pt-br'];
+		return '/' . $locale . '/' . $segment . '/';
+	}
+
+	/**
+	 * Returns the professor-area path of one locale.
+	 *
+	 * @param string $locale Supported locale slug.
+	 */
+	public static function member_path( string $locale ): string {
+		$segment = self::MEMBER_SEGMENTS[ $locale ] ?? self::MEMBER_SEGMENTS['pt-br'];
+		return '/' . $locale . '/' . $segment . '/';
+	}
+
+	/**
+	 * Returns the task-level utility destinations of one locale.
+	 *
+	 * @param string $locale Supported locale slug.
+	 * @return array<string, string> Label to path.
+	 */
+	public static function utility_links( string $locale ): array {
+		return self::UTILITY_LINKS[ $locale ] ?? self::UTILITY_LINKS['pt-br'];
+	}
+
+	/**
+	 * Builds the session link of the utility band.
+	 *
+	 * The link is the only place the public shell acknowledges the session: it
+	 * names the sign-in surface while signed out and the professor area while
+	 * signed in, so a returning professor reaches their own working surface
+	 * without a second navigation model. Both states render the same element —
+	 * only the destination and the state class differ — so a cookieless page
+	 * cache never serves a layout that disagrees with the session.
+	 *
+	 * @param string $locale Supported locale slug.
+	 */
+	private static function session_link( string $locale ): string {
+		$english = 'en' === $locale;
+		$signed  = function_exists( 'is_user_logged_in' ) && is_user_logged_in();
+		$label   = $signed
+			? ( $english ? 'My area' : 'Minha área' )
+			: ( $english ? 'Sign in' : 'Entrar' );
+		$url     = $signed ? self::member_path( $locale ) : self::signin_path( $locale );
+		return '<a class="lps-session-link' . ( $signed ? ' lps-session-link--active' : '' ) . '" href="'
+			. self::escape( $url ) . '">' . self::escape( $label ) . '</a>';
 	}
 
 	/**
@@ -102,10 +199,21 @@ final class Shell {
 			)
 		);
 		$mark           = self::masthead_brand();
+		$quick_label    = $english ? 'Quick access' : 'Acesso rápido';
+		$utility_items  = '';
+		foreach ( self::utility_links( $locale ) as $label => $url ) {
+			$current        = rtrim( $path, '/' ) === rtrim( $url, '/' ) ? ' aria-current="page"' : '';
+			$utility_items .= '<li><a' . $current . ' href="' . self::escape( $url ) . '">' . self::escape( $label ) . '</a></li>';
+		}
 		return '<a class="lps-skip-link" href="#lps-main">' . self::escape( $skip ) . '</a>'
 			. '<header class="lps-site-header">'
-			. '<div class="lps-affiliation lps-page-grid"><p lang="pt-BR">Laboratório de Processamento de Sinais <span aria-hidden="true">/</span> UFRJ <span aria-hidden="true">/</span> COPPE</p><p class="lps-meta" lang="pt-BR">Universidade Federal do Rio de Janeiro</p></div>'
-			. '<div class="lps-masthead lps-page-grid"><a class="lps-brand" href="' . $home . '" aria-label="LPS — ' . ( $english ? 'home' : 'início' ) . '">' . $mark . '</a><p' . ( $english ? '' : ' lang="pt-BR"' ) . '>' . ( $english ? 'Signal Processing Laboratory' : 'Laboratório de Processamento de Sinais' ) . '</p></div>'
+			. '<div class="lps-affiliation lps-utility-bar"><div class="lps-utility-inner lps-page-grid"><p lang="pt-BR">Laboratório de Processamento de Sinais <span aria-hidden="true">/</span> UFRJ <span aria-hidden="true">/</span> COPPE</p><p class="lps-meta" lang="pt-BR">Universidade Federal do Rio de Janeiro</p>' . ( $english ? '<p>Signal Processing Laboratory</p>' : '' ) . '<nav aria-label="' . self::escape( $quick_label ) . '"><ul class="lps-utility-links">' . $utility_items . '</ul></nav>' . self::session_link( $locale ) . '</div></div>'
+			// The masthead is the artwork alone: the lockup already sets the
+			// laboratory name in type, so repeating it in HTML beside the mark would
+			// say it twice and crowd the mark. The home link keeps its accessible
+			// name, and the affiliation band above still names the institution in a
+			// language-tagged Portuguese paragraph.
+			. '<div class="lps-masthead lps-page-grid"><a class="lps-brand" href="' . $home . '" aria-label="LPS — ' . ( $english ? 'home' : 'início' ) . '">' . $mark . '</a></div>'
 			. '<details class="lps-shell-disclosure"><summary>' . self::escape( $menu ) . '</summary><div class="lps-nav-panel lps-page-grid">'
 			. '<nav class="lps-primary-nav" aria-label="' . self::escape( $nav_label ) . '"><ul>' . $items . '</ul></nav>'
 			. '<div class="lps-shell-tools"><form class="lps-search" role="search" action="' . $search_action . '" method="get"><label for="lps-search-input">' . self::escape( $search_label ) . '</label><div><input id="lps-search-input" name="q" type="search" autocomplete="off"><button type="submit">' . self::escape( $search_button ) . '</button></div></form>'
@@ -130,31 +238,21 @@ final class Shell {
 		if ( '' === $sources['full'] || '' === $sources['compact'] ) {
 			return 'LPS';
 		}
-		// Density descriptors (`1x`/`2x`) select by device pixel ratio, not by
-		// layout width: the compact variant (≈4.81:1) is the 1x source on
-		// narrow slots and the full lockup (≈6.82:1) the 2x source, so a
-		// high-density handset still decodes the legible variant while a
-		// desktop decodes the full artwork. Width descriptors would invert
-		// that choice (the engine would prefer the 1322w compact file at
-		// 220 CSS px even at 3x density).
 		// The artwork is the only content of the home link, so it carries the
 		// wordmark as its text alternative: an empty alt would leave the link
 		// unnamed for assistive technology that ignores the link's aria-label.
 		// The logo never claims a priority hint: fetchpriority is reserved for
 		// the single LCP image so the brand mark cannot compete with it.
-		return '<img class="lps-logo" src="' . self::escape( $sources['full'] ) . '" srcset="' . self::escape( $sources['compact'] ) . ' 1x, ' . self::escape( $sources['full'] ) . ' 2x" sizes="220px" alt="LPS" width="2052" height="301">';
+		return '<img class="lps-logo" src="' . self::escape( $sources['full'] ) . '" srcset="' . self::escape( $sources['compact'] ) . ' 1x, ' . self::escape( $sources['full'] ) . ' 2x" sizes="190px" alt="LPS" width="1622" height="804">';
 	}
 
 	/**
-	 * Resolves the masthead artwork sources: full lockup first, compact
-	 * variant second — a faithful swap, never a crop.
+	 * Resolves the masthead artwork sources: the COPPE/UFRJ lockup in its
+	 * tight-crop variant for both slots — a faithful swap, never a crop.
 	 *
-	 * The full lockup stays legible only at 240px rendered width and above;
-	 * below that the compact variant (the same kept paths, descriptive
-	 * lettering omitted) carries the identity at 28-40px height. The
-	 * Density descriptors keep the compact variant legible on narrow
-	 * high-density slots; the engine — not client code — picks the
-	 * fitting source.
+	 * The lockup (≈2.02:1) holds the descriptive COPPE · POLI · UFRJ
+	 * lettering at the ~90px rendered height of the masthead slot, so one
+	 * source serves both density descriptors.
 	 *
 	 * @return array{full: string, compact: string} Resolved artwork URLs;
 	 *                                              empty when unresolvable.
@@ -162,11 +260,14 @@ final class Shell {
 	public static function logo_sources(): array {
 		$base = self::brand_base_url();
 		if ( '' === $base ) {
-			return array( 'full' => '', 'compact' => '' );
+			return array(
+				'full'    => '',
+				'compact' => '',
+			);
 		}
 		return array(
-			'full'    => $base . 'lps_logo_vector.svg',
-			'compact' => $base . 'lps_logo_compact.svg',
+			'full'    => $base . 'lps_coppe_blue_lockup.svg',
+			'compact' => $base . 'lps_coppe_blue_lockup.svg',
 		);
 	}
 
@@ -273,10 +374,11 @@ final class Shell {
 	/**
 	 * Builds the institutional footer.
 	 *
-	 * The footer band keeps the text wordmark: the artwork's dark blues
-	 * fall below the legibility floor on the anchor fill, so only light
-	 * surfaces may carry the full-colour mark. The teaching entrance
-	 * keeps its canonical locale route beside the four utility links.
+	 * The footer band carries the same lockup as the masthead in its
+	 * reversed off-white variant, served through the brand endpoint at a
+	 * smaller size; the full-colour artwork stays off dark surfaces. The
+	 * teaching entrance keeps its canonical locale route beside the four
+	 * utility links.
 	 *
 	 * @param string $locale Supported locale slug.
 	 */
@@ -305,68 +407,8 @@ final class Shell {
 		$statement = $english ? 'Part of COPPE at the Federal University of Rio de Janeiro.' : 'Parte da COPPE na Universidade Federal do Rio de Janeiro.';
 		$home      = $english ? '/en/' : '/pt-br/';
 		$home_name = $english ? 'LPS - home' : 'LPS - início';
-		return '<footer class="lps-site-footer"><div class="lps-footer-grid lps-page-grid"><a class="lps-wordmark lps-wordmark-light" href="' . $home . '" aria-label="' . self::escape( $home_name ) . '">' . self::mark_symbol() . 'LPS</a><div><p>' . self::escape( $statement ) . '</p><p class="lps-meta">UFRJ <span aria-hidden="true">/</span> COPPE <span aria-hidden="true">/</span> LPS</p></div><nav aria-label="' . self::escape( $nav_label ) . '"><ul>' . $items . '</ul></nav></div></footer>';
-	}
-
-	/**
-	 * Returns the monochrome symbol variant of the institutional mark for UI chrome.
-	 *
-	 * DESIGN.md §9: wherever the mark is itself an interactive affordance or sits in
-	 * UI chrome, only the monochrome derivative is used, coloured by `currentColor`
-	 * from the surrounding token — never a brand token. The symbol is the variant
-	 * without lettering, so it has no legibility floor and needs no step-down at
-	 * narrow widths; the compact and full lockups carry lettering and are reserved
-	 * for non-interactive identity surfaces.
-	 *
-	 * The instance is decorative: the adjacent wordmark already names the
-	 * institution, so the artwork is `aria-hidden` and contributes no accessible
-	 * name. The file is shipped chrome-ready; the only runtime work is a read.
-	 */
-	private static function mark_symbol(): string {
-		if ( null === self::$mark_symbol ) {
-			self::$mark_symbol = self::load_mark_symbol();
-		}
-		return self::$mark_symbol;
-	}
-
-	/**
-	 * Cached monochrome mark symbol markup.
-	 *
-	 * @var string|null
-	 */
-	private static $mark_symbol = null;
-
-	/**
-	 * Reads and sanitizes the monochrome mark symbol for inline chrome use.
-	 *
-	 * @return string The sanitized SVG markup, or an empty string when the
-	 *                asset is missing or malformed.
-	 */
-	private static function load_mark_symbol(): string {
-		$path = dirname( __DIR__ ) . '/assets/img/mark/lps-mark-mono-symbol.svg';
-		$svg  = is_readable( $path ) ? file_get_contents( $path ) : false; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local theme asset, not a remote URL.
-		if ( ! is_string( $svg ) || ! str_starts_with( $svg, '<svg ' ) ) {
-			return '';
-		}
-		$replaced = preg_replace(
-			'/^<svg /',
-			'<svg class="lps-mark" aria-hidden="true" focusable="false" ',
-			trim( $svg ),
-			1
-		);
-		if ( ! is_string( $replaced ) ) {
-			return '';
-		}
-		// The symbol is inlined once per chrome surface, so document-scoped
-		// identifiers would repeat on every page (WCAG 4.1.1). The instance is
-		// decorative and aria-hidden, so its title, description, and labelling
-		// attributes are stripped along with every id.
-		$stripped = preg_replace( '#<title\b[^>]*>.*?</title>#su', '', $replaced );
-		$stripped = is_string( $stripped ) ? $stripped : $replaced;
-		$stripped = preg_replace( '#<desc\b[^>]*>.*?</desc>#su', '', $stripped );
-		$stripped = is_string( $stripped ) ? $stripped : $replaced;
-		$stripped = preg_replace( '/\s(?:id|role|aria-labelledby)="[^"]*"/', '', $stripped );
-		return is_string( $stripped ) ? $stripped : $replaced;
+		$logo      = '<img class="lps-logo lps-footer-logo" src="' . self::brand_base_url() . 'lps_coppe_reversed_lockup.svg" alt="" width="1622" height="804" loading="lazy" decoding="async">';
+		return '<footer class="lps-site-footer"><div class="lps-footer-grid lps-page-grid"><a class="lps-wordmark lps-wordmark-light" href="' . $home . '" aria-label="' . self::escape( $home_name ) . '">' . $logo . '</a><div><p>' . self::escape( $statement ) . '</p><p class="lps-meta">UFRJ <span aria-hidden="true">/</span> COPPE <span aria-hidden="true">/</span> LPS</p></div><nav aria-label="' . self::escape( $nav_label ) . '"><ul>' . $items . '</ul></nav></div></footer>';
 	}
 
 	/**
@@ -542,8 +584,8 @@ final class Shell {
 		if ( ! function_exists( 'is_front_page' ) || is_front_page() || is_404() ) {
 			return '';
 		}
-		$path    = self::request_path();
-		$locale  = self::current_locale( $path );
+		$path   = self::request_path();
+		$locale = self::current_locale( $path );
 		if ( null !== TeachingRoutes::match_path( $path ) ) {
 			// Teaching routes carry their full context: landing, course, and the
 			// offering's section crumb — the same trail the JSON-LD graph emits.
@@ -782,37 +824,34 @@ final class Shell {
 			$locale      = self::current_locale( $path );
 			$counterpart = SearchRoutes::search_path( 'pt-br' === $locale ? 'en' : 'pt-br' );
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only propagation of the current search query.
-			$query = isset( $_GET['q'] ) && is_string( $_GET['q'] ) ? trim( sanitize_text_field( wp_unslash( $_GET['q'] ) ) ) : '';
+			$query  = isset( $_GET['q'] ) && is_string( $_GET['q'] ) ? trim( sanitize_text_field( wp_unslash( $_GET['q'] ) ) ) : '';
 			$suffix = '' === $query ? '' : '?q=' . rawurlencode( $query );
 			return array(
-				$locale => $path . $suffix,
+				$locale                              => $path . $suffix,
 				'pt-br' === $locale ? 'en' : 'pt-br' => $counterpart . $suffix,
 			);
 		}
 		if ( function_exists( 'is_singular' ) && is_singular() && function_exists( 'pll_get_post_translations' ) && function_exists( 'get_queried_object_id' ) ) {
-			$result       = array();
-			$translations = pll_get_post_translations( get_queried_object_id() );
-			if ( is_array( $translations ) ) {
-				foreach ( $translations as $slug => $post_id ) {
-					if ( ! is_int( $post_id ) || ( 'pt-br' !== $slug && 'en' !== $slug ) ) {
-						continue;
-					}
-					$post = get_post( $post_id );
-					if ( ! $post instanceof WP_Post || 'publish' !== $post->post_status ) {
-						continue;
-					}
-					if ( ! SeoRoutes::publicly_visible( $post, $slug ) ) {
-						continue;
-					}
-					$canonical = SeoRoutes::record_path( $post, $slug );
-					if ( '' !== $canonical ) {
-						$result[ $slug ] = $canonical;
-						continue;
-					}
-					$url = get_permalink( $post_id );
-					if ( is_string( $url ) ) {
-						$result[ $slug ] = $url;
-					}
+			$result = array();
+			foreach ( pll_get_post_translations( get_queried_object_id() ) as $slug => $post_id ) {
+				if ( 'pt-br' !== $slug && 'en' !== $slug ) {
+					continue;
+				}
+				$post = get_post( $post_id );
+				if ( ! $post instanceof WP_Post || 'publish' !== $post->post_status ) {
+					continue;
+				}
+				if ( ! SeoRoutes::publicly_visible( $post, $slug ) ) {
+					continue;
+				}
+				$canonical = SeoRoutes::record_path( $post, $slug );
+				if ( '' !== $canonical ) {
+					$result[ $slug ] = $canonical;
+					continue;
+				}
+				$url = get_permalink( $post_id );
+				if ( is_string( $url ) ) {
+					$result[ $slug ] = $url;
 				}
 			}
 			return $result;
@@ -820,20 +859,10 @@ final class Shell {
 		$locale      = self::current_locale( $path );
 		$counterpart = SeoRoutes::counterpart_path( $path, $locale );
 		if ( '' !== $counterpart ) {
-			$variants = array(
-				$locale => $path,
+			return array(
+				$locale                              => $path,
 				'pt-br' === $locale ? 'en' : 'pt-br' => $counterpart,
 			);
-			// The search form state survives the language switch so a reader
-			// never loses the term they typed.
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only propagation of the current search query.
-			$query = isset( $_GET['q'] ) && is_string( $_GET['q'] ) ? trim( sanitize_text_field( wp_unslash( $_GET['q'] ) ) ) : '';
-			if ( '' !== $query && null !== SearchRoutes::match_path( $path ) ) {
-				foreach ( $variants as $slug => $variant_path ) {
-					$variants[ $slug ] = $variant_path . '?q=' . rawurlencode( $query );
-				}
-			}
-			return $variants;
 		}
 		return array(
 			'pt-br' => '/pt-br/',

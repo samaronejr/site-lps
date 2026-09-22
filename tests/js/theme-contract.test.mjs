@@ -4,6 +4,19 @@ import { describe, expect, test } from "vitest";
 const themeRoot = "wp-content/themes/lps-theme";
 const read = (path) => readFileSync(`${themeRoot}/${path}`, "utf8");
 
+/**
+ * The machine-readable contract is the single source of truth: theme.json is a
+ * rendering of it for the editor, and assets/css/theme.css a rendering of it for
+ * the site (check-theme.mjs holds the stylesheet to the same values). Reading the
+ * expected palette from the contract keeps this test honest across a design
+ * revision instead of pinning a palette that has been superseded.
+ */
+const contract = JSON.parse(readFileSync("docs/design/design-contract.json", "utf8"));
+const contractPalette = contract.colors.tokens.map(({ slug, value }) => ({
+  slug,
+  color: value,
+}));
+
 describe("LPS block theme contract", () => {
   test("declares the binding palette, typography, spacing, and control-radius settings", () => {
     // Given: the production block theme configuration.
@@ -14,7 +27,7 @@ describe("LPS block theme contract", () => {
     expect(theme.version).toBe(3);
     expect(theme.settings.appearanceTools).toBe(false);
     expect(theme.settings.useRootPaddingAwareAlignments).toBe(true);
-    expect(theme.settings.layout).toEqual({ contentSize: "68ch", wideSize: "80rem" });
+    expect(theme.settings.layout).toEqual({ contentSize: "68ch", wideSize: "82.5rem" });
     expect(theme.settings.color.custom).toBe(false);
     expect(theme.settings.color.customDuotone).toBe(false);
     expect(theme.settings.color.customGradient).toBe(false);
@@ -44,66 +57,38 @@ describe("LPS block theme contract", () => {
     });
     expect(theme.settings.blocks["core/image"]).toEqual({ border: { radius: false } });
 
-    // Then: the unified canvas carries the full status set, washes included.
-    // The dark-surface focus token is a CSS-only primitive, not a palette slug.
-    expect(theme.settings.color.palette).toHaveLength(17);
-    expect(theme.settings.color.palette.map(({ slug }) => slug)).toEqual([
-      "canvas",
-      "surface",
-      "anchor",
-      "anchor-deep",
-      "action",
-      "action-hover",
-      "text",
-      "text-muted",
-      "rule-quiet",
-      "boundary-strong",
-      "success",
-      "warning",
-      "error",
-      "info-wash",
-      "success-wash",
-      "warning-wash",
-      "error-wash",
-    ]);
-    const colors = Object.fromEntries(
-      theme.settings.color.palette.map(({ slug, color }) => [slug, color]),
+    // Then: the editor palette is exactly the machine contract's colour set,
+    // in contract order — no more, no fewer, no hand-picked values.
+    expect(theme.settings.color.palette).toHaveLength(contractPalette.length);
+    expect(theme.settings.color.palette.map(({ slug }) => slug)).toEqual(
+      contractPalette.map(({ slug }) => slug),
     );
-    expect(colors).toMatchObject({
-      canvas: "#F5F7FA",
-      surface: "#FFFFFF",
-      anchor: "#12304A",
-      "anchor-deep": "#0C2237",
-      action: "#165A96",
-      "action-hover": "#0F4A7E",
-      text: "#182B3A",
-      "text-muted": "#526477",
-      "rule-quiet": "#D7E0E8",
-      "boundary-strong": "#74869A",
-      success: "#216E4E",
-      warning: "#7A4A00",
-      error: "#A12622",
-      "info-wash": "#DDECEF",
-      "success-wash": "#E0ECE5",
-      "warning-wash": "#F2E8D2",
-      "error-wash": "#F2DEDA",
-    });
+    expect(
+      Object.fromEntries(theme.settings.color.palette.map(({ slug, color }) => [slug, color])),
+    ).toEqual(Object.fromEntries(contractPalette.map(({ slug, color }) => [slug, color])));
+    // The dark-surface focus token is a CSS-only primitive, never a palette slug.
+    expect(theme.settings.color.palette.map(({ slug }) => slug)).not.toContain("focus-on-dark");
 
-    // Then: the sans-led interface role leads and the mono is scoped to
-    // identifiers; the retired serif role ships no family and no font files.
-    expect(theme.settings.typography.fontFamilies.map(({ slug }) => slug)).toEqual([
-      "interface",
-      "mono",
-    ]);
+    // Then: the display, interface and mono roles map to the contracted
+    // families — derived from the contract like the palette above, so a
+    // type revision cannot drift between contract and theme.
+    const contractFamilies = contract.typography.families.map((family) =>
+      family.token.replace("--font-", ""),
+    );
+    expect(theme.settings.typography.fontFamilies.map(({ slug }) => slug)).toEqual(
+      contractFamilies,
+    );
     const families = Object.fromEntries(
       theme.settings.typography.fontFamilies.map(({ slug, ...rest }) => [slug, rest]),
     );
-    expect(families.interface.fontFamily).toContain("IBM Plex Sans");
+    expect(families.display.fontFamily).toContain("Space Grotesk");
+    expect(families.display.fontFace).toHaveLength(1);
+    expect(families.interface.fontFamily).toContain("Inter");
     expect(families.interface.fontFamily).toContain("system-ui");
-    expect(families.interface.fontFace).toHaveLength(4);
-    expect(families.mono.fontFamily).toContain("IBM Plex Mono");
+    expect(families.interface.fontFace).toHaveLength(2);
+    expect(families.mono.fontFamily).toContain("JetBrains Mono");
     expect(families.mono.fontFamily).toContain("ui-monospace");
-    expect(families.mono.fontFace).toHaveLength(2);
+    expect(families.mono.fontFace).toHaveLength(1);
     for (const family of theme.settings.typography.fontFamilies) {
       for (const face of family.fontFace ?? []) {
         expect(face.fontDisplay).toBe("swap");
@@ -154,14 +139,14 @@ describe("LPS block theme contract", () => {
     expect(styles.typography.fontFamily).toBe("var:preset|font-family|interface");
     expect(styles.typography.fontSize).toBe("var:preset|font-size|body");
 
-    // Then: headings are sans-led with the contracted per-level weights.
+    // Then: headings are display-led at the contracted semibold weight.
     expect(styles.elements.heading.color.text).toBe("var:preset|color|text");
-    expect(styles.elements.heading.typography.fontFamily).toBe("var:preset|font-family|interface");
-    expect(styles.elements.h1.typography.fontFamily).toBe("var:preset|font-family|interface");
-    expect(styles.elements.h1.typography.fontWeight).toBe("700");
+    expect(styles.elements.heading.typography.fontFamily).toBe("var:preset|font-family|display");
+    expect(styles.elements.h1.typography.fontFamily).toBe("var:preset|font-family|display");
+    expect(styles.elements.h1.typography.fontWeight).toBe("600");
     for (const level of ["h2", "h3", "h4"]) {
-      expect(styles.elements[level].typography.fontFamily).toBe("var:preset|font-family|interface");
-      expect(styles.elements[level].typography.fontWeight).toBe("650");
+      expect(styles.elements[level].typography.fontFamily).toBe("var:preset|font-family|display");
+      expect(styles.elements[level].typography.fontWeight).toBe("600");
     }
 
     // Then: long-form reading stays on the interface family at the reading
@@ -175,7 +160,7 @@ describe("LPS block theme contract", () => {
 
     // Then: links and buttons keep the institutional action treatment.
     expect(styles.elements.link.color.text).toBe("var:preset|color|action");
-    expect(styles.elements.button.border.radius).toBe("4px");
+    expect(styles.elements.button.border.radius).toBe(contract.geometry.controlRadius);
     expect(styles.elements.button.color).toEqual({
       background: "var:preset|color|action",
       text: "var:preset|color|surface",
@@ -197,18 +182,18 @@ describe("LPS block theme contract", () => {
     // Then: fonts are local woff2 with swap, and the theme has no remote
     // imports or copied logo asset.
     for (const face of [
-      "ibm-plex-sans-regular.woff2",
-      "ibm-plex-sans-medium.woff2",
-      "ibm-plex-sans-semibold.woff2",
-      "ibm-plex-sans-bold.woff2",
-      "ibm-plex-mono-regular.woff2",
-      "ibm-plex-mono-semibold.woff2",
+      "inter-regular.woff2",
+      "inter-semibold.woff2",
+      "jetbrains-mono-regular.woff2",
+      "space-grotesk-semibold.woff2",
     ]) {
       expect(css).toContain(`../fonts/${face}`);
     }
     expect(css).not.toMatch(/@import|url\(["']?https?:/i);
     expect(license).toContain("SIL OPEN FONT LICENSE Version 1.1");
-    expect(license).toContain('Reserved Font Name "Plex"');
+    for (const family of ["Inter", "Space Grotesk", "JetBrains Mono"]) {
+      expect(license).toContain(family);
+    }
   });
 
   test("renders the native shell disclosure closed on mobile and always open on desktop", () => {

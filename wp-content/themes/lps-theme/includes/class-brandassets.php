@@ -29,13 +29,25 @@ final class BrandAssets {
 	 * @var array<string, array{path: string, sha256: string}>
 	 */
 	private const FILES = array(
-		'lps_logo_vector.svg'  => array(
+		'lps_logo_vector.svg'           => array(
 			'path'   => 'assets/brand/lps_logo_vector.svg',
 			'sha256' => 'f369f9e49c81e297d30fa8e240267667dddf8b89f0d26c494636f9429027a23b',
 		),
-		'lps_logo_compact.svg' => array(
+		'lps_logo_compact.svg'          => array(
 			'path'   => 'assets/brand/lps_logo_compact.svg',
 			'sha256' => '3a64a8977731b5df5ab5f716a677ac60959976e74ae5c5e62ae40398c3f77fec',
+		),
+		'lps_coppe_blue.svg'            => array(
+			'path'   => 'assets/brand/lps_coppe_blue.svg',
+			'sha256' => '5144e227ce3c4dc781d5084e48ddd03bade50103067e094aa15ca4817878a32d',
+		),
+		'lps_coppe_blue_lockup.svg'     => array(
+			'path'   => 'assets/brand/lps_coppe_blue_lockup.svg',
+			'sha256' => '301f8a662024152842752b3b695fa6bbd53c227909aa2b7988707213a9fa3de4',
+		),
+		'lps_coppe_reversed_lockup.svg' => array(
+			'path'   => 'assets/brand/lps_coppe_reversed_lockup.svg',
+			'sha256' => '40f7aff5220cc71f490097c9721df1aa8e187277b98e9df7d2d2389a9f9e36d8',
 		),
 	);
 
@@ -147,6 +159,7 @@ final class BrandAssets {
 	 * Serves one artwork file through the REST fallback route.
 	 *
 	 * @param mixed $request REST request.
+	 * @return array{file: string, content_type: string, sha256: string, bytes: string}|\WP_Error
 	 */
 	public static function rest_serve( mixed $request ): array|\WP_Error {
 		$file = is_object( $request ) && method_exists( $request, 'get_param' ) ? $request->get_param( 'file' ) : null;
@@ -243,14 +256,14 @@ final class BrandAssets {
 		// is three levels above the theme directory.
 		if ( function_exists( 'get_template_directory' ) ) {
 			$theme = get_template_directory();
-			if ( is_string( $theme ) && '' !== $theme ) {
+			if ( '' !== $theme ) {
 				$roots[] = dirname( $theme ) . '/' . $relative;
 				$roots[] = rtrim( $theme, '/' ) . '/' . $relative;
 			}
 		}
 		if ( function_exists( 'get_stylesheet_directory' ) ) {
 			$sheet = get_stylesheet_directory();
-			if ( is_string( $sheet ) && '' !== $sheet ) {
+			if ( '' !== $sheet ) {
 				$roots[] = dirname( $sheet ) . '/' . $relative;
 				$roots[] = rtrim( $sheet, '/' ) . '/' . $relative;
 			}
@@ -275,7 +288,8 @@ final class BrandAssets {
 			}
 		}
 		if ( isset( $_SERVER['REQUEST_URI'] ) && is_string( $_SERVER['REQUEST_URI'] ) ) {
-			$path = function_exists( 'wp_parse_url' ) ? wp_parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH ) : null;
+			$request_uri = sanitize_url( wp_unslash( (string) $_SERVER['REQUEST_URI'] ) );
+			$path        = function_exists( 'wp_parse_url' ) ? wp_parse_url( $request_uri, PHP_URL_PATH ) : null;
 			if ( is_string( $path ) ) {
 				return self::match_path( $path );
 			}

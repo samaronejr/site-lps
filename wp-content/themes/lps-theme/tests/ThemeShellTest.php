@@ -172,13 +172,13 @@ final class ThemeShellTest extends \PHPUnit\Framework\TestCase {
 		self::assertStringContainsString( 'action="/pt-br/busca/"', $header );
 		self::assertStringContainsString( 'name="q"', $header );
 		self::assertStringContainsString( 'hreflang="en"', $header );
-		self::assertStringContainsString( '/lps-brand/lps_logo_vector.svg', $header );
+		self::assertStringContainsString( '/lps-brand/lps_coppe_blue_lockup.svg', $header );
 		self::assertStringContainsString( 'srcset=', $header );
-		self::assertStringContainsString( '/lps-brand/lps_logo_compact.svg', $header );
+		self::assertStringContainsString( '/lps-brand/lps_coppe_blue_lockup.svg 2x', $header );
 		self::assertStringContainsString( '<footer', $footer );
 		self::assertStringContainsString( '/pt-br/ensino/', $footer );
 		self::assertStringContainsString( '/pt-br/acessibilidade/', $footer );
-		self::assertStringNotContainsString( '<img', $footer );
+		self::assertStringContainsString( '/lps-brand/lps_coppe_reversed_lockup.svg', $footer );
 	}
 
 	/**
@@ -204,16 +204,16 @@ final class ThemeShellTest extends \PHPUnit\Framework\TestCase {
 		$english    = Shell::header_markup( 'en', '/en/' );
 
 		// Then: the home link keeps its accessible name and renders one
-		// decorative image with both artwork sources — full lockup plus
-		// compact variant — so engines swap by slot width without client
-		// code, and no label is duplicated inside the artwork.
+		// decorative image with the lockup's 1x/2x density sources — so
+		// engines pick the rendition without client code, and no label is
+		// duplicated inside the artwork.
 		foreach ( array( $portuguese, $english ) as $header ) {
 			self::assertStringContainsString( 'class="lps-brand"', $header );
 			self::assertStringContainsString( 'aria-label="LPS — ', $header );
-			self::assertStringContainsString( '/lps-brand/lps_logo_vector.svg', $header );
-			self::assertStringContainsString( '/lps-brand/lps_logo_compact.svg', $header );
+			self::assertStringContainsString( '/lps-brand/lps_coppe_blue_lockup.svg', $header );
+			self::assertStringContainsString( '/lps-brand/lps_coppe_blue_lockup.svg 2x', $header );
 			self::assertStringContainsString( 'alt="LPS"', $header );
-			self::assertStringContainsString( 'width="2052" height="301"', $header );
+			self::assertStringContainsString( 'width="1622" height="804"', $header );
 			self::assertSame( 1, substr_count( $header, '<img' ) );
 		}
 		self::assertStringContainsString( 'aria-label="LPS — início"', $portuguese );
@@ -252,7 +252,7 @@ final class ThemeShellTest extends \PHPUnit\Framework\TestCase {
 
 		// Then: the mark replaces the bundled artwork inside the persistent home link.
 		self::assertStringContainsString( '<img src="/lps-mark.svg"', $header );
-		self::assertStringNotContainsString( 'lps-brand/lps_logo_vector.svg', $header );
+		self::assertStringNotContainsString( 'lps-brand/lps_coppe_blue_lockup.svg', $header );
 		self::assertStringContainsString( 'class="lps-brand"', $header );
 	}
 
@@ -326,7 +326,7 @@ final class ThemeShellTest extends \PHPUnit\Framework\TestCase {
 		self::assertStringContainsString( 'href="/en/events/"', $footer );
 		self::assertStringContainsString( 'href="/en/privacy/"', $footer );
 		self::assertStringContainsString( 'href="/en/accessibility/"', $footer );
-		self::assertStringNotContainsString( '<img', $footer );
+		self::assertStringContainsString( '/lps-brand/lps_coppe_reversed_lockup.svg', $footer );
 		self::assertStringNotContainsString( '/en/research/', $footer );
 		self::assertStringNotContainsString( '/en/publications/', $footer );
 	}

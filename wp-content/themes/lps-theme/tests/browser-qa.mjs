@@ -69,9 +69,7 @@ async function pageMetrics(page) {
       landmarkNames,
       h1Count: document.querySelectorAll("h1").length,
       detailsOpen: document.querySelector(".lps-shell-disclosure")?.hasAttribute("open") ?? false,
-      missingTranslationControl: Boolean(
-        document.querySelector(".lps-locale span[aria-disabled]"),
-      ),
+      missingTranslationControl: Boolean(document.querySelector(".lps-locale span[aria-disabled]")),
       visibleControls: {
         skip: visible(".lps-skip-link"),
         primaryNavigation: visible(".lps-primary-nav a"),
@@ -87,7 +85,11 @@ async function pageMetrics(page) {
       // hot-linked; the site's own lps_logo artwork is first-party and exempt.
       proprietaryAssets: [...document.images]
         .map((image) => image.currentSrc || image.src)
-        .filter((url) => /gravatar|ufrj|coppe/i.test(url) || (/logo/i.test(url) && !/lps[-_]logo|lps-brand/i.test(url))),
+        .filter(
+          (url) =>
+            /gravatar|ufrj|coppe/i.test(url) ||
+            (/logo/i.test(url) && !/lps[-_]logo|lps-brand/i.test(url)),
+        ),
       externalRuntimeAssets: [
         ...document.images,
         ...document.scripts,
@@ -479,9 +481,7 @@ const report = {
     // Every captured surface owns exactly one h1: the mission module renders
     // the page h1 on the home page, search/404/singular surfaces render their
     // own single h1.
-    headingFailures: captures
-      .filter(({ metrics }) => metrics.h1Count !== 1)
-      .map(({ id }) => id),
+    headingFailures: captures.filter(({ metrics }) => metrics.h1Count !== 1).map(({ id }) => id),
     externalRequests,
     consoleErrors: errorConsole,
     toolbarFailures: captures.filter(({ metrics }) => metrics.toolbar).map(({ id }) => id),

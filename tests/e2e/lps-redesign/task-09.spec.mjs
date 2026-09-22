@@ -97,7 +97,9 @@ async function loginAs(target, user, pass, mfa) {
     // The enrolled-MFA challenge renders its own submit (`submit_button()`),
     // not the credential form's #wp-submit; a failed sign-in must surface
     // here, never as a later REST denial.
-    const challenge = target.locator("#loginform input[type=submit], #loginform button[type=submit]");
+    const challenge = target.locator(
+      "#loginform input[type=submit], #loginform button[type=submit]",
+    );
     await challenge.waitFor({ state: "visible", timeout: 60_000 });
     await Promise.all([target.waitForLoadState("load", { timeout: 60_000 }), challenge.click()]);
   }
@@ -148,7 +150,6 @@ async function upload(target, nonce, offeringId, name, contents, extra = {}) {
   const body = await response.json().catch(() => ({}));
   return { status: response.status(), body };
 }
-
 
 /** Creates a credential-free context that skips the auto-login handshake.
  *
@@ -258,7 +259,12 @@ test.describe("task-09: immutable versions and guarded downloads", () => {
     });
     expect(courseEn.status, JSON.stringify(courseEn.body)).toBe(201);
     state.courseEnId = courseEn.body.id;
-    await api(page, state.publisherNonce, "POST", `/teaching/records/${state.courseEnId}/review-translation`);
+    await api(
+      page,
+      state.publisherNonce,
+      "POST",
+      `/teaching/records/${state.courseEnId}/review-translation`,
+    );
     await publish(state.courseEnId);
     await publish(state.coursePtId);
 
@@ -285,7 +291,12 @@ test.describe("task-09: immutable versions and guarded downloads", () => {
     });
     expect(offeringEn.status, JSON.stringify(offeringEn.body)).toBe(201);
     state.offeringEnId = offeringEn.body.id;
-    await api(page, state.publisherNonce, "POST", `/teaching/records/${state.offeringEnId}/review-translation`);
+    await api(
+      page,
+      state.publisherNonce,
+      "POST",
+      `/teaching/records/${state.offeringEnId}/review-translation`,
+    );
     await publish(state.offeringEnId);
     await publish(state.offeringPtId);
 
@@ -311,7 +322,12 @@ test.describe("task-09: immutable versions and guarded downloads", () => {
       content: "Fixture content.",
     });
     expect(otherEn.status).toBe(201);
-    await api(page, state.publisherNonce, "POST", `/teaching/records/${otherEn.body.id}/review-translation`);
+    await api(
+      page,
+      state.publisherNonce,
+      "POST",
+      `/teaching/records/${otherEn.body.id}/review-translation`,
+    );
     await publish(otherEn.body.id);
     await publish(state.offeringOtherId);
   });
@@ -332,7 +348,13 @@ test.describe("task-09: immutable versions and guarded downloads", () => {
   test("the professor mints a cleared immutable version through quarantine and scan", async () => {
     expect(state.offeringPtId, "grant test must run first").toBeGreaterThan(0);
 
-    const version = await upload(professorPage, state.professorNonce, state.offeringPtId, `apostila-${RUN}.pdf`, PDF_V1);
+    const version = await upload(
+      professorPage,
+      state.professorNonce,
+      state.offeringPtId,
+      `apostila-${RUN}.pdf`,
+      PDF_V1,
+    );
     expect(version.status, JSON.stringify(version.body)).toBe(201);
     state.version1Id = version.body.version_id;
     expect(state.version1Id).toMatch(/^lpsver:[0-9a-f]{64}$/);
@@ -397,13 +419,24 @@ test.describe("task-09: immutable versions and guarded downloads", () => {
     // The opaque token is the record-ID UUID, never the raw post ID.
     expect(state.downloadUrl).not.toContain(String(state.resourceId));
 
-    const released = await api(professorPage, state.professorNonce, "POST", `/teaching/resources/${state.resourceId}/release`, {
-      state: "released",
-    });
+    const released = await api(
+      professorPage,
+      state.professorNonce,
+      "POST",
+      `/teaching/resources/${state.resourceId}/release`,
+      {
+        state: "released",
+      },
+    );
     expect(released.status, JSON.stringify(released.body)).toBe(200);
     expect(released.body.release_state).toBe("released");
 
-    const published = await api(professorPage, state.professorNonce, "POST", `/teaching/records/${state.resourceId}/publish`);
+    const published = await api(
+      professorPage,
+      state.professorNonce,
+      "POST",
+      `/teaching/records/${state.resourceId}/publish`,
+    );
     expect(published.status, JSON.stringify(published.body)).toBe(200);
     expect(published.body.status).toBe("publish");
   });
@@ -440,11 +473,15 @@ test.describe("task-09: immutable versions and guarded downloads", () => {
       expect((await head.body()).length).toBe(0);
 
       // Single ranges are honored; multi-range and out-of-bounds are 416.
-      const range = await anonymous.request.get(state.downloadUrl, { headers: { Range: "bytes=0-9" } });
+      const range = await anonymous.request.get(state.downloadUrl, {
+        headers: { Range: "bytes=0-9" },
+      });
       expect(range.status()).toBe(206);
       expect(range.headers()["content-range"]).toBe(`bytes 0-9/${Buffer.byteLength(PDF_V1)}`);
       expect((await range.body()).toString()).toBe(PDF_V1.slice(0, 10));
-      const suffix = await anonymous.request.get(state.downloadUrl, { headers: { Range: "bytes=-5" } });
+      const suffix = await anonymous.request.get(state.downloadUrl, {
+        headers: { Range: "bytes=-5" },
+      });
       expect(suffix.status()).toBe(206);
       expect((await suffix.body()).toString()).toBe(PDF_V1.slice(-5));
       const unsatisfiable = await anonymous.request.get(state.downloadUrl, {
@@ -452,7 +489,9 @@ test.describe("task-09: immutable versions and guarded downloads", () => {
       });
       expect(unsatisfiable.status()).toBe(416);
       expect(unsatisfiable.headers()["content-range"]).toBe(`bytes */${Buffer.byteLength(PDF_V1)}`);
-      const multi = await anonymous.request.get(state.downloadUrl, { headers: { Range: "bytes=0-1,3-4" } });
+      const multi = await anonymous.request.get(state.downloadUrl, {
+        headers: { Range: "bytes=0-1,3-4" },
+      });
       expect(multi.status()).toBe(416);
 
       // Non-GET/HEAD methods are the same anonymous 404.
@@ -503,7 +542,13 @@ test.describe("task-09: immutable versions and guarded downloads", () => {
     expect(state.version1Id, "publish test must run first").not.toBe("");
 
     // Minting v2 changes nothing the route serves.
-    const v2 = await upload(professorPage, state.professorNonce, state.offeringPtId, `apostila-v2-${RUN}.pdf`, PDF_V2);
+    const v2 = await upload(
+      professorPage,
+      state.professorNonce,
+      state.offeringPtId,
+      `apostila-v2-${RUN}.pdf`,
+      PDF_V2,
+    );
     expect(v2.status, JSON.stringify(v2.body)).toBe(201);
     state.version2Id = v2.body.version_id;
     expect(v2.body.sha256).toBe(SHA_V2);
@@ -525,7 +570,11 @@ test.describe("task-09: immutable versions and guarded downloads", () => {
     const anonymous = await anonymousContext(browser);
     try {
       const before = await anonymous.request.get(state.downloadUrl);
-      expect(createHash("sha256").update(await before.body()).digest("hex")).toBe(SHA_V1);
+      expect(
+        createHash("sha256")
+          .update(await before.body())
+          .digest("hex"),
+      ).toBe(SHA_V1);
     } finally {
       await anonymous.close();
     }
@@ -545,14 +594,20 @@ test.describe("task-09: immutable versions and guarded downloads", () => {
     try {
       const after = await anonymous2.request.get(state.downloadUrl);
       expect(after.status()).toBe(200);
-      expect(createHash("sha256").update(await after.body()).digest("hex")).toBe(SHA_V2);
+      expect(
+        createHash("sha256")
+          .update(await after.body())
+          .digest("hex"),
+      ).toBe(SHA_V2);
       expect(after.headers()["content-disposition"]).toContain(`apostila-v2-${RUN}.pdf`);
     } finally {
       await anonymous2.close();
     }
   });
 
-  test("draft, scheduled, external and quarantined resources all deny delivery", async ({ browser }) => {
+  test("draft, scheduled, external and quarantined resources all deny delivery", async ({
+    browser,
+  }) => {
     expect(state.offeringPtId, "graph test must run first").toBeGreaterThan(0);
     const anonymous = await anonymousContext(browser);
     try {
@@ -580,17 +635,23 @@ test.describe("task-09: immutable versions and guarded downloads", () => {
       expect((await anonymous.request.get(draft.body.download_url)).status()).toBe(404);
 
       // A future schedule denies until its time passes — no cron involved.
-      const scheduled = await api(professorPage, state.professorNonce, "POST", "/teaching/resources", {
-        title: `Agendado ${RUN}`,
-        offering_id: state.offeringPtId,
-        version_id: state.version1Id,
-        meta: {
-          _lps_resource_type: "document",
-          _lps_resource_language: "pt-br",
-          _lps_rights_review: "approved",
-          _lps_accessibility_review: "approved",
+      const scheduled = await api(
+        professorPage,
+        state.professorNonce,
+        "POST",
+        "/teaching/resources",
+        {
+          title: `Agendado ${RUN}`,
+          offering_id: state.offeringPtId,
+          version_id: state.version1Id,
+          meta: {
+            _lps_resource_type: "document",
+            _lps_resource_language: "pt-br",
+            _lps_rights_review: "approved",
+            _lps_accessibility_review: "approved",
+          },
         },
-      });
+      );
       expect(scheduled.status, JSON.stringify(scheduled.body)).toBe(201);
       state.scheduledResourceId = scheduled.body.id;
       const schedule = await api(
@@ -611,17 +672,23 @@ test.describe("task-09: immutable versions and guarded downloads", () => {
       expect((await anonymous.request.get(scheduled.body.download_url)).status()).toBe(404);
 
       // An external resource never serves local bytes.
-      const external = await api(professorPage, state.professorNonce, "POST", "/teaching/resources", {
-        title: `Externo ${RUN}`,
-        offering_id: state.offeringPtId,
-        meta: {
-          _lps_resource_type: "link",
-          _lps_resource_language: "pt-br",
-          _lps_external_url: "https://example.org/externo.pdf",
-          _lps_rights_review: "approved",
-          _lps_accessibility_review: "approved",
+      const external = await api(
+        professorPage,
+        state.professorNonce,
+        "POST",
+        "/teaching/resources",
+        {
+          title: `Externo ${RUN}`,
+          offering_id: state.offeringPtId,
+          meta: {
+            _lps_resource_type: "link",
+            _lps_resource_language: "pt-br",
+            _lps_external_url: "https://example.org/externo.pdf",
+            _lps_rights_review: "approved",
+            _lps_accessibility_review: "approved",
+          },
         },
-      });
+      );
       expect(external.status, JSON.stringify(external.body)).toBe(201);
       state.externalResourceId = external.body.id;
       const externalRelease = await api(
@@ -650,10 +717,18 @@ test.describe("task-09: immutable versions and guarded downloads", () => {
     const anonymous = await anonymousContext(browser);
     try {
       // With the scanner down, a new upload can never reach `cleared`.
-      const down = await api(page, state.publisherNonce, "POST", "/test/scanner", { state: "down" });
+      const down = await api(page, state.publisherNonce, "POST", "/test/scanner", {
+        state: "down",
+      });
       expect(down.status).toBe(200);
       expect(down.body.state).toBe("down");
-      const v3 = await upload(professorPage, state.professorNonce, state.offeringPtId, `apostila-v3-${RUN}.pdf`, PDF_V3);
+      const v3 = await upload(
+        professorPage,
+        state.professorNonce,
+        state.offeringPtId,
+        `apostila-v3-${RUN}.pdf`,
+        PDF_V3,
+      );
       expect(v3.status, JSON.stringify(v3.body)).toBe(201);
       state.version3Id = v3.body.version_id;
       expect(v3.body.state).toBe("quarantined");
@@ -685,7 +760,11 @@ test.describe("task-09: immutable versions and guarded downloads", () => {
       expect(scanned.body.state).toBe("cleared");
       const restored = await anonymous.request.get(state.downloadUrl);
       expect(restored.status()).toBe(200);
-      expect(createHash("sha256").update(await restored.body()).digest("hex")).toBe(SHA_V3);
+      expect(
+        createHash("sha256")
+          .update(await restored.body())
+          .digest("hex"),
+      ).toBe(SHA_V3);
     } finally {
       await anonymous.close();
       await api(page, state.publisherNonce, "POST", "/test/scanner", { state: "up" });
@@ -787,12 +866,15 @@ test.describe("task-09: immutable versions and guarded downloads", () => {
         data: { title: `anon-${RUN}`, offering_id: state.offeringPtId },
       });
       expect([401, 403]).toContain(response.status());
-      const uploadAnon = await anonymous.request.post("/wp-json/lps/v1/teaching/resource-versions", {
-        multipart: {
-          file: { name: "anon.pdf", mimeType: "application/pdf", buffer: Buffer.from(PDF_V1) },
-          offering_id: String(state.offeringPtId),
+      const uploadAnon = await anonymous.request.post(
+        "/wp-json/lps/v1/teaching/resource-versions",
+        {
+          multipart: {
+            file: { name: "anon.pdf", mimeType: "application/pdf", buffer: Buffer.from(PDF_V1) },
+            offering_id: String(state.offeringPtId),
+          },
         },
-      });
+      );
       expect([401, 403]).toContain(uploadAnon.status());
     } finally {
       await anonymous.close();
@@ -802,9 +884,12 @@ test.describe("task-09: immutable versions and guarded downloads", () => {
   test("the audit ledger records the explicit version and release decisions", async () => {
     expect(state.resourceId, "publish test must run first").toBeGreaterThan(0);
 
-    const audit = await adminPage.request.get(`/wp-json/lps/v1/test/audit?post_id=${state.resourceId}`, {
-      headers: { "X-WP-Nonce": state.adminNonce },
-    });
+    const audit = await adminPage.request.get(
+      `/wp-json/lps/v1/test/audit?post_id=${state.resourceId}`,
+      {
+        headers: { "X-WP-Nonce": state.adminNonce },
+      },
+    );
     expect(audit.status()).toBe(200);
     const entries = await audit.json();
     const actions = entries.map((entry) => entry.action);
@@ -817,7 +902,9 @@ test.describe("task-09: immutable versions and guarded downloads", () => {
     );
     expect(edits.length, JSON.stringify(entries)).toBeGreaterThanOrEqual(1);
     // Release and withdrawal are audited publish/unpublish decisions.
-    const releases = entries.filter((entry) => entry.action === "publish" && entry.context_json.includes('"release"'));
+    const releases = entries.filter(
+      (entry) => entry.action === "publish" && entry.context_json.includes('"release"'),
+    );
     expect(releases.length).toBeGreaterThanOrEqual(1);
     const withdrawals = entries.filter(
       (entry) => entry.action === "unpublish" && entry.context_json.includes('"withdraw"'),
