@@ -2973,21 +2973,6 @@ th code {
   position: relative;
 }
 
-.lps-site-footer::before {
-  background-image: var(--signal-line-dark);
-  background-position: right -4rem top -1rem;
-  background-repeat: no-repeat;
-  background-size: auto 200%;
-  block-size: 8rem;
-  content: "";
-  filter: none;
-  inset-block-start: 0;
-  inset-inline: 0;
-  opacity: 0.1;
-  pointer-events: none;
-  position: absolute;
-}
-
 .lps-footer-inner {
   display: grid;
   gap: clamp(var(--space-6), 3vw, var(--space-10));
