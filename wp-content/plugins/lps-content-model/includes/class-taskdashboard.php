@@ -203,7 +203,7 @@ final class TaskDashboard {
 		foreach ( $fields as $key => $value ) {
 			$key = is_string( $key ) ? $key : '';
 			if ( ! in_array( $key, self::proposal_fields(), true ) ) {
-				$errors[ is_string( $key ) && '' !== $key ? $key : 'fields' ] = 'lps_dashboard_field_forbidden';
+				$errors[ '' !== $key ? $key : 'fields' ] = 'lps_dashboard_field_forbidden';
 				continue;
 			}
 			$text = Policy::scalar_string( $value );
@@ -504,17 +504,17 @@ final class TaskDashboard {
 		$grants = Roles::teaching_grants( $user_id );
 		usort(
 			$grants,
-			static fn( array $a, array $b ): int => strcmp( (string) ( $b['granted_at'] ?? '' ), (string) ( $a['granted_at'] ?? '' ) )
+			static fn( array $a, array $b ): int => strcmp( $b['granted_at'], $a['granted_at'] )
 		);
 		$now = gmdate( 'c' );
 		foreach ( $grants as $grant ) {
-			if ( 'offering' !== ( $grant['scope'] ?? '' ) || ! TeachingPolicy::grant_is_active( $grant, $now ) ) {
+			if ( 'offering' !== $grant['scope'] || ! TeachingPolicy::grant_is_active( $grant, $now ) ) {
 				continue;
 			}
-			$offering_id = Policy::sanitize_integer( $grant['offering_id'] ?? 0 );
+			$offering_id = Policy::sanitize_integer( $grant['offering_id'] );
 			$team        = array();
 			foreach ( Relationships::for_source( $offering_id, 'teaching_team' ) as $member ) {
-				$person_id = Policy::sanitize_integer( $member['target_post_id'] ?? 0 );
+				$person_id = Policy::sanitize_integer( $member['target_post_id'] );
 				if ( 0 < $person_id ) {
 					$team[] = $person_id;
 				}
@@ -578,10 +578,10 @@ final class TaskDashboard {
 					}
 					$queue['news'][] = array(
 						'id'      => (int) $post_id,
-						'title'   => (string) get_post_field( 'post_title', $post_id ),
+						'title'   => Policy::scalar_string( get_post_field( 'post_title', $post_id ) ),
 						'author'  => Policy::sanitize_integer( get_post_field( 'post_author', $post_id ) ),
 						'date'    => Policy::scalar_string( get_post_meta( $post_id, '_lps_canonical_date', true ) ),
-						'summary' => (string) get_post_field( 'post_excerpt', $post_id ),
+						'summary' => Policy::scalar_string( get_post_field( 'post_excerpt', $post_id ) ),
 					);
 				}
 			}
@@ -605,7 +605,7 @@ final class TaskDashboard {
 						}
 						$queue['proposals'][] = array(
 							'person_id' => (int) $person_id,
-							'person'    => (string) get_post_field( 'post_title', $person_id ),
+							'person'    => Policy::scalar_string( get_post_field( 'post_title', $person_id ) ),
 							'proposal'  => $proposal,
 						);
 					}
@@ -680,7 +680,7 @@ final class TaskDashboard {
 		$role     = Roles::policy_role( $user );
 		$units    = array();
 		foreach ( Relationships::reverse_for( $offering_id, 'unit_offering' ) as $row ) {
-			$unit_id = Policy::sanitize_integer( $row['source_post_id'] ?? 0 );
+			$unit_id = Policy::sanitize_integer( $row['source_post_id'] );
 			$unit    = 0 < $unit_id ? get_post( $unit_id ) : null;
 			if ( ! $unit instanceof WP_Post || 'lps_unit' !== $unit->post_type || 'trash' === $unit->post_status ) {
 				continue;
@@ -700,7 +700,7 @@ final class TaskDashboard {
 		);
 		$resources = array();
 		foreach ( Relationships::reverse_for( $offering_id, 'resource_offering' ) as $row ) {
-			$resource_id = Policy::sanitize_integer( $row['source_post_id'] ?? 0 );
+			$resource_id = Policy::sanitize_integer( $row['source_post_id'] );
 			$resource    = 0 < $resource_id ? get_post( $resource_id ) : null;
 			if ( ! $resource instanceof WP_Post || 'lps_resource' !== $resource->post_type || 'trash' === $resource->post_status ) {
 				continue;
@@ -730,12 +730,12 @@ final class TaskDashboard {
 		}
 		$team = array();
 		foreach ( Relationships::for_source( $offering_id, 'teaching_team' ) as $member ) {
-			$person_id = Policy::sanitize_integer( $member['target_post_id'] ?? 0 );
+			$person_id = Policy::sanitize_integer( $member['target_post_id'] );
 			$person    = 0 < $person_id ? get_post( $person_id ) : null;
 			$team[]    = array(
 				'person_id' => $person_id,
 				'name'      => $person instanceof WP_Post ? $person->post_title : '',
-				'role'      => Policy::scalar_string( $member['relationship_role'] ?? '' ),
+				'role'      => Policy::scalar_string( $member['relationship_role'] ),
 			);
 		}
 		$reusable = array();
@@ -793,7 +793,7 @@ final class TaskDashboard {
 		foreach ( $posts as $post_id ) {
 			$items[] = array(
 				'id'         => (int) $post_id,
-				'title'      => (string) get_post_field( 'post_title', $post_id ),
+				'title'      => Policy::scalar_string( get_post_field( 'post_title', $post_id ) ),
 				'status'     => (string) get_post_status( $post_id ),
 				'state'      => self::state_key(
 					(string) get_post_status( $post_id ),
@@ -832,7 +832,7 @@ final class TaskDashboard {
 		foreach ( $posts as $post_id ) {
 			$terms[] = array(
 				'id'        => (int) $post_id,
-				'title'     => (string) get_post_field( 'post_title', $post_id ),
+				'title'     => Policy::scalar_string( get_post_field( 'post_title', $post_id ) ),
 				'label'     => Policy::scalar_string( get_post_meta( $post_id, '_lps_period_label', true ) ),
 				'starts_on' => Policy::scalar_string( get_post_meta( $post_id, '_lps_starts_on', true ) ),
 				'ends_on'   => Policy::scalar_string( get_post_meta( $post_id, '_lps_ends_on', true ) ),
@@ -861,7 +861,7 @@ final class TaskDashboard {
 		foreach ( $posts as $post_id ) {
 			$courses[] = array(
 				'id'    => (int) $post_id,
-				'title' => (string) get_post_field( 'post_title', $post_id ),
+				'title' => Policy::scalar_string( get_post_field( 'post_title', $post_id ) ),
 				'code'  => Policy::scalar_string( get_post_meta( $post_id, '_lps_course_code', true ) ),
 			);
 		}
@@ -900,7 +900,7 @@ final class TaskDashboard {
 		foreach ( $posts as $post_id ) {
 			$people[] = array(
 				'id'    => (int) $post_id,
-				'title' => (string) get_post_field( 'post_title', $post_id ),
+				'title' => Policy::scalar_string( get_post_field( 'post_title', $post_id ) ),
 			);
 		}
 		return $people;
@@ -950,7 +950,7 @@ final class TaskDashboard {
 			0,
 			array(
 				'decision' => 'profile-proposal',
-				'fields'   => array_keys( $proposals[ count( $proposals ) - 1 ]['fields'] ),
+				'fields'   => implode( ',', array_keys( $proposals[ count( $proposals ) - 1 ]['fields'] ) ),
 			)
 		);
 		self::succeed( 'proposal-sent' );
@@ -1229,7 +1229,7 @@ final class TaskDashboard {
 			),
 			true
 		);
-		if ( $post_id instanceof WP_Error || 0 >= $post_id ) {
+		if ( $post_id instanceof WP_Error ) {
 			add_filter( 'update_post_metadata', array( Plugin::class, 'protect_role_meta' ), 11, 5 );
 			self::fail( 'lps_dashboard_forbidden' );
 		}
@@ -1404,12 +1404,14 @@ final class TaskDashboard {
 			if ( 0 > $found ) {
 				self::fail( 'lps_dashboard_forbidden' );
 			}
-			$proposals[ $found ]['state']       = 'approve' === $decision ? 'approved' : 'rejected';
-			$proposals[ $found ]['note']        = $note;
-			$proposals[ $found ]['reviewed_at'] = gmdate( 'c' );
-			$proposals[ $found ]['reviewer_id'] = $user->ID;
+			$proposal                = $proposals[ $found ];
+			$proposal['state']       = 'approve' === $decision ? 'approved' : 'rejected';
+			$proposal['note']        = $note;
+			$proposal['reviewed_at'] = gmdate( 'c' );
+			$proposal['reviewer_id'] = $user->ID;
+			$proposals[ $found ]     = $proposal;
 			if ( 'approve' === $decision ) {
-				foreach ( $proposals[ $found ]['fields'] as $key => $value ) {
+				foreach ( $proposal['fields'] as $key => $value ) {
 					if ( 'post_excerpt' === $key || 'post_content' === $key ) {
 						wp_update_post(
 							array(
@@ -1504,7 +1506,8 @@ final class TaskDashboard {
 	 */
 	private static function verify_nonce( string $action ): bool {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized as a scalar before verification.
-		$nonce = isset( $_POST['_lps_dashboard_nonce'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['_lps_dashboard_nonce'] ) ) : '';
+		$raw_nonce = isset( $_POST['_lps_dashboard_nonce'] ) ? wp_unslash( $_POST['_lps_dashboard_nonce'] ) : '';
+		$nonce     = is_string( $raw_nonce ) ? sanitize_text_field( $raw_nonce ) : '';
 		return '' !== $nonce && wp_verify_nonce( $nonce, $action );
 	}
 
@@ -1556,7 +1559,7 @@ final class TaskDashboard {
 	 * Assembles the resource create input from POST.
 	 *
 	 * @param int $offering_id Parent offering ID.
-	 * @return array<string, mixed>
+	 * @return array{title: string, excerpt: string, content: string, offering_id: int, unit_id: int, external_url: string, meta: array{_lps_resource_type: string, _lps_resource_language: string}}
 	 */
 	private static function resource_input( int $offering_id ): array {
 		return array(
@@ -1599,7 +1602,16 @@ final class TaskDashboard {
 		}
 		$user   = wp_get_current_user();
 		$stored = get_transient( self::RECALL_PREFIX . $user->ID . '_' . sanitize_key( $key ) );
-		return is_array( $stored ) ? $stored : array();
+		if ( ! is_array( $stored ) ) {
+			return array();
+		}
+		$out = array();
+		foreach ( $stored as $stored_key => $value ) {
+			if ( is_string( $stored_key ) ) {
+				$out[ $stored_key ] = $value;
+			}
+		}
+		return $out;
 	}
 
 	/**

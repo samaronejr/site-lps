@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace LPS\Theme;
 
+use LPS\ContentModel\Policy;
 use LPS\ContentModel\TaskDashboard;
 use LPS\ContentModel\TeachingContracts;
 use WP_User;
@@ -104,8 +105,9 @@ final class DashboardSurfaces {
 		foreach ( self::task_links( $model, $locale ) as $task ) {
 			$html .= '<li><a class="lps-task-link" href="' . self::esc( $task['url'] ) . '">' . self::esc( $task['label'] ) . '</a><p class="lps-field-hint">' . self::esc( $task['hint'] ) . '</p></li>';
 		}
-		$html .= '</ul></nav>';
-		if ( array() === ( $model['offerings'] ?? array() ) ) {
+		$html     .= '</ul></nav>';
+		$offerings = self::records( $model['offerings'] ?? null );
+		if ( array() === $offerings ) {
 			$html .= '<div class="lps-alert lps-alert-info" data-dashboard-empty="offerings"><p>'
 				. self::esc(
 					$english
@@ -116,10 +118,9 @@ final class DashboardSurfaces {
 		} else {
 			$html .= '<section class="lps-dashboard-section" aria-labelledby="lps-dash-offerings"><h2 id="lps-dash-offerings">'
 				. self::esc( $english ? 'My offerings' : 'Minhas ofertas' ) . '</h2><ul class="lps-record-list">';
-			foreach ( $model['offerings'] as $offering ) {
-				$offering = self::record( $offering );
-				$html    .= '<li class="lps-record">'
-					. '<a href="' . self::esc( DashboardRoutes::view_path( 'offering', $locale, (int) $offering['id'] ) ) . '">' . self::esc( self::text( $offering['title'] ?? '' ) ) . '</a>'
+			foreach ( $offerings as $offering ) {
+				$html .= '<li class="lps-record">'
+					. '<a href="' . self::esc( DashboardRoutes::view_path( 'offering', $locale, Policy::sanitize_integer( $offering['id'] ?? 0 ) ) ) . '">' . self::esc( self::text( $offering['title'] ?? '' ) ) . '</a>'
 					. ' ' . self::chip( self::text( $offering['state'] ?? 'draft' ), $locale )
 					. self::identity_line( $offering )
 					. '</li>';
@@ -153,9 +154,8 @@ final class DashboardSurfaces {
 	public static function offering_view( array $model, string $locale, int $id ): string {
 		$english  = 'en' === $locale;
 		$offering = null;
-		foreach ( is_array( $model['offerings'] ?? null ) ? $model['offerings'] : array() as $candidate ) {
-			$candidate = self::record( $candidate );
-			if ( (int) ( $candidate['id'] ?? 0 ) === $id ) {
+		foreach ( self::records( $model['offerings'] ?? null ) as $candidate ) {
+			if ( Policy::sanitize_integer( $candidate['id'] ?? 0 ) === $id ) {
 				$offering = $candidate;
 				break;
 			}
@@ -219,7 +219,7 @@ final class DashboardSurfaces {
 					// resubmit returns it to review instead of minting a new record.
 					$html .= '<details class="lps-dashboard-edit"><summary>' . self::esc( $english ? 'Edit and resubmit' : 'Editar e reenviar' ) . '</summary>'
 						. self::form_open( 'lps_dashboard_news' )
-						. self::hidden( 'id', (string) (int) $item['id'] )
+						. self::hidden( 'id', (string) Policy::sanitize_integer( $item['id'] ?? 0 ) )
 						. self::field( 'title', TaskDashboard::field_label( 'post_title', $locale ), 'text', self::text( $item['title'] ?? '' ), $locale, true )
 						. self::textarea( 'excerpt', TaskDashboard::field_label( 'post_excerpt', $locale ), self::text( $item['summary'] ?? '' ), $locale, true )
 						. self::textarea( 'content', TaskDashboard::field_label( 'post_content', $locale ), self::text( $item['content'] ?? '' ), $locale, true )
@@ -252,7 +252,7 @@ final class DashboardSurfaces {
 	 */
 	public static function profile_view( array $model, string $locale ): string {
 		$english   = 'en' === $locale;
-		$person_id = (int) ( $model['person_id'] ?? 0 );
+		$person_id = Policy::sanitize_integer( $model['person_id'] ?? 0 );
 		if ( 0 >= $person_id ) {
 			return '<div class="lps-alert lps-alert-info" data-dashboard-view="profile-unresolved"><p>'
 				. self::esc(
@@ -269,7 +269,7 @@ final class DashboardSurfaces {
 				$current[ $field ] = $person instanceof \WP_Post ? ( 'post_excerpt' === $field ? $person->post_excerpt : $person->post_content ) : '';
 				continue;
 			}
-			$current[ $field ] = function_exists( 'get_post_meta' ) ? (string) get_post_meta( $person_id, $field, true ) : '';
+			$current[ $field ] = function_exists( 'get_post_meta' ) ? Policy::scalar_string( get_post_meta( $person_id, $field, true ) ) : '';
 		}
 		$recall        = self::recall( 'profile' );
 		$recall_fields = is_array( $recall['fields'] ?? null ) ? $recall['fields'] : array();
@@ -347,7 +347,7 @@ final class DashboardSurfaces {
 				$html .= '<li class="lps-record"><strong>' . self::esc( self::text( $item['title'] ?? '' ) ) . '</strong>'
 					. ' <span class="lps-meta">' . self::esc( self::text( $item['date'] ?? '' ) ) . '</span>'
 					. '<p>' . self::esc( self::text( $item['summary'] ?? '' ) ) . '</p>'
-					. self::review_form( 'news', (int) $item['id'], 0, '', $locale )
+					. self::review_form( 'news', Policy::sanitize_integer( $item['id'] ?? 0 ), 0, '', $locale )
 					. '</li>';
 			}
 			$html .= '</ul>';
@@ -369,7 +369,7 @@ final class DashboardSurfaces {
 					$html .= '<dt>' . self::esc( TaskDashboard::field_label( (string) $field, $locale ) ) . '</dt><dd>' . self::esc( self::text( $value ) ) . '</dd>';
 				}
 				$html .= '</dl>'
-					. self::review_form( 'proposal', 0, (int) ( $row['person_id'] ?? 0 ), self::text( $proposal['id'] ?? '' ), $locale )
+					. self::review_form( 'proposal', 0, Policy::sanitize_integer( $row['person_id'] ?? 0 ), self::text( $proposal['id'] ?? '' ), $locale )
 					. '</li>';
 			}
 			$html .= '</ul>';
@@ -390,25 +390,26 @@ final class DashboardSurfaces {
 				. self::esc( $english ? 'Offering creation is an institutional editor task.' : 'A criação de ofertas é uma tarefa de editor institucional.' )
 				. '</p></div>';
 		}
-		$recall  = self::recall( 'offering' );
-		$courses = is_array( $model['courses'] ?? null ) ? $model['courses'] : array();
-		$terms   = is_array( $model['terms'] ?? null ) ? $model['terms'] : array();
-		$people  = is_array( $model['people'] ?? null ) ? $model['people'] : array();
-		$html    = '<section class="lps-dashboard-create" data-dashboard-view="create">';
-		$html   .= '<p class="lps-summary">' . self::esc(
+		$recall      = self::recall( 'offering' );
+		$recall_meta = is_array( $recall['meta'] ?? null ) ? $recall['meta'] : array();
+		$courses     = self::records( $model['courses'] ?? null );
+		$terms       = self::records( $model['terms'] ?? null );
+		$people      = self::records( $model['people'] ?? null );
+		$html        = '<section class="lps-dashboard-create" data-dashboard-view="create">';
+		$html       .= '<p class="lps-summary">' . self::esc(
 			$english
 			? 'An offering binds one course to one term and section with its teaching team. The record starts as a draft.'
 			: 'Uma oferta liga uma disciplina a um período e turma com sua equipe docente. O registro começa como rascunho.'
 		) . '</p>';
-		$html   .= self::form_open( 'lps_dashboard_offering' )
+		$html       .= self::form_open( 'lps_dashboard_offering' )
 			. self::field( 'title', TaskDashboard::field_label( 'post_title', $locale ), 'text', self::text( $recall['title'] ?? '' ), $locale, true )
 			. self::textarea( 'excerpt', TaskDashboard::field_label( 'post_excerpt', $locale ), self::text( $recall['excerpt'] ?? '' ), $locale, true )
 			. self::textarea( 'content', TaskDashboard::field_label( 'post_content', $locale ), self::text( $recall['content'] ?? '' ), $locale, false )
-			. self::select( 'course_id', TaskDashboard::field_label( 'course_id', $locale ), self::options_for( $courses, 'code' ), (int) ( $recall['course_id'] ?? 0 ), $locale, true )
-			. self::select( 'term_id', TaskDashboard::field_label( 'new_term_id', $locale ), self::options_for( $terms, 'label' ), (int) ( $recall['term_id'] ?? 0 ), $locale, true )
+			. self::select( 'course_id', TaskDashboard::field_label( 'course_id', $locale ), self::options_for( $courses, 'code' ), Policy::sanitize_integer( $recall['course_id'] ?? 0 ), $locale, true )
+			. self::select( 'term_id', TaskDashboard::field_label( 'new_term_id', $locale ), self::options_for( $terms, 'label' ), Policy::sanitize_integer( $recall['term_id'] ?? 0 ), $locale, true )
 			. self::field( 'section', TaskDashboard::field_label( 'new_section', $locale ), 'text', self::text( $recall['section'] ?? '' ), $locale, true )
-			. self::field( 'schedule', TaskDashboard::field_label( '_lps_schedule', $locale ), 'text', self::text( $recall['meta']['_lps_schedule'] ?? '' ), $locale, false )
-			. self::field( 'venue', TaskDashboard::field_label( '_lps_venue', $locale ), 'text', self::text( $recall['meta']['_lps_venue'] ?? '' ), $locale, false )
+			. self::field( 'schedule', TaskDashboard::field_label( '_lps_schedule', $locale ), 'text', self::text( $recall_meta['_lps_schedule'] ?? '' ), $locale, false )
+			. self::field( 'venue', TaskDashboard::field_label( '_lps_venue', $locale ), 'text', self::text( $recall_meta['_lps_venue'] ?? '' ), $locale, false )
 			. self::team_fields( $people, array(), $locale )
 			. self::submit( $english ? 'Create the draft offering' : 'Criar a oferta em rascunho' )
 			. '</form>';
@@ -436,7 +437,7 @@ final class DashboardSurfaces {
 					. ' ' . self::chip( self::text( $unit['state'] ?? 'draft' ), $locale )
 					. ' <span class="lps-meta">' . self::esc( self::text( $unit['anchor'] ?? '' ) ) . '</span>';
 				if ( ! empty( $offering['can_publish'] ) && 'publish' !== self::text( $unit['status'] ?? '' ) ) {
-					$html .= self::action_form( 'lps_dashboard_publish', array( 'post_id' => (int) $unit['id'] ), $english ? 'Publish unit' : 'Publicar unidade', 'publish-unit' );
+					$html .= self::action_form( 'lps_dashboard_publish', array( 'post_id' => Policy::sanitize_integer( $unit['id'] ?? 0 ) ), $english ? 'Publish unit' : 'Publicar unidade', 'publish-unit' );
 				}
 				$html .= '</li>';
 			}
@@ -461,28 +462,29 @@ final class DashboardSurfaces {
 		} else {
 			$html .= '<ul class="lps-record-list">';
 			foreach ( $resources as $resource ) {
-				$resource = self::record( $resource );
-				$state    = self::text( $resource['state'] ?? 'draft' );
-				$html    .= '<li class="lps-record" data-resource-id="' . (int) $resource['id'] . '"><strong>' . self::esc( self::text( $resource['title'] ?? '' ) ) . '</strong>'
+				$resource    = self::record( $resource );
+				$resource_id = Policy::sanitize_integer( $resource['id'] ?? 0 );
+				$state       = self::text( $resource['state'] ?? 'draft' );
+				$html       .= '<li class="lps-record" data-resource-id="' . $resource_id . '"><strong>' . self::esc( self::text( $resource['title'] ?? '' ) ) . '</strong>'
 					. ' ' . self::chip( $state, $locale )
 					. ' <span class="lps-meta">' . self::esc( self::text( $resource['resource_type'] ?? '' ) . ' · ' . self::text( $resource['resource_language'] ?? '' ) ) . '</span>';
-				$download = self::safe_url( self::text( $resource['download_url'] ?? '' ) );
+				$download    = self::safe_url( self::text( $resource['download_url'] ?? '' ) );
 				if ( 'released' === self::text( $resource['release_state'] ?? '' ) && 'publish' === self::text( $resource['status'] ?? '' ) && '' !== $download ) {
 					$html .= ' <a href="' . self::esc( $download ) . '">' . self::esc( $english ? 'Download' : 'Baixar' ) . '</a>';
 				} elseif ( '' !== self::text( $resource['scan_state'] ?? '' ) && 'clean' !== self::text( $resource['scan_state'] ?? '' ) ) {
 					$html .= ' ' . self::chip( 'scan-' . self::text( $resource['scan_state'] ?? 'pending' ), $locale );
 				}
 				if ( ! empty( $offering['can_edit'] ) ) {
-					$html .= self::version_form( (int) $resource['id'], $locale );
+					$html .= self::version_form( $resource_id, $locale );
 				}
 				if ( ! empty( $offering['can_publish'] ) ) {
 					if ( 'released' !== self::text( $resource['release_state'] ?? '' ) ) {
-						$html .= self::release_form( (int) $resource['id'], $locale );
+						$html .= self::release_form( $resource_id, $locale );
 					} else {
 						$html .= self::action_form(
 							'lps_dashboard_release',
 							array(
-								'resource_id'    => (int) $resource['id'],
+								'resource_id'    => $resource_id,
 								'release_action' => 'withdraw',
 							),
 							$english ? 'Withdraw' : 'Retirar',
@@ -490,7 +492,7 @@ final class DashboardSurfaces {
 						);
 					}
 					if ( 'publish' !== self::text( $resource['status'] ?? '' ) ) {
-						$html .= self::action_form( 'lps_dashboard_publish', array( 'post_id' => (int) $resource['id'] ), $english ? 'Publish material' : 'Publicar material', 'publish-resource' );
+						$html .= self::action_form( 'lps_dashboard_publish', array( 'post_id' => $resource_id ), $english ? 'Publish material' : 'Publicar material', 'publish-resource' );
 					}
 				}
 				$html .= '</li>';
@@ -510,17 +512,18 @@ final class DashboardSurfaces {
 		if ( empty( $offering['can_edit'] ) ) {
 			return '';
 		}
-		$english = 'en' === $locale;
-		$recall  = self::recall( 'unit-' . (int) $offering['id'] );
-		$meta    = is_array( $recall['meta'] ?? null ) ? $recall['meta'] : array();
+		$english     = 'en' === $locale;
+		$offering_id = Policy::sanitize_integer( $offering['id'] ?? 0 );
+		$recall      = self::recall( 'unit-' . $offering_id );
+		$meta        = is_array( $recall['meta'] ?? null ) ? $recall['meta'] : array();
 		return '<section class="lps-dashboard-form" aria-labelledby="lps-unit-form"><h3 id="lps-unit-form">'
 			. self::esc( $english ? 'Add a unit' : 'Adicionar unidade' ) . '</h3>'
 			. self::form_open( 'lps_dashboard_unit' )
-			. self::hidden( 'offering_id', (string) (int) $offering['id'] )
+			. self::hidden( 'offering_id', (string) $offering_id )
 			. self::field( 'title', TaskDashboard::field_label( 'post_title', $locale ), 'text', self::text( $recall['title'] ?? '' ), $locale, true )
 			. self::textarea( 'excerpt', TaskDashboard::field_label( 'post_excerpt', $locale ), self::text( $recall['excerpt'] ?? '' ), $locale, false )
 			. self::field( 'anchor', TaskDashboard::field_label( '_lps_anchor', $locale ), 'text', self::text( $meta['_lps_anchor'] ?? '' ), $locale, true )
-			. self::field( 'position', TaskDashboard::field_label( '_lps_position', $locale ), 'number', (string) (int) ( $meta['_lps_position'] ?? 0 ), $locale, true )
+			. self::field( 'position', TaskDashboard::field_label( '_lps_position', $locale ), 'number', (string) Policy::sanitize_integer( $meta['_lps_position'] ?? 0 ), $locale, true )
 			. self::field( 'topic_date', TaskDashboard::field_label( '_lps_topic_date', $locale ), 'date', self::text( $meta['_lps_topic_date'] ?? '' ), $locale, false )
 			. self::submit( $english ? 'Create the draft unit' : 'Criar a unidade em rascunho' )
 			. '</form></section>';
@@ -536,14 +539,14 @@ final class DashboardSurfaces {
 		if ( empty( $offering['can_edit'] ) ) {
 			return '';
 		}
-		$english = 'en' === $locale;
-		$recall  = self::recall( 'resource-' . (int) $offering['id'] );
-		$meta    = is_array( $recall['meta'] ?? null ) ? $recall['meta'] : array();
-		$units   = array();
-		foreach ( is_array( $offering['units'] ?? null ) ? $offering['units'] : array() as $unit ) {
-			$unit    = self::record( $unit );
+		$english     = 'en' === $locale;
+		$offering_id = Policy::sanitize_integer( $offering['id'] ?? 0 );
+		$recall      = self::recall( 'resource-' . $offering_id );
+		$meta        = is_array( $recall['meta'] ?? null ) ? $recall['meta'] : array();
+		$units       = array();
+		foreach ( self::records( $offering['units'] ?? null ) as $unit ) {
 			$units[] = array(
-				'id'    => (int) $unit['id'],
+				'id'    => Policy::sanitize_integer( $unit['id'] ?? 0 ),
 				'title' => self::text( $unit['title'] ?? '' ),
 			);
 		}
@@ -557,12 +560,12 @@ final class DashboardSurfaces {
 		return '<section class="lps-dashboard-form" aria-labelledby="lps-resource-form"><h3 id="lps-resource-form">'
 			. self::esc( $english ? 'Add a material' : 'Adicionar material' ) . '</h3>'
 			. self::form_open( 'lps_dashboard_resource', true )
-			. self::hidden( 'offering_id', (string) (int) $offering['id'] )
+			. self::hidden( 'offering_id', (string) $offering_id )
 			. self::field( 'title', TaskDashboard::field_label( 'post_title', $locale ), 'text', self::text( $recall['title'] ?? '' ), $locale, true )
 			. self::textarea( 'excerpt', TaskDashboard::field_label( 'post_excerpt', $locale ), self::text( $recall['excerpt'] ?? '' ), $locale, false )
 			. self::select( 'resource_type', TaskDashboard::field_label( '_lps_resource_type', $locale ), $types, self::text( $meta['_lps_resource_type'] ?? 'document' ), $locale, true )
 			. self::field( 'resource_language', TaskDashboard::field_label( '_lps_resource_language', $locale ), 'text', self::text( $meta['_lps_resource_language'] ?? 'pt-br' ), $locale, true )
-			. self::select( 'unit_id', TaskDashboard::field_label( 'unit_id', $locale ), $units, (int) ( $recall['unit_id'] ?? 0 ), $locale, false )
+			. self::select( 'unit_id', TaskDashboard::field_label( 'unit_id', $locale ), $units, Policy::sanitize_integer( $recall['unit_id'] ?? 0 ), $locale, false )
 			. self::field( 'external_url', TaskDashboard::field_label( '_lps_external_url', $locale ), 'url', self::text( $recall['external_url'] ?? '' ), $locale, false )
 			. self::field( 'file', TaskDashboard::field_label( 'file', $locale ), 'file', '', $locale, false )
 			. '<p class="lps-field-hint">' . self::esc( $english ? 'Attach a file or an external URL, never both.' : 'Anexe um arquivo ou uma URL externa, nunca ambos.' ) . '</p>'
@@ -585,16 +588,17 @@ final class DashboardSurfaces {
 		if ( empty( $offering['can_copy'] ) ) {
 			return '';
 		}
-		$english = 'en' === $locale;
-		$recall  = self::recall( 'copy-' . (int) $offering['id'] );
-		$terms   = is_array( $model['terms'] ?? null ) ? $model['terms'] : array();
-		$team    = is_array( $offering['team'] ?? null ) ? $offering['team'] : array();
+		$english     = 'en' === $locale;
+		$offering_id = Policy::sanitize_integer( $offering['id'] ?? 0 );
+		$recall      = self::recall( 'copy-' . $offering_id );
+		$terms       = self::records( $model['terms'] ?? null );
+		$team        = self::records( $offering['team'] ?? null );
 		// The current team may hold unpublished people; the option list must
 		// include them so the reviewed-team submit is not blocked.
-		$team_ids  = array_map( static fn( $member ): int => (int) ( self::record( $member )['person_id'] ?? 0 ), $team );
-		$people    = class_exists( TaskDashboard::class ) ? TaskDashboard::people_options( $team_ids ) : ( is_array( $model['people'] ?? null ) ? $model['people'] : array() );
+		$team_ids  = array_map( static fn( array $member ): int => Policy::sanitize_integer( $member['person_id'] ?? 0 ), $team );
+		$people    = class_exists( TaskDashboard::class ) ? TaskDashboard::people_options( $team_ids ) : self::records( $model['people'] ?? null );
 		$reusable  = is_array( $offering['reusable'] ?? null ) ? $offering['reusable'] : array();
-		$operation = function_exists( 'wp_generate_uuid4' ) ? 'copy-' . wp_generate_uuid4() : 'copy-' . (string) (int) $offering['id'];
+		$operation = function_exists( 'wp_generate_uuid4' ) ? 'copy-' . wp_generate_uuid4() : 'copy-' . (string) $offering_id;
 		$html      = '<section class="lps-dashboard-form" aria-labelledby="lps-copy-form"><h3 id="lps-copy-form">'
 			. self::esc( $english ? 'Copy to the next term' : 'Copiar para o próximo período' ) . '</h3>'
 			. '<p class="lps-field-hint">' . self::esc(
@@ -603,9 +607,9 @@ final class DashboardSurfaces {
 				: 'A cópia cria uma oferta em rascunho no período de destino com a equipe revisada e os materiais selecionados. Um editor ainda a publica.'
 			) . '</p>'
 			. self::form_open( 'lps_dashboard_copy' )
-			. self::hidden( 'offering_id', (string) (int) $offering['id'] )
+			. self::hidden( 'offering_id', (string) $offering_id )
 			. self::hidden( 'operation_id', $operation )
-			. self::select( 'new_term_id', TaskDashboard::field_label( 'new_term_id', $locale ), self::options_for( $terms, 'label' ), (int) ( $recall['new_term_id'] ?? 0 ), $locale, true )
+			. self::select( 'new_term_id', TaskDashboard::field_label( 'new_term_id', $locale ), self::options_for( $terms, 'label' ), Policy::sanitize_integer( $recall['new_term_id'] ?? 0 ), $locale, true )
 			. self::field( 'new_section', TaskDashboard::field_label( 'new_section', $locale ), 'text', self::text( $recall['new_section'] ?? '' ), $locale, true )
 			. self::field( 'title', TaskDashboard::field_label( 'post_title', $locale ), 'text', self::text( $recall['title'] ?? '' ), $locale, false )
 			. self::team_fields( $people, $team, $locale )
@@ -645,7 +649,7 @@ final class DashboardSurfaces {
 		for ( $index = 0; $index < $rows; $index++ ) {
 			$member = self::record( $selected[ $index ] ?? array() );
 			$html  .= '<div class="lps-team-row">'
-				. self::select( 'team[' . $index . '][person_id]', $english ? 'Person' : 'Pessoa', $people, (int) ( $member['person_id'] ?? 0 ), $locale, 0 === $index )
+				. self::select( 'team[' . $index . '][person_id]', $english ? 'Person' : 'Pessoa', $people, Policy::sanitize_integer( $member['person_id'] ?? 0 ), $locale, 0 === $index )
 				. self::select( 'team[' . $index . '][role]', $english ? 'Role' : 'Função', $roles, self::text( $member['role'] ?? 'lead' ), $locale, true )
 				. '</div>';
 		}
@@ -746,12 +750,15 @@ final class DashboardSurfaces {
 	 * @param string $locale Supported locale slug.
 	 */
 	private static function notice_html( string $locale ): string {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only notice state.
-		$notice = isset( $_GET['lps_notice'] ) ? sanitize_key( (string) wp_unslash( $_GET['lps_notice'] ) ) : '';
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only notice state.
-		$error = isset( $_GET['lps_error'] ) ? sanitize_key( (string) wp_unslash( $_GET['lps_error'] ) ) : '';
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only notice state.
-		$field = isset( $_GET['lps_field'] ) ? sanitize_key( (string) wp_unslash( $_GET['lps_field'] ) ) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Read-only notice state, sanitized as a scalar on the next line.
+		$raw_notice = isset( $_GET['lps_notice'] ) ? wp_unslash( $_GET['lps_notice'] ) : '';
+		$notice     = is_string( $raw_notice ) ? sanitize_key( $raw_notice ) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Read-only notice state, sanitized as a scalar on the next line.
+		$raw_error = isset( $_GET['lps_error'] ) ? wp_unslash( $_GET['lps_error'] ) : '';
+		$error     = is_string( $raw_error ) ? sanitize_key( $raw_error ) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Read-only notice state, sanitized as a scalar on the next line.
+		$raw_field = isset( $_GET['lps_field'] ) ? wp_unslash( $_GET['lps_field'] ) : '';
+		$field     = is_string( $raw_field ) ? sanitize_key( $raw_field ) : '';
 		if ( '' !== $notice ) {
 			return '<div class="lps-alert lps-alert-success" role="status" data-dashboard-notice="' . self::esc( $notice ) . '"><p>'
 				. self::esc( TaskDashboard::notice_message( $notice, $locale ) ) . '</p></div>';
@@ -920,7 +927,9 @@ final class DashboardSurfaces {
 		// The site sends Referrer-Policy: no-referrer, so wp_get_referer() only
 		// resolves the originating view through the explicit _wp_http_referer
 		// field — the same convention wp-admin forms use.
-		$referer = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_url( wp_unslash( (string) $_SERVER['REQUEST_URI'] ) ) : '';
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized as a scalar on the next line.
+		$raw_referer = isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '';
+		$referer     = is_string( $raw_referer ) ? sanitize_url( $raw_referer ) : '';
 		return '<form method="post" action="' . self::esc( $target ) . '"' . ( $multipart ? ' enctype="multipart/form-data"' : '' ) . ' data-dashboard-form="' . self::esc( $action ) . '">'
 			. self::hidden( 'action', $action )
 			. self::hidden( '_wp_http_referer', $referer )
@@ -1057,13 +1066,36 @@ final class DashboardSurfaces {
 	}
 
 	/**
+	 * Returns the row list as plain record arrays.
+	 *
+	 * @param mixed $rows Candidate row list.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private static function records( mixed $rows ): array {
+		$out = array();
+		foreach ( is_array( $rows ) ? $rows : array() as $row ) {
+			$out[] = self::record( $row );
+		}
+		return $out;
+	}
+
+	/**
 	 * Returns the row as a plain array.
 	 *
 	 * @param mixed $row Candidate row.
 	 * @return array<string, mixed>
 	 */
 	private static function record( mixed $row ): array {
-		return is_array( $row ) ? $row : array();
+		if ( ! is_array( $row ) ) {
+			return array();
+		}
+		$out = array();
+		foreach ( $row as $key => $value ) {
+			if ( is_string( $key ) ) {
+				$out[ $key ] = $value;
+			}
+		}
+		return $out;
 	}
 
 	/**
