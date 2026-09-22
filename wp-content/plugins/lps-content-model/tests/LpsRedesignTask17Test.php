@@ -20,6 +20,7 @@ require_once dirname( __DIR__ ) . '/includes/class-importpackage.php';
 use LPS\ContentModel\Contracts;
 use LPS\ContentModel\ImportPackage;
 use LPS\ContentModel\MigrationPolicy;
+use LPS\ContentModel\Policy;
 use LPS\ContentModel\TeachingContracts;
 use PHPUnit\Framework\TestCase;
 
@@ -227,7 +228,7 @@ final class LpsRedesignTask17Test extends TestCase {
 		self::assertSame( 24, count( $package['records'] ), '12 migrate records x 2 locales' );
 		self::assertSame( array(), $package['media'], 'no media is staged while rights are undocumented' );
 		foreach ( $package['records'] as $record ) {
-			self::assertNull( MigrationPolicy::source_error( $record ), (string) ( $record['source_id'] ?? '' ) );
+			self::assertNull( MigrationPolicy::source_error( $record ), Policy::scalar_string( $record['source_id'] ?? null ) );
 		}
 	}
 
@@ -235,7 +236,7 @@ final class LpsRedesignTask17Test extends TestCase {
 	public function test_todo12_fixture_remains_admissible_under_new_contracts(): void {
 		$package = ImportPackage::from_file( self::FIXTURE );
 		foreach ( $package['records'] as $record ) {
-			self::assertNull( MigrationPolicy::source_error( $record ), (string) ( $record['source_id'] ?? '' ) );
+			self::assertNull( MigrationPolicy::source_error( $record ), Policy::scalar_string( $record['source_id'] ?? null ) );
 		}
 		foreach ( $package['media'] as $asset ) {
 			self::assertNull( MigrationPolicy::media_error( $asset ) );
