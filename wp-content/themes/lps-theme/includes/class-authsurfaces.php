@@ -50,7 +50,7 @@ final class AuthSurfaces {
 			. '<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
 			. '<meta name="robots" content="noindex, nofollow">'
 			. '<title>' . self::esc( $title . ' — LPS' ) . '</title>'
-			. ( '' !== $css_url ? '<link rel="stylesheet" href="' . self::esc( $css_url ) . '">' : '' )
+			. ( '' !== $css_url ? '<link rel="stylesheet" href="' . self::esc( $css_url ) . '">' : '' ) // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet -- This route renders a whole standalone document; wp_enqueue_style has no pipeline to attach to.
 			. '</head><body class="lps-signin-page">'
 			. $header
 			. '<main id="lps-main" class="lps-main-content lps-page-grid lps-signin-main">'
