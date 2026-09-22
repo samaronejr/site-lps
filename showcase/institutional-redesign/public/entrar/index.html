@@ -70,17 +70,9 @@
 </div>
 <div class="lps-page-grid">
 <section class="lps-section lps-section--flush" aria-labelledby="signin-form">
-<div class="lps-section-head">
-<div>
-<p class="lps-kicker">Credenciais</p>
-<h2 id="signin-form">Identificação</h2>
-</div>
-
-</div>
-<div class="lps-split">
-<form class="lps-dashboard-form lps-signin-form" id="signin" method="post" action="/entrar/">
-<fieldset class="lps-fieldset">
-<legend>Identificação</legend>
+<div class="lps-signin-layout">
+<form class="lps-signin-card" id="signin" method="post" action="/entrar/">
+<h2 class="lps-card-title" id="signin-form">Identificação</h2>
 <p class="lps-field">
 <label for="signin-user">Usuário ou e-mail</label>
 <input id="signin-user" name="log" type="text" autocomplete="username" required>
@@ -89,18 +81,17 @@
 <label for="signin-pass">Senha</label>
 <input id="signin-pass" name="pwd" type="password" autocomplete="current-password" required>
 </p>
+<div class="lps-signin-meta">
 <p class="lps-checkbox">
 <input id="signin-remember" name="rememberme" type="checkbox" value="forever">
 <label for="signin-remember">Manter a sessão neste navegador</label>
 </p>
-<p class="lps-field-hint">Use sempre um navegador confiável: a sessão dá acesso à edição de conteúdo do laboratório.</p>
-<p class="lps-button-row"><button class="lps-button lps-button-primary" type="submit">Entrar</button><a class="lps-button lps-button-ghost lps-sso-google" href="/entrar/" aria-label="Entrar com Google Workspace — contas @lps.ufrj.br que já existam aqui"><svg class="lps-sso-icon" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z" fill="#4285F4"/><path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z" fill="#34A853"/><path d="M3.97 10.71a5.4 5.4 0 0 1 0-3.42V4.96H.96a9 9 0 0 0 0 8.08l3.01-2.33z" fill="#FBBC05"/><path d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.59C13.46.9 11.43 0 9 0A9 9 0 0 0 .96 4.96l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z" fill="#EA4335"/></svg><span>Entrar com Google</span></a><a class="lps-more" href="/contato/">Esqueci minha senha</a></p>
-</fieldset>
-<div class="lps-alert lps-alert-info">
-
-<p>Pré-visualização de projeto: este formulário é uma demonstração e não autentica ninguém. Na versão publicada ele envia as credenciais ao WordPress, no mesmo domínio, e a resposta é a área de trabalho do professor.</p>
-
+<a class="lps-meta" href="/contato/">Esqueci minha senha</a>
 </div>
+<button class="lps-button lps-button-primary lps-signin-submit" type="submit">Entrar</button>
+<div class="lps-signin-divider" role="separator"><span>ou</span></div>
+<a class="lps-button lps-button-ghost lps-sso-google" href="/entrar/" aria-label="Entrar com Google Workspace — contas @lps.ufrj.br que já existam aqui"><svg class="lps-sso-icon" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z" fill="#4285F4"/><path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z" fill="#34A853"/><path d="M3.97 10.71a5.4 5.4 0 0 1 0-3.42V4.96H.96a9 9 0 0 0 0 8.08l3.01-2.33z" fill="#FBBC05"/><path d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.59C13.46.9 11.43 0 9 0A9 9 0 0 0 .96 4.96l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z" fill="#EA4335"/></svg><span>Entrar com Google</span></a>
+<p class="lps-field-hint">Use sempre um navegador confiável: a sessão dá acesso à edição de conteúdo do laboratório.</p>
 </form>
 <div class="lps-signin-side">
 <h2 class="lps-kicker">Quem entra por aqui</h2>
@@ -117,38 +108,6 @@
 <li>Problemas de acesso são tratados por secretaria@lps.ufrj.br; nunca compartilhe a senha.</li>
 </ol>
 </div>
-</div>
-</section>
-<section class="lps-section" aria-labelledby="signin-states">
-<div class="lps-section-head">
-<div>
-<p class="lps-kicker">Estados</p>
-<h2 id="signin-states">O que o formulário responde</h2>
-</div>
-
-</div>
-<div class="lps-grid lps-grid--3">
-<article class="lps-card"><div class="lps-card-body">
-
-<h3 class="lps-card-title">Usuário ou senha não conferem</h3>
-<p>Usuário ou senha não conferem. Confira os dados e tente novamente.</p>
-
-</div>
-<div class="lps-card-foot"><span></span><p class="lps-meta">credenciais incorretas</p></div></article>
-<article class="lps-card"><div class="lps-card-body">
-
-<h3 class="lps-card-title">Preencha usuário e senha para continuar</h3>
-<p>Preencha usuário e senha para continuar.</p>
-
-</div>
-<div class="lps-card-foot"><span></span><p class="lps-meta">campo vazio</p></div></article>
-<article class="lps-card"><div class="lps-card-body">
-
-<h3 class="lps-card-title">A conta exige segundo fator</h3>
-<p>A conta exige segundo fator. Conclua a verificação no aplicativo autenticador para esta sessão valer como professor ou administrador.</p>
-
-</div>
-<div class="lps-card-foot"><span></span><p class="lps-meta">segundo fator</p></div></article>
 </div>
 </section>
 </div>

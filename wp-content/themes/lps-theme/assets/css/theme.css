@@ -2773,6 +2773,119 @@ th code {
   inline-size: 1.125rem;
 }
 
+/* The sign-in surface: a credential card beside the guidance column. */
+.lps-signin-layout {
+  display: grid;
+  gap: var(--space-8);
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 60rem) {
+  .lps-signin-layout {
+    align-items: start;
+    gap: var(--space-10);
+    grid-template-columns: minmax(20rem, 26rem) minmax(0, 1fr);
+  }
+}
+
+.lps-signin-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-card-rule);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-8);
+}
+
+.lps-signin-card .lps-card-title {
+  margin-block-end: var(--space-1);
+}
+
+.lps-signin-meta {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  justify-content: space-between;
+}
+
+.lps-signin-meta .lps-checkbox {
+  font-size: var(--type-small);
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.lps-signin-meta .lps-meta {
+  color: var(--color-action);
+  text-decoration: none;
+}
+
+.lps-signin-meta .lps-meta:hover {
+  color: var(--color-action-hover);
+  text-decoration: underline;
+}
+
+.lps-signin-card .lps-button,
+.lps-signin-submit {
+  inline-size: 100%;
+  justify-content: center;
+}
+
+.lps-signin-divider {
+  align-items: center;
+  color: var(--color-text-muted);
+  display: flex;
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  gap: var(--space-3);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.lps-signin-divider::before,
+.lps-signin-divider::after {
+  background: var(--color-card-rule);
+  block-size: 1px;
+  content: "";
+  flex: 1;
+}
+
+.lps-signin-side .lps-signin-audience,
+.lps-signin-side .lps-signin-help {
+  display: grid;
+  gap: var(--space-4);
+  list-style: none;
+  margin: var(--space-4) 0 0;
+  padding: 0;
+}
+
+.lps-signin-audience > li {
+  border-block-start: var(--rule-hairline);
+  padding-block-start: var(--space-3);
+}
+
+.lps-signin-audience strong {
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+.lps-signin-audience p,
+.lps-signin-help {
+  color: var(--color-text-muted);
+  font-size: var(--type-small);
+  line-height: 1.6;
+}
+
+.lps-signin-audience p {
+  margin: var(--space-1) 0 0;
+}
+
+.lps-signin-side .lps-signin-help {
+  list-style: decimal;
+  padding-inline-start: var(--space-5);
+}
+
 /* ----------------------------------------------------------------------------
  * 16. Search and facets
  * ------------------------------------------------------------------------- */
