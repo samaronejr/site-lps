@@ -38,16 +38,6 @@ require_once __DIR__ . '/class-shell.php';
 final class AuthRoutes {
 
 	/**
-	 * BCP47 language tag for each supported locale slug.
-	 *
-	 * @var array<string, string>
-	 */
-	private const LANGUAGE_TAGS = array(
-		'pt-br' => 'pt-BR',
-		'en'    => 'en',
-	);
-
-	/**
 	 * Registers the sign-in and member routes and the request short-circuit.
 	 */
 	public static function boot(): void {
@@ -137,7 +127,8 @@ final class AuthRoutes {
 		$current = wp_parse_url( $login_url, PHP_URL_QUERY );
 		if ( is_string( $current ) && '' !== $current ) {
 			parse_str( $current, $parsed );
-			$requested = isset( $parsed['redirect_to'] ) ? sanitize_url( (string) $parsed['redirect_to'] ) : '';
+			$raw_requested = $parsed['redirect_to'] ?? '';
+			$requested     = is_string( $raw_requested ) ? sanitize_url( $raw_requested ) : '';
 			if ( '' !== $requested ) {
 				$redirect = $requested;
 			}
@@ -148,7 +139,7 @@ final class AuthRoutes {
 		if ( $force_reauth ) {
 			$query['reauth'] = '1';
 		}
-		return '' === $query ? $signin : $signin . '?' . http_build_query( $query, '', '&', PHP_QUERY_RFC3986 );
+		return array() === $query ? $signin : $signin . '?' . http_build_query( $query, '', '&', PHP_QUERY_RFC3986 );
 	}
 
 	/**
@@ -234,11 +225,18 @@ final class AuthRoutes {
 			self::render( $locale, $state );
 			return;
 		}
-		$log = isset( $_POST['log'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['log'] ) ) : '';
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized as a scalar on the next line.
+		$raw_log = isset( $_POST['log'] ) ? wp_unslash( $_POST['log'] ) : '';
+		$log     = is_string( $raw_log ) ? sanitize_text_field( $raw_log ) : '';
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Passwords are verified raw by `wp_signon`, exactly like core; sanitizing would corrupt valid credentials.
-		$pwd                  = isset( $_POST['pwd'] ) ? (string) wp_unslash( $_POST['pwd'] ) : '';
-		$remember             = isset( $_POST['rememberme'] ) && 'forever' === sanitize_key( wp_unslash( (string) $_POST['rememberme'] ) );
-		$redirect             = isset( $_POST['redirect_to'] ) ? sanitize_url( wp_unslash( (string) $_POST['redirect_to'] ) ) : '';
+		$raw_pwd = isset( $_POST['pwd'] ) ? wp_unslash( $_POST['pwd'] ) : '';
+		$pwd     = is_string( $raw_pwd ) ? $raw_pwd : '';
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized as a scalar on the next line.
+		$raw_remember = isset( $_POST['rememberme'] ) ? wp_unslash( $_POST['rememberme'] ) : '';
+		$remember     = 'forever' === ( is_string( $raw_remember ) ? sanitize_key( $raw_remember ) : '' );
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized as a scalar on the next line.
+		$raw_target           = isset( $_POST['redirect_to'] ) ? wp_unslash( $_POST['redirect_to'] ) : '';
+		$redirect             = is_string( $raw_target ) ? sanitize_url( $raw_target ) : '';
 		$state['redirect_to'] = $redirect;
 		if ( '' === $log || '' === $pwd ) {
 			$state['error']     = 'empty';
@@ -277,9 +275,10 @@ final class AuthRoutes {
 	 * @return array<string, mixed>
 	 */
 	private static function state(): array {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- A read-only destination parameter needs no nonce, same contract as core's redirect_to.
-		$redirect = isset( $_GET['redirect_to'] ) ? sanitize_url( wp_unslash( (string) $_GET['redirect_to'] ) ) : '';
-		$state    = array(
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- A read-only destination parameter needs no nonce (same contract as core's redirect_to) and is sanitized on the next line.
+		$raw_redirect = isset( $_GET['redirect_to'] ) ? wp_unslash( $_GET['redirect_to'] ) : '';
+		$redirect     = is_string( $raw_redirect ) ? sanitize_url( $raw_redirect ) : '';
+		$state        = array(
 			'error'       => '',
 			'attempted'   => '',
 			'redirect_to' => $redirect,
@@ -292,9 +291,9 @@ final class AuthRoutes {
 			return $state;
 		}
 		$user               = wp_get_current_user();
-		$roles              = $user instanceof \WP_User ? array_map( 'translate_user_role', $user->roles ) : array();
+		$roles              = array_map( 'translate_user_role', $user->roles );
 		$state['signed_in'] = true;
-		$state['user_name'] = $user instanceof \WP_User ? $user->display_name : '';
+		$state['user_name'] = $user->display_name;
 		$state['user_role'] = implode( ', ', array_filter( array_map( 'strval', $roles ) ) );
 		$state['can_admin'] = function_exists( 'current_user_can' ) && current_user_can( 'manage_options' );
 		return $state;
@@ -356,16 +355,20 @@ final class AuthRoutes {
 
 	/** Whether the current request is a POST. */
 	private static function is_post(): bool {
-		return isset( $_SERVER['REQUEST_METHOD'] )
-			&& 'POST' === strtoupper( sanitize_text_field( wp_unslash( (string) $_SERVER['REQUEST_METHOD'] ) ) );
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized as a scalar on the next line.
+		$raw = isset( $_SERVER['REQUEST_METHOD'] ) ? wp_unslash( $_SERVER['REQUEST_METHOD'] ) : '';
+		return is_string( $raw ) && 'POST' === strtoupper( sanitize_text_field( $raw ) );
 	}
 
 	/** Returns the sanitized path of the current request. */
 	private static function request_path(): string {
-		if ( ! isset( $_SERVER['REQUEST_URI'] ) || ! is_string( $_SERVER['REQUEST_URI'] ) ) {
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized as a scalar on the next line.
+		$raw = isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '';
+		$uri = is_string( $raw ) ? $raw : '';
+		if ( '' === $uri ) {
 			return '/';
 		}
-		$path = wp_parse_url( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ), PHP_URL_PATH );
+		$path = wp_parse_url( sanitize_text_field( $uri ), PHP_URL_PATH );
 		return is_string( $path ) ? $path : '/';
 	}
 }

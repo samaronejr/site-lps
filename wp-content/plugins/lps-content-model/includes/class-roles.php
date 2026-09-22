@@ -605,7 +605,7 @@ final class Roles {
 	 * @param bool    $may  Whether the acting account may manage teaching grants.
 	 */
 	private static function render_person_link( WP_User $user, bool $may ): void {
-		$current = (int) get_user_meta( $user->ID, self::PERSON_META, true );
+		$current = Policy::sanitize_integer( get_user_meta( $user->ID, self::PERSON_META, true ) );
 		$people  = function_exists( 'get_posts' ) ? get_posts(
 			array(
 				'post_type'      => 'lps_person',
@@ -625,9 +625,6 @@ final class Roles {
 		echo '<p><label for="lps_person_id">' . esc_html__( 'Person record', 'lps-content-model' ) . '</label> <select id="lps_person_id" name="lps_person_id">';
 		echo '<option value="0">' . esc_html__( '— none —', 'lps-content-model' ) . '</option>';
 		foreach ( $people as $person ) {
-			if ( ! $person instanceof \WP_Post ) {
-				continue;
-			}
 			echo '<option value="' . esc_attr( (string) $person->ID ) . '" ' . selected( $current, $person->ID, false ) . '>' . esc_html( $person->post_title . ' (#' . $person->ID . ')' ) . '</option>';
 		}
 		echo '</select></p>';
@@ -666,8 +663,9 @@ final class Roles {
 		}
 		$actor = wp_get_current_user();
 		if ( TeachingPolicy::may_manage_grants( self::policy_role( $actor ), self::assigned_collections( $actor->ID ) ) && isset( $_POST['lps_person_id'] ) ) {
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Cast to string then sanitized.
-			$person_id = Policy::sanitize_integer( sanitize_text_field( wp_unslash( (string) $_POST['lps_person_id'] ) ) );
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized as a scalar on the next line.
+			$raw_person = wp_unslash( $_POST['lps_person_id'] );
+			$person_id  = Policy::sanitize_integer( is_string( $raw_person ) ? sanitize_text_field( $raw_person ) : '' );
 			if ( 0 < $person_id && function_exists( 'get_post' ) && get_post( $person_id ) instanceof \WP_Post && 'lps_person' === get_post_type( $person_id ) ) {
 				update_user_meta( $user_id, self::PERSON_META, $person_id );
 			} elseif ( 0 >= $person_id ) {
