@@ -613,7 +613,7 @@ main > * + *,
     grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
   }
 
-  .lps-section-head > :last-child {
+  .lps-section-head > :last-child:not(:first-child) {
     justify-self: end;
   }
 }
