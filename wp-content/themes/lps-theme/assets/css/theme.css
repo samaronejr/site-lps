@@ -3000,7 +3000,7 @@ th code {
 }
 
 .lps-footer-brand .lps-wordmark {
-  inline-size: clamp(7.5rem, 14vw, 10rem);
+  inline-size: clamp(7.5rem, 18vw, 17rem);
 }
 
 .lps-footer-brand .lps-logo {
