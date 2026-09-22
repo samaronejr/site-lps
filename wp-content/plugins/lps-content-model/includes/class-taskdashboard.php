@@ -1617,7 +1617,7 @@ final class TaskDashboard {
 	 *
 	 * @param string $code Notice code.
 	 */
-	private static function succeed( string $code ): void {
+	private static function succeed( string $code ): never {
 		self::redirect( array( 'lps_notice' => $code ) );
 	}
 
@@ -1627,7 +1627,7 @@ final class TaskDashboard {
 	 * @param string $code  Error code.
 	 * @param string $field Machine field name.
 	 */
-	private static function fail( string $code, string $field = '' ): void {
+	private static function fail( string $code, string $field = '' ): never {
 		$args = array( 'lps_error' => $code );
 		if ( '' !== $field ) {
 			$args['lps_field'] = $field;
@@ -1643,7 +1643,7 @@ final class TaskDashboard {
 	 *
 	 * @param array<string, string> $args Query arguments to add.
 	 */
-	private static function redirect( array $args ): void {
+	private static function redirect( array $args ): never {
 		$target = wp_get_referer();
 		if ( ! is_string( $target ) || '' === $target ) {
 			$target = home_url( '/pt-br/painel/' );
