@@ -1,5 +1,6 @@
 import { access, readdir, readFile } from "node:fs/promises";
 import { dirname, relative, resolve } from "node:path";
+import { resolveTokens } from "../../../../scripts/lib/a11y.mjs";
 import {
   auditMarkup,
   auditStylesheet,
@@ -7,7 +8,6 @@ import {
   auditThemeJson,
   collectLocalSvgReferences,
 } from "../../../../scripts/lib/design-guardrails.mjs";
-import { resolveTokens } from "../../../../scripts/lib/a11y.mjs";
 
 const themeRoot = resolve(new URL("../", import.meta.url).pathname);
 
@@ -86,7 +86,6 @@ export async function checkTheme(root = themeRoot) {
   // Gradients exist as --gradient-* tokens; a surface references one.
   for (const match of scannableCss.matchAll(/([\w-]+)\s*:\s*([^;{}]+);/g)) {
     if (!TOKENIZED_GRADIENT.test(match[2])) continue;
-    const declarationStart = (match.index ?? 0) + match[0].indexOf(":");
     if (insideRoot(match.index ?? 0)) continue;
     if (/^\s*var\(--gradient-[\w-]+\)\s*$/i.test(match[2])) continue;
     add("GRADIENT_ON_SURFACE", `${match[1]}: ${match[2].trim().slice(0, 80)}`);

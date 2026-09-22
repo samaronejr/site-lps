@@ -57,7 +57,9 @@ test.describe("task-04: offering-scoped editorial authorization boundary", () =>
       // Forged relation targets: a parent offering the account was never granted.
       { lps_parent_offering: 1, meta: { _lps_teaching_team_ids: [1] } },
       // Direct grant injection through account-shaped metadata.
-      { meta: { _lps_teaching_grants: [{ scope: "offering", offering_id: 1, role: "professor" }] } },
+      {
+        meta: { _lps_teaching_grants: [{ scope: "offering", offering_id: 1, role: "professor" }] },
+      },
     ];
     for (const payload of forgedPayloads) {
       const response = await request.post("/wp-json/wp/v2/units", {
@@ -111,7 +113,9 @@ test.describe("task-04: offering-scoped editorial authorization boundary", () =>
     expect(body.code).toBe("rest_cannot_create");
   });
 
-  test("anonymous teaching listings never expose nonpublic records or private fields", async ({ request }) => {
+  test("anonymous teaching listings never expose nonpublic records or private fields", async ({
+    request,
+  }) => {
     // Given: an anonymous request channel with the session established.
     await request.get("/");
     for (const restBase of ["units", "resources", "terms", "offerings", "courses"]) {
@@ -134,7 +138,9 @@ test.describe("task-04: offering-scoped editorial authorization boundary", () =>
     }
   });
 
-  test("grant metadata and account linkage never appear in public responses", async ({ request }) => {
+  test("grant metadata and account linkage never appear in public responses", async ({
+    request,
+  }) => {
     // Given: public surfaces that could leak scope or account internals.
     await request.get("/");
     for (const path of [

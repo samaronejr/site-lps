@@ -73,7 +73,23 @@ if (lane === "workspace") {
   const { execFileSync } = await import("node:child_process");
   const baseURL = process.env.LPS_BASE_URL ?? "http://localhost:8888";
   try {
-    execFileSync("curl", ["-fsS", "-o", "/dev/null", "--max-time", "8", "-c", "/tmp/lps-qa-visual-cookies.txt", "-b", "/tmp/lps-qa-visual-cookies.txt", "-L", `${baseURL}/wp-json/`], { stdio: "pipe" });
+    execFileSync(
+      "curl",
+      [
+        "-fsS",
+        "-o",
+        "/dev/null",
+        "--max-time",
+        "8",
+        "-c",
+        "/tmp/lps-qa-visual-cookies.txt",
+        "-b",
+        "/tmp/lps-qa-visual-cookies.txt",
+        "-L",
+        `${baseURL}/wp-json/`,
+      ],
+      { stdio: "pipe" },
+    );
   } catch {
     process.stderr.write(
       `${JSON.stringify({ lane, status: "env-unreachable", baseURL, hint: "npm run env:start first" })}\n`,
@@ -82,11 +98,10 @@ if (lane === "workspace") {
   }
   if (process.exitCode !== 1) {
     try {
-      execFileSync(
-        process.execPath,
-        ["wp-content/themes/lps-theme/tests/browser-qa.mjs"],
-        { stdio: "inherit", env: { ...process.env, LPS_BASE_URL: baseURL } },
-      );
+      execFileSync(process.execPath, ["wp-content/themes/lps-theme/tests/browser-qa.mjs"], {
+        stdio: "inherit",
+        env: { ...process.env, LPS_BASE_URL: baseURL },
+      });
       process.stdout.write(`${JSON.stringify({ lane, status: "passed", baseURL })}\n`);
     } catch (error) {
       process.stdout.write(

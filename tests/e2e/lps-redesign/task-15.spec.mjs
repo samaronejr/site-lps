@@ -108,7 +108,9 @@ async function loginAs(target, user, pass, mfa) {
       // The enrolled-MFA challenge renders its own submit (`submit_button()`),
       // not the credential form's #wp-submit; a failed sign-in must surface
       // here, never as a later REST denial.
-      const challenge = target.locator("#loginform input[type=submit], #loginform button[type=submit]");
+      const challenge = target.locator(
+        "#loginform input[type=submit], #loginform button[type=submit]",
+      );
       await challenge.waitFor({ state: "visible", timeout: 60_000 });
       await Promise.all([target.waitForLoadState("load", { timeout: 60_000 }), challenge.click()]);
     }
@@ -327,7 +329,12 @@ test.describe("task-15: safe next-term copy and correction history", () => {
     });
     expect(courseEn.status, JSON.stringify(courseEn.body)).toBe(201);
     state.courseEnId = courseEn.body.id;
-    await api(page, state.publisherNonce, "POST", `/teaching/records/${state.courseEnId}/review-translation`);
+    await api(
+      page,
+      state.publisherNonce,
+      "POST",
+      `/teaching/records/${state.courseEnId}/review-translation`,
+    );
     await publish(state.courseEnId);
     await publish(state.coursePtId);
 
@@ -382,7 +389,12 @@ test.describe("task-15: safe next-term copy and correction history", () => {
     });
     expect(offeringEn.status, JSON.stringify(offeringEn.body)).toBe(201);
     state.offeringEnId = offeringEn.body.id;
-    await api(page, state.publisherNonce, "POST", `/teaching/records/${state.offeringEnId}/review-translation`);
+    await api(
+      page,
+      state.publisherNonce,
+      "POST",
+      `/teaching/records/${state.offeringEnId}/review-translation`,
+    );
     await publish(state.offeringEnId);
     await publish(state.offeringPtId);
 
@@ -440,12 +452,24 @@ test.describe("task-15: safe next-term copy and correction history", () => {
     test.setTimeout(120_000);
     expect(state.offeringPtId, "graph test must run first").toBeGreaterThan(0);
 
-    const v1 = await upload(page, state.publisherNonce, state.offeringPtId, `apostila-${RUN}.pdf`, PDF_V1);
+    const v1 = await upload(
+      page,
+      state.publisherNonce,
+      state.offeringPtId,
+      `apostila-${RUN}.pdf`,
+      PDF_V1,
+    );
     expect(v1.status, JSON.stringify(v1.body)).toBe(201);
     state.version1Id = v1.body.version_id;
     expect(v1.body.state).toBe("cleared");
 
-    const v2 = await upload(page, state.publisherNonce, state.offeringPtId, `rascunho-${RUN}.pdf`, PDF_V2);
+    const v2 = await upload(
+      page,
+      state.publisherNonce,
+      state.offeringPtId,
+      `rascunho-${RUN}.pdf`,
+      PDF_V2,
+    );
     expect(v2.status, JSON.stringify(v2.body)).toBe(201);
     state.version2Id = v2.body.version_id;
     expect(v2.body.state).toBe("cleared");
@@ -535,9 +559,15 @@ test.describe("task-15: safe next-term copy and correction history", () => {
     });
     expect(withdrawn.status, JSON.stringify(withdrawn.body)).toBe(201);
     state.resourceWithdrawnId = withdrawn.body.id;
-    await api(page, state.publisherNonce, "POST", `/teaching/resources/${state.resourceWithdrawnId}/release`, {
-      state: "released",
-    });
+    await api(
+      page,
+      state.publisherNonce,
+      "POST",
+      `/teaching/resources/${state.resourceWithdrawnId}/release`,
+      {
+        state: "released",
+      },
+    );
     await publish(state.resourceWithdrawnId);
     const withdraw = await api(
       page,
@@ -558,18 +588,24 @@ test.describe("task-15: safe next-term copy and correction history", () => {
     test.setTimeout(120_000);
     expect(state.resourceReleasedId, "resource test must run first").toBeGreaterThan(0);
 
-    const copy = await api(page, state.publisherNonce, "POST", `/teaching/offerings/${state.offeringPtId}/copy-forward`, {
-      operation_id: `copy-${RUN}-a`,
-      new_term_id: state.termNewId,
-      new_section: "t01",
-      team_reviewed: true,
-      team: [
-        { person_id: state.personId, role: "lead" },
-        { person_id: state.person2Id, role: "assistant" },
-      ],
-      selected_version_ids: [state.version1Id],
-      title: `Turma ${RUN} T01 (2027.1)`,
-    });
+    const copy = await api(
+      page,
+      state.publisherNonce,
+      "POST",
+      `/teaching/offerings/${state.offeringPtId}/copy-forward`,
+      {
+        operation_id: `copy-${RUN}-a`,
+        new_term_id: state.termNewId,
+        new_section: "t01",
+        team_reviewed: true,
+        team: [
+          { person_id: state.personId, role: "lead" },
+          { person_id: state.person2Id, role: "assistant" },
+        ],
+        selected_version_ids: [state.version1Id],
+        title: `Turma ${RUN} T01 (2027.1)`,
+      },
+    );
     expect(copy.status, JSON.stringify(copy.body)).toBe(201);
     const manifest = copy.body;
     expect(manifest.operation_id).toBe(`copy-${RUN}-a`);
@@ -581,7 +617,13 @@ test.describe("task-15: safe next-term copy and correction history", () => {
     expect(manifest.replayed).toBe(false);
     expect(manifest.selected_version_ids).toContain(state.version1Id);
     expect(manifest.resets).toEqual(
-      expect.arrayContaining(["announcements", "deadlines", "release_times", "active_notices", "unreleased_resources"]),
+      expect.arrayContaining([
+        "announcements",
+        "deadlines",
+        "release_times",
+        "active_notices",
+        "unreleased_resources",
+      ]),
     );
     state.newOfferingId = manifest.new_offering_id;
     state.copiedUnitIds = manifest.unit_ids;
@@ -596,7 +638,9 @@ test.describe("task-15: safe next-term copy and correction history", () => {
     expect(draft.slug).not.toBe(`turma-${RUN}-t01`);
     expect(draft.meta._lps_copy_operation_id).toBe(`copy-${RUN}-a`);
     expect(draft.meta._lps_copy_source_offering_id).toBe(state.offeringPtId);
-    expect(draft.meta._lps_record_id).not.toBe((await record("offerings", state.offeringPtId)).meta._lps_record_id);
+    expect(draft.meta._lps_record_id).not.toBe(
+      (await record("offerings", state.offeringPtId)).meta._lps_record_id,
+    );
     // Descriptive structure and the syllabus snapshot carried forward.
     expect(draft.meta._lps_schedule).toBe("Ter/Qui 10h-12h");
     expect(draft.meta._lps_venue).toBe("Sala 201");
@@ -650,23 +694,31 @@ test.describe("task-15: safe next-term copy and correction history", () => {
     expect(releasedClone.meta._lps_rights_review).toBe("approved");
     expect(releasedClone.meta._lps_accessibility_review).toBe("approved");
     // The unreleased examination resource arrived as an empty stub.
-    const unreleasedClone = clones.find((clone) => (clone.title?.rendered ?? "") === `Prova ${RUN}`);
+    const unreleasedClone = clones.find(
+      (clone) => (clone.title?.rendered ?? "") === `Prova ${RUN}`,
+    );
     expect(unreleasedClone, JSON.stringify(clones.map((c) => [c.slug, c.title]))).toBeTruthy();
     expect(unreleasedClone.meta._lps_sha256).toBe("");
     expect(unreleasedClone.meta._lps_rights_review).toBe("pending");
     // The released external resource kept its public URL and reviews.
-    const externalClone = clones.find((clone) => (clone.title?.rendered ?? "") === `Externo ${RUN}`);
+    const externalClone = clones.find(
+      (clone) => (clone.title?.rendered ?? "") === `Externo ${RUN}`,
+    );
     expect(externalClone, "external clone").toBeTruthy();
     expect(externalClone.meta._lps_external_url).toBe("https://example.org/aula-publica.pdf");
     expect(externalClone.meta._lps_rights_review).toBe("approved");
     // The withdrawn resource arrived as an empty stub.
-    const withdrawnClone = clones.find((clone) => (clone.title?.rendered ?? "") === `Retirado ${RUN}`);
+    const withdrawnClone = clones.find(
+      (clone) => (clone.title?.rendered ?? "") === `Retirado ${RUN}`,
+    );
     expect(withdrawnClone, "withdrawn clone").toBeTruthy();
     expect(withdrawnClone.meta._lps_sha256).toBe("");
     expect(withdrawnClone.meta._lps_rights_review).toBe("pending");
   });
 
-  test("the source offering record and byte hashes are identical after the copy", async ({ browser }) => {
+  test("the source offering record and byte hashes are identical after the copy", async ({
+    browser,
+  }) => {
     test.setTimeout(120_000);
     expect(state.newOfferingId, "copy test must run first").toBeGreaterThan(0);
 
@@ -682,7 +734,11 @@ test.describe("task-15: safe next-term copy and correction history", () => {
     try {
       const download = await anonymous.request.get(state.downloadUrl);
       expect(download.status()).toBe(200);
-      expect(createHash("sha256").update(await download.body()).digest("hex")).toBe(SHA_V1);
+      expect(
+        createHash("sha256")
+          .update(await download.body())
+          .digest("hex"),
+      ).toBe(SHA_V1);
     } finally {
       await anonymous.close();
     }
@@ -695,14 +751,20 @@ test.describe("task-15: safe next-term copy and correction history", () => {
     test.setTimeout(120_000);
     expect(state.newOfferingId, "copy test must run first").toBeGreaterThan(0);
 
-    const retry = await api(page, state.publisherNonce, "POST", `/teaching/offerings/${state.offeringPtId}/copy-forward`, {
-      operation_id: `copy-${RUN}-a`,
-      new_term_id: state.termNewId,
-      new_section: "t01",
-      team_reviewed: true,
-      team: [{ person_id: state.personId, role: "lead" }],
-      selected_version_ids: [state.version1Id],
-    });
+    const retry = await api(
+      page,
+      state.publisherNonce,
+      "POST",
+      `/teaching/offerings/${state.offeringPtId}/copy-forward`,
+      {
+        operation_id: `copy-${RUN}-a`,
+        new_term_id: state.termNewId,
+        new_section: "t01",
+        team_reviewed: true,
+        team: [{ person_id: state.personId, role: "lead" }],
+        selected_version_ids: [state.version1Id],
+      },
+    );
     expect(retry.status, JSON.stringify(retry.body)).toBe(201);
     expect(retry.body.replayed).toBe(true);
     expect(retry.body.new_offering_id).toBe(state.newOfferingId);
@@ -724,89 +786,137 @@ test.describe("task-15: safe next-term copy and correction history", () => {
     expect(state.newOfferingId, "copy test must run first").toBeGreaterThan(0);
 
     // A different operation on the same term/section is a real conflict.
-    const duplicate = await api(page, state.publisherNonce, "POST", `/teaching/offerings/${state.offeringPtId}/copy-forward`, {
-      operation_id: `copy-${RUN}-dup`,
-      new_term_id: state.termNewId,
-      new_section: "t01",
-      team_reviewed: true,
-      team: [{ person_id: state.personId, role: "lead" }],
-    });
+    const duplicate = await api(
+      page,
+      state.publisherNonce,
+      "POST",
+      `/teaching/offerings/${state.offeringPtId}/copy-forward`,
+      {
+        operation_id: `copy-${RUN}-dup`,
+        new_term_id: state.termNewId,
+        new_section: "t01",
+        team_reviewed: true,
+        team: [{ person_id: state.personId, role: "lead" }],
+      },
+    );
     expect(duplicate.status).toBe(409);
     expect(duplicate.body.code).toBe("lps_offering_identity_conflict");
     expect(duplicate.body.data.existing_record).toBe(state.newOfferingId);
 
     // Selecting the unreleased examination version is denied before mutation.
-    const unreleased = await api(page, state.publisherNonce, "POST", `/teaching/offerings/${state.offeringPtId}/copy-forward`, {
-      operation_id: `copy-${RUN}-unreleased`,
-      new_term_id: state.termNewId,
-      new_section: "t03",
-      team_reviewed: true,
-      team: [{ person_id: state.personId, role: "lead" }],
-      selected_version_ids: [state.version2Id],
-    });
+    const unreleased = await api(
+      page,
+      state.publisherNonce,
+      "POST",
+      `/teaching/offerings/${state.offeringPtId}/copy-forward`,
+      {
+        operation_id: `copy-${RUN}-unreleased`,
+        new_term_id: state.termNewId,
+        new_section: "t03",
+        team_reviewed: true,
+        team: [{ person_id: state.personId, role: "lead" }],
+        selected_version_ids: [state.version2Id],
+      },
+    );
     expect(unreleased.status).toBe(400);
     expect(unreleased.body.code).toBe("lps_copy_forward_unreleased_version");
 
     // The withdrawn version is equally unreusable.
-    const withdrawn = await api(page, state.publisherNonce, "POST", `/teaching/offerings/${state.offeringPtId}/copy-forward`, {
-      operation_id: `copy-${RUN}-withdrawn`,
-      new_term_id: state.termNewId,
-      new_section: "t03",
-      team_reviewed: true,
-      team: [{ person_id: state.personId, role: "lead" }],
-      selected_version_ids: [state.version1Id, state.version2Id],
-    });
+    const withdrawn = await api(
+      page,
+      state.publisherNonce,
+      "POST",
+      `/teaching/offerings/${state.offeringPtId}/copy-forward`,
+      {
+        operation_id: `copy-${RUN}-withdrawn`,
+        new_term_id: state.termNewId,
+        new_section: "t03",
+        team_reviewed: true,
+        team: [{ person_id: state.personId, role: "lead" }],
+        selected_version_ids: [state.version1Id, state.version2Id],
+      },
+    );
     expect(withdrawn.status).toBe(400);
     expect(withdrawn.body.code).toBe("lps_copy_forward_unreleased_version");
 
     // The same term and section is an identity collision, never a copy.
-    const collision = await api(page, state.publisherNonce, "POST", `/teaching/offerings/${state.offeringPtId}/copy-forward`, {
-      operation_id: `copy-${RUN}-collision`,
-      new_term_id: state.termCompletedId,
-      new_section: "t01",
-      team_reviewed: true,
-      team: [{ person_id: state.personId, role: "lead" }],
-    });
+    const collision = await api(
+      page,
+      state.publisherNonce,
+      "POST",
+      `/teaching/offerings/${state.offeringPtId}/copy-forward`,
+      {
+        operation_id: `copy-${RUN}-collision`,
+        new_term_id: state.termCompletedId,
+        new_section: "t01",
+        team_reviewed: true,
+        team: [{ person_id: state.personId, role: "lead" }],
+      },
+    );
     expect(collision.status).toBe(400);
     expect(collision.body.code).toBe("lps_copy_forward_identity_collision");
 
     // Team review, team, term and operation id are all required.
-    const noReview = await api(page, state.publisherNonce, "POST", `/teaching/offerings/${state.offeringPtId}/copy-forward`, {
-      operation_id: `copy-${RUN}-noreview`,
-      new_term_id: state.termNewId,
-      new_section: "t04",
-      team: [{ person_id: state.personId, role: "lead" }],
-    });
+    const noReview = await api(
+      page,
+      state.publisherNonce,
+      "POST",
+      `/teaching/offerings/${state.offeringPtId}/copy-forward`,
+      {
+        operation_id: `copy-${RUN}-noreview`,
+        new_term_id: state.termNewId,
+        new_section: "t04",
+        team: [{ person_id: state.personId, role: "lead" }],
+      },
+    );
     expect(noReview.status).toBe(400);
     expect(noReview.body.code).toBe("lps_copy_forward_team_review_required");
 
-    const noTeam = await api(page, state.publisherNonce, "POST", `/teaching/offerings/${state.offeringPtId}/copy-forward`, {
-      operation_id: `copy-${RUN}-noteam`,
-      new_term_id: state.termNewId,
-      new_section: "t04",
-      team_reviewed: true,
-      team: [],
-    });
+    const noTeam = await api(
+      page,
+      state.publisherNonce,
+      "POST",
+      `/teaching/offerings/${state.offeringPtId}/copy-forward`,
+      {
+        operation_id: `copy-${RUN}-noteam`,
+        new_term_id: state.termNewId,
+        new_section: "t04",
+        team_reviewed: true,
+        team: [],
+      },
+    );
     expect(noTeam.status).toBe(400);
     expect(noTeam.body.code).toBe("lps_teaching_team_required");
 
-    const badTerm = await api(page, state.publisherNonce, "POST", `/teaching/offerings/${state.offeringPtId}/copy-forward`, {
-      operation_id: `copy-${RUN}-badterm`,
-      new_term_id: 999999,
-      new_section: "t04",
-      team_reviewed: true,
-      team: [{ person_id: state.personId, role: "lead" }],
-    });
+    const badTerm = await api(
+      page,
+      state.publisherNonce,
+      "POST",
+      `/teaching/offerings/${state.offeringPtId}/copy-forward`,
+      {
+        operation_id: `copy-${RUN}-badterm`,
+        new_term_id: 999999,
+        new_section: "t04",
+        team_reviewed: true,
+        team: [{ person_id: state.personId, role: "lead" }],
+      },
+    );
     expect(badTerm.status).toBe(400);
     expect(badTerm.body.code).toBe("lps_teaching_term_invalid");
 
-    const noOperation = await api(page, state.publisherNonce, "POST", `/teaching/offerings/${state.offeringPtId}/copy-forward`, {
-      operation_id: "x",
-      new_term_id: state.termNewId,
-      new_section: "t04",
-      team_reviewed: true,
-      team: [{ person_id: state.personId, role: "lead" }],
-    });
+    const noOperation = await api(
+      page,
+      state.publisherNonce,
+      "POST",
+      `/teaching/offerings/${state.offeringPtId}/copy-forward`,
+      {
+        operation_id: "x",
+        new_term_id: state.termNewId,
+        new_section: "t04",
+        team_reviewed: true,
+        team: [{ person_id: state.personId, role: "lead" }],
+      },
+    );
     expect(noOperation.status).toBe(400);
     expect(noOperation.body.code).toBe("lps_copy_forward_operation_id_required");
   });
@@ -817,15 +927,23 @@ test.describe("task-15: safe next-term copy and correction history", () => {
 
     // Arm the failure seam at the resource step: the draft offering and its
     // cloned units exist when persistence is interrupted.
-    const armed = await api(page, state.publisherNonce, "POST", "/test/copy-fail", { step: "resource" });
-    expect(armed.status).toBe(200);
-    const failed = await api(page, state.publisherNonce, "POST", `/teaching/offerings/${state.offeringPtId}/copy-forward`, {
-      operation_id: `copy-${RUN}-fail`,
-      new_term_id: state.termNewId,
-      new_section: "t05",
-      team_reviewed: true,
-      team: [{ person_id: state.personId, role: "lead" }],
+    const armed = await api(page, state.publisherNonce, "POST", "/test/copy-fail", {
+      step: "resource",
     });
+    expect(armed.status).toBe(200);
+    const failed = await api(
+      page,
+      state.publisherNonce,
+      "POST",
+      `/teaching/offerings/${state.offeringPtId}/copy-forward`,
+      {
+        operation_id: `copy-${RUN}-fail`,
+        new_term_id: state.termNewId,
+        new_section: "t05",
+        team_reviewed: true,
+        team: [{ person_id: state.personId, role: "lead" }],
+      },
+    );
     expect(failed.status).toBe(500);
     expect(failed.body.code).toBe("lps_test_copy_step_failed");
     await api(page, state.publisherNonce, "POST", "/test/copy-fail", { step: "" });
@@ -840,13 +958,19 @@ test.describe("task-15: safe next-term copy and correction history", () => {
     );
     expect(partial, JSON.stringify(partial)).toHaveLength(0);
 
-    const retried = await api(page, state.publisherNonce, "POST", `/teaching/offerings/${state.offeringPtId}/copy-forward`, {
-      operation_id: `copy-${RUN}-fail`,
-      new_term_id: state.termNewId,
-      new_section: "t05",
-      team_reviewed: true,
-      team: [{ person_id: state.personId, role: "lead" }],
-    });
+    const retried = await api(
+      page,
+      state.publisherNonce,
+      "POST",
+      `/teaching/offerings/${state.offeringPtId}/copy-forward`,
+      {
+        operation_id: `copy-${RUN}-fail`,
+        new_term_id: state.termNewId,
+        new_section: "t05",
+        team_reviewed: true,
+        team: [{ person_id: state.personId, role: "lead" }],
+      },
+    );
     expect(retried.status, JSON.stringify(retried.body)).toBe(201);
     expect(retried.body.replayed).toBe(false);
     expect(retried.body.new_offering_id).toBeGreaterThan(0);
@@ -921,15 +1045,18 @@ test.describe("task-15: safe next-term copy and correction history", () => {
     // Anonymous callers are denied before any mutation.
     const anonymous = await anonymousContext(await professorPage.context().browser());
     try {
-      const response = await anonymous.request.post(`/wp-json/lps/v1/teaching/offerings/${state.offeringPtId}/copy-forward`, {
-        data: {
-          operation_id: `copy-${RUN}-anon`,
-          new_term_id: state.termNewId,
-          new_section: "t09",
-          team_reviewed: true,
-          team: [{ person_id: state.personId, role: "lead" }],
+      const response = await anonymous.request.post(
+        `/wp-json/lps/v1/teaching/offerings/${state.offeringPtId}/copy-forward`,
+        {
+          data: {
+            operation_id: `copy-${RUN}-anon`,
+            new_term_id: state.termNewId,
+            new_section: "t09",
+            team_reviewed: true,
+            team: [{ person_id: state.personId, role: "lead" }],
+          },
         },
-      });
+      );
       expect([401, 403]).toContain(response.status());
     } finally {
       await anonymous.close();
@@ -952,7 +1079,12 @@ test.describe("task-15: safe next-term copy and correction history", () => {
     });
     expect(variant.status, JSON.stringify(variant.body)).toBe(201);
     state.newOfferingEnId = variant.body.id;
-    await api(page, state.publisherNonce, "POST", `/teaching/records/${state.newOfferingEnId}/review-translation`);
+    await api(
+      page,
+      state.publisherNonce,
+      "POST",
+      `/teaching/records/${state.newOfferingEnId}/review-translation`,
+    );
     await publish(state.newOfferingEnId);
     const published = await publish(state.newOfferingId);
     expect(published.status).toBe("publish");
@@ -989,7 +1121,11 @@ test.describe("task-15: safe next-term copy and correction history", () => {
     try {
       const download = await anonymous.request.get(released.body.download_url);
       expect(download.status()).toBe(200);
-      expect(createHash("sha256").update(await download.body()).digest("hex")).toBe(SHA_V1);
+      expect(
+        createHash("sha256")
+          .update(await download.body())
+          .digest("hex"),
+      ).toBe(SHA_V1);
     } finally {
       await anonymous.close();
     }
@@ -1172,9 +1308,12 @@ test.describe("task-15: safe next-term copy and correction history", () => {
     test.setTimeout(120_000);
     expect(state.newOfferingId, "copy test must run first").toBeGreaterThan(0);
 
-    const audit = await adminPage.request.get(`/wp-json/lps/v1/test/audit?post_id=${state.newOfferingId}`, {
-      headers: { "X-WP-Nonce": state.adminNonce },
-    });
+    const audit = await adminPage.request.get(
+      `/wp-json/lps/v1/test/audit?post_id=${state.newOfferingId}`,
+      {
+        headers: { "X-WP-Nonce": state.adminNonce },
+      },
+    );
     expect(audit.status()).toBe(200);
     const entries = await audit.json();
     const creates = entries.filter(
@@ -1182,9 +1321,12 @@ test.describe("task-15: safe next-term copy and correction history", () => {
     );
     expect(creates.length, JSON.stringify(entries)).toBeGreaterThanOrEqual(1);
 
-    const sourceAudit = await adminPage.request.get(`/wp-json/lps/v1/test/audit?post_id=${state.offeringPtId}`, {
-      headers: { "X-WP-Nonce": state.adminNonce },
-    });
+    const sourceAudit = await adminPage.request.get(
+      `/wp-json/lps/v1/test/audit?post_id=${state.offeringPtId}`,
+      {
+        headers: { "X-WP-Nonce": state.adminNonce },
+      },
+    );
     const sourceEntries = await sourceAudit.json();
     const corrections = sourceEntries.filter(
       (entry) => entry.action === "edit" && entry.context_json.includes(`corr-${RUN}-a`),

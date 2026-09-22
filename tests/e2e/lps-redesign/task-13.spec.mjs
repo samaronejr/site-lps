@@ -572,7 +572,9 @@ test.describe("task-13: course directories, offerings, units and material views"
     }
   });
 
-  test("the offering page renders identity, team, syllabus, LMS and materials", async ({ browser }) => {
+  test("the offering page renders identity, team, syllabus, LMS and materials", async ({
+    browser,
+  }) => {
     const anonymous = await anonymousContext(browser);
     const anonPage = await anonymous.newPage();
     try {
@@ -587,7 +589,9 @@ test.describe("task-13: course directories, offerings, units and material views"
       await expect(offering.locator(".lps-section")).toContainText("t01");
       await expect(offering.locator(".lps-temporal-status")).toContainText("Em andamento");
       await expect(offering.locator(".lps-term-period")).toContainText(`2026.2 ${RUN}`);
-      await expect(offering.locator(".lps-meta", { hasText: "Ter/Qui 10h" })).toContainText("Sala 1");
+      await expect(offering.locator(".lps-meta", { hasText: "Ter/Qui 10h" })).toContainText(
+        "Sala 1",
+      );
 
       // The co-teaching case: both members with localized roles.
       const team = offering.locator(".lps-teaching-team");
@@ -694,13 +698,19 @@ test.describe("task-13: course directories, offerings, units and material views"
 
       const file = await anonymous.request.get(state.prevDownloadUrl);
       expect(file.status()).toBe(200);
-      expect(createHash("sha256").update(await file.body()).digest("hex")).toBe(PDF_SHA256);
+      expect(
+        createHash("sha256")
+          .update(await file.body())
+          .digest("hex"),
+      ).toBe(PDF_SHA256);
     } finally {
       await anonymous.close();
     }
   });
 
-  test("the English surface shares the co-teacher data and localizes labels", async ({ browser }) => {
+  test("the English surface shares the co-teacher data and localizes labels", async ({
+    browser,
+  }) => {
     const anonymous = await anonymousContext(browser);
     const anonPage = await anonymous.newPage();
     try {
@@ -875,7 +885,9 @@ test.describe("task-13: course directories, offerings, units and material views"
     }
   });
 
-  test("a missing external destination is labeled, never a raw private URL", async ({ browser }) => {
+  test("a missing external destination is labeled, never a raw private URL", async ({
+    browser,
+  }) => {
     expect(state.offeringPtId, "fixture test must run first").toBeGreaterThan(0);
     // An approved external resource whose destination does not resolve: the
     // row stays labeled external and the page leaks no private field.
@@ -901,7 +913,9 @@ test.describe("task-13: course directories, offerings, units and material views"
       const offering = anonPage.locator("article.lps-offering");
       const row = offering.locator("li.lps-material", { hasText: `Destino Ausente ${RUN}` });
       await expect(row).toContainText("externo");
-      await expect(row.locator('a[href="https://definitely-missing.example.invalid/notes"]')).toBeAttached();
+      await expect(
+        row.locator('a[href="https://definitely-missing.example.invalid/notes"]'),
+      ).toBeAttached();
       const html = await offering.innerHTML();
       expect(html).not.toContain("lps-file-");
       expect(html).not.toContain("lpsver:");

@@ -1184,12 +1184,8 @@
     "mobile": {
       "rule": "The 2026-09-21 revision drops the separate compact file: the masthead carries the full-colour artwork alone at every width, scaling by clamp(13rem, 52vw, 27rem) with a 208px floor, and the laboratory name is carried by the page title, the footer wordmark, the link's accessible name and the structured data rather than by a second file.",
       "minimumWidthPx": 208,
-      "variants": [
-        "full"
-      ],
-      "surfaces": [
-        "light"
-      ]
+      "variants": ["full"],
+      "surfaces": ["light"]
     },
     "source": {
       "path": "assets/brand/lps_logo_vector.svg",
@@ -1206,9 +1202,7 @@
         "viewBox": "0 0 2052 301",
         "aspectRatio": 6.817,
         "use": "Desktop masthead and any placement at least 240px wide on a light surface",
-        "surfaces": [
-          "light"
-        ],
+        "surfaces": ["light"],
         "minWidthPx": 240
       },
       {
@@ -1218,22 +1212,12 @@
         "aspectRatio": 4.714,
         "derivation": {
           "method": "path-selection only",
-          "keptPaths": [
-            "reference-line",
-            "waveform",
-            "separator",
-            "lps-lettering"
-          ],
-          "droppedPaths": [
-            "laboratory-name",
-            "computational-intelligence"
-          ],
+          "keptPaths": ["reference-line", "waveform", "separator", "lps-lettering"],
+          "droppedPaths": ["laboratory-name", "computational-intelligence"],
           "note": "The descriptive lettering is set as live text throughout the site, so the symbol carries the waveform and the LPS lettering only."
         },
         "use": "Constrained placements and derived marks; keeps the waveform and LPS lettering",
-        "surfaces": [
-          "light"
-        ],
+        "surfaces": ["light"],
         "minHeightPx": 28,
         "themeMirror": "wp-content/themes/lps-theme/assets/img/mark/lps-mark-compact.svg (1308x301, same four paths)"
       },
@@ -1243,9 +1227,7 @@
         "viewBox": "70 200 1320 280",
         "aspectRatio": 4.714,
         "use": "Reversed derivation source for dark-band placements",
-        "surfaces": [
-          "dark"
-        ],
+        "surfaces": ["dark"],
         "decorative": true
       },
       {
@@ -1253,9 +1235,7 @@
         "path": "wp-content/themes/lps-theme/assets/img/mark/lps-mark-reversed.svg",
         "viewBox": "0 0 2052 301",
         "use": "Footer and any full-lockup placement on the anchor-deep and anchor substrates",
-        "surfaces": [
-          "dark"
-        ],
+        "surfaces": ["dark"],
         "minWidthPx": 200
       },
       {
@@ -1263,9 +1243,7 @@
         "path": "wp-content/themes/lps-theme/assets/img/mark/lps-mark-symbol.svg",
         "viewBox": "0 0 886.5 301",
         "use": "Waveform motif on light brand bands (--signal-line); decorative, never the sole carrier of a name",
-        "surfaces": [
-          "light"
-        ],
+        "surfaces": ["light"],
         "decorative": true
       },
       {
@@ -1273,19 +1251,14 @@
         "path": "wp-content/themes/lps-theme/assets/img/mark/lps-mark-symbol-reversed.svg",
         "viewBox": "0 0 886.5 301",
         "use": "Waveform motif on navy bands (--signal-line-dark); derived from the reversed variant by selecting existing paths only",
-        "surfaces": [
-          "dark"
-        ],
+        "surfaces": ["dark"],
         "decorative": true
       },
       {
         "id": "text-wordmark",
         "path": null,
         "use": "Fallback when artwork cannot be resolved, and the only permitted lockup for UFRJ and COPPE institutional names",
-        "surfaces": [
-          "light",
-          "dark"
-        ],
+        "surfaces": ["light", "dark"],
         "minHeightPx": 20
       }
     ],
@@ -1300,21 +1273,8 @@
     ]
   },
   "navigation": {
-    "primary": [
-      "Sobre",
-      "Pesquisa",
-      "Pessoas",
-      "Ensino",
-      "Oportunidades",
-      "Notícias e eventos"
-    ],
-    "utility": [
-      "Publicações",
-      "Infraestrutura",
-      "Contato",
-      "Acessibilidade",
-      "PT / EN"
-    ],
+    "primary": ["Sobre", "Pesquisa", "Pessoas", "Ensino", "Oportunidades", "Notícias e eventos"],
+    "utility": ["Publicações", "Infraestrutura", "Contato", "Acessibilidade", "PT / EN"],
     "rules": [
       "A visible route to contact and accessibility information is preserved",
       "Mobile uses a labelled native disclosure, operable by keyboard and applied without scripting",

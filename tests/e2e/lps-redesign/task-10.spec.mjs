@@ -224,11 +224,7 @@ test.describe("task-10: masthead, navigation, and utilities", () => {
       await expect(page.locator("form.lps-search-form")).toBeVisible();
     });
 
-    test(`locale control and footer render in ${locale}`, async ({
-      page,
-      context,
-      baseURL,
-    }) => {
+    test(`locale control and footer render in ${locale}`, async ({ page, context, baseURL }) => {
       await anonymous(context, baseURL);
       // Given: the locale home page.
       await page.goto(home, { waitUntil: "domcontentloaded" });
@@ -240,9 +236,9 @@ test.describe("task-10: masthead, navigation, and utilities", () => {
       // text wordmark on the anchor band — never the full-color artwork.
       const footer = page.locator(".lps-site-footer");
       await expect(footer).toBeVisible();
-      await expect(footer.locator('a[href="/pt-br/ensino/"], a[href="/en/teaching/"]')).not.toHaveCount(
-        0,
-      );
+      await expect(
+        footer.locator('a[href="/pt-br/ensino/"], a[href="/en/teaching/"]'),
+      ).not.toHaveCount(0);
       expect(await footer.locator("img").count()).toBe(0);
     });
   }
@@ -305,14 +301,14 @@ test.describe("task-10: responsive brand and keyboard paths", () => {
       // served CSS, intrinsic ratio exact, and the slot's max constraint
       // present — with the live rect asserted only when the stylesheet
       // actually applies.
-      const cssHref = await page.locator('link#lps-theme-css').getAttribute('href');
-      expect(cssHref, 'theme.css link').toContain('assets/css/theme.css');
+      const cssHref = await page.locator("link#lps-theme-css").getAttribute("href");
+      expect(cssHref, "theme.css link").toContain("assets/css/theme.css");
       const cssText = await page.request
         .get(cssHref, {
-          headers: { cookie: 'playground_auto_login_already_happened=1' },
+          headers: { cookie: "playground_auto_login_already_happened=1" },
         })
         .then((response) => response.text());
-      expect(cssText, 'brand rule served').toContain('.lps-brand {');
+      expect(cssText, "brand rule served").toContain(".lps-brand {");
       const box = await img.boundingBox();
       expect(box, `${width}px logo box`).not.toBeNull();
       // Then: the brand slot keeps the contract band (220px narrow,
@@ -349,14 +345,10 @@ test.describe("task-10: responsive brand and keyboard paths", () => {
       // admin bar on the auto-login session, which is environment chrome
       // rather than shell output, so the assertion is scoped to the shell.
       const shellOverflow = await page.evaluate(() => {
-        const header = document.querySelector('.lps-site-header');
+        const header = document.querySelector(".lps-site-header");
         if (!header) return -1;
         const rect = header.getBoundingClientRect();
-        return Math.max(
-          0,
-          rect.right - document.documentElement.clientWidth,
-          -rect.left,
-        );
+        return Math.max(0, rect.right - document.documentElement.clientWidth, -rect.left);
       });
       expect(shellOverflow, `${width}px shell overflow`).toBeLessThanOrEqual(0);
       await page.screenshot({ path: path.join(SHOTS, `masthead-${width}.png`) });
@@ -405,11 +397,7 @@ test.describe("task-10: responsive brand and keyboard paths", () => {
     expect(hrefs).toContain("/pt-br/contato/");
   });
 
-  test("the disclosure opens and closes without scripting", async ({
-    page,
-    context,
-    baseURL,
-  }) => {
+  test("the disclosure opens and closes without scripting", async ({ page, context, baseURL }) => {
     await anonymous(context, baseURL);
     // Given: the Portuguese home page at mobile width with scripting disabled.
     await page.setViewportSize({ width: 390, height: 844 });

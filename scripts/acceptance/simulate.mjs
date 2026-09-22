@@ -166,7 +166,7 @@ function finish(code) {
   results.exit = code;
   mkdirSync(OUT, { recursive: true });
   writeFileSync(`${OUT}/results.json`, `${JSON.stringify(results, null, 2)}\n`);
-  writeFileSync(`${OUT}/commands.jsonl`, commands.map((c) => JSON.stringify(c)).join("\n") + "\n");
+  writeFileSync(`${OUT}/commands.jsonl`, `${commands.map((c) => JSON.stringify(c)).join("\n")}\n`);
   process.exit(code);
 }
 
@@ -239,8 +239,6 @@ if (
 ) {
   finish(1);
 }
-const fixture = provisioned.transcript.fixtures;
-
 // --- S7 deployer: deploy and roll back ---------------------------------------
 // Runs before the editorial simulations so the deploy's import-verify gate sees
 // the clean corpus.

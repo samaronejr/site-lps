@@ -19,8 +19,7 @@ import { expect, test } from "@playwright/test";
  */
 
 const SHOTS = path.join(
-  process.env.LPS_T21_SHOTS ??
-    ".omo/evidence/lps-website-ulw-plan/attempt-1/task-21/screenshots",
+  process.env.LPS_T21_SHOTS ?? ".omo/evidence/lps-website-ulw-plan/attempt-1/task-21/screenshots",
 );
 
 /** Suppresses the Playground auto-login handshake so the public shell renders anonymously. */
@@ -247,10 +246,7 @@ test.describe("task-21: keyboard, disclosure, and announced validation", () => {
     await page.screenshot({ path: path.join(SHOTS, "keyboard-focus-1280.png"), fullPage: false });
   });
 
-  test("the mobile disclosure opens natively without JavaScript", async ({
-    browser,
-    baseURL,
-  }) => {
+  test("the mobile disclosure opens natively without JavaScript", async ({ browser, baseURL }) => {
     test.setTimeout(120_000);
     const context = await browser.newContext({
       viewport: { width: 390, height: 844 },
@@ -438,9 +434,7 @@ test.describe("task-21: visual fidelity against the frozen contract", () => {
   test("the editor boot payload resolves the same frozen tokens", async ({ page }) => {
     // The block editor boot in the WASM runtime exceeds the default budget.
     test.setTimeout(180_000);
-    const cssCheck = await page.request.get(
-      "/wp-content/themes/lps-theme/assets/css/theme.css",
-    );
+    const cssCheck = await page.request.get("/wp-content/themes/lps-theme/assets/css/theme.css");
     expect(await cssCheck.text()).toContain("--color-canvas");
     await loginAsEditor(page);
     await page.goto("/wp-admin/post-new.php");

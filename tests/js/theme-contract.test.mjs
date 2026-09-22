@@ -11,9 +11,7 @@ const read = (path) => readFileSync(`${themeRoot}/${path}`, "utf8");
  * expected palette from the contract keeps this test honest across a design
  * revision instead of pinning a palette that has been superseded.
  */
-const contract = JSON.parse(
-  readFileSync("docs/design/design-contract.json", "utf8"),
-);
+const contract = JSON.parse(readFileSync("docs/design/design-contract.json", "utf8"));
 const contractPalette = contract.colors.tokens.map(({ slug, value }) => ({
   slug,
   color: value,
@@ -66,14 +64,10 @@ describe("LPS block theme contract", () => {
       contractPalette.map(({ slug }) => slug),
     );
     expect(
-      Object.fromEntries(
-        theme.settings.color.palette.map(({ slug, color }) => [slug, color]),
-      ),
+      Object.fromEntries(theme.settings.color.palette.map(({ slug, color }) => [slug, color])),
     ).toEqual(Object.fromEntries(contractPalette.map(({ slug, color }) => [slug, color])));
     // The dark-surface focus token is a CSS-only primitive, never a palette slug.
-    expect(theme.settings.color.palette.map(({ slug }) => slug)).not.toContain(
-      "focus-on-dark",
-    );
+    expect(theme.settings.color.palette.map(({ slug }) => slug)).not.toContain("focus-on-dark");
 
     // Then: the sans-led interface role leads and the mono is scoped to
     // identifiers; the retired serif role ships no family and no font files.

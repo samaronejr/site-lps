@@ -140,7 +140,9 @@ describe("task-07: typography floor and editor alignment", () => {
     // floor cares about is the resolved ratio.
     const bodyBlock = /body\s*\{([^}]*)\}/.exec(css)?.[1] ?? "";
     const declared = /line-height:\s*([^;]+);/.exec(bodyBlock)?.[1].trim() ?? "";
-    const resolved = declared.startsWith("var(") ? tokens.get(declared.slice(4, -1).trim()) : declared;
+    const resolved = declared.startsWith("var(")
+      ? tokens.get(declared.slice(4, -1).trim())
+      : declared;
     expect(Number(resolved)).toBe(1.6);
     // No font-size below the meta floor anywhere in the stylesheet.
     for (const match of css.matchAll(/font-size:\s*([\d.]+)(rem|px)/g)) {
@@ -192,9 +194,10 @@ describe("task-07: contrast is verified on light and dark contexts", () => {
       ["--color-surface", "--color-action-hover", 4.5],
     ];
     for (const [fg, bg, min] of pairs) {
-      expect(contrastRatio(tokens.get(fg), tokens.get(bg)), `${fg} on ${bg}`).toBeGreaterThanOrEqual(
-        min,
-      );
+      expect(
+        contrastRatio(tokens.get(fg), tokens.get(bg)),
+        `${fg} on ${bg}`,
+      ).toBeGreaterThanOrEqual(min);
     }
   });
 });
@@ -339,9 +342,7 @@ describe("task-07 failure path: injected defects are caught, never silently abso
     const report = await checkMutatedTheme((root) => {
       const file = `${root}/assets/css/theme.css`;
       const declared = contract.colors.tokens.find((t) => t.token === "--color-action");
-      const shipped = readFileSync(file, "utf8").match(
-        /--color-action:\s*(#[0-9a-f]{6});/i,
-      )[1];
+      const shipped = readFileSync(file, "utf8").match(/--color-action:\s*(#[0-9a-f]{6});/i)[1];
       // Perturb the last hex digit: one step of drift, whatever the palette is.
       const drifted = `${shipped.slice(0, -1)}${Number.parseInt(shipped.slice(-1), 16) ^ 0x1}`;
       expect(shipped.toUpperCase()).toBe(declared.value.toUpperCase());
@@ -374,5 +375,4 @@ describe("task-07 failure path: injected defects are caught, never silently abso
     );
     expect(clipped(injected).length).toBeGreaterThan(0);
   });
-
 });

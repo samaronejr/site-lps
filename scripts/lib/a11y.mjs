@@ -1068,9 +1068,7 @@ export function auditStylesheet(css, source = "assets/css/theme.css") {
   const widthRef = /^var\((--[\w-]+)\)/u.exec(focusValue.trim());
   const widthSource = widthRef ? (tokens.get(widthRef[1]) ?? "") : focusValue;
   const focusRule = /([\d.]+)(px|rem)/u.exec(widthSource);
-  const focusPx = focusRule
-    ? Number(focusRule[1]) * (focusRule[2] === "rem" ? 16 : 1)
-    : 0;
+  const focusPx = focusRule ? Number(focusRule[1]) * (focusRule[2] === "rem" ? 16 : 1) : 0;
   if (focusPx < 2) {
     add(
       "lps_a11y_focus_indicator_thin",

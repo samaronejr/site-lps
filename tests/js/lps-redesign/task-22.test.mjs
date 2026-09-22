@@ -22,16 +22,13 @@ import {
 
 const THEME_ROOT = "wp-content/themes/lps-theme";
 const TEACHING_ROUTES = `${THEME_ROOT}/includes/class-teachingroutes.php`;
-const RELATIONSHIPS =
-  "wp-content/plugins/lps-content-model/includes/class-relationships.php";
+const RELATIONSHIPS = "wp-content/plugins/lps-content-model/includes/class-relationships.php";
 const TEACHING_CONTRACTS =
   "wp-content/plugins/lps-content-model/includes/class-teachingcontracts.php";
 const TEACHING_RESOURCES =
   "wp-content/plugins/lps-content-model/includes/class-teachingresources.php";
-const SEARCH_POLICY =
-  "wp-content/plugins/lps-content-model/includes/class-searchpolicy.php";
-const MEDIA_RENDERER =
-  "wp-content/plugins/lps-content-model/includes/class-mediarenderer.php";
+const SEARCH_POLICY = "wp-content/plugins/lps-content-model/includes/class-searchpolicy.php";
+const MEDIA_RENDERER = "wp-content/plugins/lps-content-model/includes/class-mediarenderer.php";
 const ASSET_POLICY = `${THEME_ROOT}/includes/class-assetpolicy.php`;
 const CACHE_POLICY = `${THEME_ROOT}/includes/class-cachepolicy.php`;
 const DELIVERY = `${THEME_ROOT}/includes/class-delivery.php`;
@@ -64,7 +61,9 @@ describe("task-22: shipped payload stays inside the approved budgets", () => {
   it("ships no front-end JavaScript and only the two approved preloaded faces", async () => {
     const policy = await read(ASSET_POLICY);
     expect(policy).toContain("front_end_scripts");
-    expect(policy).toMatch(/public static function front_end_scripts\(\): array \{\s*return array\(\);/);
+    expect(policy).toMatch(
+      /public static function front_end_scripts\(\): array \{\s*return array\(\);/,
+    );
     expect(policy).toContain("ibm-plex-sans-regular.woff2");
     expect(policy).toContain("ibm-plex-sans-semibold.woff2");
     // The approved payload is exactly the six vendored IBM Plex faces.
@@ -80,9 +79,13 @@ describe("task-22: shipped payload stays inside the approved budgets", () => {
   it("no theme or plugin code loads a third-party script, style, image or frame", async () => {
     for (const path of [TEACHING_ROUTES, MEDIA_RENDERER, ASSET_POLICY, DELIVERY]) {
       const source = await read(path);
-      expect(source, path).not.toMatch(/<(script|img|iframe|source|link)\b[^>]*\b(?:src|href)\s*=\s*['"]https?:/i);
+      expect(source, path).not.toMatch(
+        /<(script|img|iframe|source|link)\b[^>]*\b(?:src|href)\s*=\s*['"]https?:/i,
+      );
       expect(source, path).not.toMatch(/wp_enqueue_(script|style)\([^)]*https?:/);
-      expect(source, path).not.toMatch(/googleapis|googletagmanager|gtag\(|analytics\.js|hotjar|segment\.io/i);
+      expect(source, path).not.toMatch(
+        /googleapis|googletagmanager|gtag\(|analytics\.js|hotjar|segment\.io/i,
+      );
     }
   });
 
@@ -120,7 +123,9 @@ describe("task-22: shipped payload stays inside the approved budgets", () => {
 describe("task-22: the visible feature image is never lazy-loaded", () => {
   it("the media renderer binds hero placement to eager high-priority loading", async () => {
     const renderer = await read(MEDIA_RENDERER);
-    expect(renderer).toContain("$hero       = 'hero' === MediaPolicy::string_value( $usage['placement'] ?? '' );");
+    expect(renderer).toContain(
+      "$hero       = 'hero' === MediaPolicy::string_value( $usage['placement'] ?? '' );",
+    );
     expect(renderer).toContain("$loading    = $hero ? 'eager' : 'lazy';");
     expect(renderer).toContain("$priority   = $hero ? 'high' : 'auto';");
   });
@@ -151,7 +156,9 @@ describe("task-22: the visible feature image is never lazy-loaded", () => {
 describe("task-22: large resource lists avoid pathological query growth", () => {
   it("the relationships repository exposes a bulk forward read", async () => {
     const source = await read(RELATIONSHIPS);
-    expect(source).toContain("public static function for_sources( array $source_post_ids, string $relationship_type ): array");
+    expect(source).toContain(
+      "public static function for_sources( array $source_post_ids, string $relationship_type ): array",
+    );
     expect(source).toContain("source_post_id IN ({$placeholders})");
   });
 
@@ -198,13 +205,21 @@ describe("task-22: the release clock is evaluated at read time, never by a sched
   }
 
   it("scheduled releases become effective at their instant without a scheduler", () => {
-    expect(effectiveReleaseState("scheduled", "2026-09-19T10:00:00+00:00", "2026-09-19T09:59:59+00:00")).toBe("scheduled");
-    expect(effectiveReleaseState("scheduled", "2026-09-19T10:00:00+00:00", "2026-09-19T10:00:00+00:00")).toBe("released");
-    expect(effectiveReleaseState("scheduled", "2026-09-19T10:00:00+00:00", "2026-09-20T00:00:00+00:00")).toBe("released");
+    expect(
+      effectiveReleaseState("scheduled", "2026-09-19T10:00:00+00:00", "2026-09-19T09:59:59+00:00"),
+    ).toBe("scheduled");
+    expect(
+      effectiveReleaseState("scheduled", "2026-09-19T10:00:00+00:00", "2026-09-19T10:00:00+00:00"),
+    ).toBe("released");
+    expect(
+      effectiveReleaseState("scheduled", "2026-09-19T10:00:00+00:00", "2026-09-20T00:00:00+00:00"),
+    ).toBe("released");
     expect(effectiveReleaseState("released", "", "2026-09-19T00:00:00+00:00")).toBe("released");
     expect(effectiveReleaseState("withdrawn", "", "2026-09-19T00:00:00+00:00")).toBe("withdrawn");
     expect(effectiveReleaseState("garbage", "", "2026-09-19T00:00:00+00:00")).toBe("draft");
-    expect(effectiveReleaseState("scheduled", "not-a-date", "2026-09-19T00:00:00+00:00")).toBe("scheduled");
+    expect(effectiveReleaseState("scheduled", "not-a-date", "2026-09-19T00:00:00+00:00")).toBe(
+      "scheduled",
+    );
   });
 
   it("the shared contract evaluates the clock on every call", async () => {

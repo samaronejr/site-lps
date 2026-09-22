@@ -13,25 +13,68 @@ import { cleanupFixtures, loadFixture } from "./fixtures.mjs";
  * against the PHP contract's documented behavior on fixed vectors only.
  */
 
-const TEACHING_CONTRACTS = "wp-content/plugins/lps-content-model/includes/class-teachingcontracts.php";
+const TEACHING_CONTRACTS =
+  "wp-content/plugins/lps-content-model/includes/class-teachingcontracts.php";
 const TEACHING_MIGRATIONS =
   "wp-content/plugins/lps-content-model/includes/class-teachingmigrations.php";
 const POLICY = "wp-content/plugins/lps-content-model/includes/class-policy.php";
 const BOOTSTRAP = "wp-content/plugins/lps-content-model/lps-content-model.php";
 
 const FOLD = {
-  á: "a", à: "a", â: "a", ã: "a", ä: "a", å: "a",
-  é: "e", è: "e", ê: "e", ë: "e",
-  í: "i", ì: "i", î: "i", ï: "i",
-  ó: "o", ò: "o", ô: "o", õ: "o", ö: "o",
-  ú: "u", ù: "u", û: "u", ü: "u",
-  ç: "c", ñ: "n", ý: "y", ÿ: "y", ß: "ss",
-  Á: "A", À: "A", Â: "A", Ã: "A", Ä: "A", Å: "A",
-  É: "E", È: "E", Ê: "E", Ë: "E",
-  Í: "I", Ì: "I", Î: "I", Ï: "I",
-  Ó: "O", Ò: "O", Ô: "O", Õ: "O", Ö: "O",
-  Ú: "U", Ù: "U", Û: "U", Ü: "U",
-  Ç: "C", Ñ: "N", Ý: "Y",
+  á: "a",
+  à: "a",
+  â: "a",
+  ã: "a",
+  ä: "a",
+  å: "a",
+  é: "e",
+  è: "e",
+  ê: "e",
+  ë: "e",
+  í: "i",
+  ì: "i",
+  î: "i",
+  ï: "i",
+  ó: "o",
+  ò: "o",
+  ô: "o",
+  õ: "o",
+  ö: "o",
+  ú: "u",
+  ù: "u",
+  û: "u",
+  ü: "u",
+  ç: "c",
+  ñ: "n",
+  ý: "y",
+  ÿ: "y",
+  ß: "ss",
+  Á: "A",
+  À: "A",
+  Â: "A",
+  Ã: "A",
+  Ä: "A",
+  Å: "A",
+  É: "E",
+  È: "E",
+  Ê: "E",
+  Ë: "E",
+  Í: "I",
+  Ì: "I",
+  Î: "I",
+  Ï: "I",
+  Ó: "O",
+  Ò: "O",
+  Ô: "O",
+  Õ: "O",
+  Ö: "O",
+  Ú: "U",
+  Ù: "U",
+  Û: "U",
+  Ü: "U",
+  Ç: "C",
+  Ñ: "N",
+  Ý: "Y",
 };
 
 function fold(value) {
@@ -149,9 +192,7 @@ describe("task-03: teaching-calendar fixture conforms to the contracts", () => {
     expect(cases.get("invalid-date-order").input.startsOn).toBe("2026-07-10");
     expect(cases.get("invalid-date-order").input.endsOn).toBe("2026-03-02");
 
-    expect(cases.get("cross-offering-unit").expectError).toBe(
-      "lps_cross_offering_unit_reference",
-    );
+    expect(cases.get("cross-offering-unit").expectError).toBe("lps_cross_offering_unit_reference");
 
     const collision = cases.get("conflicting-section-keys");
     expect(collision.expectError).toBe("lps_offering_identity_conflict");
@@ -194,7 +235,9 @@ describe("task-03: migration-plan fixture conforms to the contracts", () => {
       expect(valid.plan.cleared_version_ids).toContain(versionId);
     }
     const expectedErrors = new Set(
-      fixture.copyForward.filter((entry) => entry.expectError !== null).map((entry) => entry.expectError),
+      fixture.copyForward
+        .filter((entry) => entry.expectError !== null)
+        .map((entry) => entry.expectError),
     );
     for (const code of [
       "lps_copy_forward_identity_collision",
@@ -230,9 +273,7 @@ describe("task-03: PHP contract surface", () => {
 
   it("keeps the dry-run free of storage access", async () => {
     const source = await readFile(TEACHING_MIGRATIONS, "utf8");
-    const match = source.match(
-      /public static function dry_run\([^)]*\): array \{([\s\S]*?)\n\t\}/,
-    );
+    const match = source.match(/public static function dry_run\([^)]*\): array \{([\s\S]*?)\n\t\}/);
     expect(match).not.toBeNull();
     const body = match[1];
     expect(body).not.toContain("$wpdb");
@@ -248,7 +289,9 @@ describe("task-03: PHP contract surface", () => {
     for (const prefix of ["course", "term", "offering", "unit", "resource"]) {
       expect(policy).toContain(prefix);
     }
-    expect(policy).toMatch(/lps:\(page\|person\|organization\|research-area\|project\|publication\|news\|opportunity\|event\|redirect\|course\|term\|offering\|unit\|resource\)/);
+    expect(policy).toMatch(
+      /lps:\(page\|person\|organization\|research-area\|project\|publication\|news\|opportunity\|event\|redirect\|course\|term\|offering\|unit\|resource\)/,
+    );
 
     const bootstrap = await readFile(BOOTSTRAP, "utf8");
     expect(bootstrap).toContain("class-teachingcontracts.php");

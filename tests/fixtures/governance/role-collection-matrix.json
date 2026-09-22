@@ -24,38 +24,20 @@
       "professor": 1,
       "delegate": 0
     },
-    "mfaRoles": [
-      "publisher",
-      "administrator",
-      "professor"
-    ],
+    "mfaRoles": ["publisher", "administrator", "professor"],
     "sharedAccountsForbidden": true,
     "contributorSelfPublishingForbidden": true,
     "independentTranslationReviewRequired": true
   },
   "teachingScopes": {
-    "scopedRoles": [
-      "professor",
-      "delegate"
-    ],
-    "scopes": [
-      "offering",
-      "news"
-    ],
+    "scopedRoles": ["professor", "delegate"],
+    "scopes": ["offering", "news"],
     "grantRecord": "_lps_teaching_grants",
-    "granterRoles": [
-      "administrator"
-    ],
+    "granterRoles": ["administrator"],
     "granterCollectionRoles": {
-      "section-editor": [
-        "teaching"
-      ]
+      "section-editor": ["teaching"]
     },
-    "publishablePostTypes": [
-      "lps_unit",
-      "lps_resource",
-      "lps_news"
-    ],
+    "publishablePostTypes": ["lps_unit", "lps_resource", "lps_news"],
     "delegatePublishes": false,
     "revocationEffective": "immediate",
     "inputIdsNeverGrantAccess": true
@@ -86,10 +68,7 @@
     {
       "id": "site-settings",
       "ownerRole": "administrator",
-      "sourcePriority": [
-        "official-lps-record",
-        "official-ufrj-coppe-record"
-      ],
+      "sourcePriority": ["official-lps-record", "official-ufrj-coppe-record"],
       "reviewCadence": "P90D",
       "expiryRule": "Review immediately after an official institutional change.",
       "translation": {
@@ -173,10 +152,7 @@
     {
       "id": "research-area",
       "ownerRole": "section-editor",
-      "sourcePriority": [
-        "official-lps-record",
-        "official-ufrj-coppe-record"
-      ],
+      "sourcePriority": ["official-lps-record", "official-ufrj-coppe-record"],
       "reviewCadence": "P180D",
       "expiryRule": "Revise only after the controlled vocabulary is approved or superseded.",
       "translation": {
@@ -326,10 +302,7 @@
     {
       "id": "redirect",
       "ownerRole": "administrator",
-      "sourcePriority": [
-        "migration-inventory-record",
-        "official-lps-record"
-      ],
+      "sourcePriority": ["migration-inventory-record", "official-lps-record"],
       "reviewCadence": "P365D",
       "expiryRule": "Review after destination, canonical URL, or retirement status changes.",
       "translation": {

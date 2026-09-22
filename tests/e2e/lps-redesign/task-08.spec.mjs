@@ -345,7 +345,9 @@ test.describe("task-08: teaching persistence and canonical routes", () => {
     const viewIds = viewBody.entries.map((entry) => entry.offering_authority_id);
     expect(viewIds).toContain(state.offeringPtId);
     expect(viewIds).not.toContain(state.offeringDraftId);
-    const entry = viewBody.entries.find((item) => item.offering_authority_id === state.offeringPtId);
+    const entry = viewBody.entries.find(
+      (item) => item.offering_authority_id === state.offeringPtId,
+    );
     expect(entry.role).toBe("lead");
     expect(entry.url).toBe(
       `/pt-br/ensino/disciplinas/${state.courseSlugPt}/2026-2-${RUN}-semester/t01/`,

@@ -1,5 +1,5 @@
-import { expect, test } from "@playwright/test";
 import { mkdirSync, writeFileSync } from "node:fs";
+import { expect, test } from "@playwright/test";
 
 /**
  * Task 22 — performance measurement and time/cache behavior.
@@ -34,8 +34,7 @@ const FUTURE_RELEASE = "2999-01-01T00:00:00+00:00";
 // primed meta read per new record at most); a pathological list pays several
 // queries per row. Thirty added resources may cost at most this many queries.
 const MAX_QUERY_GROWTH_FOR_30_RESOURCES = 30;
-const MEASUREMENT_OUT =
-  process.env.LPS_MEASUREMENT_OUT ?? "test-results/task-22-measurements.json";
+const MEASUREMENT_OUT = process.env.LPS_MEASUREMENT_OUT ?? "test-results/task-22-measurements.json";
 
 const state = {
   nonce: "",
@@ -405,7 +404,11 @@ test.describe("task-22: performance measurement and time/cache behavior", () => 
     const anonPage = await anonymous.newPage();
     const subresources = [];
     anonPage.on("request", (request) => {
-      if (["stylesheet", "script", "font", "image", "media", "iframe"].includes(request.resourceType())) {
+      if (
+        ["stylesheet", "script", "font", "image", "media", "iframe"].includes(
+          request.resourceType(),
+        )
+      ) {
         subresources.push(request.url());
       }
     });
@@ -486,9 +489,7 @@ test.describe("task-22: performance measurement and time/cache behavior", () => 
       expect(fetched.body).toContain(`Retirado ${RUN}`);
       denied = await anonymous.request.get(state.withdrawnDownloadUrl);
       expect(denied.status()).toBe(404);
-      denied = await anonymous.request.get(
-        "/lps-resource/00000000-0000-0000-0000-000000000000/",
-      );
+      denied = await anonymous.request.get("/lps-resource/00000000-0000-0000-0000-000000000000/");
       expect(denied.status()).toBe(404);
 
       // Move the release instant into the past. No scheduler runs anywhere
@@ -533,7 +534,11 @@ test.describe("task-22: performance measurement and time/cache behavior", () => 
       // serve bytes.
       const response = await page.request.post("/wp-json/lps/v1/teaching/resource-versions", {
         multipart: {
-          file: { name: `quarentena-${RUN}.pdf`, mimeType: "application/pdf", buffer: Buffer.from(PDF) },
+          file: {
+            name: `quarentena-${RUN}.pdf`,
+            mimeType: "application/pdf",
+            buffer: Buffer.from(PDF),
+          },
           offering_id: String(state.offeringId),
         },
         headers: { "X-WP-Nonce": state.nonce },
@@ -650,7 +655,9 @@ test.describe("task-22: performance measurement and time/cache behavior", () => 
         created.push(resource.body.id);
       }
       await Promise.all(
-        created.map((id) => api("POST", `/teaching/resources/${id}/release`, { state: "released" })),
+        created.map((id) =>
+          api("POST", `/teaching/resources/${id}/release`, { state: "released" }),
+        ),
       );
       await Promise.all(created.map((id) => publish(id)));
 

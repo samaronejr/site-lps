@@ -334,6 +334,7 @@ ${sectionHead({
   },
 })}
 <div class="lps-partner-marquee">
+<style>@keyframes lps-partner-drift{from{transform:translateX(-50%)}to{transform:translateX(0)}}</style>
 <ul class="lps-partner-track lps-partner-track--roomy">
 ${partnerLogos
   .map(
@@ -432,6 +433,7 @@ ${sectionHead({ kicker: en ? "Identity" : "Identidade", title: en ? "The laborat
 <section class="lps-section" id="parceiros" aria-labelledby="about-partners">
 ${sectionHead({ kicker: en ? "Partners" : "Parceiros", title: en ? "Institutions working with the laboratory" : "Instituições que atuam com o laboratório", id: "about-partners" })}
 <div class="lps-partner-marquee">
+<style>@keyframes lps-partner-drift{from{transform:translateX(-50%)}to{transform:translateX(0)}}</style>
 <ul class="lps-partner-track">
 ${partnerLogos
   .map(

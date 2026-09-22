@@ -222,12 +222,7 @@
           "size": "6rem"
         }
       ],
-      "units": [
-        "rem",
-        "%",
-        "vw",
-        "vh"
-      ]
+      "units": ["rem", "%", "vw", "vh"]
     },
     "typography": {
       "customFontSize": false,
@@ -245,9 +240,7 @@
               "fontStyle": "normal",
               "fontWeight": "600",
               "fontDisplay": "swap",
-              "src": [
-                "file:./assets/fonts/space-grotesk-semibold.woff2"
-              ]
+              "src": ["file:./assets/fonts/space-grotesk-semibold.woff2"]
             }
           ]
         },
@@ -261,18 +254,14 @@
               "fontStyle": "normal",
               "fontWeight": "400",
               "fontDisplay": "swap",
-              "src": [
-                "file:./assets/fonts/inter-regular.woff2"
-              ]
+              "src": ["file:./assets/fonts/inter-regular.woff2"]
             },
             {
               "fontFamily": "Inter",
               "fontStyle": "normal",
               "fontWeight": "600",
               "fontDisplay": "swap",
-              "src": [
-                "file:./assets/fonts/inter-semibold.woff2"
-              ]
+              "src": ["file:./assets/fonts/inter-semibold.woff2"]
             }
           ]
         },
@@ -286,9 +275,7 @@
               "fontStyle": "normal",
               "fontWeight": "400",
               "fontDisplay": "swap",
-              "src": [
-                "file:./assets/fonts/jetbrains-mono-regular.woff2"
-              ]
+              "src": ["file:./assets/fonts/jetbrains-mono-regular.woff2"]
             }
           ]
         }

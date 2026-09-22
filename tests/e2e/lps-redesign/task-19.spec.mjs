@@ -81,9 +81,14 @@ async function loginAs(target, user, pass, mfa) {
       target.locator("#wp-submit").click(),
     ]);
     if (mfa) {
-      const challenge = target.locator("#loginform input[type=submit], #loginform button[type=submit]");
+      const challenge = target.locator(
+        "#loginform input[type=submit], #loginform button[type=submit]",
+      );
       await challenge.waitFor({ state: "visible", timeout: 60_000 });
-      await Promise.all([target.waitForLoadState("domcontentloaded", { timeout: 120_000 }), challenge.click()]);
+      await Promise.all([
+        target.waitForLoadState("domcontentloaded", { timeout: 120_000 }),
+        challenge.click(),
+      ]);
     }
     const settled = await expect
       .poll(() => new URL(target.url()).pathname, { timeout: 60_000 })
@@ -248,9 +253,12 @@ test.describe("task-19: the documented faculty workflow", () => {
     await loginAs(professorPage, "lps-t19-professor", "lps-t19-professor-pass", true);
     state.professorNonce = await restNonce(professorPage);
 
-    const professorUser = await adminPage.request.get("/wp-json/wp/v2/users?slug=lps-t19-professor", {
-      headers: { "X-WP-Nonce": state.adminNonce },
-    });
+    const professorUser = await adminPage.request.get(
+      "/wp-json/wp/v2/users?slug=lps-t19-professor",
+      {
+        headers: { "X-WP-Nonce": state.adminNonce },
+      },
+    );
     state.professorId = (await professorUser.json())[0]?.id ?? 0;
   });
 
@@ -450,7 +458,9 @@ test.describe("task-19: the documented faculty workflow", () => {
     await expect(professorPage.locator(".lps-record-list")).toContainText("Aprovado");
   });
 
-  test("the documented news loop: submit, reject with note, resubmit, approve", async ({ browser }) => {
+  test("the documented news loop: submit, reject with note, resubmit, approve", async ({
+    browser,
+  }) => {
     test.setTimeout(300_000);
     await ensureEditor(browser);
     await professorPage.goto("/pt-br/painel/noticias/", { waitUntil: "domcontentloaded" });
@@ -568,7 +578,8 @@ test.describe("task-19: the documented faculty workflow", () => {
       headers: { "X-WP-Nonce": state.publisherNonce },
     });
     const rows = await resources.json();
-    state.resourceId = rows.find((row) => row.title?.rendered?.includes(`Apostila ${RUN}`))?.id ?? 0;
+    state.resourceId =
+      rows.find((row) => row.title?.rendered?.includes(`Apostila ${RUN}`))?.id ?? 0;
     expect(state.resourceId, "the dashboard material must persist").toBeGreaterThan(0);
     await shot(professorPage, "oferta-area.png");
   });
@@ -657,8 +668,14 @@ test.describe("task-19: the documented faculty workflow", () => {
     });
     await expect(delegatePage.locator('[data-dashboard-view="offering"]')).toBeVisible();
     // The delegate may create and edit but never publishes or releases.
-    await expect(delegatePage.locator('form[data-dashboard-form="lps_dashboard_unit"]')).toBeVisible();
-    await expect(delegatePage.locator('form[data-dashboard-form="lps_dashboard_publish"]')).toHaveCount(0);
-    await expect(delegatePage.locator('form[data-dashboard-form="lps_dashboard_release"]')).toHaveCount(0);
+    await expect(
+      delegatePage.locator('form[data-dashboard-form="lps_dashboard_unit"]'),
+    ).toBeVisible();
+    await expect(
+      delegatePage.locator('form[data-dashboard-form="lps_dashboard_publish"]'),
+    ).toHaveCount(0);
+    await expect(
+      delegatePage.locator('form[data-dashboard-form="lps_dashboard_release"]'),
+    ).toHaveCount(0);
   });
 });

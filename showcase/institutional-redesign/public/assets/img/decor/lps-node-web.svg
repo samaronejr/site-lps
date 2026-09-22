@@ -1,4 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" fill="none" role="img" aria-labelledby="lps-node-web-title">
+  <title id="lps-node-web-title">Signal node network decoration</title>
   <g stroke="#2DD4BF" stroke-opacity="0.5" stroke-width="1.4">
     <path d="M180 120 360 220 540 160 720 250 900 190 1100 280"/>
     <path d="M120 380 300 460 480 400 660 490 840 430 1040 520 1180 460"/>

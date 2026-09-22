@@ -52,6 +52,9 @@ $lps_partner_track = sprintf(
 <!-- wp:group {"className":"lps-partner-marquee","layout":{"type":"default"}} -->
 <div class="wp-block-group lps-partner-marquee">
 <!-- wp:html -->
+<style>@keyframes lps-partner-drift{from{transform:translateX(-50%)}to{transform:translateX(0)}}</style>
+<!-- /wp:html -->
+<!-- wp:html -->
 <?php echo $lps_partner_track; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- items are escaped per logo above. ?>
 <!-- /wp:html -->
 </div>

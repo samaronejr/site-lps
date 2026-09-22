@@ -53,9 +53,19 @@
         "creates_draft": true,
         "publishes": false,
         "team_reviewed": true,
-        "resets": ["announcements", "deadlines", "release_times", "active_notices", "unreleased_resources"],
-        "selected_version_ids": ["lpsver:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"],
-        "cleared_version_ids": ["lpsver:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"]
+        "resets": [
+          "announcements",
+          "deadlines",
+          "release_times",
+          "active_notices",
+          "unreleased_resources"
+        ],
+        "selected_version_ids": [
+          "lpsver:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+        ],
+        "cleared_version_ids": [
+          "lpsver:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+        ]
       }
     },
     {
@@ -71,7 +81,13 @@
         "creates_draft": true,
         "publishes": false,
         "team_reviewed": true,
-        "resets": ["announcements", "deadlines", "release_times", "active_notices", "unreleased_resources"],
+        "resets": [
+          "announcements",
+          "deadlines",
+          "release_times",
+          "active_notices",
+          "unreleased_resources"
+        ],
         "selected_version_ids": [],
         "cleared_version_ids": []
       }
@@ -89,7 +105,13 @@
         "creates_draft": true,
         "publishes": false,
         "team_reviewed": true,
-        "resets": ["announcements", "deadlines", "release_times", "active_notices", "unreleased_resources"],
+        "resets": [
+          "announcements",
+          "deadlines",
+          "release_times",
+          "active_notices",
+          "unreleased_resources"
+        ],
         "selected_version_ids": [],
         "cleared_version_ids": []
       }
@@ -107,7 +129,13 @@
         "creates_draft": true,
         "publishes": false,
         "team_reviewed": false,
-        "resets": ["announcements", "deadlines", "release_times", "active_notices", "unreleased_resources"],
+        "resets": [
+          "announcements",
+          "deadlines",
+          "release_times",
+          "active_notices",
+          "unreleased_resources"
+        ],
         "selected_version_ids": [],
         "cleared_version_ids": []
       }
@@ -143,9 +171,19 @@
         "creates_draft": true,
         "publishes": false,
         "team_reviewed": true,
-        "resets": ["announcements", "deadlines", "release_times", "active_notices", "unreleased_resources"],
-        "selected_version_ids": ["lpsver:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"],
-        "cleared_version_ids": ["lpsver:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"]
+        "resets": [
+          "announcements",
+          "deadlines",
+          "release_times",
+          "active_notices",
+          "unreleased_resources"
+        ],
+        "selected_version_ids": [
+          "lpsver:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+        ],
+        "cleared_version_ids": [
+          "lpsver:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+        ]
       }
     },
     {
@@ -161,7 +199,13 @@
         "creates_draft": true,
         "publishes": true,
         "team_reviewed": true,
-        "resets": ["announcements", "deadlines", "release_times", "active_notices", "unreleased_resources"],
+        "resets": [
+          "announcements",
+          "deadlines",
+          "release_times",
+          "active_notices",
+          "unreleased_resources"
+        ],
         "selected_version_ids": [],
         "cleared_version_ids": []
       }

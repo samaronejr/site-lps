@@ -141,7 +141,10 @@ export function validateContract(contract, { root = ROOT } = {}) {
   const tokens = new Map();
   // Palette tokens and CSS-only primitives both resolve in a pair; the palette is
   // what theme.json mirrors, the primitives are stylesheet-internal roles.
-  for (const token of [...(contract.colors?.tokens ?? []), ...(contract.colors?.primitives ?? [])]) {
+  for (const token of [
+    ...(contract.colors?.tokens ?? []),
+    ...(contract.colors?.primitives ?? []),
+  ]) {
     if (!token.token || !token.role || !token.usage) {
       add("MISSING_TOKEN_ROLE", `Color token ${token.token ?? "(unnamed)"} lacks role or usage.`);
     }
@@ -224,7 +227,10 @@ export function validateContract(contract, { root = ROOT } = {}) {
     Number.parseInt(controlRadius, 10) < 0 ||
     Number.parseInt(controlRadius, 10) > 8
   ) {
-    add("RADIUS_VIOLATION", `Control radius must be a declared 0-8px value; got "${controlRadius}".`);
+    add(
+      "RADIUS_VIOLATION",
+      `Control radius must be a declared 0-8px value; got "${controlRadius}".`,
+    );
   }
   for (const radius of [controlRadius, contract.geometry?.imageRadius ?? ""]) {
     if (!radiusScale.some((entry) => entry.value === radius)) {
@@ -232,7 +238,10 @@ export function validateContract(contract, { root = ROOT } = {}) {
     }
   }
   if (radiusScale.length < 3) {
-    add("RADIUS_VIOLATION", "The radius scale must declare at least the control, nested and card radii.");
+    add(
+      "RADIUS_VIOLATION",
+      "The radius scale must declare at least the control, nested and card radii.",
+    );
   }
 
   // --- Logo -----------------------------------------------------------------------
