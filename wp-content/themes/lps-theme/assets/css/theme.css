@@ -2330,15 +2330,12 @@ textarea:focus-visible {
  * 14. Tables
  * ------------------------------------------------------------------------- */
 
-/* The card caps at roughly four data rows; taller result sets scroll
-   vertically under the sticky header row instead of pushing the page. */
 .lps-table-scroll {
   background: var(--color-surface);
   border: 1px solid var(--color-card-rule);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
-  max-block-size: 19rem;
-  overflow: auto;
+  overflow-x: auto;
   scrollbar-color: var(--color-accent) var(--color-wash-action-subtle);
   scrollbar-width: thin;
 }
@@ -2397,12 +2394,9 @@ thead th {
   font-family: var(--font-mono);
   font-size: var(--type-meta);
   font-weight: 400;
-  inset-block-start: 0;
   letter-spacing: 0.08em;
-  position: sticky;
   text-transform: uppercase;
   white-space: nowrap;
-  z-index: 1;
 }
 
 tbody tr {
