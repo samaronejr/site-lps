@@ -36,7 +36,15 @@ use PHPUnit\Framework\TestCase;
  * Proves the adversarial boundary contracts without WordPress.
  */
 final class LpsRedesignTask20Test extends TestCase {
-	/** One well-formed active grant row for scope tests. */
+	/**
+	 * One well-formed active grant row for scope tests.
+	 *
+	 * @param string               $scope       Grant scope.
+	 * @param int                  $offering_id Offering identifier the grant covers.
+	 * @param string               $role        Granted policy role.
+	 * @param array<string, mixed> $overrides   Field overrides.
+	 * @return array<string, mixed>
+	 */
 	private static function grant( string $scope = 'offering', int $offering_id = 42, string $role = 'professor', array $overrides = array() ): array {
 		return array_merge(
 			array(

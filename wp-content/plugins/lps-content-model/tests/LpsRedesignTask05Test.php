@@ -36,8 +36,12 @@ final class LpsRedesignTask05Test extends TestCase {
 	/** Loads the shared synthetic fixture once for the whole class. */
 	public static function setUpBeforeClass(): void {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local fixture, not a remote URL.
-		$decoded       = json_decode( (string) file_get_contents( self::FIXTURE_PATH ), true );
-		self::$fixture = is_array( $decoded ) ? $decoded : array();
+		$decoded = json_decode( (string) file_get_contents( self::FIXTURE_PATH ), true );
+		if ( ! is_array( $decoded ) ) {
+			$decoded = array();
+		}
+		/** @var array<string, mixed> $decoded */
+		self::$fixture = $decoded;
 	}
 
 	/**
@@ -48,14 +52,40 @@ final class LpsRedesignTask05Test extends TestCase {
 	 */
 	private static function fixture_cases( string $key ): array {
 		$cases = self::$fixture[ $key ] ?? array();
-		self::assertIsArray( $cases );
+		if ( ! is_array( $cases ) ) {
+			self::fail( 'Fixture must define ' . $key . ' as an array' );
+		}
 		self::assertNotEmpty( $cases, 'Fixture must define ' . $key );
+		/** @var array<int, array<string, mixed>> $cases */
 		return $cases;
 	}
 
 	/** Returns the institutional date the fixture decisions are evaluated at. */
 	private static function today(): string {
-		return (string) ( self::$fixture['today'] ?? '2026-09-18' );
+		return self::text( self::$fixture['today'] ?? '2026-09-18' );
+	}
+
+	/**
+	 * Converts boundary input to string.
+	 *
+	 * @param mixed $value Boundary input.
+	 */
+	private static function text( mixed $value ): string {
+		return is_scalar( $value ) ? (string) $value : '';
+	}
+
+	/**
+	 * Returns the value as a fixture record, failing the test otherwise.
+	 *
+	 * @param mixed $value Boundary input.
+	 * @return array<string, mixed>
+	 */
+	private static function record( mixed $value ): array {
+		if ( ! is_array( $value ) ) {
+			self::fail( 'Fixture record must be an array' );
+		}
+		/** @var array<string, mixed> $value */
+		return $value;
 	}
 
 	/** Origin resolution: provenance always wins over a stored claim. */
@@ -63,8 +93,8 @@ final class LpsRedesignTask05Test extends TestCase {
 		foreach ( self::fixture_cases( 'originCases' ) as $case ) {
 			self::assertSame(
 				$case['expectOrigin'],
-				PublicationPolicy::resolve_origin( $case['record'] ),
-				$case['id']
+				PublicationPolicy::resolve_origin( self::record( $case['record'] ) ),
+				self::text( $case['id'] )
 			);
 		}
 	}
@@ -74,8 +104,8 @@ final class LpsRedesignTask05Test extends TestCase {
 		foreach ( self::fixture_cases( 'originWriteCases' ) as $case ) {
 			self::assertSame(
 				$case['expectError'],
-				PublicationPolicy::origin_write_error( $case['stored'], $case['candidate'], $case['record'] ),
-				$case['id']
+				PublicationPolicy::origin_write_error( self::text( $case['stored'] ), self::text( $case['candidate'] ), self::record( $case['record'] ) ),
+				self::text( $case['id'] )
 			);
 		}
 	}
@@ -83,12 +113,12 @@ final class LpsRedesignTask05Test extends TestCase {
 	/** The single public-visibility decision across surfaces and origins. */
 	public function test_visibility_decision_is_unified(): void {
 		foreach ( self::fixture_cases( 'visibilityCases' ) as $case ) {
-			$locale   = (string) ( $case['locale'] ?? self::$fixture['locale'] ?? 'pt-br' );
-			$decision = PublicationPolicy::visibility_decision( $case['record'], $case['surface'], $locale, self::today() );
-			self::assertSame( $case['expectVisible'], $decision['visible'], $case['id'] );
-			self::assertSame( $case['expectOrigin'], $decision['origin'], $case['id'] );
+			$locale   = self::text( $case['locale'] ?? self::$fixture['locale'] ?? 'pt-br' );
+			$decision = PublicationPolicy::visibility_decision( self::record( $case['record'] ), self::text( $case['surface'] ), $locale, self::today() );
+			self::assertSame( $case['expectVisible'], $decision['visible'], self::text( $case['id'] ) );
+			self::assertSame( $case['expectOrigin'], $decision['origin'], self::text( $case['id'] ) );
 			foreach ( (array) ( $case['expectErrors'] ?? array() ) as $field => $code ) {
-				self::assertSame( $code, $decision['errors'][ $field ] ?? null, $case['id'] . ' field ' . $field );
+				self::assertSame( $code, $decision['errors'][ $field ] ?? null, self::text( $case['id'] ) . ' field ' . $field );
 			}
 		}
 	}
@@ -100,8 +130,8 @@ final class LpsRedesignTask05Test extends TestCase {
 		foreach ( array( $native, $imported ) as $case ) {
 			foreach ( array( PublicationPolicy::SURFACE_PUBLIC, PublicationPolicy::SURFACE_FEATURE ) as $surface ) {
 				self::assertTrue(
-					PublicationPolicy::visibility_decision( $case['record'], $surface, 'pt-br', self::today() )['visible'],
-					$case['id'] . ' on ' . $surface
+					PublicationPolicy::visibility_decision( self::record( $case['record'] ), $surface, 'pt-br', self::today() )['visible'],
+					self::text( $case['id'] ) . ' on ' . $surface
 				);
 			}
 		}
@@ -110,10 +140,10 @@ final class LpsRedesignTask05Test extends TestCase {
 	/** Field-specific staleness for teaching types. */
 	public function test_teaching_staleness_is_field_specific(): void {
 		foreach ( self::fixture_cases( 'stalenessCases' ) as $case ) {
-			$base    = $case['base'];
-			$changed = array_merge( $base, $case['change'] );
-			$stale   = TranslationPolicy::source_hash( $case['postType'], $base ) !== TranslationPolicy::source_hash( $case['postType'], $changed );
-			self::assertSame( $case['expectStale'], $stale, $case['id'] );
+			$base    = self::record( $case['base'] );
+			$changed = array_merge( $base, self::record( $case['change'] ) );
+			$stale   = TranslationPolicy::source_hash( self::text( $case['postType'] ), $base ) !== TranslationPolicy::source_hash( self::text( $case['postType'] ), $changed );
+			self::assertSame( $case['expectStale'], $stale, self::text( $case['id'] ) );
 		}
 	}
 
@@ -136,21 +166,20 @@ final class LpsRedesignTask05Test extends TestCase {
 	/** Reconciliation is a report, never an automatic trust decision. */
 	public function test_reconciliation_classification(): void {
 		foreach ( self::fixture_cases( 'reconciliationCases' ) as $case ) {
-			$classification = PublicationPolicy::reconciliation_class( $case['record'] );
-			self::assertSame( $case['expectAction'], $classification['action'], $case['id'] );
-			self::assertSame( $case['expectOrigin'], $classification['origin'], $case['id'] );
-			self::assertSame( $case['expectOrigin'], PublicationPolicy::resolve_origin( $case['record'] ), $case['id'] );
+			$classification = PublicationPolicy::reconciliation_class( self::record( $case['record'] ) );
+			self::assertSame( $case['expectAction'], $classification['action'], self::text( $case['id'] ) );
+			self::assertSame( $case['expectOrigin'], $classification['origin'], self::text( $case['id'] ) );
+			self::assertSame( $case['expectOrigin'], PublicationPolicy::resolve_origin( self::record( $case['record'] ) ), self::text( $case['id'] ) );
 		}
 	}
 
 	/** Preview evaluates the same public decision; it never grants visibility. */
 	public function test_preview_decision_mirrors_public(): void {
 		foreach ( self::fixture_cases( 'visibilityCases' ) as $case ) {
-			$locale  = (string) ( $case['locale'] ?? self::$fixture['locale'] ?? 'pt-br' );
-			$preview = PublicationPolicy::preview_decision( $case['record'], $locale, self::today() );
-			$public  = PublicationPolicy::visibility_decision( $case['record'], PublicationPolicy::SURFACE_PUBLIC, $locale, self::today() );
-			self::assertTrue( $preview['preview'], $case['id'] );
-			self::assertSame( $public['visible'], $preview['public_visible'], $case['id'] );
+			$locale  = self::text( $case['locale'] ?? self::$fixture['locale'] ?? 'pt-br' );
+			$preview = PublicationPolicy::preview_decision( self::record( $case['record'] ), $locale, self::today() );
+			$public  = PublicationPolicy::visibility_decision( self::record( $case['record'] ), PublicationPolicy::SURFACE_PUBLIC, $locale, self::today() );
+			self::assertSame( $public['visible'], $preview['public_visible'], self::text( $case['id'] ) );
 		}
 	}
 
