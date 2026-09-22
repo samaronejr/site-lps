@@ -1934,6 +1934,20 @@ export const infrastructure = {
       value: "Bloco H, s. 220",
       label: { "pt-BR": "Sede no Centro de Tecnologia", en: "Headquarters at CT" },
     },
+    {
+      value: "310 m²",
+      label: {
+        "pt-BR": "Sala com mezanino no 2º andar do Bloco H",
+        en: "Room with mezzanine on Bloco H's 2nd floor",
+      },
+    },
+    {
+      value: "≈40",
+      label: {
+        "pt-BR": "Máquinas interconectadas (acesso, processamento e GPU)",
+        en: "Interconnected machines (access, processing and GPU)",
+      },
+    },
   ],
   capabilities: [
     {
