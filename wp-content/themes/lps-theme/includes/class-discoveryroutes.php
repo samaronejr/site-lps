@@ -372,11 +372,28 @@ final class DiscoveryRoutes {
 				'url'     => self::single_path( $post_type, $locale, $post->post_name ),
 				'summary' => $post->post_excerpt,
 				'meta'    => self::listing_meta( $post, $locale ),
+				'topics'  => self::record_topics( $post ),
 			);
+		}
+		$paths = array(
+			'projects'       => self::archive_path( 'lps_project', $locale ),
+			'publications'   => self::archive_path( 'lps_publication', $locale ),
+			'infrastructure' => PublicRoutes::archive_path( 'lps_infrastructure', $locale ),
+			'contact'        => TrustRoutes::page_path( 'contact', $locale ),
+		);
+		$kind  = self::listing_kind( $post_type );
+		if ( 'research' === $kind ) {
+			return DiscoverySurfaces::render_research_landing( $items, self::project_items( $locale, 3 ), $locale, $paths );
+		}
+		if ( 'projects' === $kind ) {
+			return DiscoverySurfaces::render_projects_landing( $items, $locale, $paths );
+		}
+		if ( 'publications' === $kind ) {
+			return DiscoverySurfaces::render_publications_landing( $items, $locale, $paths );
 		}
 		$paged = $query->get( 'paged' );
 		return DiscoverySurfaces::render_listing(
-			self::listing_kind( $post_type ),
+			$kind,
 			$items,
 			self::filter_specs( $post_type, $locale ),
 			array(
@@ -386,6 +403,65 @@ final class DiscoveryRoutes {
 			),
 			$locale
 		);
+	}
+
+	/**
+	 * Returns published project rows for the research landing's selected band.
+	 *
+	 * @param string $locale Supported locale slug.
+	 * @param int    $limit  Maximum number of rows.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private static function project_items( string $locale, int $limit ): array {
+		$posts = get_posts(
+			array(
+				'post_type'        => 'lps_project',
+				'post_status'      => 'publish',
+				'numberposts'      => $limit,
+				'orderby'          => 'date',
+				'order'            => 'DESC',
+				'suppress_filters' => false,
+				'meta_query'       => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- locale is the routing key of this surface.
+					array(
+						'key'     => '_lps_locale',
+						'value'   => $locale,
+						'compare' => '=',
+					),
+				),
+			)
+		);
+		$items = array();
+		foreach ( $posts as $post ) {
+			$items[] = array(
+				'title'   => self::display_title( $post ),
+				'url'     => self::single_path( 'lps_project', $locale, $post->post_name ),
+				'summary' => $post->post_excerpt,
+				'meta'    => self::listing_meta( $post, $locale ),
+				'topics'  => self::record_topics( $post ),
+			);
+		}
+		return $items;
+	}
+
+	/**
+	 * Returns the stored topic tokens of one record.
+	 *
+	 * @param WP_Post $post Record post.
+	 * @return array<int, string>
+	 */
+	private static function record_topics( WP_Post $post ): array {
+		$topics = get_post_meta( $post->ID, '_lps_topics', true );
+		if ( ! is_array( $topics ) ) {
+			return array();
+		}
+		$clean = array();
+		foreach ( $topics as $topic ) {
+			$topic = is_scalar( $topic ) ? trim( (string) $topic ) : '';
+			if ( '' !== $topic ) {
+				$clean[] = $topic;
+			}
+		}
+		return $clean;
 	}
 
 	/**

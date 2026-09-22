@@ -1052,7 +1052,7 @@ final class Homepage {
 	 * @param string $locale Supported locale.
 	 * @return array<int, array{src: string, alt: string}>
 	 */
-	private static function partner_logos( string $locale ): array {
+	public static function partner_logos( string $locale ): array {
 		if ( ! function_exists( 'get_posts' ) ) {
 			return array();
 		}
@@ -1106,7 +1106,7 @@ final class Homepage {
 	 *
 	 * @param array<int, array{src: string, alt: string}> $logos Logo pairs.
 	 */
-	private static function partner_marquee_markup( array $logos ): string {
+	public static function partner_marquee_markup( array $logos ): string {
 		$items = '';
 		foreach ( $logos as $logo ) {
 			$items .= '<li><img src="' . self::escape( $logo['src'] ) . '" alt="' . self::escape( $logo['alt'] ) . '" decoding="async" /></li>';

@@ -139,6 +139,49 @@ final class TeachingSurfaces {
 			}
 			$html .= '</section>';
 		}
+		$course_path = TeachingRoutes::course_path( $locale, 'cpe886-quantum-machine-learning' );
+		$materials   = TrustSurfaces::record_card(
+			array(
+				'title'     => $english ? 'CPE-886 Quantum Machine Learning' : 'CPE-886 Quantum Machine Learning',
+				'body'      => $english
+					? 'Official material for the graduate course, in the laboratory\'s documentation portal.'
+					: 'Material oficial da disciplina de pós-graduação, no portal de documentação do laboratório.',
+				'foot_html' => '<ul class="lps-source-list"><li><a class="lps-meta" href="https://qml.lps.ufrj.br/" rel="external">' . self::esc( $english ? 'QML documentation' : 'Documentação QML' ) . '</a></li>'
+					. ( '' !== $course_path ? '<li><a class="lps-meta" href="' . self::esc( $course_path ) . '">' . self::esc( $english ? 'Course page' : 'Página da disciplina' ) . '</a></li>' : '' )
+					. '</ul>',
+			)
+		);
+		$materials  .= TrustSurfaces::record_card(
+			array(
+				'title' => $english ? 'Courses on each professor\'s page' : 'Disciplinas na página de cada professor',
+				'body'  => $english
+					? 'Teaching material distributed across the professors\' own pages — courses, tests, and exercises for each offering, announced in the news feed.'
+					: 'Material didático distribuído nas páginas próprias dos professores — disciplinas, provas e exercícios de cada turma, anunciados na seção de notícias.',
+				'meta'  => $english ? 'News archive' : 'Arquivo de notícias',
+			)
+		);
+		$html       .= TrustSurfaces::editorial_section(
+			'material',
+			$english ? 'Material' : 'Material',
+			$english ? 'Where the course material lives' : 'Onde está o material didático',
+			'<div class="lps-grid lps-grid--2">' . $materials . '</div>'
+		);
+		$html       .= '<section class="lps-section">' . TrustSurfaces::cta_band(
+			$english ? 'Study at LPS' : 'Estudar no LPS',
+			$english
+				? 'The laboratory hosts undergraduate, master\'s and doctoral research at UFRJ. Students join through the Electrical Engineering Program at COPPE or through research initiation openings.'
+				: 'O laboratório recebe pesquisas de graduação, mestrado e doutorado na UFRJ. O ingresso se dá pelo Programa de Engenharia Elétrica da COPPE ou por vagas de iniciação científica.',
+			array(
+				array(
+					'href'  => TrustRoutes::archive_path( 'lps_opportunity', $locale ),
+					'label' => $english ? 'Opportunities' : 'Oportunidades',
+				),
+				array(
+					'href'  => 'https://www.pee.ufrj.br/',
+					'label' => $english ? 'EE Program at COPPE' : 'Programa de Engenharia Elétrica',
+				),
+			)
+		) . '</section>';
 		return $html . '</section>';
 	}
 

@@ -615,6 +615,290 @@ final class DiscoverySurfaces {
 	}
 
 	/**
+	 * Renders the research landing: research-area cards, selected projects,
+	 * the publications note, infrastructure capabilities and collaboration.
+	 *
+	 * @param array<int, mixed>     $areas    Research-area listing rows.
+	 * @param array<int, mixed>     $projects Project listing rows (first three shown).
+	 * @param string                $locale   Supported locale slug.
+	 * @param array<string, string> $paths    Archive/page paths the bands link to.
+	 */
+	public static function render_research_landing( array $areas, array $projects, string $locale, array $paths = array() ): string {
+		$english = 'en' === $locale;
+		$cards   = '';
+		foreach ( $areas as $area ) {
+			if ( ! is_array( $area ) ) {
+				continue;
+			}
+			$cards .= TrustSurfaces::record_card(
+				array(
+					'title'  => $area['title'] ?? '',
+					'body'   => $area['summary'] ?? '',
+					'href'   => $area['url'] ?? '',
+					'accent' => true,
+					'tags'   => $area['topics'] ?? array(),
+				)
+			);
+		}
+		$html  = TrustSurfaces::editorial_section(
+			'research-areas',
+			$english ? 'Areas' : 'Áreas',
+			sprintf( $english ? '%d research fronts' : '%d frentes de pesquisa', count( $areas ) ),
+			'<div class="lps-grid lps-grid--2">' . $cards . '</div>',
+			true
+		);
+		$cards = '';
+		foreach ( array_slice( $projects, 0, 3 ) as $project ) {
+			if ( ! is_array( $project ) ) {
+				continue;
+			}
+			$cards .= TrustSurfaces::record_card(
+				array(
+					'title' => $project['title'] ?? '',
+					'body'  => $project['summary'] ?? '',
+					'href'  => $project['url'] ?? '',
+					'tags'  => $project['topics'] ?? array(),
+					'meta'  => $project['meta'] ?? '',
+				)
+			);
+		}
+		if ( '' !== $cards ) {
+			$html .= TrustSurfaces::editorial_section(
+				'research-projects',
+				$english ? 'Projects' : 'Projetos',
+				$english ? 'Selected projects' : 'Projetos selecionados',
+				'<div class="lps-grid lps-grid--3">' . $cards . '</div>',
+				false,
+				array(
+					'href'  => self::text( $paths['projects'] ?? '' ),
+					'label' => $english ? 'All projects' : 'Todos os projetos',
+				)
+			);
+		}
+		$html      .= TrustSurfaces::editorial_section(
+			'research-outputs',
+			$english ? 'Outputs' : 'Produção',
+			$english ? 'Evidence of the work' : 'Evidências do trabalho',
+			TrustSurfaces::alert_band(
+				'info',
+				$english
+					? 'LPS does not currently maintain a public publications feed under the laboratory responsibility. The scientific output associated with the laboratory is recorded in the professors Lattes CVs and in the publications of the international collaborations the laboratory takes part in.'
+					: 'O LPS não mantém, hoje, um feed público de publicações sob responsabilidade do laboratório. A produção científica associada ao laboratório está registrada nos currículos Lattes dos professores e nas publicações das colaborações internacionais de que o laboratório participa.',
+				$english ? 'No authoritative publications feed exists yet' : 'Ainda não existe um feed público consolidado de publicações'
+			)
+				. '<p class="lps-mt-6"><a class="lps-more" href="' . self::esc( self::text( $paths['publications'] ?? '' ) ) . '">' . self::esc( $english ? 'How to consult the output' : 'Como consultar a produção' ) . '</a></p>'
+		);
+		$stats      = array(
+			array( 'Caloba', $english ? 'Laboratory HPC cluster (SLURM)' : 'Cluster HPC do laboratório (SLURM)' ),
+			array( 'CPU + GPU', $english ? 'Cluster compute partitions' : 'Filas de processamento do cluster' ),
+			array( '1988', $english ? 'Start of the UFRJ–CERN collaboration' : 'Início da colaboração UFRJ–CERN' ),
+		);
+		$stats_html = '';
+		foreach ( $stats as $stat ) {
+			$stats_html .= '<div class="lps-card"><strong class="lps-stat" style="display:grid;gap:0"><strong style="color:var(--c-blue-600);font-size:2rem;line-height:1">' . self::esc( $stat[0] ) . '</strong><span class="lps-summary">' . self::esc( $stat[1] ) . '</span></strong></div>';
+		}
+		$html .= TrustSurfaces::editorial_section(
+			'research-infrastructure',
+			$english ? 'Infrastructure' : 'Infraestrutura',
+			$english ? 'Capabilities behind the research' : 'Capacidades por trás da pesquisa',
+			'<div class="lps-grid lps-grid--3">' . $stats_html . '</div>',
+			false,
+			array(
+				'href'  => self::text( $paths['infrastructure'] ?? '' ),
+				'label' => $english ? 'Facilities' : 'Instalações',
+			)
+		);
+		$html .= TrustSurfaces::editorial_section(
+			'research-contact',
+			$english ? 'Collaboration' : 'Colaboração',
+			$english ? 'Research partnerships' : 'Parcerias de pesquisa',
+			'<div class="lps-grid lps-grid--2">'
+				. TrustSurfaces::editorial_card(
+					$english ? 'Contract research' : 'Pesquisa contratada',
+					$english
+						? 'Projects with industry and public bodies, with formal instruments through the university foundation.'
+						: 'Projetos com a indústria e órgãos públicos, com instrumentos formais pela fundação da universidade.'
+				)
+				. TrustSurfaces::editorial_card(
+					$english ? 'International collaboration' : 'Colaboração internacional',
+					$english
+						? 'Joint work with research groups abroad, including the ATLAS experiment at CERN.'
+						: 'Trabalho conjunto com grupos de pesquisa no exterior, incluindo o experimento ATLAS do CERN.'
+				)
+				. '</div>'
+				. '<div class="lps-mt-8">' . TrustSurfaces::cta_band(
+					$english ? 'Start a research conversation' : 'Comece uma conversa de pesquisa',
+					$english
+						? 'Describe the problem and the laboratory will point to the group that can work on it.'
+						: 'Descreva o problema e o laboratório indicará o grupo que pode trabalhar nele.',
+					array(
+						array(
+							'href'  => self::text( $paths['contact'] ?? '' ),
+							'label' => $english ? 'Contact' : 'Contato',
+						),
+					)
+				) . '</div>'
+		);
+		return $html;
+	}
+
+	/**
+	 * Renders the projects landing: provenance note, project cards, proposal band.
+	 *
+	 * @param array<int, mixed>     $items  Project listing rows.
+	 * @param string                $locale Supported locale slug.
+	 * @param array<string, string> $paths  Archive/page paths the bands link to.
+	 */
+	public static function render_projects_landing( array $items, string $locale, array $paths = array() ): string {
+		$english = 'en' === $locale;
+		$cards   = '';
+		foreach ( $items as $item ) {
+			if ( ! is_array( $item ) ) {
+				continue;
+			}
+			$cards .= TrustSurfaces::record_card(
+				array(
+					'title' => $item['title'] ?? '',
+					'body'  => $item['summary'] ?? '',
+					'href'  => $item['url'] ?? '',
+					'tags'  => $item['topics'] ?? array(),
+					'meta'  => $item['meta'] ?? '',
+					'media' => true,
+				)
+			);
+		}
+		$html  = '<div class="lps-section lps-section--flush">';
+		$html .= TrustSurfaces::alert_band(
+			'info',
+			$english
+				? 'The public project index names the initiatives documented in the laboratory public material. A complete, current portfolio requires laboratory review.'
+				: 'O índice público de projetos nomeia as iniciativas documentadas no material público do laboratório. Um portfólio completo e atual exige revisão do laboratório.',
+			$english ? 'What this list is, and what it is not' : 'O que esta lista é, e o que ela não é'
+		);
+		$html .= '<div class="lps-grid lps-grid--2 lps-mt-8">' . $cards . '</div>';
+		$html .= '<div class="lps-mt-10">' . TrustSurfaces::cta_band(
+			$english ? 'Propose a project' : 'Proponha um projeto',
+			$english
+				? 'The laboratory works with companies and public bodies on applied signal processing and machine learning problems.'
+				: 'O laboratório atua com empresas e órgãos públicos em problemas aplicados de processamento de sinais e aprendizado de máquina.',
+			array(
+				array(
+					'href'  => self::text( $paths['infrastructure'] ?? '' ) . '#parcerias',
+					'label' => $english ? 'Capabilities' : 'Capacidades',
+				),
+				array(
+					'href'  => self::text( $paths['contact'] ?? '' ),
+					'label' => $english ? 'Contact' : 'Contato',
+				),
+			)
+		) . '</div></div>';
+		return $html;
+	}
+
+	/**
+	 * Renders the publications landing: the feed status note, the published
+	 * records the CMS holds, the consultation channels and the ownership band.
+	 *
+	 * @param array<int, mixed>     $items  Publication listing rows.
+	 * @param string                $locale Supported locale slug.
+	 * @param array<string, string> $paths  Archive/page paths the bands link to.
+	 */
+	public static function render_publications_landing( array $items, string $locale, array $paths = array() ): string {
+		$english = 'en' === $locale;
+		$html    = TrustSurfaces::editorial_section(
+			'pub-note',
+			$english ? 'Status' : 'Situação',
+			$english ? 'No consolidated feed yet' : 'Ainda sem feed consolidado',
+			TrustSurfaces::alert_band(
+				'info',
+				$english
+					? 'LPS does not currently maintain a public publications feed under the laboratory responsibility. The scientific output associated with the laboratory is recorded in the professors Lattes CVs and in the publications of the international collaborations the laboratory takes part in.'
+					: 'O LPS não mantém, hoje, um feed público de publicações sob responsabilidade do laboratório. A produção científica associada ao laboratório está registrada nos currículos Lattes dos professores e nas publicações das colaborações internacionais de que o laboratório participa.'
+			),
+			true
+		);
+		$records = '';
+		foreach ( $items as $item ) {
+			if ( ! is_array( $item ) ) {
+				continue;
+			}
+			$title    = self::text( $item['title'] ?? '' );
+			$url      = self::safe_url( self::text( $item['url'] ?? '' ) );
+			$summary  = self::text( $item['summary'] ?? '' );
+			$meta     = self::text( $item['meta'] ?? '' );
+			$records .= '<li><h3>' . ( '' !== $url ? '<a href="' . self::esc( $url ) . '">' : '' ) . self::esc( $title ) . ( '' !== $url ? '</a>' : '' ) . '</h3>';
+			$records .= '' !== $summary ? '<p class="lps-summary">' . self::esc( $summary ) . '</p>' : '';
+			$records .= '' !== $meta ? '<p class="lps-meta">' . self::esc( $meta ) . '</p>' : '';
+			$records .= '</li>';
+		}
+		if ( '' !== $records ) {
+			$html .= TrustSurfaces::editorial_section(
+				'pub-records',
+				$english ? 'Records' : 'Registros',
+				$english ? 'Published records' : 'Registros publicados',
+				'<ul class="lps-record-list">' . $records . '</ul>'
+			);
+		}
+		$lattes      = array(
+			array( 'José Manoel de Seixas', 'http://lattes.cnpq.br/1404632471755241' ),
+			array( 'Luiz Pereira Calôba', 'http://lattes.cnpq.br/3238659802153968' ),
+			array( 'Natanael Nunes de Moura Junior', 'http://lattes.cnpq.br/2696393506316122' ),
+			array( 'João Victor da Fonseca Pinto', 'http://lattes.cnpq.br/3592331377050716' ),
+		);
+		$lattes_foot = '<ul class="lps-source-list">';
+		foreach ( $lattes as $link ) {
+			$lattes_foot .= '<li><a class="lps-meta" href="' . self::esc( $link[1] ) . '" rel="external">' . self::esc( $link[0] ) . '</a></li>';
+		}
+		$lattes_foot .= '</ul>';
+		$channels     = array(
+			array(
+				'title'     => $english ? 'Lattes CVs' : 'Currículos Lattes',
+				'body'      => $english
+					? 'Individual, up-to-date record of each professor\'s output.'
+					: 'Registro individual e atualizado da produção de cada professor.',
+				'foot_html' => $lattes_foot,
+			),
+			array(
+				'title'     => $english ? 'ATLAS collaboration (CERN)' : 'Colaboração ATLAS (CERN)',
+				'body'      => $english
+					? 'Publications of the ATLAS experiment, which carry the laboratory contribution to online filtering, event simulation and reconstruction.'
+					: 'Publicações do experimento ATLAS, que reúnem a contribuição do laboratório em filtragem online, simulação e reconstrução de eventos.',
+				'foot_html' => '<ul class="lps-source-list"><li><a class="lps-meta" href="https://home.cern/science/experiments/atlas" rel="external">ATLAS — CERN</a></li></ul>',
+			),
+			array(
+				'title'     => $english ? 'Code and open data' : 'Código e dados abertos',
+				'body'      => $english
+					? 'Public repositories of the LPS GitHub organisation. Externally maintained, with no declared licence — linked, not copied.'
+					: 'Repositórios públicos da organização LPS no GitHub. Mantidos externamente, sem licença declarada — link, não cópia.',
+				'foot_html' => '<ul class="lps-source-list"><li><a class="lps-meta" href="https://github.com/lps-ufrj-br" rel="external">github.com/lps-ufrj-br</a></li></ul>',
+			),
+		);
+		$cards        = '';
+		foreach ( $channels as $channel ) {
+			$cards .= TrustSurfaces::record_card( $channel );
+		}
+		$html .= TrustSurfaces::editorial_section(
+			'pub-channels',
+			$english ? 'Channels' : 'Canais',
+			$english ? 'Where the output can be consulted' : 'Onde a produção pode ser consultada',
+			'<div class="lps-grid lps-grid--3">' . $cards . '</div>'
+		);
+		$html .= '<section class="lps-section">' . TrustSurfaces::cta_band(
+			$english ? 'A publication feed requires institutional ownership' : 'Um feed de publicações exige responsável institucional',
+			$english
+				? 'Reconciling publication metadata against authoritative sources is migration work, not a design decision. Until then, the laboratory does not publish a list it cannot verify.'
+				: 'Reconciliar metadados de publicações com fontes autoritativas é trabalho de migração, não uma decisão de design. Até lá, o laboratório não publica uma lista que não pode verificar.',
+			array(
+				array(
+					'href'  => self::text( $paths['contact'] ?? '' ),
+					'label' => $english ? 'Contact the laboratory' : 'Fale com o laboratório',
+				),
+			)
+		) . '</section>';
+		return $html;
+	}
+
+	/**
 	 * Returns the localized, human-readable label of one listing filter.
 	 *
 	 * A filter never presents its storage key to a reader: an unmapped key is

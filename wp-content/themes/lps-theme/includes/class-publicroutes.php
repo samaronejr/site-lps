@@ -503,7 +503,7 @@ final class PublicRoutes {
 		}
 		$locale = $route['locale'];
 		if ( 'lps_infrastructure' === $route['post_type'] ) {
-			return PublicSurfaces::infrastructure_page( $locale, self::facilities( $locale ) );
+			return PublicSurfaces::infrastructure_page( $locale, self::facilities( $locale ), self::organization_names_by_kind( $locale ) );
 		}
 		if ( 'lps_organization' === $route['post_type'] ) {
 			return self::render_organizations( $locale, $route['slug'] );
@@ -583,6 +583,31 @@ final class PublicRoutes {
 			}
 		}
 		return $organizations;
+	}
+
+	/**
+	 * Returns public organization names grouped by kind (partners, funders).
+	 *
+	 * @param string $locale Supported locale slug.
+	 * @return array<string, array<int, string>>
+	 */
+	private static function organization_names_by_kind( string $locale ): array {
+		$grouped = array(
+			'partners' => array(),
+			'funders'  => array(),
+		);
+		foreach ( self::organizations( $locale ) as $organization ) {
+			$kind    = self::value( $organization, 'kind' );
+			$name    = self::value( $organization, 'name' );
+			$acronym = self::value( $organization, 'acronym' );
+			if ( 'partner' === $kind && '' !== $name ) {
+				$grouped['partners'][] = $name;
+			}
+			if ( 'funder' === $kind && '' !== $name ) {
+				$grouped['funders'][] = '' !== $acronym ? $acronym : $name;
+			}
+		}
+		return $grouped;
 	}
 
 	/**

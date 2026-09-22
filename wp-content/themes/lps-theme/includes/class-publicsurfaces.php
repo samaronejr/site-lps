@@ -83,7 +83,93 @@ final class PublicSurfaces {
 			}
 			$html .= '</div></section>';
 		}
+		$html .= self::people_epilogue( $locale );
 		$html .= '</div>';
+		return $html;
+	}
+
+	/**
+	 * Renders the band the directory closes with: the team composition cards,
+	 * the review notice, the participation tracks and the hand-off band.
+	 *
+	 * @param string $locale Supported locale slug.
+	 */
+	private static function people_epilogue( string $locale ): string {
+		$english = 'en' === $locale;
+		$cards   = TrustSurfaces::editorial_card(
+			$english ? 'Post-doctoral researchers' : 'Pesquisadores de pós-doutorado',
+			$english
+				? 'The laboratory hosts post-doctoral researchers who take part in the ATLAS, sonar and industry projects, usually with funding from research agencies.'
+				: 'O laboratório recebe pesquisadores de pós-doutorado que participam dos projetos do ATLAS, de sonar e dos projetos com a indústria, normalmente com financiamento de agências de fomento.'
+		);
+		$cards  .= TrustSurfaces::editorial_card(
+			$english ? 'Graduate and undergraduate students' : 'Estudantes de pós-graduação e graduação',
+			$english
+				? 'Master and doctoral students at PEE/COPPE and undergraduate students at Poli/UFRJ develop their research inside the laboratory.'
+				: 'Estudantes de mestrado e doutorado do PEE/COPPE e estudantes de graduação da Poli/UFRJ desenvolvem sua pesquisa dentro do laboratório.'
+		);
+		$html    = TrustSurfaces::editorial_section(
+			'people-team',
+			$english ? 'Team' : 'Equipe',
+			$english ? 'Researchers and students' : 'Pesquisadores e estudantes',
+			'<div class="lps-grid lps-grid--2">' . $cards . '</div>'
+				. '<div class="lps-mt-8">' . TrustSurfaces::alert_band(
+					'warning',
+					$english
+						? 'The public source does not publish a current list of post-doctoral researchers and students, and personal data cannot be published without a documented legal basis and each person\'s agreement.'
+						: 'A fonte pública não publica uma lista atual de pesquisadores de pós-doutorado e estudantes, e dados pessoais não podem ser publicados sem base legal documentada e concordância de cada pessoa.',
+					$english ? 'The full team list is pending review' : 'A lista completa da equipe aguarda revisão'
+				) . '</div>'
+		);
+		$tracks  = array(
+			array(
+				$english ? 'Undergraduate research' : 'Iniciação científica',
+				$english
+					? 'For UFRJ undergraduate students interested in signal processing, machine learning and instrumentation.'
+					: 'Para estudantes de graduação da UFRJ interessados em processamento de sinais, aprendizado de máquina e instrumentação.',
+			),
+			array(
+				$english ? "Master's and doctoral programs" : 'Mestrado e doutorado',
+				$english
+					? 'Selection through the Electrical Engineering Program at COPPE, with supervision available in the Computational Intelligence area.'
+					: 'Seleção pelo Programa de Engenharia Elétrica da COPPE, com possibilidade de orientação na área de Inteligência Computacional.',
+			),
+			array(
+				$english ? 'Junior research initiation' : 'Iniciação científica júnior',
+				$english
+					? 'The laboratory works with secondary and technical students in training activities.'
+					: 'O laboratório atua com estudantes do ensino médio e técnico em atividades de formação.',
+			),
+		);
+		$cards   = '';
+		foreach ( $tracks as $track ) {
+			$cards .= TrustSurfaces::editorial_card( $track[0], $track[1] );
+		}
+		$html .= TrustSurfaces::editorial_section(
+			'people-join',
+			$english ? 'Take part' : 'Participe',
+			$english ? 'Work with the laboratory' : 'Trabalhe com o laboratório',
+			'<div class="lps-grid lps-grid--3">' . $cards . '</div>'
+				. '<p class="lps-mt-6"><a class="lps-more" href="' . self::esc( TrustRoutes::archive_path( 'lps_opportunity', $locale ) ) . '">' . self::esc( $english ? 'Opportunities and how to apply' : 'Oportunidades e como se candidatar' ) . '</a></p>'
+		);
+		$html .= '<section class="lps-section">' . TrustSurfaces::cta_band(
+			$english
+				? 'The professors\' own pages carry their full CVs and course material'
+				: 'As páginas próprias dos professores reúnem currículos e material didático',
+			$english
+				? 'Each professor maintains a public page with their research interests, courses and support material.'
+				: 'Cada professor mantém uma página pública com seus interesses de pesquisa, disciplinas e material de apoio.',
+			array(
+				array(
+					'href'  => 'https://github.com/lps-ufrj-br',
+					'label' => 'GitHub LPS',
+				),
+				array(
+					'href'  => 'https://lattes.cnpq.br/',
+					'label' => 'Lattes CNPq',
+				),
+			)
+		) . '</section>';
 		return $html;
 	}
 
@@ -508,13 +594,61 @@ final class PublicSurfaces {
 	/**
 	 * Renders infrastructure facilities.
 	 *
-	 * @param string             $locale Supported locale slug.
-	 * @param array<mixed,mixed> $facilities Facilities.
+	 * @param string                           $locale        Supported locale slug.
+	 * @param array<mixed,mixed>               $facilities    Facilities.
+	 * @param array<string, array<int,string>> $organizations Organization names grouped by kind.
 	 */
-	public static function infrastructure_page( string $locale, array $facilities ): string {
-		$english  = 'en' === $locale;
-		$articles = '';
-		$index    = 0;
+	public static function infrastructure_page( string $locale, array $facilities, array $organizations = array() ): string {
+		$english   = 'en' === $locale;
+		$html      = '<div class="lps-infra">';
+		$stats     = array(
+			array( 'Caloba', $english ? 'Own HPC cluster (SLURM)' : 'Cluster HPC próprio (SLURM)' ),
+			array( 'CPU + GPU', $english ? 'Compute partitions' : 'Filas de processamento' ),
+			array( 'Singularity', $english ? 'Workload containers' : 'Contêineres para workloads' ),
+			array( $english ? 'Building H, room 220' : 'Bloco H, s. 220', $english ? 'Headquarters at CT' : 'Sede no Centro de Tecnologia' ),
+			array( '310 m²', $english ? 'Room with mezzanine on Bloco H\'s 2nd floor' : 'Sala com mezanino no 2º andar do Bloco H' ),
+			array( '≈40', $english ? 'Interconnected machines (access, processing and GPU)' : 'Máquinas interconectadas (acesso, processamento e GPU)' ),
+		);
+		$stat_band = '<div class="lps-stat-band lps-shadow-none"><ul>';
+		foreach ( $stats as $stat ) {
+			$stat_band .= '<li class="lps-stat"><strong>' . self::esc( $stat[0] ) . '</strong><span>' . self::esc( $stat[1] ) . '</span></li>';
+		}
+		$stat_band   .= '</ul></div>';
+		$capabilities = $english
+			? array(
+				'Digital signal processing and machine learning',
+				'Supervised and unsupervised data modeling',
+				'Caloba multi-node cluster with CPU and GPU partitions managed by SLURM',
+				'Singularity containers and virtualization (Proxmox) for reproducible workloads',
+			)
+			: array(
+				'Processamento digital de sinais e aprendizado de máquina',
+				'Modelagem de dados supervisionada e não supervisionada',
+				'Cluster Caloba multi-nó com partições CPU e GPU gerenciado por SLURM',
+				'Contêineres Singularity e virtualização (Proxmox) para workloads reproduzíveis',
+			);
+		$intro_cards  = TrustSurfaces::editorial_card(
+			$english ? 'Capabilities' : 'Capacidades',
+			implode( ' · ', $capabilities )
+		);
+		$intro_cards .= TrustSurfaces::record_card(
+			array(
+				'title'     => $english ? 'Computing' : 'Computação',
+				'body'      => $english
+					? 'The Caloba cluster — SLURM-managed multi-node compute with CPU and GPU partitions, Singularity containers and Proxmox virtualization — plus Maestro, the laboratory\'s workload-orchestration stack used for high-energy physics jobs.'
+					: 'O cluster Caloba — computação multi-nó gerenciada por SLURM com partições CPU e GPU, contêineres Singularity e virtualização Proxmox — além do Maestro, a pilha de orquestração de workloads do laboratório usada em tarefas de física de altas energias.',
+				'foot_html' => '<ul class="lps-source-list"><li><a class="lps-meta" href="https://lps-ufrj-br.github.io/datacenter/" rel="external">' . self::esc( $english ? 'Datacenter documentation' : 'Documentação do datacenter' ) . '</a></li><li><a class="lps-meta" href="https://lps-ufrj-br.github.io/maestro-lightning/" rel="external">Maestro</a></li></ul>',
+			)
+		);
+		$html        .= TrustSurfaces::editorial_section(
+			'lps-infra-intro',
+			$english ? 'Facilities' : 'Instalações',
+			$english ? 'What the laboratory has' : 'O que o laboratório tem',
+			$stat_band . '<div class="lps-grid lps-grid--2 lps-mt-10">' . $intro_cards . '</div>',
+			true
+		);
+		$articles     = '';
+		$index        = 0;
 		foreach ( $facilities as $facility ) {
 			if ( ! is_array( $facility ) ) {
 				continue;
@@ -565,12 +699,141 @@ final class PublicSurfaces {
 			}
 			$articles .= '</section>';
 		}
-		$html = '<div class="lps-infra">';
 		if ( '' === $articles ) {
 			$html .= '<p class="lps-empty">' . self::esc( $english ? 'No published facilities' : 'Nenhuma infraestrutura publicada' ) . '</p>';
 		}
-		$html .= $articles . '</div>';
+		$html .= $articles;
+		$html .= self::infrastructure_partners_section( $locale, $organizations );
+		$html .= self::infrastructure_collaboration_section( $locale );
+		$html .= self::infrastructure_location_section( $locale );
+		$html .= '</div>';
 		return $html;
+	}
+
+	/**
+	 * Renders the partnerships band: institutions, funders and the documented
+	 * international collaborations as text-logo lists.
+	 *
+	 * @param string                           $locale        Supported locale slug.
+	 * @param array<string, array<int,string>> $organizations Organization names grouped by kind.
+	 */
+	private static function infrastructure_partners_section( string $locale, array $organizations ): string {
+		$english = 'en' === $locale;
+		$inner   = '';
+		$groups  = array(
+			'partners' => $english ? 'Institutions and companies' : 'Instituições e empresas',
+			'funders'  => $english ? 'Funding agencies' : 'Agências de fomento',
+		);
+		$first   = true;
+		foreach ( $groups as $kind => $label ) {
+			$names = $organizations[ $kind ] ?? array();
+			if ( array() === $names ) {
+				continue;
+			}
+			$inner .= '<h3 class="lps-kicker' . ( $first ? '' : ' lps-mt-8' ) . '">' . self::esc( $label ) . '</h3>';
+			$inner .= '<ul class="lps-logo-band">';
+			foreach ( $names as $name ) {
+				$name = self::text( $name );
+				if ( '' !== $name ) {
+					$inner .= '<li>' . self::esc( $name ) . '</li>';
+				}
+			}
+			$inner .= '</ul>';
+			$first  = false;
+		}
+		$inner .= '<h3 class="lps-kicker' . ( $first ? '' : ' lps-mt-8' ) . '">' . self::esc( $english ? 'International collaboration' : 'Colaboração internacional' ) . '</h3>';
+		$inner .= '<ul class="lps-logo-band"><li>CERN · ATLAS</li><li>' . self::esc( $english ? 'Brazilian Navy · Navy Research Institute' : 'Marinha do Brasil · Instituto de Pesquisas da Marinha' ) . '</li></ul>';
+		return TrustSurfaces::editorial_section(
+			'parcerias',
+			$english ? 'Partnerships' : 'Parcerias',
+			$english ? 'Who the laboratory works with' : 'Com quem o laboratório trabalha',
+			$inner,
+			false,
+			null,
+			$english
+				? 'Companies, funding agencies and international collaborations documented on the laboratory\'s public pages.'
+				: 'Empresas, agências de fomento e colaborações internacionais documentadas nas páginas públicas do laboratório.'
+		);
+	}
+
+	/**
+	 * Renders the three numbered collaboration cards.
+	 *
+	 * @param string $locale Supported locale slug.
+	 */
+	private static function infrastructure_collaboration_section( string $locale ): string {
+		$english = 'en' === $locale;
+		$items   = array(
+			array(
+				$english ? 'Contract research and R&D' : 'Pesquisa contratada e P&D',
+				$english
+					? 'High-relevance projects with companies, advancing the innovation capacity of national industry.'
+					: 'Projetos de alta relevância com empresas, avançando a capacidade de produção da indústria nacional com inovação.',
+			),
+			array(
+				$english ? 'Talent development' : 'Formação de pessoal',
+				$english
+					? 'LPS graduates meet labour-market demands with high qualification; technology-based companies have been created within the laboratory.'
+					: 'Egressos do LPS atendem às demandas do mercado de trabalho com alta qualificação; empresas de base tecnológica foram criadas no âmbito do laboratório.',
+			),
+			array(
+				$english ? 'International cooperation' : 'Cooperação internacional',
+				$english
+					? 'Collaborations with researchers in energy, experimental high-energy physics, quantum computing, defence, medicine and data quality.'
+					: 'Colaborações com pesquisadores de energia, física experimental de altas energias, computação quântica, defesa, medicina e qualidade de dados.',
+			),
+		);
+		$cards   = '';
+		foreach ( $items as $index => $item ) {
+			$cards .= TrustSurfaces::record_card(
+				array(
+					'title'    => $item[0],
+					'body'     => $item[1],
+					'numbered' => sprintf( '%02d', $index + 1 ),
+				)
+			);
+		}
+		return TrustSurfaces::editorial_section(
+			'lps-infra-collaboration',
+			$english ? 'Collaborate' : 'Colabore',
+			$english ? 'Three ways to work with the laboratory' : 'Três formas de trabalhar com o laboratório',
+			'<div class="lps-grid lps-grid--3">' . $cards . '</div>'
+		);
+	}
+
+	/**
+	 * Renders the visit split: documented address facts beside the
+	 * technical-visit card.
+	 *
+	 * @param string $locale Supported locale slug.
+	 */
+	private static function infrastructure_location_section( string $locale ): string {
+		$english = 'en' === $locale;
+		$facts   = '<dl class="lps-facts">'
+			. '<dt>' . self::esc( $english ? 'Address' : 'Endereço' ) . '</dt><dd>' . self::esc( 'Av. Athos da Silveira Ramos, 149' ) . '</dd>'
+			. '<dt>' . self::esc( $english ? 'Building' : 'Bloco' ) . '</dt><dd>' . self::esc( $english ? 'Technology Centre, Building H — Ilha do Fundão' : 'Centro de Tecnologia, Bloco H — Ilha do Fundão' ) . '</dd>'
+			. '<dt>' . self::esc( 'CEP' ) . '</dt><dd>' . self::esc( '21941-914 — Rio de Janeiro/RJ' ) . '</dd>'
+			. '<dt>' . self::esc( $english ? 'Telephone' : 'Telefone' ) . '</dt><dd>' . self::esc( '(21) 3938-8205 (' . ( $english ? 'Extension 8205' : 'Ramal 8205' ) . ')' ) . '</dd>'
+			. '<dt>' . self::esc( $english ? 'Office' : 'Secretaria' ) . '</dt><dd><a href="mailto:secretaria@lps.ufrj.br">' . self::esc( 'secretaria@lps.ufrj.br' ) . '</a></dd>'
+			. '</dl>';
+		$visit   = TrustSurfaces::record_card(
+			array(
+				'title'  => $english ? 'Technical visits and meetings' : 'Visitas técnicas e reuniões',
+				'body'   => $english
+					? 'The laboratory has a lecture and meeting room and receives technical visits by appointment. Requests go through the laboratory office.'
+					: 'O laboratório dispõe de sala de palestras e reuniões e recebe visitas técnicas com agendamento. Os pedidos são feitos pela secretaria do laboratório.',
+				'action' => array(
+					'href'  => TrustRoutes::page_path( 'contact', $locale ),
+					'label' => $english ? 'Request a visit' : 'Solicitar visita',
+				),
+			)
+		);
+		return TrustSurfaces::editorial_section(
+			'lps-infra-location',
+			$english ? 'Location' : 'Localização',
+			$english ? 'Visit the laboratory' : 'Visite o laboratório',
+			'<div class="lps-split"><div>' . $facts . '</div><div>' . $visit . '</div></div>'
+		);
 	}
 
 	/**
