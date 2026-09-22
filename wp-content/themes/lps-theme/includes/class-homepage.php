@@ -13,6 +13,7 @@ use LPS\ContentModel\Media;
 use LPS\ContentModel\MediaPolicy;
 use LPS\ContentModel\PublicationPolicy;
 use LPS\ContentModel\PublicationRecords;
+use LPS\ContentModel\Relationships;
 use LPS\ContentModel\Translations;
 use WP_Post;
 
@@ -307,7 +308,7 @@ final class Homepage {
 			return array();
 		}
 		$meta = array();
-		foreach ( array( 'record_id', 'import_source_id', 'import_review_state', 'state', 'review_date', 'page_key', 'canonical_task', 'public_profile', 'featured_until', 'starts_at', 'ends_at', 'event_status', 'venue', 'canonical_date', 'publication_date' ) as $field ) {
+		foreach ( array( 'record_id', 'import_source_id', 'import_source_url', 'import_review_state', 'state', 'review_date', 'page_key', 'canonical_task', 'public_profile', 'featured_until', 'starts_at', 'ends_at', 'event_status', 'venue', 'canonical_date', 'publication_date' ) as $field ) {
 			$meta[ '_lps_' . $field ] = get_post_meta( $post_id, '_lps_' . $field, true );
 		}
 		$meta     = Translations::merge_shared_meta( $post->post_type, $post_id, $meta );
@@ -317,24 +318,26 @@ final class Homepage {
 			$meta,
 			$decision,
 			array(
-				'type'           => $post->post_type,
-				'title'          => $post->post_title,
-				'summary'        => $post->post_excerpt,
-				'url'            => get_permalink( $post_id ),
-				'record_id'      => $meta['_lps_record_id'],
-				'source_id'      => class_exists( PublicationPolicy::class ) ? PublicationPolicy::provenance_id( array_merge( $meta, $decision ) ) : '',
-				'status'         => $post->post_status,
-				'state'          => $meta['_lps_state'],
-				'locale'         => $locale,
-				'stale'          => ! empty( $decision['stale'] ),
-				'review_date'    => $meta['_lps_review_date'],
-				'page_key'       => 'collaboration' === $meta['_lps_page_key'] ? 'collaborate' : $meta['_lps_page_key'],
-				'cta'            => $meta['_lps_canonical_task'],
-				'featured_until' => 'lps_event' === $post->post_type ? substr( self::text( $meta['_lps_ends_at'] ), 0, 10 ) : $meta['_lps_featured_until'],
-				'date'           => self::text( 'lps_event' === $post->post_type ? $meta['_lps_starts_at'] : ( 'lps_publication' === $post->post_type ? $meta['_lps_publication_date'] : $meta['_lps_canonical_date'] ) ),
-				'event_status'   => self::text( $meta['_lps_event_status'] ),
-				'venue'          => self::text( $meta['_lps_venue'] ),
-				'media'          => Media::record_image( $post ),
+				'type'              => $post->post_type,
+				'title'             => $post->post_title,
+				'summary'           => $post->post_excerpt,
+				'url'               => get_permalink( $post_id ),
+				'record_id'         => $meta['_lps_record_id'],
+				'source_id'         => class_exists( PublicationPolicy::class ) ? PublicationPolicy::provenance_id( array_merge( $meta, $decision ) ) : '',
+				'status'            => $post->post_status,
+				'state'             => $meta['_lps_state'],
+				'locale'            => $locale,
+				'post_id'           => $post_id,
+				'import_source_url' => self::text( $meta['_lps_import_source_url'] ),
+				'stale'             => ! empty( $decision['stale'] ),
+				'review_date'       => $meta['_lps_review_date'],
+				'page_key'          => 'collaboration' === $meta['_lps_page_key'] ? 'collaborate' : $meta['_lps_page_key'],
+				'cta'               => $meta['_lps_canonical_task'],
+				'featured_until'    => 'lps_event' === $post->post_type ? substr( self::text( $meta['_lps_ends_at'] ), 0, 10 ) : $meta['_lps_featured_until'],
+				'date'              => self::text( 'lps_event' === $post->post_type ? $meta['_lps_starts_at'] : ( 'lps_publication' === $post->post_type ? $meta['_lps_publication_date'] : $meta['_lps_canonical_date'] ) ),
+				'event_status'      => self::text( $meta['_lps_event_status'] ),
+				'venue'             => self::text( $meta['_lps_venue'] ),
+				'media'             => Media::record_image( $post ),
 			)
 		);
 	}
@@ -397,11 +400,11 @@ final class Homepage {
 	public static function section_markup( string $section, string $locale, array $records, string $today ): string {
 		$sections = array(
 			'mission'  => array( 'LPS', 'LPS' ),
+			'journeys' => array( 'Take part in LPS', 'Participe do LPS' ),
 			'research' => array( 'Research', 'Pesquisa' ),
-			'latest'   => array( 'Publications, news and events', 'Publicações, notícias e eventos' ),
 			'teaching' => array( 'Teaching', 'Ensino' ),
 			'people'   => array( 'People', 'Pessoas' ),
-			'journeys' => array( 'Take part in LPS', 'Participe do LPS' ),
+			'latest'   => array( 'Publications, news and events', 'Publicações, notícias e eventos' ),
 			'partners' => array( 'Partners and funders', 'Parceiros e financiadores' ),
 		);
 		$strata   = array(
@@ -413,62 +416,119 @@ final class Homepage {
 		if ( ! isset( $sections[ $section ] ) ) {
 			return '';
 		}
-		$english = 'en' === $locale;
-		$heading = $sections[ $section ][ $english ? 0 : 1 ];
-		$html    = '<section data-home-section="' . $section . '" class="lps-home-section" aria-labelledby="lps-home-' . $section . '">';
-		$items   = array_values( array_filter( $records, static fn( array $record ): bool => self::reviewed_feature( $record, $locale, $today ) ) );
+		$items = array_values( array_filter( $records, static fn( array $record ): bool => self::reviewed_feature( $record, $locale, $today ) ) );
 		if ( 'mission' === $section ) {
-			return self::mission_module( $html, $items, $locale );
+			return self::mission_module( $items, $locale );
 		}
 		if ( 'journeys' === $section ) {
-			return self::journeys_module( $html, $heading, $items, $locale );
+			return self::journeys_module( $items, $locale );
 		}
 		if ( 'teaching' === $section ) {
-			return self::teaching_module( $html, $heading, $locale );
+			return self::teaching_module( $locale );
 		}
 		if ( 'research' === $section ) {
-			return self::research_module( $html, $heading, $items, $locale, $today, $strata );
+			return self::research_module( $items, $locale, $today );
 		}
 		if ( 'partners' === $section ) {
-			return self::partners_module( $html, $heading, $items, $locale, $strata['contact'][ $english ? 0 : 1 ] );
+			return self::partners_module( $items, $locale );
 		}
 		if ( 'latest' === $section ) {
-			return self::latest_module( $html, $heading, $items, $locale );
+			return self::latest_module( $items, $locale );
 		}
-		return self::people_module( $html, $heading, $items, $locale );
+		return self::people_module( $items, $locale );
 	}
 
 	/**
-	 * Renders the mission feature: H1 statement, deck, primary links and media.
+	 * Renders the mission feature as the hero band plus the stat band.
 	 *
-	 * The two primary links are informational entrances pinned by the plan's
-	 * first-viewport contract; they render even when the mission record is
-	 * absent. A missing or unreviewed feature image degrades to the text
-	 * layout — never a broken-image box.
+	 * The kicker, display title, support list and stats are informational
+	 * constants pinned by the plan's first-viewport contract; the governed
+	 * mission record supplies the lead deck when it is present. The two
+	 * primary links are informational entrances that render even when the
+	 * mission record is absent; a missing record shows the not-published
+	 * notice instead of a fabricated lead.
 	 *
-	 * @param string                           $html    Opened section tag.
 	 * @param array<int, array<string, mixed>> $items   Reviewed snapshot.
 	 * @param string                           $locale  Supported locale.
 	 */
-	private static function mission_module( string $html, array $items, string $locale ): string {
-		$items = array_slice( array_values( array_filter( $items, static fn( array $record ): bool => ( $record['section'] ?? '' ) === 'mission' ) ), 0, 1 );
-		if ( ! isset( $items[0] ) ) {
-			return $html . '<h1 id="lps-home-mission">LPS</h1>' . self::primary_links_markup( $locale ) . self::empty_notice( 'mission', $locale ) . '</section>';
+	private static function mission_module( array $items, string $locale ): string {
+		$english = 'en' === $locale;
+		$items   = array_slice( array_values( array_filter( $items, static fn( array $record ): bool => ( $record['section'] ?? '' ) === 'mission' ) ), 0, 1 );
+		$record  = $items[0] ?? null;
+		$source  = null !== $record ? ' data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '"' : '';
+		$kicker  = $english ? 'Signal Processing Laboratory · UFRJ/COPPE' : 'Laboratório de Processamento de Sinais · UFRJ/COPPE';
+		$title   = $english ? 'Signals, data and computational intelligence in the service of engineering' : 'Sinais, dados e inteligência computacional a serviço da engenharia';
+		$accent  = $english ? 'computational intelligence' : 'inteligência computacional';
+		$title   = str_replace( $accent, '<span class="lps-hero-accent">' . $accent . '</span>', $title );
+		$lead    = null !== $record ? trim( self::text( $record['summary'] ?? '' ) ) : '';
+		if ( '' === $lead ) {
+			$lead = $english
+				? 'Founded in 1996, LPS brings together teaching, research and extension work at COPPE/UFRJ. We research signal processing, machine learning and software engineering applied to energy, defence, medicine, oil and gas, and experimental high-energy physics.'
+				: 'Fundado em 1996, o LPS reúne ensino, pesquisa e extensão na COPPE/UFRJ. Pesquisamos processamento de sinais, aprendizado de máquina e engenharia de software aplicados a energia, defesa, medicina, óleo e gás e física experimental de altas energias.';
 		}
-		$record  = $items[0];
-		$html    = str_replace( ' class="lps-home-section"', ' data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '" class="lps-home-section"', $html );
-		$html   .= '<article class="lps-record" data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '" data-record-id="' . self::escape( self::text( $record['record_id'] ?? '' ) ) . '">';
-		$html   .= '<h1 id="lps-home-mission">' . self::escape( self::text( $record['title'] ) ) . '</h1>';
-		$summary = trim( self::text( $record['summary'] ?? '' ) );
-		if ( '' !== $summary ) {
-			$html .= '<p>' . self::escape( $summary ) . '</p>';
+		$html  = '<section data-home-section="mission"' . $source . ' aria-labelledby="lps-home-mission">';
+		$html .= '<div class="lps-hero"><div class="lps-hero-inner lps-page-grid"><div>'
+			. '<p class="lps-kicker">' . self::escape( $kicker ) . '</p>'
+			. '<h1 class="lps-hero-title" id="lps-home-mission">' . $title . '</h1>'
+			. '<p class="lps-hero-lead">' . self::escape( $lead ) . '</p>'
+			. self::primary_links_markup( $locale )
+			. '</div><div class="lps-hero-support"><h2>' . self::escape( $english ? 'What the laboratory does' : 'O que o laboratório faz' ) . '</h2><ul>';
+		foreach ( self::hero_support_items( $locale ) as $item ) {
+			$html .= '<li><span>' . self::escape( $item ) . '</span></li>';
 		}
-		$html .= self::primary_links_markup( $locale );
-		$cta   = trim( self::text( $record['cta'] ?? '' ) );
-		if ( '' !== $cta ) {
-			$html .= '<p><a class="lps-button" href="' . self::escape( self::text( $record['url'] ) ) . '">' . self::escape( $cta ) . '</a></p>';
+		$html .= '</ul></div></div></div>';
+		if ( null === $record ) {
+			$html .= '<div class="lps-page-grid">' . self::empty_notice( 'mission', $locale ) . '</div>';
 		}
-		return $html . '</article>' . self::feature_media_markup( $record, $locale, 'hero' ) . '</section>';
+		return $html . self::stat_band_markup( $locale ) . '</section>';
+	}
+
+	/**
+	 * Returns the localized hero support bullets.
+	 *
+	 * @param string $locale Supported locale.
+	 * @return array<int, string>
+	 */
+	private static function hero_support_items( string $locale ): array {
+		return 'en' === $locale
+			? array(
+				'Research in signal processing and computational intelligence at COPPE/UFRJ',
+				'Online filtering and event simulation in the ATLAS experiment at CERN',
+				'Passive sonar and underwater acoustics with the Brazilian Navy',
+				'Applied projects with industry, from prototype to operation',
+			)
+			: array(
+				'Pesquisa em processamento de sinais e inteligência computacional na COPPE/UFRJ',
+				'Filtragem online e simulação de eventos no experimento ATLAS, no CERN',
+				'Sonar passivo e acústica submarina com a Marinha do Brasil',
+				'Projetos aplicados com a indústria, do protótipo à operação',
+			);
+	}
+
+	/**
+	 * Renders the institutional stat band under the hero.
+	 *
+	 * @param string $locale Supported locale.
+	 */
+	private static function stat_band_markup( string $locale ): string {
+		$stats = 'en' === $locale
+			? array(
+				array( '1996', 'Founded' ),
+				array( '4', 'Full-time professors' ),
+				array( '310 m²', 'Facilities in Building H' ),
+				array( '1988', 'UFRJ–CERN collaboration' ),
+			)
+			: array(
+				array( '1996', 'Ano de fundação' ),
+				array( '4', 'Professores em tempo integral' ),
+				array( '310 m²', 'Instalações no Bloco H' ),
+				array( '1988', 'Colaboração UFRJ–CERN' ),
+			);
+		$html  = '<div class="lps-stat-band"><ul class="lps-page-grid">';
+		foreach ( $stats as $stat ) {
+			$html .= '<li class="lps-stat"><strong>' . self::escape( $stat[0] ) . '</strong><span>' . self::escape( $stat[1] ) . '</span></li>';
+		}
+		return $html . '</ul></div>';
 	}
 
 	/**
@@ -477,338 +537,678 @@ final class Homepage {
 	 * @param string $locale Supported locale.
 	 */
 	private static function primary_links_markup( string $locale ): string {
-		$html = '<p class="lps-home-actions">';
-		foreach ( self::primary_links( $locale ) as $link ) {
-			$html .= '<a class="lps-button" data-home-action="' . $link['key'] . '" href="' . self::escape( $link['url'] ) . '">' . self::escape( $link['label'] ) . '</a> ';
+		$html     = '<div class="lps-hero-actions">';
+		$variants = array( 'lps-button-primary', 'lps-button-ghost' );
+		foreach ( self::primary_links( $locale ) as $index => $link ) {
+			$variant = $variants[ $index ] ?? 'lps-button-ghost';
+			$html   .= '<a class="lps-button ' . $variant . '" data-home-action="' . $link['key'] . '" href="' . self::escape( $link['url'] ) . '">' . self::escape( $link['label'] ) . '</a>';
 		}
-		return $html . '</p>';
+		return $html . '</div>';
 	}
 
 	/**
-	 * Renders the three audience journeys as one action band.
+	 * Renders the three audience journeys as journey cards.
 	 *
-	 * @param string                           $html    Opened section tag.
-	 * @param string                           $heading Localized module heading.
 	 * @param array<int, array<string, mixed>> $items   Reviewed snapshot.
 	 * @param string                           $locale  Supported locale.
 	 */
-	private static function journeys_module( string $html, string $heading, array $items, string $locale ): string {
+	private static function journeys_module( array $items, string $locale ): string {
 		$english = 'en' === $locale;
-		$html   .= '<h2 id="lps-home-journeys">' . self::escape( $heading ) . '</h2><ul class="lps-home-journeys">';
+		$copy    = array(
+			'opportunities'  => $english
+				? array( 'COPPE · PEE · Poli', 'Join LPS', 'Research initiation, graduate programs and post-doctoral work in signal processing and computational intelligence.' )
+				: array( 'COPPE · PEE · Poli', 'Junte-se ao LPS', 'Iniciação científica, pós-graduação e pós-doutorado em processamento de sinais e inteligência computacional.' ),
+			'collaborate'    => $english
+				? array( 'R&D · consulting', 'Collaborate', 'Contract research, R&D projects and workforce development with industry and public bodies.' )
+				: array( 'P&D · consultoria', 'Colabore', 'Pesquisa contratada, projetos de P&D e formação de pessoal com a indústria e órgãos públicos.' ),
+			'infrastructure' => $english
+				? array( 'Partnerships', 'Partner', 'Facilities, laboratories and institutional channels for joint projects.' )
+				: array( 'Parcerias', 'Seja parceiro', 'Instalações, laboratórios e canais institucionais para projetos conjuntos.' ),
+		);
+		$html    = '<section id="percurso" class="lps-section" data-home-section="journeys" aria-labelledby="home-journeys"><div class="lps-page-grid">'
+			. self::section_head_markup( 'journeys', 'home-journeys', $locale )
+			. '<ul class="lps-home-journeys">';
 		foreach ( self::journeys( $locale ) as $journey ) {
+			$text    = $copy[ $journey['page_key'] ] ?? array( '', $journey['label'], '' );
 			$matches = array_values( array_filter( $items, static fn( array $record ): bool => ( $record['page_key'] ?? '' ) === $journey['page_key'] && '' !== trim( self::text( $record['cta'] ?? '' ) ) ) );
-			$html   .= '<li><span class="lps-journey-label">' . self::escape( $journey['label'] ) . '</span>';
+			$html   .= '<li class="lps-journey"><span class="lps-journey-label">' . self::escape( $text[0] ) . '</span><h3>' . self::escape( $text[1] ) . '</h3><p>' . self::escape( $text[2] ) . '</p>';
 			if ( isset( $matches[0] ) ) {
 				$record = $matches[0];
-				$html  .= '<a class="lps-button" data-home-journey="' . $journey['page_key'] . '" data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '" href="' . self::escape( self::text( $record['url'] ) ) . '">' . self::escape( self::text( $record['cta'] ) ) . '</a>';
+				$html  .= '<a class="lps-more" data-home-journey="' . $journey['page_key'] . '" data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '" href="' . self::escape( $journey['url'] ) . '">' . self::escape( self::text( $record['cta'] ) ) . '</a>';
 			} else {
 				$html .= '<span aria-disabled="true">' . ( $english ? 'Information not published' : 'Informações não publicadas' ) . '</span>';
 			}
 			$html .= '</li>';
 		}
-		return $html . '</ul></section>';
+		return $html . '</ul></div></section>';
 	}
 
 	/**
 	 * Renders the research module: linked areas plus the projects, evidence,
 	 * and infrastructure strata in one band.
 	 *
-	 * @param string                                     $html    Opened section tag.
-	 * @param string                                     $heading Localized module heading.
-	 * @param array<int, array<string, mixed>>           $items   Reviewed snapshot.
-	 * @param string                                     $locale  Supported locale.
-	 * @param string                                     $today   Institutional date.
-	 * @param array<string, array{0: string, 1: string}> $strata  Localized stratum headings.
+	 * @param array<int, array<string, mixed>> $items  Reviewed snapshot.
+	 * @param string                           $locale Supported locale.
+	 * @param string                           $today  Institutional date.
 	 */
-	private static function research_module( string $html, string $heading, array $items, string $locale, string $today, array $strata ): string {
-		$english = 'en' === $locale;
-		$areas   = array_slice( array_values( array_filter( $items, static fn( array $record ): bool => ( $record['section'] ?? '' ) === 'research' ) ), 0, 4 );
-		$groups  = array(
+	private static function research_module( array $items, string $locale, string $today ): string {
+		$areas  = array_slice( array_values( array_filter( $items, static fn( array $record ): bool => ( $record['section'] ?? '' ) === 'research' ) ), 0, 6 );
+		$groups = array(
 			'projects'       => self::select_features( array_values( array_filter( $items, static fn( array $record ): bool => ( $record['section'] ?? '' ) === 'projects' ) ), $locale, $today ),
-			'evidence'       => array_slice( array_values( array_filter( $items, static fn( array $record ): bool => ( $record['section'] ?? '' ) === 'evidence' ) ), 0, 4 ),
-			'infrastructure' => array_slice( array_values( array_filter( $items, static fn( array $record ): bool => ( $record['section'] ?? '' ) === 'infrastructure' ) ), 0, 4 ),
+			'evidence'       => array_slice( array_values( array_filter( $items, static fn( array $record ): bool => ( $record['section'] ?? '' ) === 'evidence' ) ), 0, 3 ),
+			'infrastructure' => array_slice( array_values( array_filter( $items, static fn( array $record ): bool => ( $record['section'] ?? '' ) === 'infrastructure' ) ), 0, 3 ),
 		);
-		$groups  = array_filter( $groups, static fn( array $records ): bool => array() !== $records );
+		$groups = array_filter( $groups, static fn( array $records ): bool => array() !== $records );
 		if ( array() === $areas && array() === $groups ) {
 			return '';
 		}
-		$body = '';
+		$html = '';
 		if ( array() !== $areas ) {
-			$body .= '<h2 id="lps-home-research">' . self::escape( $heading ) . '</h2>';
+			$cards = '';
 			foreach ( $areas as $record ) {
-				$body .= self::record_markup( $record, $locale );
+				$cards .= self::feature_card_markup( $record, $locale, true, '' );
 			}
+			$html .= self::card_section_markup( 'pesquisa', 'research', 'lps-section--tint', $locale, $cards );
 		}
-		$first = array() === $areas;
 		foreach ( $groups as $key => $records ) {
-			$level = $first ? 'h2' : 'h3';
-			$inner = array() === $areas || $first ? 'h3' : 'h4';
-			$body .= '<section class="lps-home-stratum" data-home-section="' . $key . '" aria-labelledby="lps-home-' . $key . '"><' . $level . ' class="lps-kicker" id="lps-home-' . $key . '">' . self::escape( $strata[ $key ][ $english ? 0 : 1 ] ) . '</' . $level . '>';
+			$cards = '';
 			foreach ( $records as $record ) {
-				$meta  = 'evidence' === $key ? self::provenance_meta( $record, $locale ) : '';
-				$body .= self::record_markup( $record, $locale, $meta, $inner, 'projects' === $key || 'infrastructure' === $key );
+				$cards .= self::feature_card_markup( $record, $locale, false, self::card_foot_meta( $record, $key, $locale ) );
 			}
-			$body .= '</section>';
-			$first = false;
+			$anchor = 'projects' === $key ? 'projetos' : $key;
+			$html  .= self::card_section_markup( $anchor, $key, '', $locale, $cards );
 		}
-		if ( array() === $areas ) {
-			// A lone stratum carries the module: its heading is promoted to h2
-			// and names the section so headings stay sequential.
-			$first_key = (string) array_key_first( $groups );
-			$html      = str_replace( 'aria-labelledby="lps-home-research"', 'aria-labelledby="lps-home-' . $first_key . '"', $html );
+		return $html;
+	}
+
+	/**
+	 * Wraps one card grid in its named section band with a section head.
+	 *
+	 * @param string $anchor   Section anchor id, empty to skip.
+	 * @param string $key      Section copy key and data-home-section value.
+	 * @param string $modifier Extra lps-section modifier class, or empty.
+	 * @param string $locale   Supported locale.
+	 * @param string $cards    Pre-built card markup.
+	 */
+	private static function card_section_markup( string $anchor, string $key, string $modifier, string $locale, string $cards ): string {
+		$id = '' !== $anchor ? ' id="' . $anchor . '"' : '';
+		return '<section' . $id . ' class="lps-section' . ( '' !== $modifier ? ' ' . $modifier : '' ) . '" data-home-section="' . $key . '" aria-labelledby="home-' . $key . '"><div class="lps-page-grid">'
+			. self::section_head_markup( $key, 'home-' . $key, $locale )
+			. '<div class="lps-grid lps-grid--3">' . $cards . '</div></div></section>';
+	}
+
+	/**
+	 * Renders one record as a showcase card.
+	 *
+	 * Accent cards (research areas) render their title unlinked and carry no
+	 * media plate; standard cards (projects, evidence, infrastructure) render
+	 * a decorative media plate, a linked title, topic chips and an optional
+	 * foot line.
+	 *
+	 * @param array<string, mixed> $record     CMS record.
+	 * @param string               $locale     Supported locale.
+	 * @param bool                 $accent     Whether the card is an accent card.
+	 * @param string               $foot_meta  Foot line text, empty to omit.
+	 */
+	private static function feature_card_markup( array $record, string $locale, bool $accent, string $foot_meta ): string {
+		$html = '<article class="lps-card' . ( $accent ? ' lps-card--accent' : '' ) . '" data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '" data-record-id="' . self::escape( self::text( $record['record_id'] ?? '' ) ) . '">';
+		if ( ! $accent ) {
+			$html .= '<div class="lps-card-media" aria-hidden="true"></div>';
 		}
-		return $html . $body . '</section>';
+		$html .= '<div class="lps-card-body"><h3 class="lps-card-title">';
+		$title = self::escape( self::text( $record['title'] ) );
+		if ( $accent ) {
+			$html .= $title;
+		} else {
+			$html .= '<a href="' . self::escape( self::text( $record['url'] ) ) . '">' . $title . '</a>';
+		}
+		$html   .= '</h3>';
+		$summary = trim( self::text( $record['summary'] ?? '' ) );
+		if ( '' !== $summary ) {
+			$html .= '<p>' . self::escape( $summary ) . '</p>';
+		}
+		$topics = self::record_topics( $record );
+		if ( array() !== $topics ) {
+			$html .= '<ul class="lps-term-token">';
+			foreach ( $topics as $topic ) {
+				$html .= '<li>' . self::escape( $topic ) . '</li>';
+			}
+			$html .= '</ul>';
+		}
+		$html .= '</div>';
+		if ( '' !== $foot_meta ) {
+			$html .= '<div class="lps-card-foot"><span class="lps-meta">' . self::escape( $foot_meta ) . '</span></div>';
+		}
+		return $html . '</article>';
+	}
+
+	/**
+	 * Returns the foot line of a stratum card: project status or provenance.
+	 *
+	 * @param array<string, mixed> $record CMS record.
+	 * @param string               $key    Stratum key.
+	 * @param string               $locale Supported locale.
+	 */
+	private static function card_foot_meta( array $record, string $key, string $locale ): string {
+		if ( 'projects' === $key ) {
+			$post_id = self::num( $record['post_id'] ?? 0 );
+			$status  = 0 < $post_id ? self::text( get_post_meta( $post_id, '_lps_project_status', true ) ) : '';
+			$english = 'en' === $locale;
+			$labels  = array(
+				'active'    => $english ? 'Ongoing' : 'Em andamento',
+				'completed' => $english ? 'Completed' : 'Concluído',
+				'paused'    => $english ? 'Paused' : 'Pausado',
+				'planned'   => $english ? 'Planned' : 'Planejado',
+			);
+			return $labels[ $status ] ?? ( $english ? 'Ongoing' : 'Em andamento' );
+		}
+		return '';
+	}
+
+	/**
+	 * Reads a record's governed topic list.
+	 *
+	 * @param array<string, mixed> $record CMS record.
+	 * @return array<int, string>
+	 */
+	private static function record_topics( array $record ): array {
+		$post_id = self::num( $record['post_id'] ?? 0 );
+		if ( 0 === $post_id || ! function_exists( 'get_post_meta' ) ) {
+			return array();
+		}
+		$topics = get_post_meta( $post_id, '_lps_topics', true );
+		if ( ! is_array( $topics ) ) {
+			return array();
+		}
+		return array_values( array_filter( array_map( static fn( $topic ): string => trim( self::text( $topic ) ), $topics ) ) );
 	}
 
 	/**
 	 * Renders the differentiated latest module: one featured record with its
 	 * media slot, then dated rows, then the archive entrance.
 	 *
-	 * @param string                           $html    Opened section tag.
-	 * @param string                           $heading Localized module heading.
-	 * @param array<int, array<string, mixed>> $items   Reviewed snapshot.
-	 * @param string                           $locale  Supported locale.
+	 * @param array<int, array<string, mixed>> $items  Reviewed snapshot.
+	 * @param string                           $locale Supported locale.
 	 */
-	private static function latest_module( string $html, string $heading, array $items, string $locale ): string {
+	private static function latest_module( array $items, string $locale ): string {
 		$items = array_values( array_filter( $items, static fn( array $record ): bool => ( $record['section'] ?? '' ) === 'latest' ) );
 		if ( array() === $items ) {
 			return '';
 		}
 		usort( $items, static fn( array $left, array $right ): int => strcmp( self::text( $right['date'] ?? '' ), self::text( $left['date'] ?? '' ) ) );
-		$items = array_slice( $items, 0, 4 );
-		$html .= '<h2 id="lps-home-latest">' . self::escape( $heading ) . '</h2>';
-		foreach ( $items as $index => $record ) {
-			$featured = 0 === $index;
-			$meta     = self::dated_meta( $record, $locale );
-			$row      = self::record_markup( $record, $locale, $meta, 'h3', $featured );
-			if ( $featured ) {
-				$row = str_replace( 'class="lps-record"', 'class="lps-record lps-record--featured"', $row );
-			}
-			$html .= $row;
+		$items  = array_slice( $items, 0, 4 );
+		$agenda = '';
+		foreach ( $items as $record ) {
+			$agenda .= self::agenda_item_markup( $record, $locale );
 		}
-		$label = 'en' === $locale ? 'All news and events' : 'Todas as notícias e eventos';
-		$url   = 'en' === $locale ? '/en/news/' : '/pt-br/noticias/';
-		return $html . '<p class="lps-home-links"><a href="' . self::escape( $url ) . '">' . self::escape( $label ) . '</a></p></section>';
+		return '<section id="noticias" class="lps-section lps-section--tint" data-home-section="latest" aria-labelledby="home-latest"><div class="lps-page-grid">'
+			. self::section_head_markup( 'latest', 'home-latest', $locale )
+			. '<ol class="lps-agenda">' . $agenda . '</ol></div></section>';
 	}
 
 	/**
-	 * Renders the compact teaching entrance.
+	 * Renders one dated record as an agenda row.
+	 *
+	 * The date tile prints the record's year — the shared period granularity
+	 * across news, events and publications — with the localized record-type
+	 * label beneath. Imported records keep their provenance line.
+	 *
+	 * @param array<string, mixed> $record CMS record.
+	 * @param string               $locale Supported locale.
+	 */
+	private static function agenda_item_markup( array $record, string $locale ): string {
+		$english = 'en' === $locale;
+		$date    = trim( self::text( $record['date'] ?? '' ) );
+		$year    = '' !== $date ? substr( $date, 0, 4 ) : '';
+		$types   = array(
+			'lps_news'        => $english ? 'News' : 'Notícia',
+			'lps_event'       => $english ? 'Event' : 'Evento',
+			'lps_publication' => $english ? 'Publication' : 'Publicação',
+		);
+		$type    = $types[ self::text( $record['type'] ?? '' ) ] ?? '';
+		if ( 'lps_event' === ( $record['type'] ?? '' ) ) {
+			$states = array(
+				'cancelled' => $english ? 'Cancelled' : 'Cancelado',
+				'postponed' => $english ? 'Postponed' : 'Adiado',
+			);
+			$state  = $states[ self::text( $record['event_status'] ?? '' ) ] ?? '';
+			$type   = '' !== $state && '' !== $type ? $type . ' · ' . $state : $type;
+		}
+		$html    = '<li data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '" data-record-id="' . self::escape( self::text( $record['record_id'] ?? '' ) ) . '">';
+		$html   .= '<div class="lps-event-date"><strong>' . self::escape( '' !== $year ? $year : '—' ) . '</strong><span>' . self::escape( $type ) . '</span></div>';
+		$html   .= '<div><h3><a href="' . self::escape( self::text( $record['url'] ) ) . '">' . self::escape( self::text( $record['title'] ) ) . '</a></h3>';
+		$summary = trim( self::text( $record['summary'] ?? '' ) );
+		if ( '' !== $summary ) {
+			$html .= '<p>' . self::escape( $summary ) . '</p>';
+		}
+		$html  .= '</div>';
+		$source = trim( self::text( $record['import_source_url'] ?? '' ) );
+		if ( '' !== $source ) {
+			$html .= '<span class="lps-more">' . ( $english ? 'Source: ' : 'Fonte: ' ) . '<span class="lps-meta">' . self::escape( $english ? 'Legacy site' : 'Site anterior' ) . '</span></span>';
+		}
+		return $html . '</li>';
+	}
+
+	/**
+	 * Renders the teaching module: entrance copy plus the live courses table.
 	 *
 	 * The entrance is a persistent task route, not an optional CMS module: it
 	 * always renders so a sparse homepage keeps its teaching action.
 	 *
-	 * @param string $html    Opened section tag.
-	 * @param string $heading Localized module heading.
-	 * @param string $locale  Supported locale.
+	 * @param string $locale Supported locale.
 	 */
-	private static function teaching_module( string $html, string $heading, string $locale ): string {
+	private static function teaching_module( string $locale ): string {
 		$english = 'en' === $locale;
-		$summary = $english
-			? 'Courses, current and previous offerings, and published teaching materials.'
-			: 'Disciplinas, ofertas em andamento e anteriores, e materiais didáticos publicados.';
-		$label   = $english ? 'Courses and materials' : 'Disciplinas e materiais';
-		$url     = $english ? '/en/teaching/' : '/pt-br/ensino/';
-		return $html . '<h2 id="lps-home-teaching">' . self::escape( $heading ) . '</h2>'
-			. '<p>' . self::escape( $summary ) . '</p>'
-			. '<p class="lps-home-actions"><a class="lps-button" data-home-action="teaching" href="' . self::escape( $url ) . '">' . self::escape( $label ) . '</a></p>'
-			. '</section>';
+		$copy    = self::home_section_copy( 'teaching', $locale );
+		$more    = self::text( $copy['more'] ?? '' );
+		$html    = '<section id="ensino" class="lps-section lps-section--alt" data-home-section="teaching" aria-labelledby="home-teaching"><div class="lps-page-grid"><div class="lps-split"><div>'
+			. '<p class="lps-kicker">' . self::escape( self::text( $copy['kicker'] ?? '' ) ) . '</p>'
+			. '<h2 id="home-teaching">' . self::escape( self::text( $copy['title'] ?? '' ) ) . '</h2>'
+			. '<p class="lps-lead">' . self::escape( self::text( $copy['lead'] ?? '' ) ) . '</p>'
+			. '<p><a class="lps-more" data-home-action="teaching" href="' . self::escape( $more ) . '">' . self::escape( self::text( $copy['more_label'] ?? '' ) ) . '</a></p></div><div>';
+		$courses = self::home_courses( $locale );
+		if ( array() !== $courses ) {
+			$caption = $english ? 'Courses currently taught by the laboratory' : 'Disciplinas atualmente ministradas pelo laboratório';
+			$head    = $english ? array( 'Code', 'Course', 'Professor', 'Level' ) : array( 'Código', 'Disciplina', 'Professor', 'Nível' );
+			$html   .= '<div class="lps-table-scroll" tabindex="0" role="region" aria-label="' . self::escape( $caption ) . '"><table><caption>' . self::escape( $caption ) . '</caption><thead><tr>';
+			foreach ( $head as $cell ) {
+				$html .= '<th scope="col">' . self::escape( $cell ) . '</th>';
+			}
+			$html .= '</tr></thead><tbody>';
+			foreach ( $courses as $course ) {
+				$html .= '<tr><td><span class="lps-course-code">' . self::escape( $course['code'] ) . '</span></td>'
+					. '<th scope="row"><a href="' . self::escape( $course['url'] ) . '">' . self::escape( $course['title'] ) . '</a></th>'
+					. '<td>' . ( '' !== $course['professor'] ? self::escape( $course['professor'] ) : '—' ) . '</td>'
+					. '<td><span class="lps-level ' . $course['level_class'] . '">' . self::escape( $course['level_label'] ) . '</span></td></tr>';
+			}
+			$html .= '</tbody></table></div>';
+		}
+		return $html . '</div></div></div></section>';
+	}
+
+	/**
+	 * Returns published courses of the requested locale for the home table.
+	 *
+	 * Professors resolve through the governed `teaching_team` relationship;
+	 * a course without a wired team renders an em dash, never a guess.
+	 *
+	 * @param string $locale Supported locale.
+	 * @return array<int, array{code: string, title: string, url: string, professor: string, level_label: string, level_class: string}>
+	 */
+	private static function home_courses( string $locale ): array {
+		if ( ! function_exists( 'get_posts' ) ) {
+			return array();
+		}
+		$posts = get_posts(
+			array(
+				'post_type'   => 'lps_course',
+				'post_status' => 'publish',
+				'numberposts' => 50,
+				'orderby'     => 'title',
+				'order'       => 'ASC',
+				'fields'      => 'all',
+			)
+		);
+		$rows  = array();
+		foreach ( $posts as $post ) {
+			if ( get_post_meta( $post->ID, '_lps_locale', true ) !== $locale || 'published' !== get_post_meta( $post->ID, '_lps_state', true ) ) {
+				continue;
+			}
+			$names = array();
+			if ( class_exists( Relationships::class ) ) {
+				foreach ( Relationships::reverse_for( $post->ID, 'offering_course' ) as $edge ) {
+					$offering_id = self::num( $edge['source_post_id'] );
+					if ( 0 >= $offering_id ) {
+						continue;
+					}
+					foreach ( Relationships::for_source( $offering_id, 'teaching_team' ) as $member ) {
+						$target = self::num( $member['target_post_id'] );
+						$target = Translations::locale( $target ) === $locale ? $target : self::num( Translations::variants( $target )[ $locale ] ?? 0 );
+						$person = 0 < $target ? get_post( $target ) : null;
+						if ( $person instanceof WP_Post && '' !== $person->post_title && ! in_array( $person->post_title, $names, true ) ) {
+							$names[] = $person->post_title;
+						}
+					}
+				}
+			}
+			$level  = self::text( get_post_meta( $post->ID, '_lps_course_level', true ) );
+			$rows[] = array(
+				'code'        => self::text( get_post_meta( $post->ID, '_lps_course_code', true ) ),
+				'title'       => $post->post_title,
+				'url'         => (string) get_permalink( $post->ID ),
+				'professor'   => implode( ' · ', $names ),
+				'level_label' => self::course_level_label( $level, $locale ),
+				'level_class' => 'graduate' === $level ? 'lps-level-grad' : 'lps-level-undergrad',
+			);
+		}
+		return array_slice( $rows, 0, 4 );
+	}
+
+	/**
+	 * Returns the localized course-level label.
+	 *
+	 * @param string $level  Stored level key.
+	 * @param string $locale Supported locale.
+	 */
+	private static function course_level_label( string $level, string $locale ): string {
+		$english = 'en' === $locale;
+		$labels  = array(
+			'undergraduate' => $english ? 'Undergraduate' : 'Graduação',
+			'graduate'      => $english ? 'Graduate' : 'Pós-graduação',
+			'extension'     => $english ? 'Extension' : 'Extensão',
+		);
+		return $labels[ $level ] ?? $level;
 	}
 
 	/**
 	 * Renders the people module with its collaboration entrances.
 	 *
-	 * @param string                           $html    Opened section tag.
-	 * @param string                           $heading Localized module heading.
-	 * @param array<int, array<string, mixed>> $items   Reviewed snapshot.
-	 * @param string                           $locale  Supported locale.
+	 * @param array<int, array<string, mixed>> $items  Reviewed snapshot.
+	 * @param string                           $locale Supported locale.
 	 */
-	private static function people_module( string $html, string $heading, array $items, string $locale ): string {
-		$items = array_slice( array_values( array_filter( $items, static fn( array $record ): bool => ( $record['section'] ?? '' ) === 'people' ) ), 0, 4 );
+	private static function people_module( array $items, string $locale ): string {
+		$items = array_slice( array_values( array_filter( $items, static fn( array $record ): bool => ( $record['section'] ?? '' ) === 'people' ) ), 0, 5 );
 		if ( array() === $items ) {
 			return '';
 		}
-		$english = 'en' === $locale;
-		$html   .= '<h2 id="lps-home-people">' . self::escape( $heading ) . '</h2>';
+		$cards = '';
 		foreach ( $items as $record ) {
-			$html .= self::record_markup( $record, $locale, '', 'h3', true );
+			$cards .= self::person_card_markup( $record, $locale );
 		}
-		$links = $english
-			? array(
-				array( 'People', '/en/people/' ),
-				array( 'Collaborate', '/en/collaborate/' ),
-			)
-			: array(
-				array( 'Pessoas', '/pt-br/pessoas/' ),
-				array( 'Colabore', '/pt-br/colabore/' ),
-			);
-		$html .= '<p class="lps-home-links">';
-		foreach ( $links as $index => $link ) {
-			$html .= ( 0 === $index ? '' : ' ' ) . '<a href="' . self::escape( $link[1] ) . '">' . self::escape( $link[0] ) . '</a>';
+		return '<section id="pessoas" class="lps-section" data-home-section="people" aria-labelledby="home-people"><div class="lps-page-grid">'
+			. self::section_head_markup( 'people', 'home-people', $locale )
+			. '<div class="lps-people-grid">' . $cards . '</div></div></section>';
+	}
+
+	/**
+	 * Renders one person record as a people card.
+	 *
+	 * The monogram replaces the photo slot when the person's image rights are
+	 * not cleared — the card never renders an unreviewed photo. The contact
+	 * line keeps the profile entrance beside the published public email.
+	 *
+	 * @param array<string, mixed> $record CMS record.
+	 * @param string               $locale Supported locale.
+	 */
+	private static function person_card_markup( array $record, string $locale ): string {
+		$english  = 'en' === $locale;
+		$post_id  = self::num( $record['post_id'] ?? 0 );
+		$status   = 0 < $post_id ? self::text( get_post_meta( $post_id, '_lps_person_status', true ) ) : '';
+		$memoriam = 'in-memoriam' === $status;
+		$roles    = 0 < $post_id ? get_post_meta( $post_id, '_lps_roles', true ) : array();
+		$email    = 0 < $post_id ? trim( self::text( get_post_meta( $post_id, '_lps_public_email', true ) ) ) : '';
+		$slug     = 0 < $post_id ? self::text( get_post_field( 'post_name', $post_id ) ) : '';
+		$html     = '<article class="lps-person-card"' . ( '' !== $slug ? ' id="' . self::escape( $slug ) . '"' : '' ) . ' data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '" data-record-id="' . self::escape( self::text( $record['record_id'] ?? '' ) ) . '">';
+		$html    .= '<div class="lps-person-header"><span class="lps-monogram' . ( $memoriam ? ' lps-monogram--memoriam' : '' ) . '" aria-hidden="true">' . self::escape( self::person_initials( self::text( $record['title'] ) ) ) . '</span><div>';
+		$html    .= '<h3>' . self::escape( self::text( $record['title'] ) ) . '</h3>';
+		$role     = self::person_role_labels( array_values( is_array( $roles ) ? $roles : array() ), $locale );
+		if ( '' !== $role ) {
+			$html .= '<p class="lps-role">' . self::escape( $role ) . '</p>';
 		}
-		return $html . '</p></section>';
+		$html   .= '</div></div>';
+		$summary = trim( self::text( $record['summary'] ?? '' ) );
+		if ( '' !== $summary ) {
+			$html .= '<p class="lps-summary">' . self::escape( $summary ) . '</p>';
+		}
+		$topics = self::record_topics( $record );
+		if ( array() !== $topics ) {
+			$html .= '<ul class="lps-term-token">';
+			foreach ( $topics as $topic ) {
+				$html .= '<li>' . self::escape( $topic ) . '</li>';
+			}
+			$html .= '</ul>';
+		}
+		$html .= '<div class="lps-person-contact"><a class="lps-more" href="' . self::escape( self::text( $record['url'] ) ) . '">' . self::escape( $english ? 'Learn more' : 'Saiba mais' ) . '</a>';
+		if ( '' !== $email ) {
+			$html .= '<a class="lps-meta" href="mailto:' . self::escape( $email ) . '">' . self::escape( $email ) . '</a>';
+		}
+		return $html . '</div></article>';
+	}
+
+	/**
+	 * Returns a person's display initials (first and last word).
+	 *
+	 * @param string $name Display name.
+	 */
+	private static function person_initials( string $name ): string {
+		$split = preg_split( '~\s+~u', trim( $name ) );
+		$parts = array_values( array_filter( is_array( $split ) ? $split : array() ) );
+		if ( array() === $parts ) {
+			return '';
+		}
+		$first = function_exists( 'mb_substr' ) ? mb_substr( (string) $parts[0], 0, 1 ) : substr( (string) $parts[0], 0, 1 );
+		$last  = count( $parts ) > 1 ? ( function_exists( 'mb_substr' ) ? mb_substr( (string) $parts[ count( $parts ) - 1 ], 0, 1 ) : substr( (string) $parts[ count( $parts ) - 1 ], 0, 1 ) ) : '';
+		return function_exists( 'mb_strtoupper' ) ? mb_strtoupper( $first . $last ) : strtoupper( $first . $last );
+	}
+
+	/**
+	 * Returns the localized joined role label of a person record.
+	 *
+	 * @param array<int, mixed> $roles  Stored role slugs.
+	 * @param string            $locale Supported locale.
+	 */
+	private static function person_role_labels( array $roles, string $locale ): string {
+		$english = 'en' === $locale;
+		$labels  = array(
+			'professor'                  => $english ? 'Professor' : 'Professor',
+			'professor-titular'          => $english ? 'Full Professor' : 'Professor Titular',
+			'professor-titular-emerito'  => $english ? 'Emeritus Full Professor' : 'Professor Titular Emérito',
+			'professor-adjunto'          => $english ? 'Associate Professor' : 'Professor Adjunto',
+			'coordenador-lps'            => $english ? 'LPS Coordinator' : 'Coordenador do LPS',
+			'pesquisador-permanente-lps' => $english ? 'Permanent LPS Researcher' : 'Pesquisador Permanente do LPS',
+			'pesquisador'                => $english ? 'Researcher' : 'Pesquisador',
+			'researcher'                 => $english ? 'Researcher' : 'Pesquisador',
+			'student'                    => $english ? 'Student' : 'Estudante',
+			'technical-staff'            => $english ? 'Technical staff' : 'Equipe técnica',
+			'external-collaborator'      => $english ? 'External collaborator' : 'Colaboração externa',
+			'alumni'                     => $english ? 'Alumni' : 'Egresso',
+		);
+		$found   = array();
+		foreach ( $roles as $role ) {
+			$role = self::text( $role );
+			if ( isset( $labels[ $role ] ) ) {
+				$found[] = $labels[ $role ];
+			}
+		}
+		return implode( ' · ', $found );
 	}
 
 	/**
 	 * Renders partner rows with the contact handoff nested as the closing strip.
 	 *
-	 * @param string                           $html            Opened section tag.
-	 * @param string                           $heading         Localized module heading.
-	 * @param array<int, array<string, mixed>> $items           Reviewed snapshot.
-	 * @param string                           $locale          Supported locale.
-	 * @param string                           $contact_heading Localized stratum heading.
+	 * @param array<int, array<string, mixed>> $items  Reviewed snapshot.
+	 * @param string                           $locale Supported locale.
 	 */
-	private static function partners_module( string $html, string $heading, array $items, string $locale, string $contact_heading ): string {
-		$partners = array_slice( array_values( array_filter( $items, static fn( array $record ): bool => ( $record['section'] ?? '' ) === 'partners' ) ), 0, 4 );
-		$contact  = array_slice( array_values( array_filter( $items, static fn( array $record ): bool => ( $record['section'] ?? '' ) === 'contact' ) ), 0, 1 );
-		// The contact handoff is required, so this module always renders; the
-		// optional partner rows and their heading are omitted when empty.
-		if ( array() === $partners ) {
-			// With no partner rows the section has no heading of its own, so the
-			// landmark label is dropped entirely: repointing it at the nested
-			// contact heading would name two landmarks identically (axe
-			// landmark-unique). An unnamed section is a plain group, which is
-			// the honest semantics for a handoff-only band.
-			$html = str_replace( ' aria-labelledby="lps-home-partners"', '', $html );
-		} else {
-			$html .= '<h2 id="lps-home-partners">' . self::escape( $heading ) . '</h2>';
-			foreach ( $partners as $record ) {
-				$html .= self::record_markup( $record, $locale );
-			}
+	private static function partners_module( array $items, string $locale ): string {
+		$contact = array_slice( array_values( array_filter( $items, static fn( array $record ): bool => ( $record['section'] ?? '' ) === 'contact' ) ), 0, 1 );
+		$logos   = self::partner_logos( $locale );
+		$html    = '';
+		if ( array() !== $logos ) {
+			$html .= '<section id="parceiros" class="lps-section" data-home-section="partners" aria-labelledby="home-partners"><div class="lps-page-grid">'
+				. self::section_head_markup( 'partners', 'home-partners', $locale )
+				. self::partner_marquee_markup( $logos )
+				. '</div></section>';
 		}
-		$level = array() === $partners ? 'h2' : 'h3';
-		$html .= '<section class="lps-home-stratum lps-home-handoff" data-home-section="contact" aria-labelledby="lps-home-contact"><' . $level . ' class="lps-kicker" id="lps-home-contact">' . self::escape( $contact_heading ) . '</' . $level . '>';
-		if ( ! isset( $contact[0] ) ) {
-			return $html . self::empty_notice( 'contact', $locale ) . '</section></section>';
-		}
-		$record  = $contact[0];
-		$summary = trim( self::text( $record['summary'] ?? '' ) );
-		if ( '' !== $summary ) {
-			$html .= '<p>' . self::escape( $summary ) . '</p>';
-		}
-		$label = trim( self::text( $record['cta'] ?? '' ) );
-		$label = '' !== $label ? $label : self::text( $record['title'] );
-		$html .= '<p><a class="lps-button" data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '" href="' . self::escape( self::text( $record['url'] ) ) . '">' . self::escape( $label ) . '</a></p>';
-		return $html . '</section></section>';
+		return $html . self::cta_band_markup( $contact, $locale );
 	}
 
 	/**
-	 * Renders one record row with provenance attributes and optional metadata.
+	 * Returns every published organization with a rights-cleared logo.
 	 *
-	 * Rows in media slots render the record's governed image when one was
-	 * referenced and still passes review; a referenced image that fails rights
-	 * or accessibility review, or a record that references no image, stays
-	 * text-only.
+	 * The marquee lists all cleared partner and funder marks of the locale,
+	 * not only the records featured on the homepage.
 	 *
-	 * @param array<string, mixed> $record     CMS record.
-	 * @param string               $locale     Supported locale.
-	 * @param string               $meta       Pre-built metadata markup.
-	 * @param string               $level      Heading level for the linked title.
-	 * @param bool                 $media_slot Whether this row carries an image slot.
-	 */
-	private static function record_markup( array $record, string $locale, string $meta = '', string $level = 'h3', bool $media_slot = false ): string {
-		$html = '<article class="lps-record" data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '" data-record-id="' . self::escape( self::text( $record['record_id'] ?? '' ) ) . '">';
-		if ( $media_slot && ! empty( $record['media'] ) ) {
-			$html .= self::feature_media_markup( $record, $locale );
-		}
-		$html   .= $meta;
-		$html   .= '<' . $level . '><a href="' . self::escape( self::text( $record['url'] ) ) . '">' . self::escape( self::text( $record['title'] ) ) . '</a></' . $level . '>';
-		$summary = trim( self::text( $record['summary'] ?? '' ) );
-		if ( '' !== $summary ) {
-			$html .= '<p>' . self::escape( $summary ) . '</p>';
-		}
-		return $html . '</article>';
-	}
-
-	/**
-	 * Builds the date-plus-type metadata line of a dated record row.
-	 *
-	 * Events additionally carry their explicit status and venue so upcoming,
-	 * cancelled, and held events are differentiated from news and
-	 * publications, never silently mixed.
-	 *
-	 * @param array<string, mixed> $record CMS record.
-	 * @param string               $locale Supported locale.
-	 */
-	private static function dated_meta( array $record, string $locale ): string {
-		// Canonical news dates carry a time; the row prints the ISO day so every
-		// dated record in the module shares the publication row's format.
-		$date = substr( trim( self::text( $record['date'] ?? '' ) ), 0, 10 );
-		$type = self::type_label( self::text( $record['type'] ?? '' ), $locale );
-		$html = '';
-		if ( '' !== $date ) {
-			$html .= '<time datetime="' . self::escape( $date ) . '">' . self::escape( $date ) . '</time>';
-		}
-		if ( '' !== $type ) {
-			$html .= ( '' === $html ? '' : ' · ' ) . '<span class="lps-kicker">' . self::escape( $type ) . '</span>';
-		}
-		if ( 'lps_event' === ( $record['type'] ?? '' ) ) {
-			$status = self::event_status_label( self::text( $record['event_status'] ?? '' ), $locale );
-			if ( '' !== $status ) {
-				$html .= ( '' === $html ? '' : ' · ' ) . '<span class="lps-event-state">' . self::escape( $status ) . '</span>';
-			}
-			$venue = trim( self::text( $record['venue'] ?? '' ) );
-			if ( '' !== $venue ) {
-				$html .= ( '' === $html ? '' : ' · ' ) . self::escape( $venue );
-			}
-		}
-		return '' === $html ? '' : '<p class="lps-meta">' . $html . '</p>';
-	}
-
-	/**
-	 * Builds the type-plus-review-date provenance line of an evidence record.
-	 *
-	 * @param array<string, mixed> $record CMS record.
-	 * @param string               $locale Supported locale.
-	 */
-	private static function provenance_meta( array $record, string $locale ): string {
-		$type     = self::type_label( self::text( $record['type'] ?? '' ), $locale );
-		$reviewed = trim( self::text( $record['review_date'] ?? '' ) );
-		$html     = '';
-		if ( '' !== $type ) {
-			$html .= '<span class="lps-kicker">' . self::escape( $type ) . '</span>';
-		}
-		if ( '' !== $reviewed ) {
-			$label = 'en' === $locale ? 'Last reviewed' : 'Última revisão';
-			$html .= ( '' === $html ? '' : ' · ' ) . $label . ': <time datetime="' . self::escape( $reviewed ) . '">' . self::escape( $reviewed ) . '</time>';
-		}
-		return '' === $html ? '' : '<p class="lps-meta">' . $html . '</p>';
-	}
-
-	/**
-	 * Returns the localized record-type label used by homepage kickers.
-	 *
-	 * @param string $type   Record post type.
 	 * @param string $locale Supported locale.
+	 * @return array<int, array{src: string, alt: string}>
 	 */
-	private static function type_label( string $type, string $locale ): string {
-		$labels = array(
-			'lps_research_area' => array( 'Pesquisa', 'Research' ),
-			'lps_project'       => array( 'Projetos', 'Projects' ),
-			'lps_publication'   => array( 'Publicações', 'Publications' ),
-			'lps_person'        => array( 'Pessoas', 'People' ),
-			'lps_news'          => array( 'Notícias', 'News' ),
-			'lps_event'         => array( 'Eventos', 'Events' ),
-			'lps_opportunity'   => array( 'Oportunidades', 'Opportunities' ),
-			'lps_organization'  => array( 'Organizações', 'Organizations' ),
+	private static function partner_logos( string $locale ): array {
+		if ( ! function_exists( 'get_posts' ) ) {
+			return array();
+		}
+		$posts = get_posts(
+			array(
+				'post_type'   => 'lps_organization',
+				'post_status' => 'publish',
+				'numberposts' => 100,
+			)
 		);
-		return isset( $labels[ $type ] ) ? $labels[ $type ][ 'en' === $locale ? 1 : 0 ] : '';
+		$logos = array();
+		$seen  = array();
+		foreach ( $posts as $post ) {
+			if ( get_post_meta( $post->ID, '_lps_locale', true ) !== $locale || 'published' !== get_post_meta( $post->ID, '_lps_state', true ) ) {
+				continue;
+			}
+			$logo = trim( self::text( get_post_meta( $post->ID, '_lps_logo_url', true ) ) );
+			if ( '' === $logo || 'cleared' !== get_post_meta( $post->ID, '_lps_logo_rights', true ) || isset( $seen[ $logo ] ) ) {
+				continue;
+			}
+			$seen[ $logo ] = true;
+			$logos[]       = array(
+				'src' => $logo,
+				'alt' => $post->post_title,
+			);
+		}
+		return $logos;
 	}
 
 	/**
-	 * Returns the localized event-status label used by dated event rows.
+	 * Renders the drifting partner marquee.
 	 *
-	 * @param string $status Stored event status.
-	 * @param string $locale Supported locale.
+	 * The track lists every mark once and then repeats it aria-hidden so the
+	 * loop reads as a continuous band; the animation is defined inline so the
+	 * marquee keeps working when only this fragment renders.
+	 *
+	 * @param array<int, array{src: string, alt: string}> $logos Logo pairs.
 	 */
-	private static function event_status_label( string $status, string $locale ): string {
-		$labels = array(
-			'scheduled' => array( 'Agendado', 'Scheduled' ),
-			'cancelled' => array( 'Cancelado', 'Cancelled' ),
-			'postponed' => array( 'Adiado', 'Postponed' ),
-			'held'      => array( 'Realizado', 'Held' ),
-		);
-		return isset( $labels[ $status ] ) ? $labels[ $status ][ 'en' === $locale ? 1 : 0 ] : '';
+	private static function partner_marquee_markup( array $logos ): string {
+		$items = '';
+		foreach ( $logos as $logo ) {
+			$items .= '<li><img src="' . self::escape( $logo['src'] ) . '" alt="' . self::escape( $logo['alt'] ) . '" decoding="async" /></li>';
+		}
+		foreach ( $logos as $logo ) {
+			$items .= '<li aria-hidden="true"><img src="' . self::escape( $logo['src'] ) . '" alt="" decoding="async" /></li>';
+		}
+		return '<div class="lps-partner-marquee"><style>@keyframes lps-partner-drift{from{transform:translateX(-50%)}to{transform:translateX(0)}}.lps-partner-track{animation:lps-partner-drift 60s linear infinite}.lps-partner-track--roomy{animation-duration:90s}.lps-partner-marquee:hover .lps-partner-track,.lps-partner-marquee:focus-within .lps-partner-track{animation-play-state:paused}@media (prefers-reduced-motion:reduce){.lps-partner-track{animation:none}}</style><ul class="lps-partner-track lps-partner-track--roomy">' . $items . '</ul></div>';
 	}
+
+	/**
+	 * Renders the closing call-to-action band from the contact records.
+	 *
+	 * @param array<int, array<string, mixed>> $contact Contact records.
+	 * @param string                           $locale  Supported locale.
+	 */
+	private static function cta_band_markup( array $contact, string $locale ): string {
+		$english = 'en' === $locale;
+		$title   = $english ? 'Bring a signal processing or machine learning problem' : 'Traga um problema de processamento de sinais ou aprendizado de máquina';
+		$lead    = $english ? 'The laboratory does contract research, R&D projects and workforce development with industry and public bodies.' : 'O laboratório realiza pesquisa contratada, projetos de P&D e formação de pessoal com a indústria e órgãos públicos.';
+		$record  = $contact[0] ?? null;
+		if ( null === $record ) {
+			return '<section class="lps-section" data-home-section="contact" aria-labelledby="lps-home-contact"><div class="lps-page-grid"><div class="lps-cta-band lps-cta-band--split"><div><h2 id="lps-home-contact">' . self::escape( $title ) . '</h2><p>' . self::escape( $lead ) . '</p>' . self::empty_notice( 'contact', $locale ) . '</div></div></div></section>';
+		}
+		$primary    = trim( self::text( $record['cta'] ?? '' ) );
+		$primary    = '' !== $primary ? $primary : ( $english ? 'Talk to the laboratory' : 'Fale com o laboratório' );
+		$ghost      = $english ? 'Capabilities' : 'Capacidades';
+		$ghost_href = $english ? '/en/infrastructure/' : '/pt-br/infraestrutura/';
+		return '<section class="lps-section" data-home-section="contact" aria-labelledby="lps-home-contact"><div class="lps-page-grid"><div class="lps-cta-band lps-cta-band--split"><div><h2 id="lps-home-contact">' . self::escape( $title ) . '</h2><p>' . self::escape( $lead ) . '</p></div><div class="lps-button-row"><a class="lps-button lps-button-primary" data-home-action="contact" data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '" href="' . self::escape( self::text( $record['url'] ) ) . '">' . self::escape( $primary ) . '</a><a class="lps-button lps-button-ghost" href="' . self::escape( $ghost_href ) . '">' . self::escape( $ghost ) . '</a></div></div></div></section>';
+	}
+
+	/**
+	 * Builds the localized two-column section head.
+	 *
+	 * @param string $key        Section copy key.
+	 * @param string $heading_id ID carried by the rendered h2.
+	 * @param string $locale     Supported locale.
+	 */
+	private static function section_head_markup( string $key, string $heading_id, string $locale ): string {
+		$copy       = self::home_section_copy( $key, $locale );
+		$lead       = trim( self::text( $copy['lead'] ?? '' ) );
+		$more       = trim( self::text( $copy['more'] ?? '' ) );
+		$more_label = trim( self::text( $copy['more_label'] ?? '' ) );
+		if ( '' === $more_label ) {
+			$more_label = 'en' === $locale ? 'See all →' : 'Ver tudo →';
+		}
+		$html = '<div class="lps-section-head"><div><p class="lps-kicker">' . self::escape( self::text( $copy['kicker'] ?? '' ) ) . '</p><h2 id="' . self::escape( $heading_id ) . '">' . self::escape( self::text( $copy['title'] ?? '' ) ) . '</h2></div><div>';
+		if ( '' !== $lead ) {
+			$html .= '<p class="lps-lead">' . self::escape( $lead ) . '</p>';
+		}
+		if ( '' !== $more ) {
+			$html .= '<p class="lps-mt-4"><a class="lps-more" href="' . self::escape( $more ) . '">' . self::escape( $more_label ) . '</a></p>';
+		}
+		return $html . '</div></div>';
+	}
+
+	/**
+	 * Returns the localized editorial copy of each homepage section head.
+	 *
+	 * Kickers, titles and leads are the plan's informational constants; record
+	 * bodies stay governed. `more` is the archive entrance, `more_label` the
+	 * link text.
+	 *
+	 * @param string $key    Section key.
+	 * @param string $locale Supported locale.
+	 * @return array<string, string>
+	 */
+	private static function home_section_copy( string $key, string $locale ): array {
+		$english = 'en' === $locale;
+		$copy    = array(
+			'journeys'       => array(
+				'kicker' => $english ? 'Education' : 'Formação',
+				'title'  => $english ? 'Choose your path' : 'Escolha o seu percurso',
+				'lead'   => $english ? 'The laboratory works from junior research initiation to post-doctorate, at the Polytechnic School and at COPPE.' : 'A atuação do laboratório cobre da iniciação científica júnior ao pós-doutorado, na Escola Politécnica e na COPPE.',
+			),
+			'research'       => array(
+				'kicker' => $english ? 'Research' : 'Pesquisa',
+				'title'  => $english ? 'Research areas' : 'Linhas de pesquisa',
+				'lead'   => $english ? 'The main areas of activity are digital signal processing, supervised and unsupervised data modelling, feature engineering, recommender systems, time-series analysis and fault, fraud and novelty detection.' : 'As principais áreas de atuação são o processamento digital de sinais, a modelagem de dados supervisionada e não supervisionada, a engenharia de características, os sistemas de recomendação, a análise de séries temporais e a detecção de falhas, fraudes e novidades.',
+				'more'   => $english ? '/en/research/' : '/pt-br/pesquisa/',
+			),
+			'projects'       => array(
+				'kicker' => $english ? 'Projects' : 'Projetos',
+				'title'  => $english ? 'Research in partnership' : 'Pesquisa em parceria',
+				'lead'   => $english ? 'Selected projects registered in the laboratory\'s public material, with their partners.' : 'Projetos selecionados registrados no material público do laboratório, com seus parceiros.',
+				'more'   => $english ? '/en/projects/' : '/pt-br/projetos/',
+			),
+			'evidence'       => array(
+				'kicker' => $english ? 'Outputs' : 'Produção',
+				'title'  => $english ? 'Outputs and evidence' : 'Produção e evidências',
+				'lead'   => $english ? 'Publications and institutional records produced by the laboratory.' : 'Publicações e registros institucionais produzidos pelo laboratório.',
+				'more'   => $english ? '/en/publications/' : '/pt-br/publicacoes/',
+			),
+			'infrastructure' => array(
+				'kicker' => $english ? 'Infrastructure' : 'Infraestrutura',
+				'title'  => $english ? 'Infrastructure and capabilities' : 'Infraestrutura e capacidades',
+				'lead'   => $english ? 'Laboratories, equipment and technical capabilities available for projects.' : 'Laboratórios, equipamentos e capacidades técnicas disponíveis para projetos.',
+				'more'   => $english ? '/en/infrastructure/' : '/pt-br/infraestrutura/',
+			),
+			'teaching'       => array(
+				'kicker'     => $english ? 'Teaching' : 'Ensino',
+				'title'      => $english ? 'Courses, materials and supervision' : 'Disciplinas, materiais e orientação',
+				'lead'       => $english ? 'The laboratory teaches at the Polytechnic School and in the Electrical Engineering Program at COPPE, from instrumentation to deep learning.' : 'O laboratório atua na Escola Politécnica e no Programa de Engenharia Elétrica da COPPE, da instrumentação ao aprendizado profundo.',
+				'more'       => $english ? '/en/teaching/' : '/pt-br/ensino/',
+				'more_label' => $english ? 'All courses' : 'Todas as disciplinas',
+			),
+			'people'         => array(
+				'kicker' => $english ? 'People' : 'Pessoas',
+				'title'  => $english ? 'Who works here' : 'Quem trabalha aqui',
+				'lead'   => $english ? 'Four full-time professors, two of them tenured, plus post-doctoral researchers and graduate and undergraduate students.' : 'Quatro professores em tempo integral, dos quais dois são titulares, além de pesquisadores de pós-doutorado e estudantes de pós-graduação e graduação.',
+				'more'   => $english ? '/en/people/' : '/pt-br/pessoas/',
+			),
+			'latest'         => array(
+				'kicker' => $english ? 'News and events' : 'Notícias e eventos',
+				'title'  => $english ? 'Latest institutional records' : 'Últimos registros institucionais',
+				'lead'   => $english ? 'Every entry is dated and traceable to its public source.' : 'Cada entrada é datada e rastreável à fonte pública de origem.',
+				'more'   => $english ? '/en/news/' : '/pt-br/noticias/',
+			),
+			'partners'       => array(
+				'kicker' => $english ? 'Partners and funders' : 'Parceiros e financiadores',
+				'title'  => $english ? 'Industry, agencies and international collaborations' : 'Indústria, agências e colaborações internacionais',
+				'lead'   => $english ? 'Companies, funding agencies and the international collaborations that sustain the laboratory\'s projects.' : 'Empresas, agências de fomento e as colaborações internacionais que sustentam os projetos do laboratório.',
+				'more'   => $english ? '/en/infrastructure/#parcerias' : '/pt-br/infraestrutura/#parcerias',
+			),
+		);
+		return isset( $copy[ $key ] ) ? $copy[ $key ] : array();
+	}
+
 
 	/**
 	 * Returns the truthful not-published notice for a required data section.

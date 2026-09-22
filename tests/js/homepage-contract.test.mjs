@@ -12,19 +12,19 @@ describe("research-first homepage integration", () => {
     expect(template).toContain('"lock":{"move":true,"remove":true}');
     expect(template).not.toMatch(/carousel|autoplay|placeholder/i);
     expect(read("functions.php")).toContain("Homepage::class");
-    // Seven visual modules maximum: projects, evidence and infrastructure
-    // nest inside research as strata and the contact handoff inside
-    // partners, so none of them has its own block.
+    // Seven visual modules in the showcase order: projects, evidence and
+    // infrastructure render inside the research module as strata and the
+    // contact band inside partners, so none of them has its own block.
     const sections = [...template.matchAll(/wp:lps-theme\/homepage \{"section":"([a-z]+)"/g)].map(
       (match) => match[1],
     );
     expect(sections).toEqual([
       "mission",
+      "journeys",
       "research",
-      "latest",
       "teaching",
       "people",
-      "journeys",
+      "latest",
       "partners",
     ]);
   });
@@ -35,20 +35,22 @@ describe("research-first homepage integration", () => {
     // canonical order lives in its section and stratum registries.
     const sectionKeys = [
       ...homepage.matchAll(
-        /^\s*'(mission|research|latest|teaching|people|journeys|partners)'\s*=>\s*array/gm,
+        /^\s*'(mission|research|latest|teaching|people|journeys|partners)'\s*=>\s*array\(\s*'[^']+'\s*,/gm,
       ),
     ].map((match) => match[1]);
     expect(sectionKeys).toEqual([
       "mission",
+      "journeys",
       "research",
-      "latest",
       "teaching",
       "people",
-      "journeys",
+      "latest",
       "partners",
     ]);
     const stratumKeys = [
-      ...homepage.matchAll(/^\s*'(projects|evidence|infrastructure|contact)'\s*=>\s*array\(\s*'/gm),
+      ...homepage.matchAll(
+        /^\s*'(projects|evidence|infrastructure|contact)'\s*=>\s*array\(\s*'[^']+'\s*,/gm,
+      ),
     ].map((match) => match[1]);
     expect(stratumKeys).toEqual(["projects", "evidence", "infrastructure", "contact"]);
     expect(homepage).not.toMatch(/carousel|autoplay|waveform|lorem ipsum|placeholder/i);

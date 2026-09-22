@@ -318,19 +318,19 @@ final class ThemeShellTest extends \PHPUnit\Framework\TestCase {
 		// Given: the English footer.
 		$footer = Shell::footer_markup( 'en' );
 
-		// Then: affiliation context, the canonical teaching entrance and the
-		// four utility routes render; the footer band keeps the text
-		// wordmark (artwork stays on light surfaces); and the primary
-		// navigation is not duplicated.
-		self::assertStringContainsString( 'Federal University of Rio de Janeiro', $footer );
+		// Then: the brand lockup and address, the three link columns with the
+		// canonical teaching and utility entrances, the institutional bottom
+		// bar, and the copyright line render.
 		self::assertStringContainsString( 'href="/en/teaching/"', $footer );
 		self::assertStringContainsString( 'href="/en/contact/"', $footer );
-		self::assertStringContainsString( 'href="/en/events/"', $footer );
 		self::assertStringContainsString( 'href="/en/privacy/"', $footer );
 		self::assertStringContainsString( 'href="/en/accessibility/"', $footer );
+		self::assertStringContainsString( 'href="/en/research/"', $footer );
+		self::assertStringContainsString( 'href="/en/opportunities/"', $footer );
 		self::assertStringContainsString( '/lps-brand/lps_coppe_reversed_lockup.svg', $footer );
-		self::assertStringNotContainsString( '/en/research/', $footer );
-		self::assertStringNotContainsString( '/en/publications/', $footer );
+		self::assertStringContainsString( 'Signal Processing Laboratory. All rights reserved.', $footer );
+		self::assertStringContainsString( 'secretaria@lps.ufrj.br', $footer );
+		self::assertStringNotContainsString( 'Site anterior', $footer );
 	}
 
 	/** A listing breadcrumb names the listing, never a record in its loop. */

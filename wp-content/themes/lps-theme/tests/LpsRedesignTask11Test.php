@@ -34,7 +34,7 @@ final class LpsRedesignTask11Test extends TestCase {
 	/**
 	 * The locked template renders the specified composition in order.
 	 *
-	 * Mission, research, latest, teaching, people, journeys, partners — the
+	 * Mission, journeys, research, teaching, people, latest, partners — the
 	 * fixed ten-section presentation is gone; projects, evidence,
 	 * infrastructure, and contact survive only as strata inside their modules.
 	 */
@@ -44,7 +44,7 @@ final class LpsRedesignTask11Test extends TestCase {
 		self::assertIsString( $template );
 		preg_match_all( '/wp:lps-theme\/homepage \{"section":"([a-z]+)"/', $template, $blocks );
 		self::assertSame(
-			array( 'mission', 'research', 'latest', 'teaching', 'people', 'journeys', 'partners' ),
+			array( 'mission', 'journeys', 'research', 'teaching', 'people', 'latest', 'partners' ),
 			$blocks[1],
 			'The front page must render the specified module order.'
 		);
@@ -103,30 +103,29 @@ final class LpsRedesignTask11Test extends TestCase {
 			$this->record( 'infrastructure', 'pt-br', array( 'source_id' => 'src:infra' ) ),
 		);
 		$html    = Homepage::section_markup( 'research', 'pt-br', $records, self::TODAY );
-		self::assertStringContainsString( 'aria-labelledby="lps-home-research"', $html );
-		self::assertMatchesRegularExpression( '/<h2 id="lps-home-research">Pesquisa<\/h2>/', $html );
+		self::assertStringContainsString( 'aria-labelledby="home-research"', $html );
+		self::assertMatchesRegularExpression( '/<p class="lps-kicker">Pesquisa<\/p><h2 id="home-research">Linhas de pesquisa<\/h2>/', $html );
 		foreach ( array( 'projects', 'evidence', 'infrastructure' ) as $stratum ) {
 			self::assertStringContainsString( 'data-home-section="' . $stratum . '"', $html );
-			self::assertMatchesRegularExpression( '/<h3 class="lps-kicker" id="lps-home-' . $stratum . '">[^<]+<\/h3>/', $html );
+			self::assertMatchesRegularExpression( '/<h2 id="home-' . $stratum . '">[^<]+<\/h2>/', $html );
 		}
-		// Strata records nest one heading level below their stratum label.
-		self::assertSame( 3, substr_count( $html, '<h4>' ) );
-		self::assertSame( 1, substr_count( $html, '<h3><a ' ) );
+		// Stratum cards keep their linked titles one level below the stratum head.
+		self::assertSame( 3, substr_count( $html, '<h3 class="lps-card-title"><a ' ) );
 
-		// Without areas, the first present stratum is promoted and names the module.
+		// Without areas, the first present stratum names the module on its own.
 		$lone = Homepage::section_markup( 'research', 'pt-br', array( $records[2] ), self::TODAY );
-		self::assertStringContainsString( 'aria-labelledby="lps-home-evidence"', $lone );
-		self::assertMatchesRegularExpression( '/<h2 class="lps-kicker" id="lps-home-evidence">[^<]+<\/h2>/', $lone );
-		self::assertStringNotContainsString( 'id="lps-home-research"', $lone );
-		self::assertStringContainsString( '<h3><a ', $lone );
+		self::assertStringContainsString( 'aria-labelledby="home-evidence"', $lone );
+		self::assertMatchesRegularExpression( '/<h2 id="home-evidence">[^<]+<\/h2>/', $lone );
+		self::assertStringNotContainsString( 'id="home-research"', $lone );
+		self::assertStringContainsString( 'lps-card-title', $lone );
 
-		// Two strata without areas: only the first is promoted.
+		// Two strata without areas: each keeps its own named section.
 		$pair = Homepage::section_markup( 'research', 'pt-br', array( $records[2], $records[3] ), self::TODAY );
-		self::assertMatchesRegularExpression( '/<h2 class="lps-kicker" id="lps-home-evidence">/', $pair );
-		self::assertMatchesRegularExpression( '/<h3 class="lps-kicker" id="lps-home-infrastructure">/', $pair );
+		self::assertMatchesRegularExpression( '/<h2 id="home-evidence">/', $pair );
+		self::assertMatchesRegularExpression( '/<h2 id="home-infrastructure">/', $pair );
 	}
 
-	/** The latest module differentiates the featured row from dated rows. */
+	/** The latest module renders an agenda ordered newest first, typed per row. */
 	public function test_latest_module_feature_and_dated_rows(): void {
 		$records = array(
 			$this->record(
@@ -160,35 +159,35 @@ final class LpsRedesignTask11Test extends TestCase {
 			),
 		);
 		$html    = Homepage::section_markup( 'latest', 'en', $records, self::TODAY );
-		self::assertSame( 1, substr_count( $html, 'lps-record--featured' ) );
-		// The featured row is the newest record, not the first input row.
+		// The agenda is ordered newest first, not by input order.
 		self::assertLessThan( strpos( $html, 'src:older' ), strpos( $html, 'src:newest' ) );
-		self::assertStringContainsString( 'Scheduled', $html );
-		self::assertStringContainsString( 'LPS auditorium', $html );
+		self::assertLessThan( strpos( $html, 'src:oldest' ), strpos( $html, 'src:older' ) );
+		self::assertStringContainsString( '<span>Event</span>', $html );
 		self::assertStringContainsString( 'href="/en/news/"', $html );
-		self::assertSame( 3, substr_count( $html, '<time datetime=' ) );
+		self::assertSame( 3, substr_count( $html, 'lps-event-date' ) );
+		self::assertStringContainsString( '<strong>2026</strong>', $html );
 	}
 
 	/** The teaching entrance persists in both locales with its canonical route. */
 	public function test_teaching_entrance_is_persistent_and_localized(): void {
 		foreach ( array(
-			'pt-br' => array( 'Ensino', 'Disciplinas e materiais', '/pt-br/ensino/' ),
-			'en'    => array( 'Teaching', 'Courses and materials', '/en/teaching/' ),
+			'pt-br' => array( 'Disciplinas, materiais e orientação', 'Todas as disciplinas', '/pt-br/ensino/' ),
+			'en'    => array( 'Courses, materials and supervision', 'All courses', '/en/teaching/' ),
 		) as $locale => $expected ) {
 			$html = Homepage::section_markup( 'teaching', $locale, array(), self::TODAY );
 			self::assertStringContainsString( 'data-home-section="teaching"', $html );
-			self::assertStringContainsString( '<h2 id="lps-home-teaching">' . $expected[0] . '</h2>', $html );
+			self::assertStringContainsString( '<h2 id="home-teaching">' . $expected[0] . '</h2>', $html );
 			self::assertStringContainsString( 'data-home-action="teaching" href="' . $expected[2] . '">' . $expected[1] . '</a>', $html );
 			self::assertStringNotContainsString( 'data-home-empty', $html );
 		}
 	}
 
-	/** The people module keeps its collaboration entrances; empty stays omitted. */
+	/** The people module keeps its archive entrance; empty stays omitted. */
 	public function test_people_module_links_and_omission(): void {
 		$html = Homepage::section_markup( 'people', 'pt-br', array( $this->record( 'people', 'pt-br' ) ), self::TODAY );
 		self::assertStringContainsString( 'data-home-section="people"', $html );
 		self::assertStringContainsString( 'href="/pt-br/pessoas/"', $html );
-		self::assertStringContainsString( 'href="/pt-br/colabore/"', $html );
+		self::assertStringContainsString( 'lps-people-grid', $html );
 		self::assertSame( '', Homepage::section_markup( 'people', 'pt-br', array(), self::TODAY ) );
 	}
 

@@ -385,31 +385,80 @@ final class Shell {
 	 */
 	public static function footer_markup( string $locale ): string {
 		$english = 'en' === $locale;
-		$links   = $english
+		$base    = $english ? '/en' : '/pt-br';
+		$groups  = $english
 			? array(
-				'Teaching'      => '/en/teaching/',
-				'Contact'       => '/en/contact/',
-				'Events'        => '/en/events/',
-				'Privacy'       => '/en/privacy/',
-				'Accessibility' => '/en/accessibility/',
+				'The laboratory' => array(
+					'About'           => $base . '/about/',
+					'History'         => $base . '/about/#historia',
+					'People'          => $base . '/people/',
+					'Infrastructure'  => $base . '/infrastructure/',
+					'Visual identity' => $base . '/visual-identity/',
+				),
+				'Research'       => array(
+					'Research areas'  => $base . '/research/',
+					'Projects'        => $base . '/projects/',
+					'Publications'    => $base . '/publications/',
+					'Teaching'        => $base . '/teaching/',
+					'News and events' => $base . '/news/',
+				),
+				'Take part'      => array(
+					'Opportunities' => $base . '/opportunities/',
+					'Search'        => $base . '/search/',
+					'Contact'       => $base . '/contact/',
+					'Accessibility' => $base . '/accessibility/',
+					'Privacy'       => $base . '/privacy/',
+				),
 			)
 			: array(
-				'Ensino'         => '/pt-br/ensino/',
-				'Contato'        => '/pt-br/contato/',
-				'Eventos'        => '/pt-br/eventos/',
-				'Privacidade'    => '/pt-br/privacidade/',
-				'Acessibilidade' => '/pt-br/acessibilidade/',
+				'O laboratório' => array(
+					'Sobre'             => $base . '/sobre/',
+					'História'          => $base . '/sobre/#historia',
+					'Pessoas'           => $base . '/pessoas/',
+					'Infraestrutura'    => $base . '/infraestrutura/',
+					'Identidade visual' => $base . '/identidade-visual/',
+				),
+				'Pesquisa'      => array(
+					'Linhas de pesquisa' => $base . '/pesquisa/',
+					'Projetos'           => $base . '/projetos/',
+					'Publicações'        => $base . '/publicacoes/',
+					'Ensino'             => $base . '/ensino/',
+					'Notícias e eventos' => $base . '/noticias/',
+				),
+				'Participe'     => array(
+					'Oportunidades'  => $base . '/oportunidades/',
+					'Busca'          => $base . '/busca/',
+					'Contato'        => $base . '/contato/',
+					'Acessibilidade' => $base . '/acessibilidade/',
+					'Privacidade'    => $base . '/privacidade/',
+				),
 			);
-		$items   = '';
-		foreach ( $links as $label => $url ) {
-			$items .= '<li><a href="' . $url . '">' . self::escape( $label ) . '</a></li>';
+		$columns = '';
+		foreach ( $groups as $group_label => $links ) {
+			$items = '';
+			foreach ( $links as $label => $url ) {
+				$items .= '<li><a href="' . self::escape( $url ) . '">' . self::escape( $label ) . '</a></li>';
+			}
+			$columns .= '<div><h2>' . self::escape( $group_label ) . '</h2><ul>' . $items . '</ul></div>';
 		}
-		$nav_label = $english ? 'Institutional information' : 'Informações institucionais';
-		$statement = $english ? 'Part of COPPE at the Federal University of Rio de Janeiro.' : 'Parte da COPPE na Universidade Federal do Rio de Janeiro.';
 		$home      = $english ? '/en/' : '/pt-br/';
-		$home_name = $english ? 'LPS - home' : 'LPS - início';
-		$logo      = '<img class="lps-logo lps-footer-logo" src="' . self::brand_base_url() . 'lps_coppe_reversed_lockup.svg" alt="" width="1622" height="804" loading="lazy" decoding="async">';
-		return '<footer class="lps-site-footer"><div class="lps-footer-grid lps-page-grid"><a class="lps-wordmark lps-wordmark-light" href="' . $home . '" aria-label="' . self::escape( $home_name ) . '">' . $logo . '</a><div><p>' . self::escape( $statement ) . '</p><p class="lps-meta">UFRJ <span aria-hidden="true">/</span> COPPE <span aria-hidden="true">/</span> LPS</p></div><nav aria-label="' . self::escape( $nav_label ) . '"><ul>' . $items . '</ul></nav></div></footer>';
+		$home_name = $english ? 'LPS — home' : 'LPS — início';
+		$alt       = $english ? 'LPS — Signal Processing Laboratory' : 'LPS — Laboratório de Processamento de Sinais';
+		$logo      = '<img class="lps-logo" src="' . self::brand_base_url() . 'lps_coppe_reversed_lockup.svg" alt="' . self::escape( $alt ) . '" width="1622" height="804" loading="lazy" decoding="async">';
+		$address   = '<address>'
+			. 'Av. Athos da Silveira Ramos, 149<br>'
+			. ( $english ? 'Technology Center, Building H, room 220<br>Ilha do Fundão<br>Rio de Janeiro — RJ, ZIP 21941-914<br>' : 'Centro de Tecnologia, Bloco H, sala 220<br>Cidade Universitária, Ilha do Fundão<br>Rio de Janeiro — RJ, CEP 21941-914<br>' )
+			. '<a href="tel:+552139388205">(21) 3938-8205</a> · ' . ( $english ? 'Ext. 8205' : 'Ramal 8205' ) . '<br>'
+			. '<a href="mailto:secretaria@lps.ufrj.br">secretaria@lps.ufrj.br</a>'
+			. '</address>';
+		$copyright = $english
+			? '© 2026 Signal Processing Laboratory. All rights reserved.'
+			: '© 2026 Laboratório de Processamento de Sinais. Todos os direitos reservados.';
+		return '<footer class="lps-site-footer"><div class="lps-footer-inner lps-page-grid">'
+			. '<div class="lps-footer-brand"><a class="lps-wordmark lps-wordmark-light" href="' . $home . '" aria-label="' . self::escape( $home_name ) . '">' . $logo . '</a>' . $address . '</div>'
+			. $columns
+			. '</div><div class="lps-footer-bottom lps-page-grid"><p>' . self::escape( $copyright ) . '</p>'
+			. '<ul><li><a href="https://www.pee.ufrj.br/">PEE/COPPE</a></li><li><a href="https://coppe.ufrj.br/">COPPE</a></li><li><a href="https://ufrj.br/">UFRJ</a></li></ul></div></footer>';
 	}
 
 	/**
