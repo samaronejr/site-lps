@@ -287,7 +287,8 @@ final class BrandAssets {
 			}
 		}
 		if ( isset( $_SERVER['REQUEST_URI'] ) && is_string( $_SERVER['REQUEST_URI'] ) ) {
-			$path = function_exists( 'wp_parse_url' ) ? wp_parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH ) : null;
+			$request_uri = sanitize_url( wp_unslash( (string) $_SERVER['REQUEST_URI'] ) );
+			$path        = function_exists( 'wp_parse_url' ) ? wp_parse_url( $request_uri, PHP_URL_PATH ) : null;
 			if ( is_string( $path ) ) {
 				return self::match_path( $path );
 			}
