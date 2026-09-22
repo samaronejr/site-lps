@@ -418,6 +418,13 @@
         "role": "print-rule",
         "usage": "Print separator colour",
         "tag": "MEASURED (primitive)"
+      },
+      {
+        "token": "--color-teal-deep",
+        "value": "#0F766E",
+        "role": "teal-deep",
+        "usage": "Navigation current-section underline and deep teal accents",
+        "tag": "MEASURED (primitive)"
       }
     ],
     "pairs": [
@@ -819,7 +826,7 @@
       },
       {
         "id": "session-link-hover-on-surface",
-        "foreground": "--color-navy-900",
+        "foreground": "--color-anchor",
         "background": "--color-surface",
         "kind": "text",
         "minRatio": 4.5,
@@ -828,7 +835,7 @@
       },
       {
         "id": "session-link-active-on-accent",
-        "foreground": "--color-navy-950",
+        "foreground": "--color-anchor-deep",
         "background": "--color-accent",
         "kind": "text",
         "minRatio": 4.5,
@@ -837,7 +844,7 @@
       },
       {
         "id": "skip-link-on-accent",
-        "foreground": "--color-navy-950",
+        "foreground": "--color-anchor-deep",
         "background": "--color-accent",
         "kind": "text",
         "minRatio": 4.5,
@@ -865,10 +872,10 @@
       {
         "id": "memoriam-monogram-on-slate",
         "foreground": "--color-surface",
-        "background": "--color-slate-600",
+        "background": "--color-text-muted",
         "kind": "text",
         "minRatio": 4.5,
-        "expectedRatio": 9.08,
+        "expectedRatio": 7.05,
         "context": "in-memoriam monogram"
       },
       {
@@ -900,20 +907,20 @@
       },
       {
         "id": "nav-current-bar-on-surface",
-        "foreground": "--color-cyan-500",
+        "foreground": "--color-teal-deep",
         "background": "--color-surface",
         "kind": "ui",
         "minRatio": 3,
-        "expectedRatio": 3.63,
+        "expectedRatio": 5.47,
         "context": "current-page indicator bar"
       },
       {
         "id": "kicker-index-on-surface",
-        "foreground": "--color-cyan-500",
+        "foreground": "--color-accent-ink",
         "background": "--color-surface",
         "kind": "ui",
         "minRatio": 3,
-        "expectedRatio": 3.63,
+        "expectedRatio": 8.54,
         "context": "section kicker index bar"
       },
       {
@@ -1181,12 +1188,6 @@
     ]
   },
   "logo": {
-    "mobile": {
-      "rule": "The 2026-09-21 revision drops the separate compact file: the masthead carries the full-colour artwork alone at every width, scaling by clamp(13rem, 52vw, 27rem) with a 208px floor, and the laboratory name is carried by the page title, the footer wordmark, the link's accessible name and the structured data rather than by a second file.",
-      "minimumWidthPx": 208,
-      "variants": ["full"],
-      "surfaces": ["light"]
-    },
     "source": {
       "path": "assets/brand/lps_logo_vector.svg",
       "sha256": "f369f9e49c81e297d30fa8e240267667dddf8b89f0d26c494636f9429027a23b",
@@ -1204,6 +1205,23 @@
         "use": "Desktop masthead and any placement at least 240px wide on a light surface",
         "surfaces": ["light"],
         "minWidthPx": 240
+      },
+      {
+        "id": "compact",
+        "path": "assets/brand/lps_logo_compact.svg",
+        "viewBox": "64 200 1322 275",
+        "aspectRatio": 4.807,
+        "use": "Mobile masthead and constrained placements; keeps the waveform and LPS lettering, drops the long descriptive lettering that cannot stay legible at mobile sizes",
+        "surfaces": ["light"],
+        "minHeightPx": 28,
+        "derivation": {
+          "method": "path-selection-and-recombination-only",
+          "keptPaths": ["reference-line", "waveform", "separator", "lps-lettering"],
+          "droppedPaths": ["laboratory-name", "computational-intelligence"],
+          "keptGradients": ["wave-gradient", "baseline-gradient", "lps-gradient"],
+          "viewBoxDerivation": "Union of kept-path bounds x[72,1378.1] y[208.03,467.33] padded 8 units per side",
+          "constraint": "No new geometry, no altered paths, no recolor; every kept path d attribute is byte-identical to the source"
+        }
       },
       {
         "id": "symbol-source",
@@ -1315,28 +1333,6 @@
         "error": "A rejected publish attempt keeps the editor input and shows the blocking reason inline",
         "long-content": "The materials table scrolls inside its own frame; the page never scrolls horizontally",
         "scan-pending": "Pending scan work is visible as a status pill, not as a silent omission"
-      }
-    },
-    {
-      "id": "sign-in",
-      "mode": "operate",
-      "taskDensity": "low",
-      "states": {
-        "empty": "The form renders with both fields empty, a labelled remember-me and a route to a new password",
-        "error": "A rejected attempt re-renders the form with the reason in text, the attempted username kept and the password cleared",
-        "signed-in": "An existing session shows the account and its destinations instead of a second login form",
-        "long-content": "The guidance column sits beside the form above 60rem and beneath it below that; nothing scrolls sideways"
-      }
-    },
-    {
-      "id": "professor-area",
-      "mode": "operate",
-      "taskDensity": "medium",
-      "states": {
-        "empty": "A member with no authored content sees the next action rather than an empty frame",
-        "error": "Unavailable relations are listed as unavailable, never silently omitted",
-        "long-content": "Subject and note tables scroll inside their own frame; the page never scrolls sideways",
-        "anonymous": "An anonymous visitor is redirected to the sign-in surface with the requested destination preserved"
       }
     },
     {

@@ -91,6 +91,7 @@
   --color-teal-ink: #115e59;
   --color-teal-wash: rgba(45, 212, 191, 0.16);
   --color-navy-bright: #0e4c86;
+  --color-locale-selected: #09213a;
   --color-card-rule: rgba(18, 48, 74, 0.1);
   --color-text: #0a1626;
   --color-text-muted: #495a70;
@@ -135,6 +136,8 @@
     var(--color-action-light) 100%
   );
   --gradient-monogram: linear-gradient(160deg, var(--color-anchor-soft), var(--color-action-hover));
+  --gradient-event-date: linear-gradient(160deg, var(--color-anchor-soft), var(--color-anchor-deep));
+  --gradient-partner-fade: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
   --gradient-monogram-memoriam: linear-gradient(
     160deg,
     var(--color-text-muted),
@@ -208,6 +211,7 @@
   --radius-xl: 4px;
   --radius-pill: 999px;
   --radius-card: 1.25rem;
+  --radius-monogram: 0.875rem;
   --radius-dish: 1.75rem;
   --radius-control: var(--radius-sm);
   --radius-image: var(--radius-sm);
@@ -230,7 +234,7 @@
   --shadow-stat: 0 14px 34px rgba(10, 42, 72, 0.12);
   --shadow-cta: 0 10px 24px rgba(15, 61, 107, 0.26);
   --shadow-cta-hover: 0 14px 30px rgba(15, 61, 107, 0.32);
-  --shadow-nav-current: inset 0 -4px 0 0 var(--color-teal);
+  --shadow-nav-current: inset 0 -4px 0 0 var(--color-teal-deep);
   --shadow-none: none;
   --rule-hairline: var(--line-thin) solid var(--color-rule-quiet);
   --rule-boundary: var(--line-medium) solid var(--color-boundary-strong);
@@ -1379,7 +1383,7 @@ textarea:focus-visible {
 
 .lps-utility-bar .lps-locale-switch [aria-current="true"],
 .lps-utility-bar .lps-locale-switch [aria-current="page"] {
-  background: #09213a;
+  background: var(--color-locale-selected);
   border-color: var(--overlay-light-14);
   color: var(--color-surface);
 }
@@ -2226,15 +2230,9 @@ textarea:focus-visible {
   transform: translateY(-2px);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .lps-agenda > li:hover {
-    transform: none;
-  }
-}
-
 .lps-event-date {
   align-items: center;
-  background: linear-gradient(160deg, var(--color-anchor-soft), var(--color-anchor-deep));
+  background: var(--gradient-event-date);
   border-radius: var(--radius-card);
   color: var(--color-surface);
   display: grid;
@@ -2388,7 +2386,7 @@ textarea:focus-visible {
 .lps-person-no-photo {
   align-items: center;
   background: var(--gradient-monogram);
-  border-radius: 0.875rem;
+  border-radius: var(--radius-monogram);
   color: var(--color-surface);
   display: grid;
   font-family: var(--font-display);
@@ -2471,25 +2469,19 @@ textarea:focus-visible {
    second (aria-hidden) half makes the wrap seamless. Pauses on hover and
    stands still under reduced-motion. */
 .lps-partner-marquee {
-  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: var(--gradient-partner-fade);
   overflow: hidden;
   padding-block: var(--space-4);
 }
 
 .lps-partner-track {
   align-items: center;
-  animation: lps-partner-drift 60s linear infinite;
   display: flex;
   gap: var(--space-10);
   inline-size: max-content;
   list-style: none;
   margin: 0;
   padding: 0;
-}
-
-.lps-partner-marquee:hover .lps-partner-track,
-.lps-partner-marquee:focus-within .lps-partner-track {
-  animation-play-state: paused;
 }
 
 .lps-partner-track img {
@@ -2519,16 +2511,6 @@ textarea:focus-visible {
   padding-block: var(--space-2);
   text-transform: uppercase;
   white-space: nowrap;
-}
-
-.lps-partner-track--roomy {
-  animation-duration: 90s;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .lps-partner-track {
-    animation: none;
-  }
 }
 
 /* Location split: contact facts beside an embedded map card. */
@@ -3989,6 +3971,16 @@ th code {
     scroll-behavior: auto;
   }
 
+  * {
+    transition-duration: 0.01ms;
+  }
+
+  .lps-partner-track {
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+  }
+
+  .lps-agenda > li:hover,
   .lps-card:hover,
   .lps-journey:hover,
   .lps-button:hover {

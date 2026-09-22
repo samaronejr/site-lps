@@ -334,7 +334,7 @@ ${sectionHead({
   },
 })}
 <div class="lps-partner-marquee">
-<style>@keyframes lps-partner-drift{from{transform:translateX(-50%)}to{transform:translateX(0)}}</style>
+<style>@keyframes lps-partner-drift{from{transform:translateX(-50%)}to{transform:translateX(0)}}.lps-partner-track{animation:lps-partner-drift 60s linear infinite}.lps-partner-track--roomy{animation-duration:90s}.lps-partner-marquee:hover .lps-partner-track,.lps-partner-marquee:focus-within .lps-partner-track{animation-play-state:paused}@media (prefers-reduced-motion:reduce){.lps-partner-track{animation:none}}</style>
 <ul class="lps-partner-track lps-partner-track--roomy">
 ${partnerLogos
   .map(
@@ -433,7 +433,7 @@ ${sectionHead({ kicker: en ? "Identity" : "Identidade", title: en ? "The laborat
 <section class="lps-section" id="parceiros" aria-labelledby="about-partners">
 ${sectionHead({ kicker: en ? "Partners" : "Parceiros", title: en ? "Institutions working with the laboratory" : "Instituições que atuam com o laboratório", id: "about-partners" })}
 <div class="lps-partner-marquee">
-<style>@keyframes lps-partner-drift{from{transform:translateX(-50%)}to{transform:translateX(0)}}</style>
+<style>@keyframes lps-partner-drift{from{transform:translateX(-50%)}to{transform:translateX(0)}}.lps-partner-track{animation:lps-partner-drift 60s linear infinite}.lps-partner-track--roomy{animation-duration:90s}.lps-partner-marquee:hover .lps-partner-track,.lps-partner-marquee:focus-within .lps-partner-track{animation-play-state:paused}@media (prefers-reduced-motion:reduce){.lps-partner-track{animation:none}}</style>
 <ul class="lps-partner-track">
 ${partnerLogos
   .map(

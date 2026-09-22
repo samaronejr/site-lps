@@ -49,12 +49,12 @@ $lps_partner_track = sprintf(
 	preg_replace( '/<li>/', '<li aria-hidden="true">', $lps_partner_items )
 );
 ?>
-<!-- wp:group {"className":"lps-partner-marquee","layout":{"type":"default"}} -->
+<!-- wp:group {"className":"lps-partner-marquee","lock":{"move":true,"remove":true},"layout":{"type":"default"}} -->
 <div class="wp-block-group lps-partner-marquee">
-<!-- wp:html -->
-<style>@keyframes lps-partner-drift{from{transform:translateX(-50%)}to{transform:translateX(0)}}</style>
+<!-- wp:html {"lock":{"move":true,"remove":true}} -->
+<style>@keyframes lps-partner-drift{from{transform:translateX(-50%)}to{transform:translateX(0)}}.lps-partner-track{animation:lps-partner-drift 60s linear infinite}.lps-partner-track--roomy{animation-duration:90s}.lps-partner-marquee:hover .lps-partner-track,.lps-partner-marquee:focus-within .lps-partner-track{animation-play-state:paused}@media (prefers-reduced-motion:reduce){.lps-partner-track{animation:none}}</style>
 <!-- /wp:html -->
-<!-- wp:html -->
+<!-- wp:html {"lock":{"move":true,"remove":true}} -->
 <?php echo $lps_partner_track; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- items are escaped per logo above. ?>
 <!-- /wp:html -->
 </div>

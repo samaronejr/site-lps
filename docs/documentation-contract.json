@@ -99,12 +99,12 @@
       "id": "content-model-contract",
       "kind": "source",
       "doc": "docs/content/data-dictionary.md",
-      "reviewedAt": "2026-09-19",
+      "reviewedAt": "2026-09-22",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
-          "sha256": "2312f60cdce0481e13e0e456ce786898ecd4a7c0c4839b8f660a1da79a2d1034"
+          "sha256": "72d19bb44c43ce966811d8464d00e128dcdc36de162eef859da72f5828f7d1af"
         }
       ]
     },
@@ -138,12 +138,12 @@
       "id": "design-tokens",
       "kind": "source",
       "doc": "docs/design/design-system-guide.md",
-      "reviewedAt": "2026-09-18",
+      "reviewedAt": "2026-09-22",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "wp-content/themes/lps-theme/theme.json",
-          "sha256": "a8fdaecf872671d11ba53bfc956569d55ac63bbc970c6488b4562501f24ca941"
+          "sha256": "a44568515a782d98ae71fcf18b76b3390abd92402a112575491ad0b141139a9e"
         },
         {
           "path": "DESIGN.md",
@@ -155,12 +155,12 @@
       "id": "governance-matrix",
       "kind": "source",
       "doc": "docs/handbook/editorial-quick-start.md",
-      "reviewedAt": "2026-09-18",
+      "reviewedAt": "2026-09-22",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "tests/fixtures/governance/role-collection-matrix.json",
-          "sha256": "7999b53b29fb4f7a173d86b2cc5223dadb5c97242196dc723eb82a0fa7a92d3d"
+          "sha256": "fd694a63063b33adb7f3abb8768b69aef0df1f354808092e8574c2dd0fb80fa0"
         }
       ]
     },
@@ -181,7 +181,7 @@
       "id": "faculty-dashboard-labels",
       "kind": "source",
       "doc": "docs/handbook/guia-docente-painel.md",
-      "reviewedAt": "2026-09-19",
+      "reviewedAt": "2026-09-22",
       "maxAgeDays": 180,
       "sources": [
         {
@@ -190,7 +190,7 @@
         },
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-taskdashboard.php",
-          "sha256": "80de4c6bcba8b8d6ec2a65e16245eb8b157aab57a8d9e234c00773f0bfa3c24c"
+          "sha256": "f027586f556da16e7a71ddb24d106e683759dcb0fa6f8b6408e8d22639877fe0"
         },
         {
           "path": "wp-content/themes/lps-theme/includes/class-dashboardroutes.php",
