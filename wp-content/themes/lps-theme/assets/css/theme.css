@@ -919,12 +919,12 @@ a.lps-button-quiet:hover {
 .lps-term-token > span {
   align-items: center;
   background: var(--color-surface-alt);
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-pill);
   color: var(--color-text-muted);
   display: inline-flex;
   font-family: var(--font-mono);
   font-size: var(--type-meta);
-  padding: 0.2rem 0.55rem;
+  padding: 0.25rem 0.75rem;
 }
 
 /* ----------------------------------------------------------------------------
