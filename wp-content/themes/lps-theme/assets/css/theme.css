@@ -1358,7 +1358,7 @@ textarea:focus-visible {
 
 .lps-utility-bar .lps-locale-switch [aria-current="true"],
 .lps-utility-bar .lps-locale-switch [aria-current="page"] {
-  background: var(--color-anchor-deep);
+  background: var(--color-action);
   border-color: var(--overlay-light-14);
   color: var(--color-surface);
 }
