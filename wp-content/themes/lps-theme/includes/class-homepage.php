@@ -699,8 +699,9 @@ final class Homepage {
 				'completed' => $english ? 'Completed' : 'Concluído',
 				'paused'    => $english ? 'Paused' : 'Pausado',
 				'planned'   => $english ? 'Planned' : 'Planejado',
+				'suspended' => $english ? 'Suspended' : 'Suspenso',
 			);
-			return $labels[ $status ] ?? ( $english ? 'Ongoing' : 'Em andamento' );
+			return $labels[ $status ] ?? '';
 		}
 		return '';
 	}
@@ -749,8 +750,8 @@ final class Homepage {
 	/**
 	 * Renders one dated record as an agenda row.
 	 *
-	 * The date tile prints the record's year — the shared period granularity
-	 * across news, events and publications — with the localized record-type
+	 * The date tile prints the record's canonical period label — a year or a
+	 * documented range such as "2021-2022" or "Desde 1988" — with the localized record-type
 	 * label beneath. Imported records keep their provenance line.
 	 *
 	 * @param array<string, mixed> $record CMS record.
@@ -759,13 +760,16 @@ final class Homepage {
 	private static function agenda_item_markup( array $record, string $locale ): string {
 		$english = 'en' === $locale;
 		$date    = trim( self::text( $record['date'] ?? '' ) );
-		$year    = '' !== $date ? substr( $date, 0, 4 ) : '';
-		$types   = array(
+		$label   = '—';
+		if ( '' !== $date ) {
+			$label = 1 === preg_match( '/^\d{4}(?:-\d{2}-\d{2}|[\sT]|$)/', $date ) ? substr( $date, 0, 4 ) : $date;
+		}
+		$types = array(
 			'lps_news'        => $english ? 'News' : 'Notícia',
 			'lps_event'       => $english ? 'Event' : 'Evento',
 			'lps_publication' => $english ? 'Publication' : 'Publicação',
 		);
-		$type    = $types[ self::text( $record['type'] ?? '' ) ] ?? '';
+		$type  = $types[ self::text( $record['type'] ?? '' ) ] ?? '';
 		if ( 'lps_event' === ( $record['type'] ?? '' ) ) {
 			$states = array(
 				'cancelled' => $english ? 'Cancelled' : 'Cancelado',
@@ -775,7 +779,7 @@ final class Homepage {
 			$type   = '' !== $state && '' !== $type ? $type . ' · ' . $state : $type;
 		}
 		$html    = '<li data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '" data-record-id="' . self::escape( self::text( $record['record_id'] ?? '' ) ) . '">';
-		$html   .= '<div class="lps-event-date"><strong>' . self::escape( '' !== $year ? $year : '—' ) . '</strong><span>' . self::escape( $type ) . '</span></div>';
+		$html   .= '<div class="lps-event-date"><strong>' . self::escape( $label ) . '</strong><span>' . self::escape( $type ) . '</span></div>';
 		$html   .= '<div><h3><a href="' . self::escape( self::text( $record['url'] ) ) . '">' . self::escape( self::text( $record['title'] ) ) . '</a></h3>';
 		$summary = trim( self::text( $record['summary'] ?? '' ) );
 		if ( '' !== $summary ) {
@@ -851,17 +855,23 @@ final class Homepage {
 		);
 		$rows  = array();
 		foreach ( $posts as $post ) {
-			if ( get_post_meta( $post->ID, '_lps_locale', true ) !== $locale || 'published' !== get_post_meta( $post->ID, '_lps_state', true ) ) {
+			// Shared course fields and relationships live on the pt-br authority
+			// record; localized variants carry only translated text.
+			$authority = Translations::source_id( $post->ID ) ?? $post->ID;
+			if ( Translations::locale( $post->ID ) !== $locale || 'published' !== get_post_meta( $authority, '_lps_state', true ) ) {
 				continue;
 			}
 			$names = array();
 			if ( class_exists( Relationships::class ) ) {
-				foreach ( Relationships::reverse_for( $post->ID, 'offering_course' ) as $edge ) {
+				foreach ( Relationships::reverse_for( $authority, 'offering_course' ) as $edge ) {
 					$offering_id = self::num( $edge['source_post_id'] );
 					if ( 0 >= $offering_id ) {
 						continue;
 					}
 					foreach ( Relationships::for_source( $offering_id, 'teaching_team' ) as $member ) {
+						if ( empty( $member['public_visibility'] ) ) {
+							continue;
+						}
 						$target = self::num( $member['target_post_id'] );
 						$target = Translations::locale( $target ) === $locale ? $target : self::num( Translations::variants( $target )[ $locale ] ?? 0 );
 						$person = 0 < $target ? get_post( $target ) : null;
@@ -871,9 +881,9 @@ final class Homepage {
 					}
 				}
 			}
-			$level  = self::text( get_post_meta( $post->ID, '_lps_course_level', true ) );
+			$level  = self::text( get_post_meta( $authority, '_lps_course_level', true ) );
 			$rows[] = array(
-				'code'        => self::text( get_post_meta( $post->ID, '_lps_course_code', true ) ),
+				'code'        => self::text( get_post_meta( $authority, '_lps_course_code', true ) ),
 				'title'       => $post->post_title,
 				'url'         => (string) get_permalink( $post->ID ),
 				'professor'   => implode( ' · ', $names ),
@@ -1056,11 +1066,14 @@ final class Homepage {
 		$logos = array();
 		$seen  = array();
 		foreach ( $posts as $post ) {
-			if ( get_post_meta( $post->ID, '_lps_locale', true ) !== $locale || 'published' !== get_post_meta( $post->ID, '_lps_state', true ) ) {
+			// Logo metadata is authority-owned, so localized variants resolve to
+			// the pt-br record before the rights and path checks.
+			$authority = Translations::source_id( $post->ID ) ?? $post->ID;
+			if ( Translations::locale( $post->ID ) !== $locale || 'published' !== get_post_meta( $authority, '_lps_state', true ) ) {
 				continue;
 			}
-			$logo = trim( self::text( get_post_meta( $post->ID, '_lps_logo_url', true ) ) );
-			if ( '' === $logo || 'cleared' !== get_post_meta( $post->ID, '_lps_logo_rights', true ) || isset( $seen[ $logo ] ) ) {
+			$logo = trim( self::text( get_post_meta( $authority, '_lps_logo_url', true ) ) );
+			if ( ! self::is_local_asset_path( $logo ) || 'cleared' !== get_post_meta( $authority, '_lps_logo_rights', true ) || isset( $seen[ $logo ] ) ) {
 				continue;
 			}
 			$seen[ $logo ] = true;
@@ -1070,6 +1083,18 @@ final class Homepage {
 			);
 		}
 		return $logos;
+	}
+
+	/**
+	 * Reports whether a stored logo path is a same-origin relative path.
+	 *
+	 * The allowlist rejects schemes, protocol-relative hosts, quotes, and
+	 * whitespace, so an attribute-breaking value can never reach `src`.
+	 *
+	 * @param string $path Stored asset path.
+	 */
+	private static function is_local_asset_path( string $path ): bool {
+		return 1 === preg_match( '#^/[A-Za-z0-9._~%+/-]+$#', $path );
 	}
 
 	/**

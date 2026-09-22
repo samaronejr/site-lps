@@ -129,9 +129,7 @@ final class TeachingSurfaces {
 				}
 				$html .= '</th>';
 				$team  = self::teaching_team_names( $course, $locale );
-				if ( array() !== $team ) {
-					$html .= '<td>' . implode( ' · ', $team ) . '</td>';
-				}
+				$html .= '<td>' . ( array() !== $team ? implode( ' · ', $team ) : '—' ) . '</td>';
 				$html .= '<td><span class="lps-level ' . self::level_variant( $level ) . '">' . self::esc( self::level_label( $level, $locale ) ) . '</span></td>';
 				$html .= '</tr>';
 			}

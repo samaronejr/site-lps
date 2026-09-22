@@ -357,6 +357,23 @@ final class HomepageTest extends \PHPUnit\Framework\TestCase {
 		self::assertStringNotContainsString( '2026-09-01', $html );
 	}
 
+	/** Documented period ranges print their full label instead of a bare year. */
+	public function test_latest_rows_keep_documented_period_labels(): void {
+		$news = array_replace(
+			$this->record( 'latest', 'pt-br' ),
+			array(
+				'type' => 'lps_news',
+				'date' => '2021-2022',
+			)
+		);
+		$html = Homepage::section_markup( 'latest', 'pt-br', array( $news ), '2026-09-06' );
+		self::assertStringContainsString( '<strong>2021-2022</strong>', $html );
+
+		$news['date'] = 'Desde 1988';
+		$html         = Homepage::section_markup( 'latest', 'pt-br', array( $news ), '2026-09-06' );
+		self::assertStringContainsString( '<strong>Desde 1988</strong>', $html );
+	}
+
 	/** Event rows carry an explicit status when one is set, differentiated from news. */
 	public function test_event_rows_carry_status_and_venue(): void {
 		$event = array_replace(
