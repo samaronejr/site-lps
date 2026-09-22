@@ -84,11 +84,20 @@ function home(locale) {
   const en = locale === "en";
   const u = ui(locale);
 
+  // Duotone hero headline: the accent phrase renders in lime (FEEC grammar).
+  const heroTitle = (loc) => {
+    const title = esc(t(hero.title, loc));
+    const accent = esc(t(hero.accent, loc));
+    const at = title.indexOf(accent);
+    if (at === -1) return title;
+    return `${title.slice(0, at)}<span class="lps-hero-accent">${accent}</span>${title.slice(at + accent.length)}`;
+  };
+
   const heroBlock = `<div class="lps-hero">
 <div class="lps-hero-inner lps-page-grid">
 <div>
 <p class="lps-kicker">${esc(t(hero.kicker, locale))}</p>
-<h1 class="lps-hero-title">${esc(t(hero.title, locale))}</h1>
+<h1 class="lps-hero-title">${heroTitle(locale)}</h1>
 <p class="lps-hero-lead">${esc(t(hero.lead, locale))}</p>
 <div class="lps-hero-actions">${hero.actions
     .map(

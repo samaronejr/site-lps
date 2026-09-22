@@ -165,6 +165,10 @@ export const hero = {
     "pt-BR": "Sinais, dados e inteligência computacional a serviço da engenharia",
     en: "Signals, data and computational intelligence in the service of engineering",
   },
+  accent: {
+    "pt-BR": "inteligência computacional",
+    en: "computational intelligence",
+  },
   lead: {
     "pt-BR":
       "Fundado em 1996, o LPS reúne ensino, pesquisa e extensão na COPPE/UFRJ. Pesquisamos processamento de sinais, aprendizado de máquina e engenharia de software aplicados a energia, defesa, medicina, óleo e gás e física experimental de altas energias.",

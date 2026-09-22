@@ -86,6 +86,12 @@
   --color-accent: #0fb5e4;
   --color-accent-soft: #62d8f3;
   --color-accent-wash: #d6f3fb;
+  --color-lime: #b0d361;
+  --color-lime-deep: #4e7d17;
+  --color-lime-ink: #41690f;
+  --color-lime-wash: rgba(176, 211, 97, 0.16);
+  --color-navy-bright: #0e4c86;
+  --color-card-rule: rgba(18, 48, 74, 0.1);
   --color-text: #0a1626;
   --color-text-muted: #495a70;
   --color-text-soft: #586a80;
@@ -139,7 +145,9 @@
       transparent 0 calc(100% - 1px),
       color-mix(in srgb, var(--color-on-dark) 9%, transparent) calc(100% - 1px) 100%
     );
-  --gradient-cta: linear-gradient(120deg, var(--color-anchor-soft), var(--color-anchor-deep));
+  --gradient-cta: linear-gradient(100deg, #4e7d17 0%, #0f3d6b 100%);
+  --gradient-band: linear-gradient(115deg, var(--color-anchor-deep) 0%, #0d3460 58%, var(--color-navy-bright) 100%);
+  --gradient-topbar: linear-gradient(90deg, #8fbf3c 0%, var(--color-navy-bright) 100%);
   --font-display: "Space Grotesk", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-interface: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
@@ -181,6 +189,8 @@
   --radius-lg: 4px;
   --radius-xl: 4px;
   --radius-pill: 999px;
+  --radius-card: 1.25rem;
+  --radius-dish: 1.75rem;
   --radius-control: var(--radius-sm);
   --radius-image: var(--radius-sm);
   --line-thin: 1px;
@@ -197,7 +207,12 @@
   --shadow-md: 4px 4px 0 var(--color-rule-quiet);
   --shadow-lg: 6px 6px 0 var(--color-anchor-soft);
   --shadow-ring: 0 0 0 1px var(--color-rule-quiet);
-  --shadow-nav-current: inset 0 -3px 0 0 var(--color-accent-ink);
+  --shadow-card: 0 10px 30px rgba(10, 42, 72, 0.08);
+  --shadow-card-hover: 0 22px 44px rgba(10, 42, 72, 0.16);
+  --shadow-stat: 0 14px 34px rgba(10, 42, 72, 0.12);
+  --shadow-cta: 0 10px 24px rgba(15, 61, 107, 0.26);
+  --shadow-cta-hover: 0 14px 30px rgba(15, 61, 107, 0.32);
+  --shadow-nav-current: inset 0 -4px 0 0 var(--color-lime);
   --shadow-none: none;
   --rule-hairline: var(--line-thin) solid var(--color-rule-quiet);
   --rule-boundary: var(--line-medium) solid var(--color-boundary-strong);
@@ -3531,4 +3546,297 @@ th code {
     content: " (" attr(href) ")";
     font-size: 0.8em;
   }
+}
+
+/* ----------------------------------------------------------------------------
+ * 22. FEEC-direction reskin — navy + lime, pill CTAs, rounded navy dishes,
+ *     soft card shadows, node-web motif (reference: fee.unicamp.br).
+ * ------------------------------------------------------------------------- */
+
+
+/* Signature hairline across the very top of the page. */
+.lps-site-header {
+  border-block-start: var(--line-heavy) solid transparent;
+  border-image: var(--gradient-topbar) 1;
+}
+
+/* Nav reads like FEEC's: display weight, lime underline for hover/current. */
+.lps-nav-link,
+.lps-primary-nav a {
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+.lps-nav-link:hover,
+.lps-primary-nav a:hover {
+  color: var(--color-navy-bright);
+}
+
+.lps-nav-link[aria-current="page"],
+.lps-primary-nav a[aria-current="page"] {
+  box-shadow: var(--shadow-nav-current);
+}
+
+/* Hero: navy band with a node-web motif and a duotone headline. */
+.lps-hero {
+  background: var(--gradient-band);
+}
+
+.lps-hero::before {
+  background-image: none;
+}
+
+.lps-hero::after {
+  background-image: url("../img/decor/lps-node-web.svg");
+  background-position: right -10rem bottom -4rem;
+  background-repeat: no-repeat;
+  background-size: 72rem auto;
+  opacity: 0.55;
+}
+
+.lps-hero .lps-kicker {
+  color: var(--color-lime);
+}
+
+.lps-hero .lps-kicker::before {
+  background: var(--color-lime);
+}
+
+.lps-hero-title {
+  font-weight: 700;
+}
+
+.lps-hero-accent {
+  color: var(--color-lime);
+}
+
+.lps-hero-lead {
+  color: var(--color-on-dark-lead);
+}
+
+.lps-hero-support {
+  border: var(--line-thin) solid var(--overlay-light-18);
+  border-block-start: var(--line-heavy) solid var(--color-lime);
+  border-radius: var(--radius-card);
+}
+
+.lps-hero-support li::before {
+  background: var(--color-lime);
+  border-radius: var(--radius-pill);
+}
+
+/* Buttons become FEEC pills: lime→navy gradient primary, outlined ghost. */
+.lps-button,
+a.lps-button,
+button.lps-button,
+input[type="submit"].lps-button,
+.wp-block-button__link {
+  border-radius: var(--radius-pill);
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  padding: var(--space-3) var(--space-6);
+}
+
+.lps-button-primary,
+a.lps-button-primary {
+  background: var(--gradient-cta);
+  border-color: transparent;
+  box-shadow: var(--shadow-cta);
+}
+
+.lps-button-primary:hover,
+a.lps-button-primary:hover {
+  background: var(--gradient-cta);
+  border-color: transparent;
+  box-shadow: var(--shadow-cta-hover);
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.lps-button-ghost,
+a.lps-button-ghost {
+  border-radius: var(--radius-pill);
+}
+
+/* Stat band: the numbers strip becomes a navy dish overlapping the hero. */
+.lps-stat-band {
+  background: transparent;
+  border-block-end: 0;
+}
+
+.lps-stat-band ul {
+  background: var(--gradient-band);
+  border-radius: var(--radius-dish);
+  box-shadow: var(--shadow-stat);
+  margin-block: -3.5rem var(--space-10);
+  padding: var(--space-8) var(--space-8);
+  position: relative;
+  z-index: 1;
+}
+
+.lps-stat {
+  border-block-start: 0;
+}
+
+@media (min-width: 56rem) {
+  .lps-stat + .lps-stat {
+    border-inline-start: var(--line-thin) solid var(--overlay-light-18);
+  }
+}
+
+.lps-stat strong {
+  color: var(--color-lime);
+  font-weight: 700;
+}
+
+.lps-stat span {
+  color: var(--color-on-dark);
+}
+
+/* Section heads: navy tick becomes a lime one. */
+.lps-section-head::before {
+  background: var(--color-lime-deep);
+  border-radius: var(--radius-pill);
+  inline-size: 3.5rem;
+}
+
+/* Cards: rounded corners and soft navy shadows. */
+.lps-card {
+  border: var(--line-thin) solid var(--color-card-rule);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.lps-card:hover {
+  box-shadow: var(--shadow-card-hover);
+}
+
+.lps-card-title,
+.lps-card-title a {
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+/* Journey tiles: navy dishes with lime labels, like FEEC's course cards.
+   The home list renders items as real cards rather than a flat index. */
+.lps-home-journeys > li.lps-journey {
+  display: grid;
+}
+
+.lps-journey {
+  background: var(--gradient-band);
+  border: 0;
+  border-radius: var(--radius-dish);
+  box-shadow: var(--shadow-card);
+}
+
+.lps-journey::before {
+  display: none;
+}
+
+.lps-journey:hover {
+  box-shadow: var(--shadow-card-hover);
+}
+
+.lps-journey .lps-journey-label,
+.lps-journey .lps-meta {
+  color: var(--color-lime);
+}
+
+.lps-journey h3,
+.lps-journey h3 a {
+  color: var(--color-surface);
+}
+
+.lps-journey p {
+  color: var(--color-on-dark-lead);
+}
+
+.lps-journey .lps-more {
+  color: var(--color-lime);
+}
+
+/* Inline more-links take the lime-deeper hue that survives on white. */
+.lps-more {
+  color: var(--color-lime-deep);
+  font-weight: 700;
+}
+
+/* Kicker on light surfaces becomes a lime-wash pill. */
+.lps-kicker {
+  background: var(--color-lime-wash);
+  border-radius: var(--radius-pill);
+  color: var(--color-lime-ink);
+  display: inline-flex;
+  font-weight: 600;
+  padding: 0.4rem 1rem;
+}
+
+.lps-kicker::before {
+  background: var(--color-lime-deep);
+  border-radius: var(--radius-pill);
+  block-size: 0.5rem;
+  inline-size: 0.5rem;
+}
+
+/* Hero keeps its own flat kicker treatment. */
+.lps-hero .lps-kicker {
+  background: transparent;
+  color: var(--color-lime);
+  padding: 0;
+}
+
+.lps-hero .lps-kicker::before {
+  background: var(--color-lime);
+  border-radius: 0;
+  block-size: 0.75rem;
+  inline-size: 0.75rem;
+}
+
+/* CTA band: lime→navy gradient dish with the node-web echo. */
+.lps-cta-band {
+  background: var(--gradient-cta);
+  border-block-start: 0;
+  border-radius: var(--radius-dish);
+  margin-block: var(--space-10);
+  margin-inline: var(--grid-gutter);
+}
+
+.lps-cta-band::after {
+  background-image: url("../img/decor/lps-node-web.svg");
+  opacity: 0.22;
+}
+
+.lps-cta-band .lps-button-ghost,
+.lps-cta-band .lps-button-ghost:hover {
+  background: var(--color-surface);
+  border-color: var(--color-surface);
+  color: var(--color-anchor);
+}
+
+/* Footer: lime replaces cyan as the dark accent. */
+.lps-site-footer {
+  border-block-start-color: var(--color-lime);
+}
+
+.lps-site-footer a:hover {
+  text-decoration-color: var(--color-lime);
+}
+
+.lps-site-footer h2,
+.lps-site-footer h3 {
+  border-block-end-color: var(--overlay-light-14);
+}
+
+/* Page headers on inner pages keep the light field but gain the lime tick. */
+.lps-page-header {
+  border-block-end: 0;
+}
+
+.lps-page-header::after {
+  background: var(--gradient-topbar);
+  block-size: var(--line-heavy);
+  inset: auto 0 0 0;
+  opacity: 1;
 }

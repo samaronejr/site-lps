@@ -47,6 +47,11 @@ async function copyAssets() {
   await cp(join(themeRoot, "assets", "img", "mark"), join(outRoot, "assets", "img", "mark"), {
     recursive: true,
   });
+
+  // Decorative motifs referenced by the stylesheet.
+  await cp(join(themeRoot, "assets", "img", "decor"), join(outRoot, "assets", "img", "decor"), {
+    recursive: true,
+  });
 }
 
 async function writePage(route, locale) {
