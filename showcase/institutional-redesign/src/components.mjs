@@ -89,7 +89,7 @@ function brandMarkup(locale) {
 </a>`;
 }
 
-export function header(locale, currentPath) {
+export function header(locale, currentPath, alternates) {
   // The search form renders twice — once in the masthead row, once inside the
   // no-JavaScript disclosure panel — so each instance carries its own control id;
   // a duplicated id would break the label association in half the rendered pages.
@@ -131,8 +131,8 @@ export function header(locale, currentPath) {
   };
 
   const localeSwitch = `<nav class="lps-locale-switch" aria-label="${esc(t.localeLabel)}">
-<a${locale === "pt-br" ? ' aria-current="page"' : ""} hreflang="pt-BR" lang="pt-BR" href="/">PT</a>
-<a${locale === "en" ? ' aria-current="page"' : ""} hreflang="en" lang="en" href="/en/">EN</a>
+<a${locale === "pt-br" ? ' aria-current="page"' : ""} hreflang="pt-BR" lang="pt-BR" href="${alternates?.pt ?? "/"}">PT</a>
+<a${locale === "en" ? ' aria-current="page"' : ""} hreflang="en" lang="en" href="${alternates?.en ?? "/en/"}">EN</a>
 </nav>`;
 
   return `<a class="lps-skip-link" href="#lps-main">${esc(t.skip)}</a>
@@ -404,7 +404,7 @@ export function aside(locale, items, { left = true } = {}) {
  * Document
  * ------------------------------------------------------------------------ */
 
-export function document(locale, { title, description, path, body, canonicalPath }) {
+export function document(locale, { title, description, path, body, canonicalPath, alternates }) {
   return `<!doctype html>
 <html lang="${locale === "en" ? "en" : "pt-BR"}">
 <head>
@@ -424,7 +424,7 @@ export function document(locale, { title, description, path, body, canonicalPath
 <meta property="og:image" content="/assets/img/mark/lps-mark-social.png">
 </head>
 <body>
-${header(locale, path)}
+${header(locale, path, alternates)}
 <main id="lps-main" class="lps-main-content">
 ${body}
 </main>

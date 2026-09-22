@@ -570,7 +570,7 @@ export const people = [
     email: "natmourajr@lps.ufrj.br",
     notes: [
       {
-        title: { "pt-BR": "Página do professor — disciplinas e material de aula", en: "Página do professor — disciplinas e material de aula" },
+        title: { "pt-BR": "Página do professor — disciplinas e material de aula", en: "Faculty page — courses and class materials" },
         href: "https://sites.google.com/lps.ufrj.br/namourajr",
         summary: {
           "pt-BR": "Página mantida pelo professor com a ementa e o material das disciplinas de graduação e pós-graduação.",
@@ -626,7 +626,7 @@ export const people = [
     email: "seixas@lps.ufrj.br",
     notes: [
       {
-        title: { "pt-BR": "Página do professor", en: "Página do professor" },
+        title: { "pt-BR": "Página do professor", en: "Faculty page" },
         href: "https://sites.google.com/lps.ufrj.br/seixas",
         summary: {
           "pt-BR": "Página mantida pelo professor, com atuação, disciplinas e orientações.",
@@ -680,7 +680,7 @@ export const people = [
     email: "caloba@lps.ufrj.br",
     notes: [
       {
-        title: { "pt-BR": "Página do professor — redes neurais e circuitos", en: "Página do professor — redes neurais e circuitos" },
+        title: { "pt-BR": "Página do professor — redes neurais e circuitos", en: "Faculty page — neural networks and circuits" },
         href: "https://sites.google.com/lps.ufrj.br/caloba",
         summary: {
           "pt-BR": "Página mantida pelo professor, com o histórico das disciplinas de redes neurais que o laboratório oferece desde 1989.",
@@ -756,7 +756,7 @@ export const people = [
         },
       },
       {
-        title: { "pt-BR": "Página do professor", en: "Página do professor" },
+        title: { "pt-BR": "Página do professor", en: "Faculty page" },
         href: "https://sites.google.com/lps.ufrj.br/jodafons",
         summary: {
           "pt-BR": "Página mantida pelo professor, com disciplinas, projetos e código.",
@@ -805,7 +805,7 @@ export const people = [
     email: null,
     notes: [
       {
-        title: { "pt-BR": "Arquivo do professor", en: "Arquivo do professor" },
+        title: { "pt-BR": "Arquivo do professor", en: "Faculty archive" },
         href: "https://sites.google.com/lps.ufrj.br/acmq",
         summary: {
           "pt-BR": "Acervo mantido pelo laboratório: teoria de circuitos, microfiltros com capacitores chaveados e história da ciência.",

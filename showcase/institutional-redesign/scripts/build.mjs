@@ -74,6 +74,7 @@ async function writePage(route, locale) {
     path,
     body: `${crumbs}${page.body}`,
     canonicalPath: canonical,
+    alternates: { pt: route.pt, en: route.en },
   }).replace("</head>", `${alternates}</head>`);
 
   const file =

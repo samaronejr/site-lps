@@ -1313,7 +1313,7 @@ ${sectionHead({ kicker: en ? "Applications" : "Aplicações", title: en ? "Appro
 ${applications
   .map(
     (item) => `<article class="lps-card lps-card--flush">
-<div class="lps-card-media" style="min-block-size:11rem;background:${item.surface === "dark" ? "var(--c-navy-900)" : "var(--c-surface)"}" aria-hidden="true">
+<div class="lps-card-media lps-card-media--plain" style="min-block-size:11rem;background:${item.surface === "dark" ? "var(--c-navy-900)" : "var(--c-surface)"}" aria-hidden="true">
 <img src="${item.src}" alt="" width="${item.w ?? 2052}" height="${item.h ?? 301}" loading="lazy" decoding="async" style="object-fit:contain;padding:1.5rem;background:transparent">
 </div>
 <div class="lps-card-body" style="padding:var(--space-6)">
@@ -1412,24 +1412,26 @@ function searchPage(locale) {
 <div class="lps-search-surface">
 <form class="lps-search-form" role="search" action="${en ? "/en/search/" : "/busca/"}" method="get">
 <label for="search-query">${esc(en ? "What are you looking for?" : "O que você procura?")}</label>
-<div class="lps-search-row"><input id="search-query" name="q" type="search" value="${en ? "machine learning" : "aprendizado de máquina"}" autocomplete="off"><button class="lps-button lps-button-primary" type="submit">${esc(en ? "Search" : "Buscar")}</button></div>
+<div class="lps-search-row"><input id="search-query" name="q" type="search" autocomplete="off"><button class="lps-button lps-button-primary" type="submit">${esc(en ? "Search" : "Buscar")}</button></div>
 <p class="lps-search-hint">${esc(en ? "Try a research area, a professor name, a course code or a partner." : "Tente uma linha de pesquisa, um nome de professor, um código de disciplina ou um parceiro.")}</p>
-</form>
 <div class="lps-grid lps-grid--3">
 ${[
   {
+    name: "collection",
     title: en ? "Collection" : "Coleção",
     values: en
       ? ["Research area", "Project", "Person", "Course"]
       : ["Linha de pesquisa", "Projeto", "Pessoa", "Disciplina"],
   },
   {
+    name: "area",
     title: en ? "Area" : "Área",
     values: en
       ? ["Computational intelligence", "Signal processing", "Sonar", "HEP"]
       : ["Inteligência computacional", "Processamento de sinais", "Sonar", "HEP"],
   },
   {
+    name: "period",
     title: en ? "Period" : "Período",
     values: ["2020 —", "2015 — 2019", "2010 — 2014", en ? "before 2010" : "antes de 2010"],
   },
@@ -1439,12 +1441,13 @@ ${[
       `<fieldset class="lps-search-facet"><legend>${esc(facet.title)}</legend><ul class="lps-search-facet-values">${facet.values
         .map(
           (value) =>
-            `<li class="lps-search-facet-value"><input type="checkbox" id="facet-${esc(facet.title)}-${esc(value)}"><label for="facet-${esc(facet.title)}-${esc(value)}">${esc(value)}</label></li>`,
+            `<li class="lps-search-facet-value"><input type="checkbox" name="${facet.name}" value="${esc(value)}" id="facet-${facet.name}-${esc(value)}"><label for="facet-${facet.name}-${esc(value)}">${esc(value)}</label></li>`,
         )
         .join("")}</ul></fieldset>`,
   )
   .join("")}
 </div>
+</form>
 </div>
 <h2 id="search-results" class="lps-mt-8">${esc(en ? "Results" : "Resultados")}</h2>
 <p class="lps-result-count">${esc(en ? "4 results for the current query (sample data)." : "4 resultados para a consulta atual (dados de exemplo).")}</p>
@@ -1459,7 +1462,7 @@ ${sample
   )
   .join("")}
 </ol>
-<div class="lps-search-pagination"><a href="#">${esc(en ? "Previous" : "Anterior")}</a><span class="lps-meta">1 / 1</span><a href="#">${esc(en ? "Next" : "Próxima")}</a></div>
+<div class="lps-search-pagination"><span class="lps-search-step" aria-disabled="true">${esc(en ? "Previous" : "Anterior")}</span><span class="lps-meta">1 / 1</span><span class="lps-search-step" aria-disabled="true">${esc(en ? "Next" : "Próxima")}</span></div>
 </section>
 <section class="lps-section">
 ${ctaBand({
@@ -1637,7 +1640,7 @@ ${
 <p class="lps-field"><label for="note-summary">${esc(t(copy.notes.form.summary, locale))}</label><textarea id="note-summary" name="summary" rows="3"></textarea></p>
 <p class="lps-field"><label for="note-link">${esc(t(copy.notes.form.link, locale))}</label><input id="note-link" name="link" type="url"><span class="lps-field-hint">${esc(t(copy.notes.form.hint, locale))}</span></p>
 <p class="lps-checkbox"><input id="note-visible" name="visible" type="checkbox" value="1" checked><label for="note-visible">${esc(t(copy.notes.form.visibility, locale))}</label></p>
-<p class="lps-button-row"><button class="lps-button lps-button-primary" type="submit">${esc(t(copy.notes.form.submit, locale))}</button></p>
+<p class="lps-button-row"><a class="lps-button lps-button-primary" href="${en ? "/en/sign-in/" : "/entrar/"}">${esc(en ? "Sign in to publish" : "Entre para publicar")}</a></p>
 </fieldset>
 </form>
 </section>
@@ -1650,7 +1653,7 @@ ${
 <dt>${esc(t(copy.account.secondFactor, locale))}</dt><dd>${esc(t(copy.account.secondFactorValue, locale))}</dd>
 <dt>${esc(t(copy.account.scope, locale))}</dt><dd>${esc(t(copy.account.scopeValue, locale))}</dd>
 </dl>
-<p class="lps-meta lps-mt-4">${esc(copy.account.name["pt-BR"])}</p>
+<p class="lps-meta lps-mt-4">${esc(t(copy.account.name, locale))}</p>
 <p class="lps-button-row lps-mt-4"><a class="lps-button lps-button-ghost" href="${en ? "/en/sign-in/" : "/entrar/"}">${esc(t(copy.account.signOut, locale))}</a></p>
 </section>
 <section class="lps-toc lps-mt-6" aria-labelledby="area-tasks">

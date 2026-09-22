@@ -935,6 +935,14 @@ a.lps-button-quiet:hover {
   z-index: 50;
 }
 
+/* Pinned chrome is a desktop convenience: on the compact viewport the full
+   header would hold over half the screen hostage while scrolling. */
+@media (max-width: 59.999rem) {
+  .lps-site-header {
+    position: static;
+  }
+}
+
 .lps-utility-bar {
   background: var(--color-anchor);
   border-block-end: var(--line-heavy) solid var(--color-accent);
@@ -998,7 +1006,7 @@ a.lps-button-quiet:hover {
   font-weight: 600;
   gap: var(--space-2);
   letter-spacing: 0.08em;
-  min-block-size: 1.75rem;
+  min-block-size: var(--control-min);
   padding: var(--space-1) var(--space-3);
   text-decoration: none;
   text-transform: uppercase;
@@ -1150,6 +1158,22 @@ a.lps-button-quiet:hover {
   }
 }
 
+/* Inside the touch disclosure the nested sections stay open: there is no hover
+   on the panel, so the children list as an indented rail instead. */
+@media (max-width: 59.999rem) {
+  .lps-nav-menu {
+    border: 0;
+    border-inline-start: var(--rule-hairline);
+    box-shadow: none;
+    display: block;
+    margin-block-start: var(--space-1);
+    margin-inline-start: var(--space-4);
+    min-inline-size: 0;
+    padding: 0 0 0 var(--space-3);
+    position: static;
+  }
+}
+
 .lps-nav-menu a {
   display: block;
   min-block-size: 2.25rem;
@@ -1185,6 +1209,7 @@ a.lps-button-quiet:hover {
   border-inline-end: 2px solid var(--color-action);
   content: "";
   inline-size: 0.5rem;
+  margin-inline-end: 4px;
   transform: rotate(45deg);
   transition: transform var(--motion-standard) var(--ease-state);
 }
@@ -1299,7 +1324,7 @@ textarea:focus-visible {
   font-size: var(--type-meta);
   font-weight: 400;
   letter-spacing: 0.08em;
-  min-block-size: 2rem;
+  min-block-size: var(--control-min);
   padding: var(--space-1) var(--space-3);
   text-decoration: none;
   text-transform: uppercase;
@@ -1743,6 +1768,12 @@ textarea:focus-visible {
   z-index: 1;
 }
 
+/* A plain well for artwork that must read clean — brand specimens, diagrams —
+   where the decorative signal line would ghost through transparent pixels. */
+.lps-card-media--plain::after {
+  content: none;
+}
+
 .lps-card-title {
   font-size: var(--type-h3);
   margin: 0;
@@ -2047,6 +2078,16 @@ textarea:focus-visible {
   }
 }
 
+/* Inside the narrow rail the term/value pair always stacks: the two-column
+   split only works against a wide measure. */
+.lps-aside .lps-facts {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.lps-aside .lps-facts dd {
+  padding-inline-start: 0;
+}
+
 .lps-facts + .lps-facts {
   border-block-start: var(--rule-heavy);
   margin-block-start: var(--space-6);
@@ -2102,8 +2143,9 @@ textarea:focus-visible {
   color: var(--color-surface);
   display: grid;
   font-family: var(--font-mono);
-  inline-size: 4.5rem;
+  inline-size: auto;
   justify-items: center;
+  min-inline-size: 4.5rem;
   padding: var(--space-3);
   text-align: center;
 }
@@ -2292,6 +2334,21 @@ textarea:focus-visible {
   background: var(--color-surface);
   border-block-start: var(--rule-heavy);
   overflow-x: auto;
+  scrollbar-color: var(--color-accent) var(--color-wash);
+  scrollbar-width: thin;
+}
+
+.lps-table-scroll::-webkit-scrollbar {
+  block-size: 0.5rem;
+}
+
+.lps-table-scroll::-webkit-scrollbar-track {
+  background: var(--color-wash);
+}
+
+.lps-table-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-accent);
+  border-radius: var(--radius-pill);
 }
 
 table,
@@ -2558,6 +2615,7 @@ th code {
 }
 
 .lps-search-pagination a,
+.lps-search-pagination .lps-search-step,
 .lps-pagination a {
   align-items: center;
   background: var(--color-surface);
@@ -2568,6 +2626,11 @@ th code {
   min-block-size: var(--control-min);
   padding: var(--space-2) var(--space-4);
   text-decoration: none;
+}
+
+.lps-search-pagination .lps-search-step[aria-disabled="true"] {
+  border-color: var(--color-boundary-subtle);
+  color: var(--color-text-muted);
 }
 
 .lps-search-pagination a:hover,
@@ -2711,9 +2774,13 @@ th code {
   justify-items: start;
 }
 
-.lps-footer-brand .lps-logo,
 .lps-footer-brand .lps-wordmark {
   inline-size: clamp(11rem, 20vw, 15rem);
+}
+
+.lps-footer-brand .lps-logo {
+  block-size: auto;
+  inline-size: 100%;
 }
 
 .lps-wordmark {
