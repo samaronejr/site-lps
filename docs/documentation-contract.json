@@ -104,7 +104,7 @@
       "sources": [
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
-          "sha256": "72d19bb44c43ce966811d8464d00e128dcdc36de162eef859da72f5828f7d1af"
+          "sha256": "11a6081abb473e476ba1e284d0d40edd72422e415245efd09bbe84d5755d301a"
         }
       ]
     },
@@ -186,15 +186,15 @@
       "sources": [
         {
           "path": "wp-content/themes/lps-theme/includes/class-dashboardsurfaces.php",
-          "sha256": "055eeb1b8340130808699522ec95ea42e7f025c0e3d3332411d8728a3d67c59d"
+          "sha256": "216300bdae0ad02699c1b736b8c730a09caebcd954bc3eabfe9d1fab6b0b63e7"
         },
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-taskdashboard.php",
-          "sha256": "3b6152189a205c9c7d4c59c3b2b8a0a61c7277df8a8602797b76d2dd20c20549"
+          "sha256": "e25d5f1640d7e83ded98b6210dd9c3d7b24abd74f7df5e046a5128d4f4114926"
         },
         {
           "path": "wp-content/themes/lps-theme/includes/class-dashboardroutes.php",
-          "sha256": "1045b1f2c280077e11ee7930388fa1d77669f27085d5c8ace4f3abbe4d161abd"
+          "sha256": "c4739f4493fd7b43ac3ed948a724fb9901bdb50929369777e1730899e27b0ce4"
         }
       ]
     }
