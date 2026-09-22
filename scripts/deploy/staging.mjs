@@ -690,6 +690,17 @@ function fileSize(file) {
   }
 }
 
+/** Process group id of a pid, from /proc/<pid>/stat (field 5, after comm). */
+function pidGroup(pid) {
+  try {
+    const stat = readFileSync(`/proc/${pid}/stat`, "utf8");
+    const fields = stat.slice(stat.lastIndexOf(")") + 2).split(" ");
+    return Number(fields[2]);
+  } catch {
+    return null;
+  }
+}
+
 /** PIDs of processes listening on a TCP port, parsed from `ss -tlnp`. */
 function portPids(port) {
   const out = spawnSync("ss", ["-tlnp"], { encoding: "utf8" });
@@ -751,10 +762,16 @@ async function serveOrigin() {
     } catch {}
     return { ok: false, reason: "origin did not report Ready! within 240s" };
   }
-  // The spawned process must be the live listener on the origin port; a
-  // Ready! line alone does not prove the socket was bound.
+  // The spawned group must own the live listener on the origin port; a Ready!
+  // line alone does not prove the socket was bound. The playground binds the
+  // port in a worker of the detached group it leads, so the check accepts any
+  // listener in the spawn's process group and still rejects a foreign one.
   const listeners = portPids(ORIGIN_PORT);
-  if (!pidAlive(child.pid) || !listeners.includes(child.pid)) {
+  if (
+    !pidAlive(child.pid) ||
+    listeners.length === 0 ||
+    !listeners.every((p) => p === child.pid || pidGroup(p) === child.pid)
+  ) {
     try {
       process.kill(child.pid, "SIGTERM");
     } catch {}

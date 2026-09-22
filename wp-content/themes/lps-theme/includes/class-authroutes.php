@@ -167,6 +167,17 @@ final class AuthRoutes {
 	public static function match_path( string $path ): ?array {
 		$clean = '/' . trim( $path, '/' ) . '/';
 		if ( 1 !== preg_match( '#^/(pt-br|en)/([^/]+?)(?:/(google))?/?$#', $clean, $parts ) ) {
+			// The bare sign-in segment (`/entrar/`, `/sign-in/`) is the locale-less
+			// spelling a visitor reaches from links outside the routed site; it
+			// resolves to the canonical locale path instead of the 404 surface.
+			foreach ( array( 'pt-br', 'en' ) as $alias_locale ) {
+				if ( '/' . self::segment( 'signin', $alias_locale ) . '/' === $clean ) {
+					return array(
+						'kind'   => 'alias',
+						'locale' => $alias_locale,
+					);
+				}
+			}
 			return null;
 		}
 		if ( isset( $parts[3] ) && self::segment( 'signin', $parts[1] ) === $parts[2] ) {
@@ -194,6 +205,13 @@ final class AuthRoutes {
 		}
 		header( 'Cache-Control: private, no-store' );
 		header( 'X-Robots-Tag: noindex, nofollow' );
+		if ( 'alias' === $route['kind'] ) {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- The raw query string is forwarded verbatim into a same-host redirect, exactly like core preserves it.
+			$query    = isset( $_SERVER['QUERY_STRING'] ) ? wp_unslash( $_SERVER['QUERY_STRING'] ) : '';
+			$location = Shell::signin_path( $route['locale'] ) . ( is_string( $query ) && '' !== $query ? '?' . $query : '' );
+			wp_safe_redirect( function_exists( 'home_url' ) ? home_url( $location ) : $location, 301 );
+			exit;
+		}
 		if ( 'member' === $route['kind'] ) {
 			self::serve_member( $route['locale'] );
 			return;
@@ -261,12 +279,35 @@ final class AuthRoutes {
 		$raw_remember = isset( $_POST['rememberme'] ) ? wp_unslash( $_POST['rememberme'] ) : '';
 		$remember     = 'forever' === ( is_string( $raw_remember ) ? sanitize_key( $raw_remember ) : '' );
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized as a scalar on the next line.
-		$raw_target           = isset( $_POST['redirect_to'] ) ? wp_unslash( $_POST['redirect_to'] ) : '';
-		$redirect             = is_string( $raw_target ) ? sanitize_url( $raw_target ) : '';
+		$raw_target        = isset( $_POST['redirect_to'] ) ? wp_unslash( $_POST['redirect_to'] ) : '';
+		$redirect          = is_string( $raw_target ) ? sanitize_url( $raw_target ) : '';
+		$redirect_inferred = false;
+		if ( '' === $redirect ) {
+			// The two-factor challenge reads `redirect_to` straight from the request
+			// (isset(), not empty()) and core's wp_safe_redirect() cannot fall back on
+			// an empty location — an empty hidden field strands a verified sign-in on
+			// a blank page. Resolve the post-login default before wp_signon() so the
+			// challenge form and its validation both carry a real destination.
+			$candidate = function_exists( 'get_user_by' ) ? get_user_by( 'login', $log ) : false;
+			if ( ! $candidate && function_exists( 'get_user_by' ) && str_contains( $log, '@' ) ) {
+				$candidate = get_user_by( 'email', $log );
+			}
+			$redirect                = self::default_target( $candidate, $locale );
+			$redirect_inferred       = true;
+			$_POST['redirect_to']    = $redirect;
+			$_REQUEST['redirect_to'] = $redirect;
+		}
 		$state['redirect_to'] = $redirect;
 		if ( '' === $log || '' === $pwd ) {
 			$state['error']     = 'empty';
 			$state['attempted'] = $log;
+			if ( $redirect_inferred ) {
+				// An inferred destination must be recomputed from the submitted
+				// username on every attempt — carrying it into the re-rendered
+				// form would send a corrected login to the previous username's
+				// landing page.
+				$state['redirect_to'] = '';
+			}
 			self::render( $locale, $state );
 			return;
 		}
@@ -282,6 +323,9 @@ final class AuthRoutes {
 		if ( is_wp_error( $user ) ) {
 			$state['error']     = 'credentials';
 			$state['attempted'] = $log;
+			if ( $redirect_inferred ) {
+				$state['redirect_to'] = '';
+			}
 			self::render( $locale, $state );
 			return;
 		}
