@@ -2227,7 +2227,40 @@ textarea:focus-visible {
 .lps-people-grid {
   display: grid;
   gap: var(--space-5);
-  grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
+  grid-auto-columns: minmax(min(16.5rem, 82%), 1fr);
+  grid-auto-flow: column;
+  grid-template-columns: none;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  padding-block-end: var(--space-2);
+  scroll-snap-type: inline mandatory;
+  scrollbar-color: var(--color-rule-hover) var(--color-wash-action-subtle);
+  scrollbar-width: thin;
+}
+
+.lps-people-grid::-webkit-scrollbar {
+  block-size: 0.5rem;
+}
+
+.lps-people-grid::-webkit-scrollbar-track {
+  background: var(--color-wash-action-subtle);
+}
+
+.lps-people-grid::-webkit-scrollbar-thumb {
+  background: var(--color-rule-hover);
+  border-radius: var(--radius-pill);
+}
+
+@media (min-width: 48rem) {
+  .lps-people-grid {
+    grid-auto-columns: calc((100% - 2 * var(--space-5)) / 3);
+  }
+}
+
+@media (min-width: 60rem) {
+  .lps-people-grid {
+    grid-auto-columns: calc((100% - 3 * var(--space-5)) / 4);
+  }
 }
 
 .lps-person-card {
@@ -2238,6 +2271,7 @@ textarea:focus-visible {
   display: grid;
   gap: var(--space-4);
   padding: var(--space-6);
+  scroll-snap-align: start;
   transition:
     border-color 240ms cubic-bezier(0.32, 0.72, 0, 1),
     box-shadow 240ms cubic-bezier(0.32, 0.72, 0, 1);
