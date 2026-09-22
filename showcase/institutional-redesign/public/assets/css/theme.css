@@ -72,62 +72,33 @@
  * ------------------------------------------------------------------------- */
 
 :root {
-  /* Palette primitives — mirrors theme.json settings.color.palette. */
-  --color-navy-950: #04101f;
-  --color-navy-900: #071a2f;
-  --color-navy-800: #0b2440;
-  --color-navy-700: #123a63;
-  --color-blue-700: #14499c;
-  --color-blue-600: #1b5fcc;
-  --color-blue-500: #2f7ae5;
-  --color-blue-100: #dbe8fa;
-  --color-blue-050: #f0f5fd;
-  --color-cyan-500: #0691bd;
-  --color-cyan-400: #0fb5e4;
-  --color-cyan-300: #62d8f3;
-  --color-cyan-100: #d6f3fb;
-  --color-ink-900: #0a1626;
-  --color-ink-600: #495a70;
-  --color-ink-500: #586a80;
-  --color-paper-000: #ffffff;
-  --color-paper-050: #f4f7fb;
-  --color-paper-100: #e9eff6;
-  --color-line-200: #d7e0ea;
-  --color-line-400: #9aabbd;
-  --color-line-500: #75899f;
-  --color-success-600: #0d6b48;
-  --color-warning-600: #8a4708;
-  --color-error-600: #b3261e;
-
-  /* Colour roles — the contract surface. Values are references to the
-     primitives above, so a hue is retuned in exactly one place. */
-  --color-canvas: var(--color-paper-050);
-  --color-surface: var(--color-paper-000);
-  --color-surface-alt: var(--color-paper-100);
-  --color-anchor: var(--color-navy-900);
-  --color-anchor-deep: var(--color-navy-950);
-  --color-anchor-soft: var(--color-navy-700);
-  --color-action: var(--color-blue-600);
-  --color-action-hover: var(--color-blue-700);
-  --color-action-light: var(--color-blue-500);
-  --color-wash-action: var(--color-blue-100);
-  --color-wash-action-subtle: var(--color-blue-050);
-  --color-accent: var(--color-cyan-400);
-  --color-accent-soft: var(--color-cyan-300);
-  --color-accent-wash: var(--color-cyan-100);
-  --color-text: var(--color-ink-900);
-  --color-text-muted: var(--color-ink-600);
-  --color-text-soft: var(--color-ink-500);
-  --color-rule-quiet: var(--color-line-200);
-  --color-rule-hover: var(--color-line-400);
-  --color-boundary-strong: var(--color-line-500);
-  --color-success: var(--color-success-600);
-  --color-warning: var(--color-warning-600);
-  --color-error: var(--color-error-600);
+  --color-canvas: #f4f7fb;
+  --color-surface: #ffffff;
+  --color-surface-alt: #e9eff6;
+  --color-anchor: #071a2f;
+  --color-anchor-deep: #04101f;
+  --color-anchor-soft: #123a63;
+  --color-action: #1b5fcc;
+  --color-action-hover: #14499c;
+  --color-action-light: #2f7ae5;
+  --color-wash-action: #dbe8fa;
+  --color-wash-action-subtle: #f0f5fd;
+  --color-accent: #0fb5e4;
+  --color-accent-soft: #62d8f3;
+  --color-accent-wash: #d6f3fb;
+  --color-text: #0a1626;
+  --color-text-muted: #495a70;
+  --color-text-soft: #586a80;
+  --color-rule-quiet: #d7e0ea;
+  --color-rule-hover: #9aabbd;
+  --color-boundary-strong: #75899f;
+  --color-success: #0d6b48;
+  --color-warning: #8a4708;
+  --color-error: #b3261e;
   --color-success-wash: #e3f0e9;
   --color-warning-wash: #f8ecd8;
   --color-error-wash: #fce7e4;
-  --color-info-wash: var(--color-blue-050);
+  --color-info-wash: #f0f5fd;
   --color-info-rule: #b9d1f0;
   --color-warning-rule: #e7cfa1;
   --color-error-rule: #f0c2bc;
@@ -136,20 +107,13 @@
   --color-error-ink: #6f1712;
   --color-print-ink: #000000;
   --color-print-rule: #999999;
-  --color-slate-500: #64748b;
-  --color-slate-600: #3b4a5a;
   --color-focus-on-dark: #ffffff;
-
-  /* On-dark reading tones, one per text rank. Each is verified against its own
-     band in the contrast audit rather than inherited by eye. */
   --color-on-dark: #e4ecf5;
   --color-on-dark-body: #cbdaeb;
   --color-on-dark-address: #b6cadf;
   --color-on-dark-meta: #9db2c8;
   --color-on-dark-lead: #d3e2f1;
   --color-on-dark-code: #eef5fc;
-
-  /* Translucent overlays. Declared here, never written at the point of use. */
   --overlay-light-04: rgba(255, 255, 255, 0.04);
   --overlay-light-06: rgba(255, 255, 255, 0.06);
   --overlay-light-12: rgba(255, 255, 255, 0.12);
@@ -157,23 +121,25 @@
   --overlay-light-16: rgba(255, 255, 255, 0.16);
   --overlay-light-18: rgba(255, 255, 255, 0.18);
   --overlay-light-50: rgba(255, 255, 255, 0.5);
-
-  /* Gradients live in the token layer; surfaces reference one. */
-  --gradient-hero: linear-gradient(180deg, var(--color-navy-900) 0%, var(--color-navy-950) 100%);
+  --gradient-hero: linear-gradient(180deg, var(--color-anchor) 0%, var(--color-anchor-deep) 100%);
   --gradient-signal-bar: linear-gradient(90deg, var(--color-action) 0%, var(--color-accent) 100%);
   --gradient-signal-bar-soft: linear-gradient(90deg, var(--color-accent-soft) 0%, var(--color-action-light) 100%);
-  --gradient-monogram: linear-gradient(160deg, var(--color-navy-800), var(--color-blue-700));
-  --gradient-monogram-memoriam: linear-gradient(160deg, var(--color-slate-600), var(--color-slate-500));
-  --gradient-page-header: linear-gradient(180deg, var(--color-surface) 0%, var(--color-paper-050) 100%);
+  --gradient-monogram: linear-gradient(160deg, var(--color-anchor-soft), var(--color-action-hover));
+  --gradient-monogram-memoriam: linear-gradient(160deg, var(--color-text-muted), var(--color-text-soft));
+  --gradient-page-header: linear-gradient(180deg, var(--color-surface) 0%, var(--color-canvas) 100%);
   --gradient-timeline: linear-gradient(180deg, var(--color-action), var(--color-accent));
-  --gradient-cta: linear-gradient(120deg, var(--color-navy-800), var(--color-navy-950));
-  /* The measured field of the hero band: 1px rules every 5rem, drawn as one
-     background layer so no surface composes a gradient of its own. */
   --gradient-rule-grid:
-    linear-gradient(90deg, var(--overlay-light-06) 0 1px, transparent 1px 100%),
-    linear-gradient(180deg, var(--overlay-light-04) 0 1px, transparent 1px 100%);
-
-  /* Type */
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 calc(100% - 1px),
+      color-mix(in srgb, var(--color-on-dark) 9%, transparent) calc(100% - 1px) 100%
+    ),
+    repeating-linear-gradient(
+      180deg,
+      transparent 0 calc(100% - 1px),
+      color-mix(in srgb, var(--color-on-dark) 9%, transparent) calc(100% - 1px) 100%
+    );
+  --gradient-cta: linear-gradient(120deg, var(--color-anchor-soft), var(--color-anchor-deep));
   --font-display: "Space Grotesk", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-interface: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
@@ -193,8 +159,6 @@
   --lh-reading: 1.65;
   --tracking-tight: -0.028em;
   --tracking-label: 0.14em;
-
-  /* Space — 4px base, mirrors theme.json settings.spacing.spacingSizes. */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -208,9 +172,6 @@
   --space-20: 5rem;
   --space-24: 6rem;
   --section-y: clamp(3.25rem, 6vw, 6rem);
-
-  /* Grid and geometry — square by default, 2px where a control needs a soft
-     corner to read as pressable. */
   --grid-max: 82.5rem;
   --grid-gutter: clamp(var(--space-4), 4.2vw, var(--space-12));
   --control-min: 2.75rem;
@@ -231,34 +192,24 @@
   --measure-lead: 60ch;
   --measure-interface: 74ch;
   --sidebar-w: 17rem;
-
-  /* Elevation — hard offsets, not blurs. A panel sits on the page; it does not
-     float above it, so hierarchy is drawn with rules and plates instead. */
   --shadow-xs: 0 1px 0 var(--color-rule-quiet);
   --shadow-sm: 2px 2px 0 var(--color-rule-quiet);
   --shadow-md: 4px 4px 0 var(--color-rule-quiet);
-  --shadow-lg: 6px 6px 0 var(--color-navy-800);
+  --shadow-lg: 6px 6px 0 var(--color-anchor-soft);
   --shadow-ring: 0 0 0 1px var(--color-rule-quiet);
-  --shadow-nav-current: inset 0 -3px 0 0 var(--color-cyan-500);
+  --shadow-nav-current: inset 0 -3px 0 0 var(--color-accent-ink);
   --shadow-none: none;
-
-  /* Rule primitives — complete border values, so no surface composes one inline. */
   --rule-hairline: var(--line-thin) solid var(--color-rule-quiet);
   --rule-boundary: var(--line-medium) solid var(--color-boundary-strong);
   --rule-anchor: var(--line-medium) solid var(--color-anchor);
   --rule-heavy: var(--line-heavy) solid var(--color-anchor);
   --rule-accent: var(--line-heavy) solid var(--color-accent);
   --rule-focus: var(--line-focus) solid var(--color-action);
-
-  /* Motion — state response only, never layout. */
   --motion-fast: 120ms;
   --motion-standard: 200ms;
   --motion-slow: 340ms;
   --ease-state: cubic-bezier(0.2, 0, 0, 1);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-
-  /* Brand chrome: the supplied artwork's symbol, referenced as an asset so no
-     surface redraws it and the guardrail audits the exact art that ships. */
   --signal-line: url("../img/mark/lps-mark-mono-symbol.svg");
   --signal-line-dark: url("../img/mark/lps-mark-mono-symbol.svg");
 }
@@ -333,7 +284,7 @@ hr {
 
 ::selection {
   background: var(--color-accent);
-  color: var(--color-navy-950);
+  color: var(--color-anchor-deep);
 }
 
 /* ----------------------------------------------------------------------------
@@ -466,7 +417,7 @@ figcaption,
 }
 
 .lps-kicker::before {
-  background: var(--color-cyan-500);
+  background: var(--color-accent-ink);
   content: "";
   flex: 0 0 auto;
   block-size: 0.75rem;
@@ -531,12 +482,14 @@ figcaption,
   block-size: 1px;
   content: "";
   inline-size: 1.25rem;
-  transition: inline-size var(--motion-standard) var(--ease-state);
+  transform: scaleX(1);
+  transform-origin: left center;
+  transition: transform var(--motion-standard) var(--ease-state);
 }
 
 .lps-more:hover::after,
 .lps-more:focus-visible::after {
-  inline-size: 2rem;
+  transform: scaleX(1.6);
 }
 
 /* ----------------------------------------------------------------------------
@@ -559,7 +512,7 @@ figcaption,
 
 .lps-skip-link {
   background: var(--color-accent);
-  color: var(--color-navy-950);
+  color: var(--color-anchor-deep);
   font-size: var(--type-small);
   font-weight: 600;
   inline-size: max-content;
@@ -574,7 +527,7 @@ figcaption,
 }
 
 .lps-skip-link:focus {
-  color: var(--color-navy-950);
+  color: var(--color-anchor-deep);
   transform: translateY(0);
 }
 
@@ -821,7 +774,6 @@ input[type="submit"].lps-button,
   transition:
     background-color var(--motion-fast) var(--ease-state),
     border-color var(--motion-fast) var(--ease-state),
-    box-shadow var(--motion-fast) var(--ease-state),
     transform var(--motion-fast) var(--ease-state);
 }
 
@@ -891,7 +843,7 @@ a.lps-button-quiet:hover {
 .lps-site-footer .lps-button-ghost:hover {
   background: var(--color-surface);
   border-color: var(--color-surface);
-  color: var(--color-navy-900);
+  color: var(--color-anchor);
 }
 
 .lps-button-row,
@@ -1039,18 +991,18 @@ a.lps-button-quiet:hover {
 
 .lps-session-link:hover {
   background: var(--color-surface);
-  color: var(--color-navy-900);
+  color: var(--color-anchor);
 }
 
 .lps-session-link--active {
   background: var(--color-accent);
   border-color: var(--color-accent);
-  color: var(--color-navy-950);
+  color: var(--color-anchor-deep);
 }
 
 .lps-session-link--active:hover {
   background: var(--color-accent-soft);
-  color: var(--color-navy-950);
+  color: var(--color-anchor-deep);
 }
 
 .lps-masthead {
@@ -1075,11 +1027,11 @@ a.lps-button-quiet:hover {
   text-decoration: none;
 }
 
-/* The artwork alone carries the identity, at a size the lockup's lettering can
-   be read from: no text is repeated beside it. */
+/* The artwork alone carries the identity, at a height the lockup's lettering
+   can be read from: no text is repeated beside it. */
 .lps-logo {
-  block-size: auto;
-  inline-size: clamp(13rem, 52vw, 27rem);
+  block-size: clamp(4.5rem, 12vw, 5.75rem);
+  inline-size: auto;
   max-inline-size: 100%;
 }
 
@@ -1218,12 +1170,12 @@ a.lps-button-quiet:hover {
   border-inline-end: 2px solid var(--color-action);
   content: "";
   inline-size: 0.5rem;
-  rotate: 45deg;
-  transition: rotate var(--motion-standard) var(--ease-state);
+  transform: rotate(45deg);
+  transition: transform var(--motion-standard) var(--ease-state);
 }
 
 .lps-shell-disclosure[open] > summary::after {
-  rotate: 225deg;
+  transform: rotate(225deg);
 }
 
 .lps-nav-panel {
@@ -1295,7 +1247,7 @@ textarea {
 input:hover,
 select:hover,
 textarea:hover {
-  border-color: var(--color-text-soft);
+  border-color: var(--color-rule-hover);
 }
 
 input:focus-visible,
@@ -1364,7 +1316,7 @@ textarea:focus-visible {
 .lps-utility-bar .lps-locale-switch [aria-current="page"] {
   background: var(--color-surface);
   border-color: var(--color-surface);
-  color: var(--color-navy-900);
+  color: var(--color-anchor);
 }
 
 /* No-JS disclosure panel: closed means closed, stated explicitly rather than
@@ -1501,7 +1453,7 @@ textarea:focus-visible {
 }
 
 .lps-hero .lps-kicker::before {
-  background: var(--color-cyan-500);
+  background: var(--color-accent-ink);
 }
 
 .lps-hero-title {
@@ -1577,8 +1529,7 @@ textarea:focus-visible {
   gap: 0;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   list-style: none;
-  margin: 0;
-  padding: 0;
+  margin-block: 0;
 }
 
 @media (min-width: 56rem) {
@@ -1720,7 +1671,6 @@ textarea:focus-visible {
   position: relative;
   transition:
     border-color var(--motion-standard) var(--ease-state),
-    box-shadow var(--motion-standard) var(--ease-state),
     transform var(--motion-standard) var(--ease-out);
 }
 
@@ -1840,9 +1790,7 @@ textarea:focus-visible {
   overflow: clip;
   padding: var(--space-6);
   position: relative;
-  transition:
-    box-shadow var(--motion-standard) var(--ease-state),
-    transform var(--motion-standard) var(--ease-out);
+  transition: transform var(--motion-standard) var(--ease-out);
 }
 
 .lps-journey::before {
@@ -2261,7 +2209,7 @@ textarea:focus-visible {
 }
 
 .lps-monogram--memoriam {
-  background: var(--color-slate-600);
+  background: var(--color-text-muted);
 }
 
 .lps-person-card h3 {
@@ -2438,6 +2386,7 @@ th code {
 
 .lps-alert-info {
   background: var(--color-info-wash);
+  border-color: var(--color-info-rule);
 }
 
 .lps-alert-warning,
@@ -2609,6 +2558,13 @@ th code {
 .lps-search-pagination a:hover,
 .lps-pagination a:hover {
   border-color: var(--color-anchor);
+  color: var(--color-action-hover);
+}
+
+.lps-search-pagination [aria-current="page"],
+.lps-pagination [aria-current="page"] {
+  background: var(--color-wash-action);
+  border-color: var(--color-action);
   color: var(--color-action-hover);
 }
 

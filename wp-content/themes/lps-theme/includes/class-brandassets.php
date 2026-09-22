@@ -37,6 +37,14 @@ final class BrandAssets {
 			'path'   => 'assets/brand/lps_logo_compact.svg',
 			'sha256' => '3a64a8977731b5df5ab5f716a677ac60959976e74ae5c5e62ae40398c3f77fec',
 		),
+		'lps_coppe_blue.svg'        => array(
+			'path'   => 'assets/brand/lps_coppe_blue.svg',
+			'sha256' => '5144e227ce3c4dc781d5084e48ddd03bade50103067e094aa15ca4817878a32d',
+		),
+		'lps_coppe_blue_lockup.svg' => array(
+			'path'   => 'assets/brand/lps_coppe_blue_lockup.svg',
+			'sha256' => 'd12175f0fe7316f1b65e5f924ef98f64a214768652354e9ee5c87b928e6a76d6',
+		),
 	);
 
 	/**

@@ -80,12 +80,12 @@ const href = (target, locale) => (typeof target === "string" ? target : pick(tar
 /* The masthead carries the artwork alone: the lockup already sets the laboratory
  * name in type, so repeating it beside the mark would say it twice and shrink the
  * mark. The link keeps an accessible name for assistive technology. The artwork is
- * sized by the stylesheet (clamp 13rem-27rem), so it grows with the viewport
- * instead of being pinned to a fixed slot width. */
+ * sized by the stylesheet (height clamped, width follows the lockup's ~2.05:1
+ * canvas), so it grows with the viewport instead of being pinned to a fixed slot. */
 function brandMarkup(locale) {
   const t = ui(locale);
   return `<a class="lps-brand" href="${locale === "en" ? "/en/" : "/"}" aria-label="${esc(t.brandLinkLabel)}">
-<span class="lps-logo-slot"><img class="lps-logo" src="/assets/img/mark/lps-mark-full.svg" alt="" width="2052" height="301" decoding="async"></span>
+<span class="lps-logo-slot"><img class="lps-logo" src="/assets/img/mark/lps-coppe-blue-lockup.svg" alt="" width="1600" height="780" decoding="async"></span>
 </a>`;
 }
 
@@ -313,7 +313,7 @@ ${action || meta || foot ? `<div class="lps-card-foot">${meta ? `<span class="lp
 
 export function personCard(locale, person) {
   const role = pick(person.role, locale);
-  return `<article class="lps-person-card">
+  return `<article class="lps-person-card" id="${esc(person.slug)}">
 <div class="lps-person-header">
 <span class="lps-monogram${person.inMemoriam ? " lps-monogram--memoriam" : ""}" aria-hidden="true">${esc(person.initials)}</span>
 <div>
@@ -417,6 +417,7 @@ export function document(locale, { title, description, path, body, canonicalPath
 <link rel="apple-touch-icon" href="/assets/img/mark/apple-touch-icon.png">
 <link rel="stylesheet" href="/assets/css/theme.css">
 <meta name="theme-color" content="#061829">
+<link rel="manifest" href="/assets/img/mark/site.webmanifest">
 <meta property="og:type" content="website">
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(description)}">

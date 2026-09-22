@@ -238,31 +238,21 @@ final class Shell {
 		if ( '' === $sources['full'] || '' === $sources['compact'] ) {
 			return 'LPS';
 		}
-		// Density descriptors (`1x`/`2x`) select by device pixel ratio, not by
-		// layout width: the compact variant (≈4.81:1) is the 1x source on
-		// narrow slots and the full lockup (≈6.82:1) the 2x source, so a
-		// high-density handset still decodes the legible variant while a
-		// desktop decodes the full artwork. Width descriptors would invert
-		// that choice (the engine would prefer the 1322w compact file at
-		// 220 CSS px even at 3x density).
 		// The artwork is the only content of the home link, so it carries the
 		// wordmark as its text alternative: an empty alt would leave the link
 		// unnamed for assistive technology that ignores the link's aria-label.
 		// The logo never claims a priority hint: fetchpriority is reserved for
 		// the single LCP image so the brand mark cannot compete with it.
-		return '<img class="lps-logo" src="' . self::escape( $sources['full'] ) . '" srcset="' . self::escape( $sources['compact'] ) . ' 1x, ' . self::escape( $sources['full'] ) . ' 2x" sizes="288px" alt="LPS" width="2052" height="301">';
+		return '<img class="lps-logo" src="' . self::escape( $sources['full'] ) . '" srcset="' . self::escape( $sources['compact'] ) . ' 1x, ' . self::escape( $sources['full'] ) . ' 2x" sizes="190px" alt="LPS" width="1600" height="780">';
 	}
 
 	/**
-	 * Resolves the masthead artwork sources: full lockup first, compact
-	 * variant second — a faithful swap, never a crop.
+	 * Resolves the masthead artwork sources: the COPPE/UFRJ lockup in its
+	 * tight-crop variant for both slots — a faithful swap, never a crop.
 	 *
-	 * The full lockup stays legible only at 240px rendered width and above;
-	 * below that the compact variant (the same kept paths, descriptive
-	 * lettering omitted) carries the identity at 28-40px height. The
-	 * Density descriptors keep the compact variant legible on narrow
-	 * high-density slots; the engine — not client code — picks the
-	 * fitting source.
+	 * The lockup (≈2.05:1) holds the descriptive COPPE · POLI · UFRJ
+	 * lettering at the ~90px rendered height of the masthead slot, so one
+	 * source serves both density descriptors.
 	 *
 	 * @return array{full: string, compact: string} Resolved artwork URLs;
 	 *                                              empty when unresolvable.
@@ -273,8 +263,8 @@ final class Shell {
 			return array( 'full' => '', 'compact' => '' );
 		}
 		return array(
-			'full'    => $base . 'lps_logo_vector.svg',
-			'compact' => $base . 'lps_logo_compact.svg',
+			'full'    => $base . 'lps_coppe_blue_lockup.svg',
+			'compact' => $base . 'lps_coppe_blue_lockup.svg',
 		);
 	}
 

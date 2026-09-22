@@ -296,7 +296,7 @@ ${sectionHead({
     : "Empresas, agências de fomento e as colaborações internacionais que sustentam os projetos do laboratório.",
   id: "home-partners",
   action: {
-    href: link(locale, "/infraestrutura/#parcerias", "/en/infrastructure/#partnerships"),
+    href: link(locale, "/infraestrutura/#parcerias", "/en/infrastructure/#parcerias"),
     label: `${u.seeAll} →`,
   },
 })}
@@ -589,7 +589,7 @@ ${projects
       : "O laboratório atua com empresas e órgãos públicos em problemas aplicados de processamento de sinais e aprendizado de máquina.",
     actions: [
       {
-        href: link(locale, "/infraestrutura/#parcerias", "/en/infrastructure/#partnerships"),
+        href: link(locale, "/infraestrutura/#parcerias", "/en/infrastructure/#parcerias"),
         label: en ? "Capabilities" : "Capacidades",
       },
       { href: link(locale, "/contato/", "/en/contact/"), label: en ? "Contact" : "Contato" },
@@ -1264,6 +1264,18 @@ function identityPage(locale) {
         ? "Decorative or ruled contexts where colour cannot be printed."
         : "Contextos decorativos ou impressos sem cor.",
       surface: "light",
+      w: 1040,
+      h: 520,
+    },
+    {
+      src: "/assets/img/mark/lps-coppe-blue.svg",
+      title: en ? "COPPE/Poli/UFRJ lockup" : "Marca conjunta COPPE/Poli/UFRJ",
+      body: en
+        ? "Official institutional artwork pairing the LPS mark with COPPE, Poli and UFRJ lettering."
+        : "Arte institucional oficial que une a marca LPS ao letreiro COPPE, Poli e UFRJ.",
+      surface: "light",
+      w: 2047,
+      h: 1448,
     },
   ];
 
@@ -1287,13 +1299,13 @@ ${t(about.identity, locale)
 </div>
 </section>
 <section class="lps-section" aria-labelledby="identity-applications">
-${sectionHead({ kicker: en ? "Applications" : "Aplicações", title: en ? "Four approved variants" : "Quatro variantes aprovadas", id: "identity-applications" })}
+${sectionHead({ kicker: en ? "Applications" : "Aplicações", title: en ? "Approved variants" : "Variantes aprovadas", id: "identity-applications" })}
 <div class="lps-grid lps-grid--2">
 ${applications
   .map(
     (item) => `<article class="lps-card lps-card--flush">
 <div class="lps-card-media" style="min-block-size:11rem;background:${item.surface === "dark" ? "var(--c-navy-900)" : "var(--c-surface)"}" aria-hidden="true">
-<img src="${item.src}" alt="" width="2052" height="301" loading="lazy" decoding="async" style="object-fit:contain;padding:1.5rem;background:transparent">
+<img src="${item.src}" alt="" width="${item.w ?? 2052}" height="${item.h ?? 301}" loading="lazy" decoding="async" style="object-fit:contain;padding:1.5rem;background:transparent">
 </div>
 <div class="lps-card-body" style="padding:var(--space-6)">
 <h3 class="lps-card-title">${esc(item.title)}</h3>
@@ -1357,7 +1369,7 @@ function searchPage(locale) {
       kind: en ? "Research area" : "Linha de pesquisa",
       title: t(research.areas[1].title, locale),
       body: t(research.areas[1].body, locale),
-      href: link(locale, "/pesquisa/#linhas", "/en/research/#areas"),
+      href: link(locale, "/pesquisa/#linhas", "/en/research/#linhas"),
     },
     {
       kind: en ? "Project" : "Projeto",
@@ -1375,7 +1387,7 @@ function searchPage(locale) {
       kind: en ? "Course" : "Disciplina",
       title: `${teaching.graduate[3].code} — ${t(teaching.graduate[3].title, locale)}`,
       body: `${teaching.graduate[3].professor} · ${t(teaching.graduate[3].level, locale)}`,
-      href: link(locale, "/ensino/#pos-graduacao", "/en/teaching/#graduate"),
+      href: link(locale, "/ensino/#pos-graduacao", "/en/teaching/#pos-graduacao"),
     },
   ];
 

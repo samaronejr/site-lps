@@ -1027,11 +1027,11 @@ a.lps-button-quiet:hover {
   text-decoration: none;
 }
 
-/* The artwork alone carries the identity, at a size the lockup's lettering can
-   be read from: no text is repeated beside it. */
+/* The artwork alone carries the identity, at a height the lockup's lettering
+   can be read from: no text is repeated beside it. */
 .lps-logo {
-  block-size: auto;
-  inline-size: clamp(13rem, 52vw, 27rem);
+  block-size: clamp(4.5rem, 12vw, 5.75rem);
+  inline-size: auto;
   max-inline-size: 100%;
 }
 
@@ -1529,8 +1529,7 @@ textarea:focus-visible {
   gap: 0;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   list-style: none;
-  margin: 0;
-  padding: 0;
+  margin-block: 0;
 }
 
 @media (min-width: 56rem) {

@@ -55,6 +55,13 @@ export const MARK_PATH_SHA256 = new Set([
   "1e9df5d6f156b69731504eeb5434acced6173bc5363c2351d7f44bf07f8a5e5e", // lps-lettering
   "85372f8521d543619421ce9742620a0db2f6a61c63e1396ec306ded05a127913", // laboratory-name
   "34936098746086283bdbdf7f356db9f434ba19958bab5add5f3048258f24d22a", // computational-intelligence
+  // LPS_COPPE_Blue.svg — the COPPE/Poli/UFRJ institutional lockup (sha256
+  // 5144e227…; recorded in assets/img/mark/RIGHTS.md); four outlined
+  // artwork groups: waveform, lps monogram, COPPE block, descriptor lines.
+  "20c7897087c299c0b278a9dd59a51c75391930214170ebd5696eb6242a0467a6",
+  "94bdafe6b664fce30cb718194d2bb50d0ec3aef2edc54241336ad54453e89691",
+  "e55e0e1b289489e30652996f81ebb6ce777a8efb7fc91a16f1a6ddb0f64b398e",
+  "303285c12ba25b5ed7aefc8d022b55b8ef460bd5479366768f55b1d238058e29",
 ]);
 export const MARK_GRADIENT_SHA256 = new Set([
   "532ff2aed9b4c04f837d7b2229f41dda2948a8007d46c87ca5cb38ef7448ce65", // wave-gradient

@@ -63,11 +63,11 @@ export const navigation = [
     label: { "pt-BR": "Sobre", en: "About" },
     children: [
       {
-        href: { "pt-BR": "/sobre/#historia", en: "/en/about/#history" },
+        href: { "pt-BR": "/sobre/#historia", en: "/en/about/#historia" },
         label: { "pt-BR": "História", en: "History" },
       },
       {
-        href: { "pt-BR": "/sobre/#missao", en: "/en/about/#mission" },
+        href: { "pt-BR": "/sobre/#missao", en: "/en/about/#missao" },
         label: { "pt-BR": "Missão, visão e valores", en: "Mission, vision and values" },
       },
       {
@@ -86,7 +86,7 @@ export const navigation = [
     label: { "pt-BR": "Pesquisa", en: "Research" },
     children: [
       {
-        href: { "pt-BR": "/pesquisa/#linhas", en: "/en/research/#areas" },
+        href: { "pt-BR": "/pesquisa/#linhas", en: "/en/research/#linhas" },
         label: { "pt-BR": "Linhas de pesquisa", en: "Research areas" },
       },
       {
@@ -110,15 +110,15 @@ export const navigation = [
     label: { "pt-BR": "Ensino", en: "Teaching" },
     children: [
       {
-        href: { "pt-BR": "/ensino/#pos-graduacao", en: "/en/teaching/#graduate" },
+        href: { "pt-BR": "/ensino/#pos-graduacao", en: "/en/teaching/#pos-graduacao" },
         label: { "pt-BR": "Pós-graduação", en: "Graduate" },
       },
       {
-        href: { "pt-BR": "/ensino/#graduacao", en: "/en/teaching/#undergraduate" },
+        href: { "pt-BR": "/ensino/#graduacao", en: "/en/teaching/#graduacao" },
         label: { "pt-BR": "Graduação", en: "Undergraduate" },
       },
       {
-        href: { "pt-BR": "/ensino/#materiais", en: "/en/teaching/#materials" },
+        href: { "pt-BR": "/ensino/#materiais", en: "/en/teaching/#materiais" },
         label: { "pt-BR": "Materiais didáticos", en: "Course materials" },
       },
     ],
@@ -211,7 +211,7 @@ export const journeys = {
         en: "Master and doctoral degrees in the Electrical Engineering Program at COPPE, in the Computational Intelligence area.",
       },
       meta: { "pt-BR": "COPPE · PEE", en: "COPPE · PEE" },
-      href: { "pt-BR": "/ensino/#pos-graduacao", en: "/en/teaching/#graduate" },
+      href: { "pt-BR": "/ensino/#pos-graduacao", en: "/en/teaching/#pos-graduacao" },
       action: { "pt-BR": "Ver disciplinas", en: "See courses" },
     },
     {
@@ -222,7 +222,7 @@ export const journeys = {
         en: "Courses in instrumentation, linear systems, computing and signal processing at the Polytechnic School (Poli/UFRJ).",
       },
       meta: { "pt-BR": "Poli · DEE/COPPE", en: "Poli · DEE/COPPE" },
-      href: { "pt-BR": "/ensino/#graduacao", en: "/en/teaching/#undergraduate" },
+      href: { "pt-BR": "/ensino/#graduacao", en: "/en/teaching/#graduacao" },
       action: { "pt-BR": "Ver disciplinas", en: "See courses" },
     },
     {
@@ -233,7 +233,7 @@ export const journeys = {
         en: "Projects with industry, research institutes and public bodies, from proof of concept to systems in operation.",
       },
       meta: { "pt-BR": "P&D · consultoria", en: "R&D · consulting" },
-      href: { "pt-BR": "/infraestrutura/#parcerias", en: "/en/infrastructure/#partnerships" },
+      href: { "pt-BR": "/infraestrutura/#parcerias", en: "/en/infrastructure/#parcerias" },
       action: { "pt-BR": "Como colaborar", en: "How to collaborate" },
     },
   ],
