@@ -167,6 +167,17 @@ final class AuthRoutes {
 	public static function match_path( string $path ): ?array {
 		$clean = '/' . trim( $path, '/' ) . '/';
 		if ( 1 !== preg_match( '#^/(pt-br|en)/([^/]+?)(?:/(google))?/?$#', $clean, $parts ) ) {
+			// The bare sign-in segment (`/entrar/`, `/sign-in/`) is the locale-less
+			// spelling a visitor reaches from links outside the routed site; it
+			// resolves to the canonical locale path instead of the 404 surface.
+			foreach ( array( 'pt-br', 'en' ) as $alias_locale ) {
+				if ( '/' . self::segment( 'signin', $alias_locale ) . '/' === $clean ) {
+					return array(
+						'kind'   => 'alias',
+						'locale' => $alias_locale,
+					);
+				}
+			}
 			return null;
 		}
 		if ( isset( $parts[3] ) && self::segment( 'signin', $parts[1] ) === $parts[2] ) {
@@ -194,6 +205,13 @@ final class AuthRoutes {
 		}
 		header( 'Cache-Control: private, no-store' );
 		header( 'X-Robots-Tag: noindex, nofollow' );
+		if ( 'alias' === $route['kind'] ) {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- The raw query string is forwarded verbatim into a same-host redirect, exactly like core preserves it.
+			$query    = isset( $_SERVER['QUERY_STRING'] ) ? wp_unslash( $_SERVER['QUERY_STRING'] ) : '';
+			$location = Shell::signin_path( $route['locale'] ) . ( is_string( $query ) && '' !== $query ? '?' . $query : '' );
+			wp_safe_redirect( function_exists( 'home_url' ) ? home_url( $location ) : $location, 301 );
+			exit;
+		}
 		if ( 'member' === $route['kind'] ) {
 			self::serve_member( $route['locale'] );
 			return;
