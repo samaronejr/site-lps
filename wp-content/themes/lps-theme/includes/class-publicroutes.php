@@ -166,9 +166,10 @@ final class PublicRoutes {
 	 * @param string             $title   Displayed name.
 	 * @param array<mixed,mixed> $meta    Stored person metadata.
 	 * @param array<int, mixed>  $history Historical project and publication links.
+	 * @param string             $summary Localized excerpt shown on cards and profiles.
 	 * @return array<string, mixed>
 	 */
-	public static function person_record( string $slug, string $title, array $meta, array $history = array() ): array {
+	public static function person_record( string $slug, string $title, array $meta, array $history = array(), string $summary = '' ): array {
 		$reviewed = self::flag( $meta, '_lps_privacy_reviewed' );
 		$status   = self::value( $meta, '_lps_person_status' );
 		$status   = in_array( $status, self::STATUSES, true ) ? $status : 'active';
@@ -190,6 +191,8 @@ final class PublicRoutes {
 			'roles'            => $roles,
 			'status'           => $status,
 			'areas'            => self::strings( $meta['_lps_research_area_ids'] ?? array() ),
+			'summary'          => $summary,
+			'research_topics'  => self::strings( $meta['_lps_topics'] ?? array() ),
 			'public_email'     => $reviewed && self::is_email( $email ) ? $email : '',
 			'privacy_reviewed' => $reviewed,
 			'photo_url'        => $publishable_photo ? $photo : '',
@@ -400,8 +403,53 @@ final class PublicRoutes {
 		add_filter( 'rewrite_rules_array', array( self::class, 'register_routes' ), 998 );
 		add_filter( 'query_vars', array( self::class, 'register_query_vars' ) );
 		add_filter( 'redirect_canonical', array( self::class, 'keep_locale_route' ), 10, 2 );
+		add_filter( 'post_type_link', array( self::class, 'canonical_record_link' ), 10, 2 );
 		add_filter( 'language_attributes', array( self::class, 'route_language_attributes' ), 210 );
+		add_action( 'template_redirect', array( self::class, 'canonicalize_record_request' ), 4 );
 		add_action( 'template_redirect', array( self::class, 'guard_withheld_records' ), 5 );
+	}
+
+	/**
+	 * Redirects a governed record's raw CPT permalink to its public route.
+	 *
+	 * `post_type_link` already returns the locale route for `get_permalink`,
+	 * but `/lps_person/{slug}/` etc. are registered CPT addresses WordPress
+	 * treats as canonical on their own, so requests must be moved explicitly.
+	 */
+	public static function canonicalize_record_request(): void {
+		if ( ! function_exists( 'is_singular' ) || ! is_singular() || ! function_exists( 'wp_safe_redirect' ) ) {
+			return;
+		}
+		$post = function_exists( 'get_post' ) ? get_post() : null;
+		if ( ! $post instanceof WP_Post || ! isset( self::SEGMENTS[ $post->post_type ] ) ) {
+			return;
+		}
+		$canonical = self::canonical_record_link( (string) get_permalink( $post ), $post );
+		$target    = is_string( wp_parse_url( $canonical, PHP_URL_PATH ) ) ? (string) wp_parse_url( $canonical, PHP_URL_PATH ) : '';
+		$request   = self::request_path();
+		if ( '' !== $target && untrailingslashit( $target ) !== untrailingslashit( $request ) && function_exists( 'home_url' ) ) {
+			wp_safe_redirect( home_url( $target ), 301 );
+			exit;
+		}
+	}
+
+	/**
+	 * Points governed record permalinks at their localized public routes.
+	 *
+	 * The locale routes are the canonical addresses; the raw CPT permalink
+	 * (e.g. `/pt-br/lps_person/{slug}/`) then 301s to them through WordPress's
+	 * own canonical redirect instead of serving an empty template.
+	 *
+	 * @param string  $permalink Default post permalink.
+	 * @param WP_Post $post      Record being linked.
+	 */
+	public static function canonical_record_link( string $permalink, WP_Post $post ): string {
+		if ( ! isset( self::SEGMENTS[ $post->post_type ] ) ) {
+			return $permalink;
+		}
+		$locale = class_exists( Translations::class ) ? Translations::locale( $post->ID ) : self::text( get_post_meta( $post->ID, '_lps_locale', true ) );
+		$path   = self::single_path( $post->post_type, $locale, $post->post_name );
+		return '' === $path || ! function_exists( 'home_url' ) ? $permalink : home_url( $path );
 	}
 
 	/**
@@ -458,7 +506,7 @@ final class PublicRoutes {
 		}
 		$locale = $route['locale'];
 		if ( 'lps_infrastructure' === $route['post_type'] ) {
-			return PublicSurfaces::infrastructure_page( $locale, self::facilities( $locale ) );
+			return PublicSurfaces::infrastructure_page( $locale, self::facilities( $locale ), self::organization_names_by_kind( $locale ) );
 		}
 		if ( 'lps_organization' === $route['post_type'] ) {
 			return self::render_organizations( $locale, $route['slug'] );
@@ -512,7 +560,7 @@ final class PublicRoutes {
 	public static function people( string $locale ): array {
 		$people = array();
 		foreach ( self::records( 'lps_person', $locale ) as $post ) {
-			$record             = self::person_record( $post->post_name, $post->post_title, self::meta( $post->ID ), self::history( $post, $locale ) );
+			$record             = self::person_record( $post->post_name, $post->post_title, self::meta( $post->ID ), self::history( $post, $locale ), $post->post_excerpt );
 			$record['stale']    = self::is_stale_translation( $post );
 			$record['teaching'] = self::teaching_history( $post, $locale );
 			if ( true === $record['published'] ) {
@@ -538,6 +586,31 @@ final class PublicRoutes {
 			}
 		}
 		return $organizations;
+	}
+
+	/**
+	 * Returns public organization names grouped by kind (partners, funders).
+	 *
+	 * @param string $locale Supported locale slug.
+	 * @return array<string, array<int, string>>
+	 */
+	private static function organization_names_by_kind( string $locale ): array {
+		$grouped = array(
+			'partners' => array(),
+			'funders'  => array(),
+		);
+		foreach ( self::organizations( $locale ) as $organization ) {
+			$kind    = self::value( $organization, 'kind' );
+			$name    = self::value( $organization, 'name' );
+			$acronym = self::value( $organization, 'acronym' );
+			if ( 'partner' === $kind && '' !== $name ) {
+				$grouped['partners'][] = $name;
+			}
+			if ( 'funder' === $kind && '' !== $name ) {
+				$grouped['funders'][] = '' !== $acronym ? $acronym : $name;
+			}
+		}
+		return $grouped;
 	}
 
 	/**

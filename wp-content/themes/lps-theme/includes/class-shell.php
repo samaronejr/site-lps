@@ -62,41 +62,114 @@ final class Shell {
 	/**
 	 * Returns the frozen primary navigation for one locale.
 	 *
+	 * Items with `children` render as disclosure menus matching the showcase's
+	 * grouped information architecture.
+	 *
 	 * @param string $locale Supported locale slug.
-	 * @return array<string, array{label: string, url: string}>
+	 * @return array<string, array{label: string, url: string, children?: array<int, array{label: string, url: string}>}>
 	 */
 	public static function navigation( string $locale ): array {
 		$english = 'en' === $locale;
 		return array(
-			'about'          => array(
-				'label' => $english ? 'About' : 'Sobre',
-				'url'   => $english ? '/en/about/' : '/pt-br/sobre/',
+			'about'         => array(
+				'label'    => $english ? 'About' : 'Sobre',
+				'url'      => $english ? '/en/about/' : '/pt-br/sobre/',
+				'children' => array(
+					array(
+						'label' => $english ? 'History' : 'História',
+						'url'   => ( $english ? '/en/about/' : '/pt-br/sobre/' ) . '#historia',
+					),
+					array(
+						'label' => $english ? 'Mission, vision and values' : 'Missão, visão e valores',
+						'url'   => ( $english ? '/en/about/' : '/pt-br/sobre/' ) . '#missao',
+					),
+					array(
+						'label' => $english ? 'Infrastructure' : 'Infraestrutura',
+						'url'   => $english ? '/en/infrastructure/' : '/pt-br/infraestrutura/',
+					),
+					array(
+						'label' => $english ? 'Visual identity' : 'Identidade visual',
+						'url'   => $english ? '/en/visual-identity/' : '/pt-br/identidade-visual/',
+					),
+				),
 			),
-			'research'       => array(
-				'label' => $english ? 'Research' : 'Pesquisa',
-				'url'   => $english ? '/en/research/' : '/pt-br/pesquisa/',
+			'research'      => array(
+				'label'    => $english ? 'Research' : 'Pesquisa',
+				'url'      => $english ? '/en/research/' : '/pt-br/pesquisa/',
+				'children' => array(
+					array(
+						'label' => $english ? 'Research areas' : 'Linhas de pesquisa',
+						'url'   => ( $english ? '/en/research/' : '/pt-br/pesquisa/' ) . '#linhas',
+					),
+					array(
+						'label' => $english ? 'Projects' : 'Projetos',
+						'url'   => $english ? '/en/projects/' : '/pt-br/projetos/',
+					),
+					array(
+						'label' => $english ? 'Publications' : 'Publicações',
+						'url'   => $english ? '/en/publications/' : '/pt-br/publicacoes/',
+					),
+				),
 			),
-			'people'         => array(
+			'people'        => array(
 				'label' => $english ? 'People' : 'Pessoas',
 				'url'   => $english ? '/en/people/' : '/pt-br/pessoas/',
 			),
-			'publications'   => array(
-				'label' => $english ? 'Publications' : 'Publicações',
-				'url'   => $english ? '/en/publications/' : '/pt-br/publicacoes/',
+			'teaching'      => array(
+				'label'    => $english ? 'Teaching' : 'Ensino',
+				'url'      => $english ? '/en/teaching/' : '/pt-br/ensino/',
+				'children' => array(
+					array(
+						'label' => $english ? 'Graduate' : 'Pós-graduação',
+						'url'   => ( $english ? '/en/teaching/' : '/pt-br/ensino/' ) . '#pos-graduacao',
+					),
+					array(
+						'label' => $english ? 'Undergraduate' : 'Graduação',
+						'url'   => ( $english ? '/en/teaching/' : '/pt-br/ensino/' ) . '#graduacao',
+					),
+					array(
+						'label' => $english ? 'Course materials' : 'Materiais didáticos',
+						'url'   => ( $english ? '/en/teaching/' : '/pt-br/ensino/' ) . '#materiais',
+					),
+				),
 			),
-			'infrastructure' => array(
-				'label' => $english ? 'Infrastructure' : 'Infraestrutura',
-				'url'   => $english ? '/en/infrastructure/' : '/pt-br/infraestrutura/',
-			),
-			'opportunities'  => array(
+			'opportunities' => array(
 				'label' => $english ? 'Opportunities' : 'Oportunidades',
 				'url'   => $english ? '/en/opportunities/' : '/pt-br/oportunidades/',
 			),
-			'news'           => array(
-				'label' => $english ? 'News' : 'Notícias',
+			'news'          => array(
+				'label' => $english ? 'News and events' : 'Notícias e eventos',
 				'url'   => $english ? '/en/news/' : '/pt-br/noticias/',
 			),
 		);
+	}
+
+	/**
+	 * Renders one primary-navigation list: dropdown groups for items that carry
+	 * children, plain links otherwise.
+	 *
+	 * @param string $locale Supported locale slug.
+	 * @param string $path   Current request path for `aria-current`.
+	 * @return string Navigation list markup.
+	 */
+	private static function navigation_markup( string $locale, string $path ): string {
+		$items = '';
+		foreach ( self::navigation( $locale ) as $item ) {
+			$current  = rtrim( $path, '/' ) === rtrim( $item['url'], '/' ) ? ' aria-current="page"' : '';
+			$items   .= '<li class="lps-nav-item"><a class="lps-nav-link"' . $current . ' href="' . self::escape( $item['url'] ) . '">' . self::escape( $item['label'] );
+			$children = $item['children'] ?? array();
+			if ( array() !== $children ) {
+				$items .= '<span class="lps-nav-caret" aria-hidden="true"></span></a><ul class="lps-nav-menu">';
+				foreach ( $children as $child ) {
+					$child_current = rtrim( $path, '/' ) === rtrim( $child['url'], '/' ) ? ' aria-current="page"' : '';
+					$items        .= '<li><a' . $child_current . ' href="' . self::escape( $child['url'] ) . '">' . self::escape( $child['label'] ) . '</a></li>';
+				}
+				$items .= '</ul></li>';
+			} else {
+				$items .= '</a></li>';
+			}
+		}
+		return '<ul>' . $items . '</ul>';
 	}
 
 	/**
@@ -186,39 +259,36 @@ final class Shell {
 		$collaborate     = $english ? 'Collaborate' : 'Colabore';
 		$collaborate_url = $english ? '/en/collaborate/' : '/pt-br/colabore/';
 		$home            = $english ? '/en/' : '/pt-br/';
-		$items           = '';
-		foreach ( self::navigation( $locale ) as $item ) {
-			$current = rtrim( $path, '/' ) === rtrim( $item['url'], '/' ) ? ' aria-current="page"' : '';
-			$items  .= '<li><a' . $current . ' href="' . self::escape( $item['url'] ) . '">' . self::escape( $item['label'] ) . '</a></li>';
-		}
-		$locale_control = self::locale_markup(
+		$items           = self::navigation_markup( $locale, $path );
+		$locale_switch   = self::locale_switch_markup(
 			$locale,
 			$variants ?? array(
 				'pt-br' => '/pt-br/',
 				'en'    => '/en/',
 			)
 		);
-		$mark           = self::masthead_brand();
-		$quick_label    = $english ? 'Quick access' : 'Acesso rápido';
-		$utility_items  = '';
+		$search_tools    = static function ( string $input_id ) use ( $search_action, $search_label, $search_button ): string {
+			return '<form class="lps-search" role="search" action="' . $search_action . '" method="get"><label for="' . $input_id . '">' . self::escape( $search_label ) . '</label><div><input id="' . $input_id . '" name="q" type="search" autocomplete="off"><button class="lps-button" type="submit">' . self::escape( $search_button ) . '</button></div></form>';
+		};
+		$collaborate_cta = '<a class="lps-button lps-button-primary" href="' . $collaborate_url . '">' . self::escape( $collaborate ) . '</a>';
+		$mark            = self::masthead_brand();
+		$quick_label     = $english ? 'Quick access' : 'Acesso rápido';
+		$utility_items   = '';
 		foreach ( self::utility_links( $locale ) as $label => $url ) {
 			$current        = rtrim( $path, '/' ) === rtrim( $url, '/' ) ? ' aria-current="page"' : '';
 			$utility_items .= '<li><a' . $current . ' href="' . self::escape( $url ) . '">' . self::escape( $label ) . '</a></li>';
 		}
 		return '<a class="lps-skip-link" href="#lps-main">' . self::escape( $skip ) . '</a>'
 			. '<header class="lps-site-header">'
-			. '<div class="lps-affiliation lps-utility-bar"><div class="lps-utility-inner lps-page-grid"><p lang="pt-BR">Laboratório de Processamento de Sinais <span aria-hidden="true">/</span> UFRJ <span aria-hidden="true">/</span> COPPE</p><p class="lps-meta" lang="pt-BR">Universidade Federal do Rio de Janeiro</p>' . ( $english ? '<p>Signal Processing Laboratory</p>' : '' ) . '<nav aria-label="' . self::escape( $quick_label ) . '"><ul class="lps-utility-links">' . $utility_items . '</ul></nav>' . self::session_link( $locale ) . '</div></div>'
-			// The masthead is the artwork alone: the lockup already sets the
-			// laboratory name in type, so repeating it in HTML beside the mark would
-			// say it twice and crowd the mark. The home link keeps its accessible
-			// name, and the affiliation band above still names the institution in a
-			// language-tagged Portuguese paragraph.
-			. '<div class="lps-masthead lps-page-grid"><a class="lps-brand" href="' . $home . '" aria-label="LPS — ' . ( $english ? 'home' : 'início' ) . '">' . $mark . '</a></div>'
-			. '<div class="lps-masthead-nav lps-page-grid"><nav class="lps-primary-nav" aria-label="' . self::escape( $nav_label ) . '"><ul>' . $items . '</ul></nav></div>'
+			. '<div class="lps-affiliation lps-utility-bar"><div class="lps-utility-inner lps-page-grid"><p lang="pt-BR">Laboratório de Processamento de Sinais <span aria-hidden="true">/</span> UFRJ <span aria-hidden="true">/</span> COPPE</p><p class="lps-meta" lang="pt-BR">Universidade Federal do Rio de Janeiro</p>' . ( $english ? '<p>Signal Processing Laboratory</p>' : '' ) . '<nav aria-label="' . self::escape( $quick_label ) . '"><ul class="lps-utility-links">' . $utility_items . '</ul></nav>' . $locale_switch . self::session_link( $locale ) . '</div></div>'
+			// The masthead pairs the artwork with the visitor's primary tools —
+			// search and the collaborate entrance — the way the showcase pins them
+			// beside the mark instead of hiding them inside the disclosure.
+			. '<div class="lps-masthead lps-page-grid"><a class="lps-brand" href="' . $home . '" aria-label="LPS — ' . ( $english ? 'home' : 'início' ) . '">' . $mark . '</a><div class="lps-shell-tools">' . $search_tools( 'lps-search-input-1' ) . $collaborate_cta . '</div></div>'
+			. '<div class="lps-masthead-nav lps-page-grid"><nav class="lps-primary-nav" aria-label="' . self::escape( $nav_label ) . '">' . $items . '</nav></div>'
 			. '<details class="lps-shell-disclosure"><summary>' . self::escape( $menu ) . '</summary><div class="lps-nav-panel lps-page-grid">'
-			. '<nav class="lps-primary-nav" aria-label="' . self::escape( $nav_label ) . '"><ul>' . $items . '</ul></nav>'
-			. '<div class="lps-shell-tools"><form class="lps-search" role="search" action="' . $search_action . '" method="get"><label for="lps-search-input">' . self::escape( $search_label ) . '</label><div><input id="lps-search-input" name="q" type="search" autocomplete="off"><button type="submit">' . self::escape( $search_button ) . '</button></div></form>'
-			. $locale_control . '<a class="lps-button lps-button-primary" href="' . $collaborate_url . '">' . self::escape( $collaborate ) . '</a></div></div></details></header>';
+			. '<nav class="lps-primary-nav" aria-label="' . self::escape( $nav_label ) . '">' . $items . '</nav>'
+			. '<div class="lps-shell-tools">' . $search_tools( 'lps-search-input-2' ) . $collaborate_cta . '</div></div></details></header>';
 	}
 
 	/**
@@ -342,6 +412,36 @@ final class Shell {
 	}
 
 	/**
+	 * Renders the compact PT/EN switch shown in the utility band — the same
+	 * variant set as `locale_markup`, in the showcase's inline-anchor form.
+	 *
+	 * @param string                $locale   Supported locale slug.
+	 * @param array<string, string> $variants Published locale URLs.
+	 * @return string Locale switch markup.
+	 */
+	private static function locale_switch_markup( string $locale, array $variants ): string {
+		$label = 'en' === $locale ? 'Language' : 'Idioma';
+		$links = '';
+		foreach ( array(
+			'pt-br' => array(
+				'short'    => 'PT',
+				'hreflang' => 'pt-BR',
+			),
+			'en'    => array(
+				'short'    => 'EN',
+				'hreflang' => 'en',
+			),
+		) as $slug => $definition ) {
+			if ( ! isset( $variants[ $slug ] ) ) {
+				continue;
+			}
+			$current = $slug === $locale ? ' aria-current="page"' : '';
+			$links  .= '<a' . $current . ' hreflang="' . $definition['hreflang'] . '" lang="' . $definition['hreflang'] . '" href="' . self::escape( self::internal_href( $variants[ $slug ] ) ) . '">' . $definition['short'] . '</a>';
+		}
+		return '<nav class="lps-locale-switch" aria-label="' . self::escape( $label ) . '">' . $links . '</nav>';
+	}
+
+	/**
 	 * Renders a same-origin URL in the root-relative form the rest of the shell uses.
 	 *
 	 * Locale variants come from permalinks, which WordPress returns absolute. Every
@@ -385,31 +485,80 @@ final class Shell {
 	 */
 	public static function footer_markup( string $locale ): string {
 		$english = 'en' === $locale;
-		$links   = $english
+		$base    = $english ? '/en' : '/pt-br';
+		$groups  = $english
 			? array(
-				'Teaching'      => '/en/teaching/',
-				'Contact'       => '/en/contact/',
-				'Events'        => '/en/events/',
-				'Privacy'       => '/en/privacy/',
-				'Accessibility' => '/en/accessibility/',
+				'The laboratory' => array(
+					'About'           => $base . '/about/',
+					'History'         => $base . '/about/#historia',
+					'People'          => $base . '/people/',
+					'Infrastructure'  => $base . '/infrastructure/',
+					'Visual identity' => $base . '/visual-identity/',
+				),
+				'Research'       => array(
+					'Research areas'  => $base . '/research/',
+					'Projects'        => $base . '/projects/',
+					'Publications'    => $base . '/publications/',
+					'Teaching'        => $base . '/teaching/',
+					'News and events' => $base . '/news/',
+				),
+				'Take part'      => array(
+					'Opportunities' => $base . '/opportunities/',
+					'Search'        => $base . '/search/',
+					'Contact'       => $base . '/contact/',
+					'Accessibility' => $base . '/accessibility/',
+					'Privacy'       => $base . '/privacy/',
+				),
 			)
 			: array(
-				'Ensino'         => '/pt-br/ensino/',
-				'Contato'        => '/pt-br/contato/',
-				'Eventos'        => '/pt-br/eventos/',
-				'Privacidade'    => '/pt-br/privacidade/',
-				'Acessibilidade' => '/pt-br/acessibilidade/',
+				'O laboratório' => array(
+					'Sobre'             => $base . '/sobre/',
+					'História'          => $base . '/sobre/#historia',
+					'Pessoas'           => $base . '/pessoas/',
+					'Infraestrutura'    => $base . '/infraestrutura/',
+					'Identidade visual' => $base . '/identidade-visual/',
+				),
+				'Pesquisa'      => array(
+					'Linhas de pesquisa' => $base . '/pesquisa/',
+					'Projetos'           => $base . '/projetos/',
+					'Publicações'        => $base . '/publicacoes/',
+					'Ensino'             => $base . '/ensino/',
+					'Notícias e eventos' => $base . '/noticias/',
+				),
+				'Participe'     => array(
+					'Oportunidades'  => $base . '/oportunidades/',
+					'Busca'          => $base . '/busca/',
+					'Contato'        => $base . '/contato/',
+					'Acessibilidade' => $base . '/acessibilidade/',
+					'Privacidade'    => $base . '/privacidade/',
+				),
 			);
-		$items   = '';
-		foreach ( $links as $label => $url ) {
-			$items .= '<li><a href="' . $url . '">' . self::escape( $label ) . '</a></li>';
+		$columns = '';
+		foreach ( $groups as $group_label => $links ) {
+			$items = '';
+			foreach ( $links as $label => $url ) {
+				$items .= '<li><a href="' . self::escape( $url ) . '">' . self::escape( $label ) . '</a></li>';
+			}
+			$columns .= '<div><h2>' . self::escape( $group_label ) . '</h2><ul>' . $items . '</ul></div>';
 		}
-		$nav_label = $english ? 'Institutional information' : 'Informações institucionais';
-		$statement = $english ? 'Part of COPPE at the Federal University of Rio de Janeiro.' : 'Parte da COPPE na Universidade Federal do Rio de Janeiro.';
 		$home      = $english ? '/en/' : '/pt-br/';
-		$home_name = $english ? 'LPS - home' : 'LPS - início';
-		$logo      = '<img class="lps-logo lps-footer-logo" src="' . self::brand_base_url() . 'lps_coppe_reversed_lockup.svg" alt="" width="1622" height="804" loading="lazy" decoding="async">';
-		return '<footer class="lps-site-footer"><div class="lps-footer-grid lps-page-grid"><a class="lps-wordmark lps-wordmark-light" href="' . $home . '" aria-label="' . self::escape( $home_name ) . '">' . $logo . '</a><div><p>' . self::escape( $statement ) . '</p><p class="lps-meta">UFRJ <span aria-hidden="true">/</span> COPPE <span aria-hidden="true">/</span> LPS</p></div><nav aria-label="' . self::escape( $nav_label ) . '"><ul>' . $items . '</ul></nav></div></footer>';
+		$home_name = $english ? 'LPS — home' : 'LPS — início';
+		$alt       = $english ? 'LPS — Signal Processing Laboratory' : 'LPS — Laboratório de Processamento de Sinais';
+		$logo      = '<img class="lps-logo" src="' . self::brand_base_url() . 'lps_coppe_reversed_lockup.svg" alt="' . self::escape( $alt ) . '" width="1622" height="804" loading="lazy" decoding="async">';
+		$address   = '<address>'
+			. 'Av. Athos da Silveira Ramos, 149<br>'
+			. ( $english ? 'Technology Center, Building H, room 220<br>Ilha do Fundão<br>Rio de Janeiro — RJ, ZIP 21941-914<br>' : 'Centro de Tecnologia, Bloco H, sala 220<br>Cidade Universitária, Ilha do Fundão<br>Rio de Janeiro — RJ, CEP 21941-914<br>' )
+			. '<a href="tel:+552139388205">(21) 3938-8205</a> · ' . ( $english ? 'Ext. 8205' : 'Ramal 8205' ) . '<br>'
+			. '<a href="mailto:secretaria@lps.ufrj.br">secretaria@lps.ufrj.br</a>'
+			. '</address>';
+		$copyright = $english
+			? '© 2026 Signal Processing Laboratory. All rights reserved.'
+			: '© 2026 Laboratório de Processamento de Sinais. Todos os direitos reservados.';
+		return '<footer class="lps-site-footer"><div class="lps-footer-inner lps-page-grid">'
+			. '<div class="lps-footer-brand"><a class="lps-wordmark lps-wordmark-light" href="' . $home . '" aria-label="' . self::escape( $home_name ) . '">' . $logo . '</a>' . $address . '</div>'
+			. $columns
+			. '</div><div class="lps-footer-bottom lps-page-grid"><p>' . self::escape( $copyright ) . '</p>'
+			. '<ul><li><a href="https://www.pee.ufrj.br/">PEE/COPPE</a></li><li><a href="https://coppe.ufrj.br/">COPPE</a></li><li><a href="https://ufrj.br/">UFRJ</a></li></ul></div></footer>';
 	}
 
 	/**

@@ -48,33 +48,37 @@ final class TrustRoutes {
 	 * @var array<string, array<string, string>>
 	 */
 	private const PAGES = array(
-		'about'         => array(
+		'about'           => array(
 			'pt-br' => '/pt-br/sobre/',
 			'en'    => '/en/about/',
 		),
-		'history'       => array(
+		'history'         => array(
 			'pt-br' => '/pt-br/sobre/historia/',
 			'en'    => '/en/about/history/',
 		),
-		'governance'    => array(
+		'governance'      => array(
 			'pt-br' => '/pt-br/sobre/governanca/',
 			'en'    => '/en/about/governance/',
 		),
-		'collaboration' => array(
+		'collaboration'   => array(
 			'pt-br' => '/pt-br/colabore/',
 			'en'    => '/en/collaborate/',
 		),
-		'contact'       => array(
+		'contact'         => array(
 			'pt-br' => '/pt-br/contato/',
 			'en'    => '/en/contact/',
 		),
-		'privacy'       => array(
+		'privacy'         => array(
 			'pt-br' => '/pt-br/privacidade/',
 			'en'    => '/en/privacy/',
 		),
-		'accessibility' => array(
+		'accessibility'   => array(
 			'pt-br' => '/pt-br/acessibilidade/',
 			'en'    => '/en/accessibility/',
+		),
+		'visual-identity' => array(
+			'pt-br' => '/pt-br/identidade-visual/',
+			'en'    => '/en/visual-identity/',
 		),
 	);
 
@@ -196,7 +200,41 @@ final class TrustRoutes {
 		add_filter( 'redirect_canonical', array( self::class, 'keep_locale_route' ), 10, 2 );
 		add_filter( 'wp_robots', array( self::class, 'filter_robots' ) );
 		add_filter( 'language_attributes', array( self::class, 'route_language_attributes' ), 200 );
+		add_filter( 'the_content', array( self::class, 'suppress_institutional_content' ), 1 );
 	}
+
+	/**
+	 * Drops stored body copy on institutional pages.
+	 *
+	 * The trust block renders the page composition, so paragraphs imported
+	 * with the record must not print above it. Suppressing the content early
+	 * keeps the record editable in wp-admin while the renderer stays the
+	 * single source of the public body.
+	 *
+	 * @param string $content Rendered post content.
+	 */
+	public static function suppress_institutional_content( string $content ): string {
+		if ( ! is_page() ) {
+			return $content;
+		}
+		$post = get_post();
+		if ( ! $post instanceof WP_Post || 'page' !== $post->post_type ) {
+			return $content;
+		}
+		$shared    = class_exists( TranslationPolicy::class ) ? TranslationPolicy::shared_meta_keys( $post->post_type ) : array();
+		$source_id = class_exists( Translations::class ) ? Translations::source_id( $post->ID ) ?? $post->ID : $post->ID;
+		$key       = Policy::scalar_string( get_post_meta( in_array( '_lps_page_key', $shared, true ) ? $source_id : $post->ID, '_lps_page_key', true ) );
+		return in_array( $key, self::RENDERED_BODIES, true ) ? '' : $content;
+	}
+
+	/**
+	 * Institutional page keys whose full body is emitted by
+	 * TrustSurfaces::institutional_sections; only those may drop the authored
+	 * post content — the other keys keep printing it above the composition.
+	 *
+	 * @var array<int, string>
+	 */
+	private const RENDERED_BODIES = array( 'about', 'privacy', 'accessibility', 'visual-identity' );
 
 	/**
 	 * Keeps trust locale routes from being canonicalized away.
@@ -444,10 +482,16 @@ final class TrustRoutes {
 		foreach ( self::query_records( $post_type, $locale ) as $post ) {
 			$records[] = self::record( $post );
 		}
+		if ( 'lps_news' === $post_type ) {
+			$events = array();
+			foreach ( self::query_records( 'lps_event', $locale ) as $post ) {
+				$events[] = self::record( $post );
+			}
+			return TrustSurfaces::render_news_listing( $records, $locale, $events, $now );
+		}
 		return match ( $post_type ) {
 			'lps_opportunity' => TrustSurfaces::render_opportunity_listing( $records, $locale, $now ),
-			'lps_event' => TrustSurfaces::render_event_listing( $records, $locale, $now ),
-			default => TrustSurfaces::render_news_listing( $records, $locale ),
+			default => TrustSurfaces::render_event_listing( $records, $locale, $now ),
 		};
 	}
 

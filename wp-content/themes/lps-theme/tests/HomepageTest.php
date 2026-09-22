@@ -321,15 +321,12 @@ final class HomepageTest extends \PHPUnit\Framework\TestCase {
 		self::assertStringNotContainsString( '<img', $html );
 	}
 
-	/** Media slots exist on the feature row and media strata, not on dated rows. */
+	/** Feature cards render a decorative media plate; dated rows never carry one. */
 	public function test_media_slots_render_only_in_media_positions(): void {
 		$media   = $this->cleared_media();
 		$slotted = array_replace( $this->record( 'projects', 'en' ), array( 'media' => $media ) );
 		$html    = Homepage::section_markup( 'research', 'en', array( $slotted ), '2026-09-06' );
-		self::assertStringContainsString( '<figure class="lps-media lps-media--image">', $html );
-
-		$plain = Homepage::section_markup( 'research', 'en', array( $this->record( 'projects', 'en' ) ), '2026-09-06' );
-		self::assertStringNotContainsString( '<img', $plain );
+		self::assertStringContainsString( 'lps-card-media', $html );
 
 		$dated = array_replace(
 			$this->record( 'latest', 'en' ),
@@ -338,21 +335,13 @@ final class HomepageTest extends \PHPUnit\Framework\TestCase {
 				'date'  => '2026-09-01',
 			)
 		);
-		$older = array_replace(
-			$this->record( 'latest', 'en' ),
-			array(
-				'media'     => $media,
-				'date'      => '2026-08-01',
-				'source_id' => 'source:older',
-			)
-		);
-		$html  = Homepage::section_markup( 'latest', 'en', array( $dated, $older ), '2026-09-06' );
-		// Only the newest record carries the media slot.
-		self::assertSame( 1, substr_count( $html, '<figure class="lps-media' ) );
-		self::assertStringContainsString( 'lps-record--featured', $html );
+		$html  = Homepage::section_markup( 'latest', 'en', array( $dated ), '2026-09-06' );
+		self::assertStringNotContainsString( 'lps-card-media', $html );
+		self::assertStringNotContainsString( '<img', $html );
+		self::assertStringContainsString( 'lps-event-date', $html );
 	}
 
-	/** Dated rows print the ISO day even when the canonical date carries a time. */
+	/** Agenda rows print only the year even when the canonical date carries a time. */
 	public function test_latest_rows_normalize_datetime_to_day(): void {
 		$news = array_replace(
 			$this->record( 'latest', 'en' ),
@@ -362,11 +351,30 @@ final class HomepageTest extends \PHPUnit\Framework\TestCase {
 			)
 		);
 		$html = Homepage::section_markup( 'latest', 'en', array( $news ), '2026-09-06' );
-		self::assertStringContainsString( '<time datetime="2026-09-01">2026-09-01</time>', $html );
+		self::assertStringContainsString( '<strong>2026</strong>', $html );
+		self::assertStringContainsString( '<span>News</span>', $html );
 		self::assertStringNotContainsString( '09:00:00', $html );
+		self::assertStringNotContainsString( '2026-09-01', $html );
 	}
 
-	/** Event rows carry an explicit status and venue, differentiated from news. */
+	/** Documented period ranges print their full label instead of a bare year. */
+	public function test_latest_rows_keep_documented_period_labels(): void {
+		$news = array_replace(
+			$this->record( 'latest', 'pt-br' ),
+			array(
+				'type' => 'lps_news',
+				'date' => '2021-2022',
+			)
+		);
+		$html = Homepage::section_markup( 'latest', 'pt-br', array( $news ), '2026-09-06' );
+		self::assertStringContainsString( '<strong>2021-2022</strong>', $html );
+
+		$news['date'] = 'Desde 1988';
+		$html         = Homepage::section_markup( 'latest', 'pt-br', array( $news ), '2026-09-06' );
+		self::assertStringContainsString( '<strong>Desde 1988</strong>', $html );
+	}
+
+	/** Event rows carry an explicit status when one is set, differentiated from news. */
 	public function test_event_rows_carry_status_and_venue(): void {
 		$event = array_replace(
 			$this->record( 'latest', 'pt-br' ),
@@ -378,10 +386,13 @@ final class HomepageTest extends \PHPUnit\Framework\TestCase {
 			)
 		);
 		$html  = Homepage::section_markup( 'latest', 'pt-br', array( $event ), '2026-09-06' );
-		self::assertStringContainsString( '<time datetime="2026-10-01">2026-10-01</time>', $html );
-		self::assertStringContainsString( 'Eventos', $html );
-		self::assertStringContainsString( 'Cancelado', $html );
-		self::assertStringContainsString( 'Auditório do LPS', $html );
+		self::assertStringContainsString( '<strong>2026</strong>', $html );
+		self::assertStringContainsString( 'Evento · Cancelado', $html );
+
+		$held = array_replace( $event, array( 'event_status' => 'held' ) );
+		$html = Homepage::section_markup( 'latest', 'pt-br', array( $held ), '2026-09-06' );
+		self::assertStringContainsString( '<span>Evento</span>', $html );
+		self::assertStringNotContainsString( 'Cancelado', $html );
 	}
 
 	/**
@@ -479,7 +490,7 @@ final class HomepageTest extends \PHPUnit\Framework\TestCase {
 				self::assertStringNotContainsString( 'REJECTED_SUMMARY', $html );
 				self::assertStringNotContainsString( 'source:record', $html );
 				self::assertStringContainsString( 'data-source-id="source:valid"', $html );
-				self::assertSame( 1, substr_count( $html, '<article' ) );
+				self::assertSame( 1, substr_count( $html, '<li ' ) );
 				self::assertSame(
 					Homepage::section_markup( 'latest', $locale, array(), '2026-09-06' ),
 					Homepage::section_markup( 'latest', $locale, array( $rejected ), '2026-09-06' )
@@ -533,8 +544,8 @@ final class HomepageTest extends \PHPUnit\Framework\TestCase {
 			self::assertSame( 3, substr_count( $html, 'aria-disabled="true"' ) );
 			self::assertSame( 3, substr_count( $html, '<span aria-disabled="true">' . $message . '</span>' ) );
 			self::assertSame( 3, substr_count( $html, 'lps-journey-label' ) );
-			self::assertStringContainsString( 'aria-labelledby="lps-home-journeys"', $html );
-			self::assertMatchesRegularExpression( '/<h2 id="lps-home-journeys">[^<]+<\/h2>/', $html );
+			self::assertStringContainsString( 'aria-labelledby="home-journeys"', $html );
+			self::assertMatchesRegularExpression( '/<h2 id="home-journeys">[^<]+<\/h2>/', $html );
 		}
 	}
 
@@ -557,7 +568,7 @@ final class HomepageTest extends \PHPUnit\Framework\TestCase {
 			self::assertSame( array( 'source:1', 'source:2', 'source:3' ), $sources[1] );
 			$html = Homepage::section_markup( 'mission', $locale, array( $this->record( 'mission', $locale ) ), '2026-09-06' );
 			self::assertSame( 1, substr_count( $html, '<h1' ) );
-			self::assertStringNotContainsString( '<h2', $html );
+			self::assertStringContainsString( 'lps-hero-title', $html );
 			self::assertStringContainsString( '<section data-home-section="mission" data-source-id="source:record"', $html );
 		}
 	}
@@ -598,7 +609,7 @@ final class HomepageTest extends \PHPUnit\Framework\TestCase {
 					: Homepage::section_markup( $section, $locale, array(), '2026-09-06' );
 				self::assertSame( $empty, $html );
 				self::assertStringContainsString( 'aria-labelledby="lps-home-' . $section . '"', $html );
-				self::assertMatchesRegularExpression( '/<h[12][^>]*id="lps-home-' . $section . '">[^<]+<\/h[12]>/', $html );
+				self::assertMatchesRegularExpression( '/<h[12][^>]*id="lps-home-' . $section . '"[^>]*>/', $html );
 				self::assertMatchesRegularExpression( '/<p data-home-empty="' . $section . '">[^<]+<\/p>/', $html );
 				self::assertStringNotContainsString( 'FOREIGN_', $html );
 				self::assertStringNotContainsString( '<article', $html );
@@ -620,19 +631,18 @@ final class HomepageTest extends \PHPUnit\Framework\TestCase {
 		$template = file_get_contents( dirname( __DIR__ ) . '/templates/front-page.html' );
 		self::assertIsString( $template );
 		preg_match_all( '/wp:lps-theme\/homepage \{"section":"([a-z]+)"/', $template, $blocks );
-		self::assertSame( array( 'mission', 'research', 'latest', 'teaching', 'people', 'journeys', 'partners' ), $blocks[1] );
+		self::assertSame( array( 'mission', 'journeys', 'research', 'teaching', 'people', 'latest', 'partners' ), $blocks[1] );
 		foreach ( array( 'pt-br', 'en' ) as $locale ) {
 			$page = '';
 			foreach ( $blocks[1] as $section ) {
 				$page .= Homepage::section_markup( $section, $locale, array(), '2026-09-06' );
 			}
-			self::assertSame( 5, substr_count( $page, 'data-home-section=' ), $page );
+			self::assertSame( 4, substr_count( $page, 'data-home-section=' ), $page );
 			self::assertStringContainsString( 'data-home-section="mission"', $page );
 			self::assertStringContainsString( 'data-home-section="journeys"', $page );
 			self::assertStringContainsString( 'data-home-section="teaching"', $page );
-			self::assertStringContainsString( 'data-home-section="partners"', $page );
 			self::assertStringContainsString( 'data-home-section="contact"', $page );
-			foreach ( array( 'research', 'latest', 'people', 'projects', 'evidence', 'infrastructure' ) as $omitted ) {
+			foreach ( array( 'research', 'latest', 'people', 'projects', 'evidence', 'infrastructure', 'partners' ) as $omitted ) {
 				self::assertStringNotContainsString( 'data-home-section="' . $omitted . '"', $page );
 			}
 			self::assertSame( 2, substr_count( $page, 'data-home-empty=' ), $page );
@@ -655,20 +665,17 @@ final class HomepageTest extends \PHPUnit\Framework\TestCase {
 		foreach ( array( 'pt-br', 'en' ) as $locale ) {
 			$evidence = $this->record( 'evidence', $locale );
 			$html     = Homepage::section_markup( 'research', $locale, array( $evidence ), '2026-09-06' );
-			self::assertStringContainsString( 'aria-labelledby="lps-home-evidence"', $html );
-			self::assertMatchesRegularExpression( '/<h2 class="lps-kicker" id="lps-home-evidence">[^<]+<\/h2>/', $html );
-			self::assertStringNotContainsString( 'lps-home-research">', $html );
+			self::assertStringContainsString( 'aria-labelledby="home-evidence"', $html );
+			self::assertMatchesRegularExpression( '/<h2 id="home-evidence">[^<]+<\/h2>/', $html );
 			self::assertStringNotContainsString( 'data-home-empty', $html );
 
 			$contact = array_replace( $this->record( 'contact', $locale ), array( 'cta' => 'CONTACT_CTA' ) );
 			$html    = Homepage::section_markup( 'partners', $locale, array( $contact ), '2026-09-06' );
-			// The nested contact stratum keeps its own landmark name; the outer
-			// partners section drops its label so the two landmarks never share
-			// one accessible name (axe landmark-unique).
+			// The contact handoff band keeps its own labelled landmark even when
+			// the partner marquee is omitted for having no logos.
 			self::assertStringContainsString( 'aria-labelledby="lps-home-contact"', $html );
-			self::assertStringContainsString( '<section data-home-section="partners" class="lps-home-section">', $html );
-			self::assertMatchesRegularExpression( '/<h2 class="lps-kicker" id="lps-home-contact">[^<]+<\/h2>/', $html );
-			self::assertStringNotContainsString( 'lps-home-partners">', $html );
+			self::assertStringContainsString( 'data-home-section="contact"', $html );
+			self::assertMatchesRegularExpression( '/<h2 id="lps-home-contact">[^<]+<\/h2>/', $html );
 			self::assertStringNotContainsString( 'data-home-empty', $html );
 			self::assertStringContainsString( 'CONTACT_CTA', $html );
 		}

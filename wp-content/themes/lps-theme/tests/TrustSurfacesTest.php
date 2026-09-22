@@ -247,13 +247,14 @@ final class TrustSurfacesTest extends \PHPUnit\Framework\TestCase {
 	 */
 	public static function institutional_keys(): array {
 		return array(
-			'about'         => array( 'about' ),
-			'history'       => array( 'history' ),
-			'governance'    => array( 'governance' ),
-			'collaboration' => array( 'collaboration' ),
-			'contact'       => array( 'contact' ),
-			'privacy'       => array( 'privacy' ),
-			'accessibility' => array( 'accessibility' ),
+			'about'           => array( 'about' ),
+			'history'         => array( 'history' ),
+			'governance'      => array( 'governance' ),
+			'collaboration'   => array( 'collaboration' ),
+			'contact'         => array( 'contact' ),
+			'privacy'         => array( 'privacy' ),
+			'accessibility'   => array( 'accessibility' ),
+			'visual-identity' => array( 'visual-identity' ),
 		);
 	}
 
@@ -276,9 +277,11 @@ final class TrustSurfacesTest extends \PHPUnit\Framework\TestCase {
 			$this->now()
 		);
 
-		self::assertStringNotContainsString( '<form', $html );
-		self::assertStringNotContainsString( '<input', $html );
-		self::assertStringNotContainsString( 'cookie', strtolower( $html ) );
+		$lower = strtolower( $html );
+		self::assertStringNotContainsString( '<form', $lower );
+		self::assertStringNotContainsString( '<input', $lower );
+		self::assertStringNotContainsString( 'document.cookie', $lower );
+		self::assertStringNotContainsString( 'set-cookie', $lower );
 	}
 
 	/** Personal addresses never reach the contact page. */

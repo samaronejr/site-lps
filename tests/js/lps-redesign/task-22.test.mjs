@@ -130,11 +130,13 @@ describe("task-22: the visible feature image is never lazy-loaded", () => {
     expect(renderer).toContain("$priority   = $hero ? 'high' : 'auto';");
   });
 
-  it("the homepage reserves the hero placement for the single mission feature", async () => {
+  it("the homepage emits no feature imagery — media plates are decorative", async () => {
     const homepage = await read(`${THEME_ROOT}/includes/class-homepage.php`);
-    expect(homepage).toContain("feature_media_markup( $record, $locale, 'hero' )");
-    // Every other slot renders as content (lazy) so exactly one LCP image exists.
-    expect(homepage).toContain("feature_media_markup( $record, $locale )");
+    // The governed media API stays public for other surfaces…
+    expect(homepage).toContain("public static function feature_media_markup");
+    // …but the homepage never calls it, so there is no LCP image risk at all.
+    expect(homepage).not.toMatch(/self::feature_media_markup\( \$record/);
+    expect(homepage).not.toMatch(/feature_media_markup\( \$record, \$locale, 'hero' \)/);
   });
 
   it("a hero document passes the document audit while a lazy hero is flagged", async () => {

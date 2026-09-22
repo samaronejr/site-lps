@@ -55,12 +55,17 @@ final class ThemeShellTest extends \PHPUnit\Framework\TestCase {
 		$english    = Shell::navigation( 'en' );
 
 		// Then: labels and URLs resolve to the matching locale roots.
-		self::assertCount( 7, $portuguese );
-		self::assertCount( 7, $english );
-		self::assertSame( '/pt-br/publicacoes/', $portuguese['publications']['url'] );
-		self::assertSame( 'Publicações', $portuguese['publications']['label'] );
-		self::assertSame( '/en/publications/', $english['publications']['url'] );
-		self::assertSame( 'Publications', $english['publications']['label'] );
+		self::assertCount( 6, $portuguese );
+		self::assertCount( 6, $english );
+		self::assertSame( '/pt-br/ensino/', $portuguese['teaching']['url'] );
+		self::assertSame( 'Ensino', $portuguese['teaching']['label'] );
+		self::assertSame( '/en/teaching/', $english['teaching']['url'] );
+		self::assertSame( 'Teaching', $english['teaching']['label'] );
+		self::assertSame( 'Notícias e eventos', $portuguese['news']['label'] );
+		$research_children_pt = $portuguese['research']['children'] ?? array();
+		$research_children_en = $english['research']['children'] ?? array();
+		self::assertSame( '/pt-br/publicacoes/', $research_children_pt[2]['url'] );
+		self::assertSame( '/en/publications/', $research_children_en[2]['url'] );
 	}
 
 	/** Archive surfaces name themselves in the page locale, never with core English strings. */
@@ -261,28 +266,31 @@ final class ThemeShellTest extends \PHPUnit\Framework\TestCase {
 		// Given: a rendered English header.
 		$header = Shell::header_markup( 'en', '/en/research/' );
 
-		// Then: skip link, banner, disclosure, nav, search, locale and CTA appear in order.
+		// Then: skip link, banner, locale switch, masthead search, CTA, nav and
+		// disclosure appear in reading order; the disclosure repeats nav+tools.
 		$positions = array(
 			'skip'    => strpos( $header, 'href="#lps-main"' ),
 			'banner'  => strpos( $header, '<header' ),
-			'summary' => strpos( $header, '<summary>' ),
-			'nav'     => strpos( $header, 'aria-label="Primary navigation"' ),
-			'search'  => strpos( $header, 'role="search"' ),
 			'locale'  => strpos( $header, 'aria-label="Language"' ),
+			'search'  => strpos( $header, 'role="search"' ),
 			'cta'     => strpos( $header, 'href="/en/collaborate/"' ),
+			'nav'     => strpos( $header, 'aria-label="Primary navigation"' ),
+			'summary' => strpos( $header, '<summary>' ),
 		);
 		foreach ( $positions as $position ) {
 			self::assertNotFalse( $position );
 		}
-		// The desktop navigation tier precedes the disclosure; the disclosure's
-		// own copy of the nav (and the tools inside it) follows the summary.
+		// The locale switch rides the utility band, the masthead carries the
+		// search and the collaborate CTA, and the desktop navigation tier
+		// precedes the disclosure's own copy of the nav and tools.
 		self::assertTrue(
 			$positions['skip'] < $positions['banner']
-			&& $positions['banner'] < $positions['nav']
+			&& $positions['banner'] < $positions['locale']
+			&& $positions['locale'] < $positions['search']
+			&& $positions['search'] < $positions['cta']
+			&& $positions['cta'] < $positions['nav']
 			&& $positions['nav'] < $positions['summary']
-			&& $positions['summary'] < $positions['search']
-			&& $positions['search'] < $positions['locale']
-			&& $positions['locale'] < $positions['cta']
+			&& false !== strpos( $header, 'id="lps-search-input-2"', $positions['summary'] )
 		);
 	}
 
@@ -318,19 +326,19 @@ final class ThemeShellTest extends \PHPUnit\Framework\TestCase {
 		// Given: the English footer.
 		$footer = Shell::footer_markup( 'en' );
 
-		// Then: affiliation context, the canonical teaching entrance and the
-		// four utility routes render; the footer band keeps the text
-		// wordmark (artwork stays on light surfaces); and the primary
-		// navigation is not duplicated.
-		self::assertStringContainsString( 'Federal University of Rio de Janeiro', $footer );
+		// Then: the brand lockup and address, the three link columns with the
+		// canonical teaching and utility entrances, the institutional bottom
+		// bar, and the copyright line render.
 		self::assertStringContainsString( 'href="/en/teaching/"', $footer );
 		self::assertStringContainsString( 'href="/en/contact/"', $footer );
-		self::assertStringContainsString( 'href="/en/events/"', $footer );
 		self::assertStringContainsString( 'href="/en/privacy/"', $footer );
 		self::assertStringContainsString( 'href="/en/accessibility/"', $footer );
+		self::assertStringContainsString( 'href="/en/research/"', $footer );
+		self::assertStringContainsString( 'href="/en/opportunities/"', $footer );
 		self::assertStringContainsString( '/lps-brand/lps_coppe_reversed_lockup.svg', $footer );
-		self::assertStringNotContainsString( '/en/research/', $footer );
-		self::assertStringNotContainsString( '/en/publications/', $footer );
+		self::assertStringContainsString( 'Signal Processing Laboratory. All rights reserved.', $footer );
+		self::assertStringContainsString( 'secretaria@lps.ufrj.br', $footer );
+		self::assertStringNotContainsString( 'Site anterior', $footer );
 	}
 
 	/** A listing breadcrumb names the listing, never a record in its loop. */

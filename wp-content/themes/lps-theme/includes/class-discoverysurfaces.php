@@ -2,6 +2,12 @@
 /**
  * Research, project, and publication discovery surfaces.
  *
+ * The renderers compose in the showcase vocabulary (`showcase/institutional-
+ * redesign/public/`): kicker-led page headers, `lps-body lps-reading`
+ * editorial containers, `lps-section` bands with section-heads, `lps-card`
+ * grids for related projects, and `lps-record-list` rows for filtered
+ * listings — no class here is invented for the theme.
+ *
  * @package LPS\Theme
  */
 
@@ -89,6 +95,10 @@ final class DiscoverySurfaces {
 	/**
 	 * Renders a research area with its published projects.
 	 *
+	 * Mirrors the showcase composition: a kicker-led page header, the
+	 * editorial body in the shared reading container, and the related
+	 * projects as a card grid — the same treatment `/projetos/` gives them.
+	 *
 	 * @param array<string, mixed> $record   Research area record.
 	 * @param array<int, mixed>    $projects Published projects in this area.
 	 * @param string               $locale   Supported locale slug.
@@ -99,20 +109,27 @@ final class DiscoverySurfaces {
 		$summary = self::text( $record['summary'] ?? '' );
 		$body    = self::text( $record['body'] ?? '' );
 		$html    = '<article class="lps-research-area">';
+		$html   .= '<div class="lps-page-header"><div class="lps-page-header-inner lps-page-grid">';
+		$html   .= '<p class="lps-kicker">' . self::esc( $english ? 'Research' : 'Pesquisa' ) . '</p>';
 		$html   .= '<h1>' . self::esc( $title ) . '</h1>';
 		if ( '' !== $summary ) {
-			$html .= '<p class="lps-summary">' . self::esc( $summary ) . '</p>';
+			$html .= '<p class="lps-lead">' . self::esc( $summary ) . '</p>';
 		}
+		$html .= '</div></div>';
 		if ( '' !== $body ) {
 			$html .= '<div class="lps-body lps-reading">' . self::rich( $body ) . '</div>';
 		}
-		// The projects stratum is a named section of record rows, not a bare list.
-		$html .= '<h2>' . self::esc( $english ? 'Projects' : 'Projetos' ) . '</h2>';
+		// The projects stratum is a named section of related record cards.
+		$html .= '<section class="lps-section" aria-labelledby="area-projects">';
+		$html .= '<div class="lps-section-head"><div>'
+			. '<p class="lps-kicker">' . self::esc( $english ? 'Research' : 'Pesquisa' ) . '</p>'
+			. '<h2 id="area-projects">' . self::esc( $english ? 'Projects' : 'Projetos' ) . '</h2>'
+			. '</div></div>';
 		if ( array() === $projects ) {
-			$html .= '<p class="lps-empty">' . self::esc( $english ? 'No published projects in this area' : 'Nenhum projeto publicado nesta área' ) . '</p>';
+			$html .= '<p class="lps-empty">' . self::esc( $english ? 'No published projects in this area' : 'Nenhum projeto publicado nesta área' ) . '</p></section>';
 			return $html . '</article>';
 		}
-		$html .= '<ul class="lps-area-projects">';
+		$html .= '<div class="lps-grid lps-grid--2">';
 		foreach ( $projects as $project ) {
 			if ( ! is_array( $project ) ) {
 				continue;
@@ -122,21 +139,35 @@ final class DiscoverySurfaces {
 			if ( '' === $project_title ) {
 				continue;
 			}
-			$html           .= '<li class="lps-record"><h3>';
+			$html           .= '<article class="lps-card"><div class="lps-card-body">';
+			$html           .= '<h3 class="lps-card-title">';
 			$html           .= '' === $project_url ? self::esc( $project_title ) : '<a href="' . self::esc( $project_url ) . '">' . self::esc( $project_title ) . '</a>';
 			$html           .= '</h3>';
 			$project_summary = self::text( $project['summary'] ?? '' );
 			if ( '' !== $project_summary ) {
 				$html .= '<p>' . self::esc( $project_summary ) . '</p>';
 			}
-			$html .= '</li>';
+			$html .= '</div>';
+			$meta  = self::meta_parts(
+				array(
+					self::project_status_label( self::text( $project['status'] ?? '' ), $locale ),
+					self::text( $project['partner'] ?? '' ),
+				)
+			);
+			if ( '' !== $meta ) {
+				$html .= '<div class="lps-card-foot"><span class="lps-meta">' . $meta . '</span></div>';
+			}
+			$html .= '</article>';
 		}
-		$html .= '</ul>';
-		return $html . '</article>';
+		$html .= '</div>';
+		return $html . '</section></article>';
 	}
 
 	/**
 	 * Renders a project with summary before technical body.
+	 *
+	 * The header announces status and dates first, then the named sections
+	 * for the team, funders and produced publications.
 	 *
 	 * @param array<string, mixed> $record        Project record.
 	 * @param array<string, mixed> $relationships Derived relationships.
@@ -159,19 +190,26 @@ final class DiscoverySurfaces {
 			$status_class .= ' lps-status-warning';
 		}
 		$html  = '<article class="lps-project">';
+		$html .= '<div class="lps-page-header"><div class="lps-page-header-inner lps-page-grid">';
+		$html .= '<p class="lps-kicker">' . self::esc( $english ? 'Project' : 'Projeto' ) . '</p>';
 		$html .= '<h1>' . self::esc( $title ) . '</h1>';
 		$html .= '<p class="lps-meta"><span class="' . $status_class . '">' . self::esc( $status_label ) . '</span>';
 		$html .= self::project_dates_meta( $record, $locale );
 		$html .= '</p>';
 		if ( '' !== $summary ) {
-			$html .= '<p class="lps-summary">' . self::esc( $summary ) . '</p>';
+			$html .= '<p class="lps-lead">' . self::esc( $summary ) . '</p>';
 		}
+		$html .= '</div></div>';
 		if ( '' !== $body ) {
 			$html .= '<div class="lps-body lps-reading">' . self::rich( $body ) . '</div>';
 		}
 		$members = isset( $relationships['members'] ) && is_array( $relationships['members'] ) ? $relationships['members'] : array();
 		if ( array() !== $members ) {
-			$html .= '<h2>' . self::esc( $english ? 'Team' : 'Equipe' ) . '</h2>';
+			$html .= '<section class="lps-section" aria-labelledby="project-team">';
+			$html .= '<div class="lps-section-head"><div>'
+				. '<p class="lps-kicker">' . self::esc( $english ? 'Project' : 'Projeto' ) . '</p>'
+				. '<h2 id="project-team">' . self::esc( $english ? 'Team' : 'Equipe' ) . '</h2>'
+				. '</div></div>';
 			$html .= '<ul class="lps-members">';
 			foreach ( $members as $member ) {
 				if ( ! is_array( $member ) ) {
@@ -193,11 +231,15 @@ final class DiscoverySurfaces {
 					$html .= '<li>' . self::esc( $name ) . '</li>';
 				}
 			}
-			$html .= '</ul>';
+			$html .= '</ul></section>';
 		}
 		$funders = isset( $relationships['funders'] ) && is_array( $relationships['funders'] ) ? $relationships['funders'] : array();
 		if ( array() !== $funders ) {
-			$html .= '<h2>' . self::esc( $english ? 'Funders' : 'Financiadores' ) . '</h2>';
+			$html .= '<section class="lps-section" aria-labelledby="project-funders">';
+			$html .= '<div class="lps-section-head"><div>'
+				. '<p class="lps-kicker">' . self::esc( $english ? 'Funding' : 'Fomento' ) . '</p>'
+				. '<h2 id="project-funders">' . self::esc( $english ? 'Funders' : 'Financiadores' ) . '</h2>'
+				. '</div></div>';
 			$html .= '<ul class="lps-funders">';
 			foreach ( $funders as $funder ) {
 				if ( ! is_array( $funder ) ) {
@@ -211,11 +253,15 @@ final class DiscoverySurfaces {
 					$html .= '<li>' . self::esc( $name ) . '</li>';
 				}
 			}
-			$html .= '</ul>';
+			$html .= '</ul></section>';
 		}
 		$publications = isset( $relationships['publications'] ) && is_array( $relationships['publications'] ) ? $relationships['publications'] : array();
 		if ( array() !== $publications ) {
-			$html .= '<h2>' . self::esc( $english ? 'Publications' : 'Publicações' ) . '</h2>';
+			$html .= '<section class="lps-section" aria-labelledby="project-publications">';
+			$html .= '<div class="lps-section-head"><div>'
+				. '<p class="lps-kicker">' . self::esc( $english ? 'Outputs' : 'Resultados' ) . '</p>'
+				. '<h2 id="project-publications">' . self::esc( $english ? 'Publications' : 'Publicações' ) . '</h2>'
+				. '</div></div>';
 			$html .= '<ul class="lps-publications">';
 			foreach ( $publications as $publication ) {
 				if ( ! is_array( $publication ) ) {
@@ -229,7 +275,7 @@ final class DiscoverySurfaces {
 					$html .= '<li>' . self::esc( $pub_title ) . '</li>';
 				}
 			}
-			$html .= '</ul>';
+			$html .= '</ul></section>';
 		}
 		$html .= '</article>';
 		return $html;
@@ -237,6 +283,10 @@ final class DiscoverySurfaces {
 
 	/**
 	 * Renders a publication preserving authoritative order.
+	 *
+	 * Metadata leads the record (date, venue, type), then the editorial
+	 * summary, the abstract in its reading container, ordered authors, the
+	 * access block and related records.
 	 *
 	 * @param array<string, mixed> $record    Publication record.
 	 * @param array<int, mixed>    $authors   Ordered authors.
@@ -253,6 +303,8 @@ final class DiscoverySurfaces {
 		$venue    = trim( self::text( $record['venue'] ?? '' ) );
 		$type     = trim( self::text( $record['type'] ?? '' ) );
 		$html     = '<article class="lps-publication">';
+		$html    .= '<div class="lps-page-header"><div class="lps-page-header-inner lps-page-grid">';
+		$html    .= '<p class="lps-kicker">' . self::esc( $english ? 'Publication' : 'Publicação' ) . '</p>';
 		$html    .= '<h1>' . self::esc( $title ) . '</h1>';
 		// Metadata leads the record: precision-aware date, venue, and the
 		// controlled publication-type key.
@@ -274,11 +326,22 @@ final class DiscoverySurfaces {
 		if ( '' !== $summary ) {
 			$html .= '<p class="lps-summary">' . self::esc( $summary ) . '</p>';
 		}
+		$html .= '</div></div>';
 		if ( '' !== $abstract ) {
+			$html .= '<section class="lps-section" aria-labelledby="publication-abstract">';
+			$html .= '<div class="lps-section-head"><div>'
+				. '<p class="lps-kicker">' . self::esc( $english ? 'Publication' : 'Publicação' ) . '</p>'
+				. '<h2 id="publication-abstract">' . self::esc( $english ? 'Abstract' : 'Resumo' ) . '</h2>'
+				. '</div></div>';
 			$html .= '<div class="lps-abstract lps-reading">' . self::esc( $abstract ) . '</div>';
+			$html .= '</section>';
 		}
 		if ( array() !== $authors ) {
-			$html .= '<h2>' . self::esc( $english ? 'Authors' : 'Autores' ) . '</h2>';
+			$html .= '<section class="lps-section" aria-labelledby="publication-authors">';
+			$html .= '<div class="lps-section-head"><div>'
+				. '<p class="lps-kicker">' . self::esc( $english ? 'Authorship' : 'Autoria' ) . '</p>'
+				. '<h2 id="publication-authors">' . self::esc( $english ? 'Authors' : 'Autores' ) . '</h2>'
+				. '</div></div>';
 			$html .= '<ul class="lps-authors">';
 			foreach ( $authors as $author ) {
 				if ( ! is_array( $author ) ) {
@@ -298,7 +361,7 @@ final class DiscoverySurfaces {
 				}
 				$html .= '<li>' . $item . '</li>';
 			}
-			$html .= '</ul>';
+			$html .= '</ul></section>';
 		}
 		$html .= '<section class="lps-access">';
 		$html .= '<h2>' . self::esc( $english ? 'Access and downloads' : 'Acesso e downloads' ) . '</h2>';
@@ -356,7 +419,11 @@ final class DiscoverySurfaces {
 				'preprint-of' => $english ? 'Preprint of' : 'Preprint de',
 				'output-of'   => $english ? 'Output of' : 'Produto de',
 			);
-			$html       .= '<h2>' . self::esc( $english ? 'Related records' : 'Registros relacionados' ) . '</h2>';
+			$html       .= '<section class="lps-section" aria-labelledby="publication-relations">';
+			$html       .= '<div class="lps-section-head"><div>'
+				. '<p class="lps-kicker">' . self::esc( $english ? 'Publication' : 'Publicação' ) . '</p>'
+				. '<h2 id="publication-relations">' . self::esc( $english ? 'Related records' : 'Registros relacionados' ) . '</h2>'
+				. '</div></div>';
 			$html       .= '<ul class="lps-relations">';
 			foreach ( $relations as $relation ) {
 				if ( ! is_array( $relation ) ) {
@@ -377,7 +444,7 @@ final class DiscoverySurfaces {
 				}
 				$html .= '</li>';
 			}
-			$html .= '</ul>';
+			$html .= '</ul></section>';
 		}
 		$html .= '</article>';
 		return $html;
@@ -450,6 +517,10 @@ final class DiscoverySurfaces {
 	/**
 	 * Renders a server-rendered listing with GET filters and pagination.
 	 *
+	 * The form and its pinned controls are unchanged; the result rows adopt
+	 * the showcase `lps-record-list` treatment (title, summary, meta) and the
+	 * pager the shared `lps-search-pagination` cluster.
+	 *
 	 * @param string               $kind       Listing kind.
 	 * @param array<int, mixed>    $items      Listing rows.
 	 * @param array<string, mixed> $filters    Active filters.
@@ -505,7 +576,7 @@ final class DiscoverySurfaces {
 		$html .= '</p></fieldset></form>';
 		$html .= '<p class="lps-listing-count" role="status">' . self::esc( self::listing_count_label( count( $items ), $locale ) ) . '</p>';
 		$html .= '<h2>' . self::esc( $english ? 'Results' : 'Resultados' ) . '</h2>';
-		$html .= '<ul class="lps-listing-results">';
+		$html .= '<ul class="lps-listing-results lps-record-list">';
 		foreach ( $items as $item ) {
 			if ( ! is_array( $item ) ) {
 				continue;
@@ -514,13 +585,13 @@ final class DiscoverySurfaces {
 			$url     = self::safe_url( self::text( $item['url'] ?? '' ) );
 			$summary = self::text( $item['summary'] ?? '' );
 			$meta    = self::text( $item['meta'] ?? '' );
-			$html   .= '<li class="lps-record">';
+			$html   .= '<li>';
+			$html   .= '<h3><a href="' . self::esc( $url ) . '">' . self::esc( $title ) . '</a></h3>';
+			if ( '' !== $summary ) {
+				$html .= '<p class="lps-summary">' . self::esc( $summary ) . '</p>';
+			}
 			if ( '' !== $meta ) {
 				$html .= '<p class="lps-meta">' . self::esc( $meta ) . '</p>';
-			}
-			$html .= '<h3><a href="' . self::esc( $url ) . '">' . self::esc( $title ) . '</a></h3>';
-			if ( '' !== $summary ) {
-				$html .= '<p>' . self::esc( $summary ) . '</p>';
 			}
 			$html .= '</li>';
 		}
@@ -530,7 +601,7 @@ final class DiscoverySurfaces {
 		$current = self::num( $pagination['current'] ?? 1 );
 		$total   = self::num( $pagination['total'] ?? 1 );
 		$query   = $active;
-		$html   .= '<nav aria-label="' . self::esc( $nav_label ) . '"><ul>';
+		$html   .= '<nav class="lps-search-pagination" aria-label="' . self::esc( $nav_label ) . '"><ul>';
 		for ( $page = 1; $page <= $total; $page++ ) {
 			if ( $page === $current ) {
 				$html .= '<li aria-current="page"><span>' . $page . '</span></li>';
@@ -540,6 +611,290 @@ final class DiscoverySurfaces {
 			}
 		}
 		$html .= '</ul></nav></section>';
+		return $html;
+	}
+
+	/**
+	 * Renders the research landing: research-area cards, selected projects,
+	 * the publications note, infrastructure capabilities and collaboration.
+	 *
+	 * @param array<int, mixed>     $areas    Research-area listing rows.
+	 * @param array<int, mixed>     $projects Project listing rows (first three shown).
+	 * @param string                $locale   Supported locale slug.
+	 * @param array<string, string> $paths    Archive/page paths the bands link to.
+	 */
+	public static function render_research_landing( array $areas, array $projects, string $locale, array $paths = array() ): string {
+		$english = 'en' === $locale;
+		$cards   = '';
+		foreach ( $areas as $area ) {
+			if ( ! is_array( $area ) ) {
+				continue;
+			}
+			$cards .= TrustSurfaces::record_card(
+				array(
+					'title'  => $area['title'] ?? '',
+					'body'   => $area['summary'] ?? '',
+					'href'   => $area['url'] ?? '',
+					'accent' => true,
+					'tags'   => $area['topics'] ?? array(),
+				)
+			);
+		}
+		$html  = TrustSurfaces::editorial_section(
+			'research-areas',
+			$english ? 'Areas' : 'Áreas',
+			sprintf( $english ? '%d research fronts' : '%d frentes de pesquisa', count( $areas ) ),
+			'<div class="lps-grid lps-grid--2">' . $cards . '</div>',
+			true
+		);
+		$cards = '';
+		foreach ( array_slice( $projects, 0, 3 ) as $project ) {
+			if ( ! is_array( $project ) ) {
+				continue;
+			}
+			$cards .= TrustSurfaces::record_card(
+				array(
+					'title' => $project['title'] ?? '',
+					'body'  => $project['summary'] ?? '',
+					'href'  => $project['url'] ?? '',
+					'tags'  => $project['topics'] ?? array(),
+					'meta'  => $project['meta'] ?? '',
+				)
+			);
+		}
+		if ( '' !== $cards ) {
+			$html .= TrustSurfaces::editorial_section(
+				'research-projects',
+				$english ? 'Projects' : 'Projetos',
+				$english ? 'Selected projects' : 'Projetos selecionados',
+				'<div class="lps-grid lps-grid--3">' . $cards . '</div>',
+				false,
+				array(
+					'href'  => self::text( $paths['projects'] ?? '' ),
+					'label' => $english ? 'All projects' : 'Todos os projetos',
+				)
+			);
+		}
+		$html      .= TrustSurfaces::editorial_section(
+			'research-outputs',
+			$english ? 'Outputs' : 'Produção',
+			$english ? 'Evidence of the work' : 'Evidências do trabalho',
+			TrustSurfaces::alert_band(
+				'info',
+				$english
+					? 'LPS does not currently maintain a public publications feed under the laboratory responsibility. The scientific output associated with the laboratory is recorded in the professors Lattes CVs and in the publications of the international collaborations the laboratory takes part in.'
+					: 'O LPS não mantém, hoje, um feed público de publicações sob responsabilidade do laboratório. A produção científica associada ao laboratório está registrada nos currículos Lattes dos professores e nas publicações das colaborações internacionais de que o laboratório participa.',
+				$english ? 'No authoritative publications feed exists yet' : 'Ainda não existe um feed público consolidado de publicações'
+			)
+				. '<p class="lps-mt-6"><a class="lps-more" href="' . self::esc( self::text( $paths['publications'] ?? '' ) ) . '">' . self::esc( $english ? 'How to consult the output' : 'Como consultar a produção' ) . '</a></p>'
+		);
+		$stats      = array(
+			array( 'Caloba', $english ? 'Laboratory HPC cluster (SLURM)' : 'Cluster HPC do laboratório (SLURM)' ),
+			array( 'CPU + GPU', $english ? 'Cluster compute partitions' : 'Filas de processamento do cluster' ),
+			array( '1988', $english ? 'Start of the UFRJ–CERN collaboration' : 'Início da colaboração UFRJ–CERN' ),
+		);
+		$stats_html = '';
+		foreach ( $stats as $stat ) {
+			$stats_html .= '<div class="lps-card"><strong class="lps-stat" style="display:grid;gap:0"><strong style="color:var(--c-blue-600);font-size:2rem;line-height:1">' . self::esc( $stat[0] ) . '</strong><span class="lps-summary">' . self::esc( $stat[1] ) . '</span></strong></div>';
+		}
+		$html .= TrustSurfaces::editorial_section(
+			'research-infrastructure',
+			$english ? 'Infrastructure' : 'Infraestrutura',
+			$english ? 'Capabilities behind the research' : 'Capacidades por trás da pesquisa',
+			'<div class="lps-grid lps-grid--3">' . $stats_html . '</div>',
+			false,
+			array(
+				'href'  => self::text( $paths['infrastructure'] ?? '' ),
+				'label' => $english ? 'Facilities' : 'Instalações',
+			)
+		);
+		$html .= TrustSurfaces::editorial_section(
+			'research-contact',
+			$english ? 'Collaboration' : 'Colaboração',
+			$english ? 'Research partnerships' : 'Parcerias de pesquisa',
+			'<div class="lps-grid lps-grid--2">'
+				. TrustSurfaces::editorial_card(
+					$english ? 'Contract research' : 'Pesquisa contratada',
+					$english
+						? 'Projects with industry and public bodies, with formal instruments through the university foundation.'
+						: 'Projetos com a indústria e órgãos públicos, com instrumentos formais pela fundação da universidade.'
+				)
+				. TrustSurfaces::editorial_card(
+					$english ? 'International collaboration' : 'Colaboração internacional',
+					$english
+						? 'Joint work with research groups abroad, including the ATLAS experiment at CERN.'
+						: 'Trabalho conjunto com grupos de pesquisa no exterior, incluindo o experimento ATLAS do CERN.'
+				)
+				. '</div>'
+				. '<div class="lps-mt-8">' . TrustSurfaces::cta_band(
+					$english ? 'Start a research conversation' : 'Comece uma conversa de pesquisa',
+					$english
+						? 'Describe the problem and the laboratory will point to the group that can work on it.'
+						: 'Descreva o problema e o laboratório indicará o grupo que pode trabalhar nele.',
+					array(
+						array(
+							'href'  => self::text( $paths['contact'] ?? '' ),
+							'label' => $english ? 'Contact' : 'Contato',
+						),
+					)
+				) . '</div>'
+		);
+		return $html;
+	}
+
+	/**
+	 * Renders the projects landing: provenance note, project cards, proposal band.
+	 *
+	 * @param array<int, mixed>     $items  Project listing rows.
+	 * @param string                $locale Supported locale slug.
+	 * @param array<string, string> $paths  Archive/page paths the bands link to.
+	 */
+	public static function render_projects_landing( array $items, string $locale, array $paths = array() ): string {
+		$english = 'en' === $locale;
+		$cards   = '';
+		foreach ( $items as $item ) {
+			if ( ! is_array( $item ) ) {
+				continue;
+			}
+			$cards .= TrustSurfaces::record_card(
+				array(
+					'title' => $item['title'] ?? '',
+					'body'  => $item['summary'] ?? '',
+					'href'  => $item['url'] ?? '',
+					'tags'  => $item['topics'] ?? array(),
+					'meta'  => $item['meta'] ?? '',
+					'media' => true,
+				)
+			);
+		}
+		$html  = '<div class="lps-section lps-section--flush">';
+		$html .= TrustSurfaces::alert_band(
+			'info',
+			$english
+				? 'The public project index names the initiatives documented in the laboratory public material. A complete, current portfolio requires laboratory review.'
+				: 'O índice público de projetos nomeia as iniciativas documentadas no material público do laboratório. Um portfólio completo e atual exige revisão do laboratório.',
+			$english ? 'What this list is, and what it is not' : 'O que esta lista é, e o que ela não é'
+		);
+		$html .= '<div class="lps-grid lps-grid--2 lps-mt-8">' . $cards . '</div>';
+		$html .= '<div class="lps-mt-10">' . TrustSurfaces::cta_band(
+			$english ? 'Propose a project' : 'Proponha um projeto',
+			$english
+				? 'The laboratory works with companies and public bodies on applied signal processing and machine learning problems.'
+				: 'O laboratório atua com empresas e órgãos públicos em problemas aplicados de processamento de sinais e aprendizado de máquina.',
+			array(
+				array(
+					'href'  => self::text( $paths['infrastructure'] ?? '' ) . '#parcerias',
+					'label' => $english ? 'Capabilities' : 'Capacidades',
+				),
+				array(
+					'href'  => self::text( $paths['contact'] ?? '' ),
+					'label' => $english ? 'Contact' : 'Contato',
+				),
+			)
+		) . '</div></div>';
+		return $html;
+	}
+
+	/**
+	 * Renders the publications landing: the feed status note, the published
+	 * records the CMS holds, the consultation channels and the ownership band.
+	 *
+	 * @param array<int, mixed>     $items  Publication listing rows.
+	 * @param string                $locale Supported locale slug.
+	 * @param array<string, string> $paths  Archive/page paths the bands link to.
+	 */
+	public static function render_publications_landing( array $items, string $locale, array $paths = array() ): string {
+		$english = 'en' === $locale;
+		$html    = TrustSurfaces::editorial_section(
+			'pub-note',
+			$english ? 'Status' : 'Situação',
+			$english ? 'No consolidated feed yet' : 'Ainda sem feed consolidado',
+			TrustSurfaces::alert_band(
+				'info',
+				$english
+					? 'LPS does not currently maintain a public publications feed under the laboratory responsibility. The scientific output associated with the laboratory is recorded in the professors Lattes CVs and in the publications of the international collaborations the laboratory takes part in.'
+					: 'O LPS não mantém, hoje, um feed público de publicações sob responsabilidade do laboratório. A produção científica associada ao laboratório está registrada nos currículos Lattes dos professores e nas publicações das colaborações internacionais de que o laboratório participa.'
+			),
+			true
+		);
+		$records = '';
+		foreach ( $items as $item ) {
+			if ( ! is_array( $item ) ) {
+				continue;
+			}
+			$title    = self::text( $item['title'] ?? '' );
+			$url      = self::safe_url( self::text( $item['url'] ?? '' ) );
+			$summary  = self::text( $item['summary'] ?? '' );
+			$meta     = self::text( $item['meta'] ?? '' );
+			$records .= '<li><h3>' . ( '' !== $url ? '<a href="' . self::esc( $url ) . '">' : '' ) . self::esc( $title ) . ( '' !== $url ? '</a>' : '' ) . '</h3>';
+			$records .= '' !== $summary ? '<p class="lps-summary">' . self::esc( $summary ) . '</p>' : '';
+			$records .= '' !== $meta ? '<p class="lps-meta">' . self::esc( $meta ) . '</p>' : '';
+			$records .= '</li>';
+		}
+		if ( '' !== $records ) {
+			$html .= TrustSurfaces::editorial_section(
+				'pub-records',
+				$english ? 'Records' : 'Registros',
+				$english ? 'Published records' : 'Registros publicados',
+				'<ul class="lps-record-list">' . $records . '</ul>'
+			);
+		}
+		$lattes      = array(
+			array( 'José Manoel de Seixas', 'http://lattes.cnpq.br/1404632471755241' ),
+			array( 'Luiz Pereira Calôba', 'http://lattes.cnpq.br/3238659802153968' ),
+			array( 'Natanael Nunes de Moura Junior', 'http://lattes.cnpq.br/2696393506316122' ),
+			array( 'João Victor da Fonseca Pinto', 'http://lattes.cnpq.br/3592331377050716' ),
+		);
+		$lattes_foot = '<ul class="lps-source-list">';
+		foreach ( $lattes as $link ) {
+			$lattes_foot .= '<li><a class="lps-meta" href="' . self::esc( $link[1] ) . '" rel="external">' . self::esc( $link[0] ) . '</a></li>';
+		}
+		$lattes_foot .= '</ul>';
+		$channels     = array(
+			array(
+				'title'     => $english ? 'Lattes CVs' : 'Currículos Lattes',
+				'body'      => $english
+					? 'Individual, up-to-date record of each professor\'s output.'
+					: 'Registro individual e atualizado da produção de cada professor.',
+				'foot_html' => $lattes_foot,
+			),
+			array(
+				'title'     => $english ? 'ATLAS collaboration (CERN)' : 'Colaboração ATLAS (CERN)',
+				'body'      => $english
+					? 'Publications of the ATLAS experiment, which carry the laboratory contribution to online filtering, event simulation and reconstruction.'
+					: 'Publicações do experimento ATLAS, que reúnem a contribuição do laboratório em filtragem online, simulação e reconstrução de eventos.',
+				'foot_html' => '<ul class="lps-source-list"><li><a class="lps-meta" href="https://home.cern/science/experiments/atlas" rel="external">ATLAS — CERN</a></li></ul>',
+			),
+			array(
+				'title'     => $english ? 'Code and open data' : 'Código e dados abertos',
+				'body'      => $english
+					? 'Public repositories of the LPS GitHub organisation. Externally maintained, with no declared licence — linked, not copied.'
+					: 'Repositórios públicos da organização LPS no GitHub. Mantidos externamente, sem licença declarada — link, não cópia.',
+				'foot_html' => '<ul class="lps-source-list"><li><a class="lps-meta" href="https://github.com/lps-ufrj-br" rel="external">github.com/lps-ufrj-br</a></li></ul>',
+			),
+		);
+		$cards        = '';
+		foreach ( $channels as $channel ) {
+			$cards .= TrustSurfaces::record_card( $channel );
+		}
+		$html .= TrustSurfaces::editorial_section(
+			'pub-channels',
+			$english ? 'Channels' : 'Canais',
+			$english ? 'Where the output can be consulted' : 'Onde a produção pode ser consultada',
+			'<div class="lps-grid lps-grid--3">' . $cards . '</div>'
+		);
+		$html .= '<section class="lps-section">' . TrustSurfaces::cta_band(
+			$english ? 'A publication feed requires institutional ownership' : 'Um feed de publicações exige responsável institucional',
+			$english
+				? 'Reconciling publication metadata against authoritative sources is migration work, not a design decision. Until then, the laboratory does not publish a list it cannot verify.'
+				: 'Reconciliar metadados de publicações com fontes autoritativas é trabalho de migração, não uma decisão de design. Até lá, o laboratório não publica uma lista que não pode verificar.',
+			array(
+				array(
+					'href'  => self::text( $paths['contact'] ?? '' ),
+					'label' => $english ? 'Contact the laboratory' : 'Fale com o laboratório',
+				),
+			)
+		) . '</section>';
 		return $html;
 	}
 
@@ -718,15 +1073,25 @@ final class DiscoverySurfaces {
 	}
 
 	/**
-	 * Escapes one text value for markup.
+	 * Joins non-empty metadata parts with the middot separator.
 	 *
-	 * @param string $value Untrusted text value.
+	 * @param array<int, string> $parts Metadata values.
 	 */
-			/**
-			 * Converts boundary input to string.
-			 *
-			 * @param mixed $value Boundary input.
-			 */
+	private static function meta_parts( array $parts ): string {
+		$clean = array();
+		foreach ( $parts as $part ) {
+			if ( '' !== $part ) {
+				$clean[] = self::esc( $part );
+			}
+		}
+		return implode( ' · ', $clean );
+	}
+
+	/**
+	 * Converts boundary input to string.
+	 *
+	 * @param mixed $value Boundary input.
+	 */
 	private static function text( mixed $value ): string {
 		if ( is_string( $value ) ) {
 			return $value;
@@ -746,11 +1111,6 @@ final class DiscoverySurfaces {
 		return is_numeric( $value ) ? (int) $value : 0;
 	}
 
-	/**
-	 * Escapes one text value for markup.
-	 *
-	 * @param string $value Untrusted text value.
-	 */
 	/**
 	 * Renders stored editorial content as sanitised HTML.
 	 *
