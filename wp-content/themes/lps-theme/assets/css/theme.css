@@ -2332,9 +2332,11 @@ textarea:focus-visible {
 
 .lps-table-scroll {
   background: var(--color-surface);
-  border-block-start: var(--rule-heavy);
+  border: 1px solid var(--color-card-rule);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
   overflow-x: auto;
-  scrollbar-color: var(--color-accent) var(--color-wash);
+  scrollbar-color: var(--color-accent) var(--color-wash-action-subtle);
   scrollbar-width: thin;
 }
 
@@ -2343,7 +2345,7 @@ textarea:focus-visible {
 }
 
 .lps-table-scroll::-webkit-scrollbar-track {
-  background: var(--color-wash);
+  background: var(--color-wash-action-subtle);
 }
 
 .lps-table-scroll::-webkit-scrollbar-thumb {
@@ -2359,11 +2361,12 @@ table,
 }
 
 caption {
-  color: var(--color-text-muted);
+  border-block-end: var(--rule-hairline);
+  color: var(--color-anchor);
   font-family: var(--font-mono);
   font-size: var(--type-meta);
-  letter-spacing: 0.06em;
-  padding: var(--space-4) 0;
+  letter-spacing: 0.08em;
+  padding: var(--space-4) var(--space-5);
   text-align: start;
   text-transform: uppercase;
 }
@@ -2371,21 +2374,33 @@ caption {
 th,
 td {
   border-block-end: var(--rule-hairline);
-  padding: var(--space-4) var(--space-5) var(--space-4) 0;
+  padding: var(--space-4);
   text-align: start;
-  vertical-align: top;
+  vertical-align: middle;
+}
+
+tr > *:first-child {
+  padding-inline-start: var(--space-5);
+}
+
+tr > *:last-child {
+  padding-inline-end: var(--space-5);
 }
 
 thead th {
-  background: transparent;
-  border-block-end: var(--line-medium) solid var(--color-anchor);
-  color: var(--color-text-soft);
+  background: var(--color-wash-action-subtle);
+  border-block-end: var(--rule-hairline);
+  color: var(--color-anchor-soft);
   font-family: var(--font-mono);
   font-size: var(--type-meta);
   font-weight: 400;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   white-space: nowrap;
+}
+
+tbody tr {
+  transition: background-color 240ms cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 tbody tr:last-child th,
@@ -2402,13 +2417,43 @@ th code {
   white-space: nowrap;
 }
 
+.lps-table-scroll th:last-child,
+.lps-table-scroll td:last-child {
+  text-align: end;
+}
+
 .lps-course-code {
-  color: var(--color-anchor);
+  background: var(--color-surface-alt);
+  border-radius: var(--radius-pill);
+  color: var(--color-anchor-soft);
+  display: inline-block;
   font-family: var(--font-mono);
-  font-size: var(--type-small);
+  font-size: var(--type-meta);
   font-weight: 400;
   letter-spacing: 0.04em;
+  padding: 0.1875rem 0.625rem;
   white-space: nowrap;
+}
+
+.lps-level {
+  border-radius: var(--radius-pill);
+  display: inline-block;
+  font-size: var(--type-meta);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  padding: 0.125rem 0.625rem;
+  white-space: nowrap;
+}
+
+.lps-level-grad {
+  background: var(--color-teal-wash);
+  color: var(--color-teal-ink);
+}
+
+.lps-level-undergrad {
+  background: var(--color-wash-action);
+  color: var(--color-navy-bright);
 }
 
 .lps-offering-list,

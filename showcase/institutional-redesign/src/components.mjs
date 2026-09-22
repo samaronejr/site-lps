@@ -354,10 +354,11 @@ export function courseTable(locale, rows, caption) {
 <caption>${esc(caption)}</caption>
 <thead><tr><th scope="col">${esc(locale === "en" ? "Code" : "Código")}</th><th scope="col">${esc(locale === "en" ? "Course" : "Disciplina")}</th><th scope="col">${esc(locale === "en" ? "Professor" : "Professor")}</th><th scope="col">${esc(locale === "en" ? "Level" : "Nível")}</th></tr></thead>
 <tbody>${rows
-    .map(
-      (row) =>
-        `<tr><td><span class="lps-course-code">${esc(row.code)}</span></td><th scope="row">${esc(pick(row.title, locale))}</th><td>${esc(row.professor)}</td><td>${esc(pick(row.level, locale))}</td></tr>`,
-    )
+    .map((row) => {
+      const level = pick(row.level, locale);
+      const variant = level === "Graduate" ? "lps-level-grad" : "lps-level-undergrad";
+      return `<tr><td><span class="lps-course-code">${esc(row.code)}</span></td><th scope="row">${esc(pick(row.title, locale))}</th><td>${esc(row.professor)}</td><td><span class="lps-level ${variant}">${esc(level)}</span></td></tr>`;
+    })
     .join("")}</tbody>
 </table>
 </div>`;

@@ -1613,7 +1613,7 @@ ${sectionHead({ kicker: en ? "Teaching" : "Docência", title: t(copy.subjects.ti
 <tbody>${courses
     .map(
       (course) =>
-        `<tr><td><span class="lps-course-code">${esc(course.code)}</span></td><th scope="row">${esc(t(course.title, locale))}</th><td>${esc(t(course.level, locale))}</td><td>2026.2</td><td><span class="lps-status lps-status-success">${esc(t(copy.subjects.state, locale))}</span></td></tr>`,
+        `<tr><td><span class="lps-course-code">${esc(course.code)}</span></td><th scope="row">${esc(t(course.title, locale))}</th><td><span class="lps-level ${t(course.level, "en") === "Graduate" ? "lps-level-grad" : "lps-level-undergrad"}">${esc(t(course.level, locale))}</span></td><td>2026.2</td><td><span class="lps-status lps-status-success">${esc(t(copy.subjects.state, locale))}</span></td></tr>`,
     )
     .join("\n")}</tbody>
 </table>
