@@ -105,6 +105,10 @@ final class Plugin {
 				'label'                     => __( 'Archived', 'lps-content-model' ),
 				'public'                    => false,
 				'internal'                  => true,
+				// Identity and export queries scan `post_status => any`, which skips
+				// statuses excluded from search; archived records must stay resolvable
+				// or re-imports would mint a second copy of the same identity.
+				'exclude_from_search'       => false,
 				'show_in_admin_all_list'    => true,
 				'show_in_admin_status_list' => true,
 				// translators: %s is the number of archived records.
@@ -653,16 +657,22 @@ final class Plugin {
 	 *
 	 * @param WP_Post $post Record to archive.
 	 */
-	public static function archive_record( WP_Post $post ): void {
-		update_post_meta( $post->ID, '_lps_state', 'archived' );
-		update_post_meta( $post->ID, '_lps_archived_at', gmdate( 'c' ) );
-		wp_update_post(
+	public static function archive_record( WP_Post $post ): true|WP_Error {
+		// The status move runs first so a failed write never leaves archival
+		// metadata stamped on a record that is still publicly visible.
+		$result = wp_update_post(
 			array(
 				'ID'          => $post->ID,
 				'post_status' => 'lps_archived',
 			),
 			true
 		);
+		if ( $result instanceof WP_Error ) {
+			return $result;
+		}
+		update_post_meta( $post->ID, '_lps_state', 'archived' );
+		update_post_meta( $post->ID, '_lps_archived_at', gmdate( 'c' ) );
+		return true;
 	}
 
 	/**
@@ -703,7 +713,10 @@ final class Plugin {
 			self::redirect_archive( 'lps_error', 'archive-forbidden', $post );
 		}
 		if ( 'lps_archived' !== $post->post_status ) {
-			self::archive_record( $post );
+			$archived = self::archive_record( $post );
+			if ( $archived instanceof WP_Error ) {
+				self::redirect_archive( 'lps_error', 'archive-failed', $post );
+			}
 		}
 		self::redirect_archive( 'lps_notice', 'archived', $post );
 	}
@@ -870,7 +883,7 @@ final class Plugin {
 		if ( 'archived' === $notice ) {
 			echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Record archived.', 'lps-content-model' ) . '</p></div>';
 		}
-		if ( in_array( $error, array( 'archive-not-found', 'archive-nonce', 'archive-forbidden' ), true ) ) {
+		if ( in_array( $error, array( 'archive-not-found', 'archive-nonce', 'archive-forbidden', 'archive-failed' ), true ) ) {
 			echo '<div class="notice notice-error"><p>' . esc_html__( 'The record could not be archived.', 'lps-content-model' ) . '</p></div>';
 		}
 		if ( empty( self::$pending_errors ) ) {
