@@ -23,6 +23,7 @@ require_once __DIR__ . '/includes/class-authsurfaces.php';
 require_once __DIR__ . '/includes/class-googleoauth.php';
 require_once __DIR__ . '/includes/class-authroutes.php';
 require_once __DIR__ . '/includes/class-dashboardroutes.php';
+require_once __DIR__ . '/includes/class-intranetroutes.php';
 require_once __DIR__ . '/includes/class-assetpolicy.php';
 require_once __DIR__ . '/includes/class-cachepolicy.php';
 require_once __DIR__ . '/includes/class-delivery.php';
@@ -36,6 +37,7 @@ SearchRoutes::boot();
 TrustRoutes::boot();
 SeoRoutes::boot();
 DashboardRoutes::boot();
+IntranetRoutes::boot();
 AuthRoutes::boot();
 BrandAssets::boot();
 Delivery::boot();
@@ -166,4 +168,136 @@ add_filter(
 		return is_string( $tagged ) ? $tagged : $output;
 	},
 	100
+);
+
+/*
+ * Intranet authoring UI — the intranet sections are private `page` records
+ * flagged by `_lps_intranet_access`; the metabox on Pages keeps the two flags
+ * out of the raw custom-fields panel, and the user-profile panel grants
+ * project-level access per account. IntranetRoutes owns the gated surface.
+ */
+add_action(
+	'add_meta_boxes',
+	static function (): void {
+		add_meta_box(
+			'lps-intranet-access',
+			'Intranet',
+			static function ( \WP_Post $post ): void {
+				wp_nonce_field( 'lps_intranet_page', 'lps_intranet_page_nonce' );
+				$raw_access  = get_post_meta( $post->ID, '_lps_intranet_access', true );
+				$raw_project = get_post_meta( $post->ID, '_lps_intranet_project', true );
+				$access      = is_string( $raw_access ) ? $raw_access : '';
+				$project     = is_numeric( $raw_project ) ? (int) $raw_project : 0;
+				$projects    = get_posts(
+					array(
+						'post_type'      => 'lps_project',
+						'post_status'    => 'publish',
+						'orderby'        => 'title',
+						'order'          => 'ASC',
+						'posts_per_page' => 100,
+					)
+				);
+				echo '<p><label for="lps_intranet_access"><strong>Intranet section</strong></label><br />'
+					. '<select id="lps_intranet_access" name="lps_intranet_access">'
+					. '<option value="">' . esc_html__( 'Not an intranet section', 'lps-theme' ) . '</option>'
+					. '<option value="members"' . selected( 'members', $access, false ) . '>' . esc_html__( 'All members', 'lps-theme' ) . '</option>'
+					. '<option value="project"' . selected( 'project', $access, false ) . '>' . esc_html__( 'Restricted to project', 'lps-theme' ) . '</option>'
+					. '</select></p>'
+					. '<p><label for="lps_intranet_project"><strong>' . esc_html__( 'Project', 'lps-theme' ) . '</strong></label><br />'
+					. '<select id="lps_intranet_project" name="lps_intranet_project"><option value="">—</option>';
+				foreach ( $projects as $candidate ) {
+					echo '<option value="' . esc_attr( (string) $candidate->ID ) . '"' . selected( $candidate->ID, $project, false ) . '>' . esc_html( $candidate->post_title ) . '</option>';
+				}
+				echo '</select></p>'
+					. '<p class="description">' . esc_html__( 'Intranet sections must stay Private — they are only reachable inside /intranet/ for signed-in members.', 'lps-theme' ) . '</p>';
+			},
+			'page',
+			'side'
+		);
+	}
+);
+
+add_action(
+	'save_post_page',
+	static function ( int $post_id ): void {
+		$raw_nonce = isset( $_POST['lps_intranet_page_nonce'] ) && is_string( $_POST['lps_intranet_page_nonce'] )
+			? sanitize_text_field( wp_unslash( $_POST['lps_intranet_page_nonce'] ) )
+			: '';
+		if ( '' === $raw_nonce || ! wp_verify_nonce( $raw_nonce, 'lps_intranet_page' ) ) {
+			return;
+		}
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return;
+		}
+		if ( ! current_user_can( 'edit_page', $post_id ) ) {
+			return;
+		}
+		$raw    = isset( $_POST['lps_intranet_access'] ) && is_string( $_POST['lps_intranet_access'] )
+			? sanitize_key( wp_unslash( $_POST['lps_intranet_access'] ) )
+			: '';
+		$access = in_array( $raw, array( 'members', 'project' ), true ) ? $raw : '';
+		if ( '' === $access ) {
+			delete_post_meta( $post_id, '_lps_intranet_access' );
+			delete_post_meta( $post_id, '_lps_intranet_project' );
+			return;
+		}
+		update_post_meta( $post_id, '_lps_intranet_access', $access );
+		$project = isset( $_POST['lps_intranet_project'] ) && is_scalar( $_POST['lps_intranet_project'] ) && is_numeric( $_POST['lps_intranet_project'] )
+			? (int) $_POST['lps_intranet_project']
+			: 0;
+		if ( 'project' === $access && $project > 0 ) {
+			update_post_meta( $post_id, '_lps_intranet_project', $project );
+		} else {
+			delete_post_meta( $post_id, '_lps_intranet_project' );
+		}
+	}
+);
+
+add_action(
+	'edit_user_profile',
+	static function ( \WP_User $user ): void {
+		if ( ! current_user_can( 'edit_user', $user->ID ) ) {
+			return;
+		}
+		$raw_meta = get_user_meta( $user->ID, '_lps_intranet_projects', true );
+		$grants   = is_array( $raw_meta ) ? array_map( static fn( mixed $grant ): int => is_numeric( $grant ) ? (int) $grant : 0, $raw_meta ) : array();
+		$projects = get_posts(
+			array(
+				'post_type'      => 'lps_project',
+				'post_status'    => 'publish',
+				'orderby'        => 'title',
+				'order'          => 'ASC',
+				'posts_per_page' => 100,
+			)
+		);
+		wp_nonce_field( 'lps_intranet_grants', 'lps_intranet_grants_nonce' );
+		echo '<h2>Intranet</h2><table class="form-table" role="presentation"><tr>'
+			. '<th>' . esc_html__( 'Project access', 'lps-theme' ) . '</th><td><fieldset>';
+		foreach ( $projects as $project ) {
+			echo '<label><input type="checkbox" name="lps_intranet_projects[]" value="' . esc_attr( (string) $project->ID ) . '"' . checked( true, in_array( $project->ID, $grants, true ), false ) . ' /> ' . esc_html( $project->post_title ) . '</label><br />';
+		}
+		echo '</fieldset><p class="description">' . esc_html__( 'Restricted intranet areas this account may open. Members-only areas (e.g. the cluster) need no grant.', 'lps-theme' ) . '</p></td></tr></table>';
+	}
+);
+
+add_action(
+	'edit_user_profile_update',
+	static function ( int $user_id ): void {
+		$raw_nonce = isset( $_POST['lps_intranet_grants_nonce'] ) && is_string( $_POST['lps_intranet_grants_nonce'] )
+			? sanitize_text_field( wp_unslash( $_POST['lps_intranet_grants_nonce'] ) )
+			: '';
+		if ( '' === $raw_nonce || ! wp_verify_nonce( $raw_nonce, 'lps_intranet_grants' ) ) {
+			return;
+		}
+		if ( ! current_user_can( 'edit_user', $user_id ) ) {
+			return;
+		}
+		$raw_projects = isset( $_POST['lps_intranet_projects'] ) && is_array( $_POST['lps_intranet_projects'] )
+			? array_map(
+				static fn( mixed $grant ): int => is_scalar( $grant ) ? (int) sanitize_text_field( (string) $grant ) : 0,
+				wp_unslash( $_POST['lps_intranet_projects'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- elements are sanitized inside the callback.
+			)
+			: array();
+		update_user_meta( $user_id, '_lps_intranet_projects', array_values( array_filter( $raw_projects ) ) );
+	}
 );
