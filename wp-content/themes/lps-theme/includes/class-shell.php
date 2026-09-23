@@ -436,7 +436,7 @@ final class Shell {
 				'hreflang' => 'en',
 			),
 		);
-		$items = '';
+		$items   = '';
 		foreach ( $locales as $slug => $definition ) {
 			$entry = self::locale_flag( $slug ) . '<span>' . $definition['full'] . '</span>';
 			if ( ! isset( $variants[ $slug ] ) ) {
