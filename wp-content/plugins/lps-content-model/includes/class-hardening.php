@@ -167,7 +167,7 @@ final class Hardening {
 			: "'self' 'nonce-$nonce'";
 		$script_attr = "'none'";
 		$headers     = array(
-			'Content-Security-Policy'           => "default-src 'none'; script-src $script_src; script-src-attr $script_attr; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; media-src 'self'; connect-src 'self'; frame-src $frames; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'",
+			'Content-Security-Policy'           => "default-src 'none'; script-src $script_src; script-src-attr $script_attr; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; media-src 'self'; manifest-src 'self'; connect-src 'self'; frame-src $frames; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'",
 			'X-Content-Type-Options'            => 'nosniff',
 			'X-Frame-Options'                   => 'DENY',
 			'Referrer-Policy'                   => 'no-referrer',
