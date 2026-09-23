@@ -55,6 +55,10 @@ final class DashboardSurfaces {
 		$footer  = Shell::footer_markup( $locale );
 		$css     = function_exists( 'get_theme_file_uri' ) ? get_theme_file_uri( 'assets/css/theme.css' ) : '';
 		$version = function_exists( 'wp_get_theme' ) ? (string) wp_get_theme()->get( 'Version' ) : '';
+		$file    = function_exists( 'get_theme_file_path' ) ? get_theme_file_path( 'assets/css/theme.css' ) : '';
+		if ( '' !== $file && is_file( $file ) ) {
+			$version .= '.' . (string) filemtime( $file );
+		}
 		$css_url = '' !== $css ? $css . ( '' !== $version ? '?ver=' . rawurlencode( $version ) : '' ) : '';
 		$band    = Shell::page_header_markup(
 			array(
