@@ -85,14 +85,15 @@ const href = (target, locale) => (typeof target === "string" ? target : pick(tar
 function brandMarkup(locale) {
   const t = ui(locale);
   return `<a class="lps-brand" href="${locale === "en" ? "/en/" : "/"}" aria-label="${esc(t.brandLinkLabel)}">
-<span class="lps-logo-slot"><img class="lps-logo" src="/assets/brand/lps_coppe_blue_lockup.svg" alt="" width="1622" height="804" decoding="async"></span>
+<span class="lps-logo-slot"><img class="lps-logo" src="/assets/brand/lps_coppe_blue_horizonte.svg" alt="" width="1846" height="233" decoding="async"></span>
 </a>`;
 }
 
 export function header(locale, currentPath, alternates) {
-  // The search form renders twice — once in the masthead row, once inside the
-  // no-JavaScript disclosure panel — so each instance carries its own control id;
-  // a duplicated id would break the label association in half the rendered pages.
+  // The search form renders twice — once in the utility-band search disclosure,
+  // once inside the touch disclosure panel — so each instance carries its own
+  // control id; a duplicated id would break the label association in half the
+  // rendered pages.
   let searchInstance = 0;
   const t = ui(locale);
   const home = locale === "en" ? "/en/" : "/";
@@ -130,10 +131,18 @@ export function header(locale, currentPath, alternates) {
 </form>`;
   };
 
-  const localeSwitch = `<nav class="lps-locale-switch" aria-label="${esc(t.localeLabel)}">
-<a${locale === "pt-br" ? ' aria-current="page"' : ""} hreflang="pt-BR" lang="pt-BR" href="${alternates?.pt ?? "/"}">PT</a>
-<a${locale === "en" ? ' aria-current="page"' : ""} hreflang="en" lang="en" href="${alternates?.en ?? "/en/"}">EN</a>
-</nav>`;
+  const flags = {
+    "pt-br": `<svg class="lps-flag" viewBox="0 0 18 13" aria-hidden="true" focusable="false"><rect width="18" height="13" fill="#009C3B"/><path d="M9 2 16.2 6.5 9 11 1.8 6.5Z" fill="#FFDF00"/><circle cx="9" cy="6.5" r="2.1" fill="#002776"/></svg>`,
+    en: `<svg class="lps-flag" viewBox="0 0 18 13" aria-hidden="true" focusable="false"><rect width="18" height="13" fill="#fff"/><path d="M0 1h18M0 3h18M0 5h18M0 7h18M0 9h18M0 11h18" stroke="#B22234"/><rect width="8" height="7" fill="#3C3B6E"/></svg>`,
+  };
+  const localeSwitch = `<nav class="lps-locale-switch" aria-label="${esc(t.localeLabel)}"><details name="lps-utility-tools">
+<summary>${flags[locale]}<span>${locale === "en" ? "EN" : "PT"}</span><span class="lps-locale-caret" aria-hidden="true"></span></summary>
+<ul class="lps-locale-menu">
+<li><a${locale === "pt-br" ? ' aria-current="page"' : ""} hreflang="pt-BR" lang="pt-BR" href="${alternates?.pt ?? "/"}">${flags["pt-br"]}<span>Português</span></a></li>
+<li><a${locale === "en" ? ' aria-current="page"' : ""} hreflang="en" lang="en" href="${alternates?.en ?? "/en/"}">${flags.en}<span>English</span></a></li>
+</ul></details></nav>`;
+
+  const searchToggle = `<details class="lps-search-disclosure" name="lps-utility-tools"><summary aria-label="${esc(t.searchLabel)}"><svg class="lps-search-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m13.5 13.5 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/></svg></summary><div class="lps-search-panel">${searchForm()}</div></details>`;
 
   return `<a class="lps-skip-link" href="#lps-main">${esc(t.skip)}</a>
 <header class="lps-site-header">
@@ -142,18 +151,13 @@ export function header(locale, currentPath, alternates) {
 <p>${esc(locale === "en" ? "Signal Processing Laboratory · UFRJ · COPPE" : "Laboratório de Processamento de Sinais · UFRJ · COPPE")}</p>
 <nav aria-label="${esc(t.quickLabel)}"><ul class="lps-utility-links">${utility}</ul></nav>
 ${localeSwitch}
+${searchToggle}
 <a class="lps-session-link" href="${locale === "en" ? "/en/sign-in/" : "/entrar/"}">${esc(t.signIn)}</a>
 </div>
 </div>
 <div class="lps-masthead lps-page-grid">
 ${brandMarkup(locale)}
-<div class="lps-shell-tools">
-${searchForm()}
-<a class="lps-button lps-button-primary" href="${locale === "en" ? "/en/contact/" : "/contato/"}">${esc(t.collaborate)}</a>
-</div>
-</div>
-<div class="lps-masthead-nav lps-page-grid">
-<nav class="lps-primary-nav" aria-label="${esc(t.navLabel)}"><ul>${navItems}</ul></nav>
+<nav class="lps-primary-nav lps-masthead-nav" aria-label="${esc(t.navLabel)}"><ul>${navItems}</ul></nav>
 </div>
 <details class="lps-shell-disclosure">
 <summary>${esc(t.menu)}</summary>

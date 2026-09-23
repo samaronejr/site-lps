@@ -471,7 +471,7 @@ test.describe("task-18: language navigation, search metadata, SEO and print", ()
     await pg.goto(`/pt-br/ensino/disciplinas/${state.courseSlugPt}/`, {
       waitUntil: "domcontentloaded",
     });
-    const switcher = pg.locator(".lps-locale a");
+    const switcher = pg.locator(".lps-locale-menu a");
     await expect(switcher).toHaveCount(2);
     await expect(switcher.nth(0)).toHaveAttribute(
       "href",
@@ -483,17 +483,20 @@ test.describe("task-18: language navigation, search metadata, SEO and print", ()
     );
 
     await pg.goto(state.offeringPathPt, { waitUntil: "domcontentloaded" });
-    await expect(pg.locator(".lps-locale a").nth(1)).toHaveAttribute("href", state.offeringPathEn);
+    await expect(pg.locator(".lps-locale-menu a").nth(1)).toHaveAttribute(
+      "href",
+      state.offeringPathEn,
+    );
 
     await pg.goto("/pt-br/ensino/", { waitUntil: "domcontentloaded" });
-    await expect(pg.locator(".lps-locale a").nth(1)).toHaveAttribute("href", "/en/teaching/");
+    await expect(pg.locator(".lps-locale-menu a").nth(1)).toHaveAttribute("href", "/en/teaching/");
 
     await pg.goto("/pt-br/busca/?q=sinais", { waitUntil: "domcontentloaded" });
-    await expect(pg.locator(".lps-locale a").nth(0)).toHaveAttribute(
+    await expect(pg.locator(".lps-locale-menu a").nth(0)).toHaveAttribute(
       "href",
       "/pt-br/busca/?q=sinais",
     );
-    await expect(pg.locator(".lps-locale a").nth(1)).toHaveAttribute(
+    await expect(pg.locator(".lps-locale-menu a").nth(1)).toHaveAttribute(
       "href",
       "/en/search/?q=sinais",
     );
@@ -640,7 +643,7 @@ test.describe("task-18: language navigation, search metadata, SEO and print", ()
     expect(ptHtml).not.toContain("x-default");
     const ptPage = await anon.newPage();
     await ptPage.goto(coursePathPt, { waitUntil: "domcontentloaded" });
-    await expect(ptPage.locator(".lps-locale a")).toHaveCount(1);
+    await expect(ptPage.locator(".lps-locale-menu a")).toHaveCount(1);
     await ptPage.close();
 
     const sitemapEn = await anon.request.get("/sitemap-en.xml");

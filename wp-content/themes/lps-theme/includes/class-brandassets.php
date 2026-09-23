@@ -45,6 +45,10 @@ final class BrandAssets {
 			'path'   => 'assets/brand/lps_coppe_blue_lockup.svg',
 			'sha256' => '301f8a662024152842752b3b695fa6bbd53c227909aa2b7988707213a9fa3de4',
 		),
+		'lps_coppe_blue_horizonte.svg'  => array(
+			'path'   => 'assets/brand/lps_coppe_blue_horizonte.svg',
+			'sha256' => 'f4ff18d890373394935c632d9ae1abf14705229a8f54e1709e27a59d9a1bd945',
+		),
 		'lps_coppe_reversed_lockup.svg' => array(
 			'path'   => 'assets/brand/lps_coppe_reversed_lockup.svg',
 			'sha256' => '40f7aff5220cc71f490097c9721df1aa8e187277b98e9df7d2d2389a9f9e36d8',

@@ -278,15 +278,20 @@ final class Shell {
 			$current        = rtrim( $path, '/' ) === rtrim( $url, '/' ) ? ' aria-current="page"' : '';
 			$utility_items .= '<li><a' . $current . ' href="' . self::escape( $url ) . '">' . self::escape( $label ) . '</a></li>';
 		}
-		$affiliation = $english ? 'Signal Processing Laboratory · UFRJ · COPPE' : 'Laboratório de Processamento de Sinais · UFRJ · COPPE';
+		// The utility band carries the search as a magnifier disclosure, like the
+		// reference institution's header: the icon opens a panel with the form,
+		// so the masthead row only has to carry the artwork and the navigation.
+		$search_toggle = '<details class="lps-search-disclosure" name="lps-utility-tools"><summary aria-label="'
+			. self::escape( $search_label ) . '"><svg class="lps-search-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m13.5 13.5 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/></svg></summary>'
+			. '<div class="lps-search-panel">' . $search_tools( 'lps-search-input-1' ) . '</div></details>';
+		$affiliation   = $english ? 'Signal Processing Laboratory · UFRJ · COPPE' : 'Laboratório de Processamento de Sinais · UFRJ · COPPE';
 		return '<a class="lps-skip-link" href="#lps-main">' . self::escape( $skip ) . '</a>'
 			. '<header class="lps-site-header">'
-			. '<div class="lps-utility-bar"><div class="lps-utility-inner lps-page-grid"><p>' . self::escape( $affiliation ) . '</p><nav aria-label="' . self::escape( $quick_label ) . '"><ul class="lps-utility-links">' . $utility_items . '</ul></nav>' . $locale_switch . self::session_link( $locale ) . '</div></div>'
-			// The masthead pairs the artwork with the visitor's primary tools —
-			// search and the collaborate entrance — the way the showcase pins them
-			// beside the mark instead of hiding them inside the disclosure.
-			. '<div class="lps-masthead lps-page-grid"><a class="lps-brand" href="' . $home . '" aria-label="LPS — ' . ( $english ? 'home' : 'início' ) . '">' . $mark . '</a><div class="lps-shell-tools">' . $search_tools( 'lps-search-input-1' ) . $collaborate_cta . '</div></div>'
-			. '<div class="lps-masthead-nav lps-page-grid"><nav class="lps-primary-nav" aria-label="' . self::escape( $nav_label ) . '">' . $items . '</nav></div>'
+			. '<div class="lps-utility-bar"><div class="lps-utility-inner lps-page-grid"><p>' . self::escape( $affiliation ) . '</p><nav aria-label="' . self::escape( $quick_label ) . '"><ul class="lps-utility-links">' . $utility_items . '</ul></nav>' . $locale_switch . $search_toggle . self::session_link( $locale ) . '</div></div>'
+			// The masthead pairs the artwork with the primary navigation on one
+			// row; the collaborate entrance and a second search stay inside the
+			// touch disclosure panel.
+			. '<div class="lps-masthead lps-page-grid"><a class="lps-brand" href="' . $home . '" aria-label="LPS — ' . ( $english ? 'home' : 'início' ) . '">' . $mark . '</a><nav class="lps-primary-nav lps-masthead-nav" aria-label="' . self::escape( $nav_label ) . '">' . $items . '</nav></div>'
 			. '<details class="lps-shell-disclosure"><summary>' . self::escape( $menu ) . '</summary><div class="lps-nav-panel lps-page-grid">'
 			. '<nav class="lps-primary-nav" aria-label="' . self::escape( $nav_label ) . '">' . $items . '</nav>'
 			. '<div class="lps-shell-tools">' . $search_tools( 'lps-search-input-2' ) . $collaborate_cta . '</div></div></details></header>';
@@ -315,16 +320,16 @@ final class Shell {
 		// destination, so a wordmark alt would announce the brand twice.
 		// The logo never claims a priority hint: fetchpriority is reserved for
 		// the single LCP image so the brand mark cannot compete with it.
-		return '<span class="lps-logo-slot"><img class="lps-logo" src="' . self::escape( $sources['full'] ) . '" alt="" width="1622" height="804" decoding="async"></span>';
+		return '<span class="lps-logo-slot"><img class="lps-logo" src="' . self::escape( $sources['full'] ) . '" alt="" width="1846" height="233" decoding="async"></span>';
 	}
 
 	/**
 	 * Resolves the masthead artwork sources: the COPPE/UFRJ lockup in its
 	 * tight-crop variant for both slots — a faithful swap, never a crop.
 	 *
-	 * The lockup (≈2.02:1) holds the descriptive COPPE · POLI · UFRJ
-	 * lettering at the ~90px rendered height of the masthead slot, so one
-	 * source serves both density descriptors.
+	 * The horizontal lockup (≈7.9:1) holds the descriptive COPPE · POLI ·
+	 * UFRJ lettering beside the wave mark at the ~52px rendered height of
+	 * the masthead slot, so one source serves both density descriptors.
 	 *
 	 * @return array{full: string, compact: string} Resolved artwork URLs;
 	 *                                              empty when unresolvable.
@@ -338,8 +343,8 @@ final class Shell {
 			);
 		}
 		return array(
-			'full'    => $base . 'lps_coppe_blue_lockup.svg',
-			'compact' => $base . 'lps_coppe_blue_lockup.svg',
+			'full'    => $base . 'lps_coppe_blue_horizonte.svg',
+			'compact' => $base . 'lps_coppe_blue_horizonte.svg',
 		);
 	}
 
@@ -413,33 +418,60 @@ final class Shell {
 	}
 
 	/**
-	 * Renders the compact PT/EN switch shown in the utility band — the same
-	 * variant set as `locale_markup`, in the showcase's inline-anchor form.
+	 * Renders the locale dropdown shown in the utility band — the same
+	 * variant set as `locale_markup`, as a no-JS disclosure with flag
+	 * artwork, like the reference institution's language control.
 	 *
 	 * @param string                $locale   Supported locale slug.
 	 * @param array<string, string> $variants Published locale URLs.
 	 * @return string Locale switch markup.
 	 */
 	private static function locale_switch_markup( string $locale, array $variants ): string {
-		$label = 'en' === $locale ? 'Language' : 'Idioma';
-		$links = '';
-		foreach ( array(
+		$label   = 'en' === $locale ? 'Language' : 'Idioma';
+		$missing = 'en' === $locale ? 'translation unavailable' : 'tradução indisponível';
+		$locales = array(
 			'pt-br' => array(
 				'short'    => 'PT',
+				'full'     => 'Português',
 				'hreflang' => 'pt-BR',
 			),
 			'en'    => array(
 				'short'    => 'EN',
+				'full'     => 'English',
 				'hreflang' => 'en',
 			),
-		) as $slug => $definition ) {
+		);
+		$items   = '';
+		foreach ( $locales as $slug => $definition ) {
+			$entry = self::locale_flag( $slug ) . '<span>' . $definition['full'] . '</span>';
 			if ( ! isset( $variants[ $slug ] ) ) {
+				$items .= '<li><span aria-disabled="true">' . $entry . ' <span class="lps-visually-hidden">(' . self::escape( $missing ) . ')</span></span></li>';
 				continue;
 			}
 			$current = $slug === $locale ? ' aria-current="page"' : '';
-			$links  .= '<a' . $current . ' hreflang="' . $definition['hreflang'] . '" lang="' . $definition['hreflang'] . '" href="' . self::escape( self::internal_href( $variants[ $slug ] ) ) . '">' . $definition['short'] . '</a>';
+			$items  .= '<li><a' . $current . ' hreflang="' . $definition['hreflang'] . '" lang="' . $definition['hreflang'] . '" href="' . self::escape( self::internal_href( $variants[ $slug ] ) ) . '">' . $entry . '</a></li>';
 		}
-		return '<nav class="lps-locale-switch" aria-label="' . self::escape( $label ) . '">' . $links . '</nav>';
+		$short = isset( $locales[ $locale ] ) ? $locales[ $locale ]['short'] : 'PT';
+		return '<nav class="lps-locale-switch" aria-label="' . self::escape( $label ) . '"><details name="lps-utility-tools">'
+			. '<summary>' . self::locale_flag( $locale ) . '<span>' . self::escape( $short ) . '</span><span class="lps-locale-caret" aria-hidden="true"></span></summary>'
+			. '<ul class="lps-locale-menu">' . $items . '</ul></details></nav>';
+	}
+
+	/**
+	 * Returns the inline flag artwork for one locale.
+	 *
+	 * @param string $slug Locale slug (pt-br|en).
+	 * @return string SVG markup, empty for unknown locales.
+	 */
+	private static function locale_flag( string $slug ): string {
+		switch ( $slug ) {
+			case 'pt-br':
+				return '<svg class="lps-flag" viewBox="0 0 18 13" aria-hidden="true" focusable="false"><rect width="18" height="13" fill="#009C3B"/><path d="M9 2 16.2 6.5 9 11 1.8 6.5Z" fill="#FFDF00"/><circle cx="9" cy="6.5" r="2.1" fill="#002776"/></svg>';
+			case 'en':
+				return '<svg class="lps-flag" viewBox="0 0 18 13" aria-hidden="true" focusable="false"><rect width="18" height="13" fill="#fff"/><path d="M0 1h18M0 3h18M0 5h18M0 7h18M0 9h18M0 11h18" stroke="#B22234"/><rect width="8" height="7" fill="#3C3B6E"/></svg>';
+			default:
+				return '';
+		}
 	}
 
 	/**

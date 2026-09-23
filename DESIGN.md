@@ -76,7 +76,8 @@ product requirements and approved artwork outrank any skill's generic defaults.
 ### Preserved (product truth, not negotiable in this rewrite)
 
 - Bilingual `pt-BR` (authoritative) and `en` (separately reviewed) with locale-prefixed routes;
-  no machine translation, no flag widgets (ADR-06).
+  no machine translation. The locale switch is a flag-icon dropdown (flag + locale code +
+  caret → flag-labelled `Português`/`English` rows) — owner-directed, superseding ADR-06.
 - No third-party runtime requests, no analytics, no public forms, no embeds, no consent banner,
   no cookies for anonymous visitors (ADR-10). The site works without JavaScript.
 - `theme.json` is the single source for palette, font roles, type scale, and spacing (ADR-08).
@@ -157,12 +158,13 @@ Nothing below copies a reference asset, color, mark, or layout.
   artwork now carries identity in the masthead. Everything else about the incumbent shell —
   slim header, single nav row, two-stop locale, compact footer — is directionally retained.
 - FEEC confirms the audience-path principle (`Sou Professor / Sou Aluno`) and the
-  research-near-top ordering already adopted; its carousel, flag widget, gradient bar, and
-  mega-nav remain rejected (incumbent section-2 measurements stand).
+  research-near-top ordering already adopted; its carousel, gradient bar, and mega-nav
+  remain rejected (incumbent section-2 measurements stand).
 - PEE confirms the affiliation-stack reality (federal → COPPE → program) and a content-led
-  hero; it also shows what to avoid: three competing disclosure buttons on mobile, flag-icon
-  locales, and a hero headline that overflows the viewport. The LPS contract keeps one
-  disclosure, text-label locales, and headings that adapt within the 32–56px band.
+  hero; it also shows what to avoid: three competing disclosure buttons on mobile, and a
+  hero headline that overflows the viewport. The LPS contract keeps one disclosure and
+  headings that adapt within the 32–56px band; the owner later adopted flag-icon locales
+  (section 1), matching this reference's own flag widget.
 - The incumbent's sparse body is a content state, not a design failure: the homepage spec keeps
   the "remove empty optional sections" rule so a thin record set still looks intentional.
 
@@ -413,7 +415,8 @@ field, alert, media block, icon) carry forward with these amendments:
 - **Alert:** left `--color-action` rule on the matching wash; status text uses the semantic
   tokens with icon/label duplicating color semantics.
 - **Icon:** project-original or approved SVG using `currentColor`; text labels remain primary;
-  no emoji, raster UI icons, copied institutional marks, or flag icons for locales.
+  no emoji, raster UI icons, or copied institutional marks. The approved exception is the
+  flag-icon locale switch, whose inline SVG flags accompany the `Português`/`English` labels.
 
 ## 10. Motion & Interaction
 
