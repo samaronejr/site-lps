@@ -56,6 +56,16 @@ final class DashboardSurfaces {
 		$css     = function_exists( 'get_theme_file_uri' ) ? get_theme_file_uri( 'assets/css/theme.css' ) : '';
 		$version = function_exists( 'wp_get_theme' ) ? (string) wp_get_theme()->get( 'Version' ) : '';
 		$css_url = '' !== $css ? $css . ( '' !== $version ? '?ver=' . rawurlencode( $version ) : '' ) : '';
+		$band    = Shell::page_header_markup(
+			array(
+				'kicker' => $english ? 'Member area' : 'Área do membro',
+				'title'  => $title,
+				'lead'   => $english
+					? 'Tasks, offerings and submissions tied to your account.'
+					: 'Tarefas, ofertas e envios vinculados à sua conta.',
+			),
+			$locale
+		);
 		$html    = '<!DOCTYPE html><html lang="' . self::esc( DashboardRoutes::bcp47( $locale ) ) . '"><head>'
 			. '<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
 			. '<meta name="robots" content="noindex, nofollow">'
@@ -65,8 +75,8 @@ final class DashboardSurfaces {
 			. ( '' !== $css_url ? '<link rel="stylesheet" href="' . self::esc( $css_url ) . '">' : '' )
 			. '</head><body class="lps-dashboard">'
 			. $header
+			. $band
 			. '<main id="lps-main" class="lps-main-content lps-page-grid lps-dashboard-main">'
-			. '<h1 class="lps-page-title">' . self::esc( $title ) . '</h1>'
 			. self::notice_html( $locale )
 			. $body
 			. '</main>'
