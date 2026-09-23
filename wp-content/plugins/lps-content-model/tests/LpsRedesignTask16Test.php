@@ -31,14 +31,15 @@ final class LpsRedesignTask16Test extends TestCase {
 	/** The task list mirrors the authorization boundary, never widens it. */
 	public function test_tasks_for_role_reflects_scope(): void {
 		// A professor with an offering, a person record and a news grant sees
-		// the full scoped task set but never the editor-only create task.
+		// the full scoped task set plus the trusted course lane — but never
+		// the editor-only offering-create task.
 		self::assertSame(
-			array( 'profile', 'offerings', 'news' ),
+			array( 'profile', 'offerings', 'news', 'course' ),
 			TaskDashboard::tasks_for_role( 'professor', true, true, true, false )
 		);
-		// A professor with no offerings keeps the profile task only.
+		// A professor with no offerings keeps the profile and course tasks.
 		self::assertSame(
-			array( 'profile' ),
+			array( 'profile', 'course' ),
 			TaskDashboard::tasks_for_role( 'professor', false, false, true, false )
 		);
 		// A delegate sees the same scoped tasks; publish is a per-record gate,

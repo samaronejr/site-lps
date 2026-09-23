@@ -104,6 +104,9 @@ final class TaskDashboard {
 		if ( in_array( $role, array( 'section-editor', 'publisher', 'administrator' ), true ) ) {
 			$tasks[] = 'create-offering';
 		}
+		if ( 'administrator' === $role || ( 'professor' === $role && $has_person ) ) {
+			$tasks[] = 'course';
+		}
 		return $tasks;
 	}
 
@@ -309,6 +312,20 @@ final class TaskDashboard {
 			'_lps_schedule'          => $english ? 'Schedule' : 'Horários',
 			'_lps_venue'             => $english ? 'Venue' : 'Local',
 			'_lps_syllabus_snapshot' => $english ? 'Syllabus snapshot' : 'Ementa publicada',
+			'_lps_course_code'       => $english ? 'Course code' : 'Código',
+			'_lps_course_level'      => $english ? 'Course level' : 'Nível',
+			'_lps_calendar_key'      => $english ? 'Calendar' : 'Calendário',
+			'_lps_program'           => $english ? 'Program' : 'Programa',
+			'_lps_prerequisites'     => $english ? 'Prerequisites' : 'Pré-requisitos',
+			'_lps_syllabus'          => $english ? 'Syllabus' : 'Ementa',
+			'course_code'            => $english ? 'Course code' : 'Código',
+			'course_level'           => $english ? 'Course level' : 'Nível',
+			'calendar_key'           => $english ? 'Calendar' : 'Calendário',
+			'term_id'                => $english ? 'Term' : 'Período',
+			'section'                => $english ? 'Section' : 'Turma',
+			'level-undergraduate'    => $english ? 'Undergraduate' : 'Graduação',
+			'level-graduate'         => $english ? 'Graduate' : 'Pós-graduação',
+			'level-extension'        => $english ? 'Extension' : 'Extensão',
 			'new_term_id'            => $english ? 'Target term' : 'Período de destino',
 			'new_section'            => $english ? 'Target section' : 'Turma de destino',
 			'team'                   => $english ? 'Teaching team' : 'Equipe docente',
@@ -335,6 +352,7 @@ final class TaskDashboard {
 		$messages = array(
 			'saved'             => $english ? 'Saved. The record stays a draft until it is published.' : 'Salvo. O registro continua rascunho até ser publicado.',
 			'created'           => $english ? 'Created as a draft.' : 'Criado como rascunho.',
+			'course-created'    => $english ? 'Course and first offering created as drafts; the workspace is listed below.' : 'Disciplina e primeira oferta criadas como rascunho; a área de trabalho aparece abaixo.',
 			'published'         => $english ? 'Published. The public link is now live.' : 'Publicado. O link público está ativo.',
 			'submitted'         => $english ? 'Submitted for review. An editor will decide it.' : 'Enviado para revisão. Um editor decidirá.',
 			'proposal-sent'     => $english ? 'Profile proposal sent for review.' : 'Proposta de perfil enviada para revisão.',
@@ -372,6 +390,10 @@ final class TaskDashboard {
 			'lps_dashboard_login'                     => $english ? 'Sign in to use the dashboard.' : 'Entre para usar o painel.',
 			'lps_required_title'                      => $english ? 'A title is required.' : 'Um título é obrigatório.',
 			'lps_required_summary'                    => $english ? 'A summary is required.' : 'Um resumo é obrigatório.',
+			'lps_required_course_code'                => $english ? 'The course code is required.' : 'O código da disciplina é obrigatório.',
+			'lps_required_course_level'               => $english ? 'Choose the course level.' : 'Escolha o nível da disciplina.',
+			'lps_required_calendar_key'               => $english ? 'The calendar key is required.' : 'A chave de calendário é obrigatória.',
+			'lps_required_term_id'                    => $english ? 'Choose the first offering term.' : 'Escolha o período da primeira oferta.',
 			'lps_required_body'                       => $english ? 'Body text is required.' : 'O texto é obrigatório.',
 			'lps_invalid_email'                       => $english ? 'Enter a valid e-mail address.' : 'Informe um e-mail válido.',
 			'lps_invalid_url'                         => $english ? 'Enter a valid URL.' : 'Informe uma URL válida.',
@@ -432,6 +454,7 @@ final class TaskDashboard {
 		add_action( 'admin_post_lps_dashboard_copy', array( self::class, 'handle_copy' ) );
 		add_action( 'admin_post_lps_dashboard_review', array( self::class, 'handle_review' ) );
 		add_action( 'admin_post_lps_dashboard_offering', array( self::class, 'handle_offering' ) );
+		add_action( 'admin_post_lps_dashboard_course', array( self::class, 'handle_course' ) );
 	}
 
 	/**
@@ -654,6 +677,7 @@ final class TaskDashboard {
 			'people'     => self::people_options(),
 			'news_scope' => $news_scope,
 			'may_review' => $may_review,
+			'may_course' => self::may_course( $user ),
 			'mfa'        => MFA::is_enrolled( $user->ID ),
 			'mfa_needed' => SecurityPolicy::requires_mfa( $role ) && ! MFA::is_enrolled( $user->ID ),
 		);
@@ -1329,6 +1353,134 @@ final class TaskDashboard {
 	}
 
 	/**
+	 * Handles the trusted course-plus-offering create for professors.
+	 *
+	 * One submit mints the `lps_course` draft, binds the first `lps_offering`
+	 * draft to it (term + section + team), and grants the creator offering
+	 * scope back so the workspace opens immediately. When the offering leg
+	 * fails, the orphaned course draft is removed so a retry cannot collide
+	 * with a stale identity claim.
+	 */
+	public static function handle_course(): void {
+		$user = wp_get_current_user();
+		if ( ! self::verify_nonce( 'lps_dashboard_course' ) ) {
+			self::fail( 'lps_dashboard_nonce' );
+		}
+		if ( ! self::may_course( $user ) ) {
+			self::fail( 'lps_dashboard_forbidden' );
+		}
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing -- Every row is normalized inside team_from_input.
+		$team  = self::team_from_input( isset( $_POST['team'] ) && is_array( $_POST['team'] ) ? wp_unslash( $_POST['team'] ) : array() );
+		$input = array(
+			'title'         => self::post_text( 'title' ),
+			'excerpt'       => self::post_text( 'excerpt' ),
+			'content'       => self::post_text( 'content' ),
+			'course_code'   => self::post_text( 'course_code' ),
+			'course_level'  => self::post_text( 'course_level' ),
+			'calendar_key'  => self::post_text( 'calendar_key' ),
+			'program'       => self::post_text( 'program' ),
+			'prerequisites' => self::post_text( 'prerequisites' ),
+			'syllabus'      => self::post_text( 'syllabus' ),
+			'term_id'       => self::post_int( 'term_id' ),
+			'section'       => self::post_text( 'section' ),
+			'schedule'      => self::post_text( 'schedule' ),
+			'venue'         => self::post_text( 'venue' ),
+			'team'          => $team,
+		);
+		// The dashboard validates the fields its form marks required so a denied
+		// submit is recoverable instead of minting a half-named record.
+		$errors = array();
+		if ( '' === $input['title'] ) {
+			$errors['title'] = 'lps_required_title';
+		}
+		if ( '' === $input['course_code'] ) {
+			$errors['course_code'] = 'lps_required_course_code';
+		}
+		if ( '' === $input['course_level'] ) {
+			$errors['course_level'] = 'lps_required_course_level';
+		}
+		if ( '' === $input['calendar_key'] ) {
+			$errors['calendar_key'] = 'lps_required_calendar_key';
+		}
+		if ( 0 >= $input['term_id'] ) {
+			$errors['term_id'] = 'lps_required_term_id';
+		}
+		if ( '' === $input['section'] ) {
+			$errors['section'] = 'lps_required_section_key';
+		}
+		if ( array() !== $errors ) {
+			self::recall( 'course', $input );
+			self::fail( (string) reset( $errors ), (string) array_key_first( $errors ) );
+		}
+		$course = self::call_guarded(
+			static fn() => TeachingRecords::create_course(
+				array(
+					'title'   => $input['title'],
+					'excerpt' => $input['excerpt'],
+					'content' => $input['content'],
+					'meta'    => array(
+						'_lps_course_code'   => $input['course_code'],
+						'_lps_course_level'  => $input['course_level'],
+						'_lps_calendar_key'  => $input['calendar_key'],
+						'_lps_program'       => $input['program'],
+						'_lps_prerequisites' => $input['prerequisites'],
+						'_lps_syllabus'      => $input['syllabus'],
+					),
+				)
+			)
+		);
+		if ( $course instanceof WP_Error ) {
+			self::recall( 'course', $input );
+			self::fail( (string) $course->get_error_code(), self::error_field( $course ) );
+		}
+		$course_id  = Policy::sanitize_integer( $course['id'] ?? 0 );
+		$term_label = Policy::scalar_string( get_post_meta( $input['term_id'], '_lps_period_label', true ) );
+		$offering   = self::call_guarded(
+			static fn() => TeachingRecords::create_offering(
+				array(
+					'title'     => '' !== $term_label ? $input['title'] . ' — ' . $term_label . ' ' . $input['section'] : $input['title'] . ' — ' . $input['section'],
+					'excerpt'   => $input['excerpt'],
+					'course_id' => $course_id,
+					'term_id'   => $input['term_id'],
+					'section'   => $input['section'],
+					'team'      => $input['team'],
+					'meta'      => array(
+						'_lps_schedule' => $input['schedule'],
+						'_lps_venue'    => $input['venue'],
+					),
+				)
+			)
+		);
+		if ( $offering instanceof WP_Error ) {
+			self::call_guarded(
+				static function () use ( $course_id ): array {
+					wp_delete_post( $course_id, true );
+					return array( 'deleted' => true );
+				}
+			);
+			self::recall( 'course', $input );
+			self::fail( (string) $offering->get_error_code(), self::error_field( $offering ) );
+		}
+		$offering_id = Policy::sanitize_integer( $offering['id'] ?? 0 );
+		$role        = Roles::policy_role( $user );
+		if ( 'professor' === $role || 'delegate' === $role ) {
+			// The trusted lane hands the just-created offering back to its
+			// creator so the workspace opens on the very next request.
+			Roles::grant_scope_trusted( $user->ID, 'offering', $offering_id, $role );
+		}
+		Audit::record(
+			'submit',
+			$course_id,
+			0,
+			array(
+				'decision'    => 'course-create',
+				'offering_id' => $offering_id,
+			)
+		);
+		self::succeed( 'course-created' );
+	}
+
+	/**
 	 * Handles the review decision on a news submission or a profile proposal.
 	 *
 	 * Approve publishes the news record or applies the proposal fields to the
@@ -1461,6 +1613,26 @@ final class TaskDashboard {
 		} finally {
 			add_filter( 'update_post_metadata', array( Plugin::class, 'protect_role_meta' ), 11, 5 );
 		}
+	}
+
+	/**
+	 * Returns whether the account may create a course through the trusted lane.
+	 *
+	 * Professors are trusted to mint their own course and first offering — the
+	 * decision the site owner took instead of editorial review — as long as
+	 * the privileged-session bar (enrolled second factor) is met. Institutional
+	 * editors and administrators qualify through their collection rights.
+	 *
+	 * @param WP_User $user Signed-in account.
+	 */
+	private static function may_course( WP_User $user ): bool {
+		$role = Roles::policy_role( $user );
+		if ( Roles::current_user_can_action( 'create', 'teaching' ) ) {
+			return true;
+		}
+		return 'professor' === $role
+			&& 0 < self::person_for_user( $user->ID )
+			&& SecurityPolicy::privileged_session_allowed( $role, MFA::is_enrolled( $user->ID ) );
 	}
 
 	/**

@@ -34,6 +34,7 @@ A página inicial do painel lista apenas as tarefas que o seu escopo cobre:
 | `Enviar notícia` | professor com escopo `news` | Rascunhar uma notícia para revisão editorial. |
 | `Fila de revisão` | editor de seção, publicador | Aprovar ou rejeitar envios e propostas pendentes. |
 | `Criar oferta` | editor de seção, publicador | Criar uma oferta em rascunho ligando disciplina, período e turma. |
+| `Criar disciplina` | professor, administrador | Cadastrar uma disciplina e abrir a primeira oferta em um único envio, sem revisão. |
 
 Se você é docente e não vê `Fila de revisão` nem `Criar oferta`, está certo: essas tarefas são
 editoriais. Uma conta de docente nunca edita ofertas fora do seu escopo, equipes docentes, campos
@@ -67,6 +68,26 @@ rascunhos; um rascunho salvo nunca é público.
 3. Se o editor rejeitar, o item volta para `Rascunho` com a nota da revisão visível. Abra
    `Editar e reenviar`, corrija e clique em `Reenviar para revisão`.
 4. Quando aprovada, a notícia fica `Público` e o link público passa a funcionar.
+
+## Criar disciplina (`/pt-br/painel/disciplinas/`)
+
+Disponível para professor e administrador — o docente cadastra disciplinas diretamente, sem
+passar por revisão editorial. A conta precisa ter a verificação em duas etapas ativa e um
+registro de pessoa vinculado; sem isso, a tela mostra o aviso de acesso em vez do formulário.
+
+1. Abra `Criar disciplina`. O formulário tem dois blocos: `Disciplina` e `Primeira oferta`.
+2. Em `Disciplina`, preencha `Título`, `Código`, `Nível` e `Calendário` (obrigatórios) e,
+   opcionalmente, `Programa`, `Pré-requisitos`, `Ementa`, `Resumo` e `Conteúdo`.
+3. Em `Primeira oferta`, escolha o `Período`, informe a `Turma` e, opcionalmente, `Horários`,
+   `Local` e a `Equipe docente`. A oferta precisa de uma equipe com responsável.
+4. Clique em `Criar disciplina e primeira oferta`. O aviso "Disciplina e primeira oferta
+   criadas como rascunho; a área de trabalho aparece abaixo." confirma.
+5. Os dois registros nascem como rascunho e a oferta já aparece na sua lista `Minhas ofertas`:
+   a permissão sobre ela é concedida automaticamente. Publique pelo wp-admin quando estiver
+   pronto, e a variante em inglês pode ser adicionada depois.
+
+Se a segunda etapa falhar, a disciplina recém-criada é removida automaticamente — tente de
+novo sem medo de duplicar cadastros.
 
 ## Área da oferta (`/pt-br/painel/ofertas/`)
 

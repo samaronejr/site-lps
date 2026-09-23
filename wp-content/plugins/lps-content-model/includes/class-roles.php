@@ -205,6 +205,67 @@ final class Roles {
 	}
 
 	/**
+	 * Grants one scoped role without evaluating the actor's grant rights.
+	 *
+	 * System boundaries use this when a persisted workflow already decided the
+	 * grant belongs to the actor — e.g. the professor who just created an
+	 * offering through the trusted create lane receives scope on it back.
+	 * The candidate and target role are still validated the same way
+	 * `grant_scope` validates them; only the actor-authorization step is
+	 * skipped. Callers must have already enforced their own authorization.
+	 *
+	 * @param int    $target_user_id Account receiving the grant.
+	 * @param string $scope          Grant scope (`offering` or `news`).
+	 * @param int    $offering_id    Offering record ID (0 for the news scope).
+	 * @param string $role           Scoped role the grant enables.
+	 * @param string $expires_at     Optional ISO-8601 expiry; empty means none.
+	 * @return array{granted: true, index: int}|WP_Error
+	 */
+	public static function grant_scope_trusted( int $target_user_id, string $scope, int $offering_id, string $role, string $expires_at = '' ): array|WP_Error {
+		$actor       = wp_get_current_user();
+		$target      = get_user_by( 'id', $target_user_id );
+		$target_role = $target instanceof WP_User ? self::policy_role( $target ) : '';
+		if ( ! TeachingPolicy::is_scoped_role( $target_role ) ) {
+			return new WP_Error( 'lps_teaching_target_role_invalid', 'The grant target does not carry a scoped role.' );
+		}
+		$candidate = TeachingPolicy::normalize_grant(
+			array(
+				'scope'       => $scope,
+				'offering_id' => $offering_id,
+				'role'        => $role,
+				'granted_at'  => gmdate( 'c' ),
+				'expires_at'  => $expires_at,
+				'revoked_at'  => '',
+				'granted_by'  => $actor->ID,
+			)
+		);
+		if ( '' === $candidate['scope'] || '' === $candidate['role'] ) {
+			return new WP_Error( 'lps_teaching_grant_invalid', 'The grant shape is incomplete.' );
+		}
+		$grants              = self::teaching_grants( $target_user_id );
+		$grants[]            = $candidate;
+		self::$grant_syncing = true;
+		update_user_meta( $target_user_id, self::GRANTS_META, $grants );
+		self::$grant_syncing = false;
+		Audit::record(
+			'grant-scope',
+			$target_user_id,
+			0,
+			array(
+				'scope'       => $scope,
+				'offering_id' => $offering_id,
+				'role'        => $role,
+				'expires_at'  => TeachingPolicy::normalize_datetime( $expires_at ),
+				'via'         => 'trusted-boundary',
+			)
+		);
+		return array(
+			'granted' => true,
+			'index'   => count( $grants ) - 1,
+		);
+	}
+
+	/**
 	 * Revokes one persisted grant; the denial takes effect on the next check.
 	 *
 	 * @param int $target_user_id Account losing the grant.
