@@ -40,7 +40,10 @@ final class Exporter {
 		);
 		$posts      = array();
 		foreach ( $candidates as $post ) {
-			if ( metadata_exists( 'post', $post->ID, '_lps_import_source_id' ) ) {
+			// The block editor echoes every REST-exposed meta back on save, which
+			// stamps an empty `_lps_import_source_id` on editor-touched records;
+			// only a non-empty source id marks a corpus-imported record.
+			if ( '' !== self::meta( $post->ID, '_lps_import_source_id' ) ) {
 				$posts[] = $post;
 			}
 		}
@@ -193,7 +196,9 @@ final class Exporter {
 		$ids        = array();
 		foreach ( $candidates as $candidate ) {
 			$attachment_id = Policy::sanitize_integer( $candidate );
-			if ( metadata_exists( 'post', $attachment_id, '_lps_media_import_source_id' ) ) {
+			// Same echo-back hazard as record source ids: only a non-empty
+			// value marks a corpus-imported attachment.
+			if ( '' !== self::meta( $attachment_id, '_lps_media_import_source_id' ) ) {
 				$ids[] = $attachment_id;
 			}
 		}
