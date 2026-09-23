@@ -119,7 +119,7 @@ final class IntranetRoutes {
 				'name'        => $slug,
 				'post_type'   => 'page',
 				'post_status' => 'private',
-				'meta_key'    => '_lps_intranet_access',
+				'meta_key'    => '_lps_intranet_access', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- a handful of private intranet pages, queried once per signed-in hit.
 				'numberposts' => 1,
 			)
 		);

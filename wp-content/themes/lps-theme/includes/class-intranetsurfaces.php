@@ -222,7 +222,7 @@ final class IntranetSurfaces {
 			array(
 				'post_type'      => 'page',
 				'post_status'    => 'private',
-				'meta_key'       => '_lps_intranet_access',
+				'meta_key'       => '_lps_intranet_access', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- a handful of private intranet pages, queried once per signed-in hit.
 				'orderby'        => 'menu_order title',
 				'order'          => 'ASC',
 				'posts_per_page' => 50,
