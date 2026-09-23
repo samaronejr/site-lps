@@ -90,9 +90,10 @@ function brandMarkup(locale) {
 }
 
 export function header(locale, currentPath, alternates) {
-  // The search form renders twice — once in the masthead row, once inside the
-  // no-JavaScript disclosure panel — so each instance carries its own control id;
-  // a duplicated id would break the label association in half the rendered pages.
+  // The search form renders twice — once in the utility-band search disclosure,
+  // once inside the touch disclosure panel — so each instance carries its own
+  // control id; a duplicated id would break the label association in half the
+  // rendered pages.
   let searchInstance = 0;
   const t = ui(locale);
   const home = locale === "en" ? "/en/" : "/";

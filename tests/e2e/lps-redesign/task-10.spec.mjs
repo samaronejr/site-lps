@@ -192,11 +192,12 @@ test.describe("task-10: masthead, navigation, and utilities", () => {
       // And: the disclosure control names the menu and tools.
       await expect(header.locator(".lps-shell-disclosure > summary")).not.toHaveCount(0);
 
-      // And: the header search submits to the locale search route.
-      const form = header.locator('form.lps-search[role="search"]');
+      // And: the utility-band search submits to the locale search route.
+      await header.locator(".lps-search-disclosure > summary").click();
+      const form = header.locator('.lps-search-panel form.lps-search[role="search"]');
       await expect(form).toHaveAttribute("action", searchAction);
       await expect(form.locator("label")).toContainText(searchLabel);
-      await expect(form.locator("#lps-search-input")).toHaveAttribute("name", "q");
+      await expect(form.locator("#lps-search-input-1")).toHaveAttribute("name", "q");
     });
 
     test(`header search reaches the locale route in ${locale}`, async ({
@@ -212,12 +213,12 @@ test.describe("task-10: masthead, navigation, and utilities", () => {
       // When: the disclosure is opened and a term is submitted through
       // the header form.
       await page.locator(".lps-shell-disclosure > summary").click();
-      const field = page.locator("#lps-search-input");
+      const field = page.locator("#lps-search-input-2");
       await expect(field).toBeVisible();
       await field.fill("sinais");
       await Promise.all([
         page.waitForURL(/busca|search/, { timeout: 15_000 }),
-        page.locator('form.lps-search button[type="submit"]').click(),
+        page.locator('.lps-nav-panel form.lps-search button[type="submit"]').click(),
       ]);
       // Then: the locale search surface answers with its form.
       expect(page.url()).toContain(searchAction);
@@ -229,7 +230,7 @@ test.describe("task-10: masthead, navigation, and utilities", () => {
       // Given: the locale home page.
       await page.goto(home, { waitUntil: "domcontentloaded" });
       // Then: both language stops render with honest availability state.
-      const control = page.locator(".lps-locale");
+      const control = page.locator(".lps-locale-switch");
       await expect(control.locator('a[hreflang="pt-BR"]')).toHaveCount(1);
       await expect(control.locator('a[hreflang="en"]')).toHaveCount(1);
       // And: the footer keeps affiliation, the teaching entrance, and the
@@ -392,7 +393,7 @@ test.describe("task-10: responsive brand and keyboard paths", () => {
     for (const url of NAV_PT.map(([destination]) => destination)) {
       expect(hrefs, url).toContain(url);
     }
-    expect(order.map((entry) => entry.id)).toContain("lps-search-input");
+    expect(order.map((entry) => entry.id)).toContain("lps-search-input-2");
     expect(hrefs).toContain("/pt-br/colabore/");
     expect(hrefs).toContain("/pt-br/contato/");
   });
@@ -433,7 +434,7 @@ test.describe("task-10: responsive brand and keyboard paths", () => {
             : page.locator(`.lps-primary-nav a[href="${url}"]`);
         await expect(target, url).toBeAttached();
       }
-      await expect(page.locator(".lps-locale")).toBeAttached();
+      await expect(page.locator(".lps-locale-switch")).toBeAttached();
       await expect(page.locator('.lps-site-footer a[href="/pt-br/ensino/"]')).toBeAttached();
       await page.screenshot({ path: path.join(SHOTS, "nav-nojs-mobile.png") });
     } finally {
@@ -471,7 +472,7 @@ test.describe("task-10: malformed input and long labels", () => {
     expect(overflow).toBeLessThanOrEqual(0);
     const clipped = await page.evaluate(() => {
       const bad = [];
-      for (const el of document.querySelectorAll(".lps-primary-nav a, .lps-locale a")) {
+      for (const el of document.querySelectorAll(".lps-primary-nav a, .lps-locale-menu a")) {
         const constrained = ["hidden", "clip", "scroll", "auto"].includes(
           getComputedStyle(el).overflowX,
         );
