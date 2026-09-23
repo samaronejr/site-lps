@@ -273,7 +273,7 @@ final class ThemeShellTest extends \PHPUnit\Framework\TestCase {
 			'search'  => strpos( $header, 'role="search"' ),
 			'cta'     => strpos( $header, 'href="/en/collaborate/"' ),
 			'nav'     => strpos( $header, 'aria-label="Primary navigation"' ),
-			'summary' => strpos( $header, '<summary>' ),
+			'summary' => strpos( $header, 'lps-shell-disclosure' ),
 		);
 		foreach ( $positions as $position ) {
 			self::assertNotFalse( $position );

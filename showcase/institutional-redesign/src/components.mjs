@@ -130,10 +130,16 @@ export function header(locale, currentPath, alternates) {
 </form>`;
   };
 
-  const localeSwitch = `<nav class="lps-locale-switch" aria-label="${esc(t.localeLabel)}">
-<a${locale === "pt-br" ? ' aria-current="page"' : ""} hreflang="pt-BR" lang="pt-BR" href="${alternates?.pt ?? "/"}">PT</a>
-<a${locale === "en" ? ' aria-current="page"' : ""} hreflang="en" lang="en" href="${alternates?.en ?? "/en/"}">EN</a>
-</nav>`;
+  const flags = {
+    "pt-br": `<svg class="lps-flag" viewBox="0 0 18 13" aria-hidden="true" focusable="false"><rect width="18" height="13" fill="#009C3B"/><path d="M9 2 16.2 6.5 9 11 1.8 6.5Z" fill="#FFDF00"/><circle cx="9" cy="6.5" r="2.1" fill="#002776"/></svg>`,
+    en: `<svg class="lps-flag" viewBox="0 0 18 13" aria-hidden="true" focusable="false"><rect width="18" height="13" fill="#fff"/><path d="M0 1h18M0 3h18M0 5h18M0 7h18M0 9h18M0 11h18" stroke="#B22234"/><rect width="8" height="7" fill="#3C3B6E"/></svg>`,
+  };
+  const localeSwitch = `<nav class="lps-locale-switch" aria-label="${esc(t.localeLabel)}"><details>
+<summary>${flags[locale]}<span>${locale === "en" ? "EN" : "PT"}</span><span class="lps-locale-caret" aria-hidden="true"></span></summary>
+<ul class="lps-locale-menu">
+<li><a${locale === "pt-br" ? ' aria-current="page"' : ""} hreflang="pt-BR" lang="pt-BR" href="${alternates?.pt ?? "/"}">${flags["pt-br"]}<span>Português</span></a></li>
+<li><a${locale === "en" ? ' aria-current="page"' : ""} hreflang="en" lang="en" href="${alternates?.en ?? "/en/"}">${flags.en}<span>English</span></a></li>
+</ul></details></nav>`;
 
   return `<a class="lps-skip-link" href="#lps-main">${esc(t.skip)}</a>
 <header class="lps-site-header">

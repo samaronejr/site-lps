@@ -413,33 +413,60 @@ final class Shell {
 	}
 
 	/**
-	 * Renders the compact PT/EN switch shown in the utility band — the same
-	 * variant set as `locale_markup`, in the showcase's inline-anchor form.
+	 * Renders the locale dropdown shown in the utility band — the same
+	 * variant set as `locale_markup`, as a no-JS disclosure with flag
+	 * artwork, like the reference institution's language control.
 	 *
 	 * @param string                $locale   Supported locale slug.
 	 * @param array<string, string> $variants Published locale URLs.
 	 * @return string Locale switch markup.
 	 */
 	private static function locale_switch_markup( string $locale, array $variants ): string {
-		$label = 'en' === $locale ? 'Language' : 'Idioma';
-		$links = '';
-		foreach ( array(
+		$label   = 'en' === $locale ? 'Language' : 'Idioma';
+		$missing = 'en' === $locale ? 'translation unavailable' : 'tradução indisponível';
+		$locales = array(
 			'pt-br' => array(
 				'short'    => 'PT',
+				'full'     => 'Português',
 				'hreflang' => 'pt-BR',
 			),
 			'en'    => array(
 				'short'    => 'EN',
+				'full'     => 'English',
 				'hreflang' => 'en',
 			),
-		) as $slug => $definition ) {
+		);
+		$items = '';
+		foreach ( $locales as $slug => $definition ) {
+			$entry = self::locale_flag( $slug ) . '<span>' . $definition['full'] . '</span>';
 			if ( ! isset( $variants[ $slug ] ) ) {
+				$items .= '<li><span aria-disabled="true">' . $entry . ' <span class="lps-visually-hidden">(' . self::escape( $missing ) . ')</span></span></li>';
 				continue;
 			}
 			$current = $slug === $locale ? ' aria-current="page"' : '';
-			$links  .= '<a' . $current . ' hreflang="' . $definition['hreflang'] . '" lang="' . $definition['hreflang'] . '" href="' . self::escape( self::internal_href( $variants[ $slug ] ) ) . '">' . $definition['short'] . '</a>';
+			$items  .= '<li><a' . $current . ' hreflang="' . $definition['hreflang'] . '" lang="' . $definition['hreflang'] . '" href="' . self::escape( self::internal_href( $variants[ $slug ] ) ) . '">' . $entry . '</a></li>';
 		}
-		return '<nav class="lps-locale-switch" aria-label="' . self::escape( $label ) . '">' . $links . '</nav>';
+		$short = isset( $locales[ $locale ] ) ? $locales[ $locale ]['short'] : 'PT';
+		return '<nav class="lps-locale-switch" aria-label="' . self::escape( $label ) . '"><details>'
+			. '<summary>' . self::locale_flag( $locale ) . '<span>' . self::escape( $short ) . '</span><span class="lps-locale-caret" aria-hidden="true"></span></summary>'
+			. '<ul class="lps-locale-menu">' . $items . '</ul></details></nav>';
+	}
+
+	/**
+	 * Returns the inline flag artwork for one locale.
+	 *
+	 * @param string $slug Locale slug (pt-br|en).
+	 * @return string SVG markup, empty for unknown locales.
+	 */
+	private static function locale_flag( string $slug ): string {
+		switch ( $slug ) {
+			case 'pt-br':
+				return '<svg class="lps-flag" viewBox="0 0 18 13" aria-hidden="true" focusable="false"><rect width="18" height="13" fill="#009C3B"/><path d="M9 2 16.2 6.5 9 11 1.8 6.5Z" fill="#FFDF00"/><circle cx="9" cy="6.5" r="2.1" fill="#002776"/></svg>';
+			case 'en':
+				return '<svg class="lps-flag" viewBox="0 0 18 13" aria-hidden="true" focusable="false"><rect width="18" height="13" fill="#fff"/><path d="M0 1h18M0 3h18M0 5h18M0 7h18M0 9h18M0 11h18" stroke="#B22234"/><rect width="8" height="7" fill="#3C3B6E"/></svg>';
+			default:
+				return '';
+		}
 	}
 
 	/**
