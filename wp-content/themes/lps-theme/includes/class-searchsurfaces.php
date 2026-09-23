@@ -269,7 +269,7 @@ final class SearchSurfaces {
 			: '';
 
 		$inner  = self::form( $query, $record, $facets, $facet_counts, $definitions, $locale, $action );
-		$inner .= '<a class="lps-button lps-button-primary" href="' . ( 'en' === $locale ? '/en/contact/' : '/pt-br/contato/' ) . '">' . self::esc( 'en' === $locale ? 'Collaborate' : 'Colabore' ) . '</a>';
+		$inner .= '<a class="lps-button lps-button-primary" href="' . ( 'en' === $locale ? '/en/collaborate/' : '/pt-br/colabore/' ) . '">' . self::esc( 'en' === $locale ? 'Collaborate' : 'Colabore' ) . '</a>';
 		if ( '' !== $error ) {
 			$inner .= '<p class="lps-search-error" id="lps-search-status" role="alert">' . self::esc( self::error_message( $error, $locale ) ) . '</p>';
 		} elseif ( '' === trim( $query ) ) {

@@ -212,10 +212,10 @@ final class TrustSurfaces {
 			$item  .= '</div>';
 			$item  .= '<a class="lps-more" href="' . self::esc( $url ) . '">' . self::esc( $english ? 'Know more' : 'Saiba mais' ) . '</a>';
 			$item  .= '</li>';
-			if ( 'open' === $state ) {
-				$open .= $item;
-			} else {
+			if ( 'closed' === $state ) {
 				$closed .= $item;
+			} else {
+				$open .= $item;
 			}
 		}
 		if ( '' !== $open ) {

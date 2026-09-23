@@ -301,6 +301,7 @@ final class PublicSurfaces {
 
 		$bio = trim( self::text( $person['bio'] ?? '' ) );
 		if ( '' !== $bio && function_exists( 'wp_kses_post' ) && function_exists( 'wpautop' ) ) {
+			$bio = function_exists( 'do_blocks' ) ? (string) do_blocks( $bio ) : $bio;
 			$bio = '<div class="lps-reading">' . wpautop( wp_kses_post( $bio ) ) . '</div>';
 		} else {
 			$bio = '';
@@ -327,6 +328,27 @@ final class PublicSurfaces {
 		}
 
 		$html .= self::teaching_section( $person, $locale );
+
+		$history = isset( $person['history'] ) && is_array( $person['history'] ) ? $person['history'] : array();
+		if ( array() !== $history ) {
+			$items = '';
+			foreach ( $history as $entry ) {
+				if ( ! is_array( $entry ) ) {
+					continue;
+				}
+				$title = trim( self::text( $entry['title'] ?? '' ) );
+				$url   = trim( self::text( $entry['url'] ?? '' ) );
+				if ( '' === $title || '' === $url ) {
+					continue;
+				}
+				$items .= '<li><h3><a href="' . self::esc( $url ) . '">' . self::esc( $title ) . '</a></h3></li>';
+			}
+			if ( '' !== $items ) {
+				$html .= '<section class="lps-section lps-person-record" aria-labelledby="lps-person-record">';
+				$html .= '<div class="lps-section-head"><div><p class="lps-kicker">' . self::esc( $english ? 'Record' : 'Acervo' ) . '</p><h2 id="lps-person-record">' . self::esc( $english ? 'Historical record' : 'Registro histórico' ) . '</h2></div></div>';
+				$html .= '<ul class="lps-record-list">' . $items . '</ul></section>';
+			}
+		}
 
 		$html .= '<section class="lps-section" aria-labelledby="lps-person-notes">';
 		$html .= '<div class="lps-section-head"><div><p class="lps-kicker">' . self::esc( $english ? 'Classes' : 'Aulas' ) . '</p><h2 id="lps-person-notes">' . self::esc( $english ? 'Classes and notes' : 'Aulas e notas' ) . '</h2></div></div>';
