@@ -158,7 +158,9 @@ final class Hardening {
 	 * @return array<string, string>
 	 */
 	public static function headers( bool $admin, bool $tls, string $nonce ): array {
-		$frames      = $admin ? "'self'" : "'none'";
+		// The block editor mounts its canvas in a blob: iframe, so admin frames
+		// need the scheme allowance on top of same-origin documents.
+		$frames      = $admin ? "'self' blob:" : "'none'";
 		$script_src  = $admin
 			? "'self' 'unsafe-inline'"
 			: "'self' 'nonce-$nonce'";
