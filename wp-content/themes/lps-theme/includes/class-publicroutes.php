@@ -200,10 +200,15 @@ final class PublicRoutes {
 			'photo_alt'        => $publishable_photo ? self::value( $meta, '_lps_photo_alt' ) : '',
 			'orcid'            => self::value( $meta, '_lps_orcid' ),
 			'lattes_url'       => self::value( $meta, '_lps_lattes_url' ),
+			'scholar_url'      => self::value( $meta, '_lps_scholar_url' ),
+			'website_url'      => self::value( $meta, '_lps_website_url' ),
+			'github_url'       => self::value( $meta, '_lps_github_url' ),
+			'linkedin_url'     => self::value( $meta, '_lps_linkedin_url' ),
 			'start_date'       => self::value( $meta, '_lps_start_date' ),
 			'end_date'         => self::value( $meta, '_lps_end_date' ),
 			'external'         => in_array( 'external-collaborator', $roles, true ),
 			'history'          => array_values( $history ),
+			'bio'              => '',
 			'published'        => $published,
 		);
 	}
@@ -267,6 +272,8 @@ final class PublicRoutes {
 				'_lps_lattes_url',
 				'_lps_scholar_url',
 				'_lps_website_url',
+				'_lps_github_url',
+				'_lps_linkedin_url',
 				'_lps_credentials',
 				'_lps_photo_rights',
 				'_lps_photo_url',
@@ -523,7 +530,7 @@ final class PublicRoutes {
 	private static function render_people( string $locale, string $slug ): string {
 		$people = self::people( $locale );
 		if ( '' === $slug ) {
-			return PublicSurfaces::people_listing( $locale, $people, self::filters() );
+			return PublicSurfaces::people_listing( $locale, $people );
 		}
 		foreach ( $people as $person ) {
 			if ( $slug === $person['slug'] ) {
@@ -561,6 +568,7 @@ final class PublicRoutes {
 		$people = array();
 		foreach ( self::records( 'lps_person', $locale ) as $post ) {
 			$record             = self::person_record( $post->post_name, $post->post_title, self::meta( $post->ID ), self::history( $post, $locale ), $post->post_excerpt );
+			$record['bio']      = '' !== trim( (string) $post->post_content ) ? (string) $post->post_content : '';
 			$record['stale']    = self::is_stale_translation( $post );
 			$record['teaching'] = self::teaching_history( $post, $locale );
 			if ( true === $record['published'] ) {
@@ -800,26 +808,6 @@ final class PublicRoutes {
 	 *
 	 * @return array<string, array<int, string>>
 	 */
-	private static function filters(): array {
-		$filters = array();
-		foreach ( array( 'role', 'status', 'area' ) as $name ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only public listing facet.
-			$raw = isset( $_GET[ $name ] ) && ( is_string( $_GET[ $name ] ) || is_array( $_GET[ $name ] ) ) ? map_deep( wp_unslash( $_GET[ $name ] ), 'sanitize_key' ) : array();
-			if ( is_string( $raw ) ) {
-				$raw = array( $raw );
-			}
-			$values = array();
-			if ( is_array( $raw ) ) {
-				foreach ( $raw as $value ) {
-					if ( is_string( $value ) && '' !== $value ) {
-						$values[] = $value;
-					}
-				}
-			}
-			$filters[ $name ] = $values;
-		}
-		return $filters;
-	}
 
 	/**
 	 * Returns the variant of a record that belongs to the current locale.

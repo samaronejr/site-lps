@@ -185,14 +185,13 @@ final class LpsRedesignTask13Test extends TestCase {
 		$html    = TeachingSurfaces::landing( array( $course ), 'pt-br' );
 
 		self::assertStringContainsString( 'lps-teaching-landing', $html );
-		self::assertStringContainsString( '<h1>Ensino</h1>', $html );
+		self::assertStringContainsString( '<h1 class="lps-page-title">Disciplinas e materiais</h1>', $html );
 		self::assertStringContainsString( 'EEL315', $html );
 		self::assertStringContainsString( 'Graduação', $html );
-		self::assertStringContainsString( 'Engenharia Elétrica', $html );
-		self::assertStringContainsString( 'Análise de sinais contínuos e discretos.', $html );
-		// The current-offering shortcut links straight into the live section.
-		self::assertStringContainsString( 'Turma em andamento', $html );
-		self::assertStringContainsString( self::text( $fixture['current']['url'] ), $html );
+		self::assertStringContainsString( 'COPPE · PEE', $html );
+		// The course row links to its subpage, which lists the live offerings.
+		self::assertStringContainsString( '/pt-br/ensino/disciplinas/sinais-e-sistemas/', $html );
+		self::assertStringContainsString( 'lps-level-undergrad', $html );
 	}
 
 	public function test_landing_empty_state_is_explicit(): void {
@@ -209,7 +208,7 @@ final class LpsRedesignTask13Test extends TestCase {
 		$fixture = self::fixture();
 		$html    = TeachingSurfaces::course( $fixture['course'], $fixture['offerings'], 'pt-br' );
 
-		self::assertStringContainsString( '<h1>Sinais e Sistemas</h1>', $html );
+		self::assertStringContainsString( '<h1 class="lps-page-title">Sinais e Sistemas</h1>', $html );
 		self::assertStringContainsString( 'EEL315', $html );
 		self::assertStringContainsString( 'Pré-requisitos: Cálculo II', $html );
 		self::assertStringContainsString( 'Ementa', $html );

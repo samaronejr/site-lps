@@ -12,77 +12,35 @@ namespace LPS\Theme;
 /** Owns privacy-aware public rendering. */
 final class PublicSurfaces {
 	/**
-	 * Renders people listing with GET facets.
+	 * Renders the people directory as the showcase's single faculty section.
 	 *
 	 * @param string             $locale Supported locale slug.
 	 * @param array<mixed,mixed> $people People rows.
-	 * @param array<mixed,mixed> $filters Active filters.
 	 */
-	public static function people_listing( string $locale, array $people, array $filters ): string {
+	public static function people_listing( string $locale, array $people ): string {
 		$english = 'en' === $locale;
-		$html    = '<div class="lps-people">';
-		$html   .= '<form method="get" action="" role="search" aria-label="' . self::esc( $english ? 'Filter this listing' : 'Filtrar esta listagem' ) . '">';
-		$html   .= '<label>' . self::esc( $english ? 'Role' : 'Papel' ) . '<select name="role[]">';
-		foreach ( self::role_options( $locale ) as $value => $label ) {
-			$selected = in_array( $value, self::string_list( $filters['role'] ?? array() ), true ) ? ' selected' : '';
-			$html    .= '<option value="' . self::esc( $value ) . '"' . $selected . '>' . self::esc( $label ) . '</option>';
-		}
-		$html .= '</select></label>';
-		$html .= '<label>' . self::esc( $english ? 'Status' : 'Vínculo' ) . '<select name="status[]">';
-		foreach ( self::status_options( $locale ) as $value => $label ) {
-			$selected = in_array( $value, self::string_list( $filters['status'] ?? array() ), true ) ? ' selected' : '';
-			$html    .= '<option value="' . self::esc( $value ) . '"' . $selected . '>' . self::esc( $label ) . '</option>';
-		}
-		$html .= '</select></label>';
-		$html .= '<label>' . self::esc( $english ? 'Area' : 'Área' ) . '<select name="area[]">';
-		$areas = self::area_options( $locale );
-		foreach ( $areas as $value => $label ) {
-			$selected = in_array( $value, self::string_list( $filters['area'] ?? array() ), true ) ? ' selected' : '';
-			$html    .= '<option value="' . self::esc( $value ) . '"' . $selected . '>' . self::esc( $label ) . '</option>';
-		}
-		$html  .= '</select></label>';
-		$html  .= '<button class="lps-button lps-button-primary" type="submit">' . self::esc( $english ? 'Filter' : 'Filtrar' ) . '</button></form>';
-		$listed = array();
+		$listed  = array();
 		foreach ( $people as $person ) {
 			if ( ! is_array( $person ) || ! self::is_published( $person ) ) {
 				continue;
 			}
-			if ( ! self::matches_filters( $person, $filters ) ) {
-				continue;
-			}
 			$listed[] = $person;
 		}
-		$collisions = self::colliding_names( $listed );
-
-		$html .= '<p class="lps-people-count" id="lps-people-status" role="status">' . self::esc( self::count_label( count( $listed ), $locale ) ) . '</p>';
-		// The directory is grouped by affiliation cohort, not a flat list: each
-		// cohort keeps its own heading so the listing reads as an institutional
-		// directory instead of one undifferentiated result set.
+		$collisions  = self::colliding_names( $listed );
 		$status_opts = self::status_options( $locale );
 		$role_opts   = self::role_options( $locale );
-		$cohorts     = array();
+
+		$html  = '<div class="lps-people">';
+		$html .= '<section class="lps-section lps-section--flush" aria-labelledby="people-faculty">';
+		$html .= '<div class="lps-section-head"><div>'
+			. '<p class="lps-kicker">' . self::esc( $english ? 'Faculty' : 'Corpo docente' ) . '</p>'
+			. '<h2 id="people-faculty">' . self::esc( $english ? 'Faculty' : 'Professores' ) . '</h2>'
+			. '</div></div>';
+		$html .= '<div class="lps-people-grid">';
 		foreach ( $listed as $person ) {
-			$status               = self::text( $person['status'] ?? '' );
-			$cohorts[ $status ][] = $person;
+			$html .= self::person_card( $person, self::text( $person['status'] ?? '' ), $collisions, $status_opts, $role_opts, $locale );
 		}
-		$ordered_statuses = array_merge( array( 'active', 'alumni', 'in-memoriam' ), array_diff( array_keys( $cohorts ), array( 'active', 'alumni', 'in-memoriam' ) ) );
-		foreach ( $ordered_statuses as $status ) {
-			$members = $cohorts[ $status ] ?? array();
-			if ( array() === $members ) {
-				continue;
-			}
-			$label = $status_opts[ $status ] ?? $status;
-			$html .= '<section class="lps-section lps-people-cohort" data-cohort="' . self::esc( $status ) . '" aria-labelledby="lps-people-cohort-' . self::esc( $status ) . '">';
-			$html .= '<div class="lps-section-head"><div>';
-			$html .= '<p class="lps-kicker">' . self::esc( $english ? 'People' : 'Pessoas' ) . '</p>';
-			$html .= '<h2 id="lps-people-cohort-' . self::esc( $status ) . '">' . self::esc( $label ) . '</h2>';
-			$html .= '</div></div>';
-			$html .= '<div class="lps-people-grid">';
-			foreach ( $members as $person ) {
-				$html .= self::person_card( $person, $status, $collisions, $status_opts, $role_opts, $locale );
-			}
-			$html .= '</div></section>';
-		}
+		$html .= '</div></section>';
 		$html .= self::people_epilogue( $locale );
 		$html .= '</div>';
 		return $html;
@@ -300,7 +258,7 @@ final class PublicSurfaces {
 		}
 
 		$html  = '<article class="lps-person">';
-		$html .= '<div class="lps-page-header"><div class="lps-page-header-inner">';
+		$html .= '<div class="lps-page-header"><div class="lps-page-header-inner lps-page-grid">';
 		if ( array() !== $labels ) {
 			$html .= '<p class="lps-kicker">' . self::esc( implode( ' · ', $labels ) ) . '</p>';
 		}
@@ -316,7 +274,7 @@ final class PublicSurfaces {
 		}
 		$html .= '</div></div>';
 
-		$html .= '<div class="lps-stack">';
+		$html .= '<div class="lps-page-grid"><div class="lps-with-aside lps-with-aside--single"><div class="lps-stack">';
 
 		$reviewed  = (bool) ( $person['privacy_reviewed'] ?? false );
 		$photo_url = self::text( $person['photo_url'] ?? '' );
@@ -330,8 +288,6 @@ final class PublicSurfaces {
 		if ( $reviewed && $photo_present && 'cleared' === $rights && 0 === strpos( $photo_url, '/' ) && false === strpos( $photo_url, '://' ) ) {
 			$alt   = self::text( $person['photo_alt'] ?? $name );
 			$photo = '<img class="lps-person-photo" src="' . self::esc( $photo_url ) . '" alt="' . self::esc( $alt ) . '">';
-		} else {
-			$photo = '<p class="lps-person-no-photo">' . self::esc( $english ? 'Photo not published' : 'Foto não publicada' ) . '</p>';
 		}
 
 		$start  = trim( self::text( $person['start_date'] ?? '' ) );
@@ -343,13 +299,22 @@ final class PublicSurfaces {
 			$tenure = '<p class="lps-tenure">' . self::esc( ( $english ? 'Joined on ' : 'Ingressou em ' ) . $start ) . '</p>';
 		}
 
+		$bio = trim( self::text( $person['bio'] ?? '' ) );
+		if ( '' !== $bio && function_exists( 'wp_kses_post' ) && function_exists( 'wpautop' ) ) {
+			$bio = function_exists( 'do_blocks' ) ? (string) do_blocks( $bio ) : $bio;
+			$bio = '<div class="lps-reading">' . wpautop( wp_kses_post( $bio ) ) . '</div>';
+		} else {
+			$bio = '';
+		}
+		$reading = $bio . $tenure;
+
 		$html .= '<section class="lps-section lps-section--flush" aria-labelledby="lps-person-about">';
 		$html .= '<div class="lps-section-head"><div><p class="lps-kicker">' . self::esc( $english ? 'Background' : 'Trajetória' ) . '</p><h2 id="lps-person-about">' . self::esc( $english ? 'About' : 'Quem é' ) . '</h2></div></div>';
-		$html .= '<div class="lps-split"><div>' . $photo . '</div>';
-		if ( '' !== $tenure ) {
-			$html .= '<div>' . $tenure . '</div>';
+		if ( '' !== $photo ) {
+			$html .= '<div class="lps-split"><div>' . $photo . '</div><div>' . $reading . '</div></div></section>';
+		} else {
+			$html .= $reading . '</section>';
 		}
-		$html .= '</div></section>';
 
 		$topics = self::string_list( $person['research_topics'] ?? array() );
 		if ( array() !== $topics ) {
@@ -385,6 +350,10 @@ final class PublicSurfaces {
 			}
 		}
 
+		$html .= '<section class="lps-section" aria-labelledby="lps-person-notes">';
+		$html .= '<div class="lps-section-head"><div><p class="lps-kicker">' . self::esc( $english ? 'Classes' : 'Aulas' ) . '</p><h2 id="lps-person-notes">' . self::esc( $english ? 'Classes and notes' : 'Aulas e notas' ) . '</h2></div></div>';
+		$html .= '<div class="lps-alert lps-alert-info"><p>' . self::esc( $english ? 'Class material is published by the professor in the restricted area. When this professor publishes material, it appears here.' : 'O material de aula é publicado pelo professor na área restrita. Quando houver material deste professor, ele aparece aqui.' ) . '</p></div></section>';
+
 		$email = $reviewed ? trim( self::text( $person['public_email'] ?? '' ) ) : '';
 		$orcid = trim( self::text( $person['orcid'] ?? '' ) );
 		if ( '' === $orcid || ! self::valid_orcid( $orcid ) ) {
@@ -394,38 +363,51 @@ final class PublicSurfaces {
 		if ( 1 !== preg_match( '#^https?://lattes\.cnpq\.br/\d{16}$#', $lattes ) ) {
 			$lattes = '';
 		}
-		if ( '' !== $email || '' !== $orcid || '' !== $lattes ) {
+		$extra_profiles = array(
+			'scholar_url'  => 'Scholar',
+			'github_url'   => 'GitHub',
+			'linkedin_url' => 'LinkedIn',
+			'website_url'  => $english ? 'Website' : 'Site pessoal',
+		);
+		$profiles       = '';
+		if ( '' !== $orcid ) {
+			$profiles .= '<li><a class="lps-meta" href="https://orcid.org/' . self::esc( $orcid ) . '">ORCID</a></li>';
+		}
+		if ( '' !== $lattes ) {
+			$profiles .= '<li><a class="lps-meta" href="' . self::esc( $lattes ) . '">Lattes</a></li>';
+		}
+		foreach ( $extra_profiles as $key => $label ) {
+			$url = trim( self::text( $person[ $key ] ?? '' ) );
+			if ( '' !== $url && 0 === strpos( $url, 'http' ) ) {
+				$profiles .= '<li><a class="lps-meta" href="' . self::esc( $url ) . '">' . self::esc( $label ) . '</a></li>';
+			}
+		}
+		if ( '' !== $email || '' !== $profiles ) {
 			$cards = '';
 			if ( '' !== $email ) {
 				$cards .= '<article class="lps-card"><div class="lps-card-body"><h3 class="lps-card-title">' . self::esc( $english ? 'Contact' : 'Contato' ) . '</h3><p><a class="lps-breakable" href="mailto:' . self::esc( $email ) . '">' . self::esc( $email ) . '</a></p></div><div class="lps-card-foot"><span></span><a class="lps-more" href="mailto:' . self::esc( $email ) . '">' . self::esc( $english ? 'Write an email' : 'Escrever e-mail' ) . '</a></div></article>';
 			}
-			$profiles = '';
-			if ( '' !== $orcid ) {
-				$profiles .= '<li><a class="lps-meta" href="https://orcid.org/' . self::esc( $orcid ) . '">ORCID</a></li>';
-			}
-			if ( '' !== $lattes ) {
-				$profiles .= '<li><a class="lps-meta" href="' . self::esc( $lattes ) . '">Lattes</a></li>';
-			}
 			if ( '' !== $profiles ) {
-				$cards .= '<article class="lps-card"><div class="lps-card-body"><h3 class="lps-card-title">' . self::esc( $english ? 'External profiles' : 'Perfis externos' ) . '</h3><p>' . self::esc( $english ? 'ORCID iD and Lattes résumé published by the researcher.' : 'ORCID iD e currículo Lattes publicados pelo próprio pesquisador.' ) . '</p></div><div class="lps-card-foot"><span></span><ul class="lps-source-list">' . $profiles . '</ul></div></article>';
+				$cards .= '<article class="lps-card"><div class="lps-card-body"><h3 class="lps-card-title">' . self::esc( $english ? 'External profiles' : 'Perfis externos' ) . '</h3><p>' . self::esc( $english ? 'Résumé, code repositories and professional profiles maintained by the professor.' : 'Currículo, repositórios de código e perfis profissionais mantidos pelo professor.' ) . '</p></div><div class="lps-card-foot"><span></span><ul class="lps-source-list">' . $profiles . '</ul></div></article>';
 			}
 			$html .= '<section class="lps-section" aria-labelledby="lps-person-where">';
 			$html .= '<div class="lps-section-head"><div><p class="lps-kicker">' . self::esc( 'Links' ) . '</p><h2 id="lps-person-where">' . self::esc( $english ? 'Where to find' : 'Onde encontrar' ) . '</h2></div></div>';
 			$html .= '<div class="lps-grid lps-grid--2">' . $cards . '</div></section>';
 		}
 
-		$html .= '</div></article>';
+		$sign_in = $english ? '/en/sign-in/' : '/pt-br/entrar/';
+		$html   .= '<section class="lps-section"><div class="lps-cta-band lps-cta-band--split"><div><h2>' . self::esc( $english ? 'Are you this professor? Sign in to edit this page.' : 'É este professor? Entre para editar esta página.' ) . '</h2><p>' . self::esc( $english ? 'Editing this page uses the same account as the laboratory editorial system; nothing here is editable without authentication.' : 'A edição desta página usa a mesma conta do sistema editorial do laboratório; nada aqui é editável sem autenticação.' ) . '</p></div><div class="lps-button-row"><a class="lps-button lps-button-primary" href="' . self::esc( $sign_in ) . '">' . self::esc( $english ? 'Sign in' : 'Entrar no site' ) . '</a></div></div></section>';
+
+		$html .= '</div></div></div></article>';
 		return $html;
 	}
 
 	/**
-	 * Renders the person's teaching history grouped by derived temporal status.
+	 * Renders the person's taught courses as a code/course/level table.
 	 *
 	 * Entries arrive pre-sorted (newest term first) from the canonical
 	 * `teaching_team` rows via `TeachingRecords::person_history`; the surface
-	 * only groups and labels them. A cancelled offering keeps its row under the
-	 * previous-offerings group with an explicit cancelled label, matching the
-	 * closed/cancelled contract of the event and opportunity surfaces.
+	 * deduplicates them by course so each discipline appears once.
 	 *
 	 * @param array<mixed,mixed> $person Person row.
 	 * @param string             $locale Supported locale slug.
@@ -433,78 +415,46 @@ final class PublicSurfaces {
 	private static function teaching_section( array $person, string $locale ): string {
 		$english = 'en' === $locale;
 		$entries = isset( $person['teaching'] ) && is_array( $person['teaching'] ) ? $person['teaching'] : array();
-		$groups  = array(
-			'current'   => $english ? 'In progress' : 'Em andamento',
-			'upcoming'  => $english ? 'Upcoming offerings' : 'Próximas ofertas',
-			'completed' => $english ? 'Previous offerings' : 'Ofertas anteriores',
-		);
-		$grouped = array();
+		$courses = array();
 		foreach ( $entries as $entry ) {
 			if ( ! is_array( $entry ) ) {
 				continue;
 			}
-			$status               = self::text( $entry['temporal_status'] ?? '' );
-			$bucket               = isset( $groups[ $status ] ) ? $status : 'completed';
-			$grouped[ $bucket ][] = $entry;
-		}
-		$html  = '<section class="lps-section lps-person-teaching" aria-labelledby="lps-person-teaching">';
-		$html .= '<div class="lps-section-head"><div><p class="lps-kicker">' . self::esc( $english ? 'Teaching' : 'Ensino' ) . '</p><h2 id="lps-person-teaching">' . self::esc( $english ? 'Courses and materials' : 'Disciplinas e materiais' ) . '</h2></div></div>';
-		if ( array() === $grouped ) {
-			return $html . '<p class="lps-empty">' . self::esc( $english ? 'No published offerings' : 'Nenhuma oferta publicada' ) . '</p></section>';
-		}
-		foreach ( $groups as $status => $label ) {
-			$rows = $grouped[ $status ] ?? array();
-			if ( array() === $rows ) {
+			$course = isset( $entry['course'] ) && is_array( $entry['course'] ) ? $entry['course'] : array();
+			$slug   = self::text( $course['slug'] ?? '' );
+			$title  = self::text( $course['title'] ?? '' );
+			if ( '' === $slug || '' === $title || isset( $courses[ $slug ] ) ) {
 				continue;
 			}
-			$html .= '<section class="lps-teaching-group" data-temporal="' . self::esc( $status ) . '"><h3>' . self::esc( $label ) . '</h3><ol class="lps-agenda">';
-			foreach ( $rows as $entry ) {
-				$title = self::text( $entry['title'] ?? '' );
-				if ( '' === $title ) {
-					continue;
-				}
-				$url       = self::text( $entry['url'] ?? '' );
-				$term      = isset( $entry['term'] ) && is_array( $entry['term'] ) ? $entry['term'] : array();
-				$period    = self::text( $term['period_label'] ?? '' );
-				$period    = '' !== $period ? $period : self::text( $term['token'] ?? '' );
-				$section   = self::text( $entry['section_key'] ?? '' );
-				$role      = self::teaching_role_label( self::text( $entry['role'] ?? '' ), $locale );
-				$cancelled = 'cancelled' === self::text( $entry['temporal_status'] ?? '' );
-				$html     .= '<li' . ( $cancelled ? ' data-state="cancelled"' : '' ) . '>';
-				$html     .= '<div class="lps-event-date"><strong>' . self::esc( '' !== $period ? $period : '—' ) . '</strong><span>' . self::esc( '' !== $section ? strtoupper( $section ) : ( $english ? 'Term' : 'Período' ) ) . '</span></div>';
-				$html     .= '<div><h3>';
-				$html     .= '' !== $url ? '<a href="' . self::esc( $url ) . '">' . self::esc( $title ) . '</a>' : self::esc( $title );
-				$html     .= '</h3>';
-				if ( '' !== $role ) {
-					$html .= '<p><span class="lps-meta">' . self::esc( $role ) . '</span></p>';
-				}
-				$html .= '</div>';
-				if ( $cancelled ) {
-					$html .= '<span class="lps-status lps-status-warning">' . self::esc( $english ? 'Cancelled' : 'Cancelada' ) . '</span>';
-				} elseif ( '' !== $url ) {
-					$html .= '<a class="lps-more" href="' . self::esc( $url ) . '">' . self::esc( $english ? 'Know more' : 'Saiba mais' ) . '</a>';
-				}
-				$html .= '</li>';
-			}
-			$html .= '</ol></section>';
+			$courses[ $slug ] = $course;
 		}
-		return $html . '</section>';
-	}
-
-	/**
-	 * Returns the localized label of one canonical teaching-team role.
-	 *
-	 * @param string $role   Stored relationship role.
-	 * @param string $locale Supported locale slug.
-	 */
-	private static function teaching_role_label( string $role, string $locale ): string {
-		$english = 'en' === $locale;
-		$labels  = array(
-			'lead'       => $english ? 'Lead instructor' : 'Docente responsável',
-			'co-teacher' => $english ? 'Co-teacher' : 'Codocente',
-			'assistant'  => $english ? 'Teaching assistant' : 'Assistente de ensino',
+		$html  = '<section class="lps-section lps-person-teaching" aria-labelledby="lps-person-subjects">';
+		$html .= '<div class="lps-section-head"><div><p class="lps-kicker">' . self::esc( $english ? 'Teaching' : 'Docência' ) . '</p><h2 id="lps-person-subjects">' . self::esc( $english ? 'Courses' : 'Disciplinas' ) . '</h2></div></div>';
+		if ( array() === $courses ) {
+			return $html . '<div class="lps-alert lps-alert-info"><p>' . self::esc( $english ? 'No published offerings for this professor.' : 'Nenhuma oferta publicada para este professor.' ) . '</p></div></section>';
+		}
+		$name    = self::text( $person['name'] ?? '' );
+		$caption = $english ? 'Courses — ' . $name : 'Disciplinas — ' . $name;
+		$head    = $english ? array( 'Code', 'Course', 'Level' ) : array( 'Código', 'Disciplina', 'Nível' );
+		$levels  = array(
+			'undergraduate' => $english ? 'Undergraduate' : 'Graduação',
+			'graduate'      => $english ? 'Graduate' : 'Pós-graduação',
+			'extension'     => $english ? 'Extension' : 'Extensão',
 		);
-		return $labels[ $role ] ?? $role;
+		$html   .= '<div class="lps-table-scroll" tabindex="0" role="region" aria-label="' . self::esc( $caption ) . '"><table><caption>' . self::esc( $caption ) . '</caption><thead><tr>';
+		foreach ( $head as $cell ) {
+			$html .= '<th scope="col">' . self::esc( $cell ) . '</th>';
+		}
+		$html .= '</tr></thead><tbody>';
+		foreach ( $courses as $course ) {
+			$code  = self::text( $course['code'] ?? '' );
+			$level = self::text( $course['level'] ?? '' );
+			$url   = self::text( $course['url'] ?? '' );
+			$html .= '<tr><td><span class="lps-course-code">' . self::esc( '' !== $code ? $code : '—' ) . '</span></td><th scope="row">';
+			$html .= '' !== $url ? '<a href="' . self::esc( $url ) . '">' . self::esc( self::text( $course['title'] ?? '' ) ) . '</a>' : self::esc( self::text( $course['title'] ?? '' ) );
+			$html .= '</th><td>' . self::esc( $levels[ $level ] ?? ( '' !== $level ? $level : '—' ) ) . '</td></tr>';
+		}
+		return $html . '</tbody></table></div></section>';
 	}
 
 	/**
@@ -856,47 +806,7 @@ final class PublicSurfaces {
 		return '<p class="lps-translation-notice" role="status">' . self::esc( $message ) . '</p>';
 	}
 
-	/**
-	 * Returns the localized research-area filter options.
-	 *
-	 * The labels are part of the interface, so they are never left in the
-	 * authoritative Portuguese source language while the page is served in English
-	 * or the other way around.
-	 *
-	 * @param string $locale Supported locale slug.
-	 * @return array<string, string>
-	 */
-	private static function area_options( string $locale ): array {
-		if ( 'en' === $locale ) {
-			return array(
-				'signal-processing'    => 'Signal processing',
-				'software-engineering' => 'Software engineering',
-			);
-		}
-		return array(
-			'signal-processing'    => 'Processamento de sinais',
-			'software-engineering' => 'Engenharia de software',
-		);
-	}
 
-	/**
-	 * Returns the localized result count announced after a filter is applied.
-	 *
-	 * @param int    $total  Listed record count.
-	 * @param string $locale Supported locale slug.
-	 */
-	public static function count_label( int $total, string $locale ): string {
-		$english = 'en' === $locale;
-		if ( 0 === $total ) {
-			return $english ? 'No person matches this filter' : 'Nenhuma pessoa corresponde a este filtro';
-		}
-		if ( 1 === $total ) {
-			return $english ? '1 person listed' : '1 pessoa listada';
-		}
-		return $english
-			? sprintf( '%d people listed', $total )
-			: sprintf( '%d pessoas listadas', $total );
-	}
 
 	/**
 	 * Returns role options.
@@ -908,21 +818,35 @@ final class PublicSurfaces {
 		$english = 'en' === $locale;
 		if ( $english ) {
 			return array(
-				'student'               => 'Student',
-				'researcher'            => 'Researcher',
-				'professor'             => 'Professor',
-				'technical-staff'       => 'Technical staff',
-				'external-collaborator' => 'External collaborator',
-				'alumni'                => 'Alumni',
+				'student'                    => 'Student',
+				'researcher'                 => 'Researcher',
+				'professor'                  => 'Professor',
+				'professor-titular'          => 'Full Professor',
+				'professor-titular-emerito'  => 'Full Professor (Emeritus)',
+				'professor-adjunto'          => 'Adjunct Professor',
+				'coordenador-lps'            => 'LPS Coordinator',
+				'coordenador-embrapii'       => 'Coordinator (EMBRAPII)',
+				'pesquisador-permanente-lps' => 'Permanent LPS researcher',
+				'pesquisador-atlas'          => 'ATLAS researcher',
+				'technical-staff'            => 'Technical staff',
+				'external-collaborator'      => 'External collaborator',
+				'alumni'                     => 'Alumni',
 			);
 		}
 		return array(
-			'student'               => 'Estudante',
-			'researcher'            => 'Pesquisador',
-			'professor'             => 'Professor',
-			'technical-staff'       => 'Equipe técnica',
-			'external-collaborator' => 'Colaboração externa',
-			'alumni'                => 'Egresso',
+			'student'                    => 'Estudante',
+			'researcher'                 => 'Pesquisador',
+			'professor'                  => 'Professor',
+			'professor-titular'          => 'Professor Titular',
+			'professor-titular-emerito'  => 'Professor Titular (Emérito)',
+			'professor-adjunto'          => 'Professor Adjunto',
+			'coordenador-lps'            => 'Coordenador do LPS',
+			'coordenador-embrapii'       => 'Coordenador (EMBRAPII)',
+			'pesquisador-permanente-lps' => 'Pesquisador permanente do LPS',
+			'pesquisador-atlas'          => 'Pesquisador ATLAS',
+			'technical-staff'            => 'Equipe técnica',
+			'external-collaborator'      => 'Colaboração externa',
+			'alumni'                     => 'Egresso',
 		);
 	}
 
@@ -1016,33 +940,6 @@ final class PublicSurfaces {
 		return $collisions;
 	}
 
-	/**
-	 * Checks person against active filters.
-	 *
-	 * @param array<mixed,mixed> $person Person row.
-	 * @param array<mixed,mixed> $filters Active filters.
-	 */
-	private static function matches_filters( array $person, array $filters ): bool {
-		foreach ( array(
-			'role'   => 'roles',
-			'status' => 'status',
-			'area'   => 'areas',
-		) as $filter_key => $person_key ) {
-			$wanted = self::string_list( $filters[ $filter_key ] ?? array() );
-			if ( array() === $wanted ) {
-				continue;
-			}
-			$have_raw = $person[ $person_key ] ?? array();
-			if ( is_string( $have_raw ) ) {
-				$have_raw = array( $have_raw );
-			}
-			$have = self::string_list( $have_raw );
-			if ( array() === array_intersect( $wanted, $have ) ) {
-				return false;
-			}
-		}
-		return true;
-	}
 
 	/**
 	 * Validates an ORCID iD checksum.

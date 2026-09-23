@@ -1147,9 +1147,12 @@ final class TeachingRecords {
 				'ends_on'      => $ends_on,
 			),
 			'course'                => array(
+				'id'    => $course_id,
 				'title' => $course instanceof WP_Post ? $course->post_title : '',
 				'slug'  => $course instanceof WP_Post ? $course->post_name : '',
 				'url'   => $course instanceof WP_Post ? self::course_path( $locale, $course->post_name ) : '',
+				'code'  => $course instanceof WP_Post ? Policy::scalar_string( get_post_meta( Translations::source_id( $course_id ) ?? $course_id, '_lps_course_code', true ) ) : '',
+				'level' => $course instanceof WP_Post ? Policy::scalar_string( get_post_meta( Translations::source_id( $course_id ) ?? $course_id, '_lps_course_level', true ) ) : '',
 			),
 			'temporal_status'       => TeachingContracts::temporal_status(
 				$starts_on,

@@ -321,7 +321,7 @@ final class Homepage {
 				'type'              => $post->post_type,
 				'title'             => $post->post_title,
 				'summary'           => $post->post_excerpt,
-				'url'               => get_permalink( $post_id ),
+				'url'               => self::local_path( (string) get_permalink( $post_id ) ),
 				'record_id'         => $meta['_lps_record_id'],
 				'source_id'         => class_exists( PublicationPolicy::class ) ? PublicationPolicy::provenance_id( array_merge( $meta, $decision ) ) : '',
 				'status'            => $post->post_status,
@@ -340,6 +340,20 @@ final class Homepage {
 				'media'             => Media::record_image( $post ),
 			)
 		);
+	}
+
+	/**
+	 * Returns the path component of a same-site permalink so card links never
+	 * leak the staging origin into rendered anchors.
+	 *
+	 * @param string $url Absolute or relative URL.
+	 */
+	private static function local_path( string $url ): string {
+		$path = function_exists( 'wp_parse_url' )
+			? wp_parse_url( $url, PHP_URL_PATH )
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url -- Standalone renderer tests run without the WordPress function loaded.
+			: parse_url( $url, PHP_URL_PATH );
+		return is_string( $path ) && '' !== $path ? $path : $url;
 	}
 
 	/**
@@ -788,7 +802,7 @@ final class Homepage {
 		$html  .= '</div>';
 		$source = trim( self::text( $record['import_source_url'] ?? '' ) );
 		if ( '' !== $source ) {
-			$html .= '<span class="lps-more">' . ( $english ? 'Source: ' : 'Fonte: ' ) . '<span class="lps-meta">' . self::escape( $english ? 'Legacy site' : 'Site anterior' ) . '</span></span>';
+			$html .= '<span class="lps-meta">' . ( $english ? 'Source: ' : 'Fonte: ' ) . '<span class="lps-meta">' . self::escape( $english ? 'Legacy site' : 'Site anterior' ) . '</span></span>';
 		}
 		return $html . '</li>';
 	}
@@ -885,7 +899,7 @@ final class Homepage {
 			$rows[] = array(
 				'code'        => self::text( get_post_meta( $authority, '_lps_course_code', true ) ),
 				'title'       => $post->post_title,
-				'url'         => (string) get_permalink( $post->ID ),
+				'url'         => self::local_path( (string) get_permalink( $post->ID ) ),
 				'professor'   => implode( ' · ', $names ),
 				'level_label' => self::course_level_label( $level, $locale ),
 				'level_class' => 'graduate' === $level ? 'lps-level-grad' : 'lps-level-undergrad',
@@ -1131,11 +1145,19 @@ final class Homepage {
 		if ( null === $record ) {
 			return '<section class="lps-section" data-home-section="contact" aria-labelledby="lps-home-contact"><div class="lps-page-grid"><div class="lps-cta-band lps-cta-band--split"><div><h2 id="lps-home-contact">' . self::escape( $title ) . '</h2><p>' . self::escape( $lead ) . '</p>' . self::empty_notice( 'contact', $locale ) . '</div></div></div></section>';
 		}
-		$primary    = trim( self::text( $record['cta'] ?? '' ) );
-		$primary    = '' !== $primary ? $primary : ( $english ? 'Talk to the laboratory' : 'Fale com o laboratório' );
-		$ghost      = $english ? 'Capabilities' : 'Capacidades';
-		$ghost_href = $english ? '/en/infrastructure/' : '/pt-br/infraestrutura/';
-		return '<section class="lps-section" data-home-section="contact" aria-labelledby="lps-home-contact"><div class="lps-page-grid"><div class="lps-cta-band lps-cta-band--split"><div><h2 id="lps-home-contact">' . self::escape( $title ) . '</h2><p>' . self::escape( $lead ) . '</p></div><div class="lps-button-row"><a class="lps-button lps-button-primary" data-home-action="contact" data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '" href="' . self::escape( self::text( $record['url'] ) ) . '">' . self::escape( $primary ) . '</a><a class="lps-button lps-button-ghost" href="' . self::escape( $ghost_href ) . '">' . self::escape( $ghost ) . '</a></div></div></div></section>';
+		$primary      = trim( self::text( $record['cta'] ?? '' ) );
+		$primary      = '' !== $primary ? $primary : ( $english ? 'Talk to the laboratory' : 'Fale com o laboratório' );
+		$ghost        = $english ? 'Capabilities' : 'Capacidades';
+		$ghost_href   = $english ? '/en/infrastructure/' : '/pt-br/infraestrutura/';
+		$primary_href = self::text( $record['url'] );
+		$parsed       = function_exists( 'wp_parse_url' )
+			? wp_parse_url( $primary_href, PHP_URL_PATH )
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url -- Standalone renderer tests run without the WordPress function loaded.
+			: parse_url( $primary_href, PHP_URL_PATH );
+		if ( is_string( $parsed ) && '' !== $parsed ) {
+			$primary_href = $parsed;
+		}
+		return '<section class="lps-section" data-home-section="contact" aria-labelledby="lps-home-contact"><div class="lps-page-grid"><div class="lps-cta-band lps-cta-band--split"><div><h2 id="lps-home-contact">' . self::escape( $title ) . '</h2><p>' . self::escape( $lead ) . '</p></div><div class="lps-button-row"><a class="lps-button lps-button-primary" data-home-action="contact" data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '" href="' . self::escape( $primary_href ) . '">' . self::escape( $primary ) . '</a><a class="lps-button lps-button-ghost" href="' . self::escape( $ghost_href ) . '">' . self::escape( $ghost ) . '</a></div></div></div></section>';
 	}
 
 	/**

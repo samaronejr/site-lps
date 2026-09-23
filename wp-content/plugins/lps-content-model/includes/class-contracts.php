@@ -102,6 +102,8 @@ final class Contracts {
 				'_lps_lattes_url'        => self::field( 'string', 'Lattes URL', 'url' ),
 				'_lps_scholar_url'       => self::field( 'string', 'Scholar URL', 'url' ),
 				'_lps_website_url'       => self::field( 'string', 'Website URL', 'url' ),
+				'_lps_github_url'        => self::field( 'string', 'GitHub URL', 'url' ),
+				'_lps_linkedin_url'      => self::field( 'string', 'LinkedIn URL', 'url' ),
 				'_lps_research_area_ids' => self::field( 'array', 'Research area record IDs', 'id_array' ),
 				'_lps_credentials'       => self::field( 'array', 'Credentials', 'string_array' ),
 				'_lps_photo_rights'      => self::field( 'string', 'Photo rights state', 'key' ),
@@ -126,6 +128,7 @@ final class Contracts {
 			),
 			'lps_project'       => array(
 				'_lps_project_status'      => self::field( 'string', 'Project status', 'key' ),
+				'_lps_source_label'        => self::field( 'string', 'Source provenance label', 'text' ),
 				'_lps_start_date'          => self::field( 'string', 'Start date', 'date' ),
 				'_lps_end_date'            => self::field( 'string', 'End date', 'date' ),
 				'_lps_member_ids'          => self::field( 'array', 'Member record IDs', 'id_array' ),
@@ -162,6 +165,9 @@ final class Contracts {
 			),
 			'lps_news'          => array(
 				'_lps_canonical_date'     => self::field( 'string', 'Canonical publication date', 'datetime' ),
+				'_lps_date_label'         => self::field( 'string', 'Editorial date label shown instead of the canonical date', 'text' ),
+				'_lps_news_category'      => self::field( 'string', 'News category key', 'key' ),
+				'_lps_source_label'       => self::field( 'string', 'Source provenance label', 'text' ),
 				'_lps_news_status'        => self::field( 'string', 'News status', 'key' ),
 				'_lps_related_record_ids' => self::field( 'array', 'Related record IDs', 'id_array' ),
 				'_lps_featured_until'     => self::field( 'string', 'Featured-until date', 'date' ),

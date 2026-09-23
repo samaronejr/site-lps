@@ -278,9 +278,10 @@ final class Shell {
 			$current        = rtrim( $path, '/' ) === rtrim( $url, '/' ) ? ' aria-current="page"' : '';
 			$utility_items .= '<li><a' . $current . ' href="' . self::escape( $url ) . '">' . self::escape( $label ) . '</a></li>';
 		}
+		$affiliation = $english ? 'Signal Processing Laboratory · UFRJ · COPPE' : 'Laboratório de Processamento de Sinais · UFRJ · COPPE';
 		return '<a class="lps-skip-link" href="#lps-main">' . self::escape( $skip ) . '</a>'
 			. '<header class="lps-site-header">'
-			. '<div class="lps-affiliation lps-utility-bar"><div class="lps-utility-inner lps-page-grid"><p lang="pt-BR">Laboratório de Processamento de Sinais <span aria-hidden="true">/</span> UFRJ <span aria-hidden="true">/</span> COPPE</p><p class="lps-meta" lang="pt-BR">Universidade Federal do Rio de Janeiro</p>' . ( $english ? '<p>Signal Processing Laboratory</p>' : '' ) . '<nav aria-label="' . self::escape( $quick_label ) . '"><ul class="lps-utility-links">' . $utility_items . '</ul></nav>' . $locale_switch . self::session_link( $locale ) . '</div></div>'
+			. '<div class="lps-utility-bar"><div class="lps-utility-inner lps-page-grid"><p>' . self::escape( $affiliation ) . '</p><nav aria-label="' . self::escape( $quick_label ) . '"><ul class="lps-utility-links">' . $utility_items . '</ul></nav>' . $locale_switch . self::session_link( $locale ) . '</div></div>'
 			// The masthead pairs the artwork with the visitor's primary tools —
 			// search and the collaborate entrance — the way the showcase pins them
 			// beside the mark instead of hiding them inside the disclosure.
@@ -303,18 +304,18 @@ final class Shell {
 	private static function masthead_brand(): string {
 		$approved = self::masthead_mark();
 		if ( '' !== $approved ) {
-			return $approved;
+			return '<span class="lps-logo-slot">' . $approved . '</span>';
 		}
 		$sources = self::logo_sources();
-		if ( '' === $sources['full'] || '' === $sources['compact'] ) {
+		if ( '' === $sources['full'] ) {
 			return 'LPS';
 		}
-		// The artwork is the only content of the home link, so it carries the
-		// wordmark as its text alternative: an empty alt would leave the link
-		// unnamed for assistive technology that ignores the link's aria-label.
+		// The artwork sits inside the logo slot the showcase defines and keeps
+		// an empty alternative: the link's aria-label already names the home
+		// destination, so a wordmark alt would announce the brand twice.
 		// The logo never claims a priority hint: fetchpriority is reserved for
 		// the single LCP image so the brand mark cannot compete with it.
-		return '<img class="lps-logo" src="' . self::escape( $sources['full'] ) . '" srcset="' . self::escape( $sources['compact'] ) . ' 1x, ' . self::escape( $sources['full'] ) . ' 2x" sizes="190px" alt="LPS" width="1622" height="804">';
+		return '<span class="lps-logo-slot"><img class="lps-logo" src="' . self::escape( $sources['full'] ) . '" alt="" width="1622" height="804" decoding="async"></span>';
 	}
 
 	/**
@@ -496,11 +497,11 @@ final class Shell {
 					'Visual identity' => $base . '/visual-identity/',
 				),
 				'Research'       => array(
-					'Research areas'  => $base . '/research/',
-					'Projects'        => $base . '/projects/',
-					'Publications'    => $base . '/publications/',
-					'Teaching'        => $base . '/teaching/',
-					'News and events' => $base . '/news/',
+					'Research areas' => $base . '/research/',
+					'Projects'       => $base . '/projects/',
+					'Publications'   => $base . '/publications/',
+					'Teaching'       => $base . '/teaching/',
+					'News'           => $base . '/news/',
 				),
 				'Take part'      => array(
 					'Opportunities' => $base . '/opportunities/',
@@ -545,10 +546,12 @@ final class Shell {
 		$home_name = $english ? 'LPS — home' : 'LPS — início';
 		$alt       = $english ? 'LPS — Signal Processing Laboratory' : 'LPS — Laboratório de Processamento de Sinais';
 		$logo      = '<img class="lps-logo" src="' . self::brand_base_url() . 'lps_coppe_reversed_lockup.svg" alt="' . self::escape( $alt ) . '" width="1622" height="804" loading="lazy" decoding="async">';
+		// The postal address stays verbatim in both locales — only the phone
+		// extension word localizes, matching the showcase footer contract.
 		$address   = '<address>'
 			. 'Av. Athos da Silveira Ramos, 149<br>'
-			. ( $english ? 'Technology Center, Building H, room 220<br>Ilha do Fundão<br>Rio de Janeiro — RJ, ZIP 21941-914<br>' : 'Centro de Tecnologia, Bloco H, sala 220<br>Cidade Universitária, Ilha do Fundão<br>Rio de Janeiro — RJ, CEP 21941-914<br>' )
-			. '<a href="tel:+552139388205">(21) 3938-8205</a> · ' . ( $english ? 'Ext. 8205' : 'Ramal 8205' ) . '<br>'
+			. 'Centro de Tecnologia, Bloco H, sala 220<br>Cidade Universitária, Ilha do Fundão<br>Rio de Janeiro — RJ, CEP 21941-914<br>'
+			. '<a href="tel:+552139388205">(21) 3938-8205</a> · ' . ( $english ? 'Extension 8205' : 'Ramal 8205' ) . '<br>'
 			. '<a href="mailto:secretaria@lps.ufrj.br">secretaria@lps.ufrj.br</a>'
 			. '</address>';
 		$copyright = $english
@@ -907,7 +910,223 @@ final class Shell {
 		if ( ! is_post_type_archive() ) {
 			return '';
 		}
-		return '<h1 class="lps-page-title">' . self::escape( self::archive_title_text( $locale, self::query_string_var( 'post_type' ), '' ) ) . '</h1>';
+		return self::archive_header_markup( $locale, self::query_string_var( 'post_type' ) );
+	}
+
+	/**
+	 * Builds the page-header band one record-type archive opens with.
+	 *
+	 * Every listing follows the showcase contract: a kicker, the heading, a
+	 * lead line and — where the listing states its provenance — a meta line.
+	 * Types without a band keep the plain localized title.
+	 *
+	 * @param string $locale    Supported locale slug.
+	 * @param string $post_type Queried record type.
+	 */
+	public static function archive_header_markup( string $locale, string $post_type ): string {
+		$english = 'en' === $locale;
+		$headers = array(
+			'lps_research_area' => array(
+				'kicker' => $english ? 'Research' : 'Pesquisa',
+				'title'  => $english ? 'Research areas' : 'Linhas de pesquisa',
+				'lead'   => $english
+					? 'The main areas of activity are digital signal processing, supervised and unsupervised data modelling, feature engineering, recommender systems, time-series analysis and fault, fraud and novelty detection.'
+					: 'As principais áreas de atuação são o processamento digital de sinais, a modelagem de dados supervisionada e não supervisionada, a engenharia de características, os sistemas de recomendação, a análise de séries temporais e a detecção de falhas, fraudes e novidades.',
+			),
+			'lps_project'       => array(
+				'kicker' => $english ? 'Research' : 'Pesquisa',
+				'title'  => $english ? 'Projects' : 'Projetos',
+				'lead'   => $english
+					? 'Research and development projects recorded in the laboratory public material, with the partner institutions they were built with.'
+					: 'Projetos de pesquisa e desenvolvimento registrados no material público do laboratório, com as instituições parceiras com que foram construídos.',
+				'meta'   => $english
+					? 'Source: the laboratory public pages, January 2025.'
+					: 'Fonte: páginas públicas do laboratório, janeiro de 2025.',
+			),
+			'lps_publication'   => array(
+				'kicker' => $english ? 'Research' : 'Pesquisa',
+				'title'  => $english ? 'Publications' : 'Publicações',
+				'lead'   => $english
+					? 'The scientific output associated with the laboratory, and how to consult it today.'
+					: 'A produção científica associada ao laboratório, e como consultá-la hoje.',
+			),
+			'lps_person'        => array(
+				'kicker' => $english ? 'People' : 'Pessoas',
+				'title'  => $english ? 'The laboratory team' : 'A equipe do laboratório',
+				'lead'   => $english
+					? 'Four full-time professors — two of them full professors — coordinate the laboratory together with post-doctoral researchers and graduate and undergraduate students.'
+					: 'Quatro professores em tempo integral — dois deles titulares — coordenam o laboratório junto com pesquisadores de pós-doutorado e estudantes de pós-graduação e graduação.',
+			),
+			'lps_news'          => array(
+				'kicker' => $english ? 'News and events' : 'Notícias e eventos',
+				'title'  => $english ? 'News and events' : 'Notícias e eventos',
+				'lead'   => $english
+					? 'Dated institutional records about the laboratory, each traceable to the public source it came from.'
+					: 'Registros institucionais datados sobre o laboratório, cada um rastreável à fonte pública de origem.',
+			),
+			'lps_opportunity'   => array(
+				'kicker' => $english ? 'Take part' : 'Participe',
+				'title'  => $english ? 'Opportunities' : 'Oportunidades',
+				'lead'   => $english
+					? 'Research initiation, master and doctoral places, post-doctorate and project collaboration at the Signal Processing Laboratory.'
+					: 'Iniciação científica, vagas de mestrado e doutorado, pós-doutorado e colaboração em projetos no Laboratório de Processamento de Sinais.',
+			),
+			'lps_organization'  => array(
+				'kicker' => $english ? 'Partners and funders' : 'Parceiros e financiadores',
+				'title'  => $english ? 'Organizations' : 'Organizações',
+				'lead'   => $english
+					? 'Companies, funding agencies and the international collaborations that support laboratory projects.'
+					: 'Empresas, agências de fomento e as colaborações internacionais que sustentam os projetos do laboratório.',
+			),
+			'lps_event'         => array(
+				'kicker' => $english ? 'News and events' : 'Notícias e eventos',
+				'title'  => $english ? 'Events' : 'Eventos',
+			),
+		);
+		$header  = $headers[ $post_type ] ?? null;
+		if ( null === $header ) {
+			return '<h1 class="lps-page-title">' . self::escape( self::archive_title_text( $locale, $post_type, '' ) ) . '</h1>';
+		}
+		return self::page_header_markup( $header, $locale );
+	}
+
+	/**
+	 * Renders one page-header band from kicker, title, lead and meta parts.
+	 *
+	 * @param array<string, string> $header Localized band copy; any part may be absent.
+	 * @param string                $locale Supported locale slug.
+	 */
+	public static function page_header_markup( array $header, string $locale ): string { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- The band contract carries the locale for localized parts; every caller already passes it.
+		$html = '<div class="lps-page-header"><div class="lps-page-header-inner lps-page-grid">';
+		if ( isset( $header['kicker'] ) && '' !== $header['kicker'] ) {
+			$html .= '<p class="lps-kicker">' . self::escape( $header['kicker'] ) . '</p>';
+		}
+		$html .= '<h1 class="lps-page-title">' . self::escape( $header['title'] ?? '' ) . '</h1>';
+		if ( isset( $header['lead'] ) && '' !== $header['lead'] ) {
+			$html .= '<p class="lps-lead">' . self::escape( $header['lead'] ) . '</p>';
+		}
+		if ( isset( $header['meta'] ) && '' !== $header['meta'] ) {
+			$html .= '<p class="lps-meta lps-mt-6">' . self::escape( $header['meta'] ) . '</p>';
+		}
+		return $html . '</div></div>';
+	}
+
+	/**
+	 * Replaces the bare page title with the page-header band on governed pages.
+	 *
+	 * Institutional records carry a `_lps_page_key` that ties them to a frozen
+	 * route family; those pages open with the same band every archive does —
+	 * kicker, heading, lead — instead of the raw `core/post-title` output.
+	 * Pages without a key keep the core title untouched.
+	 *
+	 * @param string               $content Rendered block markup.
+	 * @param array<string, mixed> $block   Parsed block.
+	 */
+	public static function institutional_page_title( string $content, array $block ): string {
+		if ( 'core/post-title' !== ( $block['blockName'] ?? '' ) ) {
+			return $content;
+		}
+		if ( ! function_exists( 'is_singular' ) || ! is_singular( 'page' ) || ! function_exists( 'get_post' ) ) {
+			return $content;
+		}
+		$post = get_post();
+		if ( ! $post instanceof WP_Post ) {
+			return $content;
+		}
+		$shared    = class_exists( \LPS\ContentModel\TranslationPolicy::class ) ? \LPS\ContentModel\TranslationPolicy::shared_meta_keys( $post->post_type ) : array();
+		$source_id = class_exists( \LPS\ContentModel\Translations::class ) ? \LPS\ContentModel\Translations::source_id( $post->ID ) ?? $post->ID : $post->ID;
+		$key_id    = in_array( '_lps_page_key', $shared, true ) ? $source_id : $post->ID;
+		$raw_key   = function_exists( 'get_post_meta' ) ? get_post_meta( $key_id, '_lps_page_key', true ) : '';
+		$key       = is_string( $raw_key ) ? $raw_key : '';
+		if ( '' === $key ) {
+			return $content;
+		}
+		$locale = self::current_locale( self::request_path() );
+		return self::page_header_markup(
+			self::institutional_header_copy( $key, (string) get_the_title( $post ), (string) $post->post_excerpt, $locale ),
+			$locale
+		);
+	}
+
+	/**
+	 * Returns the page-header copy for one governed page key.
+	 *
+	 * Pages that appear in the showcase carry its exact kicker, heading, lead
+	 * and meta line; other governed pages fall back to the record title and
+	 * summary so they still open with the band.
+	 *
+	 * @param string $key     Institutional page key.
+	 * @param string $title   Record title fallback.
+	 * @param string $summary Record summary fallback.
+	 * @param string $locale  Supported locale slug.
+	 * @return array<string, string>
+	 */
+	private static function institutional_header_copy( string $key, string $title, string $summary, string $locale ): array {
+		$english = 'en' === $locale;
+		$copy    = array(
+			'about'           => array(
+				'kicker' => $english ? 'About' : 'Sobre',
+				'title'  => $english ? 'About LPS' : 'Sobre o LPS',
+				'lead'   => $english
+					? 'Founded in 1996 at the Federal University of Rio de Janeiro, the Signal Processing Laboratory works in teaching, research and extension, from junior research initiation to post-doctorate.'
+					: 'Fundado em 1996 na Universidade Federal do Rio de Janeiro, o Laboratório de Processamento de Sinais atua em ensino, pesquisa e extensão, da iniciação científica júnior ao pós-doutorado.',
+				'meta'   => $english
+					? 'Founded 1996 · UFRJ · COPPE · Electrical Engineering Program'
+					: 'Fundação 1996 · UFRJ · COPPE · Programa de Engenharia Elétrica',
+			),
+			'contact'         => array(
+				'kicker' => $english ? 'Contact' : 'Contato',
+				'title'  => $english ? 'Contact the laboratory' : 'Fale com o laboratório',
+				'lead'   => $english
+					? 'The laboratory office is the first stop for administrative matters, projects, technical visits and press requests.'
+					: 'A secretaria do laboratório é o primeiro caminho para assuntos administrativos, projetos, visitas técnicas e pedidos de imprensa.',
+			),
+			'privacy'         => array(
+				'kicker' => $english ? 'Privacy' : 'Privacidade',
+				'title'  => $english ? 'Privacy on this site' : 'Privacidade neste site',
+				'lead'   => $english
+					? 'This site is built to collect as little as possible: no cookies for anonymous visitors, no third-party requests and no public forms.'
+					: 'Este site é construído para coletar o mínimo possível: nenhum cookie para visitantes anônimos, nenhuma requisição a terceiros e nenhum formulário público.',
+			),
+			'accessibility'   => array(
+				'kicker' => $english ? 'Accessibility' : 'Acessibilidade',
+				'title'  => $english ? 'Accessibility statement' : 'Declaração de acessibilidade',
+				'lead'   => $english
+					? 'The LPS website is published with the goal of meeting WCAG 2.2 level AA and eMAG: minimum 4.5:1 contrast for text, visible focus, full keyboard navigation, respect for reduced-motion preference and reflow at 320 CSS px with 200% zoom. Verification runs on every release.'
+					: 'O site do LPS é publicado com o objetivo de atender à WCAG 2.2 nível AA e ao eMAG: contraste mínimo de 4,5:1 para texto, foco visível, navegação completa por teclado, respeito à preferência de movimento reduzido e reflow em 320 CSS px com 200% de zoom. A verificação é feita a cada publicação.',
+			),
+			'visual-identity' => array(
+				'kicker' => $english ? 'Identity' : 'Identidade',
+				'title'  => $english ? 'Visual identity' : 'Identidade visual',
+				'lead'   => $english
+					? 'The laboratory mark pairs a signal with the LPS lettering, backed by the full name and the Computational Intelligence descriptor.'
+					: 'A marca do laboratório une um sinal à sigla LPS, acompanhados do nome por extenso e do descritor Inteligência Computacional.',
+				'meta'   => $english
+					? 'Source artwork supplied by the laboratory; vectorised with the lettering outlined.'
+					: 'Arte-fonte fornecida pelo laboratório; vetorizada com as letras em curvas.',
+			),
+			'infrastructure'  => array(
+				'kicker' => $english ? 'Infrastructure' : 'Infraestrutura',
+				'title'  => $english ? 'Facilities and capabilities' : 'Instalações e capacidades',
+				'lead'   => $english
+					? 'Headquartered in Building H, room 220 of the UFRJ Technology Centre, the laboratory runs its own computing infrastructure: the Caloba SLURM cluster with CPU and GPU partitions, Singularity containers and the Maestro workload-orchestration stack.'
+					: 'Com sede no Bloco H, sala 220 do Centro de Tecnologia da UFRJ, o laboratório mantém infraestrutura computacional própria: o cluster SLURM Caloba com partições CPU e GPU, contêineres Singularity e a pilha de orquestração Maestro.',
+				'meta'   => $english
+					? 'Source: LPS datacenter documentation (lps-ufrj-br.github.io/datacenter).'
+					: 'Fonte: documentação do datacenter do LPS (lps-ufrj-br.github.io/datacenter).',
+			),
+			'collaboration'   => array(
+				'kicker' => $english ? 'Take part' : 'Participe',
+			),
+		);
+		$header  = $copy[ $key ] ?? array();
+		if ( ! isset( $header['title'] ) ) {
+			$header['title'] = '' !== trim( $title ) ? trim( $title ) : self::archive_title_text( $locale, '', '' );
+		}
+		if ( ! isset( $header['lead'] ) && '' !== trim( $summary ) ) {
+			$header['lead'] = trim( $summary );
+		}
+		return $header;
 	}
 
 	/** Resolves the posts-index page title from WordPress, when one is configured. */

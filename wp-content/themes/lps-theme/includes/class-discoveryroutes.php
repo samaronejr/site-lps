@@ -384,11 +384,12 @@ final class DiscoveryRoutes {
 				continue;
 			}
 			$items[] = array(
-				'title'   => self::display_title( $post ),
-				'url'     => self::single_path( $post_type, $locale, $post->post_name ),
-				'summary' => $post->post_excerpt,
-				'meta'    => self::listing_meta( $post, $locale ),
-				'topics'  => self::record_topics( $post ),
+				'title'     => self::display_title( $post ),
+				'url'       => self::single_path( $post_type, $locale, $post->post_name ),
+				'summary'   => $post->post_excerpt,
+				'meta'      => self::listing_meta( $post, $locale ),
+				'topics'    => self::record_topics( $post ),
+				'foot_html' => self::source_foot( $post, $locale ),
 			);
 		}
 		$paths = array(
@@ -448,11 +449,12 @@ final class DiscoveryRoutes {
 		$items = array();
 		foreach ( $posts as $post ) {
 			$items[] = array(
-				'title'   => self::display_title( $post ),
-				'url'     => self::single_path( 'lps_project', $locale, $post->post_name ),
-				'summary' => $post->post_excerpt,
-				'meta'    => self::listing_meta( $post, $locale ),
-				'topics'  => self::record_topics( $post ),
+				'title'     => self::display_title( $post ),
+				'url'       => self::single_path( 'lps_project', $locale, $post->post_name ),
+				'summary'   => $post->post_excerpt,
+				'meta'      => self::listing_meta( $post, $locale ),
+				'topics'    => self::record_topics( $post ),
+				'foot_html' => self::source_foot( $post, $locale ),
 			);
 		}
 		return $items;
@@ -778,9 +780,27 @@ final class DiscoveryRoutes {
 			);
 		}
 		if ( 'lps_project' === $post->post_type ) {
-			return DiscoverySurfaces::project_status_label( self::shared_meta( $post, '_lps_project_status' ), $locale );
+			return DiscoverySurfaces::project_status_short_label( self::shared_meta( $post, '_lps_project_status' ), $locale );
 		}
 		return '';
+	}
+
+	/**
+	 * Renders the card-foot provenance span when a source label is stored.
+	 *
+	 * @param WP_Post $post   Record post.
+	 * @param string  $locale Supported locale slug.
+	 */
+	private static function source_foot( WP_Post $post, string $locale ): string {
+		$label = self::shared_meta( $post, '_lps_source_label' );
+		if ( '' === $label ) {
+			return '';
+		}
+		if ( 'site-anterior' === $label ) {
+			$label = 'en' === $locale ? 'Previous site' : 'Site anterior';
+		}
+		$prefix = 'en' === $locale ? 'Source: ' : 'Fonte: ';
+		return '<span class="lps-meta">' . esc_html( $prefix ) . '<span class="lps-meta">' . esc_html( $label ) . '</span></span>';
 	}
 
 	/**

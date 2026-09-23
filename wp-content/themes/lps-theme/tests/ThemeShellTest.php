@@ -178,8 +178,7 @@ final class ThemeShellTest extends \PHPUnit\Framework\TestCase {
 		self::assertStringContainsString( 'name="q"', $header );
 		self::assertStringContainsString( 'hreflang="en"', $header );
 		self::assertStringContainsString( '/lps-brand/lps_coppe_blue_lockup.svg', $header );
-		self::assertStringContainsString( 'srcset=', $header );
-		self::assertStringContainsString( '/lps-brand/lps_coppe_blue_lockup.svg 2x', $header );
+		self::assertStringContainsString( 'lps-logo-slot', $header );
 		self::assertStringContainsString( '<footer', $footer );
 		self::assertStringContainsString( '/pt-br/ensino/', $footer );
 		self::assertStringContainsString( '/pt-br/acessibilidade/', $footer );
@@ -209,15 +208,14 @@ final class ThemeShellTest extends \PHPUnit\Framework\TestCase {
 		$english    = Shell::header_markup( 'en', '/en/' );
 
 		// Then: the home link keeps its accessible name and renders one
-		// decorative image with the lockup's 1x/2x density sources — so
-		// engines pick the rendition without client code, and no label is
-		// duplicated inside the artwork.
+		// decorative image inside the showcase's logo slot — an empty
+		// alternative text so the link's label is not announced twice.
 		foreach ( array( $portuguese, $english ) as $header ) {
 			self::assertStringContainsString( 'class="lps-brand"', $header );
 			self::assertStringContainsString( 'aria-label="LPS — ', $header );
+			self::assertStringContainsString( 'class="lps-logo-slot"', $header );
 			self::assertStringContainsString( '/lps-brand/lps_coppe_blue_lockup.svg', $header );
-			self::assertStringContainsString( '/lps-brand/lps_coppe_blue_lockup.svg 2x', $header );
-			self::assertStringContainsString( 'alt="LPS"', $header );
+			self::assertStringContainsString( 'alt=""', $header );
 			self::assertStringContainsString( 'width="1622" height="804"', $header );
 			self::assertSame( 1, substr_count( $header, '<img' ) );
 		}

@@ -53,7 +53,7 @@ final class AuthSurfaces {
 			. ( '' !== $css_url ? '<link rel="stylesheet" href="' . self::esc( $css_url ) . '">' : '' ) // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet -- This route renders a whole standalone document; wp_enqueue_style has no pipeline to attach to.
 			. '</head><body class="lps-signin-page">'
 			. $header
-			. '<main id="lps-main" class="lps-main-content lps-page-grid lps-signin-main">'
+			. '<main id="lps-main" class="lps-main-content">'
 			. self::body( $locale, $state )
 			. '</main>'
 			. $footer
@@ -71,10 +71,11 @@ final class AuthSurfaces {
 			return self::header_block( $locale ) . self::signed_in( $locale, $state );
 		}
 		return self::header_block( $locale )
-			. '<div class="lps-signin-grid">'
+			. '<div class="lps-page-grid"><section class="lps-section lps-section--flush" aria-labelledby="signin-form">'
+			. '<div class="lps-signin-layout">'
 			. self::form( $locale, $state )
 			. self::audience( $locale )
-			. '</div>';
+			. '</div></section></div>';
 	}
 
 	/**
@@ -84,13 +85,20 @@ final class AuthSurfaces {
 	 */
 	private static function header_block( string $locale ): string {
 		$english = 'en' === $locale;
-		return '<div class="lps-page-header lps-signin-header"><div class="lps-page-header-inner">'
-			. '<p class="lps-kicker">' . self::esc( $english ? 'Restricted area' : 'Área restrita' ) . '</p>'
+		$crumb   = '<nav class="lps-breadcrumbs lps-page-grid" aria-label="'
+			. self::esc( $english ? 'Breadcrumb' : 'Trilha de navegação' ) . '"><ol><li><a href="'
+			. self::esc( $english ? '/en/' : '/pt-br/' ) . '">'
+			. self::esc( $english ? 'Home' : 'Início' )
+			. '</a></li><li aria-current="page">'
+			. self::esc( $english ? 'Sign in' : 'Entrar' ) . '</li></ol></nav>';
+		return $crumb
+			. '<div class="lps-page-header lps-signin-header"><div class="lps-page-header-inner lps-page-grid">'
+			. '<p class="lps-kicker">' . self::esc( $english ? 'Restricted access' : 'Acesso restrito' ) . '</p>'
 			. '<h1 class="lps-page-title">' . self::esc( $english ? 'Sign in' : 'Entrar no site' ) . '</h1>'
 			. '<p class="lps-lead">' . self::esc(
 				$english
-					? 'Restricted area for the laboratory professors, editorial team and site administrators.'
-					: 'Área restrita para os professores do laboratório, a equipe editorial e os administradores do site.'
+					? 'The restricted area is for professors, laboratory staff and site administrators. Access is individual, requires a second factor for privileged roles and is recorded for audit.'
+					: 'A área restrita é destinada a professores, à equipe do laboratório e aos administradores do site. O acesso é individual, exige segundo fator para papéis privilegiados e fica registrado para auditoria.'
 			) . '</p>'
 			. '</div></div>';
 	}
@@ -111,10 +119,10 @@ final class AuthSurfaces {
 			: '/wp-login.php?action=lostpassword';
 		$notice    = self::notice( $locale, self::text( $state['error'] ?? '' ) );
 		$aria      = '' !== $notice ? ' aria-describedby="lps-signin-error"' : '';
-		return '<section class="lps-signin" aria-labelledby="lps-signin-title">'
-			. '<h2 id="lps-signin-title">' . self::esc( $english ? 'Institutional account access' : 'Acesso com conta institucional' ) . '</h2>'
+		$google    = self::google_button( $locale, $redirect );
+		return '<form class="lps-signin-card" id="signin" method="post" action="' . self::esc( $action ) . '">'
+			. '<h2 class="lps-card-title" id="signin-form">' . self::esc( $english ? 'Credentials' : 'Identificação' ) . '</h2>'
 			. $notice
-			. '<form class="lps-signin-form lps-dashboard-form" method="post" action="' . self::esc( $action ) . '">'
 			. '<input type="hidden" name="redirect_to" value="' . self::esc( $redirect ) . '">'
 			. ( function_exists( 'wp_nonce_field' ) ? wp_nonce_field( 'lps_signin', '_lps_signin_nonce', true, false ) : '' )
 			. '<p class="lps-field"><label for="lps-signin-user">'
@@ -123,21 +131,21 @@ final class AuthSurfaces {
 			. '<p class="lps-field"><label for="lps-signin-pass">'
 			. self::esc( $english ? 'Password' : 'Senha' )
 			. '</label><input id="lps-signin-pass" name="pwd" type="password" autocomplete="current-password" required' . $aria . '></p>'
-			. '<p class="lps-checkbox"><input id="lps-signin-remember" name="rememberme" type="checkbox" value="forever"><label for="lps-signin-remember">'
-			. self::esc( $english ? 'Keep me signed in on this browser' : 'Manter conectado neste navegador' )
-			. '</label></p>'
-			. '<div class="lps-button-row"><button class="lps-button lps-button-primary" type="submit">'
-			. self::esc( $english ? 'Sign in' : 'Entrar' )
-			. '</button>' . self::google_button( $locale, $redirect ) . '<a class="lps-button lps-button-quiet" href="' . self::esc( $lost ) . '">'
+			. '<div class="lps-signin-meta"><p class="lps-checkbox"><input id="lps-signin-remember" name="rememberme" type="checkbox" value="forever"><label for="lps-signin-remember">'
+			. self::esc( $english ? 'Keep me signed in on this device' : 'Manter a sessão neste navegador' )
+			. '</label></p><a class="lps-meta" href="' . self::esc( $lost ) . '">'
 			. self::esc( $english ? 'I forgot my password' : 'Esqueci minha senha' )
 			. '</a></div>'
+			. '<button class="lps-button lps-button-primary lps-signin-submit" type="submit">'
+			. self::esc( $english ? 'Sign in' : 'Entrar' )
+			. '</button>'
+			. ( '' !== $google ? '<div class="lps-signin-divider" role="separator"><span>' . self::esc( $english ? 'or' : 'ou' ) . '</span></div>' . $google : '' )
 			. '<p class="lps-field-hint">' . self::esc(
 				$english
-					? 'The password is verified by WordPress itself, and it is never stored by this site.'
-					: 'A senha é verificada pelo próprio WordPress e nunca é armazenada por este site.'
+					? "Use a trusted browser: the session grants access to the laboratory's content editing."
+					: 'Use sempre um navegador confiável: a sessão dá acesso à edição de conteúdo do laboratório.'
 			) . '</p>'
-			. '</form>'
-			. '</section>';
+			. '</form>';
 	}
 
 	/**
@@ -259,8 +267,9 @@ final class AuthSurfaces {
 			$links .= '<li><a href="' . self::esc( self::admin_url() ) . '">'
 				. self::esc( $english ? 'WordPress administration' : 'Administração do WordPress' ) . '</a></li>';
 		}
-		return '<section class="lps-signin lps-signin-state" aria-labelledby="lps-signin-state-title">'
-			. '<h2 id="lps-signin-state-title">' . self::esc( $english ? 'You are already signed in' : 'Você já está conectado' ) . '</h2>'
+		return '<div class="lps-page-grid"><section class="lps-section lps-section--flush" aria-labelledby="lps-signin-state-title">'
+			. '<div class="lps-signin-card lps-signin-state">'
+			. '<h2 class="lps-card-title" id="lps-signin-state-title">' . self::esc( $english ? 'You are already signed in' : 'Você já está conectado' ) . '</h2>'
 			. '<p class="lps-signin-identity">' . self::esc( $name )
 			. ( '' !== $role ? ' <span class="lps-meta">' . self::esc( $role ) . '</span>' : '' ) . '</p>'
 			. '<ul class="lps-link-list">' . $links . '</ul>'
@@ -271,7 +280,7 @@ final class AuthSurfaces {
 			) . '</p>'
 			. '<p><a class="lps-button lps-button-ghost" href="' . self::esc( $logout ) . '">'
 			. self::esc( $english ? 'Sign out' : 'Sair' ) . '</a></p>'
-			. '</section>';
+			. '</div></section></div>';
 	}
 
 	/**
@@ -283,35 +292,42 @@ final class AuthSurfaces {
 		$english = 'en' === $locale;
 		$rows    = $english
 			? array(
-				array( 'Professors', 'Publish the subjects you teach, the classes of each offering and the notes and material your students download — all of it on your own page.' ),
-				array( 'Editorial team', 'Publish news, events and opportunities inside the collections you are assigned to.' ),
-				array( 'Administrators', 'Administer the site, review submissions and manage accounts.' ),
+				array( 'Professors and researchers', 'Maintain their own page: the courses they teach, classes, lessons and notes. What is published appears on the professor\'s public page.' ),
+				array( 'Laboratory staff', 'Maintain news, projects, publications and the material archive.' ),
+				array( 'Site administrators', 'Review content, manage roles and take care of the site configuration.' ),
 			)
 			: array(
-				array( 'Professores', 'Publicam as disciplinas que lecionam, as aulas de cada oferta e as notas e materiais que os estudantes baixam — tudo na própria página.' ),
-				array( 'Equipe editorial', 'Publicam notícias, eventos e oportunidades nas coleções às quais estão designados.' ),
-				array( 'Administradores', 'Administram o site, revisam submissões e gerenciam contas.' ),
+				array( 'Professores e pesquisadores', 'Mantêm a própria página: disciplinas que lecionam, turmas, aulas e notas. O que é publicado aparece na página pública do professor.' ),
+				array( 'Equipe do laboratório', 'Mantêm notícias, projetos, publicações e o acervo de materiais.' ),
+				array( 'Administradores do site', 'Revisam o conteúdo, administram papéis e cuidam da configuração do site.' ),
 			);
 		$items   = '';
 		foreach ( $rows as $row ) {
-			$items .= '<li class="lps-signin-audience-item"><h3>' . self::esc( $row[0] ) . '</h3><p>' . self::esc( $row[1] ) . '</p></li>';
+			$items .= '<li><strong>' . self::esc( $row[0] ) . '</strong><p>' . self::esc( $row[1] ) . '</p></li>';
 		}
-		$secretariat = 'secretaria@lps.ufrj.br';
-		return '<section class="lps-signin-audience" aria-labelledby="lps-signin-audience-title">'
-			. '<h2 id="lps-signin-audience-title">' . self::esc( $english ? 'Who signs in here' : 'Quem entra por aqui' ) . '</h2>'
-			. '<ul class="lps-signin-audience-list">' . $items . '</ul>'
-			. '<div class="lps-signin-note"><h3>' . self::esc( $english ? 'Accounts and security' : 'Contas e segurança' ) . '</h3>'
-			. '<p>' . self::esc(
-				$english
-					? 'Accounts are issued by the laboratory secretariat and are individual — never shared.'
-					: 'As contas são abertas pela secretaria do laboratório e são individuais — nunca compartilhadas.'
-			) . ' <a class="lps-breakable" href="mailto:' . self::esc( $secretariat ) . '">' . self::esc( $secretariat ) . '</a></p>'
-			. '<p>' . self::esc(
-				$english
-					? 'Publishing roles require two-step verification: an account without it keeps its access but loses the privilege to publish.'
-					: 'Perfis com permissão de publicação exigem verificação em duas etapas: uma conta sem ela mantém o acesso, mas perde o privilégio de publicar.'
-			) . '</p>'
-			. '</div></section>';
+		$help       = $english
+			? array(
+				'The account is created by the laboratory office, with the institutional email address.',
+				'On first access, the second factor is enrolled in an authenticator app; without it the professor or administrator role is not granted.',
+				'Password recovery uses the link below, on the site\'s own domain.',
+				'Access problems are handled by secretaria@lps.ufrj.br; never share your password.',
+			)
+			: array(
+				'A conta é criada pela secretaria do laboratório, com o e-mail institucional.',
+				'No primeiro acesso, o segundo fator é cadastrado em um aplicativo autenticador; sem ele o papel de professor ou administrador não é concedido.',
+				'A recuperação de senha é feita pelo link abaixo, no domínio do próprio site.',
+				'Problemas de acesso são tratados por secretaria@lps.ufrj.br; nunca compartilhe a senha.',
+			);
+		$help_items = '';
+		foreach ( $help as $step ) {
+			$help_items .= '<li>' . self::esc( $step ) . '</li>';
+		}
+		return '<div class="lps-signin-side">'
+			. '<h2 class="lps-kicker">' . self::esc( $english ? 'Who signs in here' : 'Quem entra por aqui' ) . '</h2>'
+			. '<ul class="lps-signin-audience">' . $items . '</ul>'
+			. '<h2 class="lps-kicker lps-mt-8">' . self::esc( $english ? 'First access and help' : 'Primeiro acesso e ajuda' ) . '</h2>'
+			. '<ol class="lps-signin-help">' . $help_items . '</ol>'
+			. '</div>';
 	}
 
 	/**

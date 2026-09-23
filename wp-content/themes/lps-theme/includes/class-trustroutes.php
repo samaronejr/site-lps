@@ -384,6 +384,9 @@ final class TrustRoutes {
 			'status'               => $meta( '_lps_event_status' ),
 			'venue'                => $meta( '_lps_venue' ),
 			'date'                 => $meta( '_lps_canonical_date' ),
+			'date_label'           => $meta( '_lps_date_label' ),
+			'category'             => $meta( '_lps_news_category' ),
+			'source_label'         => $meta( '_lps_source_label' ),
 			'stale'                => self::is_stale_translation( $post ),
 		);
 	}

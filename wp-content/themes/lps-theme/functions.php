@@ -151,6 +151,7 @@ add_filter( 'render_block', array( Shell::class, 'make_tables_scrollable_by_keyb
 
 add_filter( 'get_the_archive_title', array( Shell::class, 'localize_archive_title' ) );
 add_filter( 'render_block', array( Shell::class, 'localize_search_results' ), 10, 2 );
+add_filter( 'render_block', array( Shell::class, 'institutional_page_title' ), 10, 2 );
 
 add_filter(
 	'language_attributes',

@@ -104,7 +104,7 @@
       "sources": [
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
-          "sha256": "11a6081abb473e476ba1e284d0d40edd72422e415245efd09bbe84d5755d301a"
+          "sha256": "07121dbeb15d527b4d8ff69695b3f6a7510ca9713cf9f929e4077ff238109fc4"
         }
       ]
     },
@@ -125,12 +125,12 @@
       "id": "translation-en-editorial-fields",
       "kind": "translation",
       "doc": "docs/handbook/translation-freshness.md",
-      "reviewedAt": "2026-09-18",
+      "reviewedAt": "2026-09-22",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-translationpolicy.php",
-          "sha256": "283bada5916d398527ab344cfe5d08c45b0f6afefb8b7b74079de4506a44663a"
+          "sha256": "cdab35523c4f7dd69ed876af2b74d828111249e3077c633d083bf0e84d44675d"
         }
       ]
     },
