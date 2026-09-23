@@ -50,8 +50,9 @@ final class TeachingSurfaces {
 		$english = 'en' === $locale;
 		$html    = '<section class="lps-teaching lps-teaching-landing" lang="' . self::esc( self::bcp47( $locale ) ) . '">';
 		$html   .= '<div class="lps-page-header"><div class="lps-page-header-inner lps-page-grid">';
-		$html   .= '<h1>' . self::esc( $english ? 'Teaching' : 'Ensino' ) . '</h1>';
-		$html   .= '<p class="lps-lead">' . self::esc( $english ? 'Published courses, sections and teaching materials.' : 'Disciplinas, turmas e materiais de ensino publicados.' ) . '</p>';
+		$html   .= '<p class="lps-kicker">' . self::esc( $english ? 'Teaching' : 'Ensino' ) . '</p>';
+		$html   .= '<h1 class="lps-page-title">' . self::esc( $english ? 'Courses and materials' : 'Disciplinas e materiais' ) . '</h1>';
+		$html   .= '<p class="lps-lead">' . self::esc( $english ? 'Courses taught by laboratory professors in the Electrical Engineering Program at COPPE and at the Polytechnic School of UFRJ, from instrumentation to deep learning and quantum machine learning.' : 'Disciplinas ministradas pelos professores do laboratório no Programa de Engenharia Elétrica da COPPE e na Escola Politécnica da UFRJ, da instrumentação ao aprendizado profundo e ao aprendizado de máquina quântico.' ) . '</p>';
 		$html   .= '</div></div>';
 		if ( array() === $courses ) {
 			$html .= '<p class="lps-empty">' . self::esc( $english ? 'No courses are published yet.' : 'Nenhuma disciplina publicada ainda.' ) . '</p>';
@@ -59,28 +60,7 @@ final class TeachingSurfaces {
 		}
 
 		$groups = self::course_groups( $courses, $locale );
-		if ( 1 < count( $groups ) ) {
-			$html .= '<section class="lps-section lps-section--flush" aria-labelledby="teaching-journeys">';
-			$html .= '<div class="lps-section-head"><div>'
-				. '<p class="lps-kicker">' . self::esc( $english ? 'Education' : 'Formação' ) . '</p>'
-				. '<h2 id="teaching-journeys">' . self::esc( $english ? 'Choose your path' : 'Escolha o seu percurso' ) . '</h2>'
-				. '</div></div>';
-			$html .= '<ul class="lps-home-journeys">';
-			foreach ( $groups as $group ) {
-				$html .= '<li class="lps-journey">';
-				if ( '' !== $group['kicker'] ) {
-					$html .= '<span class="lps-journey-label">' . self::esc( $group['kicker'] ) . '</span>';
-				}
-				$html .= '<h3>' . self::esc( $group['journey'] ) . '</h3>';
-				$count = count( $group['courses'] );
-				$html .= '<p>' . self::esc( sprintf( $english ? ( 1 === $count ? '%d course' : '%d courses' ) : ( 1 === $count ? '%d disciplina' : '%d disciplinas' ), $count ) ) . '</p>';
-				$html .= '<a class="lps-more" href="#' . self::esc( $group['anchor'] ) . '">' . self::esc( $english ? 'View courses' : 'Ver disciplinas' ) . '</a>';
-				$html .= '</li>';
-			}
-			$html .= '</ul></section>';
-		}
-
-		$first = 1 >= count( $groups );
+		$first  = true;
 		foreach ( $groups as $group ) {
 			$html .= '<section class="lps-section' . ( $first ? ' lps-section--flush' : '' ) . '" id="' . self::esc( $group['anchor'] ) . '" aria-labelledby="' . self::esc( $group['heading_id'] ) . '">';
 			$first = false;
@@ -88,8 +68,12 @@ final class TeachingSurfaces {
 			if ( '' !== $group['kicker'] ) {
 				$html .= '<p class="lps-kicker">' . self::esc( $group['kicker'] ) . '</p>';
 			}
-			$html   .= '<h2 id="' . self::esc( $group['heading_id'] ) . '">' . self::esc( $group['heading'] ) . '</h2>';
-			$html   .= '</div></div>';
+			$html .= '<h2 id="' . self::esc( $group['heading_id'] ) . '">' . self::esc( $group['heading'] ) . '</h2>';
+			$html .= '</div>';
+			if ( 'pos-graduacao' === $group['anchor'] ) {
+				$html .= '<div><p class="lps-mt-4"><a class="lps-more" href="https://www.pee.ufrj.br/" rel="external">PEE/COPPE →</a></p></div>';
+			}
+			$html   .= '</div>';
 			$html   .= '<div class="lps-table-scroll"><table>';
 			$html   .= '<caption>' . self::esc( $group['caption'] ) . '</caption>';
 			$html   .= '<thead><tr>'
@@ -114,19 +98,10 @@ final class TeachingSurfaces {
 					$missing = true;
 					$html   .= '<td>—</td>';
 				}
-				$html   .= '<th scope="row">';
-				$url     = self::safe_url( self::text( $course['url'] ?? '' ) );
-				$html   .= '' === $url ? self::esc( $title ) : '<a href="' . self::esc( $url ) . '">' . self::esc( $title ) . '</a>';
-				$html   .= self::translation_chip( $course, $locale );
-				$summary = self::text( $course['summary'] ?? '' );
-				if ( '' !== $summary ) {
-					$html .= '<p class="lps-summary">' . self::esc( $summary ) . '</p>';
-				}
-				$current     = self::record( $course['current_offering'] ?? null );
-				$current_url = self::safe_url( self::text( $current['url'] ?? '' ) );
-				if ( '' !== $current_url ) {
-					$html .= '<p class="lps-mt-4"><a class="lps-more" href="' . self::esc( $current_url ) . '">' . self::esc( $english ? 'Current section' : 'Turma em andamento' ) . '</a></p>';
-				}
+				$html .= '<th scope="row">';
+				$url   = self::safe_url( self::text( $course['url'] ?? '' ) );
+				$html .= '' === $url ? self::esc( $title ) : '<a href="' . self::esc( $url ) . '">' . self::esc( $title ) . '</a>';
+				$html .= self::translation_chip( $course, $locale );
 				$html .= '</th>';
 				$team  = self::teaching_team_names( $course, $locale );
 				$html .= '<td>' . ( array() !== $team ? implode( ' · ', $team ) : '—' ) . '</td>';
@@ -139,38 +114,36 @@ final class TeachingSurfaces {
 			}
 			$html .= '</section>';
 		}
-		$course_path = TeachingRoutes::course_path( $locale, 'cpe886-quantum-machine-learning' );
+		$course_path = TeachingRoutes::course_path( $locale, $english ? 'cpe886-quantum-machine-learning-en' : 'cpe886-quantum-machine-learning' );
 		$materials   = TrustSurfaces::record_card(
 			array(
-				'title'     => $english ? 'CPE-886 Quantum Machine Learning' : 'CPE-886 Quantum Machine Learning',
-				'body'      => $english
-					? 'Official material for the graduate course, in the laboratory\'s documentation portal.'
-					: 'Material oficial da disciplina de pós-graduação, no portal de documentação do laboratório.',
-				'foot_html' => '<ul class="lps-source-list"><li><a class="lps-meta" href="https://qml.lps.ufrj.br/" rel="external">' . self::esc( $english ? 'QML documentation' : 'Documentação QML' ) . '</a></li>'
-					. ( '' !== $course_path ? '<li><a class="lps-meta" href="' . self::esc( $course_path ) . '">' . self::esc( $english ? 'Course page' : 'Página da disciplina' ) . '</a></li>' : '' )
-					. '</ul>',
+				'title'  => $english ? 'Course pages' : 'Páginas das disciplinas',
+				'body'   => $english
+					? 'Syllabi, problem sets and supporting material for the laboratory\'s documented courses are published on this domain, organized into per-offering units.'
+					: 'Planos de aula, ementas, listas e material de apoio das disciplinas documentadas do laboratório são publicados neste domínio, organizados em unidades por oferta.',
+				'action' => array(
+					'href'  => $course_path,
+					'label' => $english ? 'Example: CPE-886' : 'Exemplo: CPE-886',
+				),
 			)
 		);
 		$materials  .= TrustSurfaces::record_card(
 			array(
-				'title' => $english ? 'Courses on each professor\'s page' : 'Disciplinas na página de cada professor',
+				'title' => $english ? 'Continuing education' : 'Formação continuada',
 				'body'  => $english
-					? 'Teaching material distributed across the professors\' own pages — courses, tests, and exercises for each offering, announced in the news feed.'
-					: 'Material didático distribuído nas páginas próprias dos professores — disciplinas, provas e exercícios de cada turma, anunciados na seção de notícias.',
-				'meta'  => $english ? 'News archive' : 'Arquivo de notícias',
+					? 'The laboratory works from junior research initiation with secondary and technical students, through undergraduate teaching at Poli/UFRJ, to post-doctoral supervision.'
+					: 'A atuação do laboratório abrange a iniciação científica júnior com estudantes do ensino médio e técnico, a graduação na Poli/UFRJ e o pós-doutorado.',
 			)
 		);
-		$html       .= TrustSurfaces::editorial_section(
-			'material',
-			$english ? 'Material' : 'Material',
-			$english ? 'Where the course material lives' : 'Onde está o material didático',
-			'<div class="lps-grid lps-grid--2">' . $materials . '</div>'
-		);
+		$html       .= '<section class="lps-section" id="materiais" aria-labelledby="teaching-materials"><div class="lps-section-head"><div>'
+			. '<p class="lps-kicker">' . self::esc( $english ? 'Materials' : 'Materiais' ) . '</p>'
+			. '<h2 id="teaching-materials">' . self::esc( $english ? 'Course material and support' : 'Material didático e apoio' ) . '</h2>'
+			. '</div></div><div class="lps-grid lps-grid--2">' . $materials . '</div></section>';
 		$html       .= '<section class="lps-section">' . TrustSurfaces::cta_band(
-			$english ? 'Study at LPS' : 'Estudar no LPS',
+			$english ? 'Studying at LPS' : 'Estudar no LPS',
 			$english
-				? 'The laboratory hosts undergraduate, master\'s and doctoral research at UFRJ. Students join through the Electrical Engineering Program at COPPE or through research initiation openings.'
-				: 'O laboratório recebe pesquisas de graduação, mestrado e doutorado na UFRJ. O ingresso se dá pelo Programa de Engenharia Elétrica da COPPE ou por vagas de iniciação científica.',
+				? 'Admission to master and doctoral studies runs through the selection process of the Electrical Engineering Program at COPPE/UFRJ.'
+				: 'O ingresso em mestrado e doutorado se dá pelo processo seletivo do Programa de Engenharia Elétrica da COPPE/UFRJ.',
 			array(
 				array(
 					'href'  => TrustRoutes::archive_path( 'lps_opportunity', $locale ),
@@ -178,7 +151,7 @@ final class TeachingSurfaces {
 				),
 				array(
 					'href'  => 'https://www.pee.ufrj.br/',
-					'label' => $english ? 'EE Program at COPPE' : 'Programa de Engenharia Elétrica',
+					'label' => 'PEE/COPPE',
 				),
 			)
 		) . '</section>';
@@ -213,13 +186,22 @@ final class TeachingSurfaces {
 		if ( '' !== $kicker ) {
 			$html .= '<p class="lps-kicker">' . $kicker . '</p>';
 		}
-		$html   .= '<h1>' . self::esc( self::text( $course['title'] ?? '' ) ) . '</h1>';
+		$html   .= '<h1 class="lps-page-title">' . self::esc( self::text( $course['title'] ?? '' ) ) . '</h1>';
 		$html   .= self::translation_notice( $course, $locale );
 		$summary = self::text( $course['summary'] ?? '' );
 		if ( '' !== $summary ) {
 			$html .= '<p class="lps-lead">' . self::esc( $summary ) . '</p>';
 		}
 		$html .= '</div></div>';
+
+		$current_offering = array();
+		foreach ( $offerings as $candidate ) {
+			$candidate = self::record( $candidate );
+			if ( 'current' === self::text( $candidate['temporal_status'] ?? '' ) ) {
+				$current_offering = $candidate;
+				break;
+			}
+		}
 
 		$facts         = '';
 		$professors    = self::teaching_team_names( $course, $locale );
@@ -230,6 +212,32 @@ final class TeachingSurfaces {
 		$program = self::text( $course['program'] ?? '' );
 		if ( '' !== $program ) {
 			$facts .= '<dt>' . self::esc( $english ? 'Program' : 'Programa' ) . '</dt><dd>' . self::esc( $program ) . '</dd>';
+		}
+		if ( array() !== $current_offering ) {
+			$term    = self::record( $current_offering['term'] ?? null );
+			$token   = self::text( $term['token'] ?? '' );
+			$section = self::text( $current_offering['section_key'] ?? '' );
+			$oferta  = trim( $token . ' · ' . $section, ' ·' );
+			if ( '' !== $oferta ) {
+				$facts .= '<dt>' . self::esc( $english ? 'Offering' : 'Oferta' ) . '</dt><dd>' . self::esc( $oferta ) . ' · <em>' . self::esc( self::temporal_label( 'current', $locale ) ) . '</em></dd>';
+			}
+			$label  = self::text( $term['period_label'] ?? '' );
+			$starts = self::text( $term['starts_on'] ?? '' );
+			$ends   = self::text( $term['ends_on'] ?? '' );
+			$period = '';
+			if ( '' !== $starts && '' !== $ends ) {
+				$to     = $english ? ' to ' : ' a ';
+				$period = '<time datetime="' . self::esc( $starts ) . '">' . self::esc( self::format_date( $starts, $locale ) ) . '</time>'
+					. $to . '<time datetime="' . self::esc( $ends ) . '">' . self::esc( self::format_date( $ends, $locale ) ) . '</time>';
+			}
+			$period = implode( ' · ', array_filter( array( self::esc( $label ), $period ), static fn( string $part ): bool => '' !== $part ) );
+			if ( '' !== $period ) {
+				$facts .= '<dt>' . self::esc( $english ? 'Period' : 'Período' ) . '</dt><dd>' . $period . '</dd>';
+			}
+			$venue = self::text( $current_offering['venue'] ?? '' );
+			if ( '' !== $venue ) {
+				$facts .= '<dt>' . self::esc( $english ? 'Venue' : 'Local' ) . '</dt><dd>' . self::esc( $venue ) . '</dd>';
+			}
 		}
 		$body = self::body( self::text( $course['body'] ?? '' ), ' lps-mt-8' );
 		if ( '' !== $facts || '' !== $body || '' !== $prerequisites ) {
@@ -257,6 +265,56 @@ final class TeachingSurfaces {
 				. '</div></div>';
 			$html .= self::syllabus_list( $syllabus );
 			$html .= '</section>';
+		}
+
+		if ( array() !== $current_offering ) {
+			$units             = self::record( $current_offering['units'] ?? null );
+			$materials         = self::record( $current_offering['materials'] ?? null );
+			$materials_by_unit = array();
+			$ungrouped         = array();
+			foreach ( $materials as $material ) {
+				$material = self::record( $material );
+				$anchor   = self::text( $material['unit_anchor'] ?? '' );
+				if ( '' !== $anchor ) {
+					$materials_by_unit[ $anchor ][] = $material;
+				} else {
+					$ungrouped[] = $material;
+				}
+			}
+			if ( array() !== $units ) {
+				$html .= '<section class="lps-section" aria-labelledby="course-units">';
+				$html .= '<div class="lps-section-head"><div>'
+					. '<p class="lps-kicker">' . self::esc( $english ? 'Units' : 'Unidades' ) . '</p>'
+					. '<h2 id="course-units">' . self::esc( $english ? 'Units and materials' : 'Unidades e materiais' ) . '</h2>'
+					. '</div></div>';
+				$html .= '<ol class="lps-course-units">';
+				$index = 0;
+				foreach ( $units as $unit ) {
+					$unit   = self::record( $unit );
+					$anchor = self::text( $unit['anchor'] ?? '' );
+					$title  = self::text( $unit['title'] ?? '' );
+					if ( '' === $title ) {
+						continue;
+					}
+					++$index;
+					$html .= '<li' . ( '' !== $anchor ? ' id="' . self::esc( $anchor ) . '"' : '' ) . '><h3>' . self::esc( $index . '. ' . $title ) . '</h3>';
+					$html .= self::body( self::text( $unit['body'] ?? '' ) );
+					$html .= self::materials_list( $materials_by_unit[ $anchor ] ?? array(), $locale );
+					$html .= '</li>';
+				}
+				$html .= '</ol></section>';
+			}
+			if ( array() !== $ungrouped ) {
+				$html .= '<section class="lps-section" aria-labelledby="course-materials">';
+				$html .= '<div class="lps-section-head"><div>'
+					. '<p class="lps-kicker">' . self::esc( $english ? 'Materials' : 'Materiais' ) . '</p>'
+					. '<h2 id="course-materials">' . self::esc( $english ? 'Course materials' : 'Materiais da disciplina' ) . '</h2>'
+					. '</div></div>';
+				$html .= self::materials_list( $ungrouped, $locale );
+				$html .= '</section>';
+			}
+		} else {
+			$html .= '<div class="lps-alert lps-alert-info"><p>' . self::esc( $english ? 'There is no active offering registered for this course; the material is kept for reference.' : 'Não há oferta ativa registrada para esta disciplina; o material é mantido para consulta.' ) . '</p></div>';
 		}
 
 		$current  = array();
@@ -684,7 +742,7 @@ final class TeachingSurfaces {
 	 * @param string $syllabus Stored syllabus text.
 	 */
 	private static function syllabus_list( string $syllabus ): string {
-		$lines = preg_split( '/\r\n|\r|\n/', $syllabus );
+		$lines = preg_split( '/\r\n|\r|\n|;/', $syllabus );
 		if ( ! is_array( $lines ) ) {
 			$lines = array();
 		}
@@ -710,15 +768,17 @@ final class TeachingSurfaces {
 	 */
 	private static function course_groups( array $courses, string $locale ): array {
 		$english = 'en' === $locale;
-		$keys    = array( 'graduate', 'undergraduate', 'extension', 'other' );
+		$keys    = array( 'graduate', 'undergraduate', 'other' );
 		$buckets = array();
 		foreach ( $keys as $key ) {
 			$buckets[ $key ] = array();
 		}
 		foreach ( $courses as $course ) {
-			$course            = self::record( $course );
-			$level             = self::text( $course['level'] ?? '' );
-			$key               = in_array( $level, array( 'graduate', 'undergraduate', 'extension' ), true ) ? $level : 'other';
+			$course = self::record( $course );
+			$level  = self::text( $course['level'] ?? '' );
+			// Extension courses list under the graduate band, matching the
+			// showcase's two-tier teaching composition.
+			$key               = 'extension' === $level ? 'graduate' : ( in_array( $level, array( 'graduate', 'undergraduate' ), true ) ? $level : 'other' );
 			$buckets[ $key ][] = $course;
 		}
 		$labels = array(
@@ -758,7 +818,7 @@ final class TeachingSurfaces {
 			}
 			$programs = array();
 			foreach ( $rows as $row ) {
-				$program = self::text( $row['program'] ?? '' );
+				$program = self::program_short_label( self::text( $row['program'] ?? '' ) );
 				if ( '' !== $program ) {
 					$programs[ $program ] = true;
 				}
@@ -769,6 +829,26 @@ final class TeachingSurfaces {
 			);
 		}
 		return $groups;
+	}
+
+	/**
+	 * Returns the compact brand label for a stored program name — the landing
+	 * kickers read 'COPPE · PEE' and 'Poli/UFRJ', not the full unit titles.
+	 * Unrecognized programs render verbatim.
+	 *
+	 * @param string $program Stored program name.
+	 */
+	private static function program_short_label( string $program ): string {
+		if ( '' === $program ) {
+			return '';
+		}
+		if ( false !== stripos( $program, 'engenharia elétrica' ) || false !== stripos( $program, 'electrical engineering' ) ) {
+			return 'COPPE · PEE';
+		}
+		if ( false !== stripos( $program, 'poli' ) || false !== stripos( $program, 'eletrônica' ) || false !== stripos( $program, 'electronic' ) ) {
+			return 'Poli/UFRJ';
+		}
+		return $program;
 	}
 
 	/**

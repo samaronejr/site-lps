@@ -23,9 +23,11 @@ final class SearchSurfaces {
 	 */
 	private const COPY = array(
 		'pt-br' => array(
+			'kicker'         => 'Busca',
 			'legend'         => 'Buscar no site',
-			'label'          => 'Termo de busca',
-			'hint'           => 'Use de 2 a 100 caracteres.',
+			'label'          => 'O que você procura?',
+			'hint'           => 'Tente uma linha de pesquisa, um nome de professor, um código de disciplina ou um parceiro.',
+			'header_lead'    => 'A busca roda no servidor e funciona sem JavaScript. Os filtros restringem o resultado por coleção, área e ano.',
 			'record'         => 'Tipo de registro',
 			'all'            => 'Todos os tipos',
 			'submit'         => 'Buscar',
@@ -53,9 +55,11 @@ final class SearchSurfaces {
 			'current_search' => 'Busca atual',
 		),
 		'en'    => array(
-			'legend'         => 'Search this site',
-			'label'          => 'Search term',
-			'hint'           => 'Use between 2 and 100 characters.',
+			'kicker'         => 'Search',
+			'legend'         => 'Search the site',
+			'label'          => 'What are you looking for?',
+			'hint'           => 'Try a research line, a professor\'s name, a course code or a partner.',
+			'header_lead'    => 'Search runs on the server and works without JavaScript. Filters narrow results by collection, area and year.',
 			'record'         => 'Record type',
 			'all'            => 'All types',
 			'submit'         => 'Search',
@@ -253,26 +257,34 @@ final class SearchSurfaces {
 		$error  = self::text( $state['error'] ?? '' );
 		$total  = self::number( $result['total'] ?? 0 );
 
-		$html  = '<section class="lps-search lps-search-surface" aria-labelledby="lps-search-title">';
-		$html .= '<h2 id="lps-search-title">' . self::esc( self::copy( 'legend', $locale ) ) . '</h2>';
-		$html .= self::form( $query, $record, $facets, $facet_counts, $definitions, $locale, $action );
+		$header = class_exists( Shell::class )
+			? Shell::page_header_markup(
+				array(
+					'kicker' => self::copy( 'kicker', $locale ),
+					'title'  => self::copy( 'legend', $locale ),
+					'lead'   => self::copy( 'header_lead', $locale ),
+				),
+				$locale
+			)
+			: '';
+
+		$inner  = self::form( $query, $record, $facets, $facet_counts, $definitions, $locale, $action );
+		$inner .= '<a class="lps-button lps-button-primary" href="' . ( 'en' === $locale ? '/en/contact/' : '/pt-br/contato/' ) . '">' . self::esc( 'en' === $locale ? 'Collaborate' : 'Colabore' ) . '</a>';
 		if ( '' !== $error ) {
-			$html .= '<p class="lps-search-error" id="lps-search-status" role="alert">' . self::esc( self::error_message( $error, $locale ) ) . '</p>';
-			return $html . '</section>';
+			$inner .= '<p class="lps-search-error" id="lps-search-status" role="alert">' . self::esc( self::error_message( $error, $locale ) ) . '</p>';
+		} elseif ( '' === trim( $query ) ) {
+			$inner .= '<p class="lps-search-prompt" id="lps-search-status" role="status">' . self::esc( self::copy( 'prompt', $locale ) ) . '</p>';
+		} else {
+			$inner .= '<p class="lps-search-count" id="lps-search-status" role="status">' . self::esc( self::count_label( $total, $locale ) ) . '</p>';
+			if ( 0 === $total ) {
+				$inner .= '<p class="lps-search-empty">' . self::esc( self::copy( 'empty', $locale ) ) . '</p>';
+				$inner .= '<p class="lps-search-empty-hint">' . self::esc( self::copy( 'empty_hint', $locale ) ) . '</p>';
+			} else {
+				$inner .= self::results( $result, $locale );
+				$inner .= self::pagination( $result, $state, $locale, $action );
+			}
 		}
-		if ( '' === trim( $query ) ) {
-			$html .= '<p class="lps-search-prompt" id="lps-search-status" role="status">' . self::esc( self::copy( 'prompt', $locale ) ) . '</p>';
-			return $html . '</section>';
-		}
-		$html .= '<p class="lps-search-count" id="lps-search-status" role="status">' . self::esc( self::count_label( $total, $locale ) ) . '</p>';
-		if ( 0 === $total ) {
-			$html .= '<p class="lps-search-empty">' . self::esc( self::copy( 'empty', $locale ) ) . '</p>';
-			$html .= '<p class="lps-search-empty-hint">' . self::esc( self::copy( 'empty_hint', $locale ) ) . '</p>';
-			return $html . '</section>';
-		}
-		$html .= self::results( $result, $locale );
-		$html .= self::pagination( $result, $state, $locale, $action );
-		return $html . '</section>';
+		return $header . '<section class="lps-search lps-search-surface lps-section lps-section--flush" aria-labelledby="lps-search-title"><h2 id="lps-search-title" class="screen-reader-text">' . self::esc( self::copy( 'legend', $locale ) ) . '</h2>' . $inner . '</section>';
 	}
 
 	/**
@@ -302,7 +314,7 @@ final class SearchSurfaces {
 		}
 		$html .= '</select></p>';
 		if ( array() !== $definitions ) {
-			$html .= '<fieldset class="lps-search-facets"><legend>' . self::esc( self::copy( 'filters', $locale ) ) . '</legend>';
+			$html .= '<fieldset class="lps-search-facets"><legend>' . self::esc( self::copy( 'filters', $locale ) ) . '</legend><div class="lps-grid lps-grid--3">';
 			foreach ( $definitions as $facet => $allowed ) {
 				$values = $facet_counts[ $facet ] ?? array();
 				if ( array() === $values ) {
@@ -319,7 +331,7 @@ final class SearchSurfaces {
 				}
 				$html .= '</ul></fieldset>';
 			}
-			$html .= '</fieldset>';
+			$html .= '</div></fieldset>';
 		}
 		return $html . '</form>';
 	}

@@ -82,12 +82,12 @@ final class TranslationPolicy {
 	public static function shared_meta_keys( string $post_type ): array {
 		$common  = array( '_lps_owner_user_id', '_lps_review_date' );
 		$by_type = array(
-			'lps_person'        => array( '_lps_canonical_name', '_lps_sort_name', '_lps_person_status', '_lps_roles', '_lps_affiliations', '_lps_start_date', '_lps_end_date', '_lps_public_email', '_lps_orcid', '_lps_lattes_url', '_lps_scholar_url', '_lps_website_url', '_lps_credentials', '_lps_photo_rights', '_lps_privacy_reviewed' ),
+			'lps_person'        => array( '_lps_canonical_name', '_lps_sort_name', '_lps_person_status', '_lps_roles', '_lps_affiliations', '_lps_start_date', '_lps_end_date', '_lps_public_email', '_lps_orcid', '_lps_lattes_url', '_lps_scholar_url', '_lps_website_url', '_lps_github_url', '_lps_linkedin_url', '_lps_credentials', '_lps_photo_rights', '_lps_privacy_reviewed' ),
 			'lps_organization'  => array( '_lps_organization_name', '_lps_acronym', '_lps_organization_kind', '_lps_country_code', '_lps_canonical_url', '_lps_ror_id', '_lps_logo_asset_id', '_lps_public_profile' ),
 			'lps_research_area' => array( '_lps_stable_key', '_lps_sort_order' ),
-			'lps_project'       => array( '_lps_record_id', '_lps_project_status', '_lps_start_date', '_lps_end_date', '_lps_grant_ids', '_lps_asset_ids', '_lps_links' ),
+			'lps_project'       => array( '_lps_record_id', '_lps_project_status', '_lps_start_date', '_lps_end_date', '_lps_grant_ids', '_lps_asset_ids', '_lps_links', '_lps_source_label' ),
 			'lps_publication'   => array( '_lps_authoritative_title', '_lps_publication_type', '_lps_publication_status', '_lps_language', '_lps_publication_date', '_lps_date_precision', '_lps_doi', '_lps_isbn', '_lps_issn', '_lps_arxiv_id', '_lps_venue', '_lps_citation', '_lps_license', '_lps_canonical_url', '_lps_open_access_url', '_lps_pdf_url', '_lps_code_url', '_lps_data_url' ),
-			'lps_news'          => array( '_lps_canonical_date', '_lps_news_status', '_lps_featured_until' ),
+			'lps_news'          => array( '_lps_canonical_date', '_lps_date_label', '_lps_news_category', '_lps_source_label', '_lps_news_status', '_lps_featured_until' ),
 			'lps_opportunity'   => array( '_lps_opportunity_type', '_lps_audiences', '_lps_opens_at', '_lps_closes_at', '_lps_positions', '_lps_project_ids', '_lps_supervisor_ids', '_lps_funder_ids', '_lps_mode' ),
 			'lps_event'         => array( '_lps_starts_at', '_lps_ends_at', '_lps_event_status', '_lps_online_url', '_lps_registration_url', '_lps_recording_url' ),
 		);

@@ -159,8 +159,9 @@ final class Hardening {
 	 */
 	public static function headers( bool $admin, bool $tls, string $nonce ): array {
 		// The block editor mounts its canvas in a blob: iframe, so admin frames
-		// need the scheme allowance on top of same-origin documents.
-		$frames      = $admin ? "'self' blob:" : "'none'";
+		// need the scheme allowance on top of same-origin documents. Public
+		// pages embed only the About map, so frames stay pinned to Google Maps.
+		$frames      = $admin ? "'self' blob:" : 'https://maps.google.com https://www.google.com';
 		$script_src  = $admin
 			? "'self' 'unsafe-inline'"
 			: "'self' 'nonce-$nonce'";

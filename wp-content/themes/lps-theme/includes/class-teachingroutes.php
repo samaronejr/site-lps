@@ -382,7 +382,7 @@ final class TeachingRoutes {
 			$object = get_queried_object();
 			if ( $object instanceof WP_Post && 'lps_course' === $object->post_type ) {
 				$locale = self::locale_for_post( $object );
-				return TeachingSurfaces::course( self::course_record( $object, $locale ), self::course_offerings( $object, $locale ), $locale );
+				return TeachingSurfaces::course( self::course_record( $object, $locale ), self::course_offerings( $object, $locale, true ), $locale );
 			}
 			if ( $object instanceof WP_Post && 'lps_offering' === $object->post_type ) {
 				$locale = self::locale_for_post( $object );
@@ -401,7 +401,7 @@ final class TeachingRoutes {
 		if ( 'course' === $route['view'] ) {
 			$course = get_queried_object();
 			return $course instanceof WP_Post
-				? TeachingSurfaces::course( self::course_record( $course, $locale ), self::course_offerings( $course, $locale ), $locale )
+				? TeachingSurfaces::course( self::course_record( $course, $locale ), self::course_offerings( $course, $locale, true ), $locale )
 				: '';
 		}
 		$offering = get_queried_object();
@@ -493,11 +493,12 @@ final class TeachingRoutes {
 	/**
 	 * Returns the published offerings of one course, newest term first.
 	 *
-	 * @param WP_Post $post   Course record.
-	 * @param string  $locale Supported locale slug.
+	 * @param WP_Post $post           Course record.
+	 * @param string  $locale         Supported locale slug.
+	 * @param bool    $with_materials Whether to include offering materials.
 	 * @return array<int, array<string, mixed>>
 	 */
-	private static function course_offerings( WP_Post $post, string $locale ): array {
+	private static function course_offerings( WP_Post $post, string $locale, bool $with_materials = false ): array {
 		if ( ! class_exists( TeachingRecords::class ) ) {
 			return array();
 		}
@@ -510,7 +511,7 @@ final class TeachingRoutes {
 			if ( ! $variant instanceof WP_Post || 'publish' !== $variant->post_status ) {
 				continue;
 			}
-			$offerings[] = self::offering_record( $variant, $locale );
+			$offerings[] = self::offering_record( $variant, $locale, $with_materials );
 		}
 		usort(
 			$offerings,

@@ -102,7 +102,14 @@ final class LpsRedesignTask20Test extends TestCase {
 			$csp     = $headers['Content-Security-Policy'];
 			self::assertStringNotContainsString( 'unsafe-eval', $csp );
 			self::assertStringNotContainsString( 'http://', $csp );
-			self::assertStringNotContainsString( 'https://', $csp );
+			// Script, style and content sources never admit external hosts; the
+			// only sanctioned externals are the map embed frames.
+			foreach ( explode( ';', $csp ) as $directive ) {
+				if ( 0 === strpos( trim( $directive ), 'frame-src' ) ) {
+					continue;
+				}
+				self::assertStringNotContainsString( 'https://', $directive );
+			}
 			self::assertStringContainsString( "object-src 'none'", $csp );
 			self::assertStringContainsString( "base-uri 'none'", $csp );
 			self::assertStringContainsString( "frame-ancestors 'none'", $csp );

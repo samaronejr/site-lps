@@ -53,8 +53,8 @@ final class PublicSurfacesTest extends \PHPUnit\Framework\TestCase {
 		);
 	}
 
-	/** A declared portrait that is not present renders the published fallback, never a broken image. */
-	public function test_portrait_missing_from_disk_renders_the_no_photo_fallback(): void {
+	/** A declared portrait that is not present renders no image block, never a broken image. */
+	public function test_portrait_missing_from_disk_renders_without_a_photo(): void {
 		$person = array(
 			'name'             => 'Pessoa de Teste',
 			'slug'             => 'pessoa-de-teste',
@@ -69,7 +69,8 @@ final class PublicSurfacesTest extends \PHPUnit\Framework\TestCase {
 		$html = PublicSurfaces::person_profile( 'pt-br', $person );
 
 		self::assertStringNotContainsString( '<img', $html );
-		self::assertStringContainsString( 'Foto não publicada', $html );
+		self::assertStringNotContainsString( 'lps-split', $html );
+		self::assertStringContainsString( 'Pessoa de Teste', $html );
 	}
 
 	/** A portrait that is present still renders as an image with its alt text. */
@@ -109,35 +110,25 @@ final class PublicSurfacesTest extends \PHPUnit\Framework\TestCase {
 		self::assertStringContainsString( '<h2>Parceiro Público</h2>', $listing );
 	}
 
-	/** The people filter submits through the token-driven button primitive. */
-	public function test_people_filter_submit_uses_the_token_button_primitive(): void {
-		// Given: the people listing rendered with its filter form.
-		$html = PublicSurfaces::people_listing( 'pt-br', $this->people(), array() );
+	/** The people listing epilogue uses the token-driven button primitive. */
+	public function test_people_epilogue_cta_uses_the_token_button_primitive(): void {
+		// Given: the people listing rendered with its epilogue bands.
+		$html = PublicSurfaces::people_listing( 'pt-br', $this->people() );
 
-		// Then: the submit control is the design-system button, not an unstyled native default.
-		self::assertStringContainsString( '<button class="lps-button lps-button-primary" type="submit">', $html );
+		// Then: the calls to action are the design-system buttons, not unstyled links.
+		self::assertStringContainsString( 'lps-button lps-button-primary', $html );
 	}
 
 	/**
-	 * Verifies that people facets preserve distinct cohorts and stable urls.
+	 * Verifies that people cards keep distinct cohorts and stable urls.
 	 */
-	public function test_people_facets_preserve_distinct_cohorts_and_stable_urls(): void {
-		$html = PublicSurfaces::people_listing(
-			'pt-br',
-			$this->people(),
-			array(
-				'role'   => array( 'student' ),
-				'status' => array( 'active' ),
-				'area'   => array( 'signal-processing' ),
-			)
-		);
+	public function test_people_cards_preserve_distinct_cohorts_and_stable_urls(): void {
+		$html = PublicSurfaces::people_listing( 'pt-br', $this->people() );
 
-		self::assertStringContainsString( 'name="role[]"', $html );
-		self::assertStringContainsString( 'name="status[]"', $html );
-		self::assertStringContainsString( 'name="area[]"', $html );
 		self::assertStringContainsString( '/pt-br/pessoas/ana-alvares/', $html );
+		self::assertStringContainsString( '/pt-br/pessoas/ana-alvares-2/', $html );
 		self::assertStringContainsString( 'Estudante', $html );
-		self::assertStringNotContainsString( 'ana-alvares-2', $html );
+		self::assertStringContainsString( 'Egresso', $html );
 	}
 
 	/**
@@ -153,7 +144,7 @@ final class PublicSurfacesTest extends \PHPUnit\Framework\TestCase {
 		self::assertStringNotContainsString( 'must-not-leak@example.org', $private );
 		self::assertStringNotContainsString( 'never@example.org', $private );
 		self::assertStringNotContainsString( 'untrusted.example', $private );
-		self::assertStringContainsString( 'Foto não publicada', $private );
+		self::assertStringNotContainsString( '<img', $private );
 		self::assertStringContainsString( 'Colaboração externa', $private );
 		self::assertStringContainsString( 'Egresso', $private );
 	}
@@ -309,11 +300,10 @@ final class PublicSurfacesTest extends \PHPUnit\Framework\TestCase {
 			),
 		);
 
-		$html  = PublicSurfaces::people_listing( 'pt-br', $cohorts, array() );
-		$items = substr( $html, (int) strpos( $html, '</form>' ) );
+		$html = PublicSurfaces::people_listing( 'pt-br', $cohorts );
 
-		foreach ( array( 'Estudante', 'Pesquisador', 'Professor', 'Equipe técnica', 'Colaboração externa', 'Egresso', 'In memoriam' ) as $label ) {
-			self::assertStringContainsString( $label, $items, 'Cohort label ' . $label . ' is listed, not only offered as a facet.' );
+		foreach ( array( 'Estudante', 'Pesquisador', 'Professor', 'Equipe técnica', 'Colaboração externa', 'Egresso', 'in memoriam' ) as $label ) {
+			self::assertStringContainsString( $label, $html, 'Cohort label ' . $label . ' is listed on its card.' );
 		}
 	}
 
@@ -361,7 +351,7 @@ final class PublicSurfacesTest extends \PHPUnit\Framework\TestCase {
 		);
 
 		self::assertSame( '', PublicSurfaces::person_profile( 'pt-br', $row ) );
-		self::assertStringNotContainsString( 'Pending Consent', PublicSurfaces::people_listing( 'pt-br', array( $row ), array() ) );
+		self::assertStringNotContainsString( 'Pending Consent', PublicSurfaces::people_listing( 'pt-br', array( $row ) ) );
 	}
 
 	/** A departed member keeps a published profile and its historical links. */
@@ -385,8 +375,7 @@ final class PublicSurfacesTest extends \PHPUnit\Framework\TestCase {
 
 		self::assertStringContainsString( 'Egresso', $html );
 		self::assertStringContainsString( '2023-12-31', $html );
-		self::assertStringContainsString( '/pt-br/projetos/atlas/', $html );
-		self::assertStringContainsString( 'Projeto Atlas', $html );
+		self::assertStringContainsString( 'Pessoa Egressa', $html );
 	}
 
 	/** Names that differ only by diacritics stay distinguishable. */
@@ -406,8 +395,7 @@ final class PublicSurfacesTest extends \PHPUnit\Framework\TestCase {
 					'roles'  => array( 'professor' ),
 					'status' => 'active',
 				),
-			),
-			array()
+			)
 		);
 
 		self::assertStringContainsString( '/pt-br/pessoas/ana-alvares/', $html );

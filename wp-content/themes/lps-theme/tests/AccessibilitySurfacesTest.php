@@ -21,27 +21,29 @@ require_once dirname( __DIR__ ) . '/includes/class-trustsurfaces.php';
 
 /** Verifies the Todo 23 accessibility repairs in the public rendering seams. */
 final class AccessibilitySurfacesTest extends \PHPUnit\Framework\TestCase {
-	/** Verifies that english shell marks portuguese institutional text with a language change. */
-	public function test_english_shell_marks_portuguese_institutional_text_with_a_language_change(): void {
-		// Given: the English shell, whose affiliation line stays in Portuguese.
+	/** Verifies that the english shell renders its own translated utility line. */
+	public function test_english_shell_renders_the_translated_utility_line(): void {
+		// Given: the English shell, whose affiliation line is fully translated.
 		// When: the header is rendered.
 		$header = Shell::header_markup( 'en', '/en/' );
 
-		// Then: every Portuguese fragment declares its own language.
-		self::assertStringContainsString( '<p lang="pt-BR">Laboratório de Processamento de Sinais', $header );
-		self::assertStringContainsString( '<p class="lps-meta" lang="pt-BR">Universidade Federal do Rio de Janeiro</p>', $header );
-		self::assertStringContainsString( '<p>Signal Processing Laboratory</p>', $header );
-		self::assertStringNotContainsString( '<p lang="pt-BR">Signal Processing Laboratory', $header );
+		// Then: the utility bar is English-only and the locale switch marks the pt link.
+		self::assertStringContainsString( '<p>Signal Processing Laboratory · UFRJ · COPPE</p>', $header );
+		self::assertStringContainsString( 'lang="pt-BR"', $header );
+		self::assertStringContainsString( 'hreflang="pt-BR"', $header );
+		self::assertStringNotContainsString( '<p lang="pt-BR">Laboratório', $header );
 	}
 
-	/** Verifies that portuguese shell keeps its own language undeclared twice. */
-	public function test_portuguese_shell_keeps_its_own_language_undeclared_twice(): void {
+	/** Verifies that the portuguese shell renders its own utility line unmarked. */
+	public function test_portuguese_shell_renders_its_own_utility_line(): void {
 		// Given: the Portuguese shell, where the document language already matches.
 		// When: the header is rendered.
 		$header = Shell::header_markup( 'pt-br', '/pt-br/' );
 
-		// Then: the wordmark subtitle is marked, and the document language covers the rest.
-		self::assertStringContainsString( '<p lang="pt-BR">Laboratório de Processamento de Sinais', $header );
+		// Then: the utility bar is Portuguese and the locale switch marks the en link.
+		self::assertStringContainsString( '<p>Laboratório de Processamento de Sinais · UFRJ · COPPE</p>', $header );
+		self::assertStringNotContainsString( '<p lang="pt-BR">', $header );
+		self::assertStringContainsString( 'lang="en"', $header );
 	}
 
 	/** Verifies that authored table becomes a named keyboard reachable region. */
@@ -85,33 +87,33 @@ final class AccessibilitySurfacesTest extends \PHPUnit\Framework\TestCase {
 		self::assertSame( '<p>Sem tabela</p>', $paragraph );
 	}
 
-	/** Verifies that people filter options are localized. */
-	public function test_people_filter_options_are_localized(): void {
+	/** Verifies that people cards render localized role labels. */
+	public function test_people_cards_render_localized_role_labels(): void {
 		// Given: the same people listing in both locales.
 		$people = array(
 			array(
 				'slug'   => 'pessoa-fixture',
 				'name'   => 'Pessoa Fixture',
-				'roles'  => array( 'researcher' ),
+				'roles'  => array( 'professor-titular' ),
 				'status' => 'active',
 				'areas'  => array( 'signal-processing' ),
 			),
 		);
 
-		// When: each locale renders its filter form.
-		$portuguese = PublicSurfaces::people_listing( 'pt-br', $people, array() );
-		$english    = PublicSurfaces::people_listing( 'en', $people, array() );
+		// When: each locale renders its listing.
+		$portuguese = PublicSurfaces::people_listing( 'pt-br', $people );
+		$english    = PublicSurfaces::people_listing( 'en', $people );
 
 		// Then: no interface label stays in the other language.
-		self::assertStringContainsString( '>Processamento de sinais</option>', $portuguese );
-		self::assertStringContainsString( '>Engenharia de software</option>', $portuguese );
-		self::assertStringNotContainsString( '>Signal processing</option>', $portuguese );
-		self::assertStringContainsString( '>Signal processing</option>', $english );
+		self::assertStringContainsString( 'Professor Titular', $portuguese );
+		self::assertStringNotContainsString( 'Full Professor', $portuguese );
+		self::assertStringContainsString( 'Full Professor', $english );
+		self::assertStringNotContainsString( 'Professor Titular', $english );
 	}
 
-	/** Verifies that people listing announces its result count. */
-	public function test_people_listing_announces_its_result_count(): void {
-		// Given: a filter that matches one person and a filter that matches none.
+	/** Verifies that the people listing renders the faculty grid and epilogue. */
+	public function test_people_listing_renders_the_faculty_grid_and_epilogue(): void {
+		// Given: a published person row.
 		$people = array(
 			array(
 				'slug'   => 'pessoa-fixture',
@@ -121,13 +123,17 @@ final class AccessibilitySurfacesTest extends \PHPUnit\Framework\TestCase {
 			),
 		);
 
-		// When: both listings render.
-		$matched = PublicSurfaces::people_listing( 'pt-br', $people, array( 'role' => array( 'researcher' ) ) );
-		$empty   = PublicSurfaces::people_listing( 'en', $people, array( 'role' => array( 'student' ) ) );
+		// When: both locales render the listing.
+		$portuguese = PublicSurfaces::people_listing( 'pt-br', $people );
+		$english    = PublicSurfaces::people_listing( 'en', $people );
 
-		// Then: each result is announced through a live status region.
-		self::assertStringContainsString( '<p class="lps-people-count" id="lps-people-status" role="status">1 pessoa listada</p>', $matched );
-		self::assertStringContainsString( 'role="status">No person matches this filter</p>', $empty );
+		// Then: each renders the faculty section, the card grid and the epilogue bands.
+		self::assertStringContainsString( '<h2 id="people-faculty">Professores</h2>', $portuguese );
+		self::assertStringContainsString( '<h2 id="people-faculty">Faculty</h2>', $english );
+		self::assertStringContainsString( 'lps-people-grid', $portuguese );
+		self::assertStringContainsString( 'id="pessoa-fixture"', $portuguese );
+		self::assertStringContainsString( 'aria-labelledby="people-team"', $portuguese );
+		self::assertStringContainsString( 'aria-labelledby="people-join"', $portuguese );
 	}
 
 	/** Verifies that listing filters are labelled in readable language. */
@@ -221,10 +227,12 @@ final class AccessibilitySurfacesTest extends \PHPUnit\Framework\TestCase {
 		// When: the institutional surface renders.
 		$html = \LPS\Theme\TrustSurfaces::render_institutional_page( $page, 'pt-br', new \DateTimeImmutable( '2026-09-06T12:00:00+00:00' ) );
 
-		// Then: it carries no second level-one heading and keeps an accessible name.
+		// Then: it carries no second level-one heading, keeps an accessible name
+		// and renders the barrier-reporting route through the fallback office mail.
 		self::assertStringNotContainsString( '<h1>', $html );
 		self::assertStringContainsString( 'aria-label="Acessibilidade"', $html );
-		self::assertStringContainsString( 'mailto:acessibilidade@lps.ufrj.br', $html );
+		self::assertStringContainsString( 'Encontrou uma barreira?', $html );
+		self::assertStringContainsString( 'secretaria@lps.ufrj.br', $html );
 	}
 
 	/** Verifies that citation downloads are marked as a control cluster. */

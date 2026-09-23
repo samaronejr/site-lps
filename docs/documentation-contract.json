@@ -47,19 +47,31 @@
   "prerequisites": [
     {
       "doc": "README.md",
-      "tokens": ["npm ci", "npm run env:start", "tools/composer install"]
+      "tokens": [
+        "npm ci",
+        "npm run env:start",
+        "tools/composer install"
+      ]
     },
     {
       "doc": "docs/handbook/editorial-quick-start.md",
-      "tokens": ["_lps_assigned_collections", "Two-Factor"]
+      "tokens": [
+        "_lps_assigned_collections",
+        "Two-Factor"
+      ]
     },
     {
       "doc": "docs/handbook/role-workflows.md",
-      "tokens": ["npm run test", "tools/composer test"]
+      "tokens": [
+        "npm run test",
+        "tools/composer test"
+      ]
     },
     {
       "doc": "docs/handbook/translation-freshness.md",
-      "tokens": ["_lps_source_hash"]
+      "tokens": [
+        "_lps_source_hash"
+      ]
     },
     {
       "doc": "docs/handbook/publication-import-guide.md",
@@ -71,27 +83,41 @@
     },
     {
       "doc": "docs/handbook/role-acceptance-simulations.md",
-      "tokens": ["npx playwright test --list"]
+      "tokens": [
+        "npx playwright test --list"
+      ]
     },
     {
       "doc": "docs/operations/privacy-security-operations.md",
-      "tokens": ["npm run build"]
+      "tokens": [
+        "npm run build"
+      ]
     },
     {
       "doc": "docs/operations/plugin-update-policy.md",
-      "tokens": ["npm ci", "tools/composer install"]
+      "tokens": [
+        "npm ci",
+        "tools/composer install"
+      ]
     },
     {
       "doc": "docs/operations/release-runbook-index.md",
-      "tokens": ["npm run build"]
+      "tokens": [
+        "npm run build"
+      ]
     },
     {
       "doc": "docs/operations/troubleshooting.md",
-      "tokens": ["npm ci", "npm run env:start"]
+      "tokens": [
+        "npm ci",
+        "npm run env:start"
+      ]
     },
     {
       "doc": "docs/operations/evidence-retention.md",
-      "tokens": [".omo/evidence/"]
+      "tokens": [
+        ".omo/evidence/"
+      ]
     }
   ],
   "freshness": [
@@ -104,7 +130,7 @@
       "sources": [
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
-          "sha256": "11a6081abb473e476ba1e284d0d40edd72422e415245efd09bbe84d5755d301a"
+          "sha256": "07121dbeb15d527b4d8ff69695b3f6a7510ca9713cf9f929e4077ff238109fc4"
         }
       ]
     },
@@ -125,12 +151,12 @@
       "id": "translation-en-editorial-fields",
       "kind": "translation",
       "doc": "docs/handbook/translation-freshness.md",
-      "reviewedAt": "2026-09-18",
+      "reviewedAt": "2026-09-22",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-translationpolicy.php",
-          "sha256": "283bada5916d398527ab344cfe5d08c45b0f6afefb8b7b74079de4506a44663a"
+          "sha256": "cdab35523c4f7dd69ed876af2b74d828111249e3077c633d083bf0e84d44675d"
         }
       ]
     },

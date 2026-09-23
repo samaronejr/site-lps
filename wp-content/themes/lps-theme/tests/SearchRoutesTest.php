@@ -264,7 +264,7 @@ final class SearchRoutesTest extends \PHPUnit\Framework\TestCase {
 			'/pt-br/busca/'
 		);
 
-		self::assertStringContainsString( '<section class="lps-search lps-search-surface"', $html );
+		self::assertStringContainsString( 'class="lps-search lps-search-surface', $html );
 		self::assertStringContainsString( 'lps-search-facet-values', $html );
 		self::assertStringContainsString( 'lps-search-kind', $html );
 	}

@@ -640,25 +640,38 @@ final class DiscoverySurfaces {
 				)
 			);
 		}
-		$html  = TrustSurfaces::editorial_section(
+		$count       = count( $areas );
+		$words       = array(
+			'pt-br' => array( 'uma', 'duas', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove', 'dez' ),
+			'en'    => array( 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten' ),
+		);
+		$front_count = $count >= 1 && $count <= 10 ? $words[ $english ? 'en' : 'pt-br' ][ $count - 1 ] : (string) $count;
+		$front_label = $english
+			? ( 'One' === $front_count ? 'One research front' : $front_count . ' research fronts' )
+			: ( 'uma' === $front_count ? 'Uma frente de pesquisa' : $front_count . ' frentes de pesquisa' );
+		$html        = TrustSurfaces::editorial_section(
 			'research-areas',
 			$english ? 'Areas' : 'Áreas',
-			sprintf( $english ? '%d research fronts' : '%d frentes de pesquisa', count( $areas ) ),
+			$front_label,
 			'<div class="lps-grid lps-grid--2">' . $cards . '</div>',
-			true
+			true,
+			null,
+			'',
+			'linhas'
 		);
-		$cards = '';
+		$cards       = '';
 		foreach ( array_slice( $projects, 0, 3 ) as $project ) {
 			if ( ! is_array( $project ) ) {
 				continue;
 			}
 			$cards .= TrustSurfaces::record_card(
 				array(
-					'title' => $project['title'] ?? '',
-					'body'  => $project['summary'] ?? '',
-					'href'  => $project['url'] ?? '',
-					'tags'  => $project['topics'] ?? array(),
-					'meta'  => $project['meta'] ?? '',
+					'title'     => $project['title'] ?? '',
+					'body'      => $project['summary'] ?? '',
+					'href'      => $project['url'] ?? '',
+					'tags'      => $project['topics'] ?? array(),
+					'meta'      => $project['meta'] ?? '',
+					'foot_html' => $project['foot_html'] ?? '',
 				)
 			);
 		}
@@ -672,7 +685,9 @@ final class DiscoverySurfaces {
 				array(
 					'href'  => self::text( $paths['projects'] ?? '' ),
 					'label' => $english ? 'All projects' : 'Todos os projetos',
-				)
+				),
+				'',
+				'projetos'
 			);
 		}
 		$html      .= TrustSurfaces::editorial_section(
@@ -686,7 +701,11 @@ final class DiscoverySurfaces {
 					: 'O LPS não mantém, hoje, um feed público de publicações sob responsabilidade do laboratório. A produção científica associada ao laboratório está registrada nos currículos Lattes dos professores e nas publicações das colaborações internacionais de que o laboratório participa.',
 				$english ? 'No authoritative publications feed exists yet' : 'Ainda não existe um feed público consolidado de publicações'
 			)
-				. '<p class="lps-mt-6"><a class="lps-more" href="' . self::esc( self::text( $paths['publications'] ?? '' ) ) . '">' . self::esc( $english ? 'How to consult the output' : 'Como consultar a produção' ) . '</a></p>'
+				. '<p class="lps-mt-6"><a class="lps-more" href="' . self::esc( self::text( $paths['publications'] ?? '' ) ) . '">' . self::esc( $english ? 'How to consult the output' : 'Como consultar a produção' ) . '</a></p>',
+			false,
+			null,
+			'',
+			'evidencias'
 		);
 		$stats      = array(
 			array( 'Caloba', $english ? 'Laboratory HPC cluster (SLURM)' : 'Cluster HPC do laboratório (SLURM)' ),
@@ -706,7 +725,9 @@ final class DiscoverySurfaces {
 			array(
 				'href'  => self::text( $paths['infrastructure'] ?? '' ),
 				'label' => $english ? 'Facilities' : 'Instalações',
-			)
+			),
+			'',
+			'infraestrutura'
 		);
 		$html .= TrustSurfaces::editorial_section(
 			'research-contact',
@@ -737,7 +758,11 @@ final class DiscoverySurfaces {
 							'label' => $english ? 'Contact' : 'Contato',
 						),
 					)
-				) . '</div>'
+				) . '</div>',
+			false,
+			null,
+			'',
+			'contato'
 		);
 		return $html;
 	}
@@ -758,12 +783,13 @@ final class DiscoverySurfaces {
 			}
 			$cards .= TrustSurfaces::record_card(
 				array(
-					'title' => $item['title'] ?? '',
-					'body'  => $item['summary'] ?? '',
-					'href'  => $item['url'] ?? '',
-					'tags'  => $item['topics'] ?? array(),
-					'meta'  => $item['meta'] ?? '',
-					'media' => true,
+					'title'     => $item['title'] ?? '',
+					'body'      => $item['summary'] ?? '',
+					'href'      => $item['url'] ?? '',
+					'tags'      => $item['topics'] ?? array(),
+					'meta'      => $item['meta'] ?? '',
+					'foot_html' => $item['foot_html'] ?? '',
+					'media'     => true,
 				)
 			);
 		}
@@ -976,6 +1002,27 @@ final class DiscoverySurfaces {
 			'current'   => $english ? 'Ongoing project' : 'Projeto em andamento',
 			'completed' => $english ? 'Completed project' : 'Projeto concluído',
 			'suspended' => $english ? 'Suspended project' : 'Projeto suspenso',
+		);
+		return $labels[ $status ] ?? '';
+	}
+
+	/**
+	 * Returns the short card-foot label of one approved project status key.
+	 *
+	 * Card feet carry the terse status the showcase renders; the fuller
+	 * "Ongoing project" phrasing stays for detail and filter contexts.
+	 *
+	 * @param string $status Stored status key.
+	 * @param string $locale Supported locale slug.
+	 */
+	public static function project_status_short_label( string $status, string $locale ): string {
+		$english = 'en' === $locale;
+		$labels  = array(
+			'planned'   => $english ? 'Planned' : 'Planejado',
+			'active'    => $english ? 'Ongoing' : 'Em andamento',
+			'current'   => $english ? 'Ongoing' : 'Em andamento',
+			'completed' => $english ? 'Completed' : 'Concluído',
+			'suspended' => $english ? 'Suspended' : 'Suspenso',
 		);
 		return $labels[ $status ] ?? '';
 	}

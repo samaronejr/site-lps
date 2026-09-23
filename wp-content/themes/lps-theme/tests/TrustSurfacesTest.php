@@ -338,8 +338,8 @@ final class TrustSurfacesTest extends \PHPUnit\Framework\TestCase {
 		self::assertStringContainsString( 'mailto:acessibilidade@lps.ufrj.br', $accessibility );
 	}
 
-	/** Verification details live in a named aside with sources and review dates. */
-	public function test_institutional_page_groups_verification_in_a_named_aside(): void {
+	/** Verification details live in a named in-flow section with sources and review dates. */
+	public function test_institutional_page_groups_verification_in_a_named_section(): void {
 		$html = TrustSurfaces::render_institutional_page(
 			array(
 				'key'            => 'about',
@@ -360,7 +360,8 @@ final class TrustSurfacesTest extends \PHPUnit\Framework\TestCase {
 			$this->now()
 		);
 
-		self::assertStringContainsString( '<aside class="lps-verification" aria-labelledby="lps-verification-title">', $html );
+		self::assertStringContainsString( '<section class="lps-section lps-verification" aria-labelledby="lps-verification-title">', $html );
+		self::assertStringNotContainsString( '<aside', $html );
 		self::assertStringContainsString( 'Verificação', $html );
 		self::assertStringContainsString( 'lps-claim-source', $html );
 		self::assertStringContainsString( 'revisado em <time datetime="2026-08-01">2026-08-01</time>', $html );
@@ -368,8 +369,33 @@ final class TrustSurfacesTest extends \PHPUnit\Framework\TestCase {
 		self::assertStringContainsString( 'lps-reviewed-at', $html );
 	}
 
-	/** A page without a recorded review says so instead of implying one. */
+	/** A page carrying claims without a recorded review says so instead of implying one. */
 	public function test_institutional_page_without_review_date_warns_explicitly(): void {
+		$html = TrustSurfaces::render_institutional_page(
+			array(
+				'key'     => 'about',
+				'title'   => 'Sobre o LPS',
+				'summary' => 'Resumo.',
+				'claims'  => array(
+					array(
+						'statement'   => 'Contexto verificado.',
+						'verified'    => true,
+						'source_url'  => 'https://www.ufrj.br/fonte',
+						'reviewed_at' => '2026-08-01',
+					),
+				),
+			),
+			'en',
+			$this->now()
+		);
+
+		self::assertStringContainsString( 'lps-claims-warning', $html );
+		self::assertStringContainsString( 'No recorded content review.', $html );
+		self::assertStringNotContainsString( 'lps-reviewed-at', $html );
+	}
+
+	/** A page without any verification data renders no verification section. */
+	public function test_institutional_page_without_verification_data_renders_no_verification(): void {
 		$html = TrustSurfaces::render_institutional_page(
 			array(
 				'key'     => 'about',
@@ -381,9 +407,7 @@ final class TrustSurfacesTest extends \PHPUnit\Framework\TestCase {
 			$this->now()
 		);
 
-		self::assertStringContainsString( 'lps-claims-warning', $html );
-		self::assertStringContainsString( 'No recorded content review.', $html );
-		self::assertStringNotContainsString( 'lps-reviewed-at', $html );
+		self::assertStringNotContainsString( 'lps-verification', $html );
 	}
 
 	/** A stale English record announces the review state instead of falling back. */

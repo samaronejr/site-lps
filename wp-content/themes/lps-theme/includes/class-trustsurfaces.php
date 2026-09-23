@@ -186,7 +186,8 @@ final class TrustSurfaces {
 	 */
 	public static function render_opportunity_listing( array $records, string $locale, DateTimeImmutable $now ): string {
 		$english = 'en' === $locale;
-		$items   = '';
+		$open    = '';
+		$closed  = '';
 		foreach ( $records as $record ) {
 			if ( ! is_array( $record ) ) {
 				continue;
@@ -202,19 +203,23 @@ final class TrustSurfaces {
 			$url    = self::single_path( 'lps_opportunity', $locale, $slug );
 			$date   = '' !== $closes ? $closes : $opens;
 			$stamp  = substr( $date, 0, 10 );
-			$items .= '<li data-state="' . self::esc( $state ) . '">';
-			$items .= '<div class="lps-event-date"><strong>';
-			$items .= '' !== $stamp ? '<time datetime="' . self::esc( $stamp ) . '">' . self::esc( $stamp ) . '</time>' : '—';
-			$items .= '</strong><span>' . self::esc( '' !== $closes ? ( $english ? 'Deadline' : 'Prazo' ) : ( $english ? 'Opens' : 'Abertura' ) ) . '</span></div>';
-			$items .= '<div><h3><a href="' . self::esc( $url ) . '">' . self::esc( $title ) . '</a></h3>';
-			$items .= '<p><span class="lps-opportunity-state">' . self::esc( self::OPPORTUNITY_LABELS[ $state ][ $locale ] ?? '' ) . '</span>' . self::translation_chip( $record, $locale ) . '</p>';
-			$items .= '</div>';
-			$items .= '<a class="lps-more" href="' . self::esc( $url ) . '">' . self::esc( $english ? 'Know more' : 'Saiba mais' ) . '</a>';
-			$items .= '</li>';
+			$item   = '<li data-state="' . self::esc( $state ) . '">';
+			$item  .= '<div class="lps-event-date"><strong>';
+			$item  .= '' !== $stamp ? '<time datetime="' . self::esc( $stamp ) . '">' . self::esc( $stamp ) . '</time>' : '—';
+			$item  .= '</strong><span>' . self::esc( '' !== $closes ? ( $english ? 'Deadline' : 'Prazo' ) : ( $english ? 'Opens' : 'Abertura' ) ) . '</span></div>';
+			$item  .= '<div><h3><a href="' . self::esc( $url ) . '">' . self::esc( $title ) . '</a></h3>';
+			$item  .= '<p><span class="lps-opportunity-state">' . self::esc( self::OPPORTUNITY_LABELS[ $state ][ $locale ] ?? '' ) . '</span>' . self::translation_chip( $record, $locale ) . '</p>';
+			$item  .= '</div>';
+			$item  .= '<a class="lps-more" href="' . self::esc( $url ) . '">' . self::esc( $english ? 'Know more' : 'Saiba mais' ) . '</a>';
+			$item  .= '</li>';
+			if ( 'open' === $state ) {
+				$open .= $item;
+			} else {
+				$closed .= $item;
+			}
 		}
-		$calls = '';
-		if ( '' !== $items ) {
-			$calls = '<ol class="lps-agenda">' . $items . '</ol>';
+		if ( '' !== $open ) {
+			$calls = '<ol class="lps-agenda">' . $open . '</ol>';
 		} else {
 			$calls = self::alert_band(
 				'warning',
@@ -224,13 +229,21 @@ final class TrustSurfaces {
 				$english ? 'No open call right now' : 'Nenhuma chamada aberta no momento'
 			);
 		}
-		$html   = self::editorial_section(
+		$html = self::editorial_section(
 			'lps-opp-status',
 			$english ? 'Current status' : 'Situação atual',
 			$english ? 'Open calls' : 'Chamadas abertas',
 			$calls,
 			true
 		);
+		if ( '' !== $closed ) {
+			$html .= self::editorial_section(
+				'lps-opp-closed',
+				$english ? 'Current status' : 'Situação atual',
+				$english ? 'Closed calls' : 'Chamadas encerradas',
+				'<ol class="lps-agenda">' . $closed . '</ol>'
+			);
+		}
 		$tracks = array(
 			array(
 				$english ? 'Undergraduate research' : 'Iniciação científica',
@@ -510,19 +523,22 @@ final class TrustSurfaces {
 			if ( '' === $title || '' === $slug ) {
 				continue;
 			}
-			$url     = self::single_path( 'lps_news', $locale, $slug );
-			$date    = self::text( $record['date'] ?? '' );
-			$label   = self::agenda_date_label( $date );
-			$items  .= '<li>';
-			$items  .= '<div class="lps-event-date"><strong>' . self::esc( '' !== $label ? $label : '—' ) . '</strong><span>' . self::esc( $english ? 'News' : 'Notícia' ) . '</span></div>';
-			$items  .= '<div><h3><a href="' . self::esc( $url ) . '">' . self::esc( $title ) . '</a></h3>';
-			$summary = self::text( $record['summary'] ?? '' );
+			$url      = self::single_path( 'lps_news', $locale, $slug );
+			$date     = self::text( $record['date'] ?? '' );
+			$override = self::text( $record['date_label'] ?? '' );
+			$label    = '' !== $override ? $override : self::agenda_date_label( $date );
+			$category = self::news_category_label( self::text( $record['category'] ?? '' ), $locale );
+			$items   .= '<li>';
+			$items   .= '<div class="lps-event-date"><strong>' . self::esc( '' !== $label ? $label : '—' ) . '</strong><span>' . self::esc( '' !== $category ? $category : ( $english ? 'News' : 'Notícia' ) ) . '</span></div>';
+			$items   .= '<div><h3><a href="' . self::esc( $url ) . '">' . self::esc( $title ) . '</a></h3>';
+			$summary  = self::text( $record['summary'] ?? '' );
 			if ( '' !== $summary ) {
 				$items .= '<p>' . self::esc( $summary ) . '</p>';
 			}
-			$meta = '';
-			if ( 1 === preg_match( '/^\d{4}-\d{2}-\d{2}/', $date ) ) {
-				$meta .= '<time datetime="' . self::esc( substr( $date, 0, 10 ) ) . '">' . self::esc( substr( $date, 0, 10 ) ) . '</time>';
+			$meta         = '';
+			$source_label = self::news_source_label( self::text( $record['source_label'] ?? '' ), $locale );
+			if ( '' !== $source_label ) {
+				$meta .= self::esc( $english ? 'Source: ' : 'Fonte: ' ) . '<span class="lps-meta">' . self::esc( $source_label ) . '</span>';
 			}
 			$meta .= self::translation_chip( $record, $locale );
 			if ( '' !== $meta ) {
@@ -565,6 +581,38 @@ final class TrustSurfaces {
 				. '</div>'
 		);
 		return $html;
+	}
+
+	/**
+	 * Returns the localized label for a stored news-category key.
+	 *
+	 * @param string $key    Stored category key.
+	 * @param string $locale Supported locale slug.
+	 */
+	private static function news_category_label( string $key, string $locale ): string {
+		$labels = array(
+			'pessoas'       => 'en' === $locale ? 'People' : 'Pessoas',
+			'pesquisa'      => 'en' === $locale ? 'Research' : 'Pesquisa',
+			'historia'      => 'en' === $locale ? 'History' : 'História',
+			'ensino'        => 'en' === $locale ? 'Teaching' : 'Ensino',
+			'institucional' => 'en' === $locale ? 'Institutional' : 'Institucional',
+			'parceria'      => 'en' === $locale ? 'Partnership' : 'Parceria',
+		);
+		return $labels[ $key ] ?? '';
+	}
+
+	/**
+	 * Returns the localized label for a stored source key; unrecognized keys
+	 * render verbatim so free-text provenance still works.
+	 *
+	 * @param string $key    Stored source key or literal label.
+	 * @param string $locale Supported locale slug.
+	 */
+	private static function news_source_label( string $key, string $locale ): string {
+		$map = array(
+			'site-anterior' => 'en' === $locale ? 'Previous site' : 'Site anterior',
+		);
+		return $map[ $key ] ?? $key;
 	}
 
 	/**
@@ -614,7 +662,7 @@ final class TrustSurfaces {
 		$html   .= '' === $title ? '' : ' aria-label="' . self::esc( $title ) . '"';
 		$html   .= '>';
 		$summary = self::text( $page['summary'] ?? '' );
-		$html   .= '<div class="lps-with-aside"><div class="lps-stack">';
+		$html   .= '<div class="lps-with-aside lps-with-aside--single"><div class="lps-stack">';
 		if ( '' !== $summary ) {
 			$html .= '<p class="lps-summary lps-lead">' . self::esc( $summary ) . '</p>';
 		}
@@ -636,14 +684,36 @@ final class TrustSurfaces {
 			$html .= '<dl class="lps-facts">' . $facts . '</dl>';
 		}
 		$html .= self::institutional_sections( $key, $locale );
-		$html .= '</div>';
+		$html .= self::verification_section( $page, $locale, $now );
+		$html .= '</div></div>';
 
-		// The verification aside carries every sourced claim with its review date,
-		// the reporting contact, and the page review stamp. Claims that fail the
-		// source/review policy are never rendered; their absence is announced as an
-		// explicit warning instead of a silent gap, and a page without a recorded
-		// review says so rather than implying one.
-		$claims  = is_array( $page['claims'] ?? null ) ? $page['claims'] : array();
+		return $html . '</article>';
+	}
+
+	/**
+	 * Renders the verification trail of an institutional page in the main column.
+	 *
+	 * The trail carries every sourced claim with its review date, the reporting
+	 * contact, and the page review stamp. Claims that fail the source/review
+	 * policy are never rendered; their absence is announced as an explicit
+	 * warning instead of a silent gap, and a page that carries claims without a
+	 * recorded review says so rather than implying one. A page that holds no
+	 * verification data at all renders nothing — there is nothing to verify.
+	 *
+	 * @param array<string, mixed> $page   Institutional page record.
+	 * @param string               $locale Supported locale slug.
+	 * @param DateTimeImmutable    $now    Evaluation instant.
+	 */
+	private static function verification_section( array $page, string $locale, DateTimeImmutable $now ): string {
+		$english  = 'en' === $locale;
+		$claims   = is_array( $page['claims'] ?? null ) ? $page['claims'] : array();
+		$report   = self::text( $page['report_contact'] ?? '' );
+		$reviewed = self::text( $page['reviewed_at'] ?? '' );
+
+		if ( array() === $claims && '' === $report && '' === $reviewed ) {
+			return '';
+		}
+
 		$items   = '';
 		$dropped = 0;
 		foreach ( $claims as $claim ) {
@@ -678,28 +748,23 @@ final class TrustSurfaces {
 			$items .= '</li>';
 		}
 
-		$aside  = '<aside class="lps-verification" aria-labelledby="lps-verification-title">';
-		$aside .= '<h2 id="lps-verification-title">' . self::esc( $english ? 'Verification' : 'Verificação' ) . '</h2>';
+		$body = '';
 		if ( '' !== $items ) {
-			$aside .= '<section class="lps-claims"><h3>' . self::esc( $english ? 'Verified institutional context' : 'Contexto institucional verificado' ) . '</h3><ul>' . $items . '</ul></section>';
+			$body .= '<section class="lps-claims"><h3>' . self::esc( $english ? 'Verified institutional context' : 'Contexto institucional verificado' ) . '</h3><ul>' . $items . '</ul></section>';
 		}
 		if ( 0 < $dropped ) {
-			$aside .= '<p class="lps-claims-warning" role="status">' . self::esc( $english ? 'Some institutional claims are omitted pending source or review.' : 'Algumas afirmações institucionais foram omitidas por falta de fonte ou revisão.' ) . '</p>';
+			$body .= '<p class="lps-claims-warning" role="status">' . self::esc( $english ? 'Some institutional claims are omitted pending source or review.' : 'Algumas afirmações institucionais foram omitidas por falta de fonte ou revisão.' ) . '</p>';
 		}
-
-		$report = self::text( $page['report_contact'] ?? '' );
 		if ( '' !== $report && self::is_email( $report ) ) {
-			$aside .= '<p class="lps-report-contact"><a class="lps-breakable" href="mailto:' . self::esc( $report ) . '">' . self::esc( $report ) . '</a></p>';
+			$body .= '<p class="lps-report-contact"><a class="lps-breakable" href="mailto:' . self::esc( $report ) . '">' . self::esc( $report ) . '</a></p>';
 		}
-
-		$reviewed = self::text( $page['reviewed_at'] ?? '' );
 		if ( '' !== $reviewed ) {
-			$aside .= '<p class="lps-reviewed-at">' . self::esc( $english ? 'Last reviewed' : 'Última revisão' ) . ': <time datetime="' . self::esc( $reviewed ) . '">' . self::esc( $reviewed ) . '</time></p>';
+			$body .= '<p class="lps-reviewed-at">' . self::esc( $english ? 'Last reviewed' : 'Última revisão' ) . ': <time datetime="' . self::esc( $reviewed ) . '">' . self::esc( $reviewed ) . '</time></p>';
 		} else {
-			$aside .= '<p class="lps-claims-warning" role="status">' . self::esc( $english ? 'No recorded content review.' : 'Nenhuma revisão de conteúdo registrada.' ) . '</p>';
+			$body .= '<p class="lps-claims-warning" role="status">' . self::esc( $english ? 'No recorded content review.' : 'Nenhuma revisão de conteúdo registrada.' ) . '</p>';
 		}
 
-		return $html . $aside . '</aside></div></article>';
+		return '<section class="lps-section lps-verification" aria-labelledby="lps-verification-title"><div class="lps-section-head"><div><h2 id="lps-verification-title">' . self::esc( $english ? 'Verification' : 'Verificação' ) . '</h2></div></div>' . $body . '</section>';
 	}
 
 	/**
@@ -784,7 +849,10 @@ final class TrustSurfaces {
 			$english ? 'History' : 'História',
 			$english ? 'A timeline of the laboratory' : 'Linha do tempo do laboratório',
 			$timeline,
-			true
+			true,
+			null,
+			'',
+			'historia'
 		);
 		$mission   = $english
 			? 'To generate knowledge and technological innovation through teaching, research and extension, training highly qualified professionals at every level from secondary school to post-doctorate, and acting as an agent of scientific and technological advance in strategic partnerships with the public and private sectors.'
@@ -799,7 +867,11 @@ final class TrustSurfaces {
 			'<div class="lps-grid lps-grid--2">'
 				. self::editorial_card( $english ? 'Mission' : 'Missão', $mission, true )
 				. self::editorial_card( $english ? 'Vision' : 'Visão', $vision )
-				. '</div>'
+				. '</div>',
+			false,
+			null,
+			'',
+			'missao'
 		);
 		$values    = array(
 			array(
@@ -848,7 +920,11 @@ final class TrustSurfaces {
 				'about-partners',
 				$english ? 'Partners' : 'Parceiros',
 				$english ? 'Institutions working with the laboratory' : 'Instituições que atuam com o laboratório',
-				$marquee
+				$marquee,
+				false,
+				null,
+				'',
+				'parceiros'
 			);
 		}
 		$address = 'Av. Athos da Silveira Ramos, 149 — Centro de Tecnologia, Bloco H, sala 220 — Ilha do Fundão — Rio de Janeiro/RJ — CEP 21941-914';
@@ -859,14 +935,17 @@ final class TrustSurfaces {
 			. '<dt>' . self::esc( $english ? 'Phone' : 'Telefone' ) . '</dt><dd>' . self::esc( $phone ) . '</dd>'
 			. '<dt>' . self::esc( $english ? 'Administrative office' : 'Secretaria' ) . '</dt><dd>' . self::esc( $office ) . '</dd>'
 			. '</dl>'
-			. '<p><a class="lps-more" href="https://www.google.com/maps/search/?api=1&amp;query=' . self::esc( rawurlencode( $address ) ) . '" target="_blank" rel="noopener">' . self::esc( $english ? 'Open in Google Maps' : 'Abrir no Google Maps' ) . '</a></p></div>';
-		// The content security policy forbids framed documents, so the map is a
-		// plain link instead of the showcase's embedded iframe.
-		$html .= self::editorial_section(
+			. '<p><a class="lps-more" href="https://www.google.com/maps/search/?api=1&amp;query=' . self::esc( rawurlencode( $address ) ) . '" target="_blank" rel="noopener">' . self::esc( $english ? 'Open in Google Maps' : 'Abrir no Google Maps' ) . '</a></p></div>'
+			. '<div class="lps-map-card"><iframe title="' . self::esc( $english ? 'Map of the laboratory at UFRJ\'s Centro de Tecnologia' : 'Mapa do laboratório no Centro de Tecnologia da UFRJ' ) . '" src="https://maps.google.com/maps?hl=' . self::esc( $english ? 'en' : 'pt-BR' ) . '&amp;ll=-22.862347,-43.229037&amp;output=embed&amp;q=-22.861981,-43.228811&amp;z=17" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe></div>';
+		$html   .= self::editorial_section(
 			'about-location',
 			$english ? 'Location' : 'Localização',
 			$english ? 'Where the laboratory is' : 'Onde o laboratório está',
-			$body
+			'<div class="lps-location">' . $body . '</div>',
+			false,
+			null,
+			'',
+			'localizacao'
 		);
 		return $html;
 	}
@@ -905,7 +984,11 @@ final class TrustSurfaces {
 			'about-identity',
 			$english ? 'Identity' : 'Identidade',
 			$english ? 'The laboratory mark' : 'A marca do laboratório',
-			'<div class="lps-grid lps-grid--2">' . $flow . $card . '</div>'
+			'<div class="lps-grid lps-grid--2">' . $flow . $card . '</div>',
+			false,
+			null,
+			'',
+			'identidade'
 		);
 	}
 
@@ -1115,8 +1198,9 @@ final class TrustSurfaces {
 	 * @param bool                                      $flush  Whether the section drops its top padding.
 	 * @param array{href?: string, label?: string}|null $action Optional section-head action link.
 	 * @param string                                    $lead   Optional section-head lead line.
+	 * @param string                                    $anchor Optional section id used as the scroll anchor.
 	 */
-	public static function editorial_section( string $id, string $kicker, string $title, string $inner, bool $flush = false, ?array $action = null, string $lead = '' ): string {
+	public static function editorial_section( string $id, string $kicker, string $title, string $inner, bool $flush = false, ?array $action = null, string $lead = '', string $anchor = '' ): string {
 		$head = '<div class="lps-section-head"><div><p class="lps-kicker">' . self::esc( $kicker ) . '</p><h2 id="' . self::esc( $id ) . '">' . self::esc( $title ) . '</h2></div>';
 		if ( null !== $action || '' !== $lead ) {
 			$head .= '<div>';
@@ -1127,7 +1211,7 @@ final class TrustSurfaces {
 			$head .= '</div>';
 		}
 		$head .= '</div>';
-		return '<section class="lps-section' . ( $flush ? ' lps-section--flush' : '' ) . '" aria-labelledby="' . self::esc( $id ) . '">' . $head . $inner . '</section>';
+		return '<section class="lps-section' . ( $flush ? ' lps-section--flush' : '' ) . '"' . ( '' !== $anchor ? ' id="' . self::esc( $anchor ) . '"' : '' ) . ' aria-labelledby="' . self::esc( $id ) . '">' . $head . $inner . '</section>';
 	}
 
 	/**
@@ -1258,12 +1342,33 @@ final class TrustSurfaces {
 			}
 			$email = self::text( $contact['email'] ?? '' );
 			$role  = self::text( $contact['role'] ?? '' );
-			if ( '' === $role || ! self::is_email( $email ) ) {
+			if ( '' === $role ) {
+				continue;
+			}
+			$links     = '';
+			$raw_links = isset( $contact['links'] ) && is_array( $contact['links'] ) ? $contact['links'] : array();
+			foreach ( $raw_links as $link ) {
+				if ( ! is_array( $link ) ) {
+					continue;
+				}
+				$href  = self::text( $link['href'] ?? '' );
+				$label = self::text( $link['label'] ?? '' );
+				if ( '' !== $href && '' !== $label ) {
+					$links .= '<li><a class="lps-meta" href="' . self::esc( $href ) . '">' . self::esc( $label ) . '</a></li>';
+				}
+			}
+			if ( self::is_email( $email ) ) {
+				$links .= '<li><a class="lps-meta" href="mailto:' . self::esc( $email ) . '">' . self::esc( $email ) . '</a></li>';
+			}
+			if ( '' === $links ) {
 				continue;
 			}
 			$items .= '<article class="lps-card"><div class="lps-card-body"><h3 class="lps-card-title">' . self::esc( $role ) . '</h3>';
-			$items .= '<p><a class="lps-breakable" href="mailto:' . self::esc( $email ) . '">' . self::esc( $email ) . '</a></p></div>';
-			$items .= '<div class="lps-card-foot"><span></span><a class="lps-more" href="mailto:' . self::esc( $email ) . '">' . self::esc( $english ? 'Write an email' : 'Escrever e-mail' ) . '</a></div></article>';
+			$body   = self::text( $contact['description'] ?? '' );
+			if ( '' !== $body ) {
+				$items .= '<p>' . self::esc( $body ) . '</p>';
+			}
+			$items .= '</div><div class="lps-card-foot"><span></span><ul class="lps-source-list">' . $links . '</ul></div></article>';
 		}
 		$html = '';
 		if ( '' !== $items ) {

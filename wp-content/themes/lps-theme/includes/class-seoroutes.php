@@ -1047,10 +1047,15 @@ final class SeoRoutes {
 		if ( null !== $middle && '' !== $middle['name'] && '' !== $middle['path'] ) {
 			$trail[] = $middle;
 		}
-		$trail[] = array(
-			'name' => $title,
-			'path' => $path,
-		);
+		// A landing whose own name already closed the trail must not append
+		// itself again — `Início / Ensino`, never `Início / Ensino / Ensino`.
+		$tail = end( $trail );
+		if ( $tail['name'] !== $title || $tail['path'] !== $path ) {
+			$trail[] = array(
+				'name' => $title,
+				'path' => $path,
+			);
+		}
 		return $trail;
 	}
 

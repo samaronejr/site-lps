@@ -129,8 +129,8 @@ owned public route has been confirmed, so they must not be filled with a persona
 
 `_lps_canonical_name`, `_lps_sort_name`, `_lps_person_status`, `_lps_roles`, `_lps_affiliations`,
 `_lps_start_date`, `_lps_end_date`, `_lps_public_email`, `_lps_orcid`, `_lps_lattes_url`,
-`_lps_scholar_url`, `_lps_website_url`, `_lps_research_area_ids`, `_lps_credentials`,
-`_lps_photo_rights`, `_lps_privacy_reviewed`.
+`_lps_scholar_url`, `_lps_website_url`, `_lps_github_url`, `_lps_linkedin_url`,
+`_lps_research_area_ids`, `_lps_credentials`, `_lps_photo_rights`, `_lps_privacy_reviewed`.
 
 `_lps_public_email` requires documentary evidence that the address is an intended public contact;
 `_lps_photo_rights` plus `_lps_privacy_reviewed` gate any published photograph.
@@ -151,7 +151,7 @@ A profile is public only when `_lps_public_profile` is true.
 
 `_lps_project_status`, `_lps_start_date`, `_lps_end_date`, `_lps_member_ids`, `_lps_funder_ids`,
 `_lps_partner_ids`, `_lps_grant_ids`, `_lps_research_area_ids`, `_lps_application_domains`,
-`_lps_asset_ids`, `_lps_links`.
+`_lps_asset_ids`, `_lps_links`, `_lps_source_label`.
 
 ## Publication
 
@@ -175,7 +175,13 @@ stable page and becomes noindex after 90 days.
 
 ## News and Event
 
-News: `_lps_canonical_date`, `_lps_news_status`, `_lps_related_record_ids`, `_lps_featured_until`.
+News: `_lps_canonical_date`, `_lps_date_label`, `_lps_news_status`, `_lps_news_category`,
+`_lps_source_label`, `_lps_related_record_ids`, `_lps_featured_until`.
+
+`_lps_date_label` is an editorial display string (for example `Desde 1988`) that replaces the
+canonical date on cards when the item describes a period rather than a day; `_lps_news_category`
+labels the item inside its listing badge; `_lps_source_label` names the provenance shown under
+the item (for example `site-anterior` for content migrated from the previous site).
 
 Dashboard review fields (private, never exposed through REST): `_lps_review_comments` carries the
 reviewer's note on a rejected news item or proposal so the author sees the required fix;
