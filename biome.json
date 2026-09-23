@@ -4,8 +4,10 @@
     "includes": [
       "**",
       "!!dist",
+      "!!showcase/institutional-redesign/public",
       "!!node_modules",
       "!!vendor",
+      "!!.agents",
       "!!.wp-env",
       "!!.cache",
       "!!content/import",

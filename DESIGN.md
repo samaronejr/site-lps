@@ -1,360 +1,507 @@
-# LPS Scientific Editorial Design System
+# LPS Institutional Design Contract — Unified Identity (Replacement)
 
-Status: Binding contract for the public LPS theme and its editor-facing primitives. The standalone showcase under `showcase/scientific-editorial/` is the executable reference; it is not production theme code.
+Status: Binding contract for the public LPS theme and its editor-facing primitives. This revision
+replaces the light-institutional, system-stack direction with a unified identity built around the
+owner-supplied LPS artwork, the resolved blue palette, and self-hosted IBM Plex. It is a
+replacement-world contract: product truth and constraints are preserved intact, while the prior
+visual direction is retained only as an anti-reference. Where a clause is superseded, the
+supersede table in section 1 says so explicitly. Nothing here weakens accessibility, rights, or
+governance requirements, and this document specifies one direction, not a menu of styles.
 
-## 0. Research Log
+The machine-readable half of this contract is `docs/design/design-contract.json`, validated by
+`node scripts/lib/design-contract.mjs`. The JSON is the token specification task-07 synced into
+`theme.json`/`theme.css`; this document is the human contract around it.
 
-- Brief and plan: read `.omo/drafts/lps-institutional-website.md` and Todo 6 of `.omo/plans/lps-institutional-website.md`; preserved the approved research-first, bilingual, no-startup-tropes direction.
-- Existing system audit: no inherited component layer exists. Todo 1 supplies only a block-theme boundary (`style.css`, `theme.json`, `templates/index.html`) and content-plugin bootstrap. No visual token or reusable component was available to preserve.
-- Embedded references: shortlisted WIRED, Notion, and IBM from `_INDEX.md`; selected `minimalist-skill.md` + `wired.md`. WIRED is atmosphere-only: typographic hierarchy, hairline rules, square figures, and disciplined whitespace. LPS uses no WIRED copy, logo, proprietary type, exact palette, content density, or weak focus treatment.
-- FEEC runtime audit, 2026-08-30: real Playwright Chromium at 375, 768, and 1280 captured `getComputedStyle`, rest/hover/focus states, responsive screenshots, headings, media, and overflow in `.omo/evidence/task-6/research/feec/`. Lessons retained: explicit audience paths, research near the top, square geometry, direct institutional proof. Rejected: 12 navigation regions, duplicate headings, machine-translation flags, generic Montserrat-only hierarchy, broad `transition: all`, underspecified mobile controls, empty/zero-size image sources, carousel-like duplication, and focus that relies on browser defaults.
-- Lazyweb: ran 3 desktop queries (`university research institute editorial website`, `scientific laboratory research publications`, `academic journal institutional website`), received 12 results, and directly viewed 4 screens (Illumina publications, Academia, EdSurge research, Wiley academic libraries). Harvested only layout grammar: metadata-forward publication rows, narrow reading measures, side taxonomy on wide screens, and evidence before promotion. Rejected gradient hero chrome, signup gating, tiny dense nav, and vendor-style CTA emphasis. Raw results and viewed receipts are in `.omo/evidence/task-6/research/lazyweb/`.
-- StyleGallery: shortlisted `twelve-span-grid`, `page-grid`, and `grid-wrapper`; adopted `twelve-span-grid` for placement and `page-grid` for outer containment. Todo 17 additionally adopts `ram-grid` for opportunity/event/news listings and `sticky-aside` for verified trust metadata beside long institutional copy. The document owns vertical scroll; neither pattern creates nested scroll. DOM/source order remains the reading and focus order. Source: <https://github.com/changeroa/StyleGallery>.
-- Interaction reference: inspected beui.dev `button` and `table` source. Adopted immediate, interruptible state feedback and explicit reduced-motion behavior; rejected spring, magnetic, morphing, virtualized, and decorative movement because this institutional surface needs no spatial animation.
-- UI/UX database: queried scientific institutional editorial design and multilingual typography. It supported an open-source serif plus highly legible interface face and 4/8 rhythm. Rejected its pink accent, single-column landing pattern, exaggerated type, remote font imports, Roboto, and Playfair because they conflict with the approved fallback and multilingual institutional tone.
-- Official asset provenance/rights, 2026-08-30: live UFRJ and COPPE home pages returned 200 and exposed current logo file URLs; `lps.ufrj.br` timed out. Neither retrieved page supplied a reusable asset license or digital identity manual. Therefore no UFRJ, COPPE, or LPS logo is copied into this contract/showcase. Production use is blocked until an authorized owner supplies official files, usage rules, and permission. HTTP receipts are in `.omo/evidence/task-6/research/provenance/`.
-- Font provenance: Source Serif 4 is open source under the SIL Open Font License 1.1; UI and mono roles use platform stacks with no bundled proprietary files. CJK falls through to the platform's CJK serif/sans fonts to preserve glyph coverage.
-- Imagen concepts: skipped because no Imagen/image-generation tool is available in this harness. No draft or reference-fidelity image was fabricated. The browser-rendered primitive showcase is the visual contract.
+## 0. Contract Basis, Tags & Evidence
 
-## 1. Atmosphere & Identity
+### Tag convention
 
-**Scientific Editorial** feels like a peer-reviewed paper opened onto an active engineering laboratory: quiet, exact, warm enough for long reading, and visibly accountable. The signature is the **signal rule** - a thin deep-blue structural line interrupted by a short teal segment at meaningful transitions (active navigation, selected filters, figure legends, and focus), never as decoration. Research evidence leads; institutional identity supports it; authentic people and equipment prevent abstraction.
+| Tag | Meaning |
+| --- | --- |
+| MEASURED | Value read verbatim from worktree source, instrumented from a live capture, or carried forward unchanged from the incumbent contract. Basis is cited. |
+| PROPOSAL | Design decision resolved by the plan but not yet frozen in `theme.json`/`theme.css`. Binding as direction; frozen in code only when the token sync lands (plan task-07). Values tagged PROPOSAL in the 2026-09-18 revision were frozen by task-07 and are re-tagged MEASURED. |
+| UNAPPROVED | Public-facing copy, marks, or placements that require an authorized owner. Never ships as written until approved. |
 
-Content jobs follow the visitor's decision path: hook with mission, explain research, prove with outputs and methods, compare themes or opportunities, convert through Join/Collaborate/Partner actions, navigate records, and retain trust through provenance, dates, credits, and contacts.
+### Evidence base
 
-### Identity
+- Plan: `.omo/plans/lps-website-ulw-plan.md` task-02 and its "Resolved visual direction" — the
+  palette, typography, geometry, motion dials, and logo amendment recorded here are the plan's
+  resolved decisions, not new invention.
+- Reference and incumbent captures, 2026-09-18: real Chromium via playwright-core at 1280x800 and
+  375x720. FEEC (`fee.unicamp.br`), PEE (`pee.ufrj.br`), and the incumbent LPS site
+  (`/pt-br/`, `/pt-br/pesquisa/`, `/pt-br/pessoas/` served by the development runtime at
+  `e9f9ed6` plus unrelated local modifications) are stored with per-capture JSON metadata under
+  `.omo/evidence/lps-website-ulw-plan/attempt-1/task-02/screenshots/`. Section 2 separates what
+  the screenshots show from what the contract concludes.
+- Logo verification, 2026-09-18: `assets/brand/lps_logo_vector.svg`, 53,019 bytes, SHA-256
+  `f369f9e49c81e297d30fa8e240267667dddf8b89f0d26c494636f9429027a23b` — byte-identical to the
+  supplied artwork recorded in the plan.
+- Font verification, 2026-09-18: IBM Plex license is SIL OFL 1.1 with Reserved Font Name "Plex"
+  (upstream `LICENSE.txt`). The `cmap` tables of `IBMPlexSans-Regular/Medium/SemiBold/Bold` and
+  `IBMPlexMono-Regular/SemiBold` TTFs cover the full pt-BR diacritic set
+  (á à â ã é ê í ó ô õ ú ü ç, uppercase included), ASCII, and typographic punctuation — 895 and
+  1049 glyphs respectively, zero missing. The licensing and glyph check passes, so IBM Plex is
+  the contract family; the system-stack fallback remains documented in case the self-hosted
+  files cannot ship.
+- Font vendoring, 2026-09-18 (task-07): the verified TTFs were subsetted to ASCII, Latin-1
+  (full pt-BR diacritics) and general punctuation and written as woff2 into
+  `wp-content/themes/lps-theme/assets/fonts/` — `ibm-plex-sans-{regular,medium,semibold,bold}`
+  and `ibm-plex-mono-{regular,semibold}`, ~9.5–10 KiB per face, `font-display: swap`, OFL.txt
+  retained beside them. The system stacks remain the recorded fallback inside each family
+  stack; no remote font request exists anywhere in the theme.
+- Contrast computation, 2026-09-18: every pair in `design-contract.json` was computed with WCAG
+  2.2 relative luminance. Computed ratios are expectations, not a conformance claim; rendered
+  review re-checks every actual pairing after the token sync.
+- Governing ADRs unchanged: ADR-01 (integrated WordPress, no page builder), ADR-08 (`theme.json`
+  is the single token source and the design contract is executable), ADR-10 (no third-party
+  runtime requests, no cookies for anonymous visitors). See `docs/architecture/decision-record.md`.
 
-- The sole institutional mark of this contract is `lps_logo_vector.svg`, the laboratory's own cleared mark, vectorized as a derivative of the supplied logo. Nothing else is an institutional mark here: UFRJ and COPPE stay text-only until their own rights owners supply files and usage rules, and no third-party or reference brand asset is ever copied or hotlinked.
-- The mark supports the identity and never replaces it. It is never a heading, never a substitute for the institution name in running text, and never carries meaning the adjacent text does not already carry.
-- Mark treatment is dual and context-bound. The full-color lockup appears only in the non-interactive identity contexts §9 lists. Wherever the mark acts as UI chrome - any instance that is itself an interactive affordance, or that sits in navigation, in a control, or in a browser/OS slot - the monochrome derivative is used instead.
-- The mark is artwork, not a primitive. It contributes no token, no gradient, no waveform, and no geometry to the rest of the system. §2, §5, §7, and §9 state its carve-outs exactly, each one bounded to the mark artwork; nothing outside that artwork inherits any of them.
-- This section amends the contract only. The mark ships no earlier than its variant set (Todo 32) and its integration (Todo 33), and never while its rights record is unregistered (§9).
+### Skill application receipt
 
-## 2. Color
+The six requested design skills contributed to this contract as one direction. Each row names the
+concrete contribution and what was deliberately not adopted; the plan's precedence rule applies —
+product requirements and approved artwork outrank any skill's generic defaults.
 
-### Palette
+| Skill | Contribution in this contract | Deliberately not adopted |
+| --- | --- | --- |
+| `impeccable` | Mode-per-surface assignment (homepage Persuade, professor Read, offering Operate, editor Operate); replacement-world discipline — the incumbent look is evidence and anti-reference, never split into polish; bounded desktop/mobile critique via the captured screenshots. | Reopening settled requirements; replacing the owner's brand with a skill aesthetic. |
+| `gpt-taste` | Strong focal composition: one mission statement and one primary action in the first viewport; readable title widths (measure caps, 32–56px heading band); contrast discipline (every text pair ≥ 4.5:1); varied content layouts across the four surfaces. | Mandatory cinematic motion, GSAP, fabricated randomization, placeholder photography, marketing-funnel treatment of course pages. |
+| `high-end-visual-design` | Typographic care (per-role weights, tracking, line heights); balanced spacing rhythm (4/8px scale, 48–80px section gaps); coherent controls (one radius, one focus treatment); detail consistency (hairline rules, aligned metadata). | Luxury styling, double bezels, pill navigation, mandatory shadows and reveal animations, custom cursors. |
+| `industrial-brutalist-ui` | Swiss Industrial Print archetype only: light substrate, visible compartmentalization via hairline rules, bimodal density (dense resource lists vs. calm reading), monospace reserved for technical metadata, square structural geometry. | Tactical Telemetry mode: dark terminal substrate, hazard red, crosshairs, scanlines, noise, all-caps body text, simulated telemetry, ASCII chrome. |
+| `design-taste-frontend-v1` | Explicit dials `DESIGN_VARIANCE=3, MOTION_INTENSITY=2, VISUAL_DENSITY=5`; complete UI states (empty, error, long-content, lifecycle) specified per surface; responsive composition rules (one column on small screens, breakpoints follow content); dependency awareness (self-hosted fonts, no new runtime deps). | React/Tailwind imposition on the WordPress stack, continuous animation, perpetual micro-interactions, the newer Taste skill substituted for v1. |
+| `brandkit` | Audience/positioning discipline (academic institution, not a product); consistent application specifications (desktop/mobile branding, news cover, course-document cover, social preview, print); logo usage rules with clear space, minimum sizes, and surface restrictions; the compact variant derived as a system decision, not decoration. | Generating a replacement logo, a brand board with no functioning page specification, or invented institutional evidence. |
 
-| Role | Token | Value | Usage |
-| --- | --- | --- | --- |
-| Paper | `--color-paper` | `#F7F4EC` | Primary canvas and reading surface |
-| Paper raised | `--color-paper-raised` | `#FFFEFA` | Inputs, selected rows, media mat; never card elevation |
-| Paper muted | `--color-paper-muted` | `#ECE8DE` | Quiet grouping, code/metadata fields |
-| Ink | `--color-ink` | `#141A1F` | Headlines and body |
-| Ink soft | `--color-ink-soft` | `#46515A` | Supporting text and captions |
-| Navy | `--color-navy` | `#003B5C` | Institutional anchor and primary actions |
-| Navy hover | `--color-navy-hover` | `#002B44` | Hover/pressed darkening |
-| Signal | `--color-signal` | `#007A87` | Focus, selected state, informative links |
-| Signal hover | `--color-signal-hover` | `#005F69` | Link hover/pressed |
-| Rule | `--color-rule` | `#C9CDD1` | Hairline structure |
-| Rule strong | `--color-rule-strong` | `#6F7A82` | Table heads and hard separation |
-| Success | `--color-success` | `#216E4E` | Text/icon plus label; never color alone |
-| Warning | `--color-warning` | `#7A4A00` | Text/icon plus label; never color alone |
-| Error | `--color-error` | `#A12622` | Errors and destructive action text |
-| Info wash | `--color-info-wash` | `#DDECEF` | Informational alert background |
-| Success wash | `--color-success-wash` | `#E0ECE5` | Success alert background |
-| Warning wash | `--color-warning-wash` | `#F2E8D2` | Warning alert background |
-| Error wash | `--color-error-wash` | `#F2DEDA` | Error alert background |
-| Focus offset | `--color-focus-offset` | `#F7F4EC` | Focus-ring separation from dark fills |
-| Brand deep (mark only) | `--color-brand-deep` | `#094c92` | Mark artwork only; never a UI color |
-| Brand accent (mark only) | `--color-brand-accent` | `#00aff1` | Mark artwork only; never a UI color |
+## 1. Direction: Preserve vs Reconsider
+
+### Preserved (product truth, not negotiable in this rewrite)
+
+- Bilingual `pt-BR` (authoritative) and `en` (separately reviewed) with locale-prefixed routes;
+  no machine translation. The locale switch is a flag-icon dropdown (flag + locale code +
+  caret → flag-labelled `Português`/`English` rows) — owner-directed, superseding ADR-06.
+- No third-party runtime requests, no analytics, no public forms, no embeds, no consent banner,
+  no cookies for anonymous visitors (ADR-10). The site works without JavaScript.
+- `theme.json` is the single source for palette, font roles, type scale, and spacing (ADR-08).
+  This contract and `design-contract.json` are amended before any new value lands in code.
+- Accessibility floor: WCAG 2.2 AA and eMAG, 4.5:1 text contrast, 3:1 large text and UI graphics,
+  7:1 body target, visible focus on every interactive element, 44px targets, mandatory reduced
+  motion, reflow at 320 CSS px and 200% zoom.
+- Native semantics first; DOM order equals reading and focus order; skip link, landmarks, one H1,
+  sequential headings.
+- Media governance: provenance, rights, credit, contextual alt or explicit decorative decision,
+  dimensions, captions/transcripts, no autoplay.
+- Content model, controlled vocabularies, immutable record identity, role/capability policy
+  (ADR-02 through ADR-07): untouched by this document.
+- The 4px spacing scale, the 80rem container, and the 68ch reading measure.
+- The supplied LPS artwork is preserved byte-for-byte as a source asset; it is never redrawn,
+  recolored, or given new geometry.
+
+### Reconsidered (the old look is the anti-reference)
+
+- The system-ui interface stack replaced by self-hosted IBM Plex Sans; the platform mono stack
+  replaced by IBM Plex Mono scoped to codes and identifiers.
+- Source Serif 4's reading-container role replaced by IBM Plex Sans throughout; the serif role
+  is retired.
+- The incumbent navy/signal palette replaced by the resolved blue palette (section 3).
+- The text-only header wordmark replaced by the full-color supplied artwork in the masthead —
+  an explicit amendment scoped to this owner-supplied LPS artwork only (section 6).
+- Uniform square geometry relaxed to moderate 4px control radii; images stay rectangular.
+- The incumbent homepage's eight-module grammar replaced by the plan's homepage composition
+  (section 7); the navigation label set is amended to the plan's teaching-aware set.
+
+### Per-clause supersede table
+
+| Prior clause (incumbent DESIGN.md @ sha256 `3b0ff8ec`) | Replacement | Status |
+| --- | --- | --- |
+| §3 palette: `--color-paper` `#FFFFFF`, `--color-paper-muted` `#EFF1F4`, `--color-navy` `#003B5C`, `--color-signal` `#007A87`, `--color-ink` `#141A1F`, `--color-ink-soft` `#46515A`, `--color-rule` `#C9CDD1`, `--color-rule-strong` `#6F7A82` | `--color-canvas` `#F5F7FA`, `--color-surface` `#FFFFFF`, `--color-anchor` `#12304A`, `--color-action` `#165A96`, `--color-text` `#182B3A`, `--color-text-muted` `#526477`, `--color-rule-quiet` `#D7E0E8`, `--color-boundary-strong` `#74869A` | SUPERSEDED (frozen by task-07) |
+| §3 semantic tokens (success/warning/error + washes) | Carried forward unchanged | PRESERVED |
+| §4 `--font-interface` system-ui stack | `"IBM Plex Sans", system-ui, …` self-hosted OFL | SUPERSEDED (frozen by task-07) |
+| §4 `--font-editorial` Source Serif 4 reading role | Retired; IBM Plex Sans owns reading | SUPERSEDED (frozen by task-07) |
+| §4 `--font-mono` platform mono stack | `"IBM Plex Mono", ui-monospace, …` scoped to codes/identifiers | SUPERSEDED (frozen by task-07) |
+| §1 "Text-only header wordmark"; `lps_logo_vector.svg` unapproved | Full-color artwork in the masthead for this owner-supplied LPS artwork only; UFRJ/COPPE marks remain text-only | AMENDED |
+| §10 `--radius-square` `0` for all surfaces | 4px control radii; images remain rectangular | SUPERSEDED (frozen by task-07) |
+| §6 eight-module homepage grammar | Plan homepage composition (section 7) | SUPERSEDED (PROPOSAL) |
+| §9 nav labels `Sobre · Pesquisa · Pessoas · Publicações · Infraestrutura · Oportunidades · Notícias` | `O LPS · Pesquisa · Pessoas · Ensino · Notícias e eventos · Oportunidades` | SUPERSEDED (PROPOSAL) |
+| §0, §5 grid/spacing, §7 component semantics, §8 motion, §11 accessibility constraints and rights debt | Carried forward, updated only where a superseded clause touches them | PRESERVED |
+
+## 2. Reference Observations — Evidence vs Interpretation
+
+Screenshot evidence is what the captures show; interpretation is what the contract concludes.
+Nothing below copies a reference asset, color, mark, or layout.
+
+### Screenshot evidence (captured 2026-09-18, metadata in the evidence manifest)
+
+- **FEEC desktop (1280x800):** lime-green utility bar with `Notícias`, `Sou Professor`,
+  `Sou Aluno`, a flag-icon `EN` locale widget, and a search icon; navy navigation bar with
+  dropdown carets on seven items; a full-width hero carousel (`Conhecimento que conecta
+  pessoas`) with arrow controls and dot indicators; FEEC and UNICAMP marks in the header.
+- **FEEC mobile (375x720):** the same two-tier header collapses to a compact bar; the carousel
+  remains the first content.
+- **PEE desktop (1280x800):** three stacked header tiers — a navy `gov.br` federal bar, a
+  maroon `COPPE UFRJ` band with its own nav row, and the PEE header (`Engenharia Elétrica UFRJ`
+  mark, `Home/Programa/Destaques/…` nav with dropdown carets, flag-icon locale links, search);
+  below, a large hero news feature with a kicker, headline, and `LEIA A NOTÍCIA` action over a
+  laboratory photograph.
+- **PEE mobile (375x720):** each header tier keeps its own hamburger (three separate disclosure
+  buttons stacked); flag icons remain visible; the hero headline overflows the viewport width
+  (`PEE PARTICI…` is clipped at the right edge).
+- **Incumbent LPS desktop (1280x800):** navy utility strip (`Laboratório de Processamento de
+  Sinais / UFRJ / COPPE`), a text-only `LPS` wordmark beside the lab name, a single navigation
+  row (`Sobre Pesquisa Pessoas Publicações Infraestrutura Oportunidades Notícias`), a search
+  box, `PT / EN` text stops, and a navy `Colabore` button; the body shows a large `LPS` heading
+  and a "not yet published" notice; a navy journeys band and navy footer close the page.
+- **Incumbent LPS mobile (375x720):** the wordmark shrinks to a small `LPS`; navigation hides
+  behind a `Menu e ferramentas do site` disclosure; the same sparse body follows.
+
+### Interpretation (contract conclusions, not measurements)
+
+- The incumbent's text-only wordmark is the clause this contract amends: the owner-supplied
+  artwork now carries identity in the masthead. Everything else about the incumbent shell —
+  slim header, single nav row, two-stop locale, compact footer — is directionally retained.
+- FEEC confirms the audience-path principle (`Sou Professor / Sou Aluno`) and the
+  research-near-top ordering already adopted; its carousel, gradient bar, and mega-nav
+  remain rejected (incumbent section-2 measurements stand).
+- PEE confirms the affiliation-stack reality (federal → COPPE → program) and a content-led
+  hero; it also shows what to avoid: three competing disclosure buttons on mobile, and a
+  hero headline that overflows the viewport. The LPS contract keeps one disclosure and
+  headings that adapt within the 32–56px band; the owner later adopted flag-icon locales
+  (section 1), matching this reference's own flag widget.
+- The incumbent's sparse body is a content state, not a design failure: the homepage spec keeps
+  the "remove empty optional sections" rule so a thin record set still looks intentional.
+
+## 3. Color
+
+Values are the plan's resolved palette. Ratios are computed (WCAG 2.2 relative luminance); the
+floor is 4.5:1 text, 3:1 large text and UI graphics, 7:1 body target. The executable table with
+per-pair expectations is `design-contract.json → colors`.
+
+| Role | Token | Value | Usage | Tag |
+| --- | --- | --- | --- | --- |
+| Canvas | `--color-canvas` | `#F5F7FA` | General page background | MEASURED |
+| Surface | `--color-surface` | `#FFFFFF` | Reading and form surfaces; the only approved field for full-color logo artwork | MEASURED |
+| Institutional anchor | `--color-anchor` | `#12304A` | Navigation band and footer band; primary fills | MEASURED |
+| Anchor depth | `--color-anchor-deep` | `#0C2237` | Hover/pressed depth inside anchor bands | MEASURED (derived) |
+| Action | `--color-action` | `#165A96` | Links and controls on light surfaces; focus outline on light surfaces | MEASURED |
+| Action depth | `--color-action-hover` | `#0F4A7E` | Link/control hover and pressed states on light surfaces | MEASURED (derived) |
+| Text | `--color-text` | `#182B3A` | Main reading text | MEASURED |
+| Muted text | `--color-text-muted` | `#526477` | Secondary readable text; never essential low-contrast hints | MEASURED |
+| Quiet rule | `--color-rule-quiet` | `#D7E0E8` | Decorative separators only; never the sole boundary of a control | MEASURED |
+| Strong boundary | `--color-boundary-strong` | `#74869A` | Necessary light-surface control boundaries (3.74:1 on surface) | MEASURED |
+| Focus on dark | `--color-focus-on-dark` | `#FFFFFF` | Focus outline on anchor bands and other dark fills | MEASURED |
+| Success / Warning / Error | `--color-success` `#04536C`, `--color-warning` `#8A4708`, `--color-error` `#B3261E` | Status text/icon plus label; never color alone | CARRIED |
+| Washes | `--color-info-wash` `#F0F5FD`, `--color-success-wash` `#D6F3FB`, `--color-warning-wash` `#F8ECD8`, `--color-error-wash` `#FCE7E4` | Alert backgrounds | CARRIED |
 
 ### Color rules
 
-- Paper, graphite, and navy hold the page. Signal teal appears only where it communicates an interactive, selected, focused, or data-key state.
-- All text/background pairs meet WCAG 2.2 AA: 4.5:1 for ordinary text and 3:1 for large text and UI graphics. Primary body copy targets 7:1.
-- State is never encoded by color alone; pair it with text, weight, rule position, icon shape, or native control state.
-- Official identity colors may replace navy/signal only after documented provenance and contrast verification. Extend this table before code. The two brand tokens are not such a replacement: they extend this table as mark-only values and replace nothing.
-- `--color-brand-deep` and `--color-brand-accent` are BRAND-ONLY. They exist to reproduce the mark artwork faithfully and for nothing else. They are forbidden as text, link, button, control, focus, rule, border, icon, background, or surface colors, in the theme, in the editor, and in every future template. They are registered in `theme.json` under `settings.custom`, deliberately outside `settings.color.palette`, so the editor color picker never offers them and no author can apply them to content.
-- Measured contrast (recorded in `.omo/drafts/lps-institutional-website.md`): `#00aff1` on Paper `#F7F4EC` is 2.27:1 and fails both 4.5:1 and 3:1, so it never carries text, an icon, a control, a focus indicator, or any other non-text meaning. `#094c92` on Paper is 7.77:1 but sits at only 1.38 against approved Navy `#003B5C`, so those two never appear as adjacent structural colors. Inside the mark artwork the WCAG 2.2 logotype exceptions to 1.4.3 and 1.4.11 apply; they stop at the edge of the artwork and never extend to a mark-derived UI control.
-- No gradients, alpha fog, glass, glows, or decorative color fields. The one exception is the mark's own `wave-gradient`, which exists only inside the mark artwork (§7, §9); no other gradient is permitted on any surface, in any state, anywhere.
+- Canvas and text carry the page. Surface separates reading and form areas; anchor owns the
+  navigation band, primary fills, and the footer band. Action appears only where it communicates
+  an interactive, focused, or selected state.
+- All text/background pairs meet WCAG 2.2 AA; primary body copy targets 7:1. The contract's
+  computed pairs are expectations; rendered review re-checks every actual text, control, focus,
+  hover, disabled, and validation pairing after the token sync.
+- State is never encoded by color alone; pair it with text, weight, rule position, icon shape,
+  or native control state.
+- `--color-rule-quiet` is decorative-only: it never appears as a text color, a control boundary,
+  or the sole carrier of meaning.
+- No gradients, alpha fog, glass, glows, or decorative color fields. The waveform gradient inside
+  the supplied artwork is the single permitted gradient — it is part of the artwork, not a
+  decorative effect.
+- Official identity colors may replace anchor/action only after documented provenance and
+  contrast verification. Extend the contract before code.
 
-## 3. Typography
+## 4. Typography
 
 ### Families
 
-- **Editorial/reading** `--font-editorial`: `"Source Serif 4", "Noto Serif", "Noto Serif CJK SC", "Noto Serif CJK JP", Georgia, serif`. Source Serif 4 is self-hosted when production assets are approved; `font-display: swap`. It owns display, deck, quotations, and long-form reading.
-- **Interface/body** `--font-interface`: `system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`. It owns navigation, controls, tables, form labels, and short explanatory body. This avoids shipping a second large webfont and preserves platform multilingual metrics.
-- **Technical metadata** `--font-mono`: `ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace`. It owns identifiers, dates, axes, kickers, and code-like metadata only.
+| Role | Token | Stack | Owns | Tag |
+| --- | --- | --- | --- | --- |
+| Interface + reading | `--font-interface` | `"IBM Plex Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif` | Display, h1–h4, navigation, controls, tables, labels, captions, body and long-form reading | MEASURED (OFL 1.1, self-hosted woff2, `font-display: swap`) |
+| Technical metadata | `--font-mono` | `"IBM Plex Mono", ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace` | Course codes, record identifiers, code samples, tabular schedule numerals only | MEASURED (OFL 1.1, self-hosted woff2, `font-display: swap`) |
 
-Three roles are justified: scholarly reading, high-legibility interface, and aligned technical data. No proprietary face is permitted. Never use Arial, Inter, Roboto, Montserrat, WiredDisplay, BreveText, Apercu, or WiredMono.
+Two roles are justified: one high-legibility family for all reading and interface text, and one
+mono for technical identifiers. Licensing and glyph coverage were verified 2026-09-18 (section
+0). If the licensed self-hosted files cannot ship, the system stack is the recorded fallback and
+the substitution is documented — the font decision does not reopen mid-execution. No remote font
+loading (ADR-10). Faces evaluated and excluded remain excluded: Arial, Inter, Roboto,
+Montserrat, WiredDisplay, BreveText, Apercu, WiredMono, Playfair, Source Serif 4 (retired role).
 
 ### Scale
 
-| Role/token | Fluid size | Weight | Line height | Tracking | Measure/use |
-| --- | --- | --- | --- | --- | --- |
-| `--type-display` | `clamp(2.75rem, 7vw, 5.75rem)` | 600 | 0.98 | `-0.035em` | Hero statement, max 11 words/3 lines |
-| `--type-h1` | `clamp(2.25rem, 5vw, 4rem)` | 600 | 1.04 | `-0.025em` | Page title |
-| `--type-h2` | `clamp(1.75rem, 3.5vw, 2.75rem)` | 600 | 1.12 | `-0.018em` | Major section |
-| `--type-h3` | `clamp(1.375rem, 2vw, 1.75rem)` | 600 | 1.18 | `-0.01em` | Subsection/record title |
-| `--type-h4` | `1.125rem` | 650 | 1.3 | `0` | Compact heading |
-| `--type-lead` | `clamp(1.25rem, 2vw, 1.5rem)` | 400 | 1.5 | `0` | Intro/deck, max 62ch |
-| `--type-body` | `1rem` | 400 | 1.65 | `0` | Default interface/body, max 72ch |
-| `--type-reading` | `1.125rem` | 400 | 1.72 | `0` | Long-form editorial, max 68ch |
-| `--type-small` | `0.875rem` | 450 | 1.5 | `0` | Captions/help |
-| `--type-meta` | `0.75rem` | 600 | 1.4 | `0.075em` | Uppercase labels/metadata |
+Headings adapt within the 32–56px band rather than occupy an entire screen. Body is 16–18px;
+line height 1.5–1.65; reading measure about 68ch.
+
+| Role/token | Fluid size | Weight | Line height | Use |
+| --- | --- | --- | --- | --- |
+| `--type-display` | `clamp(2rem, 5vw, 3.5rem)` | 700 | 1.1 | Homepage mission statement only |
+| `--type-h1` | `clamp(1.75rem, 4vw, 2.75rem)` | 700 | 1.15 | Page title |
+| `--type-h2` | `clamp(1.375rem, 2.5vw, 2rem)` | 650 | 1.2 | Section head |
+| `--type-h3` | `clamp(1.125rem, 1.8vw, 1.375rem)` | 650 | 1.25 | Subsection/record title |
+| `--type-h4` | `1.125rem` | 650 | 1.3 | Compact heading |
+| `--type-lead` | `clamp(1.125rem, 1.6vw, 1.25rem)` | 400 | 1.55 | Intro/deck, max 62ch |
+| `--type-body` | `1rem` | 400 | 1.6 | Interface/body, max 72ch |
+| `--type-reading` | `1.125rem` | 400 | 1.65 | Long-form reading, max 68ch |
+| `--type-small` | `0.875rem` | 450 | 1.5 | Captions/help/nav links |
+| `--type-meta` | `0.75rem` | 500 | 1.4 | Mono labels/metadata; never essential instructions alone |
 
 ### Type rules
 
-- Portuguese and English wrap by phrase, never by forced `<br>`. Use balanced wrapping for short headings where supported and ordinary wrapping as fallback.
-- CJK uses `word-break: normal`, `line-break: strict`, and platform CJK fallbacks. Do not add letter spacing to CJK paragraphs. Avoid isolated particles/endings and one-glyph final lines by adjusting measure or type step, not clipping.
+- Portuguese and English wrap by phrase, never by forced `<br>`; sentence case; tabular numerals
+  for schedules, years, counts, DOI fragments, and table data.
+- IBM Plex Mono is restricted to course codes, identifiers, and code samples — never body text,
+  never headings.
 - Body text is never below 16px; captions/meta never carry essential instructions alone.
-- Use tabular numerals for years, counts, DOI fragments, axes, and table data.
-- Underlines remain visible for inline links. Never distinguish links by color alone.
+- Underlines remain visible for inline links; links are never distinguished by color alone.
 
-## 4. Spacing & Layout
+## 5. Spacing, Grid & Rhythm
 
-### Spacing scale
+- Base unit 4px; the incumbent `--space-1` through `--space-24` scale is preserved unchanged.
+- Maximum content width 80rem (1280px); 12-column grid on desktop, 8 conceptual columns at
+  48–64rem, one column below 48rem. Outer inset `clamp(var(--space-4), 4vw, var(--space-10))`.
+- Desktop section spacing 48–80px (`--space-12` to `--space-20`); smaller task-page and mobile
+  gaps. Dense, orderly resource lists where the user is working; generous calm where the user is
+  reading.
+- Breakpoints follow content: one column on small screens; two columns only when both remain
+  readable; full desktop navigation only when all labels fit.
+- Source order equals reading/focus order. The document owns scrolling; no nested vertical
+  scroll except an explicitly labeled table wrapper on narrow screens.
+- At 320 CSS px and 200% zoom, controls wrap, labels remain visible, no text is clipped.
 
-Base unit: 4px. Intentional spacing uses only these tokens.
+## 6. Identity: The Supplied Artwork
 
-| Token | Value | Use |
+### Source asset
+
+`assets/brand/lps_logo_vector.svg` — 53,019 bytes, SHA-256
+`f369f9e49c81e297d30fa8e240267667dddf8b89f0d26c494636f9429027a23b`, viewBox `48 190 2052 301`
+(aspect ≈ 6.82:1). The bytes are preserved verbatim as a source asset; the earlier name
+`lps_logo_vector_transparent.svg` referred to this same artwork. The file contains six paths:
+`reference-line` (baseline rule), `waveform` (the signal figure), `separator` (vertical rule),
+`lps-lettering` (the "LPS" letters), `laboratory-name` ("Laboratório de Processamento de
+Sinais"), and `computational-intelligence` ("Inteligência Computacional"), plus three gradients
+(`wave-gradient`, `baseline-gradient`, `lps-gradient`).
+
+### The full-color-header amendment
+
+The repository's standing rule — text-only marks in the header, with `lps_logo_vector.svg`
+unapproved — is **amended for this owner-supplied LPS artwork only**: the full-color artwork is
+the masthead identity. UFRJ/COPPE marks remain text-only until their rights owner supplies files
+and rules. Institutional use/rights records remain a launch gate; this amendment authorizes the
+design, not the legal sign-off.
+
+### Compact variant — documented path mapping
+
+`assets/brand/lps_logo_compact.svg` is a derivative created by **selecting and recombining
+existing source paths only** — no new geometry, no altered paths, no recolor. Every kept path's
+`d` attribute is byte-identical to the source (verified by the contract validator and the
+task-02 test suite).
+
+| Mapping | Source element | Disposition |
 | --- | --- | --- |
-| `--space-1` | `0.25rem` | Rule/label proximity |
-| `--space-2` | `0.5rem` | Inline icon/label, metadata |
-| `--space-3` | `0.75rem` | Compact control internals |
-| `--space-4` | `1rem` | Base gutter and field rhythm |
-| `--space-5` | `1.25rem` | Comfortable control padding |
-| `--space-6` | `1.5rem` | Content grouping |
-| `--space-8` | `2rem` | Component groups |
-| `--space-10` | `2.5rem` | Section prelude |
-| `--space-12` | `3rem` | Major mobile break |
-| `--space-16` | `4rem` | Major tablet break |
-| `--space-20` | `5rem` | Major desktop break |
-| `--space-24` | `6rem` | Maximum editorial pause |
+| Kept | `reference-line`, `waveform`, `separator`, `lps-lettering` | Verbatim into the compact file |
+| Dropped | `laboratory-name`, `computational-intelligence` | Omitted — the long descriptive lettering cannot stay legible at mobile sizes |
+| Kept | `wave-gradient`, `baseline-gradient`, `lps-gradient` | Verbatim — the waveform gradient stays inside the artwork |
+| viewBox | Union of kept-path bounds x[72, 1378.1] y[208.03, 467.33] padded 8 units per side | `64 200 1322 275` (aspect ≈ 4.81:1) |
 
-### 12-column editorial grid
+### Usage rules
 
-- `--grid-max: 80rem` (1280px); document-centered.
-- Mobile `< 48rem`: 4 conceptual columns, `--grid-gutter: 1rem`; all showcase regions span full width unless explicitly paired.
-- Tablet `48rem-63.99rem`: 8 conceptual columns, `--grid-gutter: 1.5rem`; labels/notes may span 2 while content spans 6.
-- Desktop `>= 64rem`: 12 columns, `--grid-gutter: 2rem`; section label 2 columns, primary content 7, contextual note 3. Figures may span 8-10; long-form text stays 6-7 columns.
-- Outer inset: `clamp(var(--space-4), 4vw, var(--space-10))`.
-- The `page-grid` contains the page and the `twelve-span-grid` places modules. The document owns scrolling. No nested vertical scroll except an explicitly labeled table wrapper on narrow screens; that wrapper receives keyboard focus and an accessible description.
-- Source order equals reading/focus order. CSS placement must not reorder semantic content.
-- Browser mechanics (`auto`, percentages, `minmax()`, `clamp()`, intrinsic sizing) remain raw; design intent resolves to tokens.
+- **Desktop masthead:** full artwork at 240–320px rendered width on a light surface; clear space
+  equal to the waveform height on all sides; the home link carries a meaningful accessible name
+  (`LPS — página inicial`) without duplicate narration of the embedded `<title>`.
+- **Mobile masthead:** compact variant at 28–40px rendered height. The full lockup is never
+  shrunk to fit — its descriptive lettering would fall below legibility.
+- **Anchor (navy) surfaces:** text wordmark only. The artwork's dark blues measure 1.59–2.25:1
+  on `--color-anchor`, so full-color artwork is restricted to light surfaces; the footer band
+  uses the `LPS` text wordmark.
+- The artwork never receives container chrome, recoloring, effects, or a substitute redraw.
+- No compact variant existed in the repo before this contract; the mapping above is the
+  documentation the plan requires.
 
-### Responsive/stress contract
+## 7. Surface Specifications — One Identity, Four Task Densities
 
-- At 375px all primary content reflows to one readable column with no page-level horizontal overflow. Navigation wraps; it does not hide essential destinations in this showcase.
-- At 768px paired comparisons may form two columns; labels remain adjacent to their content.
-- At 1280px the full 12-column editorial rhythm is visible; text measure remains bounded.
-- At 200% zoom and 320 CSS px, controls wrap, labels remain visible, and no text is clipped or ellipsized.
-- Long URLs/DOIs may break with `overflow-wrap: anywhere`; ordinary words and CJK phrases use natural line breaking.
-- Print strips interaction-only controls, retains URLs where useful, preserves figure captions, repeats table headers, and avoids splitting alerts/figures when possible.
+All four surfaces share the masthead/nav/footer shell, the palette, IBM Plex, the 4/8px rhythm,
+and the logo rules. They differ only in task density — the same identity doing different work.
 
-## 5. Components
+### 7.1 Homepage — Persuade, low density
 
-### Link
-- **Structure**: semantic `<a href>` with descriptive text; optional trailing inline SVG for external/download semantics.
-- **Variants**: inline, navigation, quiet metadata, external.
-- **Spacing**: `--space-1`/`--space-2` only.
-- **States**: default underline; hover uses signal-hover and thicker underline; active uses navy-hover; focus-visible uses a 3px signal outline with 3px offset; visited is deliberately not recolored in institutional navigation; disabled links are rendered as text, never fake anchors.
-- **Accessibility**: no “click here”; external behavior named where unexpected; icons are `aria-hidden` when text supplies the name.
-- **Motion**: color/decoration change in `--motion-fast`; instant under reduced motion.
-- **Layout**: inline/cluster; document scroll.
+First viewport: masthead with the full-color artwork, a concise lab introduction, and the two
+primary links `Conheça a pesquisa` and `Disciplinas e materiais`. One authentic feature image
+appears only when rights-cleared. Below: a research feature with linked areas; differentiated
+news and upcoming-event content; a compact teaching entrance; people/collaboration links; the
+institutional footer.
 
-### Button
-- **Structure**: native `<button>` or true link styled as action; label plus optional project-original SVG.
-- **Variants**: primary navy fill, secondary paper with 2px navy rule, quiet text action, destructive.
-- **Spacing**: `--space-3` block and `--space-5` inline; minimum 44px target.
-- **States**: default, hover, focus-visible, pressed (`transform: translateY(1px)` only), disabled, busy (`aria-busy` plus stable label), success/error text announced nearby.
-- **Accessibility**: native disabled semantics, discernible name, no icon-only critical action.
-- **Motion**: 120ms color/transform, interruptible; reduced motion removes transform and duration.
-- **Layout**: cluster; no internal scroll.
+- **Empty:** optional sections with no reviewed records are removed; orientation and task
+  entrances remain. No fixed grid of empty panels.
+- **Error:** a failed featured record degrades to its text links; never a broken-image box.
+- **Long content:** long Portuguese titles wrap by phrase inside the 12-column grid; news lists
+  paginate.
+- **Image-free:** the image-free version looks intentional — mission, links, and records carry
+  the page without a placeholder box.
 
-### Navigation
-- **Structure**: labeled `<nav><ul>`; current page uses `aria-current="page"`; locale and search are separate named groups.
-- **Variants**: primary, local/section, utility.
-- **Spacing**: `--space-2`, `--space-4`, `--space-6`.
-- **States**: rest, hover, focus, pressed, current. Current state uses a 3px signal rule and weight, not color alone.
-- **Accessibility**: 44px targets; wrapping labels; logical DOM order; no hover-only submenu; skip link precedes shell.
-- **Motion**: color only; no sliding indicator.
-- **Layout**: wrapping cluster on showcase; production mobile disclosure must retain native button semantics and focus management.
+### 7.2 Professor — Read, medium density
 
-### Editorial Record Card (card without chrome)
-- **Structure**: `<article>` with kicker, linked title, summary, metadata, optional figure.
-- **Variants**: feature, compact, numbered, dated opportunity/event/news.
-- **Spacing**: `--space-2`, `--space-4`, `--space-6`.
-- **States**: only the actual title link responds; article itself is not falsely clickable. Opportunity and event state uses the existing status primitive with explicit text. No lift, scale, rounded container, fill, or shadow.
-- **Accessibility**: one heading; link text remains meaningful out of context; date values use semantic `<time>`.
-- **Motion**: none on article.
-- **Layout**: `ram-grid` repeats records with `minmax(min(16rem, 100%), 1fr)` and no internal scroll; each record remains a hairline-separated stack.
+Reviewed identity, affiliation and role; optional cleared portrait; research interests and
+scholarly links; projects and publications through shared relationships; `Disciplinas e
+materiais` grouped into `Em andamento`, `Próximas ofertas`, `Ofertas anteriores` with explicit
+term and section.
 
-### Institutional Trust Layout
-- **Structure**: primary `<article>` followed in source order by an `<aside>` named for verification and contact details.
-- **Variants**: About/History/Governance, Collaboration/Contact, Privacy/Accessibility.
-- **Spacing**: `--space-4`, `--space-6`, `--space-8`, `--space-12`.
-- **States**: verified facts show source and last-reviewed date; stale or absent evidence becomes an explicit warning/block rather than a positive claim or invented contact.
-- **Accessibility**: headings remain sequential; role contacts are descriptive `mailto:` links; source URLs are breakable; no form, cookie banner, or data collection appears.
-- **Motion**: none.
-- **Layout**: ordinary document flow on narrow screens; at desktop, `sticky-aside` places the verification aside beside long copy while the document remains the only vertical scroll owner.
+- **Empty:** no current offering collapses `Em andamento`; `Ofertas anteriores` carries the
+  teaching record.
+- **Error:** a missing portrait renders the text layout; no placeholder silhouette.
+- **Long content:** twenty prior terms paginate by year; three co-teachers list fully; long
+  names wrap naturally.
+- **Attribution:** past teaching attribution is preserved when login access or affiliation
+  changes. No individually branded microsites.
 
-### Figure
-- **Structure**: `<figure>` containing rights-cleared media or project-original SVG/data graphic and `<figcaption>` with description, source, credit, and rights status.
-- **Variants**: documentary image, technical diagram, data plot, media placeholder.
-- **Spacing**: caption `--space-2`; outer rhythm `--space-6`.
-- **States**: noninteractive by default; interactive data requires keyboard-equivalent table and named state.
-- **Accessibility**: informative image has contextual alt; complex figure has nearby text/table; decorative asset uses empty alt; explicit dimensions/aspect ratio prevent shift.
-- **Motion**: none.
-- **Layout**: square geometry, full column width; no faux-science decoration.
+### 7.3 Populated offering — Operate, high density
 
-### Filter Group
-- **Structure**: `<form>` or `<fieldset>` with `<legend>`, native checkboxes/radios, apply/reset actions, and result count/status.
-- **Variants**: inline facets, stacked facets.
-- **Spacing**: `--space-2`, `--space-4`, `--space-6`.
-- **States**: rest, hover, focus, checked, disabled, empty, error. Native state is always preserved.
-- **Accessibility**: shareable server-rendered results; color-independent selection; labels own 44px targets.
-- **Motion**: color only; none under reduced motion.
-- **Layout**: wrapping cluster or stack; document scroll.
+Term and section header with the teaching team; syllabus snapshot; schedule; venue or approved
+class link; optional LMS handoff; ordered units with stable anchors; material links near the top
+on mobile. Each resource shows descriptive title, format, size when known, authored language,
+version/update information, and accessibility alternative when required. External URLs are
+identified as external without promising their contents.
 
-### Data Table
-- **Structure**: caption, semantic table, scoped headers, optional sortable buttons with `aria-sort`, and narrow-screen focusable overflow wrapper.
-- **Variants**: scholarly records, technical measurements.
-- **Spacing**: cell `--space-3`/`--space-4`.
-- **States**: row rest/hover/focus-within/selected, sort state, empty/error. No zebra striping required.
-- **Accessibility**: caption names purpose; units belong in headings; a linear list alternative is preferred when relationships matter more than comparison.
-- **Motion**: none.
-- **Layout**: full-width; wrapper alone may own horizontal scroll on narrow viewports.
+- **Empty:** an offering with no released materials shows syllabus and schedule with an explicit
+  `materiais ainda não publicados` notice.
+- **Error:** a withdrawn resource shows its withdrawn state; an invalid external link is
+  identified as external.
+- **Long content:** one hundred resources group under their units with stable anchors; mixed
+  authored languages are labelled per resource.
+- **Scan pending:** a resource whose scan is pending shows state text and no download control.
 
-### Form Field
-- **Structure**: persistent `<label>`, native input/select/textarea, optional help, inline error linked by `aria-describedby`.
-- **Variants**: default, required, optional, readonly, disabled, error, success.
-- **Spacing**: `--space-2`, `--space-3`, `--space-4`.
-- **States**: rest, hover, focus, valid, invalid, disabled, readonly; 2px structural border and 3px focus outline.
-- **Accessibility**: no placeholder-only label; errors state cause and repair; first invalid field receives focus after submit.
-- **Motion**: color only; instant under reduced motion.
-- **Layout**: stack; paired fields collapse at 48rem.
+### 7.4 Editor dashboard — Operate, highest density
 
-### Alert
-- **Structure**: status icon, concise heading, actionable message; `role="status"` for passive updates and `role="alert"` only for urgent errors.
-- **Variants**: info, success, warning, error.
-- **Spacing**: `--space-4`, `--space-6`.
-- **States**: static, actionable, dismissible only when persistence policy is defined.
-- **Accessibility**: icon/label duplicates color semantics; links explain recovery.
-- **Motion**: no auto-dismiss or entrance animation.
-- **Layout**: left signal rule, never floating toast in the institutional default.
+A task interface, not a promotional surface: `Meu perfil`, `Minhas disciplinas`, `Criar oferta`,
+`Adicionar material`, `Enviar notícia`; structured fields with context-aware defaults and locked
+presentation; previews and revisions.
 
-### Media Block
-- **Structure**: rights-status header, bounded media/placeholder, caption, transcript/download controls.
-- **Variants**: image, video poster, audio/transcript, unavailable pending rights.
-- **Spacing**: `--space-2`, `--space-4`, `--space-6`.
-- **States**: ready, loading, unavailable, rights-blocked, caption/transcript available.
-- **Accessibility**: no autoplay; native controls; captions/transcript; no public use while rights are unknown.
-- **Motion**: media playback only by user action.
-- **Layout**: intrinsic aspect ratio; no clipping.
+- **Empty:** a professor with no assigned offerings sees the task list and an explicit
+  assignment notice, not a blank panel.
+- **Error:** validation failure names the field, cause, and repair; access denied is a distinct
+  state from validation failure.
+- **Long content:** long offering lists paginate; duplicate section attempts surface the
+  uniqueness error.
+- **Lifecycle:** saving, draft saved, in review, scheduled, public, validation failure, scan
+  pending/failed, and access denied are visually distinct states; a saved draft is never styled
+  as a successful publication. Destructive and historical-changing actions explain their effect
+  and require confirmation. Upload progress is truthful.
 
-### Icon
-- **Structure**: project-original or approved SVG using `currentColor`; text labels remain primary.
-- **Variants**: 16px inline, 20px control, 24px prominent; consistent 1.75px square-ended stroke.
-- **Accessibility**: decorative icons `aria-hidden`; standalone icons require a visible or accessible name and 44px target.
-- **Rules**: no emoji, raster UI icons, Lucide/Feather/Heroicons, mixed filled/outline families, or copied institutional marks other than the laboratory's own cleared mark, which is not an icon and does not use `currentColor` in its full-color form. The cleared mark is governed by §9 and never by this primitive: it is never placed in an icon slot, never given an icon stroke or an icon size variant, and never redrawn as an icon. Only its monochrome derivative takes a single `currentColor` fill, and only where the mark acts as UI chrome. UFRJ, COPPE, and every third-party mark stay forbidden in every form.
+## 8. Application Specifications
 
-## 6. Motion & Interaction
+| Application | Logo variant | Specification |
+| --- | --- | --- |
+| Desktop branding | full | Masthead on canvas: artwork at 240–320px, clear space equal to the waveform height, home-link accessible name; separate primary navigation row below the masthead |
+| Mobile branding | compact | Artwork at 28–40px on a light masthead; labelled disclosure button for navigation; the full lockup is never shrunk to fit |
+| News cover | none in image | Cover images carry no embedded logo; the compact lockup may sit on a light caption mat beside the image when a cover template requires identification |
+| Course-document cover | full | Generated covers place the artwork top-left on white at minimum 40mm width; course code in IBM Plex Mono; offering term and section below the rule |
+| Social preview | full | `og:image` 1200x630: artwork centered on `--color-canvas` with the page title in `--color-text`; no photography without provenance; no text inside the artwork's clear space |
+| Print | full | Full-color artwork on white at the top of the first page; navigation and interactive controls are stripped; URLs retained where useful; figure captions preserved; table headers repeat |
+
+## 9. Components
+
+Component semantics are preserved from the incumbent contract; surface details follow the new
+palette and 4px control radii. The full component clauses (link, button, navigation, page
+header, editorial record, institutional trust layout, figure, filter group, data table, form
+field, alert, media block, icon) carry forward with these amendments:
+
+- **Button:** primary fill is `--color-action` with `--color-surface` label (7.15:1); secondary
+  is `--color-surface` with a 2px `--color-boundary-strong` boundary; radius 4px; pressed state
+  keeps the 1px translate; minimum 44px target.
+- **Link:** rest and hover use `--color-action`/`--color-action-hover` on light surfaces;
+  underline always visible; focus-visible uses a 3px `--color-action` outline with 3px offset
+  (3px `--color-focus-on-dark` on anchor bands).
+- **Navigation:** current page uses `aria-current="page"` plus a 3px `--color-action` rule and
+  weight 750 — never color alone; the mobile disclosure is a real `<button>` with
+  `aria-expanded`/`aria-controls`, Escape closes and returns focus.
+- **Form field:** 2px `--color-boundary-strong` structural border (3.74:1 on surface), 4px
+  radius, 3px `--color-action` focus outline; errors state cause and repair.
+- **Alert:** left `--color-action` rule on the matching wash; status text uses the semantic
+  tokens with icon/label duplicating color semantics.
+- **Icon:** project-original or approved SVG using `currentColor`; text labels remain primary;
+  no emoji, raster UI icons, or copied institutional marks. The approved exception is the
+  flag-icon locale switch, whose inline SVG flags accompany the `Português`/`English` labels.
+
+## 10. Motion & Interaction
+
+Dials: `DESIGN_VARIANCE=3`, `MOTION_INTENSITY=2`, `VISUAL_DENSITY=5`.
 
 | Token | Value | Use |
 | --- | --- | --- |
 | `--motion-fast` | `120ms` | Hover/focus color and button press |
-| `--motion-standard` | `180ms` | Disclosure/state tint if later required |
+| `--motion-standard` | `180ms` | Disclosure/state tint |
 | `--ease-state` | `cubic-bezier(0.2, 0, 0, 1)` | Interruptible state response |
 
-- Motion communicates only interaction/state. No load reveals, parallax, ambient drift, carousels, decorative graph animation, smooth-scroll hijacking, magnetic controls, or hover movement on noninteractive surfaces.
-- Only `transform`, `opacity`, `filter`, color, and text-decoration may transition. Never use `transition: all` or animate layout.
-- The only spatial movement in the primitive set is a 1px pressed button response. It does not alter layout and disappears under `prefers-reduced-motion: reduce`.
-- Reduced motion sets all transition/animation durations to effectively zero and removes transforms. Content and state remain fully legible.
-- Focus is not animated. Feedback appears within 100ms and never waits for motion.
+- Motion communicates only interaction/state. No load reveals, parallax, ambient drift,
+  carousels, decorative animation, smooth-scroll hijacking, magnetic controls, marquees, pinned
+  storytelling, or autoplay media.
+- Only `transform`, `opacity`, `filter`, color, and text-decoration may transition. Never
+  `transition: all`; never animate layout properties.
+- `prefers-reduced-motion` removes movement without removing information; state remains fully
+  perceivable.
+- CSS visual order must match document reading and keyboard order. Focus is not animated;
+  feedback appears within 100ms.
 
-## 7. Depth & Surface
+## 11. Depth & Surface
 
-Strategy: **borders-only editorial depth**.
+Strategy: **flat contrast with hairline structure**. Band alternation (canvas ↔ surface) and
+hairline rules establish hierarchy; nothing casts a shadow.
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `--rule-hairline` | `1px solid var(--color-rule)` | Sections, records, table rows |
-| `--rule-strong` | `2px solid var(--color-navy)` | Controls and major boundaries |
-| `--rule-signal` | `3px solid var(--color-signal)` | Current/focus/alert marker |
-| `--radius-square` | `0` | All rectangular surfaces |
+| `--rule-hairline` | `1px solid var(--color-rule-quiet)` | Decorative separators only |
+| `--rule-boundary` | `2px solid var(--color-boundary-strong)` | Control boundaries |
+| `--rule-anchor` | `2px solid var(--color-anchor)` | Header base rule, major boundaries |
+| `--rule-focus` | `3px solid var(--color-action)` | Current/focus/alert marker on light surfaces |
+| `--radius-control` | `4px` | Controls and inputs only |
+| `--radius-image` | `0` | All imagery stays rectangular |
 | `--shadow-none` | `none` | Every primitive |
 
-Paper-raised is a flat reading contrast, not elevation. No generic card chrome, rounded rectangle containers, box shadows, drop shadows, blur, glass, or faux depth. No gradients in UI chrome, surfaces, or depth; the mark's own `wave-gradient` is the single permitted gradient and appears only inside the mark artwork. A gradient on a card, hero, header, footer, button, band, rule, focus indicator, or any other surface is rejected exactly as it was before this clause existed, and the mark lends its gradient to nothing outside itself. Decorative waveforms stay banned ornament: the cleared mark is the only waveform this contract permits, it appears once per surface as the mark, and it is never repeated, mirrored, tiled, extended, or reused as a divider, band, watermark, or background texture. Photographs and technical figures provide material reality; rules establish hierarchy.
+No generic card chrome, pill interfaces, box shadows, gradients, blur, glass, or faux depth.
+Photographs and technical figures provide material reality; band rhythm and rules establish
+hierarchy.
 
-## 8. Accessibility Constraints, Deviations & Accepted Debt
+## 12. Accessibility Constraints & Accepted Debt
 
-### Constraints
+### Constraints (carried forward unchanged)
 
-- Target WCAG 2.2 AA and eMAG; body contrast >= 4.5:1, large text/UI graphics >= 3:1, and core reading copy targets 7:1.
-- Every interactive element has a visible `:focus-visible` state with at least a 3px signal outline and 3px offset; focus is never clipped or covered.
-- Native semantics first. Keyboard order equals DOM and visual reading order. Skip links, landmarks, one H1, sequential headings, table captions/scopes, form labels, descriptions, and live-region restraint are mandatory.
-- Targets are at least 44 by 44 CSS px with 8px separation where adjacent.
-- Reflow works at 320 CSS px and 200% zoom without two-dimensional page scrolling. A labeled table wrapper may scroll horizontally as a documented exception.
-- Portuguese (`pt-BR`), English (`en`), and CJK stress text must not clip, produce tofu, or force semantic phrase breaks. Language changes use `lang` attributes.
-- Media requires provenance, rights, credit, contextual alt/decorative decision, dimensions, captions/transcripts, and no autoplay.
-- `prefers-reduced-motion` is mandatory; state remains perceivable with no animation.
-- Color, position, sound, or motion never carries meaning alone. Errors identify the field, cause, and repair.
-- At production integration, automated axe/Playwright checks augment but do not replace keyboard, accessibility-tree, zoom, CJK, and visual review.
-
-### Reference deviations
-
-- **From FEEC**: preserve research-first hierarchy and audience pathways; reject its broad machine-language menu, duplicated modules/headings, carousel density, default/weak state handling, tiny/empty media, and opaque controls.
-- **From WIRED**: preserve rule/whitespace discipline, square geometry, and separated type roles; replace every proprietary typeface and brand token; reduce news density; add robust focus, form semantics, multilingual metrics, and calm institutional color.
-- **From Lazyweb screens**: preserve evidence rows and metadata adjacency; reject gradient corporate hero fields, signup gates, tiny utility nav, sponsor-feed density, and promotional metrics.
-- **From minimalist reference**: preserve macro-whitespace and restraint; reject rounded bento boxes, shadow-lift cards, remote placeholder photography, ambient gradients, and generic reveal animation.
+- Target WCAG 2.2 AA and eMAG; body contrast ≥ 4.5:1, large text/UI graphics ≥ 3:1, core reading
+  copy targets 7:1.
+- Every interactive element has a visible `:focus-visible` state — 3px outline with 3px offset,
+  `--color-action` on light surfaces, `--color-focus-on-dark` on anchor bands; focus is never
+  clipped or covered.
+- Native semantics first; keyboard order equals DOM and visual order; skip links, landmarks, one
+  H1, sequential headings, table captions/scopes, form labels, live-region restraint.
+- Targets at least 44×44 CSS px with 8px separation where adjacent.
+- Reflow at 320 CSS px and 200% zoom without two-dimensional page scrolling; a labeled table
+  wrapper may scroll horizontally as a documented exception.
+- `pt-BR`, `en`, and CJK stress text must not clip, produce tofu, or force semantic phrase
+  breaks; language changes use `lang` attributes.
+- Media requires provenance, rights, credit, contextual alt/decorative decision, dimensions,
+  captions/transcripts, no autoplay.
+- Color, position, sound, or motion never carries meaning alone; errors identify the field,
+  cause, and repair.
 
 ### Accepted debt
 
 | Item | Location | Why accepted | Owner / exit |
 | --- | --- | --- | --- |
-| Official UFRJ/COPPE/LPS marks are represented by text only | Showcase and future shell | Live pages prove current files exist but do not prove reuse rights or provide identity rules; LPS host is unavailable | Institutional communications/rights owner supplies authorized source files, license/permission, and clear-space/color rules before production integration |
-| Source Serif 4 CJK glyphs depend on platform fallback | Multilingual typography | Bundling full Noto CJK subsets would add substantial weight before final locale corpus is known | Todo 13 font packaging selects tested, subsetted open-source CJK fallback if target platforms show metric/tofu defects |
-| No human screen-reader session in this task | Standalone showcase | Linux harness supplies Chromium accessibility snapshots and keyboard/axe evidence, not a representative human AT study | Todo 24 runs plan-wide accessibility review and supported AT smoke evidence; any unsupported platform remains explicit |
-| No exact visual-reference image | Research log | Imagen tooling unavailable and FEEC/WIRED are hierarchy/atmosphere sources, not clone targets | Primitive browser captures are the contract; production pages receive fresh visual QA in Todo 24 |
+| ~~PROPOSAL token values are unfrozen in code~~ — resolved 2026-09-18 | `theme.json`, `theme.css` | Task-07 landed the values; `check-theme.mjs` now gates contract↔:root parity so drift is a hard failure | Closed by task-07; the contract gate re-runs in `qa:design-system` |
+| Institutional use/rights records for the artwork | Section 6 | The amendment authorizes the design; legal sign-off is a separate launch gate | Institutional communications/rights owner |
+| UFRJ/COPPE marks remain text-only | Masthead affiliation line, footer | No rights owner has supplied files or rules | Rights owner supplies authorized assets |
+| ~~IBM Plex woff2 files are not yet vendored~~ — resolved 2026-09-18 | `assets/fonts/` | Task-07 vendored the six approved subset faces and retained `OFL.txt`; the system stack remains the in-stack fallback | Closed by task-07 |
+| Public copy remains UNAPPROVED | All surfaces | Draft strings exist so surfaces have real measures; none are approved institutional voice | Editorial owner approves or replaces each string; EN variants pass independent review per ADR-06 |
+| No human screen-reader session | Fixture and captures | The harness supplies Chromium accessibility snapshots and keyboard evidence, not a representative human AT study | Plan-wide accessibility review runs supported AT smoke evidence |
+| Reference screenshots are observation, not endorsement | Section 2 | FEEC/PEE inform wayfinding and composition; no assets, colors, or copy are adopted | Standing rule; re-capture on reference redesign |
 
-## 9. Mark
+## 13. Proposed Public Copy (UNAPPROVED)
 
-The institutional mark is `lps_logo_vector.svg`: the laboratory's own cleared mark, a derivative vectorized from the supplied logo. Its source geometry is a `48 190 2052 301` viewBox (non-zero origin, 6.82:1), six outlined paths with no font or raster dependency, and one `linearGradient id="wave-gradient"`. It is artwork governed by this section alone. It is not an icon (§5), it is not a surface or a depth device (§7), and it grants no token, gradient, waveform, or geometry to anything outside its own bounding box.
+All strings below are UNAPPROVED proposals for editorial review. They assert no facts beyond
+what the content model already publishes, invent no marks, and none may ship without sign-off.
+The LPS acronym is never expanded in copy until the institution confirms the official form.
 
-### Variant matrix
-
-| Variant | Color | Permitted contexts | Never |
-| --- | --- | --- | --- |
-| Full-color lockup | Brand deep plus `wave-gradient` | Non-interactive identity only: footer identity block, an identity/about page figure, press and download pages, the social share image | Any interactive or focusable instance, any navigation or control, any icon slot |
-| Compact lockup | Brand deep plus `wave-gradient` | The same non-interactive contexts, where the full lockup would fall under its legibility floor | As above |
-| Symbol only | Brand deep plus `wave-gradient` | Non-interactive contexts too narrow for any lockup | Standing in for the institution name in text |
-| Monochrome | A single `currentColor` fill | Every instance where the mark acts as UI chrome: home link, header mark, footer link, any interactive or focusable instance | Carrying a brand color |
-| Reversed on dark | Paper on an approved dark fill from §2 | Non-interactive identity on a surface §2 already approves | Introducing a new dark surface for its own sake |
-| Favicon and app icon | As shipped by the variant set | Browser and OS chrome slots | Any in-page icon slot |
-
-Variant files, byte sizes, optimisation tolerances, and the rights record are produced by Todo 32; placement is Todo 33. This section is the contract both must satisfy; it ships nothing on its own.
-
-### Monochrome in chrome
-
-Wherever the mark is itself an interactive affordance or sits inside UI chrome, the monochrome derivative is used, and it takes its color from the surrounding token through `currentColor`, never from a brand token. `#00aff1` measures 2.27:1 on Paper and fails 1.4.11 non-text contrast; the WCAG 2.2 logotype exception covers a logotype presented as content, not a mark reused as a control. A full-color mark is therefore never a home link, never a navigation target, and never a focusable element.
-
-### Clear space and minimum size
-
-- Clear space on every side is at least the cap height of the mark's lettering, measured from the artwork's true bounding box after the viewBox origin is normalised. Nothing - text, rule, control, image, or another mark - enters that space.
-- Minimum size is the width at which the smallest lettering in the variant still renders at or above the 16px body floor of §3. Below that width, step down the matrix (lockup, then compact, then symbol); never shrink a lockup past its floor.
-- The mark sits on Paper, Paper-raised, or an approved dark fill from §2. It never sits on a photograph, a pattern, a tinted panel, or any surface §2 does not already define.
-- Spacing around the mark uses the §4 scale only. The mark introduces no new spacing value, no radius, no shadow, and no blur.
-
-### Misuse
-
-Each of the following is rejected on its own, independently of the others:
-
-- Recoloring, regradienting, flattening, outlining, or otherwise altering the artwork's lettering, proportions, or colors.
-- Rotating, skewing, stretching, cropping, or distorting the mark, or giving it a shadow, glow, radius, blur, border, or container chrome. §7 forbids those primitives and the mark receives no exemption from them.
-- Extracting the `wave-gradient`, or any part of it, and applying it to a card, hero, header, footer, button, band, rule, focus indicator, or any other surface. The gradient is permitted inside the mark artwork and nowhere else.
-- Reusing, repeating, mirroring, tiling, extending, or redrawing the waveform as ornament, divider, watermark, or background texture. The cleared mark is the only waveform this contract permits; every other waveform graphic stays banned ornament exactly as it was before this section existed.
-- Placing a brand color on text, links, buttons, controls, focus rings, rules, borders, icons, backgrounds, or any surface. The brand tokens are mark-only (§2).
-- Using the mark as a heading, as a substitute for the institution name in running text, or as a second accessible name beside the visible wordmark.
-- Locking the mark up with a UFRJ, COPPE, or third-party mark, or producing any of those marks in any form.
-- Publishing any variant while its rights record is unregistered, or recording a clearance that the rights owner did not give.
-
-### Rights gate
-
-No variant is published until the provenance and rights record exists and `_lps_logo_rights` resolves to `cleared` with a local asset path; remote hosting and hotlinking stay forbidden. Until Todo 32 registers that record and Todo 33 places the mark, the §8 accepted-debt row stands unchanged and shipped surfaces remain text-only.
-
-### Accessibility
-
-- A decorative instance is `aria-hidden` and contributes no accessible name. An interactive instance carries exactly one accessible name per landmark, localised for `pt-BR` and `en`, and never duplicates an adjacent visible institution name.
-- The mark never introduces horizontal overflow at 320 CSS px or at 200% zoom. It reflows by stepping down the variant matrix, never by clipping and never by scaling below its floor.
-- The mark is static. §6 applies to it unchanged: no entrance animation, no hover motion, no gradient animation, no reveal.
+| Slot | PT-BR (authoritative draft) | EN (paired draft, separately reviewed) |
+| --- | --- | --- |
+| Logo link accessible name | `LPS — página inicial` | `LPS — home` |
+| Primary nav | O LPS · Pesquisa · Pessoas · Ensino · Notícias e eventos · Oportunidades | About · Research · People · Teaching · News and events · Opportunities |
+| Utility | Busca · PT / EN · Área docente | Search · PT / EN · Faculty area |
+| Homepage primary links | `Conheça a pesquisa` · `Disciplinas e materiais` | `Explore the research` · `Courses and materials` |
+| Offering empty state | `Materiais ainda não publicados` | `Materials not yet published` |
+| Footer affiliation line | `LPS — COPPE/UFRJ` (formal wording pending institutional confirmation) | same |
+| Footer utility links | Contato · Eventos · Privacidade · Acessibilidade | Contact · Events · Privacy · Accessibility |

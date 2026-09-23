@@ -43,53 +43,117 @@
   ],
   "mediaPolicy": {
     "migratedAssets": 0,
-    "reason": "Every asset in content/inventory/assets.csv is classified public-record-no-copy with undocumented rights and privacy state, so no media is staged by this import."
+    "reason": "Every asset in content/inventory/assets.csv is classified public-record-no-copy with undocumented rights and privacy state, so no media is staged by this import.",
+    "selections": [
+      {
+        "asset": "asset-001",
+        "decision": "excluded-rights",
+        "reason": "Faculty photograph served by the current Google Site; rights holder and depicted-person consent are undocumented. Linked as provenance only; never copied."
+      },
+      {
+        "asset": "asset-002",
+        "decision": "excluded-rights",
+        "reason": "Faculty photograph served by the current Google Site; rights holder and depicted-person consent are undocumented. Linked as provenance only; never copied."
+      },
+      {
+        "asset": "asset-003",
+        "decision": "excluded-rights",
+        "reason": "Faculty photograph served by the current Google Site; rights holder and depicted-person consent are undocumented. Linked as provenance only; never copied."
+      },
+      {
+        "asset": "asset-004",
+        "decision": "excluded-rights",
+        "reason": "Faculty photograph served by the current Google Site; rights holder and depicted-person consent are undocumented. Linked as provenance only; never copied."
+      },
+      {
+        "asset": "asset-005",
+        "decision": "excluded-rights",
+        "reason": "Faculty photograph served by the current Google Site; rights holder and depicted-person consent are undocumented. Linked as provenance only; never copied."
+      },
+      {
+        "asset": "asset-006",
+        "decision": "excluded-rights",
+        "reason": "Faculty photograph served by the current Google Site; rights holder and depicted-person consent are undocumented. Linked as provenance only; never copied."
+      }
+    ]
   },
   "launchBlockers": [
     {
       "id": "named-role-and-collection-assignments",
       "status": "unresolved",
+      "ownerRole": "administrator",
+      "requiredInput": "Named people for each collection owner, publisher, translation reviewer, privacy contact and accessibility contact role.",
       "effect": "Every corpus record stays draft; no publisher or collection owner can approve publication."
     },
     {
       "id": "privacy-legal-bases",
       "status": "unresolved",
+      "ownerRole": "privacy-contact",
+      "requiredInput": "Documented legal basis and consent decisions for person contact data and photographs.",
       "effect": "Person records publish no contact data or photographs."
     },
     {
       "id": "public-correction-and-takedown-contact",
       "status": "unresolved",
+      "ownerRole": "administrator",
+      "requiredInput": "An owned public contact route for corrections and takedown requests.",
       "effect": "Site settings carry no public contact route."
     },
     {
       "id": "accessibility-contact",
       "status": "unresolved",
+      "ownerRole": "accessibility-contact",
+      "requiredInput": "An owned accessibility barrier-reporting route.",
       "effect": "Site settings carry no accessibility reporting route."
     },
     {
       "id": "translation-review-pending",
       "status": "unresolved",
+      "ownerRole": "section-editor",
+      "requiredInput": "An independent reviewer who did not author the English variants records a review.",
       "effect": "English variants exist and are complete, but no independent reviewer has approved them."
     },
     {
       "id": "brand-asset-rights-and-accessible-format-unresolved",
       "status": "unresolved",
+      "ownerRole": "section-editor",
+      "requiredInput": "Documented rights holder, licence and accessible format for the visual identity files.",
       "effect": "Visual identity files are described but not republished."
     },
     {
       "id": "individual-project-records-not-sourced",
       "status": "unresolved",
+      "ownerRole": "section-editor",
+      "requiredInput": "Sourced scope, dates, team and funding for each project record.",
       "effect": "The project index is migrated; per-project records await sourced scope, dates, team and funding."
     },
     {
       "id": "third-party-infrastructure-claims-require-lps-owner-confirmation",
       "status": "unresolved",
+      "ownerRole": "LPS leadership",
+      "requiredInput": "LPS owner confirmation of the EMBRAPII/COPPE infrastructure figures.",
       "effect": "Infrastructure figures are attributed to the EMBRAPII/COPPE profile and are not asserted as current LPS facts."
     },
     {
       "id": "no-import-surface-for-site-settings-option",
       "status": "unresolved",
+      "ownerRole": "administrator",
+      "requiredInput": "A supported import surface or administrator entry path for the lps_site_settings option.",
       "effect": "Reviewed site settings are held in the corpus; the current build exposes no CLI or package surface that writes the lps_site_settings option."
+    },
+    {
+      "id": "course-catalog-and-calendar-source-not-supplied",
+      "status": "unresolved",
+      "ownerRole": "section-editor",
+      "requiredInput": "An authoritative UFRJ/COPPE catalog or calendar source for course codes, levels, programs and term boundaries.",
+      "effect": "No course, term, offering, unit or resource records exist in the launch corpus; teaching pages stay absent rather than unsourced."
+    },
+    {
+      "id": "media-rights-and-credit-undocumented",
+      "status": "unresolved",
+      "ownerRole": "section-editor",
+      "requiredInput": "Rights holder, licence, depicted-person consent, credit line and reviewed alt text for each photograph.",
+      "effect": "All six inventoried photographs stay link-only; the public corpus ships no images."
     }
   ]
 }

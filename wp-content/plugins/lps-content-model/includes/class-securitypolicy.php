@@ -21,11 +21,13 @@ final class SecurityPolicy {
 	private const ACTIONS = array(
 		'contributor'     => array( 'create', 'edit', 'submit' ),
 		'translator'      => array( 'edit', 'submit' ),
-		'section-editor'  => array( 'create', 'edit', 'submit', 'review', 'archive' ),
+		'section-editor'  => array( 'create', 'edit', 'submit', 'review', 'archive', 'grant-scope', 'revoke-scope' ),
 		'publisher'       => array( 'create', 'edit', 'submit', 'review', 'publish', 'unpublish', 'archive', 'redirect' ),
-		'administrator'   => array( 'create', 'edit', 'submit', 'review', 'publish', 'unpublish', 'archive', 'import', 'redirect', 'settings', 'audit', 'dormant-report' ),
+		'administrator'   => array( 'create', 'edit', 'submit', 'review', 'publish', 'unpublish', 'archive', 'import', 'redirect', 'settings', 'audit', 'dormant-report', 'grant-scope', 'revoke-scope' ),
 		'privacy-auditor' => array( 'review', 'audit', 'dormant-report' ),
 		'deployer'        => array( 'deploy' ),
+		'professor'       => array( 'create', 'edit', 'submit', 'publish', 'copy-forward' ),
+		'delegate'        => array( 'create', 'edit', 'submit' ),
 	);
 
 	/** Returns all governed policy roles.
@@ -41,7 +43,7 @@ final class SecurityPolicy {
 	 * @return array<int, string>
 	 */
 	public static function audited_actions(): array {
-		return array( 'create', 'edit', 'submit', 'review', 'publish', 'unpublish', 'archive', 'import', 'redirect', 'settings' );
+		return array( 'create', 'edit', 'submit', 'review', 'publish', 'unpublish', 'archive', 'import', 'redirect', 'settings', 'grant-scope', 'revoke-scope' );
 	}
 
 	/**
@@ -79,12 +81,16 @@ final class SecurityPolicy {
 		return array_map( array( self::class, 'capability' ), self::ACTIONS[ $role ] ?? array() );
 	}
 
-	/** Publisher and administrator sessions require an enrolled Two-Factor provider.
+	/** Accounts holding public publishing authority require an enrolled Two-Factor provider.
+	 *
+	 * Publisher and administrator keep their existing requirement; professor is
+	 * the new public-publishing role and meets the same contract. Delegate never
+	 * publishes, so it is not MFA-gated.
 	 *
 	 * @param string $role Policy role.
 	 */
 	public static function requires_mfa( string $role ): bool {
-		return in_array( $role, array( 'publisher', 'administrator' ), true );
+		return in_array( $role, array( 'publisher', 'administrator', 'professor' ), true );
 	}
 
 	/** Checks the privileged-session MFA boundary.

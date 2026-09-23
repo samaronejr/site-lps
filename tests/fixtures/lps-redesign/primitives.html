@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LPS primitives fixture — task-07 token sync</title>
+<!--
+  Isolated component fixture (test aid only, never shipped): it links the real
+  theme stylesheet so every primitive below renders the production token layer
+  exactly as the public site and the editor canvas see it.
+-->
+<link rel="stylesheet" href="../../../wp-content/themes/lps-theme/assets/css/theme.css">
+</head>
+<body>
+<a class="lps-skip-link" href="#lps-main">Pular para o conteúdo</a>
+
+<header class="lps-site-header">
+  <div class="lps-affiliation lps-page-grid">
+    <p lang="pt-BR">Laboratório de Processamento de Sinais <span aria-hidden="true">/</span> UFRJ <span aria-hidden="true">/</span> COPPE</p>
+    <p class="lps-meta" lang="pt-BR">Universidade Federal do Rio de Janeiro</p>
+  </div>
+  <div class="lps-masthead lps-page-grid">
+    <a class="lps-wordmark" href="/pt-br/" aria-label="LPS — página inicial">LPS</a>
+    <p lang="pt-BR">Laboratório de Processamento de Sinais</p>
+  </div>
+  <nav class="lps-primary-nav lps-page-grid" aria-label="Navegação principal">
+    <ul>
+      <li><a href="/pt-br/o-lps/">O LPS</a></li>
+      <li><a href="/pt-br/pesquisa/" aria-current="page">Pesquisa</a></li>
+      <li><a href="/pt-br/pessoas/">Pessoas</a></li>
+      <li><a href="/pt-br/ensino/">Ensino</a></li>
+      <li><a href="/pt-br/noticias-e-eventos/">Notícias e eventos</a></li>
+      <li><a href="/pt-br/oportunidades/">Oportunidades</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main id="lps-main" class="lps-main-content lps-page-grid">
+
+  <section class="lps-stack" data-fixture="fields" aria-labelledby="fields-h">
+    <h2 id="fields-h">Campos</h2>
+    <p class="lps-field">
+      <label for="f-title">Título da unidade com um rótulo deliberadamente longo que precisa quebrar por frase sem cortar</label>
+      <span class="lps-field-hint" id="f-title-hint">Como aparece na lista de materiais da oferta.</span>
+      <input id="f-title" name="f-title" type="text" aria-describedby="f-title-hint" value="Processamento de Sinais">
+    </p>
+    <p class="lps-field">
+      <label for="f-code">Código da disciplina</label>
+      <input id="f-code" name="f-code" type="text" class="lps-breakable" value="COS751" aria-invalid="true" aria-describedby="f-code-error">
+      <span class="lps-field-error" id="f-code-error" role="alert">Código inválido: use o formato da matriz (ex.: COS751), sem espaços.</span>
+    </p>
+    <p class="lps-field">
+      <label for="f-disabled">Campo desabilitado</label>
+      <input id="f-disabled" type="text" disabled value="Somente leitura nesta etapa">
+    </p>
+    <p class="lps-field">
+      <label for="f-select">Idioma do material</label>
+      <select id="f-select">
+        <option>Português (pt-BR)</option>
+        <option>Inglês (en)</option>
+      </select>
+    </p>
+    <p class="lps-field">
+      <label for="f-area">Descrição longa</label>
+      <textarea id="f-area" rows="3">Resumo do conteúdo programático com texto suficiente para verificar a quebra natural de linhas em telas estreitas.</textarea>
+    </p>
+  </section>
+
+  <section class="lps-stack" data-fixture="buttons" aria-labelledby="buttons-h">
+    <h2 id="buttons-h">Botões</h2>
+    <p class="lps-cluster">
+      <button class="lps-button lps-button-primary" type="button">Publicar oferta</button>
+      <button class="lps-button" type="button">Salvar rascunho</button>
+      <button class="lps-button" type="button" disabled>Indisponível</button>
+      <a class="lps-button" href="/pt-br/ensino/">Ver disciplinas e materiais</a>
+    </p>
+    <p class="lps-cluster">
+      <button class="lps-button lps-button-primary" type="button">Rótulo de ação primária muito longo que deve permanecer legível e quebrar sem vazar</button>
+    </p>
+  </section>
+
+  <section class="lps-stack" data-fixture="status" aria-labelledby="status-h">
+    <h2 id="status-h">Mensagens de estado</h2>
+    <div class="lps-alert lps-alert-info" role="status">
+      <h3>Em revisão</h3>
+      <p>O registro foi enviado para revisão editorial e ainda não está público.</p>
+    </div>
+    <div class="lps-alert lps-alert-success" role="status">
+      <h3>Publicado</h3>
+      <p>A oferta 2026/1 · turma A está pública e visível na página da disciplina.</p>
+    </div>
+    <div class="lps-alert lps-alert-warning" role="status">
+      <h3>Verificação pendente</h3>
+      <p>O arquivo aguarda a varredura de segurança; o download permanece bloqueado.</p>
+    </div>
+    <div class="lps-alert lps-alert-error" role="alert">
+      <h3>Falha na validação</h3>
+      <p>O campo Código da disciplina rejeitou o valor informado; corrija e envie novamente.</p>
+    </div>
+    <p>
+      <span class="lps-status lps-status-success">publicado</span>
+      <span class="lps-status lps-status-warning">em revisão</span>
+      <span class="lps-status lps-status-error">retirado</span>
+    </p>
+  </section>
+
+  <section class="lps-stack" data-fixture="resources" aria-labelledby="resources-h">
+    <h2 id="resources-h">Linhas de material</h2>
+    <ul class="lps-access-links">
+      <li>
+        <a href="/pt-br/ensino/cos751/2026-1/materiais/plano-de-ensino.pdf">Plano de ensino — unidade 1: fundamentos de processamento digital de sinais</a>
+        <span class="lps-meta">PDF · 248 KB · pt-BR · v3, atualizado em 12/09/2026</span>
+      </li>
+      <li>
+        <a href="/pt-br/ensino/cos751/2026-1/materiais/notas-de-aula.pdf">Notas de aula com um título excepcionalmente longo destinado a verificar a quebra por frase dentro da linha de recurso sem sobreposição</a>
+        <span class="lps-meta">PDF · 1,2 MB · pt-BR · v1</span>
+      </li>
+      <li>
+        <span>Dataset de sinais biomédicos (aguardando varredura)</span>
+        <span class="lps-meta">ZIP · 4,7 MB · en · verificação pendente — sem download</span>
+      </li>
+      <li>
+        <span>Slides da unidade 2 (retirado)</span>
+        <span class="lps-meta">PDF · retirado em 02/09/2026 · substituído pela v4</span>
+      </li>
+    </ul>
+  </section>
+
+  <section class="lps-stack" data-fixture="reading" aria-labelledby="reading-h">
+    <h2 id="reading-h">Leitura</h2>
+    <p class="lps-lead">Texto de abertura no corpo de ligação, medida máxima de 62 caracteres.</p>
+    <div class="lps-reading">
+      <p>O Laboratório de Processamento de Sinais desenvolve pesquisa em inteligência computacional aplicada a sinais biomédicos, com disciplinas de graduação e pós-graduação na COPPE/UFRJ.</p>
+      <p>Texto corrido com <a href="/pt-br/pesquisa/">ligação inline</a> que mantém sublinhado visível e cor de ação sobre a tela.</p>
+    </div>
+    <p class="lps-meta">COS751 · 2026/1 · turma A · atualizado em 18/09/2026</p>
+  </section>
+
+  <section class="lps-home-section" data-home-section="journeys" data-fixture="anchor-band" aria-labelledby="band-h">
+    <h2 id="band-h">Faixa âncora</h2>
+    <ul class="lps-home-journeys">
+      <li>
+        <span class="lps-journey-label">Docentes</span>
+        <a class="lps-button" href="/pt-br/area-docente/">Área docente</a>
+        <a href="/pt-br/contato/">Fale com o laboratório</a>
+      </li>
+    </ul>
+  </section>
+
+</main>
+
+<footer class="lps-site-footer">
+  <div class="lps-footer-grid lps-page-grid">
+    <p class="lps-wordmark lps-wordmark-light">LPS</p>
+    <div>
+      <p>Laboratório de Processamento de Sinais — COPPE/UFRJ</p>
+      <p class="lps-meta">UFRJ <span aria-hidden="true">/</span> COPPE <span aria-hidden="true">/</span> LPS</p>
+    </div>
+    <nav aria-label="Rodapé">
+      <ul>
+        <li><a href="/pt-br/contato/">Contato</a></li>
+        <li><a href="/pt-br/acessibilidade/">Acessibilidade</a></li>
+        <li><a href="/pt-br/privacidade/">Privacidade</a></li>
+      </ul>
+    </nav>
+  </div>
+</footer>
+</body>
+</html>

@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 use LPS\ContentModel\Translations;
 
-const LPS_A11Y_SEED_VERSION = '3';
+const LPS_A11Y_SEED_VERSION = '4';
 const LPS_A11Y_SEED_OPTION  = 'lps_a11y_seed_version';
 
 /**
@@ -164,6 +164,31 @@ function lps_a11y_seed_post( string $post_type, string $slug, string $title, str
 	return is_wp_error( $id ) ? 0 : (int) $id;
 }
 
+/** Returns whether both supported languages are registered and usable. */
+function lps_a11y_seed_languages_ready(): bool {
+	if ( ! function_exists( 'pll_languages_list' ) || ! function_exists( 'pll_save_post_translations' ) || ! function_exists( 'pll_set_post_language' ) ) {
+		return false;
+	}
+	$languages = pll_languages_list();
+	if ( ! is_array( $languages ) ) {
+		return false;
+	}
+	return in_array( 'pt-br', $languages, true ) && in_array( 'en', $languages, true );
+}
+
+/**
+ * Tracks whether the current run left an unassociated pair behind.
+ *
+ * @param bool|null $set New state, or null to read the current one.
+ */
+function lps_a11y_seed_incomplete( ?bool $set = null ): bool {
+	static $incomplete = false;
+	if ( null !== $set ) {
+		$incomplete = $set;
+	}
+	return $incomplete;
+}
+
 /** Seeds the accessibility fixtures. */
 function lps_a11y_seed(): void {
 	$pt = lps_a11y_seed_post(
@@ -205,20 +230,25 @@ function lps_a11y_seed(): void {
 			}
 		}
 	}
-	if ( 0 !== $pt && 0 !== $en && class_exists( Translations::class ) ) {
-		Translations::associate( $pt, $en );
-		// The publish gate keeps a locale pair in draft until the English variant
-		// records a review of the exact Portuguese source it was translated from.
-		$source_hash = get_post_meta( $en, '_lps_source_hash', true );
-		update_post_meta( $en, '_lps_reviewed_source_hash', is_string( $source_hash ) ? $source_hash : '' );
-		foreach ( array( $en, $pt ) as $id ) {
-			wp_update_post(
-				array(
-					'ID'          => $id,
-					'post_status' => 'publish',
-				)
-			);
-		}
+	if ( 0 === $pt || 0 === $en || ! class_exists( Translations::class ) || is_wp_error( Translations::associate( $pt, $en ) ) ) {
+		// Without the reciprocal association the pair can never satisfy the
+		// bilingual contract, so the run retries on the next request.
+		lps_a11y_seed_incomplete( true );
+		return;
+	}
+	// The publish gate keeps a locale pair in draft until the English variant
+	// records a review of the exact Portuguese source it was translated from.
+	// A refusal here is a policy outcome, not a seed failure, so the run still
+	// records its version instead of retrying a denied transition forever.
+	$source_hash = get_post_meta( $en, '_lps_source_hash', true );
+	update_post_meta( $en, '_lps_reviewed_source_hash', is_string( $source_hash ) ? $source_hash : '' );
+	foreach ( array( $en, $pt ) as $id ) {
+		wp_update_post(
+			array(
+				'ID'          => $id,
+				'post_status' => 'publish',
+			)
+		);
 	}
 }
 
@@ -228,8 +258,15 @@ add_action(
 		if ( LPS_A11Y_SEED_VERSION === get_option( LPS_A11Y_SEED_OPTION ) ) {
 			return;
 		}
+		if ( ! lps_a11y_seed_languages_ready() ) {
+			// Polylang registers its languages during this same boot; seeding before
+			// the association back end is usable would leave unlinked drafts.
+			return;
+		}
 		lps_a11y_seed();
-		update_option( LPS_A11Y_SEED_OPTION, LPS_A11Y_SEED_VERSION );
+		if ( ! lps_a11y_seed_incomplete() ) {
+			update_option( LPS_A11Y_SEED_OPTION, LPS_A11Y_SEED_VERSION );
+		}
 	},
 	40
 );

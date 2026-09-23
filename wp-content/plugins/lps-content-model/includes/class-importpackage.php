@@ -66,7 +66,15 @@ final class ImportPackage {
 				$errors[] = self::error( isset( $record_ids[ $id ] ) ? 'lps_duplicate_record_id' : 'lps_import_record_invalid', "records.$index" );
 			}
 			$record_ids[ $id ] = true;
-			$meta              = is_array( $record['meta'] ?? null ) ? $record['meta'] : array();
+			$source_error      = MigrationPolicy::source_error( $record );
+			if ( null !== $source_error ) {
+				$errors[] = self::error( $source_error, "records.$index" );
+			}
+			$claim_error = MigrationPolicy::claim_error( $record );
+			if ( null !== $claim_error ) {
+				$errors[] = self::error( $claim_error, "records.$index.claims" );
+			}
+			$meta = is_array( $record['meta'] ?? null ) ? $record['meta'] : array();
 			if ( 'lps_publication' === $type ) {
 				$doi = self::text( $meta['_lps_doi'] ?? '' );
 				if ( '' !== $doi && isset( $dois[ $doi ] ) ) {

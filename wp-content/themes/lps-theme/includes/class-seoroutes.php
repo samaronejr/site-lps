@@ -10,8 +10,13 @@ declare(strict_types=1);
 namespace LPS\Theme;
 
 use Generator;
+use LPS\ContentModel\PublicationPolicy;
+use LPS\ContentModel\PublicationRecords;
+use LPS\ContentModel\Relationships;
 use LPS\ContentModel\SeoPolicy;
 use LPS\ContentModel\StructuredData;
+use LPS\ContentModel\TeachingRecords;
+use LPS\ContentModel\Translations;
 use LPS\ContentModel\TrustSurfacePolicy;
 use WP_Post;
 use WP_Query;
@@ -55,6 +60,16 @@ final class SeoRoutes {
 	private const TRUST_TYPES = array( 'lps_opportunity', 'lps_event', 'lps_news' );
 
 	/**
+	 * Record types owned by the teaching routes.
+	 *
+	 * Courses and offerings are the public teaching records; terms, units and
+	 * resources are internal and never receive a public address.
+	 *
+	 * @var array<int, string>
+	 */
+	private const TEACHING_TYPES = array( 'lps_course', 'lps_offering' );
+
+	/**
 	 * Localized section label for each record type.
 	 *
 	 * @var array<string, array<string, string>>
@@ -95,6 +110,14 @@ final class SeoRoutes {
 		'lps_news'           => array(
 			'pt-br' => 'Notícias',
 			'en'    => 'News',
+		),
+		'lps_course'         => array(
+			'pt-br' => 'Ensino',
+			'en'    => 'Teaching',
+		),
+		'lps_offering'       => array(
+			'pt-br' => 'Ensino',
+			'en'    => 'Teaching',
 		),
 	);
 
@@ -156,6 +179,7 @@ final class SeoRoutes {
 		add_action( 'template_redirect', array( self::class, 'serve_legacy_address' ), 0 );
 		add_filter( 'do_parse_request', array( self::class, 'intercept_machine_document' ), 1, 3 );
 		add_action( 'template_redirect', array( self::class, 'serve_machine_document' ), 1 );
+		add_action( 'template_redirect', array( self::class, 'canonicalize_teaching_request' ), 1 );
 		add_filter( 'pre_get_document_title', array( self::class, 'filter_document_title' ) );
 		add_action( 'wp_head', array( self::class, 'render_head' ), 1 );
 	}
@@ -248,6 +272,46 @@ final class SeoRoutes {
 		}
 		wp_safe_redirect( self::site_url() . $resolved['target'], 301 );
 		exit;
+	}
+
+	/**
+	 * Redirects a default teaching permalink to its canonical locale route.
+	 *
+	 * The registered `lps_course` and `lps_offering` permalinks stay
+	 * resolvable, but the published address is the locale route built from the
+	 * record's identity. A request that reaches a singular or archive response
+	 * under any other path answers with one 301 hop — never a second canonical
+	 * document and never a redirect chain.
+	 */
+	public static function canonicalize_teaching_request(): void {
+		$path = SeoPolicy::canonical_path( self::request_path() );
+		if ( null !== TeachingRoutes::match_path( $path ) ) {
+			return;
+		}
+		// The default CPT archives have no public listing: the teaching landing
+		// is their canonical address. This runs before the 404 bail because a
+		// post type without `has_archive` answers its archive path with a 404.
+		if ( 1 === preg_match( '#^/(?:(pt-br|en)/)?lps_(?:course|offering)/?$#', $path, $archive ) ) {
+			$locale = isset( $archive[1] ) && 'en' === $archive[1] ? 'en' : 'pt-br';
+			wp_safe_redirect( self::site_url() . TeachingRoutes::landing_path( $locale ), 301 );
+			exit;
+		}
+		if ( function_exists( 'is_404' ) && is_404() ) {
+			return;
+		}
+		if ( function_exists( 'is_singular' ) && is_singular() ) {
+			$post = get_queried_object();
+			if ( ! $post instanceof WP_Post || ! in_array( $post->post_type, self::TEACHING_TYPES, true ) ) {
+				return;
+			}
+			$locale    = self::locale_for_post( $post );
+			$canonical = self::record_path( $post, $locale );
+			if ( '' === $canonical || $canonical === $path ) {
+				return;
+			}
+			wp_safe_redirect( self::site_url() . $canonical, 301 );
+			exit;
+		}
 	}
 
 	/**
@@ -355,11 +419,30 @@ final class SeoRoutes {
 		$post   = is_singular() ? get_queried_object() : null;
 		$post   = $post instanceof WP_Post ? $post : null;
 
-		$site      = self::site_identity( $locale );
-		$site_url  = self::site_url();
-		$section   = null === $post ? self::archive_section( $path, $locale ) : ( self::SECTIONS[ $post->post_type ][ $locale ] ?? '' );
-		$title     = null === $post ? self::archive_title( $path, $locale ) : (string) get_the_title( $post );
-		$summary   = null === $post ? self::archive_summary( $path, $locale ) : (string) $post->post_excerpt;
+		$site     = self::site_identity( $locale );
+		$site_url = self::site_url();
+		$section  = null === $post ? self::archive_section( $path, $locale ) : ( self::SECTIONS[ $post->post_type ][ $locale ] ?? '' );
+		$title    = null === $post ? self::archive_title( $path, $locale ) : (string) get_the_title( $post );
+		$summary  = null === $post ? self::archive_summary( $path, $locale ) : (string) $post->post_excerpt;
+		$middle   = null;
+		if ( null !== SearchRoutes::match_path( $path ) ) {
+			// The search page is a singular page record, so its title and
+			// description come from the route state, not the stored page.
+			$title   = self::archive_title( $path, $locale );
+			$summary = self::archive_summary( $path, $locale );
+		}
+		if ( null !== $post && 'lps_offering' === $post->post_type ) {
+			// An offering page names its course in the title and the breadcrumb,
+			// so a term section is never an orphan search result.
+			$course = self::offering_course( $post, $locale );
+			if ( null !== $course ) {
+				$section = $course['title'];
+				$middle  = array(
+					'name' => $course['title'],
+					'path' => $course['path'],
+				);
+			}
+		}
 		$nodes     = array( StructuredData::website( $site ), StructuredData::research_organization( $site ) );
 		$page_type = null === $post ? 'CollectionPage' : 'WebPage';
 		$og_type   = null === $post ? 'website' : 'article';
@@ -386,7 +469,7 @@ final class SeoRoutes {
 				)
 			);
 		}
-		$breadcrumbs = StructuredData::breadcrumbs( $site_url, $path, self::breadcrumb_trail( $path, $locale, $section, $title ) );
+		$breadcrumbs = StructuredData::breadcrumbs( $site_url, $path, self::breadcrumb_trail( $path, $locale, $section, $title, $middle ) );
 		if ( array() !== $breadcrumbs ) {
 			$nodes[] = $breadcrumbs;
 		}
@@ -428,6 +511,12 @@ final class SeoRoutes {
 		if ( 'lps_opportunity' === $post->post_type ) {
 			$marker['kind'] = self::text( get_post_meta( self::source_id( $post ), '_lps_opportunity_type', true ) );
 		}
+		if ( 'lps_offering' === $post->post_type ) {
+			$marker['kind'] = self::text( get_post_meta( self::source_id( $post ), '_lps_temporal_status', true ) );
+		}
+		if ( 'lps_course' === $post->post_type ) {
+			$marker['kind'] = self::text( get_post_meta( self::source_id( $post ), '_lps_course_level', true ) );
+		}
 		return $marker;
 	}
 
@@ -441,7 +530,6 @@ final class SeoRoutes {
 	 * @return array<string, mixed>
 	 */
 	private static function record_node( WP_Post $post, string $path, string $locale, array $site ): array {
-		unset( $locale );
 		$site_url = self::site_url();
 		$source   = self::source_id( $post );
 		$meta     = static fn ( string $key ): string => self::text( get_post_meta( $source, $key, true ) );
@@ -537,6 +625,36 @@ final class SeoRoutes {
 					),
 					$site
 				);
+			case 'lps_course':
+				return StructuredData::course(
+					$site_url,
+					$path,
+					array(
+						'name'      => (string) get_the_title( $post ),
+						'summary'   => (string) $post->post_excerpt,
+						'code'      => $meta( '_lps_course_code' ),
+						'locale'    => $locale,
+						'instances' => self::course_instance_urls( $source, $locale ),
+					)
+				);
+			case 'lps_offering':
+				$course = self::offering_course( $post, $locale );
+				$term   = self::offering_term( $post );
+				return StructuredData::course_instance(
+					$site_url,
+					$path,
+					array(
+						'title'       => (string) get_the_title( $post ),
+						'summary'     => (string) $post->post_excerpt,
+						'locale'      => $locale,
+						'course_url'  => null === $course ? '' : SeoPolicy::canonical_url( $site_url, $course['path'] ),
+						'starts_on'   => null === $term ? '' : self::text( get_post_meta( $term->ID, '_lps_starts_on', true ) ),
+						'ends_on'     => null === $term ? '' : self::text( get_post_meta( $term->ID, '_lps_ends_on', true ) ),
+						'venue'       => $meta( '_lps_venue' ),
+						'lms_url'     => self::flag( get_post_meta( $source, '_lps_lms_url_approved', true ) ) ? $meta( '_lps_lms_url' ) : '',
+						'instructors' => self::offering_instructors( $source, $locale ),
+					)
+				);
 			default:
 				return array();
 		}
@@ -557,14 +675,31 @@ final class SeoRoutes {
 		if ( array() !== $_GET ) {
 			$state['filtered'] = true;
 		}
-		if ( function_exists( 'is_preview' ) && is_preview() ) {
-			$state['preview'] = true;
-		}
 		if ( function_exists( 'is_paged' ) && is_paged() ) {
 			$state['filtered'] = true;
 		}
+		if ( function_exists( 'is_404' ) && is_404() ) {
+			$state['unavailable'] = true;
+		}
 		$post = is_singular() ? get_queried_object() : null;
 		if ( $post instanceof WP_Post ) {
+			if ( 'en' === self::current_locale( $path ) && class_exists( Translations::class ) && Translations::is_stale( $post->ID ) ) {
+				// A stale English variant stays served with its review notice but
+				// leaves the index until a reviewer clears it.
+				$state['stale'] = true;
+			}
+			if ( function_exists( 'is_preview' ) && is_preview() ) {
+				// Previews evaluate the same plugin-owned decision as every other
+				// surface; they render for the editor but stay noindex, and a
+				// record the public decision would withhold is marked accordingly.
+				$state['preview'] = true;
+				if ( class_exists( PublicationRecords::class ) && class_exists( PublicationPolicy::class ) ) {
+					$preview = PublicationPolicy::preview_decision( PublicationRecords::publication_record( $post ), self::current_locale( $path ), gmdate( 'Y-m-d' ) );
+					if ( ! $preview['public_visible'] ) {
+						$state['draft'] = true;
+					}
+				}
+			}
 			if ( 'publish' !== $post->post_status ) {
 				$state['draft'] = true;
 			}
@@ -573,6 +708,12 @@ final class SeoRoutes {
 				if ( TrustSurfacePolicy::opportunity_is_noindex( $closes, TrustRoutes::now() ) ) {
 					$state['expired'] = true;
 				}
+			}
+			if ( 'lps_person' === $post->post_type && ! get_post_meta( $post->ID, '_lps_privacy_reviewed', true ) ) {
+				// The sitemap withholds a person until the privacy review is recorded;
+				// the document itself must answer with the same private state so an
+				// unreviewed profile is never indexable while unlisted.
+				$state['private'] = true;
 			}
 		}
 		return $state;
@@ -590,9 +731,12 @@ final class SeoRoutes {
 		if ( null !== $post ) {
 			$variants = array();
 			foreach ( self::translations( $post ) as $slug => $translated ) {
+				// A variant is an alternate only when the public surface actually
+				// serves it: unpublished, withheld and stale records never emit an
+				// hreflang that would advertise a missing or unreviewed page.
 				$variants[ $slug ] = array(
 					'path'      => self::record_path( $translated, $slug ),
-					'published' => 'publish' === $translated->post_status,
+					'published' => 'publish' === $translated->post_status && self::publicly_visible( $translated, $slug ),
 				);
 			}
 			return $variants;
@@ -626,12 +770,8 @@ final class SeoRoutes {
 			$locale = self::text( get_post_meta( $post->ID, '_lps_locale', true ) );
 			return '' === $locale ? array() : array( $locale => $post );
 		}
-		$translations = pll_get_post_translations( $post->ID );
-		if ( ! is_array( $translations ) ) {
-			return array();
-		}
-		foreach ( $translations as $slug => $post_id ) {
-			if ( ! is_int( $post_id ) || ! in_array( $slug, SeoPolicy::locales(), true ) ) {
+		foreach ( pll_get_post_translations( $post->ID ) as $slug => $post_id ) {
+			if ( ! in_array( $slug, SeoPolicy::locales(), true ) ) {
 				continue;
 			}
 			$translated = get_post( $post_id );
@@ -658,6 +798,14 @@ final class SeoRoutes {
 		if ( in_array( $post->post_type, self::TRUST_TYPES, true ) ) {
 			return TrustRoutes::single_path( $post->post_type, $locale, $post->post_name );
 		}
+		if ( 'lps_course' === $post->post_type ) {
+			return TeachingRoutes::course_path( $locale, $post->post_name );
+		}
+		if ( 'lps_offering' === $post->post_type ) {
+			// The offering address is derived from its identity registry — course
+			// slug, immutable term token and section key — never from the post slug.
+			return class_exists( TeachingRecords::class ) ? TeachingRecords::offering_url( $post->ID, $locale ) : '';
+		}
 		if ( 'page' === $post->post_type ) {
 			return TrustRoutes::page_path( self::text( get_post_meta( $post->ID, '_lps_page_key', true ) ), $locale );
 		}
@@ -670,10 +818,16 @@ final class SeoRoutes {
 	 * @param string $path   Canonical path.
 	 * @param string $locale Locale slug.
 	 */
-	private static function counterpart_path( string $path, string $locale ): string {
+	public static function counterpart_path( string $path, string $locale ): string {
 		$other = 'pt-br' === $locale ? 'en' : 'pt-br';
 		if ( '/' . $locale . '/' === $path ) {
 			return '/' . $other . '/';
+		}
+		if ( TeachingRoutes::landing_path( $locale ) === $path ) {
+			return TeachingRoutes::landing_path( $other );
+		}
+		if ( null !== SearchRoutes::match_path( $path ) ) {
+			return SearchRoutes::search_path( $other );
 		}
 		foreach ( array_merge( self::DISCOVERY_TYPES, self::PUBLIC_TYPES, self::TRUST_TYPES ) as $post_type ) {
 			if ( self::archive_path( $post_type, $locale ) === $path ) {
@@ -698,6 +852,11 @@ final class SeoRoutes {
 		}
 		if ( in_array( $post_type, self::TRUST_TYPES, true ) ) {
 			return TrustRoutes::archive_path( $post_type, $locale );
+		}
+		// The teaching landing is the listing address of both public teaching
+		// types; offerings have no listing of their own.
+		if ( in_array( $post_type, self::TEACHING_TYPES, true ) ) {
+			return 'lps_course' === $post_type ? TeachingRoutes::landing_path( $locale ) : '';
 		}
 		return '';
 	}
@@ -733,6 +892,15 @@ final class SeoRoutes {
 				? 'Signal Processing Laboratory'
 				: 'Laboratório de Processamento de Sinais';
 		}
+		if ( null !== SearchRoutes::match_path( $path ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only title for the current search state.
+			$query = isset( $_GET['q'] ) && is_string( $_GET['q'] ) ? trim( sanitize_text_field( wp_unslash( $_GET['q'] ) ) ) : '';
+			$base  = 'en' === $locale ? 'Search' : 'Busca';
+			return '' === $query ? $base : $base . ': ' . $query;
+		}
+		if ( function_exists( 'is_404' ) && is_404() ) {
+			return 'en' === $locale ? 'Page not found' : 'Página não encontrada';
+		}
 		$title = wp_strip_all_tags( (string) wp_title( '', false ) );
 		return '' === trim( $title ) ? ( 'en' === $locale ? 'LPS' : 'LPS' ) : trim( $title );
 	}
@@ -746,11 +914,42 @@ final class SeoRoutes {
 	private static function archive_summary( string $path, string $locale ): string {
 		$section = self::archive_section( $path, $locale );
 		if ( '' !== $section ) {
+			if ( 'lps_course' === self::archive_section_type( $path, $locale ) ) {
+				return 'en' === $locale
+					? 'Published courses, sections and teaching materials of the Signal Processing Laboratory at COPPE/UFRJ.'
+					: 'Disciplinas, turmas e materiais de ensino publicados pelo Laboratório de Processamento de Sinais da COPPE/UFRJ.';
+			}
 			return 'en' === $locale
 				? sprintf( '%s published by the Signal Processing Laboratory at COPPE/UFRJ.', $section )
 				: sprintf( '%s publicadas pelo Laboratório de Processamento de Sinais da COPPE/UFRJ.', $section );
 		}
+		if ( null !== SearchRoutes::match_path( $path ) ) {
+			return 'en' === $locale
+				? 'Search the published records of the Signal Processing Laboratory at COPPE/UFRJ.'
+				: 'Busque os registros publicados do Laboratório de Processamento de Sinais da COPPE/UFRJ.';
+		}
+		if ( function_exists( 'is_404' ) && is_404() ) {
+			return 'en' === $locale
+				? 'The requested address is not published on the LPS website.'
+				: 'O endereço solicitado não está publicado no site do LPS.';
+		}
 		return self::fallback_summary( $locale );
+	}
+
+	/**
+	 * Returns the record type whose archive path matches, or an empty string.
+	 *
+	 * @param string $path   Canonical path.
+	 * @param string $locale Locale slug.
+	 */
+	private static function archive_section_type( string $path, string $locale ): string {
+		foreach ( self::SECTIONS as $post_type => $labels ) {
+			unset( $labels );
+			if ( self::archive_path( $post_type, $locale ) === $path ) {
+				return $post_type;
+			}
+		}
+		return '';
 	}
 
 	/**
@@ -817,13 +1016,14 @@ final class SeoRoutes {
 	/**
 	 * Builds the breadcrumb trail of a document.
 	 *
-	 * @param string $path    Canonical path.
-	 * @param string $locale  Locale slug.
-	 * @param string $section Localized section label.
-	 * @param string $title   Document title.
-	 * @return array<int, array<string, string>>
+	 * @param string                                 $path    Canonical path.
+	 * @param string                                 $locale  Locale slug.
+	 * @param string                                 $section Localized section label.
+	 * @param string                                 $title   Document title.
+	 * @param array{name: string, path: string}|null $middle Optional intermediate crumb, such as the course of an offering.
+	 * @return array<int, array{name: string, path: string}>
 	 */
-	private static function breadcrumb_trail( string $path, string $locale, string $section, string $title ): array {
+	private static function breadcrumb_trail( string $path, string $locale, string $section, string $title, ?array $middle = null ): array {
 		$home  = '/' . $locale . '/';
 		$trail = array(
 			array(
@@ -844,10 +1044,18 @@ final class SeoRoutes {
 				break;
 			}
 		}
-		$trail[] = array(
-			'name' => $title,
-			'path' => $path,
-		);
+		if ( null !== $middle && '' !== $middle['name'] && '' !== $middle['path'] ) {
+			$trail[] = $middle;
+		}
+		// A landing whose own name already closed the trail must not append
+		// itself again — `Início / Ensino`, never `Início / Ensino / Ensino`.
+		$tail = end( $trail );
+		if ( $tail['name'] !== $title || $tail['path'] !== $path ) {
+			$trail[] = array(
+				'name' => $title,
+				'path' => $path,
+			);
+		}
 		return $trail;
 	}
 
@@ -877,7 +1085,7 @@ final class SeoRoutes {
 		$addressable = self::addressable_slugs( $locale );
 		foreach ( self::published_records( array_keys( self::SECTIONS ), $locale ) as $post ) {
 			$path = self::record_path( $post, $locale );
-			if ( '' === $path ) {
+			if ( '' === $path || ! self::publicly_visible( $post, $locale ) ) {
 				continue;
 			}
 			$state = array();
@@ -970,7 +1178,7 @@ final class SeoRoutes {
 		$items = array();
 		foreach ( self::published_records( array( $post_type ), $locale ) as $post ) {
 			$path = self::record_path( $post, $locale );
-			if ( '' === $path ) {
+			if ( '' === $path || ! self::publicly_visible( $post, $locale ) ) {
 				continue;
 			}
 			$source  = self::source_id( $post );
@@ -985,6 +1193,45 @@ final class SeoRoutes {
 			);
 		}
 		return $items;
+	}
+
+	/**
+	 * Reports whether a record passes the single public-visibility decision.
+	 *
+	 * Sitemaps and feeds evaluate the same plugin-owned
+	 * `PublicationPolicy::visibility_decision()` on the `public` surface that
+	 * renderers, search, and previews use; nothing here reimplements a weaker
+	 * eligibility condition.
+	 *
+	 * @param WP_Post $post   Record.
+	 * @param string  $locale Locale slug.
+	 */
+	public static function publicly_visible( WP_Post $post, string $locale ): bool {
+		if ( ! class_exists( PublicationRecords::class ) || ! class_exists( PublicationPolicy::class ) ) {
+			return false;
+		}
+		$visible = PublicationPolicy::visibility_decision( PublicationRecords::publication_record( $post ), PublicationPolicy::SURFACE_PUBLIC, $locale, gmdate( 'Y-m-d' ) )['visible'];
+		if ( ! $visible ) {
+			return false;
+		}
+		if ( 'lps_offering' === $post->post_type ) {
+			// An offering is only addressable while its course variant is served:
+			// the route resolves the course first, so a listing, an hreflang or a
+			// switcher link must ask the same gate.
+			$identity = class_exists( TeachingRecords::class ) ? TeachingRecords::offering_identity_for( self::source_id( $post ) ) : null;
+			$course   = null !== $identity ? self::localized_variant( $identity['course_id'], $locale ) : null;
+			if ( ! $course instanceof WP_Post || 'publish' !== $course->post_status ) {
+				return false;
+			}
+			return self::publicly_visible( $course, $locale );
+		}
+		if ( 'lps_person' === $post->post_type && ! get_post_meta( $post->ID, '_lps_privacy_reviewed', true ) ) {
+			// Same privacy gate the sitemap applies: an unreviewed person is not a
+			// public variant, so it must not be advertised by hreflang or the
+			// switcher either.
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -1081,6 +1328,165 @@ final class SeoRoutes {
 				);
 		}
 		return $graph;
+	}
+
+	/**
+	 * Returns the visible breadcrumb trail of the current request.
+	 *
+	 * The trail mirrors the JSON-LD BreadcrumbList: home, the section listing
+	 * when the path sits under one, the course crumb of an offering, and the
+	 * current page. Callers render it verbatim; an empty trail means the
+	 * request has no breadcrumb context.
+	 *
+	 * @param string $path Canonical request path.
+	 * @return array<int, array{name: string, path: string}>
+	 */
+	public static function breadcrumb_items( string $path ): array {
+		$locale  = self::current_locale( $path );
+		$post    = function_exists( 'is_singular' ) && is_singular() ? get_queried_object() : null;
+		$section = $post instanceof WP_Post ? ( self::SECTIONS[ $post->post_type ][ $locale ] ?? '' ) : self::archive_section( $path, $locale );
+		$title   = $post instanceof WP_Post ? (string) get_the_title( $post ) : self::archive_title( $path, $locale );
+		$middle  = null;
+		if ( $post instanceof WP_Post && 'lps_offering' === $post->post_type ) {
+			$course = self::offering_course( $post, $locale );
+			if ( null !== $course ) {
+				$middle = array(
+					'name' => $course['title'],
+					'path' => $course['path'],
+				);
+			}
+		}
+		return self::breadcrumb_trail( $path, $locale, $section, $title, $middle );
+	}
+
+	/**
+	 * Returns the localized course of one offering for titles and breadcrumbs.
+	 *
+	 * @param WP_Post $post   Offering record.
+	 * @param string  $locale Locale slug.
+	 * @return array{title: string, path: string}|null
+	 */
+	private static function offering_course( WP_Post $post, string $locale ): ?array {
+		if ( ! class_exists( TeachingRecords::class ) ) {
+			return null;
+		}
+		$identity = TeachingRecords::offering_identity_for( self::source_id( $post ) );
+		if ( null === $identity ) {
+			return null;
+		}
+		$course = self::localized_variant( $identity['course_id'], $locale );
+		if ( ! $course instanceof WP_Post ) {
+			return null;
+		}
+		return array(
+			'title' => (string) get_the_title( $course ),
+			'path'  => TeachingRoutes::course_path( $locale, $course->post_name ),
+		);
+	}
+
+	/**
+	 * Returns the term record of one offering, or null.
+	 *
+	 * @param WP_Post $post Offering record.
+	 */
+	private static function offering_term( WP_Post $post ): ?WP_Post {
+		if ( ! class_exists( TeachingRecords::class ) ) {
+			return null;
+		}
+		$identity = TeachingRecords::offering_identity_for( self::source_id( $post ) );
+		if ( null === $identity ) {
+			return null;
+		}
+		$term = get_post( $identity['term_id'] );
+		return $term instanceof WP_Post ? $term : null;
+	}
+
+	/**
+	 * Returns the public teaching-team names of one offering in one locale.
+	 *
+	 * @param int    $authority Offering authority record ID.
+	 * @param string $locale    Locale slug.
+	 * @return array<int, string>
+	 */
+	private static function offering_instructors( int $authority, string $locale ): array {
+		if ( ! class_exists( Relationships::class ) ) {
+			return array();
+		}
+		$names = array();
+		foreach ( Relationships::for_source( $authority, 'teaching_team' ) as $row ) {
+			if ( ! $row['public_visibility'] ) {
+				continue;
+			}
+			$person = self::localized_variant( (int) $row['target_post_id'], $locale );
+			if ( $person instanceof WP_Post && 'publish' === $person->post_status ) {
+				$names[] = (string) get_the_title( $person );
+			}
+		}
+		return $names;
+	}
+
+	/**
+	 * Returns the canonical URLs of a course's publicly visible offerings.
+	 *
+	 * @param int    $course_authority Course authority record ID.
+	 * @param string $locale           Locale slug.
+	 * @return array<int, string>
+	 */
+	private static function course_instance_urls( int $course_authority, string $locale ): array {
+		if ( ! class_exists( Relationships::class ) || ! class_exists( TeachingRecords::class ) ) {
+			return array();
+		}
+		$site_url = self::site_url();
+		$urls     = array();
+		foreach ( Relationships::reverse_for( $course_authority, 'offering_course' ) as $row ) {
+			$offering = self::localized_variant( (int) $row['source_post_id'], $locale );
+			if ( ! $offering instanceof WP_Post || 'publish' !== $offering->post_status ) {
+				continue;
+			}
+			if ( ! self::publicly_visible( $offering, $locale ) ) {
+				continue;
+			}
+			$path = TeachingRecords::offering_url( $offering->ID, $locale );
+			if ( '' !== $path ) {
+				$urls[] = SeoPolicy::canonical_url( $site_url, $path );
+			}
+		}
+		return $urls;
+	}
+
+	/**
+	 * Returns the locale variant of a record, or null when absent.
+	 *
+	 * @param int    $post_id Record database ID.
+	 * @param string $locale  Locale slug.
+	 */
+	private static function localized_variant( int $post_id, string $locale ): ?WP_Post {
+		$post = 0 < $post_id ? get_post( $post_id ) : null;
+		if ( ! $post instanceof WP_Post || ! class_exists( Translations::class ) ) {
+			return $post instanceof WP_Post ? $post : null;
+		}
+		if ( Translations::locale( $post->ID ) === $locale ) {
+			return $post;
+		}
+		$variants = Translations::variants( $post->ID );
+		$variant  = isset( $variants[ $locale ] ) ? get_post( $variants[ $locale ] ) : null;
+		return $variant instanceof WP_Post ? $variant : null;
+	}
+
+	/**
+	 * Returns the recorded locale of a record.
+	 *
+	 * @param WP_Post $post Record.
+	 */
+	private static function locale_for_post( WP_Post $post ): string {
+		if ( class_exists( Translations::class ) ) {
+			$locale = Translations::locale( $post->ID );
+			if ( in_array( $locale, SeoPolicy::locales(), true ) ) {
+				return $locale;
+			}
+		}
+		$locale = self::text( get_post_meta( $post->ID, '_lps_locale', true ) );
+		return 'en' === $locale ? 'en' : 'pt-br';
 	}
 
 	/**
@@ -1218,5 +1624,20 @@ final class SeoRoutes {
 	 */
 	private static function integer( mixed $value ): int {
 		return is_numeric( $value ) ? (int) $value : 0;
+	}
+
+	/**
+	 * Narrows an untyped meta value to a boolean flag.
+	 *
+	 * @param mixed $value Untyped stored value.
+	 */
+	private static function flag( mixed $value ): bool {
+		if ( is_bool( $value ) ) {
+			return $value;
+		}
+		if ( is_int( $value ) ) {
+			return 0 !== $value;
+		}
+		return is_string( $value ) && in_array( strtolower( $value ), array( '1', 'true', 'yes' ), true );
 	}
 }

@@ -1,3 +1,11 @@
+/*
+ * Executable reference for the light institutional system (DESIGN.md
+ * replacement contract). The token layer below mirrors the theme.json slugs
+ * verbatim — palette, families, sizes and spacing — and every visual value in
+ * this file resolves through these variables. Geometry stays square and flat:
+ * border-radius is always 0 and box-shadow is always none.
+ */
+
 @font-face {
   font-family: "Source Serif 4";
   src: url("./assets/source-serif-4-regular.ttf") format("truetype");
@@ -15,9 +23,10 @@
 }
 
 :root {
-  --color-paper: #f7f4ec;
-  --color-paper-raised: #fffefa;
-  --color-paper-muted: #ece8de;
+  /* Color — theme.json settings.color.palette, 18 slugs. */
+  --color-paper: #ffffff;
+  --color-paper-raised: #ffffff;
+  --color-paper-muted: #eff1f4;
   --color-ink: #141a1f;
   --color-ink-soft: #46515a;
   --color-navy: #003b5c;
@@ -33,10 +42,13 @@
   --color-success-wash: #e0ece5;
   --color-warning-wash: #f2e8d2;
   --color-error-wash: #f2deda;
-  --color-focus-offset: #f7f4ec;
+  /* Focus-ring separation on dark fills; not a palette entry. */
+  --color-focus-offset: #ffffff;
+
+  /* Type roles — interface-led. The serif is scoped to reading containers. */
+  --font-interface: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-editorial:
     "Source Serif 4", "Noto Serif", "Noto Serif CJK SC", "Noto Serif CJK JP", Georgia, serif;
-  --font-interface: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
   --type-display: clamp(2.75rem, 7vw, 5.75rem);
   --type-h1: clamp(2.25rem, 5vw, 4rem);
@@ -48,6 +60,8 @@
   --type-reading: 1.125rem;
   --type-small: 0.875rem;
   --type-meta: 0.75rem;
+
+  /* Spacing — theme.json settings.spacing.spacingSizes. */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -60,8 +74,11 @@
   --space-16: 4rem;
   --space-20: 5rem;
   --space-24: 6rem;
+
+  /* Grid and geometry. */
   --grid-max: 80rem;
   --grid-gutter: var(--space-4);
+  --grid-padding: clamp(var(--space-4), 4vw, var(--space-10));
   --control-min: 2.75rem;
   --icon-inline: 1rem;
   --icon-control: 1.25rem;
@@ -70,31 +87,38 @@
   --rule-focus: 0.1875rem;
   --focus-offset: 0.1875rem;
   --press-shift: 0.0625rem;
-  --motion-fast: 120ms;
-  --motion-standard: 180ms;
-  --ease-state: cubic-bezier(0.2, 0, 0, 1);
   --radius-square: 0;
   --shadow-none: none;
   --measure-reading: 68ch;
   --measure-interface: 72ch;
   --measure-lead: 62ch;
+
+  /* Motion — state response only, never layout. */
+  --motion-fast: 120ms;
+  --motion-standard: 180ms;
+  --ease-state: cubic-bezier(0.2, 0, 0, 1);
 }
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
 html {
-  color: var(--color-ink);
+  min-inline-size: 0;
+  overflow-x: clip;
   background: var(--color-paper);
+  color: var(--color-ink);
   font-family: var(--font-interface);
   font-size: var(--type-body);
   scroll-behavior: auto;
 }
 
 body {
-  margin: 0;
   min-inline-size: 0;
+  margin: 0;
+  overflow-wrap: break-word;
   background: var(--color-paper);
   color: var(--color-ink);
   line-height: 1.65;
@@ -102,9 +126,11 @@ body {
 
 img,
 svg,
-video {
+video,
+canvas {
   display: block;
   max-inline-size: 100%;
+  block-size: auto;
 }
 
 button,
@@ -134,27 +160,29 @@ figure {
   margin-block-start: 0;
 }
 
+/* Sans-led hierarchy: display, headings, navigation and controls use the
+   interface stack (DESIGN.md §4 role table). */
 h1,
 h2,
 h3,
 h4 {
   color: var(--color-ink);
-  font-family: var(--font-editorial);
+  font-family: var(--font-interface);
   text-wrap: balance;
 }
 
 h1 {
   margin-block-end: var(--space-6);
-  font-size: var(--type-display);
-  font-weight: 600;
-  letter-spacing: -0.035em;
-  line-height: 0.98;
+  font-size: var(--type-h1);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.04;
 }
 
 h2 {
   margin-block-end: var(--space-6);
   font-size: var(--type-h2);
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -0.018em;
   line-height: 1.12;
 }
@@ -162,9 +190,21 @@ h2 {
 h3 {
   margin-block-end: var(--space-3);
   font-size: var(--type-h3);
-  font-weight: 600;
+  font-weight: 650;
   letter-spacing: -0.01em;
-  line-height: 1.18;
+  line-height: 1.2;
+}
+
+h4 {
+  font-size: var(--type-h4);
+  font-weight: 650;
+  line-height: 1.3;
+}
+
+p,
+li,
+dd {
+  max-inline-size: var(--measure-interface);
 }
 
 a {
@@ -186,6 +226,8 @@ a:active {
   color: var(--color-navy);
 }
 
+/* Focus is a 3px signal outline with a 3px offset on every interactive
+   element; it is never clipped or covered. */
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
@@ -197,20 +239,33 @@ summary:focus-visible,
   outline-offset: var(--focus-offset);
 }
 
+/* On navy fills the signal outline falls under the 3:1 graphic floor, so dark
+   bands switch the outline to the documented separation token. */
+.band-navy :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible,
+.site-foot :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible,
+.affiliation :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline-color: var(--color-focus-offset);
+}
+
+/* 4/8/12-column page grid, max 80rem, gutters on the spacing scale. */
 .page-grid {
   display: grid;
   inline-size: min(100%, var(--grid-max));
   margin-inline: auto;
-  padding-inline: clamp(var(--space-4), 4vw, var(--space-10));
+  padding-inline: var(--grid-padding);
   grid-template-columns: repeat(4, minmax(0, 1fr));
   column-gap: var(--grid-gutter);
+}
+
+.page-grid > * {
+  min-inline-size: 0;
 }
 
 .skip-link {
   position: fixed;
   inset-block-start: var(--space-2);
   inset-inline-start: var(--space-2);
-  z-index: 10;
+  z-index: 20;
   padding: var(--space-3) var(--space-4);
   transform: translateY(-200%);
   background: var(--color-paper-raised);
@@ -226,6 +281,7 @@ summary:focus-visible,
   border-block-end: var(--rule-medium) solid var(--color-navy);
 }
 
+/* Institutional affiliation strip: identity surface, not a page band. */
 .affiliation {
   max-inline-size: none;
   padding-block: var(--space-2);
@@ -237,6 +293,7 @@ summary:focus-visible,
 .affiliation p {
   grid-column: 1 / -1;
   margin: 0;
+  color: inherit;
 }
 
 .masthead {
@@ -249,12 +306,17 @@ summary:focus-visible,
   grid-column: 1 / -1;
 }
 
+.masthead p {
+  margin: var(--space-2) 0 0;
+  color: var(--color-ink-soft);
+}
+
 .wordmark {
   margin: 0;
   color: var(--color-navy);
-  font-family: var(--font-editorial);
+  font-family: var(--font-interface);
   font-size: var(--type-h1);
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -0.04em;
   line-height: 0.9;
 }
@@ -322,15 +384,60 @@ summary:focus-visible,
   text-decoration: none;
 }
 
+.primary-nav a:hover,
+.local-nav a:hover {
+  color: var(--color-navy-hover);
+  text-decoration-line: underline;
+  text-decoration-thickness: var(--rule-medium);
+  text-underline-offset: var(--space-1);
+}
+
+.primary-nav a:active,
+.local-nav a:active {
+  color: var(--color-navy);
+}
+
+/* Current page is a 3px signal rule plus weight 750, never color alone. */
 .primary-nav a[aria-current="page"],
 .local-nav a[aria-current="page"] {
   border-block-end: var(--rule-focus) solid var(--color-signal);
   color: var(--color-navy);
+  font-weight: 750;
+}
+
+/* Band rhythm: homepage and landing sections render as full-width bands that
+   alternate white canvas and section gray; adjacent modules never share a
+   band color. Navy is reserved for the footer band, primary fills, the header
+   rule and at most one interior band per page. */
+.band {
+  padding-block: var(--space-16);
+}
+
+.band-muted {
+  background: var(--color-paper-muted);
+}
+
+.band-navy {
+  background: var(--color-navy);
+  color: var(--color-paper-raised);
+}
+
+.band-navy :where(h1, h2, h3, h4, p, li, dd, dt) {
+  color: inherit;
+}
+
+.band-navy a {
+  color: var(--color-paper-raised);
+}
+
+.band-navy .kicker,
+.band-navy .meta,
+.band-navy .section-number {
+  color: var(--color-paper-raised);
 }
 
 .hero {
   padding-block: var(--space-16);
-  border-block-end: var(--rule-thin) solid var(--color-rule);
 }
 
 .hero-index,
@@ -346,16 +453,17 @@ summary:focus-visible,
   font-size: var(--type-meta);
 }
 
-.lead {
-  margin-block-end: var(--space-8);
-  color: var(--color-ink-soft);
-  font-family: var(--font-editorial);
-  font-size: var(--type-lead);
-  line-height: 1.5;
+.hero h1 {
+  max-inline-size: var(--measure-lead);
+  font-size: var(--type-display);
 }
 
-.hero-copy .lead {
+.lead {
   max-inline-size: var(--measure-lead);
+  margin-block-end: var(--space-8);
+  color: var(--color-ink-soft);
+  font-size: var(--type-lead);
+  line-height: 1.5;
 }
 
 .hero-note {
@@ -376,6 +484,8 @@ summary:focus-visible,
   align-items: center;
 }
 
+/* Buttons: square geometry, navy fill for primary, 2px navy rule for
+   secondary; the only spatial response is a 1px press. */
 .button {
   display: inline-flex;
   min-block-size: var(--control-min);
@@ -384,6 +494,7 @@ summary:focus-visible,
   padding: var(--space-3) var(--space-5);
   border: var(--rule-medium) solid var(--color-navy);
   border-radius: var(--radius-square);
+  box-shadow: var(--shadow-none);
   background: var(--color-paper);
   color: var(--color-navy);
   cursor: pointer;
@@ -399,24 +510,19 @@ summary:focus-visible,
     transform var(--motion-fast) var(--ease-state);
 }
 
-.button:hover {
-  border-color: var(--color-navy-hover);
-  background: var(--color-paper-muted);
-  color: var(--color-navy-hover);
-}
-
-.button:active {
-  transform: translateY(var(--press-shift));
-}
-
 .button-primary {
   background: var(--color-navy);
   color: var(--color-paper-raised);
 }
 
-.button-primary:hover {
+.button:hover {
+  border-color: var(--color-navy-hover);
   background: var(--color-navy-hover);
   color: var(--color-paper-raised);
+}
+
+.button:active {
+  transform: translateY(var(--press-shift));
 }
 
 .button-quiet {
@@ -426,30 +532,50 @@ summary:focus-visible,
   text-underline-offset: var(--space-1);
 }
 
+.button-quiet:hover {
+  border-color: transparent;
+  background: transparent;
+  color: var(--color-navy-hover);
+}
+
 .button-danger {
   border-color: var(--color-error);
   color: var(--color-error);
 }
 
-.button[disabled] {
-  border-color: var(--color-rule-strong);
+.button-danger:hover {
+  border-color: var(--color-error);
+  background: var(--color-error-wash);
+  color: var(--color-error);
+}
+
+.button[disabled],
+.button[aria-disabled="true"] {
+  border-color: var(--color-rule);
   background: var(--color-paper-muted);
   color: var(--color-ink-soft);
-  cursor: not-allowed;
-  opacity: 0.62;
+  cursor: default;
 }
 
 .button[aria-busy="true"] {
   border-style: dashed;
 }
 
-.specimen-section {
-  padding-block: var(--space-16);
-  border-block-end: var(--rule-thin) solid var(--color-rule);
+/* On the navy band the button inverts to a paper fill, mirroring the journeys
+   module treatment in theme.css. */
+.band-navy .button {
+  border-color: var(--color-paper-raised);
+  background: var(--color-paper-raised);
+  color: var(--color-navy);
 }
 
-.section-label,
-.section-body {
+.band-navy .button:hover {
+  border-color: var(--color-paper);
+  background: var(--color-paper);
+  color: var(--color-navy-hover);
+}
+
+.specimen-layout > * {
   grid-column: 1 / -1;
 }
 
@@ -459,7 +585,7 @@ summary:focus-visible,
 
 .section-number {
   margin-block-end: var(--space-2);
-  color: var(--color-signal);
+  color: var(--color-signal-hover);
 }
 
 .section-label h2 {
@@ -485,19 +611,25 @@ summary:focus-visible,
 .display-sample {
   max-inline-size: 18ch;
   margin-block-end: 0;
-  font-family: var(--font-editorial);
+  font-family: var(--font-interface);
   font-size: var(--type-h1);
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 1.04;
   text-wrap: balance;
 }
 
+/* The reading serif owns .reading-sample only: body text and headings inside
+   that container, mirroring .lps-reading in theme.css. */
 .reading-sample {
   max-inline-size: var(--measure-reading);
   font-family: var(--font-editorial);
   font-size: var(--type-reading);
   line-height: 1.72;
+}
+
+.reading-sample :where(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--font-editorial);
 }
 
 .cjk {
@@ -531,8 +663,8 @@ summary:focus-visible,
 .scale-h1,
 .scale-h2,
 .scale-h3 {
-  font-family: var(--font-editorial);
-  font-weight: 600;
+  font-family: var(--font-interface);
+  font-weight: 700;
 }
 
 .scale-h1 {
@@ -545,7 +677,7 @@ summary:focus-visible,
 }
 .scale-h3 {
   font-size: var(--type-h3);
-  line-height: 1.18;
+  line-height: 1.2;
 }
 
 .specimen-block {
@@ -575,6 +707,31 @@ summary:focus-visible,
   color: var(--color-ink-soft);
 }
 
+/* Journeys: three explicit audience paths as text-led blocks with one action
+   each, on the single interior navy band. */
+.journey-list {
+  display: grid;
+  gap: var(--space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.journey-list > li {
+  padding-block-start: var(--space-4);
+  border-block-start: var(--rule-thin) solid var(--color-rule);
+}
+
+.journey-list h3 {
+  margin-block-end: var(--space-2);
+}
+
+.journey-list p {
+  margin-block-end: var(--space-4);
+}
+
+/* Metadata-forward record rows: hairline separation, linked titles, mono
+   metadata; no card chrome. */
 .record {
   padding-block: var(--space-6);
   border-block-start: var(--rule-thin) solid var(--color-rule);
@@ -647,7 +804,6 @@ figcaption {
   max-inline-size: var(--measure-interface);
   margin-block-start: var(--space-3);
   color: var(--color-ink-soft);
-  font-family: var(--font-editorial);
   font-size: var(--type-small);
   line-height: 1.5;
 }
@@ -671,9 +827,9 @@ figcaption {
 .filter-panel legend {
   inline-size: 100%;
   margin-block-end: var(--space-3);
-  font-family: var(--font-editorial);
+  font-family: var(--font-interface);
   font-size: var(--type-h4);
-  font-weight: 600;
+  font-weight: 650;
 }
 
 .filter-panel label {
@@ -695,10 +851,17 @@ figcaption {
   color: var(--color-ink-soft);
 }
 
+/* Tables: caption names the purpose; the wrapper alone owns horizontal scroll
+   on narrow viewports and takes keyboard focus. */
 .table-scroll {
   max-inline-size: 100%;
   overflow-x: auto;
   border-block-start: var(--rule-medium) solid var(--color-navy);
+}
+
+.table-scroll:focus-visible {
+  outline: var(--rule-focus) solid var(--color-signal);
+  outline-offset: var(--focus-offset);
 }
 
 table {
@@ -711,9 +874,9 @@ table {
 caption {
   padding-block: var(--space-4);
   color: var(--color-ink);
-  font-family: var(--font-editorial);
+  font-family: var(--font-interface);
   font-size: var(--type-h4);
-  font-weight: 600;
+  font-weight: 650;
   text-align: start;
 }
 
@@ -741,7 +904,11 @@ tbody tr:focus-within {
   display: inline-block;
   padding-inline-start: var(--space-3);
   border-inline-start: var(--rule-focus) solid currentColor;
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  font-variant-numeric: tabular-nums;
   font-weight: 700;
+  letter-spacing: 0.075em;
 }
 
 .status-open {
@@ -821,11 +988,13 @@ tbody tr:focus-within {
   font-weight: 650;
 }
 
+/* Alerts: left signal rule over a semantic wash; never a floating toast. */
 .alert {
   display: grid;
   gap: var(--space-4);
   padding: var(--space-5);
   border-inline-start: var(--rule-focus) solid currentColor;
+  color: var(--color-ink);
   grid-template-columns: var(--icon-control) minmax(0, 1fr);
 }
 
@@ -841,19 +1010,15 @@ tbody tr:focus-within {
 }
 
 .alert-info {
-  color: var(--color-navy);
   background: var(--color-info-wash);
 }
 .alert-success {
-  color: var(--color-success);
   background: var(--color-success-wash);
 }
 .alert-warning {
-  color: var(--color-warning);
   background: var(--color-warning-wash);
 }
 .alert-error {
-  color: var(--color-error);
   background: var(--color-error-wash);
 }
 
@@ -867,6 +1032,19 @@ tbody tr:focus-within {
   stroke-width: 1.75;
 }
 
+.alert-info .alert-icon {
+  color: var(--color-navy);
+}
+.alert-success .alert-icon {
+  color: var(--color-success);
+}
+.alert-warning .alert-icon {
+  color: var(--color-warning);
+}
+.alert-error .alert-icon {
+  color: var(--color-error);
+}
+
 .media-block {
   margin: 0;
 }
@@ -877,7 +1055,7 @@ tbody tr:focus-within {
   place-items: center;
   padding: var(--space-6);
   border: var(--rule-medium) solid var(--color-rule-strong);
-  background: var(--color-paper-muted);
+  background: var(--color-paper-raised);
   color: var(--color-ink-soft);
   text-align: center;
 }
@@ -919,15 +1097,16 @@ summary {
   font-weight: 700;
 }
 
+/* Footer: compact navy band carrying affiliation and the return route. */
 .site-foot {
-  padding-block: var(--space-12);
+  padding-block: var(--space-8);
   background: var(--color-navy-hover);
   color: var(--color-paper-raised);
 }
 
 .footer-grid {
   align-items: start;
-  gap: var(--space-6);
+  row-gap: var(--space-6);
 }
 
 .footer-grid > * {
@@ -982,6 +1161,9 @@ summary {
   .section-body {
     grid-column: 3 / -1;
   }
+  .journey-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
   .record-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1024,6 +1206,9 @@ summary {
   .masthead-deck {
     grid-column: 7 / -1;
   }
+  .band {
+    padding-block: var(--space-20);
+  }
   .hero {
     padding-block: var(--space-24);
   }
@@ -1035,9 +1220,6 @@ summary {
   }
   .hero-note {
     grid-column: 10 / -1;
-  }
-  .specimen-section {
-    padding-block: var(--space-20);
   }
   .section-label {
     grid-column: 1 / 4;
@@ -1091,17 +1273,22 @@ summary {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
+  /* Declared at the same specificity as the component rules that set a
+     duration, and after them, so the cascade neutralizes motion without
+     `!important`. */
   a,
+  button,
+  input,
+  select,
+  textarea,
+  summary,
   .button,
   .field input,
   .field select,
   .field textarea {
     animation-duration: 0.01ms;
     animation-iteration-count: 1;
+    scroll-behavior: auto;
     transition-duration: 0.01ms;
   }
 
@@ -1111,11 +1298,6 @@ summary {
 }
 
 @media print {
-  :root {
-    --color-paper: #ffffff;
-    --color-paper-raised: #ffffff;
-    --color-ink: #000000;
-  }
   .skip-link,
   .button-row,
   .filter-panel {
@@ -1125,7 +1307,19 @@ summary {
     background: var(--color-paper);
     color: var(--color-ink);
   }
-  .specimen-section,
+  .band-navy,
+  .site-foot,
+  .affiliation {
+    background: var(--color-paper);
+    color: var(--color-ink);
+  }
+  .band-navy :where(h1, h2, h3, h4, p, li, dd, dt),
+  .band-navy a,
+  .site-foot a,
+  .wordmark-light {
+    color: var(--color-ink);
+  }
+  .band,
   figure,
   .alert {
     break-inside: avoid;

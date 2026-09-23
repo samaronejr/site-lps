@@ -10,6 +10,8 @@ declare(strict_types=1);
 namespace LPS\ContentModel;
 
 require_once __DIR__ . '/class-importcontracts.php';
+require_once __DIR__ . '/class-teachingcontracts.php';
+require_once __DIR__ . '/class-publicationpolicy.php';
 
 /**
  * Canonical record, metadata, and option schemas.
@@ -42,7 +44,7 @@ final class Contracts {
 			'lps_opportunity'   => self::type( 'Opportunities', 'Opportunity', 'opportunities' ),
 			'lps_event'         => self::type( 'Events', 'Event', 'events' ),
 			'lps_redirect'      => self::type( 'Redirects', 'Redirect', 'redirects', false ),
-		);
+		) + TeachingContracts::post_types();
 	}
 
 	/**
@@ -53,6 +55,7 @@ final class Contracts {
 	public static function meta_fields(): array {
 		$common = array(
 			'_lps_record_id'               => self::field( 'string', 'Immutable internal record ID', 'record_id' ),
+			'_lps_origin'                  => self::field( 'string', 'Record origin: native authoring or reviewed import', 'origin' ),
 			'_lps_claim_verified'          => self::field( 'boolean', 'Institutional claim is verified', 'boolean' ),
 			'_lps_claim_source_url'        => self::field( 'string', 'Institutional claim source URL', 'url' ),
 			'_lps_claim_reviewed_at'       => self::field( 'string', 'Institutional claim review date', 'date' ),
@@ -99,6 +102,8 @@ final class Contracts {
 				'_lps_lattes_url'        => self::field( 'string', 'Lattes URL', 'url' ),
 				'_lps_scholar_url'       => self::field( 'string', 'Scholar URL', 'url' ),
 				'_lps_website_url'       => self::field( 'string', 'Website URL', 'url' ),
+				'_lps_github_url'        => self::field( 'string', 'GitHub URL', 'url' ),
+				'_lps_linkedin_url'      => self::field( 'string', 'LinkedIn URL', 'url' ),
 				'_lps_research_area_ids' => self::field( 'array', 'Research area record IDs', 'id_array' ),
 				'_lps_credentials'       => self::field( 'array', 'Credentials', 'string_array' ),
 				'_lps_photo_rights'      => self::field( 'string', 'Photo rights state', 'key' ),
@@ -123,6 +128,7 @@ final class Contracts {
 			),
 			'lps_project'       => array(
 				'_lps_project_status'      => self::field( 'string', 'Project status', 'key' ),
+				'_lps_source_label'        => self::field( 'string', 'Source provenance label', 'text' ),
 				'_lps_start_date'          => self::field( 'string', 'Start date', 'date' ),
 				'_lps_end_date'            => self::field( 'string', 'End date', 'date' ),
 				'_lps_member_ids'          => self::field( 'array', 'Member record IDs', 'id_array' ),
@@ -159,6 +165,9 @@ final class Contracts {
 			),
 			'lps_news'          => array(
 				'_lps_canonical_date'     => self::field( 'string', 'Canonical publication date', 'datetime' ),
+				'_lps_date_label'         => self::field( 'string', 'Editorial date label shown instead of the canonical date', 'text' ),
+				'_lps_news_category'      => self::field( 'string', 'News category key', 'key' ),
+				'_lps_source_label'       => self::field( 'string', 'Source provenance label', 'text' ),
 				'_lps_news_status'        => self::field( 'string', 'News status', 'key' ),
 				'_lps_related_record_ids' => self::field( 'array', 'Related record IDs', 'id_array' ),
 				'_lps_featured_until'     => self::field( 'string', 'Featured-until date', 'date' ),
@@ -204,6 +213,13 @@ final class Contracts {
 				'_lps_verified_at'         => self::field( 'string', 'Verification timestamp', 'datetime' ),
 			),
 		);
+
+		/**
+		 * Teaching-contract field leaves are all produced by the FieldDefinition factories.
+		 *
+		 * @var array<string, array<string, FieldDefinition>> $specific
+		 */
+		$specific = array_merge( $specific, TeachingContracts::specific_meta_fields( array( self::class, 'teaching_field' ) ) );
 
 		$result = array();
 		foreach ( array_keys( self::post_types() ) as $post_type ) {
@@ -285,7 +301,7 @@ final class Contracts {
 			'builtin'      => $builtin,
 			'show_in_rest' => true,
 			'rest_base'    => $rest_base,
-			'supports'     => array( 'title', 'editor', 'excerpt', 'author', 'revisions', 'custom-fields' ),
+			'supports'     => array( 'title', 'editor', 'excerpt', 'author', 'revisions', 'custom-fields', 'thumbnail' ),
 		);
 	}
 
@@ -306,6 +322,13 @@ final class Contracts {
 			'email' => array( Policy::class, 'sanitize_email' ),
 			'doi' => array( RelationshipPolicy::class, 'normalize_doi' ),
 			'record_id' => array( Policy::class, 'sanitize_record_id' ),
+			'origin' => array( PublicationPolicy::class, 'sanitize_origin' ),
+			'course_code' => array( TeachingContracts::class, 'normalize_course_code' ),
+			'term_code' => array( TeachingContracts::class, 'normalize_term_code' ),
+			'section_key' => array( TeachingContracts::class, 'normalize_section_key' ),
+			'version_id' => array( TeachingContracts::class, 'normalize_version_id' ),
+			'resource_language' => array( TeachingContracts::class, 'normalize_language' ),
+			'iso_date' => array( TeachingContracts::class, 'normalize_iso_date' ),
 			'textarea' => array( Policy::class, 'sanitize_textarea' ),
 			default => array( Policy::class, 'sanitize_text' ),
 		};
@@ -317,5 +340,23 @@ final class Contracts {
 			'sanitize_callback' => $callback,
 			'auth_callback'     => array( Policy::class, 'can_edit_meta' ),
 		);
+	}
+
+	/**
+	 * Builds one typed metadata definition for the teaching contract tables.
+	 *
+	 * The teaching contract declares its field factory against a zero-argument
+	 * auth callback shape; the runtime callback still receives WordPress'
+	 * four auth arguments, so the wrapper forwards them all through defaults.
+	 *
+	 * @param string $type        REST primitive type.
+	 * @param string $description Accessible editor description.
+	 * @param string $sanitizer   Sanitizer selector.
+	 * @return array{type: string, single: bool, description: string, show_in_rest: bool, sanitize_callback: callable(mixed): mixed, auth_callback: callable(): bool}
+	 */
+	public static function teaching_field( string $type, string $description, string $sanitizer ): array {
+		$definition                  = self::field( $type, $description, $sanitizer );
+		$definition['auth_callback'] = static fn ( mixed $allowed = null, string $meta_key = '', int $object_id = 0, int $user_id = 0 ): bool => Policy::can_edit_meta( $allowed, $meta_key, $object_id, $user_id );
+		return $definition;
 	}
 }

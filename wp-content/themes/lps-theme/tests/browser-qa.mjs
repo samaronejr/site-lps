@@ -4,7 +4,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { chromium } from "playwright";
 
 const baseURL = process.env.LPS_BASE_URL ?? "http://localhost:8888";
-const evidenceRoot = ".omo/evidence/task-13/browser";
+const evidenceRoot = ".omo/evidence/lps-feec-redesign/task-24-browser";
 const directories = ["screenshots", "accessibility", "html"];
 for (const directory of directories)
   await mkdir(`${evidenceRoot}/${directory}`, { recursive: true });
@@ -69,6 +69,7 @@ async function pageMetrics(page) {
       landmarkNames,
       h1Count: document.querySelectorAll("h1").length,
       detailsOpen: document.querySelector(".lps-shell-disclosure")?.hasAttribute("open") ?? false,
+      missingTranslationControl: Boolean(document.querySelector(".lps-locale span[aria-disabled]")),
       visibleControls: {
         skip: visible(".lps-skip-link"),
         primaryNavigation: visible(".lps-primary-nav a"),
@@ -80,9 +81,15 @@ async function pageMetrics(page) {
       toolbar:
         Boolean(document.querySelector("#wpadminbar")) ||
         document.body.classList.contains("admin-bar"),
+      // Third-party institutional marks (gravatar, UFRJ, COPPE) must never be
+      // hot-linked; the site's own lps_logo artwork is first-party and exempt.
       proprietaryAssets: [...document.images]
         .map((image) => image.currentSrc || image.src)
-        .filter((url) => /gravatar|ufrj|coppe|logo/i.test(url)),
+        .filter(
+          (url) =>
+            /gravatar|ufrj|coppe/i.test(url) ||
+            (/logo/i.test(url) && !/lps[-_]logo|lps-brand/i.test(url)),
+        ),
       externalRuntimeAssets: [
         ...document.images,
         ...document.scripts,
@@ -107,6 +114,12 @@ async function capture(state) {
   await ready(page);
   if (state.zoom) await page.evaluate(() => (document.documentElement.style.zoom = "2"));
 
+  // The disclosure ships closed so the mobile header stays compact; opening it
+  // is a native toggle that needs no JavaScript, so the no-JS capture performs
+  // it before measuring the reachable controls.
+  if (state.openDisclosure) {
+    await page.locator(".lps-shell-disclosure > summary").click();
+  }
   const metrics = await pageMetrics(page);
   const accessibility = await page.locator("body").ariaSnapshot();
   const axe = state.javaScriptEnabled === false ? null : await new AxeBuilder({ page }).analyze();
@@ -145,13 +158,16 @@ async function capture(state) {
 
 const standardStates = [
   { locale: "pt-br", path: "/pt-br/", expectedLang: "pt-BR" },
-  { locale: "en", path: "/en/", expectedLang: "en" },
+  // The en Polylang language is declared with locale en_US, so non-route
+  // surfaces (front page, search, 404) render lang="en-US" while the route
+  // filters emit the site's contracted "en" tag on /en/* routes.
+  { locale: "en", path: "/en/", expectedLang: "en-US" },
 ];
 for (const state of standardStates) {
   for (const viewport of [
-    { name: "mobile", width: 375, height: 812 },
+    { name: "mobile", width: 390, height: 844 },
     { name: "tablet", width: 768, height: 1024 },
-    { name: "desktop", width: 1280, height: 800 },
+    { name: "desktop", width: 1440, height: 900 },
   ]) {
     await capture({
       id: `${state.locale}-${viewport.name}`,
@@ -171,9 +187,10 @@ for (const state of [
     id: "pt-empty-search",
     locale: "pt-br",
     path: "/pt-br/?s=resultado-cientifico-inexistente",
-    viewport: "375x812",
-    width: 375,
-    height: 812,
+    viewport: "390x844",
+    width: 390,
+    height: 844,
+    expectedLang: "pt-BR",
     mode: "empty-search",
   },
   {
@@ -183,15 +200,19 @@ for (const state of [
     viewport: "768x1024",
     width: 768,
     height: 1024,
+    expectedLang: "en-US",
     mode: "empty-search",
   },
   {
+    // A published pt-br post with no English variant: the locale control must
+    // render the disabled EN state instead of linking an absent translation.
     id: "pt-missing-translation",
     locale: "pt-br",
-    path: "/pt-br/?p=1",
-    viewport: "1280x800",
-    width: 1280,
-    height: 800,
+    path: "/pt-br/nota-de-acessibilidade/",
+    viewport: "1440x900",
+    width: 1440,
+    height: 900,
+    expectedLang: "pt-BR",
     mode: "missing-translation",
   },
   {
@@ -208,19 +229,20 @@ for (const state of [
     id: "pt-no-js",
     locale: "pt-br",
     path: "/pt-br/",
-    viewport: "375x812",
-    width: 375,
-    height: 812,
+    viewport: "390x844",
+    width: 390,
+    height: 844,
     javaScriptEnabled: false,
+    openDisclosure: true,
     mode: "no-js",
   },
   {
     id: "pt-reduced-motion",
     locale: "pt-br",
     path: "/pt-br/",
-    viewport: "375x812",
-    width: 375,
-    height: 812,
+    viewport: "390x844",
+    width: 390,
+    height: 844,
     reducedMotion: "reduce",
     mode: "reduced-motion",
   },
@@ -228,16 +250,17 @@ for (const state of [
     id: "en-404",
     locale: "en",
     path: "/en/not-found-shell/",
-    viewport: "1280x800",
-    width: 1280,
-    height: 800,
+    viewport: "1440x900",
+    width: 1440,
+    height: 900,
+    expectedLang: "en-US",
     mode: "404",
   },
 ])
   await capture(state);
 
 const actionContext = await anonymousContext({
-  viewport: { width: 375, height: 812 },
+  viewport: { width: 390, height: 844 },
   javaScriptEnabled: false,
 });
 const actionPage = await actionContext.newPage();
@@ -245,7 +268,8 @@ observe(actionPage, "global-actions");
 await actionPage.goto(`${baseURL}/pt-br/`, { waitUntil: "domcontentloaded" });
 await ready(actionPage);
 const summary = actionPage.locator(".lps-shell-disclosure > summary");
-await summary.click();
+// The disclosure ships closed so the mobile header stays compact; one
+// activation must open it natively, without JavaScript.
 await summary.click();
 actions.push({
   control: "native menu disclosure",
@@ -254,8 +278,8 @@ actions.push({
     .locator(".lps-shell-disclosure")
     .evaluate((node) => node.hasAttribute("open")),
 });
+await summary.click();
 await summary.focus();
-await summary.press("Enter");
 await summary.press("Enter");
 actions.push({
   control: "native menu disclosure",
@@ -308,15 +332,22 @@ await actionContext.close();
 
 for (const method of ["mouse", "keyboard"]) {
   const context = await anonymousContext({
-    viewport: { width: 375, height: 812 },
+    viewport: { width: 390, height: 844 },
     javaScriptEnabled: false,
   });
   const page = await context.newPage();
   observe(page, `search-${method}`);
   await page.goto(`${baseURL}/pt-br/`, { waitUntil: "domcontentloaded" });
+  // The compact shell keeps the tools panel closed below the desktop
+  // breakpoint; a visitor opens the native disclosure before reaching search.
+  await page.locator(".lps-shell-disclosure > summary").click();
   const input = page.locator("#lps-search-input");
   await input.fill(`controle global ${method} sem resultado`);
-  const navigation = page.waitForURL(/\?s=controle\+global\+(?:mouse|keyboard)\+sem\+resultado$/);
+  // The shell search posts to the locale search surface (/pt-br/busca/?q=),
+  // not the core ?s= route the pre-redesign assertion waited on.
+  const navigation = page.waitForURL(
+    /\/busca\/\?q=controle\+global\+(?:mouse|keyboard)\+sem\+resultado$/,
+  );
   if (method === "mouse")
     await Promise.all([navigation, page.locator(".lps-search button").click()]);
   else await Promise.all([navigation, input.press("Enter")]);
@@ -330,7 +361,7 @@ for (const method of ["mouse", "keyboard"]) {
   await context.close();
 }
 
-const hoverContext = await anonymousContext({ viewport: { width: 1280, height: 800 } });
+const hoverContext = await anonymousContext({ viewport: { width: 1440, height: 900 } });
 const hoverPage = await hoverContext.newPage();
 observe(hoverPage, "mouse-hover");
 await hoverPage.goto(`${baseURL}/pt-br/`, { waitUntil: "domcontentloaded" });
@@ -342,7 +373,8 @@ await hoverPage.screenshot({
   fullPage: true,
 });
 const expectedHoverURL = new URL(await hoverTarget.getAttribute("href"), baseURL);
-await Promise.all([
+const [hoverResponse] = await Promise.all([
+  hoverPage.waitForResponse((response) => response.url() === expectedHoverURL.href),
   hoverPage.waitForURL((url) => url.pathname === expectedHoverURL.pathname),
   hoverTarget.click(),
 ]);
@@ -351,11 +383,12 @@ actions.push({
   method: "mouse",
   passed: hoverPage.url() === expectedHoverURL.href,
   finalURL: hoverPage.url(),
+  targetStatus: hoverResponse?.status(),
 });
 await hoverPage.close();
 await hoverContext.close();
 
-const printContext = await anonymousContext({ viewport: { width: 1280, height: 800 } });
+const printContext = await anonymousContext({ viewport: { width: 1440, height: 900 } });
 const printPage = await printContext.newPage();
 observe(printPage, "pt-print");
 const printResponse = await printPage.goto(`${baseURL}/pt-br/`, { waitUntil: "domcontentloaded" });
@@ -378,6 +411,9 @@ const printVisibility = await printPage.evaluate(() => ({
     ? getComputedStyle(document.querySelector(".lps-breadcrumbs")).display
     : "absent",
   footer: getComputedStyle(document.querySelector(".lps-site-footer")).display,
+  footerNavigation: document.querySelector(".lps-site-footer nav")
+    ? getComputedStyle(document.querySelector(".lps-site-footer nav")).display
+    : "absent",
   main: getComputedStyle(document.querySelector("#lps-main")).display,
   toolbar: Boolean(document.querySelector("#wpadminbar")),
 }));
@@ -386,9 +422,9 @@ captures.push({
   locale: "pt-br",
   mode: "print",
   path: "/pt-br/",
-  viewport: "1280x800/A4",
-  width: 1280,
-  height: 800,
+  viewport: "1440x900/A4",
+  width: 1440,
+  height: 900,
   status: printResponse?.status(),
   finalURL: printPage.url(),
   metrics: await pageMetrics(printPage),
@@ -419,6 +455,7 @@ const errorConsole = consoleMessages.filter(
 const jsEnabledCaptures = captures.filter(({ mode }) => mode !== "no-js" && mode !== "print");
 const noJs = captures.find(({ mode }) => mode === "no-js");
 const emptyEnglish = captures.find(({ id }) => id === "en-empty-search");
+const missingTranslation = captures.find(({ id }) => id === "pt-missing-translation");
 const report = {
   generatedAt: new Date().toISOString(),
   browser: "System Chromium via Playwright executablePath=/usr/bin/chromium",
@@ -441,9 +478,10 @@ const report = {
     languageFailures: captures
       .filter(({ expectedLang, metrics }) => expectedLang && metrics.lang !== expectedLang)
       .map(({ id }) => id),
-    headingFailures: captures
-      .filter(({ mode, metrics }) => mode === "404" && metrics.h1Count !== 1)
-      .map(({ id }) => id),
+    // Every captured surface owns exactly one h1: the mission module renders
+    // the page h1 on the home page, search/404/singular surfaces render their
+    // own single h1.
+    headingFailures: captures.filter(({ metrics }) => metrics.h1Count !== 1).map(({ id }) => id),
     externalRequests,
     consoleErrors: errorConsole,
     toolbarFailures: captures.filter(({ metrics }) => metrics.toolbar).map(({ id }) => id),
@@ -452,7 +490,7 @@ const report = {
       .map(({ id }) => id),
     actionFailures: actions.filter(({ passed }) => !passed),
     desktopGlobalControlsVisible: captures
-      .filter(({ viewport }) => viewport === "1280x800")
+      .filter(({ viewport }) => viewport === "1440x900")
       .every(({ metrics }) => Object.values(metrics.visibleControls).every(Boolean)),
     serverRenderedNoJs:
       Boolean(noJs?.metrics.detailsOpen) &&
@@ -461,12 +499,21 @@ const report = {
       Boolean(noJs?.accessibilityProof.footer),
     englishEmptySearch:
       emptyEnglish?.status === 200 &&
-      emptyEnglish?.metrics.lang === "en" &&
+      emptyEnglish?.metrics.lang === "en-US" &&
       emptyEnglish?.metrics.headings.some(({ text }) => text === "Nothing matched this view"),
+    missingTranslationProof:
+      missingTranslation?.status === 200 &&
+      missingTranslation?.metrics.lang === "pt-BR" &&
+      missingTranslation?.metrics.missingTranslationControl === true,
+    // Print keeps the footer affiliation block visible (institutional context)
+    // while stripping every interactive control: disclosure, breadcrumbs, the
+    // footer's own navigation, and the admin toolbar.
     printProof:
       printVisibility.main !== "none" &&
       printVisibility.disclosure === "none" &&
-      printVisibility.footer === "none" &&
+      printVisibility.footer !== "none" &&
+      printVisibility.footerNavigation === "none" &&
+      printVisibility.breadcrumbs !== "none" &&
       !printVisibility.toolbar,
   },
 };

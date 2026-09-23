@@ -53,8 +53,8 @@ final class PublicSurfacesTest extends \PHPUnit\Framework\TestCase {
 		);
 	}
 
-	/** A declared portrait that is not present renders the published fallback, never a broken image. */
-	public function test_portrait_missing_from_disk_renders_the_no_photo_fallback(): void {
+	/** A declared portrait that is not present renders no image block, never a broken image. */
+	public function test_portrait_missing_from_disk_renders_without_a_photo(): void {
 		$person = array(
 			'name'             => 'Pessoa de Teste',
 			'slug'             => 'pessoa-de-teste',
@@ -69,7 +69,8 @@ final class PublicSurfacesTest extends \PHPUnit\Framework\TestCase {
 		$html = PublicSurfaces::person_profile( 'pt-br', $person );
 
 		self::assertStringNotContainsString( '<img', $html );
-		self::assertStringContainsString( 'Foto não publicada', $html );
+		self::assertStringNotContainsString( 'lps-split', $html );
+		self::assertStringContainsString( 'Pessoa de Teste', $html );
 	}
 
 	/** A portrait that is present still renders as an image with its alt text. */
@@ -87,7 +88,7 @@ final class PublicSurfacesTest extends \PHPUnit\Framework\TestCase {
 
 		$html = PublicSurfaces::person_profile( 'pt-br', $person );
 
-		self::assertStringContainsString( '<img src="/wp-content/uploads/present-portrait.jpg" alt="Retrato.">', $html );
+		self::assertStringContainsString( '<img class="lps-person-photo" src="/wp-content/uploads/present-portrait.jpg" alt="Retrato.">', $html );
 	}
 
 	/** A record heading is an H1 only where the record owns the page. */
@@ -109,35 +110,25 @@ final class PublicSurfacesTest extends \PHPUnit\Framework\TestCase {
 		self::assertStringContainsString( '<h2>Parceiro Público</h2>', $listing );
 	}
 
-	/** The people filter submits through the token-driven button primitive. */
-	public function test_people_filter_submit_uses_the_token_button_primitive(): void {
-		// Given: the people listing rendered with its filter form.
-		$html = PublicSurfaces::people_listing( 'pt-br', $this->people(), array() );
+	/** The people listing epilogue uses the token-driven button primitive. */
+	public function test_people_epilogue_cta_uses_the_token_button_primitive(): void {
+		// Given: the people listing rendered with its epilogue bands.
+		$html = PublicSurfaces::people_listing( 'pt-br', $this->people() );
 
-		// Then: the submit control is the design-system button, not an unstyled native default.
-		self::assertStringContainsString( '<button class="lps-button lps-button-primary" type="submit">', $html );
+		// Then: the calls to action are the design-system buttons, not unstyled links.
+		self::assertStringContainsString( 'lps-button lps-button-primary', $html );
 	}
 
 	/**
-	 * Verifies that people facets preserve distinct cohorts and stable urls.
+	 * Verifies that people cards keep distinct cohorts and stable urls.
 	 */
-	public function test_people_facets_preserve_distinct_cohorts_and_stable_urls(): void {
-		$html = PublicSurfaces::people_listing(
-			'pt-br',
-			$this->people(),
-			array(
-				'role'   => array( 'student' ),
-				'status' => array( 'active' ),
-				'area'   => array( 'signal-processing' ),
-			)
-		);
+	public function test_people_cards_preserve_distinct_cohorts_and_stable_urls(): void {
+		$html = PublicSurfaces::people_listing( 'pt-br', $this->people() );
 
-		self::assertStringContainsString( 'name="role[]"', $html );
-		self::assertStringContainsString( 'name="status[]"', $html );
-		self::assertStringContainsString( 'name="area[]"', $html );
 		self::assertStringContainsString( '/pt-br/pessoas/ana-alvares/', $html );
+		self::assertStringContainsString( '/pt-br/pessoas/ana-alvares-2/', $html );
 		self::assertStringContainsString( 'Estudante', $html );
-		self::assertStringNotContainsString( 'ana-alvares-2', $html );
+		self::assertStringContainsString( 'Egresso', $html );
 	}
 
 	/**
@@ -153,7 +144,7 @@ final class PublicSurfacesTest extends \PHPUnit\Framework\TestCase {
 		self::assertStringNotContainsString( 'must-not-leak@example.org', $private );
 		self::assertStringNotContainsString( 'never@example.org', $private );
 		self::assertStringNotContainsString( 'untrusted.example', $private );
-		self::assertStringContainsString( 'Foto não publicada', $private );
+		self::assertStringNotContainsString( '<img', $private );
 		self::assertStringContainsString( 'Colaboração externa', $private );
 		self::assertStringContainsString( 'Egresso', $private );
 	}
@@ -258,7 +249,7 @@ final class PublicSurfacesTest extends \PHPUnit\Framework\TestCase {
 		self::assertStringContainsString( '/en/research/signal-processing/', $html );
 		self::assertStringContainsString( '/en/projects/atlas/', $html );
 		self::assertStringContainsString( '/en/people/technical-staff/', $html );
-		self::assertStringContainsString( 'Source reviewed 2026-08-20', $html );
+		self::assertStringContainsString( 'Source reviewed <time datetime="2026-08-20">2026-08-20</time>', $html );
 	}
 
 	/** Every cohort keeps its own label instead of being flattened into professors. */
@@ -309,11 +300,10 @@ final class PublicSurfacesTest extends \PHPUnit\Framework\TestCase {
 			),
 		);
 
-		$html  = PublicSurfaces::people_listing( 'pt-br', $cohorts, array() );
-		$items = substr( $html, (int) strpos( $html, '</form>' ) );
+		$html = PublicSurfaces::people_listing( 'pt-br', $cohorts );
 
-		foreach ( array( 'Estudante', 'Pesquisador', 'Professor', 'Equipe técnica', 'Colaboração externa', 'Egresso', 'In memoriam' ) as $label ) {
-			self::assertStringContainsString( $label, $items, 'Cohort label ' . $label . ' is listed, not only offered as a facet.' );
+		foreach ( array( 'Estudante', 'Pesquisador', 'Professor', 'Equipe técnica', 'Colaboração externa', 'Egresso', 'in memoriam' ) as $label ) {
+			self::assertStringContainsString( $label, $html, 'Cohort label ' . $label . ' is listed on its card.' );
 		}
 	}
 
@@ -361,7 +351,7 @@ final class PublicSurfacesTest extends \PHPUnit\Framework\TestCase {
 		);
 
 		self::assertSame( '', PublicSurfaces::person_profile( 'pt-br', $row ) );
-		self::assertStringNotContainsString( 'Pending Consent', PublicSurfaces::people_listing( 'pt-br', array( $row ), array() ) );
+		self::assertStringNotContainsString( 'Pending Consent', PublicSurfaces::people_listing( 'pt-br', array( $row ) ) );
 	}
 
 	/** A departed member keeps a published profile and its historical links. */
@@ -385,8 +375,7 @@ final class PublicSurfacesTest extends \PHPUnit\Framework\TestCase {
 
 		self::assertStringContainsString( 'Egresso', $html );
 		self::assertStringContainsString( '2023-12-31', $html );
-		self::assertStringContainsString( '/pt-br/projetos/atlas/', $html );
-		self::assertStringContainsString( 'Projeto Atlas', $html );
+		self::assertStringContainsString( 'Pessoa Egressa', $html );
 	}
 
 	/** Names that differ only by diacritics stay distinguishable. */
@@ -406,8 +395,7 @@ final class PublicSurfacesTest extends \PHPUnit\Framework\TestCase {
 					'roles'  => array( 'professor' ),
 					'status' => 'active',
 				),
-			),
-			array()
+			)
 		);
 
 		self::assertStringContainsString( '/pt-br/pessoas/ana-alvares/', $html );
@@ -457,11 +445,79 @@ final class PublicSurfacesTest extends \PHPUnit\Framework\TestCase {
 			)
 		);
 
-		self::assertStringContainsString( 'Fonte revisada em 2026-08-20', $html );
+		self::assertStringContainsString( 'Fonte revisada em <time datetime="2026-08-20">2026-08-20</time>', $html );
 		self::assertStringContainsString( '/pt-br/infraestrutura/bancada/', $html );
 		self::assertStringContainsString( '/pt-br/pesquisa/processamento/', $html );
 		self::assertStringContainsString( '/pt-br/projetos/atlas/', $html );
 		self::assertStringContainsString( '/pt-br/pessoas/equipe-tecnica/', $html );
+	}
+
+	/** A stale English record announces the review state instead of falling back. */
+	public function test_stale_english_record_announces_review_instead_of_falling_back(): void {
+		$person = array(
+			'slug'      => 'ana-alvares',
+			'name'      => 'Ana Alvares',
+			'roles'     => array( 'researcher' ),
+			'status'    => 'active',
+			'stale'     => true,
+			'published' => true,
+		);
+
+		$html = PublicSurfaces::person_profile( 'en', $person );
+
+		self::assertStringContainsString( 'lps-translation-notice', $html );
+		self::assertStringContainsString( 'under review', $html );
+		self::assertStringContainsString( 'Ana Alvares', $html );
+		self::assertStringNotContainsString( 'Ana Álvares', $html );
+
+		$fresh = PublicSurfaces::person_profile( 'en', array_merge( $person, array( 'stale' => false ) ) );
+		self::assertStringNotContainsString( 'lps-translation-notice', $fresh );
+
+		$organization = PublicSurfaces::organization_profile(
+			'en',
+			array(
+				'name'           => 'Public Partner',
+				'public_profile' => true,
+				'stale'          => true,
+			)
+		);
+		self::assertStringContainsString( 'lps-translation-notice', $organization );
+	}
+
+	/** Infrastructure groups its evidence links under localized headings. */
+	public function test_infrastructure_groups_links_under_localized_headings(): void {
+		$facility = array(
+			'name'      => 'Laboratório validado',
+			'equipment' => array(
+				array(
+					'title' => 'Bancada de aquisição',
+					'url'   => '/pt-br/infraestrutura/bancada/',
+				),
+			),
+			'contacts'  => array(
+				array(
+					'title' => 'Equipe técnica',
+					'url'   => '/pt-br/pessoas/equipe-tecnica/',
+				),
+			),
+		);
+
+		$portuguese = PublicSurfaces::infrastructure_page( 'pt-br', array( $facility ) );
+		$english    = PublicSurfaces::infrastructure_page( 'en', array( $facility ) );
+
+		self::assertStringContainsString( '<h3>Equipamento</h3>', $portuguese );
+		self::assertStringContainsString( '<h3>Contatos</h3>', $portuguese );
+		self::assertStringContainsString( '<h3>Equipment</h3>', $english );
+		self::assertStringContainsString( '<h3>Contacts</h3>', $english );
+		self::assertStringContainsString( 'lps-infra-group', $portuguese );
+	}
+
+	/** An empty facility set renders the documented empty state, not a blank section. */
+	public function test_infrastructure_without_facilities_renders_the_empty_state(): void {
+		$html = PublicSurfaces::infrastructure_page( 'en', array() );
+
+		self::assertStringContainsString( 'lps-empty', $html );
+		self::assertStringContainsString( 'No published facilities', $html );
 	}
 
 	/** An absent record renders nothing at all, not an empty profile shell. */

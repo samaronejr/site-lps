@@ -27,16 +27,30 @@ saving.
 ## Required English coverage
 
 English is required for Home, About, Research, Projects, People, Publications, Infrastructure,
-Opportunities, Collaboration, Contact and the privacy/accessibility notices. News and events are
-Portuguese-first with optional reviewed English summaries. A required locale pair publishes
-atomically: an Opportunity change that alters material English content cannot publish half-updated.
-`hreflang` alternates are emitted only for published pairs.
+Opportunities, Collaboration, Contact and the privacy/accessibility notices, and for the public
+teaching records `lps_course` and `lps_offering`. News and events are Portuguese-first with optional
+reviewed English summaries; terms, units and resources keep their authored language and are not
+translated record pairs. A required locale pair publishes atomically: an Opportunity change that
+alters material English content cannot publish half-updated. `hreflang` alternates are emitted only
+for published pairs.
+
+Teaching shared fields follow the same Portuguese-authority rule: section keys, schedules, term
+boundaries, release states and file/version identifiers are owned by the authoritative record, so an
+English variant can never write them or bypass offering uniqueness. The material sets that must
+synchronize atomically are `_lps_starts_on`/`_lps_ends_on` (term), `_lps_cancelled`/`_lps_schedule`
+(offering) and `_lps_release_state`/`_lps_release_at`/`_lps_withdrawn_at`/`_lps_version_id`/
+`_lps_external_url` (resource).
 
 ## How staleness is detected
 
-Freshness is content-derived, not date-derived:
+Freshness is content-derived, not date-derived, and it is field-specific:
 
-1. `TranslationPolicy::source_hash()` hashes the authoritative Portuguese material fields.
+1. `TranslationPolicy::source_hash()` hashes the authoritative Portuguese material fields. For the
+   teaching record types the hash covers exactly the localized (per-variant editorial) fields
+   declared by `TeachingContracts::field_ownership()` — a shared schedule, term boundary, release
+   state, or file/version identifier never forces a meaningless re-translation, and an
+   authored-language resource never requires translated file bytes. For the pre-existing record
+   types the hash keeps its established coverage so reviewed hashes already stored stay valid.
 2. The value is stored as `_lps_source_hash`; the reviewer-approved value is
    `_lps_reviewed_source_hash`.
 3. `TranslationPolicy::is_stale()` compares them. Different hashes mean the English variant no longer
@@ -62,7 +76,7 @@ The report ordering puts `stale` rows ahead of clean rows so a reviewer sees the
 | --- | --- |
 | `P30D` | opportunity, event |
 | `P90D` | site-settings, person, project |
-| `P180D` | page, organization, research-area |
+| `P180D` | page, organization, research-area, teaching |
 | `P365D` | publication, news, media-asset, redirect |
 
 The cadence is the maximum ordinary interval. Review earlier whenever a source, status, deadline,

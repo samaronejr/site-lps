@@ -80,7 +80,7 @@ final class SearchIndexTest extends \PHPUnit\Framework\TestCase {
 		foreach ( SearchIndex::private_fields() as $field ) {
 			self::assertArrayNotHasKey( $field, $row );
 		}
-		self::assertSame( array( 'post_id', 'locale', 'post_type', 'exact_terms', 'high_terms', 'medium_terms', 'low_terms', 'facets', 'title', 'summary', 'url', 'published_at' ), array_keys( $row ) );
+		self::assertSame( array( 'post_id', 'locale', 'post_type', 'exact_terms', 'high_terms', 'medium_terms', 'low_terms', 'facets', 'lifecycle', 'title', 'summary', 'url', 'published_at' ), array_keys( $row ) );
 	}
 
 	/**
@@ -266,20 +266,28 @@ final class SearchIndexTest extends \PHPUnit\Framework\TestCase {
 	 */
 	private static function record( int $post_id, string $locale, string $post_type, string $title ): array {
 		return array(
-			'post_id'      => $post_id,
-			'status'       => 'publish',
-			'locale'       => $locale,
-			'post_type'    => $post_type,
-			'title'        => $title,
-			'acronym'      => '',
-			'doi'          => '',
-			'orcid'        => '',
-			'summary'      => 'resumo público',
-			'taxonomy'     => array(),
-			'body'         => 'corpo público',
-			'facets'       => array(),
-			'url'          => '/pt-br/registro/',
-			'published_at' => '2025-03-01 00:00:00',
+			'post_id'        => $post_id,
+			'status'         => 'publish',
+			'locale'         => $locale,
+			'post_type'      => $post_type,
+			'title'          => $title,
+			'acronym'        => '',
+			'doi'            => '',
+			'orcid'          => '',
+			'summary'        => 'resumo público',
+			'taxonomy'       => array(),
+			'body'           => 'corpo público',
+			'facets'         => array(),
+			'url'            => '/pt-br/registro/',
+			'published_at'   => '2025-03-01 00:00:00',
+
+			// Unified visibility-decision inputs: a reviewed native record.
+			'_lps_state'     => 'published',
+			'_lps_origin'    => 'native',
+			'_lps_record_id' => 'lps:' . str_replace( '_', '-', str_replace( 'lps_', '', $post_type ) ) . ':018f21ce-7d7a-7abc-8a2f-2d6937f89a11',
+			'stale'          => false,
+			'source_status'  => 'publish',
+			'source_state'   => 'published',
 		);
 	}
 }

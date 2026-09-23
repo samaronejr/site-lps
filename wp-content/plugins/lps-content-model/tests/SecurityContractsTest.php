@@ -90,7 +90,7 @@ final class SecurityContractsTest extends \PHPUnit\Framework\TestCase {
 	 */
 	public function test_audit_actions_and_hash_chain_are_complete_and_immutable_by_contract(): void {
 		self::assertSame(
-			array( 'create', 'edit', 'submit', 'review', 'publish', 'unpublish', 'archive', 'import', 'redirect', 'settings' ),
+			array( 'create', 'edit', 'submit', 'review', 'publish', 'unpublish', 'archive', 'import', 'redirect', 'settings', 'grant-scope', 'revoke-scope' ),
 			SecurityPolicy::audited_actions()
 		);
 		$entry = SecurityPolicy::audit_payload( 7, 'publish', 42, 99, '2026-08-31T12:00:00+00:00', 'abc' );

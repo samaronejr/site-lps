@@ -188,6 +188,101 @@
         "_lps_redirect_reason": "Canonical migration",
         "_lps_redirect_provenance": "https://legacy.example/old-home"
       }
+    },
+    {
+      "source_id": "course-1",
+      "type": "lps_course",
+      "record_id": "lps:course:00000000-0000-4000-8000-00000000000c",
+      "title": "Sinais e Sistemas",
+      "slug": "sinais-e-sistemas",
+      "locale": "pt-BR",
+      "state": "draft",
+      "source_url": "https://legacy.example/course/sinais",
+      "captured_at": "2026-08-30T23:03:43Z",
+      "checksum": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+      "rights": "public-record",
+      "review_state": "candidate",
+      "meta": {
+        "_lps_course_code": "EEL315",
+        "_lps_course_level": "undergraduate",
+        "_lps_calendar_key": "semester",
+        "_lps_catalog_source_url": "https://legacy.example/catalog/eel315"
+      }
+    },
+    {
+      "source_id": "term-1",
+      "type": "lps_term",
+      "record_id": "lps:term:00000000-0000-4000-8000-00000000000d",
+      "title": "2026.1",
+      "slug": "2026-1-semester",
+      "locale": "und",
+      "state": "draft",
+      "source_url": "https://legacy.example/term/2026-1",
+      "captured_at": "2026-08-30T23:03:43Z",
+      "checksum": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+      "rights": "public-record",
+      "review_state": "candidate",
+      "meta": {
+        "_lps_calendar_key": "semester",
+        "_lps_term_code": "2026.1",
+        "_lps_period_label": "2026.1",
+        "_lps_period_type": "semester",
+        "_lps_starts_on": "2026-03-02",
+        "_lps_ends_on": "2026-07-10",
+        "_lps_term_token": "2026-1-semester",
+        "_lps_term_source": "UFRJ academic calendar 2026.1 (fixture provenance)"
+      }
+    },
+    {
+      "source_id": "offering-1",
+      "type": "lps_offering",
+      "record_id": "lps:offering:00000000-0000-4000-8000-00000000000e",
+      "title": "Sinais e Sistemas - Turma A",
+      "slug": "sinais-e-sistemas-2026-1-a",
+      "locale": "pt-BR",
+      "state": "draft",
+      "source_url": "https://legacy.example/offering/sinais-2026-1-a",
+      "captured_at": "2026-08-30T23:03:43Z",
+      "checksum": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
+      "rights": "public-record",
+      "review_state": "candidate",
+      "meta": { "_lps_section_key": "a", "_lps_temporal_status": "upcoming" }
+    },
+    {
+      "source_id": "unit-1",
+      "type": "lps_unit",
+      "record_id": "lps:unit:00000000-0000-4000-8000-00000000000f",
+      "title": "Convolução",
+      "slug": "convolucao",
+      "locale": "pt-BR",
+      "state": "draft",
+      "source_url": "https://legacy.example/unit/convolucao",
+      "captured_at": "2026-08-30T23:03:43Z",
+      "checksum": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+      "rights": "public-record",
+      "review_state": "candidate",
+      "meta": { "_lps_anchor": "convolucao", "_lps_position": 1 }
+    },
+    {
+      "source_id": "resource-1",
+      "type": "lps_resource",
+      "record_id": "lps:resource:00000000-0000-4000-8000-000000000010",
+      "title": "Notas de aula",
+      "slug": "notas-de-aula",
+      "locale": "pt-BR",
+      "state": "draft",
+      "source_url": "https://legacy.example/resource/notas",
+      "captured_at": "2026-08-30T23:03:43Z",
+      "checksum": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "rights": "public-record",
+      "review_state": "candidate",
+      "meta": {
+        "_lps_resource_type": "document",
+        "_lps_resource_language": "pt-br",
+        "_lps_release_state": "draft",
+        "_lps_rights_review": "pending",
+        "_lps_accessibility_review": "pending"
+      }
     }
   ],
   "relationships": [
@@ -267,6 +362,48 @@
       "target": "lps:publication:00000000-0000-4000-8000-00000000000b",
       "role": "version-of",
       "order": 1
+    },
+    {
+      "source": "lps:offering:00000000-0000-4000-8000-00000000000e",
+      "type": "offering_course",
+      "target": "lps:course:00000000-0000-4000-8000-00000000000c",
+      "role": "offered-as",
+      "order": 1
+    },
+    {
+      "source": "lps:offering:00000000-0000-4000-8000-00000000000e",
+      "type": "offering_term",
+      "target": "lps:term:00000000-0000-4000-8000-00000000000d",
+      "role": "scheduled-in",
+      "order": 1
+    },
+    {
+      "source": "lps:offering:00000000-0000-4000-8000-00000000000e",
+      "type": "teaching_team",
+      "target": "lps:person:00000000-0000-4000-8000-000000000002",
+      "role": "lead",
+      "order": 1
+    },
+    {
+      "source": "lps:unit:00000000-0000-4000-8000-00000000000f",
+      "type": "unit_offering",
+      "target": "lps:offering:00000000-0000-4000-8000-00000000000e",
+      "role": "part-of",
+      "order": 1
+    },
+    {
+      "source": "lps:resource:00000000-0000-4000-8000-000000000010",
+      "type": "resource_offering",
+      "target": "lps:offering:00000000-0000-4000-8000-00000000000e",
+      "role": "attached-to",
+      "order": 1
+    },
+    {
+      "source": "lps:resource:00000000-0000-4000-8000-000000000010",
+      "type": "resource_unit",
+      "target": "lps:unit:00000000-0000-4000-8000-00000000000f",
+      "role": "supports",
+      "order": 1
     }
   ],
   "authorships": [
@@ -312,7 +449,8 @@
       "license": "CC BY 4.0",
       "privacy_status": "not-required",
       "locale": "zxx",
-      "review_state": "reviewed"
+      "review_state": "reviewed",
+      "alt_text": "Rights-cleared fixture photograph of the LPS bench"
     }
   ],
   "redirects": [

@@ -60,6 +60,10 @@ final class MediaStager {
 			wp_delete_file( $target );
 			return $attachment_id;
 		}
+		$alt_text = self::text( $asset['alt_text'] ?? '' );
+		if ( '' !== $alt_text ) {
+			update_post_meta( (int) $attachment_id, '_wp_attachment_image_alt', $alt_text );
+		}
 		$meta = array(
 			'_lps_media_checksum'            => $checksum,
 			'_lps_media_source_url'          => self::text( $asset['source_url'] ?? '' ),

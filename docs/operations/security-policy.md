@@ -25,13 +25,22 @@ repairs transitive denial-of-service advisories while preserving its compatible 
 
 ## Authentication and authorization
 
-Named individual accounts only. Publishers and both native/custom administrators require an
-actually configured, enabled Two-Factor provider, not a nonempty metadata array. Missing providers
-leave only read/profile access; upload, deletion, user management, publishing and settings remain
-locked. TOTP is the recommended privileged provider; recovery codes remain offline and private.
+Named individual accounts only. Publishers, professors and both native/custom administrators
+require an actually configured, enabled Two-Factor provider, not a nonempty metadata array — every
+role holding public publishing authority meets the same MFA contract. Missing providers leave only
+read/profile access; upload, deletion, user management, publishing and settings remain locked.
+TOTP is the recommended privileged provider; recovery codes remain offline and private.
 WordPress/Two-Factor owns challenge verification and session issuance; never invent a parallel
 login endpoint. Unused XML-RPC methods and application passwords are disabled. Public REST account
 enumeration is denied. Public Person records are not WordPress login accounts.
+
+Offering-scoped editorial access is deny-by-default: `professor` and `delegate` accounts hold no
+collection or global editing rights and act only inside persisted `_lps_teaching_grants` scope
+records (one offering, or the `news` scope for designated faculty news editors). Administrators
+and teaching-assigned section editors grant and revoke scopes; every grant and revocation is
+audited, takes effect immediately, and is re-evaluated on each request. User-controlled owner,
+person, offering or relation IDs never create access, and scoped roles cannot write owner,
+teaching-team, review, scan or storage fields.
 
 Core REST cookie authentication requires the WordPress REST nonce. Custom admin handlers check
 both their own action nonce and the target-object capability before typed sanitization. Output is
@@ -78,6 +87,32 @@ rights/privacy/accessibility review and an HTML equivalent before public use. Se
 non-executable with nosniff; PDF/VTT downloads receive attachment disposition and a sandbox CSP at
 the edge, containing active content even if hidden in compressed PDF objects. No SVG/HTML/script
 uploads. Sideloads pass through the same boundary. Private documents never belong in public uploads.
+
+Faculty teaching downloads are a separate lane from controlled brand/media assets.
+`wp-content/plugins/lps-content-model/includes/class-teachingstorage.php` stores them
+outside the public root under opaque `lps-file-*` keys: files land in `quarantine/`,
+pass extension/MIME/content inspection (PDF action names, UTF-8 text, image geometry,
+OOXML package structure with macro/ActiveX/OLE/embedded-executable denial, `.ipynb`
+schema validation with active-output denial — notebooks are never executed), then the
+configured scanner. Only a `clean` verdict moves a record to `cleared/`; `pending`,
+`error`, adapter exceptions and invalid verdicts return to quarantine and `infected`
+fails. Records never carry a public URL; the authorized download endpoint re-checks
+state on every request and serves `attachment` disposition with nosniff and no-store.
+`wp-content/plugins/lps-content-model/includes/class-teachingresources.php` owns that
+endpoint at `/lps-resource/<record-uuid>/`: it re-evaluates the resource's publish and
+release state, the parent offering's public visibility, the selected immutable version's
+registry row, storage health, and rights/accessibility reviews on every request. Every
+denial is the same anonymous 404 — no titles, storage keys, paths or typed codes leak —
+and any request under the route prefix that does not resolve to a granted download dies
+there before SEO redirects or the template pipeline can answer it. Granted responses
+stream the selected version's bytes with a sanitized `attachment` filename, `nosniff`,
+`no-store`, `Accept-Ranges`, a `Digest: sha-256=` integrity header and single-range
+support; HEAD answers headers only. Replacing the selected version is an explicit,
+audited decision that never mutates prior version rows.
+The default cap is 50 MiB, adjustable only by technical administrators within the
+200 MiB ceiling. Missing storage root, a root inside the public tree, a missing
+scanner or an unapproved scanner in production all fail closed — the bundled
+`lps-test-only-scanner` adapter is test-only and can never satisfy production.
 
 ## Secrets and least privilege
 

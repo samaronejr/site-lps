@@ -23,9 +23,11 @@ final class SearchSurfaces {
 	 */
 	private const COPY = array(
 		'pt-br' => array(
+			'kicker'         => 'Busca',
 			'legend'         => 'Buscar no site',
-			'label'          => 'Termo de busca',
-			'hint'           => 'Use de 2 a 100 caracteres.',
+			'label'          => 'O que você procura?',
+			'hint'           => 'Tente uma linha de pesquisa, um nome de professor, um código de disciplina ou um parceiro.',
+			'header_lead'    => 'A busca roda no servidor e funciona sem JavaScript. Os filtros restringem o resultado por coleção, área e ano.',
 			'record'         => 'Tipo de registro',
 			'all'            => 'Todos os tipos',
 			'submit'         => 'Buscar',
@@ -43,6 +45,8 @@ final class SearchSurfaces {
 			'previous'       => 'Página anterior',
 			'next'           => 'Próxima página',
 			'page'           => 'Página',
+			'previous_short' => 'Anterior',
+			'next_short'     => 'Próxima',
 			'one_result'     => '1 resultado',
 			'many_results'   => '%d resultados',
 			'no_results'     => '0 resultado',
@@ -51,9 +55,11 @@ final class SearchSurfaces {
 			'current_search' => 'Busca atual',
 		),
 		'en'    => array(
-			'legend'         => 'Search this site',
-			'label'          => 'Search term',
-			'hint'           => 'Use between 2 and 100 characters.',
+			'kicker'         => 'Search',
+			'legend'         => 'Search the site',
+			'label'          => 'What are you looking for?',
+			'hint'           => 'Try a research line, a professor\'s name, a course code or a partner.',
+			'header_lead'    => 'Search runs on the server and works without JavaScript. Filters narrow results by collection, area and year.',
 			'record'         => 'Record type',
 			'all'            => 'All types',
 			'submit'         => 'Search',
@@ -71,6 +77,8 @@ final class SearchSurfaces {
 			'previous'       => 'Previous page',
 			'next'           => 'Next page',
 			'page'           => 'Page',
+			'previous_short' => 'Previous',
+			'next_short'     => 'Next',
 			'one_result'     => '1 result',
 			'many_results'   => '%d results',
 			'no_results'     => '0 results',
@@ -94,6 +102,9 @@ final class SearchSurfaces {
 			'lps_opportunity'   => 'Oportunidades',
 			'lps_event'         => 'Eventos',
 			'lps_research_area' => 'Áreas de pesquisa',
+			'lps_course'        => 'Disciplinas',
+			'lps_offering'      => 'Turmas',
+			'lps_resource'      => 'Materiais de ensino',
 		),
 		'en'    => array(
 			'lps_publication'   => 'Publications',
@@ -103,6 +114,9 @@ final class SearchSurfaces {
 			'lps_opportunity'   => 'Opportunities',
 			'lps_event'         => 'Events',
 			'lps_research_area' => 'Research areas',
+			'lps_course'        => 'Courses',
+			'lps_offering'      => 'Offerings',
+			'lps_resource'      => 'Teaching materials',
 		),
 	);
 
@@ -113,32 +127,76 @@ final class SearchSurfaces {
 	 */
 	private const FACET_LABELS = array(
 		'pt-br' => array(
-			'year'     => 'Ano',
-			'type'     => 'Tipo',
-			'person'   => 'Pessoa',
-			'project'  => 'Projeto',
-			'area'     => 'Área de pesquisa',
-			'domain'   => 'Domínio de aplicação',
-			'status'   => 'Situação',
-			'role'     => 'Papel',
-			'category' => 'Categoria',
-			'state'    => 'Estado',
-			'audience' => 'Público',
-			'date'     => 'Data',
+			'year'       => 'Ano',
+			'type'       => 'Tipo',
+			'person'     => 'Pessoa',
+			'project'    => 'Projeto',
+			'area'       => 'Área de pesquisa',
+			'domain'     => 'Domínio de aplicação',
+			'status'     => 'Situação',
+			'role'       => 'Papel',
+			'category'   => 'Categoria',
+			'state'      => 'Estado',
+			'audience'   => 'Público',
+			'date'       => 'Data',
+			'term'       => 'Período letivo',
+			'level'      => 'Nível',
+			'instructor' => 'Docente',
+			'language'   => 'Idioma',
 		),
 		'en'    => array(
-			'year'     => 'Year',
-			'type'     => 'Type',
-			'person'   => 'Person',
-			'project'  => 'Project',
-			'area'     => 'Research area',
-			'domain'   => 'Application domain',
-			'status'   => 'Status',
-			'role'     => 'Role',
-			'category' => 'Category',
-			'state'    => 'State',
-			'audience' => 'Audience',
-			'date'     => 'Date',
+			'year'       => 'Year',
+			'type'       => 'Type',
+			'person'     => 'Person',
+			'project'    => 'Project',
+			'area'       => 'Research area',
+			'domain'     => 'Application domain',
+			'status'     => 'Status',
+			'role'       => 'Role',
+			'category'   => 'Category',
+			'state'      => 'State',
+			'audience'   => 'Audience',
+			'date'       => 'Date',
+			'term'       => 'Academic term',
+			'level'      => 'Level',
+			'instructor' => 'Instructor',
+			'language'   => 'Language',
+		),
+	);
+
+	/**
+	 * Localized labels for closed-vocabulary facet values.
+	 *
+	 * Open-vocabulary values (terms, instructors, languages, types) render
+	 * their stored slug; closed vocabularies get readable labels so the
+	 * current/previous offering filter is clear in both locales.
+	 *
+	 * @var array<string, array<string, array<string, string>>>
+	 */
+	private const FACET_VALUE_LABELS = array(
+		'status' => array(
+			'current'  => array(
+				'pt-br' => 'Atuais',
+				'en'    => 'Current',
+			),
+			'previous' => array(
+				'pt-br' => 'Anteriores',
+				'en'    => 'Previous',
+			),
+		),
+		'level'  => array(
+			'undergraduate' => array(
+				'pt-br' => 'Graduação',
+				'en'    => 'Undergraduate',
+			),
+			'graduate'      => array(
+				'pt-br' => 'Pós-graduação',
+				'en'    => 'Graduate',
+			),
+			'extension'     => array(
+				'pt-br' => 'Extensão',
+				'en'    => 'Extension',
+			),
 		),
 	);
 
@@ -199,26 +257,34 @@ final class SearchSurfaces {
 		$error  = self::text( $state['error'] ?? '' );
 		$total  = self::number( $result['total'] ?? 0 );
 
-		$html  = '<section class="lps-search" aria-labelledby="lps-search-title">';
-		$html .= '<h2 id="lps-search-title">' . self::esc( self::copy( 'legend', $locale ) ) . '</h2>';
-		$html .= self::form( $query, $record, $facets, $facet_counts, $definitions, $locale, $action );
+		$header = class_exists( Shell::class )
+			? Shell::page_header_markup(
+				array(
+					'kicker' => self::copy( 'kicker', $locale ),
+					'title'  => self::copy( 'legend', $locale ),
+					'lead'   => self::copy( 'header_lead', $locale ),
+				),
+				$locale
+			)
+			: '';
+
+		$inner  = self::form( $query, $record, $facets, $facet_counts, $definitions, $locale, $action );
+		$inner .= '<a class="lps-button lps-button-primary" href="' . ( 'en' === $locale ? '/en/collaborate/' : '/pt-br/colabore/' ) . '">' . self::esc( 'en' === $locale ? 'Collaborate' : 'Colabore' ) . '</a>';
 		if ( '' !== $error ) {
-			$html .= '<p class="lps-search-error" id="lps-search-status" role="alert">' . self::esc( self::error_message( $error, $locale ) ) . '</p>';
-			return $html . '</section>';
+			$inner .= '<p class="lps-search-error" id="lps-search-status" role="alert">' . self::esc( self::error_message( $error, $locale ) ) . '</p>';
+		} elseif ( '' === trim( $query ) ) {
+			$inner .= '<p class="lps-search-prompt" id="lps-search-status" role="status">' . self::esc( self::copy( 'prompt', $locale ) ) . '</p>';
+		} else {
+			$inner .= '<p class="lps-search-count" id="lps-search-status" role="status">' . self::esc( self::count_label( $total, $locale ) ) . '</p>';
+			if ( 0 === $total ) {
+				$inner .= '<p class="lps-search-empty">' . self::esc( self::copy( 'empty', $locale ) ) . '</p>';
+				$inner .= '<p class="lps-search-empty-hint">' . self::esc( self::copy( 'empty_hint', $locale ) ) . '</p>';
+			} else {
+				$inner .= self::results( $result, $locale );
+				$inner .= self::pagination( $result, $state, $locale, $action );
+			}
 		}
-		if ( '' === trim( $query ) ) {
-			$html .= '<p class="lps-search-prompt" id="lps-search-status" role="status">' . self::esc( self::copy( 'prompt', $locale ) ) . '</p>';
-			return $html . '</section>';
-		}
-		$html .= '<p class="lps-search-count" id="lps-search-status" role="status">' . self::esc( self::count_label( $total, $locale ) ) . '</p>';
-		if ( 0 === $total ) {
-			$html .= '<p class="lps-search-empty">' . self::esc( self::copy( 'empty', $locale ) ) . '</p>';
-			$html .= '<p class="lps-search-empty-hint">' . self::esc( self::copy( 'empty_hint', $locale ) ) . '</p>';
-			return $html . '</section>';
-		}
-		$html .= self::results( $result, $locale );
-		$html .= self::pagination( $result, $state, $locale, $action );
-		return $html . '</section>';
+		return $header . '<section class="lps-search lps-search-surface lps-section lps-section--flush" aria-labelledby="lps-search-title"><h2 id="lps-search-title" class="screen-reader-text">' . self::esc( self::copy( 'legend', $locale ) ) . '</h2>' . $inner . '</section>';
 	}
 
 	/**
@@ -234,9 +300,12 @@ final class SearchSurfaces {
 	 */
 	private static function form( string $query, string $record, array $facets, array $facet_counts, array $definitions, string $locale, string $action ): string {
 		$html  = '<form class="lps-search-form" method="get" action="' . self::esc( $action ) . '" role="search" aria-label="' . self::esc( self::copy( 'legend', $locale ) ) . '">';
-		$html .= '<p><label for="lps-search-q">' . self::esc( self::copy( 'label', $locale ) ) . '</label>';
-		$html .= '<input type="search" id="lps-search-q" name="q" value="' . self::esc( $query ) . '" minlength="2" maxlength="100" aria-describedby="lps-search-hint">';
-		$html .= '<span class="lps-search-hint" id="lps-search-hint">' . self::esc( self::copy( 'hint', $locale ) ) . '</span></p>';
+		$html .= '<label for="lps-search-q">' . self::esc( self::copy( 'label', $locale ) ) . '</label>';
+		$html .= '<div class="lps-search-row">';
+		$html .= '<input type="search" id="lps-search-q" name="q" value="' . self::esc( $query ) . '" minlength="2" maxlength="100" autocomplete="off" aria-describedby="lps-search-hint">';
+		$html .= '<button class="lps-button lps-button-primary" type="submit">' . self::esc( self::copy( 'submit', $locale ) ) . '</button>';
+		$html .= '</div>';
+		$html .= '<p class="lps-search-hint" id="lps-search-hint">' . self::esc( self::copy( 'hint', $locale ) ) . '</p>';
 		$html .= '<p><label for="lps-search-record">' . self::esc( self::copy( 'record', $locale ) ) . '</label>';
 		$html .= '<select id="lps-search-record" name="record">';
 		$html .= '<option value=""' . ( '' === $record ? ' selected' : '' ) . '>' . self::esc( self::copy( 'all', $locale ) ) . '</option>';
@@ -245,26 +314,25 @@ final class SearchSurfaces {
 		}
 		$html .= '</select></p>';
 		if ( array() !== $definitions ) {
-			$html .= '<fieldset class="lps-search-facets"><legend>' . self::esc( self::copy( 'filters', $locale ) ) . '</legend>';
+			$html .= '<fieldset class="lps-search-facets"><legend>' . self::esc( self::copy( 'filters', $locale ) ) . '</legend><div class="lps-grid lps-grid--3">';
 			foreach ( $definitions as $facet => $allowed ) {
 				$values = $facet_counts[ $facet ] ?? array();
 				if ( array() === $values ) {
 					continue;
 				}
-				$html .= '<fieldset class="lps-search-facet"><legend>' . self::esc( self::facet_label( $facet, $locale ) ) . '</legend>';
+				$html .= '<fieldset class="lps-search-facet"><legend>' . self::esc( self::facet_label( $facet, $locale ) ) . '</legend><ul class="lps-search-facet-values">';
 				foreach ( $values as $value => $count ) {
 					$id      = 'lps-facet-' . $facet . '-' . preg_replace( '/[^a-z0-9-]/', '', (string) $value );
 					$checked = in_array( (string) $value, $facets[ $facet ] ?? array(), true ) ? ' checked' : '';
-					$html   .= '<span class="lps-search-facet-value">';
+					$html   .= '<li class="lps-search-facet-value">';
 					$html   .= '<input type="checkbox" id="' . self::esc( (string) $id ) . '" name="' . self::esc( $facet ) . '[]" value="' . self::esc( (string) $value ) . '"' . $checked . '>';
-					$html   .= '<label for="' . self::esc( (string) $id ) . '">' . self::esc( (string) $value ) . ' <span class="lps-facet-count">(' . self::number( $count ) . ')</span></label>';
-					$html   .= '</span>';
+					$html   .= '<label for="' . self::esc( (string) $id ) . '">' . self::esc( self::facet_value_label( $facet, (string) $value, $locale ) ) . ' <span class="lps-facet-count">(' . self::number( $count ) . ')</span></label>';
+					$html   .= '</li>';
 				}
-				$html .= '</fieldset>';
+				$html .= '</ul></fieldset>';
 			}
-			$html .= '</fieldset>';
+			$html .= '</div></fieldset>';
 		}
-		$html .= '<p><button class="lps-button lps-button-primary" type="submit">' . self::esc( self::copy( 'submit', $locale ) ) . '</button></p>';
 		return $html . '</form>';
 	}
 
@@ -276,7 +344,8 @@ final class SearchSurfaces {
 	 */
 	private static function results( array $result, string $locale ): string {
 		$items = isset( $result['items'] ) && is_array( $result['items'] ) ? $result['items'] : array();
-		$html  = '<ol class="lps-search-results" aria-label="' . self::esc( self::copy( 'results', $locale ) ) . '">';
+		$html  = '<h2 id="lps-search-results" class="lps-mt-8">' . self::esc( self::copy( 'results', $locale ) ) . '</h2>';
+		$html .= '<ol class="lps-search-results lps-mt-4" aria-labelledby="lps-search-results">';
 		foreach ( $items as $item ) {
 			if ( ! is_array( $item ) ) {
 				continue;
@@ -286,12 +355,12 @@ final class SearchSurfaces {
 			$summary = self::text( $item['summary'] ?? '' );
 			$type    = self::type_label( self::text( $item['post_type'] ?? '' ), $locale );
 			$html   .= '<li class="lps-search-result">';
-			$html   .= '' === $url ? '<span>' . self::esc( $title ) . '</span>' : '<a href="' . self::esc( $url ) . '">' . self::esc( $title ) . '</a>';
 			if ( '' !== $type ) {
-				$html .= ' <span class="lps-search-kind">' . self::esc( $type ) . '</span>';
+				$html .= '<p class="lps-search-kind">' . self::esc( $type ) . '</p>';
 			}
+			$html .= '<h3>' . ( '' === $url ? self::esc( $title ) : '<a href="' . self::esc( $url ) . '">' . self::esc( $title ) . '</a>' ) . '</h3>';
 			if ( '' !== $summary ) {
-				$html .= '<p>' . self::esc( $summary ) . '</p>';
+				$html .= '<p class="lps-summary">' . self::esc( $summary ) . '</p>';
 			}
 			$html .= '</li>';
 		}
@@ -318,6 +387,13 @@ final class SearchSurfaces {
 		$last     = min( $total, $current * $per_page );
 		$html     = '<nav class="lps-search-pagination" aria-label="' . self::esc( self::copy( 'pagination', $locale ) ) . '">';
 		$html    .= '<p class="lps-search-range">' . self::esc( sprintf( self::copy( 'showing', $locale ), $first, $last, $total ) ) . '</p><ul>';
+		$previous = self::copy( 'previous', $locale );
+		if ( 1 < $current ) {
+			$url   = SearchRoutes::canonical_url( $action, $state, $current - 1 );
+			$html .= '<li><a class="lps-search-step" href="' . self::esc( $url ) . '" aria-label="' . self::esc( $previous ) . '">' . self::esc( self::copy( 'previous_short', $locale ) ) . '</a></li>';
+		} else {
+			$html .= '<li><span class="lps-search-step" aria-disabled="true">' . self::esc( self::copy( 'previous_short', $locale ) ) . '</span></li>';
+		}
 		for ( $page = 1; $page <= $pages; $page++ ) {
 			$label = self::copy( 'page', $locale ) . ' ' . $page;
 			if ( $page === $current ) {
@@ -326,6 +402,14 @@ final class SearchSurfaces {
 			}
 			$url   = SearchRoutes::canonical_url( $action, $state, $page );
 			$html .= '<li><a href="' . self::esc( $url ) . '" aria-label="' . self::esc( $label ) . '">' . $page . '</a></li>';
+		}
+		$html .= '<li><span class="lps-meta">' . self::esc( $current . ' / ' . $pages ) . '</span></li>';
+		$next  = self::copy( 'next', $locale );
+		if ( $current < $pages ) {
+			$url   = SearchRoutes::canonical_url( $action, $state, $current + 1 );
+			$html .= '<li><a class="lps-search-step" href="' . self::esc( $url ) . '" aria-label="' . self::esc( $next ) . '">' . self::esc( self::copy( 'next_short', $locale ) ) . '</a></li>';
+		} else {
+			$html .= '<li><span class="lps-search-step" aria-disabled="true">' . self::esc( self::copy( 'next_short', $locale ) ) . '</span></li>';
 		}
 		return $html . '</ul></nav>';
 	}
@@ -350,6 +434,21 @@ final class SearchSurfaces {
 	public static function facet_label( string $facet, string $locale ): string {
 		$table = self::FACET_LABELS[ $locale ] ?? self::FACET_LABELS['pt-br'];
 		return $table[ $facet ] ?? $facet;
+	}
+
+	/**
+	 * Returns the localized label of one facet value, or the raw slug.
+	 *
+	 * @param string $facet  Facet key.
+	 * @param string $value  Stored facet value.
+	 * @param string $locale Supported locale slug.
+	 */
+	public static function facet_value_label( string $facet, string $value, string $locale ): string {
+		$labels = self::FACET_VALUE_LABELS[ $facet ][ $value ] ?? null;
+		if ( is_array( $labels ) ) {
+			return $labels[ $locale ] ?? $labels['pt-br'];
+		}
+		return $value;
 	}
 
 	/**

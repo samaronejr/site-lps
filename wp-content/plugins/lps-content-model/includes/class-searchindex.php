@@ -16,11 +16,14 @@ use wpdb;
 
 require_once __DIR__ . '/class-searchpolicy.php';
 require_once __DIR__ . '/class-searchstorage.php';
+require_once __DIR__ . '/class-publicationpolicy.php';
+require_once __DIR__ . '/class-publicationrecords.php';
+require_once __DIR__ . '/class-teachingcontracts.php';
 
 /** Owns the locale search index table and keeps it truthful on every transition. */
 final class SearchIndex {
 	public const TABLE_SUFFIX = 'lps_search_index';
-	public const VERSION      = '1.2.0';
+	public const VERSION      = '1.3.0';
 
 	private const VERSION_OPTION = 'lps_search_index_version';
 
@@ -29,7 +32,7 @@ final class SearchIndex {
 	 *
 	 * @var array<int, string>
 	 */
-	private const INDEXED_TYPES = array( 'lps_publication', 'lps_project', 'lps_person', 'lps_news', 'lps_opportunity', 'lps_event', 'lps_research_area' );
+	private const INDEXED_TYPES = array( 'lps_publication', 'lps_project', 'lps_person', 'lps_news', 'lps_opportunity', 'lps_event', 'lps_research_area', 'lps_course', 'lps_offering', 'lps_resource' );
 
 	/**
 	 * Locales the index accepts. Any other locale is absent and stays unindexed.
@@ -52,6 +55,9 @@ final class SearchIndex {
 		'_lps_review_comments',
 		'_lps_cpf',
 		'_lps_salary_band',
+		'_lps_version_id',
+		'_lps_storage_key',
+		'_lps_uploader_user_id',
 	);
 
 	/**
@@ -99,6 +105,7 @@ final class SearchIndex {
  medium_terms longtext NOT NULL,
  low_terms longtext NOT NULL,
  facets longtext NOT NULL,
+ lifecycle text NOT NULL,
  title text NOT NULL,
  summary text NOT NULL,
  url varchar(255) NOT NULL DEFAULT '',
@@ -128,36 +135,34 @@ final class SearchIndex {
 	/**
 	 * Reports whether the public surfaces publish this record at all.
 	 *
-	 * A record can be `publish` in WordPress and still be withheld from every
-	 * public surface: an archived record and an unapproved in-memoriam profile
-	 * are both hidden by the public listing. Indexing either would make search
-	 * the one place that leaks them, so the index applies the same gate.
+	 * The index evaluates the same plugin-owned decision every other public
+	 * surface uses — `PublicationPolicy::visibility_decision()` on the
+	 * `public` surface — so search can never leak a record the renderers,
+	 * feeds, or previews would withhold: archived or in-review records,
+	 * unapproved in-memoriam profiles, stale English variants, unreviewed
+	 * imports, and ambiguous-origin records are all absent from the index.
 	 *
 	 * @param array<string, mixed> $record Portable record.
 	 */
 	public static function is_publicly_visible( array $record ): bool {
-		if ( 'archived' === self::text( $record['_lps_state'] ?? '' ) ) {
-			return false;
+		$locale   = self::text( $record['locale'] ?? '' );
+		$decision = PublicationPolicy::visibility_decision( $record, PublicationPolicy::SURFACE_PUBLIC, $locale, gmdate( 'Y-m-d' ) );
+		$visible  = $decision['visible'];
+		if ( ! $visible && 'lps_resource' === self::text( $record['post_type'] ?? '' ) ) {
+			// A scheduled resource is indexed so its release needs no scheduler:
+			// the query-time lifecycle gate withholds it until its release time
+			// passes, exactly like the download resolver. Every other denial —
+			// draft, withdrawn, unapproved review, uncleared scan — still keeps
+			// the row out of the index entirely.
+			$visible = 'scheduled' === self::text( $record['_lps_release_state'] ?? '' )
+				&& array( '_lps_release_state' => 'lps_resource_not_released' ) === $decision['errors'];
 		}
-		if ( 'in-memoriam' === self::text( $record['_lps_person_status'] ?? '' ) && ! self::flag( $record['_lps_in_memoriam_approved'] ?? '' ) ) {
-			return false;
+		if ( $visible && 'lps_resource' === self::text( $record['post_type'] ?? '' ) ) {
+			// A resource is public only while its parent offering is public —
+			// the same structural check the download resolver applies.
+			$visible = true === ( $record['offering_visible'] ?? false );
 		}
-		return true;
-	}
-
-	/**
-	 * Reads one boundary value as a boolean flag.
-	 *
-	 * @param mixed $value Boundary input.
-	 */
-	private static function flag( mixed $value ): bool {
-		if ( is_bool( $value ) ) {
-			return $value;
-		}
-		if ( is_int( $value ) ) {
-			return 0 !== $value;
-		}
-		return is_string( $value ) && in_array( strtolower( $value ), array( '1', 'true', 'yes' ), true );
+		return $visible;
 	}
 
 	/**
@@ -171,16 +176,16 @@ final class SearchIndex {
 	 */
 	public static function build_row( array $record ): array {
 		$exact = array();
-		foreach ( array( 'doi', 'orcid', 'acronym', 'title' ) as $key ) {
+		foreach ( array( 'doi', 'orcid', 'acronym', 'title', 'code', 'term_token' ) as $key ) {
 			$value = SearchPolicy::normalize( self::text( $record[ $key ] ?? '' ) );
 			if ( '' !== $value && ! in_array( $value, $exact, true ) ) {
 				$exact[] = $value;
 			}
 		}
-		$high     = SearchPolicy::normalize( implode( ' ', array( self::text( $record['title'] ?? '' ), self::text( $record['acronym'] ?? '' ), self::text( $record['doi'] ?? '' ), self::text( $record['orcid'] ?? '' ), self::text( $record['name'] ?? '' ) ) ) );
+		$high     = SearchPolicy::normalize( implode( ' ', array( self::text( $record['title'] ?? '' ), self::text( $record['acronym'] ?? '' ), self::text( $record['doi'] ?? '' ), self::text( $record['orcid'] ?? '' ), self::text( $record['name'] ?? '' ), self::text( $record['course_title'] ?? '' ), implode( ' ', self::strings( $record['instructors'] ?? array() ) ) ) ) );
 		$taxonomy = implode( ' ', self::strings( $record['taxonomy'] ?? array() ) );
-		$medium   = SearchPolicy::normalize( self::text( $record['summary'] ?? '' ) . ' ' . $taxonomy );
-		$low      = SearchPolicy::normalize( self::text( $record['body'] ?? '' ) );
+		$medium   = SearchPolicy::normalize( self::text( $record['summary'] ?? '' ) . ' ' . $taxonomy . ' ' . self::text( $record['term_label'] ?? '' ) . ' ' . self::text( $record['section'] ?? '' ) . ' ' . self::text( $record['program'] ?? '' ) . ' ' . self::text( $record['schedule'] ?? '' ) . ' ' . self::text( $record['venue'] ?? '' ) . ' ' . self::text( $record['resource_type'] ?? '' ) . ' ' . self::text( $record['language'] ?? '' ) );
+		$low      = SearchPolicy::normalize( self::text( $record['body'] ?? '' ) . ' ' . self::text( $record['prerequisites'] ?? '' ) . ' ' . self::text( $record['syllabus'] ?? '' ) . ' ' . self::text( $record['syllabus_snapshot'] ?? '' ) );
 		$facets   = SearchPolicy::sanitize_facets(
 			is_array( $record['facets'] ?? null ) ? $record['facets'] : array(),
 			SearchPolicy::facet_definitions( self::text( $record['post_type'] ?? '' ) )
@@ -195,6 +200,7 @@ final class SearchIndex {
 			'medium_terms' => $medium,
 			'low_terms'    => $low,
 			'facets'       => self::encode( $facets ),
+			'lifecycle'    => self::encode( self::sanitize_lifecycle( $record['lifecycle'] ?? array() ) ),
 			'title'        => self::text( $record['title'] ?? '' ),
 			'summary'      => self::text( $record['summary'] ?? '' ),
 			'url'          => self::text( $record['url'] ?? '' ),
@@ -221,6 +227,14 @@ final class SearchIndex {
 				}
 			}
 		}
+		$lifecycle = array();
+		$encoded   = self::text( $row['lifecycle'] ?? '' );
+		if ( '' !== $encoded ) {
+			$decoded = json_decode( $encoded, true );
+			if ( is_array( $decoded ) ) {
+				$lifecycle = self::sanitize_lifecycle( $decoded );
+			}
+		}
 		return array(
 			'post_id'      => self::number( $row['post_id'] ?? 0 ),
 			'locale'       => self::text( $row['locale'] ?? '' ),
@@ -230,6 +244,7 @@ final class SearchIndex {
 			'medium'       => self::text( $row['medium_terms'] ?? '' ),
 			'low'          => self::text( $row['low_terms'] ?? '' ),
 			'facets'       => $facets,
+			'lifecycle'    => $lifecycle,
 			'title'        => self::text( $row['title'] ?? '' ),
 			'summary'      => self::text( $row['summary'] ?? '' ),
 			'url'          => self::text( $row['url'] ?? '' ),
@@ -309,10 +324,11 @@ final class SearchIndex {
 	 * @param array<string, array<int, string>> $facets    Sanitized active facets.
 	 * @param int                               $page      Requested page, one-based.
 	 * @param int                               $per_page  Results per page.
+	 * @param string|null                       $now       Evaluation instant (ISO-8601); null means now.
 	 * @return array{items: array<int, array<string, mixed>>, total: int, page: int, per_page: int, pages: int, error: string|null}
 	 */
-	public static function search( SearchStorage $storage, string $post_type, string $query, string $locale, array $facets, int $page = 1, int $per_page = SearchPolicy::PER_PAGE ): array {
-		return SearchPolicy::search_records( $storage->rows_for( $locale, $post_type ), $query, $locale, $facets, $page, $per_page );
+	public static function search( SearchStorage $storage, string $post_type, string $query, string $locale, array $facets, int $page = 1, int $per_page = SearchPolicy::PER_PAGE, ?string $now = null ): array {
+		return SearchPolicy::search_records( $storage->rows_for( $locale, $post_type ), $query, $locale, $facets, $page, $per_page, $now );
 	}
 
 	/**
@@ -328,13 +344,41 @@ final class SearchIndex {
 			return;
 		}
 		$installed = get_option( self::VERSION_OPTION, '' );
-		if ( is_string( $installed ) && self::VERSION === $installed ) {
+		if ( is_string( $installed ) && self::VERSION === $installed && self::has_lifecycle_column( $wpdb ) ) {
 			return;
 		}
 		require_once dirname( __DIR__, 4 ) . '/wp-admin/includes/upgrade.php';
 		dbDelta( self::schema_sql( $wpdb->prefix, $wpdb->get_charset_collate() ) );
+		self::ensure_lifecycle_column( $wpdb );
 		self::rebuild();
 		update_option( self::VERSION_OPTION, self::VERSION, false );
+	}
+
+	/**
+	 * Reports whether the index table already carries the lifecycle column.
+	 *
+	 * @param wpdb $database WordPress database adapter.
+	 */
+	private static function has_lifecycle_column( wpdb $database ): bool {
+		$columns = $database->get_col( 'SHOW COLUMNS FROM ' . self::table_name( $database->prefix ), 0 );
+		return in_array( 'lifecycle', $columns, true );
+	}
+
+	/**
+	 * Adds the lifecycle column when dbDelta could not.
+	 *
+	 * The dbDelta routine emits `ADD COLUMN ... AFTER`, which the SQLite driver cannot
+	 * place; a plain `ADD COLUMN` with a literal default is the portable
+	 * repair. On MySQL dbDelta has already added the column, so this path is
+	 * only reached where the fallback statement is valid.
+	 *
+	 * @param wpdb $database WordPress database adapter.
+	 */
+	private static function ensure_lifecycle_column( wpdb $database ): void {
+		if ( self::has_lifecycle_column( $database ) ) {
+			return;
+		}
+		$database->query( 'ALTER TABLE ' . self::table_name( $database->prefix ) . ' ADD COLUMN lifecycle text NOT NULL DEFAULT \'\'' );
 	}
 
 	/**
@@ -380,7 +424,7 @@ final class SearchIndex {
 	/** Registers the index synchronization hooks. */
 	public static function boot(): void {
 		add_action( 'wp_after_insert_post', array( self::class, 'synchronize_post' ), 20, 2 );
-		add_action( 'deleted_post', array( self::class, 'forget_post' ) );
+		add_action( 'deleted_post', array( self::class, 'forget_post' ), 10, 2 );
 	}
 
 	/**
@@ -402,18 +446,119 @@ final class SearchIndex {
 			return;
 		}
 		self::synchronize( $storage, self::record_from_post( $post ) );
+		self::synchronize_variants( $storage, $post->ID );
+		self::synchronize_dependents( $storage, $post );
 	}
 
 	/**
-	 * Removes one deleted record from the index.
+	 * Re-synchronizes the translation siblings of one written record.
 	 *
-	 * @param int $post_id Record database ID.
+	 * An authority edit can stale or refresh the English variant's visibility
+	 * and shared terms, so every associated variant row is re-evaluated on the
+	 * same write — the index never keeps a stale sibling row behind.
+	 *
+	 * @param SearchStorage $storage Index storage boundary.
+	 * @param int           $post_id Written record ID.
 	 */
-	public static function forget_post( int $post_id ): void {
-		$storage = self::storage();
-		if ( null !== $storage ) {
-			self::remove( $storage, $post_id );
+	private static function synchronize_variants( SearchStorage $storage, int $post_id ): void {
+		if ( ! class_exists( Translations::class ) ) {
+			return;
 		}
+		foreach ( Translations::variants( $post_id ) as $variant_id ) {
+			$variant_id = self::number( $variant_id );
+			if ( $variant_id === $post_id || 0 >= $variant_id ) {
+				continue;
+			}
+			$variant = get_post( $variant_id );
+			if ( $variant instanceof WP_Post ) {
+				self::synchronize( $storage, self::record_from_post( $variant ) );
+			}
+		}
+	}
+
+	/**
+	 * Re-synchronizes the indexed rows that embed one record's data.
+	 *
+	 * Teaching rows carry related-record terms — instructor names, course
+	 * titles and codes, term labels and boundaries — so a correction to a
+	 * person, term, course or offering must reach every row that quotes it:
+	 *
+	 *  - `lps_person`    → offerings listing the person on the teaching team.
+	 *  - `lps_term`      → offerings scheduled in the term.
+	 *  - `lps_course`    → offerings of the course.
+	 *  - `lps_offering`  → resources attached to the offering.
+	 *
+	 * Each dependent's own translation variants are re-evaluated too, so a
+	 * shared-field change reaches both locale rows.
+	 *
+	 * @param SearchStorage $storage Index storage boundary.
+	 * @param WP_Post       $post    Written record.
+	 */
+	private static function synchronize_dependents( SearchStorage $storage, WP_Post $post ): void {
+		if ( ! class_exists( Relationships::class ) ) {
+			return;
+		}
+		$authority = class_exists( TeachingContracts::class ) ? TeachingContracts::authoritative_id( $post->ID ) : $post->ID;
+		$targets   = array();
+		switch ( $post->post_type ) {
+			case 'lps_person':
+				foreach ( Relationships::reverse_for( $authority, 'teaching_team' ) as $row ) {
+					$targets[] = self::number( $row['source_post_id'] );
+				}
+				break;
+			case 'lps_term':
+				foreach ( Relationships::reverse_for( $authority, 'offering_term' ) as $row ) {
+					$targets[] = self::number( $row['source_post_id'] );
+				}
+				break;
+			case 'lps_course':
+				foreach ( Relationships::reverse_for( $authority, 'offering_course' ) as $row ) {
+					$targets[] = self::number( $row['source_post_id'] );
+				}
+				break;
+			case 'lps_offering':
+				foreach ( Relationships::reverse_for( $authority, 'resource_offering' ) as $row ) {
+					$targets[] = self::number( $row['source_post_id'] );
+				}
+				break;
+			default:
+				break;
+		}
+		foreach ( array_unique( $targets ) as $target_id ) {
+			if ( 0 >= $target_id || $target_id === $post->ID ) {
+				continue;
+			}
+			$target = get_post( $target_id );
+			if ( ! $target instanceof WP_Post ) {
+				continue;
+			}
+			self::synchronize( $storage, self::record_from_post( $target ) );
+			self::synchronize_variants( $storage, $target->ID );
+		}
+	}
+
+	/**
+	 * Removes one deleted record from the index and re-syncs its dependents.
+	 *
+	 * Dependents are resolved before the relationship cleanup runs, so a
+	 * deleted term or person still reaches the rows that quoted it; their
+	 * re-sync then indexes the absence (empty label, missing instructor).
+	 *
+	 * @param int          $post_id Record database ID.
+	 * @param WP_Post|null $post    Deleted record, when the hook supplies it.
+	 */
+	public static function forget_post( int $post_id, ?WP_Post $post = null ): void {
+		$storage = self::storage();
+		if ( null === $storage ) {
+			return;
+		}
+		if ( $post instanceof WP_Post ) {
+			self::synchronize_dependents( $storage, $post );
+			// A deleted authority also changes every variant's source-state
+			// decision, so sibling rows are re-evaluated before removal.
+			self::synchronize_variants( $storage, $post_id );
+		}
+		self::remove( $storage, $post_id );
 	}
 
 	/**
@@ -432,26 +577,253 @@ final class SearchIndex {
 				}
 			}
 		}
-		return array(
-			'post_id'                   => $post->ID,
-			'status'                    => $post->post_status,
-			'locale'                    => self::meta( $post->ID, '_lps_locale' ),
-			'post_type'                 => $post->post_type,
-			'title'                     => $post->post_title,
-			'acronym'                   => self::meta( $post->ID, '_lps_acronym' ),
-			'doi'                       => self::canonical_doi( $post ),
-			'orcid'                     => self::meta( $post->ID, '_lps_orcid' ),
-			'summary'                   => $post->post_excerpt,
-			'taxonomy'                  => $terms,
-			'body'                      => $post->post_content,
-			'facets'                    => self::facets_for_post( $post, $terms ),
-			'url'                       => (string) get_permalink( $post ),
-			'published_at'              => $post->post_date_gmt,
-
-			'_lps_state'                => self::meta( $post->ID, '_lps_state' ),
-			'_lps_person_status'        => self::meta( $post->ID, '_lps_person_status' ),
-			'_lps_in_memoriam_approved' => self::meta( $post->ID, '_lps_in_memoriam_approved' ),
+		$decision = class_exists( PublicationRecords::class ) ? PublicationRecords::publication_record( $post ) : array();
+		return array_merge(
+			$decision,
+			array(
+				'post_id'      => $post->ID,
+				'status'       => $post->post_status,
+				'locale'       => self::text( $decision['locale'] ?? self::meta( $post->ID, '_lps_locale' ) ),
+				'post_type'    => $post->post_type,
+				'title'        => $post->post_title,
+				'acronym'      => self::meta( $post->ID, '_lps_acronym' ),
+				'doi'          => self::canonical_doi( $post ),
+				'orcid'        => self::meta( $post->ID, '_lps_orcid' ),
+				'summary'      => $post->post_excerpt,
+				'taxonomy'     => $terms,
+				'body'         => $post->post_content,
+				'facets'       => self::facets_for_post( $post, $terms ),
+				'url'          => (string) get_permalink( $post ),
+				'published_at' => $post->post_date_gmt,
+			),
+			self::teaching_fields( $post )
 		);
+	}
+
+	/**
+	 * Builds the teaching-specific index fields of one record.
+	 *
+	 * Shared values are always read from the Portuguese authority so an
+	 * English variant row carries the same course code, team, term and
+	 * release facts as its source. Only the allow-listed public fields are
+	 * read: version identifiers, storage keys and uploader linkage never
+	 * reach the record, let alone the index row.
+	 *
+	 * @param WP_Post $post Record.
+	 * @return array<string, mixed>
+	 */
+	private static function teaching_fields( WP_Post $post ): array {
+		if ( ! class_exists( TeachingContracts::class ) || ! in_array( $post->post_type, TeachingContracts::POST_TYPES, true ) ) {
+			return array();
+		}
+		$authority = TeachingContracts::authoritative_id( $post->ID );
+		$shared    = array();
+		foreach ( TeachingContracts::shared_specific_keys( $post->post_type ) as $key ) {
+			$shared[ $key ] = get_post_meta( $authority, $key, true );
+		}
+		$locale = class_exists( Translations::class ) ? Translations::locale( $post->ID ) : self::meta( $post->ID, '_lps_locale' );
+
+		if ( 'lps_course' === $post->post_type ) {
+			$code = self::text( $shared['_lps_course_code'] ?? '' );
+			return array(
+				'code'          => $code,
+				'program'       => self::text( $shared['_lps_program'] ?? '' ),
+				'prerequisites' => self::text( get_post_meta( $post->ID, '_lps_prerequisites', true ) ),
+				'syllabus'      => self::text( get_post_meta( $post->ID, '_lps_syllabus', true ) ),
+				'url'           => class_exists( TeachingRecords::class ) ? TeachingRecords::course_path( $locale, $post->post_name ) : (string) get_permalink( $post ),
+				'facets'        => array(
+					'level' => array( self::text( $shared['_lps_course_level'] ?? '' ) ),
+				),
+			);
+		}
+
+		if ( 'lps_offering' === $post->post_type ) {
+			$identity  = class_exists( TeachingRecords::class ) ? TeachingRecords::offering_identity_for( $authority ) : null;
+			$course_id = self::number( $identity['course_id'] ?? 0 );
+			$term_id   = self::number( $identity['term_id'] ?? 0 );
+			$course    = self::localized_post( $course_id, $locale );
+			$term      = 0 < $term_id ? get_post( $term_id ) : null;
+			$team      = class_exists( Relationships::class ) ? Relationships::for_source( $authority, 'teaching_team' ) : array();
+			$temporal  = self::text( get_post_meta( $authority, '_lps_temporal_status', true ) );
+			if ( '' === $temporal && $term instanceof WP_Post ) {
+				$temporal = TeachingContracts::temporal_status(
+					get_post_meta( $term->ID, '_lps_starts_on', true ),
+					get_post_meta( $term->ID, '_lps_ends_on', true ),
+					get_post_meta( $authority, '_lps_cancelled', true ),
+					TeachingContracts::today()
+				);
+			}
+			$course_code = 0 < $course_id ? self::text( get_post_meta( $course_id, '_lps_course_code', true ) ) : '';
+			$term_label  = $term instanceof WP_Post ? self::text( get_post_meta( $term->ID, '_lps_period_label', true ) ) : '';
+			$term_token  = $term instanceof WP_Post ? self::text( get_post_meta( $term->ID, '_lps_term_token', true ) ) : '';
+			return array(
+				'code'              => $course_code,
+				'course_title'      => $course instanceof WP_Post ? $course->post_title : '',
+				'term_label'        => $term_label,
+				'term_token'        => $term_token,
+				'section'           => self::text( $shared['_lps_section_key'] ?? '' ),
+				'instructors'       => self::team_names( $team ),
+				'schedule'          => self::text( $shared['_lps_schedule'] ?? '' ),
+				'venue'             => self::text( $shared['_lps_venue'] ?? '' ),
+				'syllabus_snapshot' => self::text( get_post_meta( $post->ID, '_lps_syllabus_snapshot', true ) ),
+				'lifecycle'         => array(
+					'starts_on' => $term instanceof WP_Post ? self::text( get_post_meta( $term->ID, '_lps_starts_on', true ) ) : '',
+					'ends_on'   => $term instanceof WP_Post ? self::text( get_post_meta( $term->ID, '_lps_ends_on', true ) ) : '',
+					'cancelled' => (bool) filter_var( $shared['_lps_cancelled'] ?? false, FILTER_VALIDATE_BOOLEAN ),
+				),
+				'url'               => class_exists( TeachingRecords::class ) ? TeachingRecords::offering_url( $post->ID, $locale ) : (string) get_permalink( $post ),
+				'facets'            => array(
+					'status'     => '' === $temporal ? array() : array( SearchPolicy::offering_status_bucket( $temporal ) ),
+					'term'       => array( $term_token ),
+					'level'      => array( 0 < $course_id ? self::text( get_post_meta( $course_id, '_lps_course_level', true ) ) : '' ),
+					'instructor' => self::team_slugs( $team ),
+				),
+			);
+		}
+
+		if ( 'lps_resource' === $post->post_type ) {
+			$offering_id = 0;
+			$visible     = false;
+			if ( class_exists( Relationships::class ) ) {
+				$rows        = Relationships::for_source( $authority, 'resource_offering' );
+				$offering_id = self::number( $rows[0]['target_post_id'] ?? 0 );
+				$visible     = (bool) ( $rows[0]['public_visibility'] ?? false );
+			}
+			$offering       = 0 < $offering_id ? get_post( $offering_id ) : null;
+			$course_id      = 0;
+			$course_code    = '';
+			$course_title   = '';
+			$offering_title = '';
+			if ( $offering instanceof WP_Post ) {
+				$offering_title = $offering->post_title;
+				$visible        = $visible && 'publish' === $offering->post_status && 'published' === self::text( get_post_meta( $offering->ID, '_lps_state', true ) );
+				if ( class_exists( TeachingRecords::class ) ) {
+					$identity  = TeachingRecords::offering_identity_for( $offering->ID );
+					$course_id = self::number( $identity['course_id'] ?? 0 );
+				}
+				if ( 0 < $course_id ) {
+					$course_code  = self::text( get_post_meta( $course_id, '_lps_course_code', true ) );
+					$course       = self::localized_post( $course_id, $locale );
+					$course_title = $course instanceof WP_Post ? $course->post_title : '';
+				}
+			} else {
+				$visible = false;
+			}
+			$external_url = self::text( $shared['_lps_external_url'] ?? '' );
+			$download     = class_exists( TeachingResources::class ) ? TeachingResources::download_url( $post->ID ) : '';
+			return array(
+				'code'             => $course_code,
+				'course_title'     => trim( $course_title . ' ' . $offering_title ),
+				'resource_type'    => self::text( $shared['_lps_resource_type'] ?? '' ),
+				'language'         => self::text( $shared['_lps_resource_language'] ?? '' ),
+				'offering_visible' => $visible,
+				'lifecycle'        => array(
+					'release_state' => self::text( $shared['_lps_release_state'] ?? '' ),
+					'release_at'    => self::text( $shared['_lps_release_at'] ?? '' ),
+				),
+				'url'              => '' !== $external_url ? $external_url : $download,
+				'facets'           => array(
+					'type'     => array( self::text( $shared['_lps_resource_type'] ?? '' ) ),
+					'language' => array( self::text( $shared['_lps_resource_language'] ?? '' ) ),
+				),
+			);
+		}
+
+		return array();
+	}
+
+	/**
+	 * Returns the public canonical names of one teaching team.
+	 *
+	 * Only publicly visible team rows contribute: a hidden membership never
+	 * reaches the index. The canonical name is authority-owned shared data,
+	 * so both locale rows carry the same instructor terms. Co-teachers share
+	 * the single offering row — the offering is one search entity, never one
+	 * row per instructor.
+	 *
+	 * @param array<int, array<string, mixed>> $team Canonical team rows.
+	 * @return array<int, string>
+	 */
+	private static function team_names( array $team ): array {
+		$names = array();
+		foreach ( $team as $member ) {
+			if ( ! ( $member['public_visibility'] ?? false ) ) {
+				continue;
+			}
+			$person_id = self::number( $member['target_post_id'] ?? 0 );
+			$name      = 0 < $person_id ? self::text( get_post_meta( $person_id, '_lps_canonical_name', true ) ) : '';
+			if ( '' === $name ) {
+				$person = 0 < $person_id ? get_post( $person_id ) : null;
+				$name   = $person instanceof WP_Post ? $person->post_title : '';
+			}
+			if ( '' !== $name && ! in_array( $name, $names, true ) ) {
+				$names[] = $name;
+			}
+		}
+		return $names;
+	}
+
+	/**
+	 * Returns the person slugs of one teaching team.
+	 *
+	 * @param array<int, array<string, mixed>> $team Canonical team rows.
+	 * @return array<int, string>
+	 */
+	private static function team_slugs( array $team ): array {
+		$slugs = array();
+		foreach ( $team as $member ) {
+			if ( ! ( $member['public_visibility'] ?? false ) ) {
+				continue;
+			}
+			$person = get_post( self::number( $member['target_post_id'] ?? 0 ) );
+			if ( $person instanceof WP_Post && '' !== $person->post_name && ! in_array( $person->post_name, $slugs, true ) ) {
+				$slugs[] = $person->post_name;
+			}
+		}
+		return $slugs;
+	}
+
+	/**
+	 * Returns the locale variant of a record, or null when absent.
+	 *
+	 * @param int    $post_id Any associated variant ID.
+	 * @param string $locale  Supported locale slug.
+	 */
+	private static function localized_post( int $post_id, string $locale ): ?WP_Post {
+		$post = 0 < $post_id ? get_post( $post_id ) : null;
+		if ( ! $post instanceof WP_Post ) {
+			return null;
+		}
+		$record_locale = class_exists( Translations::class ) ? Translations::locale( $post->ID ) : '';
+		if ( $record_locale === $locale ) {
+			return $post;
+		}
+		$variants = class_exists( Translations::class ) ? Translations::variants( $post->ID ) : array();
+		$variant  = isset( $variants[ $locale ] ) ? get_post( $variants[ $locale ] ) : null;
+		return $variant instanceof WP_Post ? $variant : null;
+	}
+
+	/**
+	 * Keeps only the allow-listed lifecycle keys of one record.
+	 *
+	 * @param mixed $value Boundary input.
+	 * @return array<string, mixed>
+	 */
+	private static function sanitize_lifecycle( mixed $value ): array {
+		if ( ! is_array( $value ) ) {
+			return array();
+		}
+		$lifecycle = array();
+		foreach ( array( 'starts_on', 'ends_on', 'release_state', 'release_at' ) as $key ) {
+			$text = self::text( $value[ $key ] ?? '' );
+			if ( '' !== $text ) {
+				$lifecycle[ $key ] = $text;
+			}
+		}
+		if ( array_key_exists( 'cancelled', $value ) ) {
+			$lifecycle['cancelled'] = (bool) $value['cancelled'];
+		}
+		return $lifecycle;
 	}
 
 	/**
@@ -538,12 +910,12 @@ final class SearchIndex {
 	}
 
 	/**
-	 * Encodes facet values for storage.
+	 * Encodes a sanitized string-keyed payload for storage.
 	 *
-	 * @param array<string, array<int, string>> $facets Sanitized facet values.
+	 * @param array<string, mixed> $values Sanitized storage payload.
 	 */
-	private static function encode( array $facets ): string {
-		return (string) json_encode( $facets, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ); // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- storage payload written without WordPress loaded in unit tests.
+	private static function encode( array $values ): string {
+		return (string) json_encode( $values, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ); // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- storage payload written without WordPress loaded in unit tests.
 	}
 
 	/**

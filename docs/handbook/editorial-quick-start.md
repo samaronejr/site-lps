@@ -2,18 +2,23 @@
 
 Read this once before your first publication. It covers what every editorial account must know,
 regardless of role. Your role's exact limits are in [role workflows](role-workflows.md); the binding
-policy is [editorial governance](../content/governance.md).
+policy is [editorial governance](../content/governance.md). Faculty who work only on the task
+dashboard have a Portuguese step-by-step guide: [guia do docente](guia-docente-painel.md).
 
 ## Prerequisites
 
 - An individual named account. Shared, borrowed or role-named accounts are rejected at the account
   boundary (`lps_shared_account_forbidden`).
-- For a publisher or administrator account: an enabled Two-Factor provider. Without it, only
-  read and profile access remain — publishing, uploads, deletion, user management and settings stay
-  locked.
+- For a publisher, professor or administrator account: an enabled Two-Factor provider. Without it,
+  only read and profile access remain — publishing, uploads, deletion, user management and settings
+  stay locked. Every role that can publish publicly meets the same MFA contract.
 - Your collection assignments. A contributor, translator or section editor can only see and edit the
   collections assigned to their account (`_lps_assigned_collections`); an unassigned collection is
   invisible, not merely read-only.
+- For professor and delegate accounts: your teaching scope grants (`_lps_teaching_grants`), recorded
+  by an administrator or a section editor assigned the `teaching` collection. A scoped account can
+  only act inside its granted offerings — or the `news` scope for designated faculty news editors —
+  and a revoked or expired grant denies immediately.
 - The source for what you are about to publish: a current official record, an authoritative
   identifier registry entry, or another documented primary source. See
   [source priority](../content/source-priority.md).

@@ -145,10 +145,10 @@ final class PerformancePolicyTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * Verifies that the theme ships no render blocking front end javascript.
+	 * Verifies the only front-end script is the approved deferred enhancement file.
 	 */
 	public function test_the_theme_ships_no_render_blocking_front_end_javascript(): void {
-		self::assertSame( array(), AssetPolicy::front_end_scripts() );
+		self::assertSame( array( 'lps-theme' ), AssetPolicy::front_end_scripts() );
 	}
 
 	/**

@@ -841,11 +841,47 @@ export function cssTokens(css) {
   const tokens = new Map();
   const root = /:root\s*\{([^}]*)\}/su.exec(css);
   if (!root) return tokens;
-  for (const declaration of root[1].split(";")) {
+  // Comments are legitimate inside :root; without stripping them a declaration
+  // that follows a comment in the same `;` segment is silently dropped, which
+  // blinds the contrast audit to every pair that references it.
+  const declarations = root[1].replace(/\/\*.*?\*\//gsu, "");
+  for (const declaration of declarations.split(";")) {
     const match = /^\s*(--[\w-]+)\s*:\s*(.+)$/su.exec(declaration);
     if (match) tokens.set(match[1], match[2].trim());
   }
   return tokens;
+}
+
+/**
+ * Resolves `var()` chains inside a token map to literal values.
+ *
+ * A role token may name a primitive (`--color-surface: var(--color-paper-000)`),
+ * so every consumer that measures a value — contrast, contract generation, drift
+ * comparison — must follow the chain rather than compare the reference. `cssTokens`
+ * deliberately stays literal: it reports what the stylesheet declares. A cycle or
+ * an unknown reference leaves the declaration untouched, which the callers surface
+ * as a missing or unresolvable token rather than a silent pass.
+ *
+ * @param {Map<string, string>} tokens
+ * @param {number} [limit] chain depth guard
+ * @returns {Map<string, string>} the same names with resolved values
+ */
+export function resolveTokens(tokens, limit = 12) {
+  const cache = new Map();
+  const follow = (name, depth) => {
+    if (cache.has(name)) return cache.get(name);
+    const declared = tokens.get(name);
+    if (declared === undefined) return undefined;
+    const reference = /^var\(\s*(--[\w-]+)\s*\)$/.exec(declared);
+    if (!reference || depth >= limit) return declared;
+    const resolved = follow(reference[1], depth + 1);
+    const result = resolved === undefined ? declared : resolved;
+    cache.set(name, result);
+    return result;
+  };
+  const resolved = new Map();
+  for (const name of tokens.keys()) resolved.set(name, follow(name, 0));
+  return resolved;
 }
 
 /** Converts a hex colour to sRGB channels. */
@@ -881,60 +917,88 @@ export function contrastRatio(foreground, background) {
  * `kind` is `text` (4.5:1), `large` (3:1) or `ui` (3:1 non-text contrast).
  */
 export const CONTRAST_PAIRS = [
-  { id: "body-text", foreground: "--color-ink", background: "--color-paper", kind: "text" },
-  { id: "muted-text", foreground: "--color-ink-soft", background: "--color-paper", kind: "text" },
+  { id: "body-text", foreground: "--color-text", background: "--color-canvas", kind: "text" },
+  {
+    id: "body-on-surface",
+    foreground: "--color-text",
+    background: "--color-surface",
+    kind: "text",
+  },
+  {
+    id: "muted-text",
+    foreground: "--color-text-muted",
+    background: "--color-canvas",
+    kind: "text",
+  },
   {
     id: "meta-text",
-    foreground: "--color-ink-soft",
-    background: "--color-paper-raised",
+    foreground: "--color-text-muted",
+    background: "--color-surface",
     kind: "text",
   },
   {
     id: "link-rest",
-    foreground: "--color-signal-hover",
-    background: "--color-paper",
+    foreground: "--color-action",
+    background: "--color-canvas",
     kind: "text",
   },
-  { id: "link-hover", foreground: "--color-navy-hover", background: "--color-paper", kind: "text" },
-  { id: "kicker", foreground: "--color-signal-hover", background: "--color-paper", kind: "text" },
-  { id: "heading", foreground: "--color-ink", background: "--color-paper-raised", kind: "large" },
-  { id: "wordmark", foreground: "--color-navy", background: "--color-paper", kind: "large" },
+  {
+    id: "link-hover",
+    foreground: "--color-action-hover",
+    background: "--color-canvas",
+    kind: "text",
+  },
+  { id: "kicker", foreground: "--color-action", background: "--color-canvas", kind: "text" },
+  { id: "heading", foreground: "--color-text", background: "--color-surface", kind: "large" },
+  { id: "wordmark", foreground: "--color-anchor", background: "--color-canvas", kind: "large" },
   {
     id: "affiliation-bar",
-    foreground: "--color-paper-raised",
-    background: "--color-navy",
+    foreground: "--color-surface",
+    background: "--color-anchor",
     kind: "text",
   },
   {
     id: "primary-button",
-    foreground: "--color-paper-raised",
-    background: "--color-navy",
+    foreground: "--color-surface",
+    background: "--color-action",
     kind: "text",
   },
-  { id: "focus-ring", foreground: "--color-signal", background: "--color-paper", kind: "ui" },
   {
-    id: "control-border",
-    foreground: "--color-rule-strong",
-    background: "--color-paper-raised",
+    id: "primary-button-hover",
+    foreground: "--color-surface",
+    background: "--color-action-hover",
+    kind: "text",
+  },
+  { id: "focus-ring", foreground: "--color-action", background: "--color-canvas", kind: "ui" },
+  {
+    id: "focus-ring-dark",
+    foreground: "--color-focus-on-dark",
+    background: "--color-anchor",
     kind: "ui",
   },
-  { id: "error-text", foreground: "--color-error", background: "--color-paper", kind: "text" },
+  {
+    id: "control-border",
+    foreground: "--color-boundary-strong",
+    background: "--color-surface",
+    kind: "ui",
+  },
+  { id: "error-text", foreground: "--color-error", background: "--color-canvas", kind: "text" },
   { id: "error-wash", foreground: "--color-error", background: "--color-error-wash", kind: "text" },
-  { id: "warning-text", foreground: "--color-warning", background: "--color-paper", kind: "text" },
+  { id: "warning-text", foreground: "--color-warning", background: "--color-canvas", kind: "text" },
   {
     id: "warning-wash",
     foreground: "--color-warning",
     background: "--color-warning-wash",
     kind: "text",
   },
-  { id: "success-text", foreground: "--color-success", background: "--color-paper", kind: "text" },
+  { id: "success-text", foreground: "--color-success", background: "--color-canvas", kind: "text" },
   {
     id: "success-wash",
     foreground: "--color-success",
     background: "--color-success-wash",
     kind: "text",
   },
-  { id: "info-wash", foreground: "--color-ink", background: "--color-info-wash", kind: "text" },
+  { id: "info-wash", foreground: "--color-anchor", background: "--color-info-wash", kind: "text" },
 ];
 
 const THRESHOLD = { text: 4.5, large: 3, ui: 3 };
@@ -942,7 +1006,8 @@ const THRESHOLD = { text: 4.5, large: 3, ui: 3 };
 /** Audits the shipped stylesheet for contrast, focus, motion, print, and target size. */
 export function auditStylesheet(css, source = "assets/css/theme.css") {
   const findings = [];
-  const tokens = cssTokens(css);
+  // Role tokens may reference primitives, so measurement follows the chain.
+  const tokens = resolveTokens(cssTokens(css));
   const add = (code, impact, criterion, selector, message) =>
     findings.push({ code, impact, criterion, route: source, page: source, selector, message });
 
@@ -995,8 +1060,16 @@ export function auditStylesheet(css, source = "assets/css/theme.css") {
     }
   }
 
-  const focusRule = /rule-focus:\s*([\d.]+)rem/u.exec(css);
-  if (!focusRule || Number(focusRule[1]) < 0.125) {
+  // --rule-focus is a complete border value ("<width> solid <color>"); the
+  // width component is what WCAG 2.4.11 measures. It may itself reference a
+  // width primitive (var(--line-focus)), so the token map resolves one level
+  // of indirection before the px/rem width is compared to the 2px minimum.
+  const focusValue = tokens.get("--rule-focus") ?? "";
+  const widthRef = /^var\((--[\w-]+)\)/u.exec(focusValue.trim());
+  const widthSource = widthRef ? (tokens.get(widthRef[1]) ?? "") : focusValue;
+  const focusRule = /([\d.]+)(px|rem)/u.exec(widthSource);
+  const focusPx = focusRule ? Number(focusRule[1]) * (focusRule[2] === "rem" ? 16 : 1) : 0;
+  if (focusPx < 2) {
     add(
       "lps_a11y_focus_indicator_thin",
       "serious",

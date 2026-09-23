@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 use LPS\ContentModel\Translations;
 
-const LPS_TRUST_SEED_VERSION = '6';
+const LPS_TRUST_SEED_VERSION = '7';
 const LPS_TRUST_SEED_OPTION  = 'lps_trust_seed_version';
 
 /**
@@ -46,7 +46,78 @@ function lps_trust_seed_dependencies_ready(): bool {
 			return false;
 		}
 	}
-	return true;
+	return lps_trust_seed_languages_ready();
+}
+
+/** Returns whether both supported languages are registered and usable. */
+function lps_trust_seed_languages_ready(): bool {
+	if ( ! function_exists( 'pll_languages_list' ) || ! function_exists( 'pll_save_post_translations' ) || ! function_exists( 'pll_set_post_language' ) ) {
+		return false;
+	}
+	$languages = pll_languages_list();
+	if ( ! is_array( $languages ) ) {
+		return false;
+	}
+	return in_array( 'pt-br', $languages, true ) && in_array( 'en', $languages, true );
+}
+
+/**
+ * Tracks whether the current run left an unassociated pair behind.
+ *
+ * A pair that cannot be associated can never satisfy the bilingual publish
+ * gate, so the run reports itself incomplete and is retried on the next
+ * request instead of recording a seed version that never converged.
+ *
+ * @param bool|null $set New state, or null to read the current one.
+ */
+function lps_trust_seed_incomplete( ?bool $set = null ): bool {
+	static $incomplete = false;
+	if ( null !== $set ) {
+		$incomplete = $set;
+	}
+	return $incomplete;
+}
+
+/**
+ * Returns the database ID of an already-seeded record, or zero when absent.
+ *
+ * Child pages share their slug path with the parent, so a bare get_page_by_path
+ * lookup never matches them and every retry inserted a suffixed duplicate.
+ * Matching on post_name plus the resolved parent finds the real record.
+ *
+ * @param string $post_type Record type.
+ * @param string $slug      Record slug.
+ * @param int    $parent    Parent record ID, zero for top-level records.
+ */
+function lps_trust_seed_find( string $post_type, string $slug, int $parent = 0 ): int {
+	$found = get_posts(
+		array(
+			'post_type'        => $post_type,
+			'name'             => $slug,
+			'post_parent'      => $parent,
+			'post_status'      => 'any',
+			'numberposts'      => 1,
+			'fields'           => 'ids',
+			'suppress_filters' => true,
+		)
+	);
+	return isset( $found[0] ) && is_int( $found[0] ) ? $found[0] : 0;
+}
+
+/**
+ * Assigns the Polylang language term a seeded record needs to be listed.
+ *
+ * Records without a language term are invisible to locale-filtered archive
+ * queries, so the assignment runs on every pass - including the repair path
+ * for records a previous incomplete run left behind.
+ *
+ * @param int    $post_id Record ID.
+ * @param string $locale  Locale slug.
+ */
+function lps_trust_seed_language( int $post_id, string $locale ): void {
+	if ( 0 < $post_id && function_exists( 'pll_set_post_language' ) ) {
+		pll_set_post_language( $post_id, $locale );
+	}
 }
 
 /** Reports whether this database still needs the current seed revision. */
@@ -67,6 +138,7 @@ function lps_trust_seed_record( string $post_type, string $locale, array $record
 		foreach ( array_merge( array( '_lps_locale' => $locale ), $record['meta'] ?? array() ) as $key => $value ) {
 			update_post_meta( $existing->ID, $key, $value );
 		}
+		lps_trust_seed_language( $existing->ID, $locale );
 		return $existing->ID;
 	}
 	$id = wp_insert_post(
@@ -81,7 +153,11 @@ function lps_trust_seed_record( string $post_type, string $locale, array $record
 		),
 		true
 	);
-	return is_wp_error( $id ) ? 0 : $id;
+	if ( is_wp_error( $id ) ) {
+		return 0;
+	}
+	lps_trust_seed_language( $id, $locale );
+	return $id;
 }
 
 /**
@@ -97,9 +173,15 @@ function lps_trust_seed_opportunity_pair( array $portuguese, array $english ): v
 	$pt = lps_trust_seed_draft( 'lps_opportunity', 'pt-br', $portuguese );
 	$en = lps_trust_seed_draft( 'lps_opportunity', 'en', $english );
 	if ( 0 === $pt || 0 === $en ) {
+		lps_trust_seed_incomplete( true );
 		return;
 	}
-	Translations::associate( $pt, $en );
+	if ( is_wp_error( Translations::associate( $pt, $en ) ) ) {
+		// Without the reciprocal association the publish gate would refuse the
+		// pair anyway; retry on the next request instead of leaving drafts.
+		lps_trust_seed_incomplete( true );
+		return;
+	}
 	update_post_meta( $en, '_lps_reviewed_source_hash', (string) get_post_meta( $en, '_lps_source_hash', true ) );
 	wp_update_post(
 		array(
@@ -123,17 +205,18 @@ function lps_trust_seed_opportunity_pair( array $portuguese, array $english ): v
  * @param array<string, mixed> $record    Record fields.
  */
 function lps_trust_seed_draft( string $post_type, string $locale, array $record ): int {
-	$existing = get_page_by_path( $record['slug'], OBJECT, $post_type );
-	if ( $existing instanceof WP_Post ) {
-		foreach ( array_merge( array( '_lps_locale' => $locale ), $record['meta'] ?? array() ) as $key => $value ) {
-			update_post_meta( $existing->ID, $key, $value );
-		}
-		return $existing->ID;
-	}
 	$parent = 0;
 	if ( isset( $record['parent'] ) && '' !== $record['parent'] ) {
 		$parent_post = get_page_by_path( $record['parent'], OBJECT, $post_type );
 		$parent      = $parent_post instanceof WP_Post ? $parent_post->ID : 0;
+	}
+	$existing_id = lps_trust_seed_find( $post_type, $record['slug'], $parent );
+	if ( 0 !== $existing_id ) {
+		foreach ( array_merge( array( '_lps_locale' => $locale ), $record['meta'] ?? array() ) as $key => $value ) {
+			update_post_meta( $existing_id, $key, $value );
+		}
+		lps_trust_seed_language( $existing_id, $locale );
+		return $existing_id;
 	}
 	$id = wp_insert_post(
 		array(
@@ -148,7 +231,11 @@ function lps_trust_seed_draft( string $post_type, string $locale, array $record 
 		),
 		true
 	);
-	return is_wp_error( $id ) ? 0 : $id;
+	if ( is_wp_error( $id ) ) {
+		return 0;
+	}
+	lps_trust_seed_language( $id, $locale );
+	return $id;
 }
 
 /**
@@ -162,9 +249,13 @@ function lps_trust_seed_page_pair( string $key, array $portuguese, array $englis
 	$pt = lps_trust_seed_draft( 'page', 'pt-br', $portuguese );
 	$en = lps_trust_seed_draft( 'page', 'en', $english );
 	if ( 0 === $pt || 0 === $en ) {
+		lps_trust_seed_incomplete( true );
 		return;
 	}
-	Translations::associate( $pt, $en );
+	if ( is_wp_error( Translations::associate( $pt, $en ) ) ) {
+		lps_trust_seed_incomplete( true );
+		return;
+	}
 	update_post_meta( $en, '_lps_reviewed_source_hash', (string) get_post_meta( $en, '_lps_source_hash', true ) );
 	foreach ( array( $en, $pt ) as $id ) {
 		wp_update_post(
@@ -622,7 +713,9 @@ add_action(
 			);
 		}
 
-		update_option( LPS_TRUST_SEED_OPTION, LPS_TRUST_SEED_VERSION );
+		if ( ! lps_trust_seed_incomplete() ) {
+			update_option( LPS_TRUST_SEED_OPTION, LPS_TRUST_SEED_VERSION );
+		}
 	},
 	30
 );

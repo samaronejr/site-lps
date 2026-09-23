@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace LPS\Theme;
 
 use LPS\ContentModel\Relationships;
+use LPS\ContentModel\TeachingRecords;
 use LPS\ContentModel\Translations;
 use WP_Post;
 use WP_Query;
@@ -165,9 +166,10 @@ final class PublicRoutes {
 	 * @param string             $title   Displayed name.
 	 * @param array<mixed,mixed> $meta    Stored person metadata.
 	 * @param array<int, mixed>  $history Historical project and publication links.
+	 * @param string             $summary Localized excerpt shown on cards and profiles.
 	 * @return array<string, mixed>
 	 */
-	public static function person_record( string $slug, string $title, array $meta, array $history = array() ): array {
+	public static function person_record( string $slug, string $title, array $meta, array $history = array(), string $summary = '' ): array {
 		$reviewed = self::flag( $meta, '_lps_privacy_reviewed' );
 		$status   = self::value( $meta, '_lps_person_status' );
 		$status   = in_array( $status, self::STATUSES, true ) ? $status : 'active';
@@ -189,6 +191,8 @@ final class PublicRoutes {
 			'roles'            => $roles,
 			'status'           => $status,
 			'areas'            => self::strings( $meta['_lps_research_area_ids'] ?? array() ),
+			'summary'          => $summary,
+			'research_topics'  => self::strings( $meta['_lps_topics'] ?? array() ),
 			'public_email'     => $reviewed && self::is_email( $email ) ? $email : '',
 			'privacy_reviewed' => $reviewed,
 			'photo_url'        => $publishable_photo ? $photo : '',
@@ -196,10 +200,15 @@ final class PublicRoutes {
 			'photo_alt'        => $publishable_photo ? self::value( $meta, '_lps_photo_alt' ) : '',
 			'orcid'            => self::value( $meta, '_lps_orcid' ),
 			'lattes_url'       => self::value( $meta, '_lps_lattes_url' ),
+			'scholar_url'      => self::value( $meta, '_lps_scholar_url' ),
+			'website_url'      => self::value( $meta, '_lps_website_url' ),
+			'github_url'       => self::value( $meta, '_lps_github_url' ),
+			'linkedin_url'     => self::value( $meta, '_lps_linkedin_url' ),
 			'start_date'       => self::value( $meta, '_lps_start_date' ),
 			'end_date'         => self::value( $meta, '_lps_end_date' ),
 			'external'         => in_array( 'external-collaborator', $roles, true ),
 			'history'          => array_values( $history ),
+			'bio'              => '',
 			'published'        => $published,
 		);
 	}
@@ -263,6 +272,8 @@ final class PublicRoutes {
 				'_lps_lattes_url',
 				'_lps_scholar_url',
 				'_lps_website_url',
+				'_lps_github_url',
+				'_lps_linkedin_url',
 				'_lps_credentials',
 				'_lps_photo_rights',
 				'_lps_photo_url',
@@ -399,8 +410,53 @@ final class PublicRoutes {
 		add_filter( 'rewrite_rules_array', array( self::class, 'register_routes' ), 998 );
 		add_filter( 'query_vars', array( self::class, 'register_query_vars' ) );
 		add_filter( 'redirect_canonical', array( self::class, 'keep_locale_route' ), 10, 2 );
+		add_filter( 'post_type_link', array( self::class, 'canonical_record_link' ), 10, 2 );
 		add_filter( 'language_attributes', array( self::class, 'route_language_attributes' ), 210 );
+		add_action( 'template_redirect', array( self::class, 'canonicalize_record_request' ), 4 );
 		add_action( 'template_redirect', array( self::class, 'guard_withheld_records' ), 5 );
+	}
+
+	/**
+	 * Redirects a governed record's raw CPT permalink to its public route.
+	 *
+	 * `post_type_link` already returns the locale route for `get_permalink`,
+	 * but `/lps_person/{slug}/` etc. are registered CPT addresses WordPress
+	 * treats as canonical on their own, so requests must be moved explicitly.
+	 */
+	public static function canonicalize_record_request(): void {
+		if ( ! function_exists( 'is_singular' ) || ! is_singular() || ! function_exists( 'wp_safe_redirect' ) ) {
+			return;
+		}
+		$post = function_exists( 'get_post' ) ? get_post() : null;
+		if ( ! $post instanceof WP_Post || ! isset( self::SEGMENTS[ $post->post_type ] ) ) {
+			return;
+		}
+		$canonical = self::canonical_record_link( (string) get_permalink( $post ), $post );
+		$target    = is_string( wp_parse_url( $canonical, PHP_URL_PATH ) ) ? (string) wp_parse_url( $canonical, PHP_URL_PATH ) : '';
+		$request   = self::request_path();
+		if ( '' !== $target && untrailingslashit( $target ) !== untrailingslashit( $request ) && function_exists( 'home_url' ) ) {
+			wp_safe_redirect( home_url( $target ), 301 );
+			exit;
+		}
+	}
+
+	/**
+	 * Points governed record permalinks at their localized public routes.
+	 *
+	 * The locale routes are the canonical addresses; the raw CPT permalink
+	 * (e.g. `/pt-br/lps_person/{slug}/`) then 301s to them through WordPress's
+	 * own canonical redirect instead of serving an empty template.
+	 *
+	 * @param string  $permalink Default post permalink.
+	 * @param WP_Post $post      Record being linked.
+	 */
+	public static function canonical_record_link( string $permalink, WP_Post $post ): string {
+		if ( ! isset( self::SEGMENTS[ $post->post_type ] ) ) {
+			return $permalink;
+		}
+		$locale = class_exists( Translations::class ) ? Translations::locale( $post->ID ) : self::text( get_post_meta( $post->ID, '_lps_locale', true ) );
+		$path   = self::single_path( $post->post_type, $locale, $post->post_name );
+		return '' === $path || ! function_exists( 'home_url' ) ? $permalink : home_url( $path );
 	}
 
 	/**
@@ -457,7 +513,7 @@ final class PublicRoutes {
 		}
 		$locale = $route['locale'];
 		if ( 'lps_infrastructure' === $route['post_type'] ) {
-			return PublicSurfaces::infrastructure_page( $locale, self::facilities( $locale ) );
+			return PublicSurfaces::infrastructure_page( $locale, self::facilities( $locale ), self::organization_names_by_kind( $locale ) );
 		}
 		if ( 'lps_organization' === $route['post_type'] ) {
 			return self::render_organizations( $locale, $route['slug'] );
@@ -474,7 +530,7 @@ final class PublicRoutes {
 	private static function render_people( string $locale, string $slug ): string {
 		$people = self::people( $locale );
 		if ( '' === $slug ) {
-			return PublicSurfaces::people_listing( $locale, $people, self::filters() );
+			return PublicSurfaces::people_listing( $locale, $people );
 		}
 		foreach ( $people as $person ) {
 			if ( $slug === $person['slug'] ) {
@@ -511,7 +567,10 @@ final class PublicRoutes {
 	public static function people( string $locale ): array {
 		$people = array();
 		foreach ( self::records( 'lps_person', $locale ) as $post ) {
-			$record = self::person_record( $post->post_name, $post->post_title, self::meta( $post->ID ), self::history( $post, $locale ) );
+			$record             = self::person_record( $post->post_name, $post->post_title, self::meta( $post->ID ), self::history( $post, $locale ), $post->post_excerpt );
+			$record['bio']      = '' !== trim( (string) $post->post_content ) ? (string) $post->post_content : '';
+			$record['stale']    = self::is_stale_translation( $post );
+			$record['teaching'] = self::teaching_history( $post, $locale );
 			if ( true === $record['published'] ) {
 				$people[] = $record;
 			}
@@ -528,12 +587,38 @@ final class PublicRoutes {
 	public static function organizations( string $locale ): array {
 		$organizations = array();
 		foreach ( self::records( 'lps_organization', $locale ) as $post ) {
-			$record = self::organization_record( $post->post_name, $post->post_title, self::meta( $post->ID ) );
+			$record          = self::organization_record( $post->post_name, $post->post_title, self::meta( $post->ID ) );
+			$record['stale'] = self::is_stale_translation( $post );
 			if ( true === $record['public_profile'] ) {
 				$organizations[] = $record;
 			}
 		}
 		return $organizations;
+	}
+
+	/**
+	 * Returns public organization names grouped by kind (partners, funders).
+	 *
+	 * @param string $locale Supported locale slug.
+	 * @return array<string, array<int, string>>
+	 */
+	private static function organization_names_by_kind( string $locale ): array {
+		$grouped = array(
+			'partners' => array(),
+			'funders'  => array(),
+		);
+		foreach ( self::organizations( $locale ) as $organization ) {
+			$kind    = self::value( $organization, 'kind' );
+			$name    = self::value( $organization, 'name' );
+			$acronym = self::value( $organization, 'acronym' );
+			if ( 'partner' === $kind && '' !== $name ) {
+				$grouped['partners'][] = $name;
+			}
+			if ( 'funder' === $kind && '' !== $name ) {
+				$grouped['funders'][] = '' !== $acronym ? $acronym : $name;
+			}
+		}
+		return $grouped;
 	}
 
 	/**
@@ -549,7 +634,9 @@ final class PublicRoutes {
 			if ( 'infrastructure-facility' !== self::value( $meta, '_lps_page_key' ) ) {
 				continue;
 			}
-			$facilities[] = self::facility_record( $post->post_name, $post->post_title, $meta );
+			$facility          = self::facility_record( $post->post_name, $post->post_title, $meta );
+			$facility['stale'] = self::is_stale_translation( $post );
+			$facilities[]      = $facility;
 		}
 		return $facilities;
 	}
@@ -592,6 +679,35 @@ final class PublicRoutes {
 	}
 
 	/**
+	 * Returns the derived teaching history of one person in the route locale.
+	 *
+	 * The entries come from the canonical `teaching_team` rows read backwards
+	 * through `TeachingRecords::person_history`, so a co-taught offering appears
+	 * on every member's profile with the same course, term, and section data —
+	 * never as a duplicated per-person copy.
+	 *
+	 * @param WP_Post $post   Person record.
+	 * @param string  $locale Supported locale slug.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private static function teaching_history( WP_Post $post, string $locale ): array {
+		if ( ! class_exists( TeachingRecords::class ) ) {
+			return array();
+		}
+		$history = TeachingRecords::person_history( $post->ID, $locale, 'view' );
+		if ( ! is_array( $history ) || ! is_array( $history['entries'] ?? null ) ) {
+			return array();
+		}
+		/**
+		 * History entries are record maps as declared by the teaching contract.
+		 *
+		 * @var array<int, array<string, mixed>> $entries
+		 */
+		$entries = $history['entries'];
+		return $entries;
+	}
+
+	/**
 	 * Returns published records of one type and locale.
 	 *
 	 * The set is read one bounded page at a time so a single query never asks
@@ -617,6 +733,10 @@ final class PublicRoutes {
 					'order'                  => 'ASC',
 					'no_found_rows'          => true,
 					'update_post_term_cache' => false,
+					// Pin the queried locale: on requests without a locale prefix (locale
+					// sitemaps, feeds) Polylang would otherwise filter to the default
+					// language and silently drop the records of the requested locale.
+					'lang'                   => $locale,
 					'meta_query'             => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- locale is the routing key of this surface.
 						array(
 							'key'   => '_lps_locale',
@@ -688,26 +808,6 @@ final class PublicRoutes {
 	 *
 	 * @return array<string, array<int, string>>
 	 */
-	private static function filters(): array {
-		$filters = array();
-		foreach ( array( 'role', 'status', 'area' ) as $name ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only public listing facet.
-			$raw = isset( $_GET[ $name ] ) && ( is_string( $_GET[ $name ] ) || is_array( $_GET[ $name ] ) ) ? map_deep( wp_unslash( $_GET[ $name ] ), 'sanitize_key' ) : array();
-			if ( is_string( $raw ) ) {
-				$raw = array( $raw );
-			}
-			$values = array();
-			if ( is_array( $raw ) ) {
-				foreach ( $raw as $value ) {
-					if ( is_string( $value ) && '' !== $value ) {
-						$values[] = $value;
-					}
-				}
-			}
-			$filters[ $name ] = $values;
-		}
-		return $filters;
-	}
 
 	/**
 	 * Returns the variant of a record that belongs to the current locale.
@@ -723,9 +823,30 @@ final class PublicRoutes {
 		if ( ! $post instanceof WP_Post || ! class_exists( Translations::class ) ) {
 			return $post instanceof WP_Post ? $post : null;
 		}
+		if ( Translations::locale( $post->ID ) === $locale ) {
+			return $post;
+		}
+		// A missing variant resolves to nothing: history links never substitute
+		// the other language's record for the requested locale.
 		$variants = Translations::variants( $post->ID );
 		$variant  = isset( $variants[ $locale ] ) ? get_post( $variants[ $locale ] ) : null;
-		return $variant instanceof WP_Post ? $variant : $post;
+		return $variant instanceof WP_Post ? $variant : null;
+	}
+
+	/**
+	 * Reports whether an English record trails its reviewed Portuguese source.
+	 *
+	 * Staleness is a source-hash comparison owned by the translation policy, never
+	 * a timestamp guess: the flag is set only for English variants whose reviewed
+	 * hash no longer matches the authority record.
+	 *
+	 * @param WP_Post $post Record.
+	 */
+	private static function is_stale_translation( WP_Post $post ): bool {
+		if ( ! class_exists( Translations::class ) ) {
+			return false;
+		}
+		return 'en' === Translations::locale( $post->ID ) && Translations::is_stale( $post->ID );
 	}
 
 	/**

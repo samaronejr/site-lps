@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 use LPS\ContentModel\Translations;
 
-const LPS_SEO_SEED_VERSION = '5';
+const LPS_SEO_SEED_VERSION = '6';
 const LPS_SEO_SEED_OPTION  = 'lps_seo_seed_version';
 
 /**
@@ -32,6 +32,7 @@ function lps_seo_seed_record( string $post_type, string $locale, string $status,
 		foreach ( $meta as $key => $value ) {
 			update_post_meta( $existing->ID, $key, $value );
 		}
+		lps_seo_seed_language( $existing->ID, $post_type, $locale );
 		return $existing->ID;
 	}
 	$id = wp_insert_post(
@@ -46,7 +47,57 @@ function lps_seo_seed_record( string $post_type, string $locale, string $status,
 		),
 		true
 	);
-	return is_wp_error( $id ) ? 0 : $id;
+	if ( is_wp_error( $id ) ) {
+		return 0;
+	}
+	lps_seo_seed_language( $id, $post_type, $locale );
+	return $id;
+}
+
+/** Returns whether both supported languages are registered and usable. */
+function lps_seo_seed_languages_ready(): bool {
+	if ( ! function_exists( 'pll_languages_list' ) || ! function_exists( 'pll_save_post_translations' ) || ! function_exists( 'pll_set_post_language' ) ) {
+		return false;
+	}
+	$languages = pll_languages_list();
+	if ( ! is_array( $languages ) ) {
+		return false;
+	}
+	return in_array( 'pt-br', $languages, true ) && in_array( 'en', $languages, true );
+}
+
+/**
+ * Tracks whether the current run left an unassociated pair behind.
+ *
+ * @param bool|null $set New state, or null to read the current one.
+ */
+function lps_seo_seed_incomplete( ?bool $set = null ): bool {
+	static $incomplete = false;
+	if ( null !== $set ) {
+		$incomplete = $set;
+	}
+	return $incomplete;
+}
+
+/**
+ * Assigns the Polylang language term a seeded record needs to be listed.
+ *
+ * Records without a language term are invisible to locale-filtered archive
+ * queries, so the assignment runs on every pass - including the repair path
+ * for records a previous incomplete run left behind.
+ *
+ * @param int    $post_id   Record ID.
+ * @param string $post_type Record type.
+ * @param string $locale    Locale slug.
+ */
+function lps_seo_seed_language( int $post_id, string $post_type, string $locale ): void {
+	if ( 0 >= $post_id || ! function_exists( 'pll_set_post_language' ) ) {
+		return;
+	}
+	if ( function_exists( 'pll_is_translated_post_type' ) && ! pll_is_translated_post_type( $post_type ) ) {
+		return;
+	}
+	pll_set_post_language( $post_id, $locale );
 }
 
 /**
@@ -60,9 +111,13 @@ function lps_seo_seed_pair( string $post_type, array $portuguese, array $english
 	$pt = lps_seo_seed_record( $post_type, 'pt-br', 'draft', $portuguese );
 	$en = lps_seo_seed_record( $post_type, 'en', 'draft', $english );
 	if ( 0 === $pt || 0 === $en ) {
+		lps_seo_seed_incomplete( true );
 		return;
 	}
-	Translations::associate( $pt, $en );
+	if ( is_wp_error( Translations::associate( $pt, $en ) ) ) {
+		lps_seo_seed_incomplete( true );
+		return;
+	}
 	update_post_meta( $en, '_lps_reviewed_source_hash', (string) get_post_meta( $en, '_lps_source_hash', true ) );
 	foreach ( array( $en, $pt ) as $id ) {
 		wp_update_post(
@@ -253,6 +308,11 @@ add_action(
 		if ( LPS_SEO_SEED_VERSION === get_option( LPS_SEO_SEED_OPTION ) ) {
 			return;
 		}
+		if ( ! lps_seo_seed_languages_ready() ) {
+			// Polylang registers its languages during this same boot; seeding before
+			// the association back end is usable would leave unlinked drafts.
+			return;
+		}
 
 		$day = static fn ( int $offset ): string => gmdate( 'Y-m-d\TH:i:sP', time() + ( $offset * DAY_IN_SECONDS ) );
 
@@ -316,7 +376,9 @@ add_action(
 		update_option( 'lps_seo_seed_refreshed_profiles', lps_seo_seed_refresh_profile_summaries() );
 
 		flush_rewrite_rules( false );
-		update_option( LPS_SEO_SEED_OPTION, LPS_SEO_SEED_VERSION );
+		if ( ! lps_seo_seed_incomplete() ) {
+			update_option( LPS_SEO_SEED_OPTION, LPS_SEO_SEED_VERSION );
+		}
 	},
 	40
 );

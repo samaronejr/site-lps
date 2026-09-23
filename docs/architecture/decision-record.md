@@ -33,16 +33,21 @@ the release inventory review. See [the plugin and update policy](../operations/p
 
 ## ADR-03 — Custom post types with immutable record identity
 
-**Status:** accepted.
-**Decision:** nine registered post types (`lps_person`, `lps_organization`, `lps_research_area`,
-`lps_project`, `lps_publication`, `lps_news`, `lps_opportunity`, `lps_event`, `lps_redirect`) plus
-core `page`, each carrying `_lps_record_id`, `_lps_state`, `_lps_owner_user_id`, `_lps_review_date`,
+**Status:** accepted. Amended 2026-09-19: the teaching tranche added five post types and the
+`_lps_origin` provenance field; the decision and its consequence are unchanged.
+**Decision:** fourteen registered post types — the nine governance types (`lps_person`,
+`lps_organization`, `lps_research_area`, `lps_project`, `lps_publication`, `lps_news`,
+`lps_opportunity`, `lps_event`, `lps_redirect`) plus the five teaching types (`lps_course`,
+`lps_term`, `lps_offering`, `lps_unit`, `lps_resource`) — and core `page`, each carrying
+`_lps_record_id`, `_lps_origin`, `_lps_state`, `_lps_owner_user_id`, `_lps_review_date`,
 `_lps_published_slug` and full provenance metadata
-(`wp-content/plugins/lps-content-model/includes/class-contracts.php`).
+(`wp-content/plugins/lps-content-model/includes/class-contracts.php`,
+`class-teachingcontracts.php`).
 **Why:** relationships, citations, redirects and imports must survive title, slug and locale
-changes.
+changes, and a record's origin must be resolvable without trusting a stored claim.
 **Consequence:** never repurpose a record. Archive it (`_lps_archived_at`) and create a new record;
-the first published slug is immutable and a change produces a one-hop redirect.
+the first published slug is immutable and a change produces a one-hop redirect. A record whose
+origin resolves to `ambiguous` is withheld from public surfaces until reconciled.
 
 ## ADR-04 — Two controlled taxonomies, no free tags
 
@@ -55,13 +60,17 @@ the first published slug is immutable and a change produces a one-hop redirect.
 **Consequence:** a new term needs an authoritative current LPS source and editorial acceptance
 before it can be used; see [the information architecture](../content/information-architecture.md).
 
-## ADR-05 — Seven least-privilege roles enforced in a pure policy class
+## ADR-05 — Nine least-privilege roles enforced in a pure policy class
 
-**Status:** accepted.
+**Status:** accepted. Amended 2026-09-19: the teaching tranche added the offering-scoped
+`professor` and `delegate` roles; the decision mechanism is unchanged.
 **Decision:** the role/action matrix lives in
 `wp-content/plugins/lps-content-model/includes/class-securitypolicy.php` and is mapped onto
 WordPress capabilities by `class-roles.php`, with per-account collection assignment stored in
-`_lps_assigned_collections` and MFA required for `publisher` and `administrator`.
+`_lps_assigned_collections` and MFA required for `publisher`, `administrator` and `professor` —
+every role that can publish publicly. The two scoped roles hold no collection rights at all:
+their access comes from persisted `_lps_teaching_grants` evaluated by
+`class-teachingpolicy.php` on every request.
 **Why:** authorization must be table-testable without a browser, and no editorial role may be a
 WordPress administrator by convenience.
 **Consequence:** capability changes are policy changes. The documented role tables are checked
@@ -87,7 +96,13 @@ publication until an independent reviewer clears it. See
 **Decision:** the plugin maintains its own locale search index
 (`wp-content/plugins/lps-content-model/includes/class-searchindex.php`,
 `class-wpdbsearchstorage.php`) updated transactionally on publish and archive, queried through
-prepared statements, and rendered server-side at `/pt-br/busca/` and `/en/search/`.
+prepared statements, and rendered server-side at `/pt-br/busca/` and `/en/search/`. Published
+teaching records join the index: courses, offerings and released resources carry their codes,
+instructors, term labels and authored languages, while terms and units stay internal. Each row
+stores a lifecycle payload (offering term boundaries, resource release state) evaluated at query
+time, so the `current`/`previous` offering filter and scheduled resource releases need no
+scheduler and fail closed. Publication, correction, withdrawal and term transitions propagate
+through the same synchronization path to the index and the delivery purge targets.
 **Why:** core search cannot express accent-insensitive weighting, locale isolation or private-field
 exclusion, and the site must work without JavaScript.
 **Consequence:** search behaviour is a data contract, not a UI feature; changes require the search
@@ -150,3 +165,36 @@ documentation.
 **Consequence:** when you change a command, a role capability or a documented source file, run
 `node tests/docs/docs-checker.mjs` and repair the named step. Updating a source hash in the contract
 is an explicit re-review, not a formality.
+
+## ADR-13 — Faculty work happens on a server-rendered task dashboard, not in wp-admin
+
+**Status:** accepted.
+**Decision:** the authenticated faculty surface is a frozen set of locale routes
+(`/pt-br/painel/`, `/en/dashboard/`) rendered server-side by
+`wp-content/themes/lps-theme/includes/class-dashboardsurfaces.php` and bound by
+`class-dashboardroutes.php`. Every form posts to `admin-post.php` handlers in
+`wp-content/plugins/lps-content-model/includes/class-taskdashboard.php` that re-check the
+persisted grant on the server. The task list is derived from the account's role and grants, so a
+professor sees only the tasks their scope covers and a delegate never sees publish controls.
+**Why:** faculty should complete units, materials, releases, news and profile proposals without
+learning the full editorial interface, and a simplified UI must never widen what the policy
+allows.
+**Consequence:** the dashboard grants nothing by itself — every action re-runs the same
+`SecurityPolicy`/`TeachingPolicy` checks the REST boundary uses. Handbook instructions for
+faculty must name the labels the renderer actually emits; the Portuguese guide is
+[the faculty dashboard guide](../handbook/guia-docente-painel.md).
+
+## ADR-14 — Teaching files are immutable versions behind a guarded delivery route
+
+**Status:** accepted-pending-host.
+**Decision:** a teaching resource is one immutable local version or one external URL, never both.
+Versions live outside the web root under `LPS_TEACHING_STORAGE_ROOT`, are registered in
+`{prefix}lps_resource_version_registry` under an `lpsver:<sha256>` identifier, and are delivered
+only through the guarded download route after the scan boundary clears them. A correction mints
+a new version; withdrawal flips `_lps_release_state` to `withdrawn` and the route denies.
+**Why:** released course files must not be guessable URLs, a scanner failure must fail closed,
+and a correction must never silently mutate a file students already downloaded.
+**Consequence:** `LPS_TEACHING_STORAGE_ROOT`, `LPS_TEACHING_PUBLIC_ROOT` and
+`LPS_TEACHING_SCANNER_APPROVED` are required production settings; the test-only scanner adapter
+never satisfies the approval. See
+[privacy and security operations](../operations/privacy-security-operations.md).

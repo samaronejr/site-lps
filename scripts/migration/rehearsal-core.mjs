@@ -118,6 +118,32 @@ export function findRedirectCycle(redirects) {
   return null;
 }
 
+// Hosts that may appear as provenance evidence but never as the permitted
+// source of an active launch record: the retired legacy LPS site and the
+// Internet Archive.
+const LEGACY_SCRAPE_HOSTS = new Set([
+  "web.archive.org",
+  "archive.org",
+  "lps.ufrj.br",
+  "www.lps.ufrj.br",
+]);
+const TEACHING_TYPES = new Set([
+  "course",
+  "term",
+  "offering",
+  "lps_course",
+  "lps_term",
+  "lps_offering",
+]);
+
+function sourceHost(value) {
+  try {
+    return new URL(String(value ?? "")).hostname.toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
 function classifyRecord(record, target, options) {
   const locale = canonicalLocale(record.locale);
   if (locale === null) {
@@ -127,6 +153,37 @@ function classifyRecord(record, target, options) {
       action: "quarantine",
       class: "invalid_locale",
       blocker: `Locale "${String(record.locale)}" is not a well-formed BCP47 tag.`,
+    };
+  }
+
+  if (record.synthetic === true) {
+    return {
+      sourceId: record.sourceId,
+      locale,
+      action: "quarantine",
+      class: "synthetic_record",
+      blocker:
+        "Record declares synthetic fixture data; development fixtures never enter the launch corpus.",
+    };
+  }
+
+  if (LEGACY_SCRAPE_HOSTS.has(sourceHost(record.sourceUrl))) {
+    return {
+      sourceId: record.sourceId,
+      locale,
+      action: "quarantine",
+      class: "legacy_scrape_source",
+      blocker: `Source ${String(record.sourceUrl)} is a legacy/archive host; it is provenance evidence, not a permitted launch source.`,
+    };
+  }
+
+  if (TEACHING_TYPES.has(record.type) && String(record.catalogSourceUrl ?? "").trim() === "") {
+    return {
+      sourceId: record.sourceId,
+      locale,
+      action: "quarantine",
+      class: "catalog_source_missing",
+      blocker: "Course-code/calendar facts require an authoritative catalog source URL.",
     };
   }
 

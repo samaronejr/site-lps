@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace LPS\Tests;
 
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 final class TrustSeedBringUpTest extends TestCase {
@@ -27,6 +28,9 @@ final class TrustSeedBringUpTest extends TestCase {
 		WpSeedRuntime::reset();
 	}
 
+	// An isolated process models the truly fresh boot: no other suite's test
+	// file may have loaded the content-model classes before this request.
+	#[RunInSeparateProcess]
 	public function test_first_request_on_a_fresh_database_defers_instead_of_fatally_erroring(): void {
 		self::assertFalse(
 			class_exists( \LPS\ContentModel\Translations::class, false ),

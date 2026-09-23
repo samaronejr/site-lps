@@ -478,6 +478,120 @@ final class StructuredData {
 	}
 
 	/**
+	 * Builds a Course node for one course page.
+	 *
+	 * Only stored, reviewed fields are emitted: the official code, the
+	 * localized title and summary, and the published offering addresses as
+	 * `hasCourseInstance` links. An offering that is not publicly visible in
+	 * this locale never reaches the list.
+	 *
+	 * @param string               $site_url  Canonical site URL.
+	 * @param string               $path      Page path.
+	 * @param array<string, mixed> $course    Course fields.
+	 * @return array<string, mixed>
+	 */
+	public static function course( string $site_url, string $path, array $course ): array {
+		$canonical = SeoPolicy::canonical_url( $site_url, $path );
+		$node      = array(
+			'@type'    => 'Course',
+			'@id'      => $canonical . '#course',
+			'url'      => $canonical,
+			'name'     => self::text( $course['name'] ?? '' ),
+			'provider' => array( '@id' => rtrim( $site_url, '/' ) . '/#organization' ),
+			'isPartOf' => array( '@id' => rtrim( $site_url, '/' ) . '/#website' ),
+		);
+		$code      = self::text( $course['code'] ?? '' );
+		if ( '' !== $code ) {
+			$node['courseCode'] = $code;
+		}
+		$summary = self::text( $course['summary'] ?? '' );
+		if ( '' !== $summary ) {
+			$node['description'] = $summary;
+		}
+		$language = SeoPolicy::bcp47( self::text( $course['locale'] ?? SeoPolicy::DEFAULT_LOCALE ) );
+		if ( '' !== $language ) {
+			$node['inLanguage'] = $language;
+		}
+		$instances = array();
+		foreach ( self::strings( $course['instances'] ?? array() ) as $instance ) {
+			$instances[] = array(
+				'@type' => 'CourseInstance',
+				'url'   => $instance,
+			);
+		}
+		if ( array() !== $instances ) {
+			$node['hasCourseInstance'] = $instances;
+		}
+		return $node;
+	}
+
+	/**
+	 * Builds a CourseInstance node for one offering page.
+	 *
+	 * The instance links back to its Course node through `isPartOf`, carries
+	 * the stored term boundaries and teaching team, and never invents an
+	 * attendance mode: a venue string is a Place, an approved LMS handoff is
+	 * an online address, and neither is claimed when absent.
+	 *
+	 * @param string               $site_url Canonical site URL.
+	 * @param string               $path     Page path.
+	 * @param array<string, mixed> $offering Offering fields.
+	 * @return array<string, mixed>
+	 */
+	public static function course_instance( string $site_url, string $path, array $offering ): array {
+		$canonical  = SeoPolicy::canonical_url( $site_url, $path );
+		$course_url = self::text( $offering['course_url'] ?? '' );
+		$node       = array(
+			'@type' => 'CourseInstance',
+			'@id'   => $canonical . '#courseinstance',
+			'url'   => $canonical,
+			'name'  => self::text( $offering['title'] ?? '' ),
+		);
+		if ( '' !== $course_url ) {
+			$node['isPartOf'] = array( '@id' => $course_url . '#course' );
+		}
+		$summary = self::text( $offering['summary'] ?? '' );
+		if ( '' !== $summary ) {
+			$node['description'] = $summary;
+		}
+		$language = SeoPolicy::bcp47( self::text( $offering['locale'] ?? SeoPolicy::DEFAULT_LOCALE ) );
+		if ( '' !== $language ) {
+			$node['inLanguage'] = $language;
+		}
+		$starts = self::text( $offering['starts_on'] ?? '' );
+		if ( '' !== $starts ) {
+			$node['startDate'] = $starts;
+		}
+		$ends = self::text( $offering['ends_on'] ?? '' );
+		if ( '' !== $ends ) {
+			$node['endDate'] = $ends;
+		}
+		$venue = self::text( $offering['venue'] ?? '' );
+		$lms   = self::text( $offering['lms_url'] ?? '' );
+		if ( '' !== $venue ) {
+			$node['location'] = array(
+				'@type' => 'Place',
+				'name'  => $venue,
+			);
+		}
+		if ( '' !== $lms ) {
+			$node['courseMode'] = '' === $venue ? 'online' : 'blended';
+		}
+		$instructors = array();
+		foreach ( self::strings( $offering['instructors'] ?? array() ) as $instructor ) {
+			$instructors[] = array(
+				'@type' => 'Person',
+				'name'  => $instructor,
+			);
+		}
+		if ( array() !== $instructors ) {
+			$node['instructor'] = $instructors;
+		}
+		$node['organizer'] = array( '@id' => rtrim( $site_url, '/' ) . '/#organization' );
+		return $node;
+	}
+
+	/**
 	 * Builds the opportunity node, distinguishing employment from funding.
 	 *
 	 * @param string               $site_url    Canonical site URL.

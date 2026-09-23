@@ -8,7 +8,9 @@
     "publisher",
     "administrator",
     "privacy-auditor",
-    "deployer"
+    "deployer",
+    "professor",
+    "delegate"
   ],
   "staffing": {
     "minimumAccounts": {
@@ -18,12 +20,27 @@
       "section-editor": 1,
       "translator": 1,
       "privacy-auditor": 1,
-      "deployer": 1
+      "deployer": 1,
+      "professor": 1,
+      "delegate": 0
     },
-    "mfaRoles": ["publisher", "administrator"],
+    "mfaRoles": ["publisher", "administrator", "professor"],
     "sharedAccountsForbidden": true,
     "contributorSelfPublishingForbidden": true,
     "independentTranslationReviewRequired": true
+  },
+  "teachingScopes": {
+    "scopedRoles": ["professor", "delegate"],
+    "scopes": ["offering", "news"],
+    "grantRecord": "_lps_teaching_grants",
+    "granterRoles": ["administrator"],
+    "granterCollectionRoles": {
+      "section-editor": ["teaching"]
+    },
+    "publishablePostTypes": ["lps_unit", "lps_resource", "lps_news"],
+    "delegatePublishes": false,
+    "revocationEffective": "immediate",
+    "inputIdsNeverGrantAccess": true
   },
   "launchBlockers": [
     {
@@ -294,6 +311,28 @@
         "reviewRequired": false
       },
       "archiveRule": "Retain redirect or deliberate 410 history and prevent redirect chains.",
+      "correctionPath": {
+        "correction": "section-editor-to-publisher",
+        "takedown": "publisher-and-privacy-auditor",
+        "publicRoute": "unresolved"
+      }
+    },
+    {
+      "id": "teaching",
+      "ownerRole": "section-editor",
+      "sourcePriority": [
+        "official-lps-record",
+        "official-ufrj-coppe-record",
+        "verified-primary-source"
+      ],
+      "reviewCadence": "P180D",
+      "expiryRule": "Keep completed offerings published as history; correct or annotate when the institutional record changes.",
+      "translation": {
+        "obligation": "localized-per-use",
+        "reviewerRole": "section-editor",
+        "reviewRequired": true
+      },
+      "archiveRule": "Archive only through the editorial state machine; end-of-term never archives an offering automatically.",
       "correctionPath": {
         "correction": "section-editor-to-publisher",
         "takedown": "publisher-and-privacy-auditor",

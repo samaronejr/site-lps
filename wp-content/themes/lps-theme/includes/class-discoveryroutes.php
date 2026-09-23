@@ -11,6 +11,7 @@ namespace LPS\Theme;
 
 use LPS\ContentModel\Relationships;
 use LPS\ContentModel\Translations;
+use wpdb;
 use WP_Post;
 use WP_Query;
 
@@ -207,13 +208,14 @@ final class DiscoveryRoutes {
 		return is_string( $tagged ) ? $tagged : $output;
 	}
 
-	/** Registers routes, query vars, downloads, and the discovery block. */
+	/** Registers routes, query vars, downloads, listing filters, and the discovery block. */
 	public static function boot(): void {
 		add_filter( 'rewrite_rules_array', array( self::class, 'register_routes' ), 999 );
 		add_filter( 'query_vars', array( self::class, 'register_query_vars' ) );
 		add_action( 'template_redirect', array( self::class, 'serve_citation' ), 0 );
 		add_filter( 'redirect_canonical', array( self::class, 'keep_locale_route' ), 10, 2 );
 		add_filter( 'language_attributes', array( self::class, 'route_language_attributes' ), 200 );
+		add_action( 'pre_get_posts', array( self::class, 'filter_archive_query' ) );
 	}
 
 	/**
@@ -323,10 +325,12 @@ final class DiscoveryRoutes {
 		if ( 'lps_project' === $post->post_type ) {
 			return DiscoverySurfaces::render_project(
 				array(
-					'title'   => $post->post_title,
-					'summary' => $post->post_excerpt,
-					'body'    => $post->post_content,
-					'status'  => self::meta_string( $post->ID, '_lps_project_status' ),
+					'title'      => $post->post_title,
+					'summary'    => $post->post_excerpt,
+					'body'       => $post->post_content,
+					'status'     => self::shared_meta( $post, '_lps_project_status' ),
+					'start_date' => self::shared_meta( $post, '_lps_start_date' ),
+					'end_date'   => self::shared_meta( $post, '_lps_end_date' ),
 				),
 				self::project_relationships( $post, $locale ),
 				$locale
@@ -358,23 +362,56 @@ final class DiscoveryRoutes {
 		if ( ! isset( self::SEGMENTS[ $post_type ] ) ) {
 			return '';
 		}
+		$kind = self::listing_kind( $post_type );
+		// Landing pages render the full record set, while the main archive query
+		// is paged; only the filterable listing keeps its pagination contract.
+		$posts = $query->posts;
+		if ( in_array( $kind, array( 'research', 'projects', 'publications' ), true ) && $query->max_num_pages > 1 ) {
+			$full  = new WP_Query(
+				array_merge(
+					$query->query_vars,
+					array(
+						'nopaging'       => true,
+						'posts_per_page' => -1,
+					)
+				)
+			);
+			$posts = $full->posts;
+		}
 		$items = array();
-		foreach ( $query->posts as $post ) {
+		foreach ( $posts as $post ) {
 			if ( ! $post instanceof WP_Post ) {
 				continue;
 			}
 			$items[] = array(
-				'title'   => self::display_title( $post ),
-				'url'     => self::single_path( $post_type, $locale, $post->post_name ),
-				'summary' => $post->post_excerpt,
-				'meta'    => self::listing_meta( $post, $locale ),
+				'title'     => self::display_title( $post ),
+				'url'       => self::single_path( $post_type, $locale, $post->post_name ),
+				'summary'   => $post->post_excerpt,
+				'meta'      => self::listing_meta( $post, $locale ),
+				'topics'    => self::record_topics( $post ),
+				'foot_html' => self::source_foot( $post, $locale ),
 			);
+		}
+		$paths = array(
+			'projects'       => self::archive_path( 'lps_project', $locale ),
+			'publications'   => self::archive_path( 'lps_publication', $locale ),
+			'infrastructure' => PublicRoutes::archive_path( 'lps_infrastructure', $locale ),
+			'contact'        => TrustRoutes::page_path( 'contact', $locale ),
+		);
+		if ( 'research' === $kind ) {
+			return DiscoverySurfaces::render_research_landing( $items, self::project_items( $locale, 3 ), $locale, $paths );
+		}
+		if ( 'projects' === $kind ) {
+			return DiscoverySurfaces::render_projects_landing( $items, $locale, $paths );
+		}
+		if ( 'publications' === $kind ) {
+			return DiscoverySurfaces::render_publications_landing( $items, $locale, $paths );
 		}
 		$paged = $query->get( 'paged' );
 		return DiscoverySurfaces::render_listing(
-			self::listing_kind( $post_type ),
+			$kind,
 			$items,
-			array(),
+			self::filter_specs( $post_type, $locale ),
 			array(
 				'current'  => is_numeric( $paged ) && 0 < (int) $paged ? (int) $paged : 1,
 				'total'    => max( 1, (int) $query->max_num_pages ),
@@ -382,6 +419,66 @@ final class DiscoveryRoutes {
 			),
 			$locale
 		);
+	}
+
+	/**
+	 * Returns published project rows for the research landing's selected band.
+	 *
+	 * @param string $locale Supported locale slug.
+	 * @param int    $limit  Maximum number of rows.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private static function project_items( string $locale, int $limit ): array {
+		$posts = get_posts(
+			array(
+				'post_type'        => 'lps_project',
+				'post_status'      => 'publish',
+				'numberposts'      => $limit,
+				'orderby'          => 'date',
+				'order'            => 'DESC',
+				'suppress_filters' => false,
+				'meta_query'       => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- locale is the routing key of this surface.
+					array(
+						'key'     => '_lps_locale',
+						'value'   => $locale,
+						'compare' => '=',
+					),
+				),
+			)
+		);
+		$items = array();
+		foreach ( $posts as $post ) {
+			$items[] = array(
+				'title'     => self::display_title( $post ),
+				'url'       => self::single_path( 'lps_project', $locale, $post->post_name ),
+				'summary'   => $post->post_excerpt,
+				'meta'      => self::listing_meta( $post, $locale ),
+				'topics'    => self::record_topics( $post ),
+				'foot_html' => self::source_foot( $post, $locale ),
+			);
+		}
+		return $items;
+	}
+
+	/**
+	 * Returns the stored topic tokens of one record.
+	 *
+	 * @param WP_Post $post Record post.
+	 * @return array<int, string>
+	 */
+	private static function record_topics( WP_Post $post ): array {
+		$topics = get_post_meta( $post->ID, '_lps_topics', true );
+		if ( ! is_array( $topics ) ) {
+			return array();
+		}
+		$clean = array();
+		foreach ( $topics as $topic ) {
+			$topic = is_scalar( $topic ) ? trim( (string) $topic ) : '';
+			if ( '' !== $topic ) {
+				$clean[] = $topic;
+			}
+		}
+		return $clean;
 	}
 
 	/**
@@ -397,20 +494,313 @@ final class DiscoveryRoutes {
 	}
 
 	/**
+	 * Returns the GET filter keys each discovery listing exposes.
+	 *
+	 * Keys are a subset of the approved facet contract (`SearchPolicy::FACETS`):
+	 * only fields backed by authority-owned metadata or the controlled taxonomy
+	 * cache are listed, so every rendered control actually filters. Relationship
+	 * facets (person, project) stay search-only because a listing visitor cannot
+	 * be expected to type a record slug.
+	 *
+	 * @param string $post_type Discovery record type.
+	 * @return array<int, string>
+	 */
+	private static function filter_fields( string $post_type ): array {
+		return match ( $post_type ) {
+			'lps_publication' => array( 'q', 'year', 'type', 'area' ),
+			'lps_project'     => array( 'q', 'status', 'area', 'domain' ),
+			default           => array( 'q' ),
+		};
+	}
+
+	/**
+	 * Returns the sanitized active filters of the current request.
+	 *
+	 * Values are validated at the boundary: `q` is a bounded search term, `year`
+	 * is a four-digit shape, and closed-vocabulary filters accept only approved
+	 * keys. Anything else is dropped instead of reaching a query.
+	 *
+	 * @param string $post_type Discovery record type.
+	 * @return array<string, string>
+	 */
+	public static function active_filters( string $post_type ): array {
+		$active = array();
+		foreach ( self::filter_fields( $post_type ) as $key ) {
+			$value = self::request_value( $key );
+			if ( '' === $value ) {
+				continue;
+			}
+			if ( 'q' === $key ) {
+				$active['q'] = mb_substr( trim( $value ), 0, 100 );
+				continue;
+			}
+			if ( 'year' === $key ) {
+				if ( 1 === preg_match( '/^\d{4}$/', $value ) ) {
+					$active['year'] = $value;
+				}
+				continue;
+			}
+			if ( 'type' === $key ) {
+				if ( 1 === preg_match( '/^[a-z0-9][a-z0-9-]{0,63}$/', $value ) ) {
+					$active['type'] = $value;
+				}
+				continue;
+			}
+			$options = DiscoverySurfaces::filter_options( $key, 'pt-br' );
+			if ( isset( $options[ $value ] ) ) {
+				$active[ $key ] = $value;
+			}
+		}
+		return $active;
+	}
+
+	/**
+	 * Returns the filter field specifications the listing form renders.
+	 *
+	 * Closed vocabularies become localized selects; open vocabularies stay text
+	 * inputs, except publication type, whose options are the distinct values
+	 * already present in the corpus.
+	 *
+	 * @param string $post_type Discovery record type.
+	 * @param string $locale    Supported locale slug.
+	 * @return array<string, mixed>
+	 */
+	private static function filter_specs( string $post_type, string $locale ): array {
+		$active = self::active_filters( $post_type );
+		$specs  = array();
+		foreach ( self::filter_fields( $post_type ) as $key ) {
+			$options = DiscoverySurfaces::filter_options( $key, $locale );
+			if ( 'type' === $key ) {
+				$corpus  = self::publication_type_options();
+				$options = array() === $corpus ? array() : (array) array_combine( $corpus, $corpus );
+			}
+			$specs[ $key ] = array() !== $options
+				? array(
+					'value'   => $active[ $key ] ?? '',
+					'options' => $options,
+				)
+				: ( $active[ $key ] ?? '' );
+		}
+		return $specs;
+	}
+
+	/**
+	 * Applies the sanitized GET filters to the main discovery archive query.
+	 *
+	 * `q` maps to the native search clause, which is locale-isolated by the
+	 * route's own language constraint and accent-insensitive under the
+	 * case-insensitive index collation. Facet filters resolve against the
+	 * Portuguese authority records — shared metadata and the taxonomy cache
+	 * live there — and the matching IDs are mapped back to the route locale.
+	 *
+	 * @param WP_Query $query Main archive query.
+	 */
+	public static function filter_archive_query( WP_Query $query ): void {
+		if ( ( function_exists( 'is_admin' ) && is_admin() ) || ! $query->is_main_query() || $query->is_singular() ) {
+			return;
+		}
+		$post_type = $query->get( 'post_type' );
+		$post_type = is_string( $post_type ) ? $post_type : '';
+		if ( ! isset( self::SEGMENTS[ $post_type ] ) ) {
+			return;
+		}
+		$locale = $query->get( self::LOCALE_QUERY_VAR );
+		$locale = 'en' === $locale ? 'en' : 'pt-br';
+		$active = self::active_filters( $post_type );
+		if ( isset( $active['q'] ) ) {
+			$query->set( 's', $active['q'] );
+		}
+		// `year` is a core date-archive query var; the publication filter owns the
+		// parameter here, so the core date clause and date flags are neutralized.
+		$query->set( 'year', 0 );
+		$query->is_date = false;
+		$query->is_year = false;
+		$ids            = self::filtered_variant_ids( $post_type, $locale, $active );
+		if ( null !== $ids ) {
+			$query->set( 'post__in', $ids );
+		}
+	}
+
+	/**
+	 * Resolves facet filters to the IDs of the records visible in one locale.
+	 *
+	 * Shared metadata (`_lps_publication_date`, `_lps_publication_type`,
+	 * `_lps_project_status`) and the controlled-taxonomy cache are written only
+	 * on the Portuguese authority record, so the facet query runs against
+	 * authority posts and each hit is mapped to its variant in the route locale.
+	 * A filter with no matches yields `array( 0 )`, the honest empty set.
+	 *
+	 * @param string                $post_type Discovery record type.
+	 * @param string                $locale    Supported locale slug.
+	 * @param array<string, string> $active    Sanitized active filters.
+	 * @return array<int, int>|null Variant IDs, or null when no facet applies.
+	 */
+	private static function filtered_variant_ids( string $post_type, string $locale, array $active ): ?array {
+		$meta_query = array(
+			'relation' => 'AND',
+			array(
+				'key'     => '_lps_locale',
+				'value'   => 'pt-br',
+				'compare' => '=',
+			),
+		);
+		$tax_query  = array( 'relation' => 'AND' );
+		$needed     = false;
+		if ( 'lps_publication' === $post_type ) {
+			if ( isset( $active['year'] ) ) {
+				$meta_query[] = array(
+					'key'     => '_lps_publication_date',
+					'value'   => '^' . $active['year'],
+					'compare' => 'REGEXP',
+				);
+				$needed       = true;
+			}
+			if ( isset( $active['type'] ) ) {
+				$meta_query[] = array(
+					'key'     => '_lps_publication_type',
+					'value'   => $active['type'],
+					'compare' => '=',
+				);
+				$needed       = true;
+			}
+			if ( isset( $active['area'] ) ) {
+				$tax_query[] = array(
+					'taxonomy' => 'lps_research_area_key',
+					'field'    => 'slug',
+					'terms'    => array( $active['area'] ),
+				);
+				$needed      = true;
+			}
+		}
+		if ( 'lps_project' === $post_type ) {
+			if ( isset( $active['status'] ) ) {
+				$meta_query[] = array(
+					'key'     => '_lps_project_status',
+					'value'   => $active['status'],
+					'compare' => '=',
+				);
+				$needed       = true;
+			}
+			if ( isset( $active['area'] ) ) {
+				$tax_query[] = array(
+					'taxonomy' => 'lps_research_area_key',
+					'field'    => 'slug',
+					'terms'    => array( $active['area'] ),
+				);
+				$needed      = true;
+			}
+			if ( isset( $active['domain'] ) ) {
+				$tax_query[] = array(
+					'taxonomy' => 'lps_application_domain',
+					'field'    => 'slug',
+					'terms'    => array( $active['domain'] ),
+				);
+				$needed      = true;
+			}
+		}
+		if ( ! $needed ) {
+			return null;
+		}
+		$args = array(
+			'post_type'              => $post_type,
+			'post_status'            => 'publish',
+			'fields'                 => 'ids',
+			'posts_per_page'         => -1, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- facet resolution must see the full authority set; the outer archive query still paginates.
+			'no_found_rows'          => true,
+			'update_post_meta_cache' => false,
+			'update_post_term_cache' => false,
+			'meta_query'             => $meta_query, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- authority-owned facet fields are the routing keys of this surface.
+		);
+		if ( count( $tax_query ) > 1 ) {
+			$args['tax_query'] = $tax_query; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- controlled taxonomy cache is the approved facet source.
+		}
+		$authority = new WP_Query( $args );
+		$ids       = array();
+		/** `fields => 'ids'` makes WP_Query return raw IDs; the WP_Post branch keeps
+		 * the loop safe if a filter ever swaps the shape back to objects.
+		 *
+		 * @var array<int, int|WP_Post> $authority_posts
+		 */
+		$authority_posts = $authority->posts;
+		foreach ( $authority_posts as $authority_post ) {
+			$authority_id = $authority_post instanceof WP_Post ? $authority_post->ID : (int) $authority_post;
+			if ( 0 === $authority_id ) {
+				continue;
+			}
+			$variants = class_exists( Translations::class ) ? Translations::variants( $authority_id ) : array();
+			$ids[]    = isset( $variants[ $locale ] ) ? (int) $variants[ $locale ] : $authority_id;
+		}
+		return array() === $ids ? array( 0 ) : array_values( array_unique( $ids ) );
+	}
+
+	/**
+	 * Returns the distinct publication types present in the corpus.
+	 *
+	 * The `publication-type` facet is an open vocabulary, so the select lists
+	 * the values editors actually recorded on authority records instead of an
+	 * invented taxonomy.
+	 *
+	 * @return array<int, string>
+	 */
+	private static function publication_type_options(): array {
+		global $wpdb;
+		if ( ! $wpdb instanceof wpdb ) {
+			return array();
+		}
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- read-only distinct list of an open facet vocabulary.
+		$values  = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT DISTINCT meta_value FROM %i WHERE meta_key = %s AND meta_value != '' ORDER BY meta_value ASC",
+				$wpdb->postmeta,
+				'_lps_publication_type'
+			)
+		);
+		$options = array();
+		foreach ( $values as $value ) {
+			$value = is_string( $value ) ? trim( $value ) : '';
+			if ( '' !== $value && 1 === preg_match( '/^[a-z0-9][a-z0-9-]{0,63}$/', $value ) ) {
+				$options[] = $value;
+			}
+		}
+		return $options;
+	}
+
+	/**
 	 * Returns the honest listing meta line for one record.
 	 *
 	 * @param WP_Post $post   Listed record.
 	 * @param string  $locale Supported locale slug.
 	 */
 	private static function listing_meta( WP_Post $post, string $locale ): string {
-		if ( 'lps_publication' !== $post->post_type ) {
+		if ( 'lps_publication' === $post->post_type ) {
+			return DiscoverySurfaces::format_date(
+				self::shared_meta( $post, '_lps_publication_date' ),
+				self::date_precision( $post ),
+				$locale
+			);
+		}
+		if ( 'lps_project' === $post->post_type ) {
+			return DiscoverySurfaces::project_status_short_label( self::shared_meta( $post, '_lps_project_status' ), $locale );
+		}
+		return '';
+	}
+
+	/**
+	 * Renders the card-foot provenance span when a source label is stored.
+	 *
+	 * @param WP_Post $post   Record post.
+	 * @param string  $locale Supported locale slug.
+	 */
+	private static function source_foot( WP_Post $post, string $locale ): string {
+		$label = self::shared_meta( $post, '_lps_source_label' );
+		if ( '' === $label ) {
 			return '';
 		}
-		return DiscoverySurfaces::format_date(
-			self::shared_meta( $post, '_lps_publication_date' ),
-			self::date_precision( $post ),
-			$locale
-		);
+		if ( 'site-anterior' === $label ) {
+			$label = 'en' === $locale ? 'Previous site' : 'Site anterior';
+		}
+		$prefix = 'en' === $locale ? 'Source: ' : 'Fonte: ';
+		return '<span class="lps-meta">' . esc_html( $prefix ) . '<span class="lps-meta">' . esc_html( $label ) . '</span></span>';
 	}
 
 	/**
@@ -440,6 +830,7 @@ final class DiscoveryRoutes {
 			'date_precision'  => self::date_precision( $post ),
 			'doi'             => self::shared_meta( $post, '_lps_doi' ),
 			'venue'           => self::shared_meta( $post, '_lps_venue' ),
+			'type'            => self::shared_meta( $post, '_lps_publication_type' ),
 			'canonical_url'   => self::shared_meta( $post, '_lps_canonical_url' ),
 			'open_access_url' => self::shared_meta( $post, '_lps_open_access_url' ),
 			'pdf_url'         => self::shared_meta( $post, '_lps_pdf_url' ),

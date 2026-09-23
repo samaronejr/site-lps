@@ -18,6 +18,31 @@ const CADENCES = {
   opportunity: "P30D",
   redirect: "P365D",
 };
+const TEACHING_COLLECTIONS = new Set([
+  "course",
+  "term",
+  "offering",
+  "unit",
+  "resource",
+  "teaching",
+]);
+// Hosts that may appear as provenance evidence but never as the permitted
+// source of an active launch record: the retired legacy LPS site and the
+// Internet Archive. Archive-only inventory rows keep them legitimately.
+const LEGACY_SCRAPE_HOSTS = new Set([
+  "web.archive.org",
+  "archive.org",
+  "lps.ufrj.br",
+  "www.lps.ufrj.br",
+]);
+const FIXTURE_PROVENANCE = /(?:^|\/)(?:tests\/fixtures|test-results)\//;
+const MEDIA_DECISIONS = new Set([
+  "excluded-rights",
+  "excluded-privacy",
+  "excluded-duplicate",
+  "staged",
+  "linked",
+]);
 const PLACEHOLDER_PATTERNS = [
   /lorem ipsum/i,
   /\bTBD\b/,
@@ -126,11 +151,13 @@ export function recordId(typeSlug, identity) {
 export async function readCorpus(options = {}) {
   const corpusDir = options.corpusDir ?? "content/corpus";
   const inventoryDir = options.inventoryDir ?? "content/inventory";
+  const importDir = options.importDir ?? "content/import";
   const manifest = JSON.parse(await readFile(join(corpusDir, "manifest.json"), "utf8"));
   const siteSettings = JSON.parse(await readFile(join(corpusDir, "site-settings.json"), "utf8"));
   const records = await readJsonDirectory(join(corpusDir, "records"));
   const archive = await readJsonDirectory(join(corpusDir, "archive"));
   const inventory = parseCsv(await readFile(join(inventoryDir, "records.csv"), "utf8"));
+  const assets = parseCsv(await readFile(join(inventoryDir, "assets.csv"), "utf8"));
   const evidence = {};
   for (const name of await readdir(join(corpusDir, "evidence"))) {
     if (name.endsWith(".txt")) {
@@ -140,7 +167,25 @@ export async function readCorpus(options = {}) {
       );
     }
   }
-  return { manifest, siteSettings, records, archive, inventory, evidence, corpusDir, inventoryDir };
+  let importPackage = null;
+  try {
+    importPackage = JSON.parse(await readFile(join(importDir, "launch-corpus.json"), "utf8"));
+  } catch {
+    importPackage = null;
+  }
+  return {
+    manifest,
+    siteSettings,
+    records,
+    archive,
+    inventory,
+    assets,
+    evidence,
+    importPackage,
+    corpusDir,
+    inventoryDir,
+    importDir,
+  };
 }
 
 async function readJsonDirectory(directory) {
@@ -158,6 +203,28 @@ function issue(code, path, detail) {
 
 function text(value) {
   return typeof value === "string" ? value : "";
+}
+
+function hostOf(value) {
+  try {
+    return new URL(text(value)).hostname.toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * Returns whether a corpus record is eligible for the launch import package.
+ *
+ * Synthetic records and records whose permitted source is a legacy/archive
+ * host are provenance evidence, never launch content.
+ *
+ * @param {object} record Corpus record.
+ * @returns {boolean} Eligibility.
+ */
+export function recordImportable(record) {
+  const sourceUrl = record?.governance?.provenance?.sourceUrl;
+  return record?.synthetic !== true && !LEGACY_SCRAPE_HOSTS.has(hostOf(sourceUrl));
 }
 
 function normalizeDigits(value) {
@@ -267,6 +334,8 @@ export function validateCorpus(corpus) {
 
   validateRedirectGraph(corpus.archive, errors);
   validateSiteSettings(corpus, errors);
+  validateManifest(corpus, errors);
+  validateImportPackageDrift(corpus, errors);
 
   const blockers = collectBlockers(corpus);
   const counts = {
@@ -442,6 +511,41 @@ function validateRecord(record, row, corpus, errors, path) {
         "lps_corpus_evidence_missing",
         `${path}.governance.provenance.reverification`,
         evidenceFile,
+      ),
+    );
+  }
+
+  if (
+    record.synthetic === true ||
+    FIXTURE_PROVENANCE.test(text(provenance.sourceUrl)) ||
+    FIXTURE_PROVENANCE.test(text(evidenceFile))
+  ) {
+    errors.push(
+      issue(
+        "lps_corpus_synthetic_record",
+        path,
+        "development fixture data must not enter the launch corpus",
+      ),
+    );
+  }
+  if (
+    LEGACY_SCRAPE_HOSTS.has(hostOf(provenance.sourceUrl)) &&
+    row.freshness !== "historical-archive-only"
+  ) {
+    errors.push(
+      issue(
+        "lps_corpus_legacy_scrape_source",
+        `${path}.governance.provenance.sourceUrl`,
+        provenance.sourceUrl,
+      ),
+    );
+  }
+  if (TEACHING_COLLECTIONS.has(record.collection) && text(provenance.catalogSourceUrl) === "") {
+    errors.push(
+      issue(
+        "lps_corpus_catalog_source_missing",
+        `${path}.governance.provenance.catalogSourceUrl`,
+        "course-code/calendar facts require an authoritative catalog source",
       ),
     );
   }
@@ -743,6 +847,117 @@ function validateSiteSettings(corpus, errors) {
   }
 }
 
+/**
+ * Validates the manifest media selections and blocker accountability.
+ *
+ * Every inventoried asset needs a recorded selection decision; staged media
+ * needs reviewed alt text (or an explicit decorative decision) and a credit
+ * line. Every launch blocker names its accountable owner role and the missing
+ * prerequisite input, so absent real content stays a tracked owner task.
+ *
+ * @param {object} corpus Corpus bundle.
+ * @param {Array<object>} errors Issue sink.
+ */
+function validateManifest(corpus, errors) {
+  const selections = corpus.manifest.mediaPolicy?.selections ?? [];
+  const seen = new Set();
+  for (const [index, selection] of selections.entries()) {
+    const path = `manifest.mediaPolicy.selections.${index}`;
+    const assetId = text(selection.asset);
+    if (assetId === "" || seen.has(assetId)) {
+      errors.push(issue("lps_corpus_media_selection_invalid", path, assetId));
+    }
+    seen.add(assetId);
+    if (!MEDIA_DECISIONS.has(selection.decision)) {
+      errors.push(
+        issue("lps_corpus_media_selection_invalid", `${path}.decision`, selection.decision),
+      );
+    }
+    if (text(selection.reason) === "") {
+      errors.push(issue("lps_corpus_media_selection_reason_missing", `${path}.reason`, "empty"));
+    }
+    if (selection.decision === "staged") {
+      if (text(selection.altText) === "" && selection.decorative !== true) {
+        errors.push(
+          issue(
+            "lps_corpus_media_alt_missing",
+            `${path}.altText`,
+            "staged media needs reviewed alt text or an explicit decorative decision",
+          ),
+        );
+      }
+      if (text(selection.credit) === "") {
+        errors.push(
+          issue(
+            "lps_corpus_media_credit_missing",
+            `${path}.credit`,
+            "staged media needs a documented credit line",
+          ),
+        );
+      }
+    }
+  }
+  for (const asset of corpus.assets ?? []) {
+    if (!seen.has(asset.id)) {
+      errors.push(
+        issue(
+          "lps_corpus_media_selection_missing",
+          `inventory.${asset.id}`,
+          "asset row has no recorded selection decision",
+        ),
+      );
+    }
+  }
+  for (const [index, blocker] of (corpus.manifest.launchBlockers ?? []).entries()) {
+    const path = `manifest.launchBlockers.${index}`;
+    if (text(blocker.ownerRole) === "") {
+      errors.push(
+        issue(
+          "lps_corpus_blocker_owner_missing",
+          `${path}.ownerRole`,
+          "every blocker names an accountable owner role",
+        ),
+      );
+    }
+    if (text(blocker.requiredInput) === "") {
+      errors.push(
+        issue(
+          "lps_corpus_blocker_input_missing",
+          `${path}.requiredInput`,
+          "every blocker records the missing owner prerequisite",
+        ),
+      );
+    }
+  }
+}
+
+/**
+ * Detects drift between the authored corpus and the checked-in import package.
+ *
+ * `content/import/launch-corpus.json` is a generated artifact; a byte-level
+ * difference means it was edited by hand or built from another corpus.
+ *
+ * @param {object} corpus Corpus bundle.
+ * @param {Array<object>} errors Issue sink.
+ */
+function validateImportPackageDrift(corpus, errors) {
+  // A corpus that already fails validation needs no drift verdict; the
+  // package builder legitimately refuses malformed records.
+  if (corpus.importPackage === null || errors.length > 0) {
+    return;
+  }
+  const expected = JSON.stringify(buildImportPackage(corpus));
+  if (JSON.stringify(corpus.importPackage) !== expected) {
+    errors.push(
+      issue(
+        "lps_corpus_import_package_stale",
+        "content/import/launch-corpus.json",
+        "regenerate with node scripts/build-import-package.mjs",
+      ),
+    );
+  }
+}
+
 function collectBlockers(corpus) {
   const blockers = new Map();
   for (const blocker of corpus.manifest.launchBlockers ?? []) {
@@ -774,6 +989,14 @@ export function buildImportPackage(corpus) {
   const inventoryById = new Map(corpus.inventory.map((row) => [row.id, row]));
   const records = [];
   const identities = new Map();
+  const refused = corpus.records.filter((record) => !recordImportable(record));
+  if (refused.length > 0) {
+    throw new Error(
+      `lps_corpus_package_refused: ${refused
+        .map((record) => record.inventoryRecord)
+        .join(", ")} is not launch-corpus eligible`,
+    );
+  }
   for (const record of [...corpus.records].sort((left, right) =>
     left.inventoryRecord.localeCompare(right.inventoryRecord),
   )) {

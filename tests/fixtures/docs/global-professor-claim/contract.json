@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "documentSet": ["tests/fixtures/docs/global-professor-claim/guide.md"],
+  "referenceDocuments": [],
+  "commandSurfaces": {
+    "packageJson": "package.json",
+    "composerJson": "composer.json",
+    "composerWrapper": "tools/composer",
+    "cliRegistration": "wp-content/plugins/lps-content-model/includes/class-commandregistration.php",
+    "cliClassDirectory": "wp-content/plugins/lps-content-model/includes"
+  },
+  "policySource": "wp-content/plugins/lps-content-model/includes/class-securitypolicy.php",
+  "prerequisites": [],
+  "freshness": [],
+  "coverage": []
+}

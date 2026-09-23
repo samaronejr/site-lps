@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace LPS\ContentModel;
 
+require_once __DIR__ . '/class-teachingcontracts.php';
+
 /**
  * Owns every search decision that must hold with or without WordPress loaded.
  *
@@ -129,6 +131,19 @@ final class SearchPolicy {
 		'lps_event'       => array(
 			'date' => array(),
 			'type' => array(),
+		),
+		'lps_course'      => array(
+			'level' => array( 'undergraduate', 'graduate', 'extension' ),
+		),
+		'lps_offering'    => array(
+			'status'     => array( 'current', 'previous' ),
+			'term'       => array(),
+			'level'      => array( 'undergraduate', 'graduate', 'extension' ),
+			'instructor' => array(),
+		),
+		'lps_resource'    => array(
+			'type'     => array(),
+			'language' => array(),
 		),
 	);
 
@@ -348,11 +363,13 @@ final class SearchPolicy {
 	 * @param array<string, array<int, string>> $facets   Sanitized active facets.
 	 * @param int                               $page     Requested page, one-based.
 	 * @param int                               $per_page Results per page.
+	 * @param string|null                       $now      Evaluation instant (ISO-8601); null means now.
 	 * @return array{items: array<int, array<string, mixed>>, total: int, page: int, per_page: int, pages: int, error: string|null}
 	 */
-	public static function search_records( array $records, string $query, string $locale, array $facets, int $page = 1, int $per_page = self::PER_PAGE ): array {
+	public static function search_records( array $records, string $query, string $locale, array $facets, int $page = 1, int $per_page = self::PER_PAGE, ?string $now = null ): array {
 		$per_page = max( 1, min( self::MAX_PER_PAGE, $per_page ) );
 		$page     = max( 1, $page );
+		$now      = self::evaluation_instant( $now );
 		$error    = self::query_error( $query );
 		if ( null !== $error ) {
 			return self::result( array(), 0, $page, $per_page, $error );
@@ -365,6 +382,10 @@ final class SearchPolicy {
 			if ( self::text( $record['locale'] ?? '' ) !== $locale ) {
 				continue;
 			}
+			if ( ! self::lifecycle_visible( $record, $now ) ) {
+				continue;
+			}
+			$record['facets'] = self::derived_facets( $record, $now );
 			if ( ! self::matches_facets( $record, $facets ) ) {
 				continue;
 			}
@@ -444,25 +465,25 @@ final class SearchPolicy {
 	 *
 	 * @param array<int, array<string, mixed>>  $records     Indexed rows.
 	 * @param array<string, array<int, string>> $definitions Approved facet contract.
+	 * @param string|null                       $now         Evaluation instant (ISO-8601); null means now.
 	 * @return array<string, array<string, int>>
 	 */
-	public static function facet_counts( array $records, array $definitions ): array {
+	public static function facet_counts( array $records, array $definitions, ?string $now = null ): array {
+		$now    = self::evaluation_instant( $now );
 		$counts = array();
 		foreach ( array_keys( $definitions ) as $facet ) {
 			$counts[ $facet ] = array();
 		}
 		foreach ( $records as $record ) {
-			if ( ! isset( $record['facets'] ) || ! is_array( $record['facets'] ) ) {
+			if ( ! self::lifecycle_visible( $record, $now ) ) {
 				continue;
 			}
+			$record['facets'] = self::derived_facets( $record, $now );
 			foreach ( $record['facets'] as $facet => $values ) {
-				if ( ! is_string( $facet ) || ! isset( $counts[ $facet ] ) || ! is_array( $values ) ) {
+				if ( ! isset( $counts[ $facet ] ) ) {
 					continue;
 				}
 				foreach ( $values as $value ) {
-					if ( ! is_string( $value ) ) {
-						continue;
-					}
 					$counts[ $facet ][ $value ] = ( $counts[ $facet ][ $value ] ?? 0 ) + 1;
 				}
 			}
@@ -472,6 +493,114 @@ final class SearchPolicy {
 			$counts[ $facet ] = $values;
 		}
 		return $counts;
+	}
+
+	/**
+	 * Maps one temporal status to the public current/previous filter bucket.
+	 *
+	 * Offerings not yet finished — upcoming and current — are `current`;
+	 * completed and cancelled offerings are `previous`. Unknown values map to
+	 * `previous` so a malformed status can never masquerade as current.
+	 *
+	 * @param string $temporal_status Derived temporal status.
+	 */
+	public static function offering_status_bucket( string $temporal_status ): string {
+		return in_array( $temporal_status, array( 'upcoming', 'current' ), true ) ? 'current' : 'previous';
+	}
+
+	/**
+	 * Reports whether one indexed row is visible at the evaluation instant.
+	 *
+	 * Resource rows carry their release lifecycle so the same fail-closed rule
+	 * the download resolver applies decides search exposure: a stopped
+	 * scheduler can never expose a scheduled resource early, and a due release
+	 * never waits on cron. A resource row without lifecycle data is treated as
+	 * unreleased — rows written before the lifecycle column existed fail
+	 * closed rather than leaking a stale release state.
+	 *
+	 * @param array<string, mixed> $record Indexed row.
+	 * @param string               $now    Evaluation instant (ISO-8601).
+	 */
+	private static function lifecycle_visible( array $record, string $now ): bool {
+		if ( 'lps_resource' !== self::text( $record['post_type'] ?? '' ) ) {
+			return true;
+		}
+		$lifecycle = isset( $record['lifecycle'] ) && is_array( $record['lifecycle'] ) ? $record['lifecycle'] : array();
+		$state     = TeachingContracts::effective_release_state(
+			self::text( $lifecycle['release_state'] ?? '' ),
+			self::text( $lifecycle['release_at'] ?? '' ),
+			$now
+		);
+		return 'released' === $state;
+	}
+
+	/**
+	 * Recomputes the time-derived facet values of one row at read time.
+	 *
+	 * An offering's current/previous bucket derives from its term boundaries
+	 * and cancellation flag on every read, so a term transition can never
+	 * leave a stale filter value behind. Rows without lifecycle data keep
+	 * their stored facets untouched.
+	 *
+	 * @param array<string, mixed> $record Indexed row.
+	 * @param string               $now    Evaluation instant (ISO-8601).
+	 * @return array<string, array<int, string>>
+	 */
+	private static function derived_facets( array $record, string $now ): array {
+		$facets = self::facet_map( $record['facets'] ?? null );
+		if ( 'lps_offering' !== self::text( $record['post_type'] ?? '' ) ) {
+			return $facets;
+		}
+		$lifecycle = isset( $record['lifecycle'] ) && is_array( $record['lifecycle'] ) ? $record['lifecycle'] : array();
+		if ( array() === $lifecycle ) {
+			return $facets;
+		}
+		$temporal = TeachingContracts::temporal_status(
+			$lifecycle['starts_on'] ?? '',
+			$lifecycle['ends_on'] ?? '',
+			$lifecycle['cancelled'] ?? false,
+			substr( $now, 0, 10 )
+		);
+		if ( '' !== $temporal ) {
+			$facets['status'] = array( self::offering_status_bucket( $temporal ) );
+		}
+		return $facets;
+	}
+
+	/**
+	 * Narrows an indexed row's facet payload to the typed contract.
+	 *
+	 * @param mixed $facets Untrusted facet payload.
+	 * @return array<string, array<int, string>>
+	 */
+	private static function facet_map( mixed $facets ): array {
+		if ( ! is_array( $facets ) ) {
+			return array();
+		}
+		$map = array();
+		foreach ( $facets as $facet => $values ) {
+			if ( ! is_string( $facet ) || ! is_array( $values ) ) {
+				continue;
+			}
+			$list = array();
+			foreach ( $values as $value ) {
+				if ( is_string( $value ) ) {
+					$list[] = $value;
+				}
+			}
+			$map[ $facet ] = $list;
+		}
+		return $map;
+	}
+
+	/**
+	 * Returns the evaluation instant for lifecycle decisions.
+	 *
+	 * @param string|null $now Candidate instant (ISO-8601); null means now.
+	 */
+	private static function evaluation_instant( ?string $now ): string {
+		$text = is_string( $now ) ? trim( $now ) : '';
+		return '' === $text ? gmdate( 'c' ) : $text;
 	}
 
 	/**

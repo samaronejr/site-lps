@@ -12,6 +12,119 @@ namespace LPS\ContentModel;
 /** Rejects uncertain facts before any storage or file boundary is crossed. */
 final class MigrationPolicy {
 	/**
+	 * Hosts that may appear as provenance evidence but never as the permitted
+	 * source of an active launch record: the retired legacy LPS site and the
+	 * Internet Archive.
+	 *
+	 * @var list<string>
+	 */
+	private const LEGACY_SCRAPE_HOSTS = array(
+		'web.archive.org',
+		'archive.org',
+		'lps.ufrj.br',
+		'www.lps.ufrj.br',
+	);
+
+	/**
+	 * Record types whose course-code and calendar facts require an
+	 * authoritative catalog source.
+	 *
+	 * @var list<string>
+	 */
+	private const CATALOG_SOURCED_TYPES = array(
+		'lps_course',
+		'lps_term',
+	);
+
+	/**
+	 * Returns the package error codes routed to quarantine for owner review
+	 * rather than to hard failure.
+	 *
+	 * @return list<string>
+	 */
+	public static function quarantine_codes(): array {
+		return array(
+			'lps_person_match_confirmation_required',
+			'lps_media_rights_unknown',
+			'lps_media_provenance_required',
+			'lps_media_alt_required',
+			'lps_import_course_source_required',
+			'lps_import_claim_unsourced',
+		);
+	}
+
+	/**
+	 * Returns the first source-boundary violation for one record.
+	 *
+	 * Synthetic fixture records and legacy/archive scrape sources are hard
+	 * errors: they are provenance evidence, never launch content. Missing
+	 * catalog sources on course-code/calendar records quarantine for owner
+	 * input. Redirect records are exempt: their provenance legitimately names
+	 * the legacy URL they replace.
+	 *
+	 * @param array<string, mixed> $record Normalized record.
+	 */
+	public static function source_error( array $record ): ?string {
+		if ( 'lps_redirect' === ( $record['type'] ?? '' ) ) {
+			return null;
+		}
+		$source_id = self::text( $record['source_id'] ?? '' );
+		if (
+			true === ( $record['synthetic'] ?? false ) ||
+			str_starts_with( $source_id, 'fixture:' ) ||
+			str_starts_with( $source_id, 'lps-redesign-' )
+		) {
+			return 'lps_import_synthetic_record';
+		}
+		$source_url = self::text( $record['source_url'] ?? '' );
+		if ( '' !== $source_url && str_contains( $source_url, '/tests/fixtures/' ) ) {
+			return 'lps_import_synthetic_record';
+		}
+		$host = wp_parse_url( $source_url, PHP_URL_HOST );
+		if ( is_string( $host ) && in_array( strtolower( $host ), self::LEGACY_SCRAPE_HOSTS, true ) ) {
+			return 'lps_import_legacy_scrape_source';
+		}
+		if ( in_array( $record['type'] ?? '', self::CATALOG_SOURCED_TYPES, true ) ) {
+			$meta = is_array( $record['meta'] ?? null ) ? $record['meta'] : array();
+			if ( 'lps_course' === $record['type'] && '' === self::text( $meta['_lps_catalog_source_url'] ?? '' ) ) {
+				return 'lps_import_course_source_required';
+			}
+			if ( 'lps_term' === $record['type'] && '' === self::text( $meta['_lps_term_source'] ?? '' ) ) {
+				return 'lps_import_course_source_required';
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the first unsupported-claim violation for one record.
+	 *
+	 * A verified claim needs its source URL and review date; every declared
+	 * claim row needs a source URL and an evidence quote.
+	 *
+	 * @param array<string, mixed> $record Normalized record.
+	 */
+	public static function claim_error( array $record ): ?string {
+		$meta = is_array( $record['meta'] ?? null ) ? $record['meta'] : array();
+		if (
+			true === ( $meta['_lps_claim_verified'] ?? false ) &&
+			( '' === self::text( $meta['_lps_claim_source_url'] ?? '' ) || '' === self::text( $meta['_lps_claim_reviewed_at'] ?? '' ) )
+		) {
+			return 'lps_import_claim_unsourced';
+		}
+		$claims = is_array( $record['claims'] ?? null ) ? $record['claims'] : array();
+		foreach ( $claims as $claim ) {
+			if ( ! is_array( $claim ) ) {
+				return 'lps_import_claim_unsourced';
+			}
+			if ( '' === self::text( $claim['source_url'] ?? '' ) || '' === self::text( $claim['evidence_quote'] ?? '' ) ) {
+				return 'lps_import_claim_unsourced';
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * Normalizes one record without adding absent facts.
 	 *
 	 * @param array<string, mixed> $record Parsed boundary record.
@@ -83,6 +196,14 @@ final class MigrationPolicy {
 			if ( '' === trim( self::text( $media[ $field ] ?? '' ) ) ) {
 				return 'lps_media_provenance_required';
 			}
+		}
+		$media_type = self::text( $media['media_type'] ?? '' );
+		if (
+			str_starts_with( $media_type, 'image/' ) &&
+			'' === self::text( $media['alt_text'] ?? '' ) &&
+			true !== ( $media['decorative'] ?? false )
+		) {
+			return 'lps_media_alt_required';
 		}
 		return null;
 	}

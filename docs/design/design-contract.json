@@ -1,0 +1,1392 @@
+{
+  "schemaVersion": 1,
+  "id": "lps-design-contract",
+  "title": "LPS institutional design system — \"Blueprint\" direction: technical-document layout grammar, artwork-derived palette, hard-edged depth",
+  "revision": "2026-09-21",
+  "plan": "lps-website-ulw-plan task-02 (direction superseded in place; product truth unchanged)",
+  "supersedes": {
+    "document": "design-contract.json revision 2026-09-21 (Signal: reference-led layout, soft depth, IBM Plex)",
+    "note": "This revision keeps the reference-led layout grammar of the Signal revision and replaces its surface language: squared corners, ruled depth instead of blurred shadows, a display face over an interface face, and a palette retuned between the artwork blue and the anchor navy. Every accessibility floor, rights rule, media rule and governance constraint is carried forward unchanged; the bans are not repealed, they are converted from \"no effect at all\" to \"no effect outside the token layer\"."
+  },
+  "reference": {
+    "url": "https://www.fee.unicamp.br/",
+    "observationDate": "2026-09-21",
+    "adopted": [
+      "Two-tier header: a slim utility bar above a matte masthead",
+      "A ruled navigation row that separates identity from destinations",
+      "One claim in the first viewport, with a real action text link rather than a decorative control",
+      "Journey cards as the first content block after the hero",
+      "Card grids for research areas and projects, with a kicker per group",
+      "An agenda list with a date block per entry",
+      "A useful-links band and a partner band",
+      "A multi-column institutional footer over a deep navy substrate"
+    ],
+    "notAdopted": [
+      "The reference palette (its lime utility bar, navy and maroon bands)",
+      "Its carousel, its third-party translation widget and its accessibility overlay",
+      "Any reference copy, image, mark or measurement"
+    ]
+  },
+  "dials": {
+    "designVariance": 4,
+    "motionIntensity": 3,
+    "visualDensity": 6
+  },
+  "colors": {
+    "tokens": [
+      {
+        "token": "--color-canvas",
+        "name": "Canvas",
+        "role": "canvas",
+        "slug": "canvas",
+        "value": "#F4F7FB",
+        "usage": "General page background",
+        "tag": "MEASURED"
+      },
+      {
+        "token": "--color-surface",
+        "name": "Surface",
+        "role": "surface",
+        "slug": "surface",
+        "value": "#FFFFFF",
+        "usage": "Reading, form and card surfaces; the only field for full-colour mark artwork",
+        "tag": "MEASURED"
+      },
+      {
+        "token": "--color-surface-alt",
+        "name": "Alt surface",
+        "role": "surface-alt",
+        "slug": "surface-alt",
+        "value": "#E9EFF6",
+        "usage": "Quiet bands, table headers, metadata chips",
+        "tag": "MEASURED"
+      },
+      {
+        "token": "--color-anchor",
+        "name": "Institutional anchor",
+        "role": "anchor",
+        "slug": "anchor",
+        "value": "#071A2F",
+        "usage": "Masthead-navigation accent, deep bands, headings",
+        "tag": "MEASURED"
+      },
+      {
+        "token": "--color-anchor-deep",
+        "name": "Anchor depth",
+        "role": "anchor-deep",
+        "slug": "anchor-deep",
+        "value": "#04101F",
+        "usage": "Hero and footer substrate",
+        "tag": "MEASURED (derived)"
+      },
+      {
+        "token": "--color-anchor-soft",
+        "name": "Anchor soft",
+        "role": "anchor-soft",
+        "slug": "anchor-soft",
+        "value": "#123A63",
+        "usage": "Depth inside anchor bands and the closing action band",
+        "tag": "MEASURED (derived)"
+      },
+      {
+        "token": "--color-action",
+        "name": "Action",
+        "role": "action",
+        "slug": "action",
+        "value": "#1B5FCC",
+        "usage": "Links, primary controls, focus outline on light surfaces",
+        "tag": "MEASURED"
+      },
+      {
+        "token": "--color-action-hover",
+        "name": "Action depth",
+        "role": "action-hover",
+        "slug": "action-hover",
+        "value": "#14499C",
+        "usage": "Link and control hover and pressed states",
+        "tag": "MEASURED (derived)"
+      },
+      {
+        "token": "--color-action-light",
+        "name": "Action highlight",
+        "role": "action-light",
+        "slug": "action-light",
+        "value": "#2F7AE5",
+        "usage": "Gradient and illustration highlight inside brand bands",
+        "tag": "MEASURED (derived)"
+      },
+      {
+        "token": "--color-wash-action",
+        "name": "Action wash",
+        "role": "wash-action",
+        "slug": "wash-action",
+        "value": "#DBE8FA",
+        "usage": "Current-page navigation pill, quiet badges",
+        "tag": "MEASURED (derived)"
+      },
+      {
+        "token": "--color-wash-action-subtle",
+        "name": "Action wash subtle",
+        "role": "wash-action-subtle",
+        "slug": "wash-action-subtle",
+        "value": "#F0F5FD",
+        "usage": "Tag fields and light hover fills",
+        "tag": "MEASURED (derived)"
+      },
+      {
+        "token": "--color-accent",
+        "name": "Waveform accent",
+        "role": "accent",
+        "slug": "accent",
+        "value": "#0FB5E4",
+        "usage": "Waveform motif, hairline gradients, bullets",
+        "tag": "MEASURED"
+      },
+      {
+        "token": "--color-accent-soft",
+        "name": "Accent soft",
+        "role": "accent-soft",
+        "slug": "accent-soft",
+        "value": "#62D8F3",
+        "usage": "Accent on dark substrates and hairlines",
+        "tag": "MEASURED (derived)"
+      },
+      {
+        "token": "--color-accent-wash",
+        "name": "Accent wash",
+        "role": "accent-wash",
+        "slug": "accent-wash",
+        "value": "#D6F3FB",
+        "usage": "Accent chip field",
+        "tag": "MEASURED (derived)"
+      },
+      {
+        "token": "--color-text",
+        "name": "Text",
+        "role": "text",
+        "slug": "text",
+        "value": "#0A1626",
+        "usage": "Body and heading text",
+        "tag": "MEASURED"
+      },
+      {
+        "token": "--color-text-muted",
+        "name": "Muted text",
+        "role": "text-muted",
+        "slug": "text-muted",
+        "value": "#495A70",
+        "usage": "Secondary text: leads, summaries, captions",
+        "tag": "MEASURED"
+      },
+      {
+        "token": "--color-text-soft",
+        "name": "Soft text",
+        "role": "text-soft",
+        "slug": "text-soft",
+        "value": "#586A80",
+        "usage": "Metadata, labels, technical annotations",
+        "tag": "MEASURED"
+      },
+      {
+        "token": "--color-rule-quiet",
+        "name": "Quiet rule",
+        "role": "rule-quiet",
+        "slug": "rule-quiet",
+        "value": "#D7E0EA",
+        "usage": "Hairline separators and card borders",
+        "tag": "MEASURED"
+      },
+      {
+        "token": "--color-rule-hover",
+        "name": "Rule hover",
+        "role": "rule-hover",
+        "slug": "rule-hover",
+        "value": "#9AABBD",
+        "usage": "Separator and border hover state",
+        "tag": "MEASURED (derived)"
+      },
+      {
+        "token": "--color-boundary-strong",
+        "name": "Strong boundary",
+        "role": "boundary-strong",
+        "slug": "boundary-strong",
+        "value": "#75899F",
+        "usage": "Control borders and any boundary that carries meaning",
+        "tag": "MEASURED"
+      },
+      {
+        "token": "--color-success",
+        "name": "Success",
+        "role": "success",
+        "slug": "success",
+        "value": "#04536C",
+        "usage": "Success text and state, 7:1 class",
+        "tag": "MEASURED"
+      },
+      {
+        "token": "--color-warning",
+        "name": "Warning",
+        "role": "warning",
+        "slug": "warning",
+        "value": "#8A4708",
+        "usage": "Warning text and state, 7:1 class",
+        "tag": "MEASURED"
+      },
+      {
+        "token": "--color-error",
+        "name": "Error",
+        "role": "error",
+        "slug": "error",
+        "value": "#B3261E",
+        "usage": "Error text and state, 7:1 class",
+        "tag": "MEASURED"
+      },
+      {
+        "token": "--color-info-wash",
+        "name": "Info wash",
+        "role": "info-wash",
+        "slug": "info-wash",
+        "value": "#F0F5FD",
+        "usage": "Informational notice field",
+        "tag": "MEASURED (derived)"
+      },
+      {
+        "token": "--color-success-wash",
+        "name": "Success wash",
+        "role": "success-wash",
+        "slug": "success-wash",
+        "value": "#D6F3FB",
+        "usage": "Success notice field",
+        "tag": "MEASURED (derived)"
+      },
+      {
+        "token": "--color-warning-wash",
+        "name": "Warning wash",
+        "role": "warning-wash",
+        "slug": "warning-wash",
+        "value": "#F8ECD8",
+        "usage": "Warning notice field",
+        "tag": "MEASURED (derived)"
+      },
+      {
+        "token": "--color-error-wash",
+        "name": "Error wash",
+        "role": "error-wash",
+        "slug": "error-wash",
+        "value": "#FCE7E4",
+        "usage": "Error notice field",
+        "tag": "MEASURED (derived)"
+      }
+    ],
+    "primitives": [
+      {
+        "token": "--color-focus-on-dark",
+        "value": "#FFFFFF",
+        "role": "focus-on-dark",
+        "usage": "Focus ring on anchor and anchor-deep bands",
+        "tag": "MEASURED (primitive)"
+      },
+      {
+        "token": "--color-on-dark",
+        "value": "#E4ECF5",
+        "role": "on-dark",
+        "usage": "Utility-bar links and hero support text",
+        "tag": "MEASURED (primitive)"
+      },
+      {
+        "token": "--color-on-dark-body",
+        "value": "#CBDAEB",
+        "role": "on-dark-body",
+        "usage": "Footer column text",
+        "tag": "MEASURED (primitive)"
+      },
+      {
+        "token": "--color-on-dark-address",
+        "value": "#B6CADF",
+        "role": "on-dark-address",
+        "usage": "Footer address block",
+        "tag": "MEASURED (primitive)"
+      },
+      {
+        "token": "--color-on-dark-meta",
+        "value": "#9DB2C8",
+        "role": "on-dark-meta",
+        "usage": "Footer legal line",
+        "tag": "MEASURED (primitive)"
+      },
+      {
+        "token": "--color-on-dark-lead",
+        "value": "#D3E2F1",
+        "role": "on-dark-lead",
+        "usage": "Hero and closing-band lead paragraphs",
+        "tag": "MEASURED (primitive)"
+      },
+      {
+        "token": "--color-on-dark-code",
+        "value": "#EEF5FC",
+        "role": "on-dark-code",
+        "usage": "Code on the anchor-deep substrate",
+        "tag": "MEASURED (primitive)"
+      },
+      {
+        "token": "--color-accent-ink",
+        "value": "#04536C",
+        "role": "accent-ink",
+        "usage": "Text on the accent chip field",
+        "tag": "MEASURED (primitive)"
+      },
+      {
+        "token": "--color-warning-ink",
+        "value": "#5C3800",
+        "role": "warning-ink",
+        "usage": "Warning text on the warning field",
+        "tag": "MEASURED (primitive)"
+      },
+      {
+        "token": "--color-error-ink",
+        "value": "#6F1712",
+        "role": "error-ink",
+        "usage": "Error text on the error field",
+        "tag": "MEASURED (primitive)"
+      },
+      {
+        "token": "--color-warning-rule",
+        "value": "#E7CFA1",
+        "role": "warning-rule",
+        "usage": "Warning notice border",
+        "tag": "MEASURED (primitive)"
+      },
+      {
+        "token": "--color-error-rule",
+        "value": "#F0C2BC",
+        "role": "error-rule",
+        "usage": "Error notice border",
+        "tag": "MEASURED (primitive)"
+      },
+      {
+        "token": "--color-info-rule",
+        "value": "#B9D1F0",
+        "role": "info-rule",
+        "usage": "Informational notice border",
+        "tag": "MEASURED (primitive)"
+      },
+      {
+        "token": "--color-navy-950",
+        "value": "#04101F",
+        "role": "navy-deep",
+        "usage": "Deepest institutional substrate: hero, footer, skip link text",
+        "tag": "MEASURED (primitive)"
+      },
+      {
+        "token": "--color-navy-900",
+        "value": "#071A2F",
+        "role": "navy",
+        "usage": "Anchor bands and the session link's inverted hover fill",
+        "tag": "MEASURED (primitive)"
+      },
+      {
+        "token": "--color-cyan-500",
+        "value": "#0691BD",
+        "role": "cyan-mid",
+        "usage": "Mid cyan: current-page indicator bars and field indexes at the 3:1 graphic floor",
+        "tag": "MEASURED (primitive)"
+      },
+      {
+        "token": "--color-slate-600",
+        "value": "#3B4A5A",
+        "role": "slate-deep",
+        "usage": "Memoriam monogram field",
+        "tag": "MEASURED (primitive)"
+      },
+      {
+        "token": "--color-slate-500",
+        "value": "#64748B",
+        "role": "slate",
+        "usage": "Memoriam monogram gradient end",
+        "tag": "MEASURED (primitive)"
+      },
+      {
+        "token": "--color-print-ink",
+        "value": "#000000",
+        "role": "print-ink",
+        "usage": "Print text colour",
+        "tag": "MEASURED (primitive)"
+      },
+      {
+        "token": "--color-print-rule",
+        "value": "#999999",
+        "role": "print-rule",
+        "usage": "Print separator colour",
+        "tag": "MEASURED (primitive)"
+      },
+      {
+        "token": "--color-teal-deep",
+        "value": "#0F766E",
+        "role": "teal-deep",
+        "usage": "Navigation current-section underline and deep teal accents",
+        "tag": "MEASURED (primitive)"
+      }
+    ],
+    "pairs": [
+      {
+        "id": "body-on-canvas",
+        "foreground": "--color-text",
+        "background": "--color-canvas",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 16.91,
+        "context": "body text"
+      },
+      {
+        "id": "body-on-surface",
+        "foreground": "--color-text",
+        "background": "--color-surface",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 18.17,
+        "context": "body text in cards and records"
+      },
+      {
+        "id": "body-on-alt",
+        "foreground": "--color-text",
+        "background": "--color-surface-alt",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 15.7,
+        "context": "body text on quiet bands"
+      },
+      {
+        "id": "muted-on-canvas",
+        "foreground": "--color-text-muted",
+        "background": "--color-canvas",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 6.56,
+        "context": "leads and summaries"
+      },
+      {
+        "id": "muted-on-surface",
+        "foreground": "--color-text-muted",
+        "background": "--color-surface",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 7.05,
+        "context": "card summaries"
+      },
+      {
+        "id": "soft-on-surface",
+        "foreground": "--color-text-soft",
+        "background": "--color-surface",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 5.54,
+        "context": "metadata and labels"
+      },
+      {
+        "id": "link-on-canvas",
+        "foreground": "--color-action",
+        "background": "--color-canvas",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 5.5,
+        "context": "inline links"
+      },
+      {
+        "id": "link-on-surface",
+        "foreground": "--color-action",
+        "background": "--color-surface",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 5.91,
+        "context": "links inside cards"
+      },
+      {
+        "id": "link-hover-on-surface",
+        "foreground": "--color-action-hover",
+        "background": "--color-surface",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 8.53,
+        "context": "link hover"
+      },
+      {
+        "id": "kicker-on-canvas",
+        "foreground": "--color-action",
+        "background": "--color-canvas",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 5.5,
+        "context": "section kickers"
+      },
+      {
+        "id": "heading-on-surface",
+        "foreground": "--color-anchor",
+        "background": "--color-surface",
+        "kind": "large",
+        "minRatio": 3,
+        "expectedRatio": 17.53,
+        "context": "headings"
+      },
+      {
+        "id": "anchor-text-on-canvas",
+        "foreground": "--color-anchor",
+        "background": "--color-canvas",
+        "kind": "large",
+        "minRatio": 3,
+        "expectedRatio": 16.32,
+        "context": "display headings"
+      },
+      {
+        "id": "nav-label-on-surface",
+        "foreground": "--color-anchor",
+        "background": "--color-surface",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 17.53,
+        "context": "primary navigation"
+      },
+      {
+        "id": "nav-label-on-action-wash",
+        "foreground": "--color-action-hover",
+        "background": "--color-wash-action",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 6.88,
+        "context": "current-page navigation pill"
+      },
+      {
+        "id": "nav-label-on-anchor",
+        "foreground": "--color-surface",
+        "background": "--color-anchor",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 17.53,
+        "context": "utility bar on the institutional anchor"
+      },
+      {
+        "id": "utility-text-on-anchor",
+        "foreground": "--color-on-dark",
+        "background": "--color-anchor",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 14.71,
+        "context": "utility bar links"
+      },
+      {
+        "id": "button-label-on-action",
+        "foreground": "--color-surface",
+        "background": "--color-action",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 5.91,
+        "context": "primary button"
+      },
+      {
+        "id": "button-label-on-action-hover",
+        "foreground": "--color-surface",
+        "background": "--color-action-hover",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 8.53,
+        "context": "primary button hover"
+      },
+      {
+        "id": "ghost-button-label",
+        "foreground": "--color-anchor",
+        "background": "--color-surface",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 17.53,
+        "context": "secondary button"
+      },
+      {
+        "id": "tag-label-on-wash",
+        "foreground": "--color-action-hover",
+        "background": "--color-wash-action-subtle",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 7.79,
+        "context": "tag chips"
+      },
+      {
+        "id": "accent-chip-label",
+        "foreground": "--color-accent-ink",
+        "background": "--color-accent-wash",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 7.35,
+        "context": "accent chips"
+      },
+      {
+        "id": "hero-title-on-deep",
+        "foreground": "--color-surface",
+        "background": "--color-anchor-deep",
+        "kind": "large",
+        "minRatio": 3,
+        "expectedRatio": 19.11,
+        "context": "hero statement"
+      },
+      {
+        "id": "hero-lead-on-deep",
+        "foreground": "--color-on-dark-lead",
+        "background": "--color-anchor-deep",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 14.48,
+        "context": "hero lead"
+      },
+      {
+        "id": "hero-kicker-on-deep",
+        "foreground": "--color-accent",
+        "background": "--color-anchor-deep",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 7.96,
+        "context": "hero kicker"
+      },
+      {
+        "id": "hero-support-on-deep",
+        "foreground": "--color-on-dark",
+        "background": "--color-anchor-deep",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 16.03,
+        "context": "hero support list"
+      },
+      {
+        "id": "footer-body-on-deep",
+        "foreground": "--color-on-dark-body",
+        "background": "--color-anchor-deep",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 13.44,
+        "context": "footer columns"
+      },
+      {
+        "id": "footer-address-on-deep",
+        "foreground": "--color-on-dark-address",
+        "background": "--color-anchor-deep",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 11.38,
+        "context": "footer address"
+      },
+      {
+        "id": "footer-meta-on-deep",
+        "foreground": "--color-on-dark-meta",
+        "background": "--color-anchor-deep",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 8.77,
+        "context": "footer legal line"
+      },
+      {
+        "id": "notice-info-text",
+        "foreground": "--color-anchor",
+        "background": "--color-info-wash",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 16.02,
+        "context": "informational notice"
+      },
+      {
+        "id": "notice-warning-text",
+        "foreground": "--color-warning-ink",
+        "background": "--color-warning-wash",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 8.9,
+        "context": "warning notice"
+      },
+      {
+        "id": "notice-error-text",
+        "foreground": "--color-error-ink",
+        "background": "--color-error-wash",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 9.79,
+        "context": "error notice"
+      },
+      {
+        "id": "status-success",
+        "foreground": "--color-success",
+        "background": "--color-success-wash",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 7.35,
+        "context": "success status pill"
+      },
+      {
+        "id": "status-warning",
+        "foreground": "--color-warning",
+        "background": "--color-warning-wash",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 6.02,
+        "context": "warning status pill"
+      },
+      {
+        "id": "status-error",
+        "foreground": "--color-error",
+        "background": "--color-error-wash",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 5.51,
+        "context": "error status pill"
+      },
+      {
+        "id": "success-text-on-surface",
+        "foreground": "--color-success",
+        "background": "--color-surface",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 8.54,
+        "context": "success text"
+      },
+      {
+        "id": "warning-text-on-surface",
+        "foreground": "--color-warning",
+        "background": "--color-surface",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 7.03,
+        "context": "warning text"
+      },
+      {
+        "id": "error-text-on-surface",
+        "foreground": "--color-error",
+        "background": "--color-surface",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 6.54,
+        "context": "error text"
+      },
+      {
+        "id": "focus-outline-on-canvas",
+        "foreground": "--color-action",
+        "background": "--color-canvas",
+        "kind": "ui",
+        "minRatio": 3,
+        "expectedRatio": 5.5,
+        "context": "focus ring on light surfaces"
+      },
+      {
+        "id": "focus-outline-on-surface",
+        "foreground": "--color-action",
+        "background": "--color-surface",
+        "kind": "ui",
+        "minRatio": 3,
+        "expectedRatio": 5.91,
+        "context": "focus ring on cards"
+      },
+      {
+        "id": "focus-outline-on-anchor",
+        "foreground": "--color-focus-on-dark",
+        "background": "--color-anchor",
+        "kind": "ui",
+        "minRatio": 3,
+        "expectedRatio": 17.53,
+        "context": "focus ring on anchor bands"
+      },
+      {
+        "id": "control-boundary-on-surface",
+        "foreground": "--color-boundary-strong",
+        "background": "--color-surface",
+        "kind": "ui",
+        "minRatio": 3,
+        "expectedRatio": 3.6,
+        "context": "input and control borders"
+      },
+      {
+        "id": "control-boundary-on-canvas",
+        "foreground": "--color-boundary-strong",
+        "background": "--color-canvas",
+        "kind": "ui",
+        "minRatio": 3,
+        "expectedRatio": 3.35,
+        "context": "control borders on the canvas"
+      },
+      {
+        "id": "rule-hairline-on-surface",
+        "foreground": "--color-rule-quiet",
+        "background": "--color-surface",
+        "kind": "decorative",
+        "minRatio": 1,
+        "expectedRatio": 1.33,
+        "context": "hairline separators (no meaning of their own)"
+      },
+      {
+        "id": "session-link-on-anchor",
+        "foreground": "--color-surface",
+        "background": "--color-anchor",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 17.53,
+        "context": "session link in the utility bar"
+      },
+      {
+        "id": "session-link-hover-on-surface",
+        "foreground": "--color-anchor",
+        "background": "--color-surface",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 17.53,
+        "context": "session link hover fill"
+      },
+      {
+        "id": "session-link-active-on-accent",
+        "foreground": "--color-anchor-deep",
+        "background": "--color-accent",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 7.96,
+        "context": "signed-in session link"
+      },
+      {
+        "id": "skip-link-on-accent",
+        "foreground": "--color-anchor-deep",
+        "background": "--color-accent",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 7.96,
+        "context": "skip link"
+      },
+      {
+        "id": "event-date-on-anchor",
+        "foreground": "--color-surface",
+        "background": "--color-anchor",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 17.53,
+        "context": "agenda date block"
+      },
+      {
+        "id": "monogram-on-anchor",
+        "foreground": "--color-surface",
+        "background": "--color-anchor",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 17.53,
+        "context": "person monogram"
+      },
+      {
+        "id": "memoriam-monogram-on-slate",
+        "foreground": "--color-surface",
+        "background": "--color-text-muted",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 7.05,
+        "context": "in-memoriam monogram"
+      },
+      {
+        "id": "table-head-on-surface",
+        "foreground": "--color-text-soft",
+        "background": "--color-surface",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 5.54,
+        "context": "table header cells"
+      },
+      {
+        "id": "timeline-year-on-canvas",
+        "foreground": "--color-anchor",
+        "background": "--color-canvas",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 16.32,
+        "context": "timeline year gutter"
+      },
+      {
+        "id": "partner-name-on-surface",
+        "foreground": "--color-text-muted",
+        "background": "--color-surface",
+        "kind": "text",
+        "minRatio": 4.5,
+        "expectedRatio": 7.05,
+        "context": "partner band names"
+      },
+      {
+        "id": "nav-current-bar-on-surface",
+        "foreground": "--color-teal-deep",
+        "background": "--color-surface",
+        "kind": "ui",
+        "minRatio": 3,
+        "expectedRatio": 5.47,
+        "context": "current-page indicator bar"
+      },
+      {
+        "id": "kicker-index-on-surface",
+        "foreground": "--color-accent-ink",
+        "background": "--color-surface",
+        "kind": "ui",
+        "minRatio": 3,
+        "expectedRatio": 8.54,
+        "context": "section kicker index bar"
+      },
+      {
+        "id": "accent-rule-on-anchor",
+        "foreground": "--color-accent",
+        "background": "--color-anchor",
+        "kind": "ui",
+        "minRatio": 3,
+        "expectedRatio": 7.3,
+        "context": "brand rule above the footer"
+      }
+    ]
+  },
+  "typography": {
+    "families": [
+      {
+        "token": "--font-display",
+        "stack": "\"Space Grotesk\", \"Inter\", system-ui, -apple-system, \"Segoe UI\", sans-serif",
+        "owns": "Display headings only: hero claim, page titles, section titles, card titles, statistics, monograms",
+        "license": "SIL OFL 1.1 (Space Grotesk, Florian Karsten)"
+      },
+      {
+        "token": "--font-interface",
+        "stack": "\"Inter\", system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+        "owns": "Body and long-form reading, navigation, controls, tables, labels",
+        "license": "SIL OFL 1.1 (Inter, The Inter Project Authors)"
+      },
+      {
+        "token": "--font-mono",
+        "stack": "\"JetBrains Mono\", ui-monospace, \"Cascadia Mono\", \"Segoe UI Mono\", Menlo, Consolas, monospace",
+        "owns": "Course codes, record identifiers, dates, table headers, field labels, code samples and technical metadata",
+        "license": "SIL OFL 1.1 (JetBrains Mono, JetBrains)"
+      }
+    ],
+    "scale": [
+      {
+        "token": "--type-display",
+        "role": "display",
+        "usage": "Hero statement",
+        "size": "clamp(2.5rem, 6.4vw, 4.75rem)"
+      },
+      {
+        "token": "--type-h1",
+        "role": "h1",
+        "usage": "Page title",
+        "size": "clamp(2rem, 4.4vw, 3.25rem)"
+      },
+      {
+        "token": "--type-h2",
+        "role": "h2",
+        "usage": "Section title",
+        "size": "clamp(1.5rem, 2.6vw, 2.125rem)"
+      },
+      {
+        "token": "--type-h3",
+        "role": "h3",
+        "usage": "Card and group title",
+        "size": "clamp(1.1875rem, 1.5vw, 1.4rem)"
+      },
+      {
+        "token": "--type-h4",
+        "role": "h4",
+        "usage": "Record title",
+        "size": "1.0625rem"
+      },
+      {
+        "token": "--type-lead",
+        "role": "lead",
+        "usage": "Lead paragraph",
+        "size": "clamp(1.0625rem, 1.3vw, 1.25rem)"
+      },
+      {
+        "token": "--type-body",
+        "role": "body",
+        "usage": "Body text",
+        "size": "1rem"
+      },
+      {
+        "token": "--type-reading",
+        "role": "reading",
+        "usage": "Long-form reading",
+        "size": "1.125rem"
+      },
+      {
+        "token": "--type-small",
+        "role": "small",
+        "usage": "Card body, captions",
+        "size": "0.875rem"
+      },
+      {
+        "token": "--type-meta",
+        "role": "meta",
+        "usage": "Metadata, kickers, table headers",
+        "size": "0.75rem"
+      }
+    ],
+    "rules": [
+      "Body text is 16 CSS px; reading text 18 px; line heights 1.6-1.65 for prose and 1.02-1.1 for display headings",
+      "Reading measure about 68ch; leads about 60ch; interface text about 74ch",
+      "The display face is restricted to headings and statistics; the mono face to codes, dates, table headers, field labels and code",
+      "No essential text below the 12px meta floor; meta never carries instructions on its own",
+      "Self-hosted woff2 only, font-display: swap, no remote font request at any time"
+    ]
+  },
+  "spacing": {
+    "baseUnitPx": 4,
+    "tokens": [
+      {
+        "token": "--space-1",
+        "value": "0.25rem"
+      },
+      {
+        "token": "--space-2",
+        "value": "0.5rem"
+      },
+      {
+        "token": "--space-3",
+        "value": "0.75rem"
+      },
+      {
+        "token": "--space-4",
+        "value": "1rem"
+      },
+      {
+        "token": "--space-5",
+        "value": "1.25rem"
+      },
+      {
+        "token": "--space-6",
+        "value": "1.5rem"
+      },
+      {
+        "token": "--space-8",
+        "value": "2rem"
+      },
+      {
+        "token": "--space-10",
+        "value": "2.5rem"
+      },
+      {
+        "token": "--space-12",
+        "value": "3rem"
+      },
+      {
+        "token": "--space-16",
+        "value": "4rem"
+      },
+      {
+        "token": "--space-20",
+        "value": "5rem"
+      },
+      {
+        "token": "--space-24",
+        "value": "6rem"
+      }
+    ],
+    "sectionRhythm": "Section padding --section-y, clamped 52-96px; 64-96px between major bands; page gutters clamp 16-48px"
+  },
+  "geometry": {
+    "maxContentWidth": "82.5rem (1320px)",
+    "grid": "One column below 44rem; two columns 44-64rem; three or four columns above 64rem for card grids; the reading column stays within 68ch at every width",
+    "controlRadius": "2px",
+    "imageRadius": "2px",
+    "radiusScale": [
+      {
+        "token": "--radius-xs",
+        "value": "2px",
+        "usage": "micro detail: chips, inline code, focus corners"
+      },
+      {
+        "token": "--radius-sm",
+        "value": "2px",
+        "usage": "controls: buttons, inputs, pagination"
+      },
+      {
+        "token": "--radius-md",
+        "value": "3px",
+        "usage": "reserved: nested frames that need one step more than a control"
+      },
+      {
+        "token": "--radius-lg",
+        "value": "4px",
+        "usage": "reserved: large frames, not used by default"
+      },
+      {
+        "token": "--radius-xl",
+        "value": "4px",
+        "usage": "reserved: not used by default"
+      },
+      {
+        "token": "--radius-pill",
+        "value": "999px",
+        "usage": "tags and status pills only, never rectangular controls"
+      }
+    ],
+    "elevation": [
+      {
+        "token": "--shadow-xs",
+        "value": "0 1px 0 var(--color-rule-quiet)",
+        "usage": "ruled resting edge: one hairline below a panel"
+      },
+      {
+        "token": "--shadow-sm",
+        "value": "2px 2px 0 var(--color-rule-quiet)",
+        "usage": "hovered controls and journey cards: a 2px hard offset"
+      },
+      {
+        "token": "--shadow-md",
+        "value": "4px 4px 0 var(--color-rule-quiet)",
+        "usage": "hovered cards and menus: a 4px hard offset"
+      },
+      {
+        "token": "--shadow-lg",
+        "value": "6px 6px 0 var(--color-navy-800)",
+        "usage": "reserved: overlays and dialogs, 6px hard offset"
+      },
+      {
+        "token": "--shadow-nav-current",
+        "value": "inset 0 -3px 0 0 var(--color-cyan-500)",
+        "usage": "current-page navigation bar, inset, non-blurred"
+      }
+    ],
+    "rules": [
+      "Radii and elevation are declared as tokens; a surface references them and never writes a literal radius or shadow",
+      "Depth is ruled, not blurred: no decorative blur shadows, only hairlines and hard offsets",
+      "Imagery stays rectangular in content: photographs and diagrams are never given a decorative radius or a coloured frame",
+      "Compartments are separated by hairlines first and by elevation second; no universal card wrapper around plain prose",
+      "Gradients exist only as --gradient-* tokens in :root, and only on brand bands: hero, page header, closing band, timeline node rail and monogram",
+      "The waveform motif is the supplied artwork referenced as an asset (--signal-line, --signal-line-dark); no surface redraws it"
+    ]
+  },
+  "motion": {
+    "tokens": [
+      {
+        "token": "--motion-fast",
+        "value": "120ms",
+        "usage": "state change: colour, border"
+      },
+      {
+        "token": "--motion-standard",
+        "value": "200ms",
+        "usage": "state change: shadow, disclosure"
+      },
+      {
+        "token": "--motion-slow",
+        "value": "340ms",
+        "usage": "reserved: entrance of a single hero element"
+      },
+      {
+        "token": "--ease-state",
+        "value": "cubic-bezier(0.2, 0, 0, 1)",
+        "usage": "standard state easing"
+      },
+      {
+        "token": "--ease-out",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "usage": "deceleration for hover lift"
+      }
+    ],
+    "rules": [
+      "Motion is state response only: never layout, never scroll-hijack, never looping decoration",
+      "Only composited properties may transition: colour, background, border, transform, opacity and shadow",
+      "prefers-reduced-motion: reduce removes every transform, transition and smooth scroll",
+      "No animation carries meaning that the static page does not already carry"
+    ]
+  },
+  "logo": {
+    "source": {
+      "path": "assets/brand/lps_logo_vector.svg",
+      "sha256": "f369f9e49c81e297d30fa8e240267667dddf8b89f0d26c494636f9429027a23b",
+      "bytes": 53019,
+      "viewBox": "48 190 2052 301",
+      "aspectRatio": 6.817,
+      "note": "Owner-supplied artwork; bytes preserved verbatim as a source asset and used unchanged."
+    },
+    "variants": [
+      {
+        "id": "full",
+        "path": "wp-content/themes/lps-theme/assets/img/mark/lps-mark-full.svg",
+        "viewBox": "0 0 2052 301",
+        "aspectRatio": 6.817,
+        "use": "Desktop masthead and any placement at least 240px wide on a light surface",
+        "surfaces": ["light"],
+        "minWidthPx": 240
+      },
+      {
+        "id": "compact",
+        "path": "assets/brand/lps_logo_compact.svg",
+        "viewBox": "64 200 1322 275",
+        "aspectRatio": 4.807,
+        "use": "Mobile masthead and constrained placements; keeps the waveform and LPS lettering, drops the long descriptive lettering that cannot stay legible at mobile sizes",
+        "surfaces": ["light"],
+        "minHeightPx": 28,
+        "derivation": {
+          "method": "path-selection-and-recombination-only",
+          "keptPaths": ["reference-line", "waveform", "separator", "lps-lettering"],
+          "droppedPaths": ["laboratory-name", "computational-intelligence"],
+          "keptGradients": ["wave-gradient", "baseline-gradient", "lps-gradient"],
+          "viewBoxDerivation": "Union of kept-path bounds x[72,1378.1] y[208.03,467.33] padded 8 units per side",
+          "constraint": "No new geometry, no altered paths, no recolor; every kept path d attribute is byte-identical to the source"
+        }
+      },
+      {
+        "id": "symbol-source",
+        "path": "assets/brand/lps_logo_symbol.svg",
+        "viewBox": "70 200 1320 280",
+        "aspectRatio": 4.714,
+        "derivation": {
+          "method": "path-selection only",
+          "keptPaths": ["reference-line", "waveform", "separator", "lps-lettering"],
+          "droppedPaths": ["laboratory-name", "computational-intelligence"],
+          "note": "The descriptive lettering is set as live text throughout the site, so the symbol carries the waveform and the LPS lettering only."
+        },
+        "use": "Constrained placements and derived marks; keeps the waveform and LPS lettering",
+        "surfaces": ["light"],
+        "minHeightPx": 28,
+        "themeMirror": "wp-content/themes/lps-theme/assets/img/mark/lps-mark-compact.svg (1308x301, same four paths)"
+      },
+      {
+        "id": "symbol-source-reversed",
+        "path": "assets/brand/lps_logo_symbol_inverse.svg",
+        "viewBox": "70 200 1320 280",
+        "aspectRatio": 4.714,
+        "use": "Reversed derivation source for dark-band placements",
+        "surfaces": ["dark"],
+        "decorative": true
+      },
+      {
+        "id": "reversed",
+        "path": "wp-content/themes/lps-theme/assets/img/mark/lps-mark-reversed.svg",
+        "viewBox": "0 0 2052 301",
+        "use": "Footer and any full-lockup placement on the anchor-deep and anchor substrates",
+        "surfaces": ["dark"],
+        "minWidthPx": 200
+      },
+      {
+        "id": "symbol",
+        "path": "wp-content/themes/lps-theme/assets/img/mark/lps-mark-symbol.svg",
+        "viewBox": "0 0 886.5 301",
+        "use": "Waveform motif on light brand bands (--signal-line); decorative, never the sole carrier of a name",
+        "surfaces": ["light"],
+        "decorative": true
+      },
+      {
+        "id": "symbol-reversed",
+        "path": "wp-content/themes/lps-theme/assets/img/mark/lps-mark-symbol-reversed.svg",
+        "viewBox": "0 0 886.5 301",
+        "use": "Waveform motif on navy bands (--signal-line-dark); derived from the reversed variant by selecting existing paths only",
+        "surfaces": ["dark"],
+        "decorative": true
+      },
+      {
+        "id": "text-wordmark",
+        "path": null,
+        "use": "Fallback when artwork cannot be resolved, and the only permitted lockup for UFRJ and COPPE institutional names",
+        "surfaces": ["light", "dark"],
+        "minHeightPx": 20
+      }
+    ],
+    "rules": [
+      "The full-colour artwork appears on light surfaces; the anchor-deep bands (hero, footer) carry the reversed variant; the two motifs are decorative and never carry meaning",
+      "The artwork amendment covers the LPS mark alone: UFRJ/COPPE marks remain text-only beside it",
+      "Clear space around the mark equals the height of the letter L; the artwork is never recoloured, stretched, rotated or given effects",
+      "Mobile masthead uses the compact variant, never a crop of the full lockup",
+      "The waveform gradient inside the artwork is part of the artwork and is used only inside it",
+      "The full name and the Inteligência Computacional descriptor are set as live text beside the mark, so they translate and scale as text",
+      "Derived variants (compact, symbol, symbol-reversed, mono, reversed) are produced by path selection from the source; no geometry is redrawn"
+    ]
+  },
+  "navigation": {
+    "primary": ["Sobre", "Pesquisa", "Pessoas", "Ensino", "Oportunidades", "Notícias e eventos"],
+    "utility": ["Publicações", "Infraestrutura", "Contato", "Acessibilidade", "PT / EN"],
+    "rules": [
+      "A visible route to contact and accessibility information is preserved",
+      "Mobile uses a labelled native disclosure, operable by keyboard and applied without scripting",
+      "The utility bar carries the session entry: Entrar / Sign in for visitors, Minha area / My area once a session exists",
+      "Skip link, breadcrumbs where useful, visible focus, and a stable institutional footer are mandatory",
+      "Submenus open on hover for pointers and on focus for keyboards, and every destination stays reachable by tab order"
+    ]
+  },
+  "surfaces": [
+    {
+      "id": "homepage",
+      "mode": "persuade",
+      "taskDensity": "low",
+      "states": {
+        "empty": "Every module keeps its heading and renders an honest not-published notice instead of inventing content",
+        "error": "A failed query renders the module notice; the page never shows a partial record as if it were complete",
+        "long-content": "Card grids wrap to additional rows; titles clamp to three lines; the hero statement keeps its own measure",
+        "image-free": "Cards without a cleared image fall back to the waveform motif on the anchor substrate, never a broken frame"
+      }
+    },
+    {
+      "id": "professor",
+      "mode": "read",
+      "taskDensity": "medium",
+      "states": {
+        "empty": "The record renders its identity, role and affiliation with a notice that no further material is published",
+        "error": "Unavailable relations are listed as unavailable, never silently omitted",
+        "long-content": "Biography runs in the 68ch reading column; the metadata rail collapses above the content on small screens",
+        "attribution": "Affiliation, area and external identifiers are always shown together"
+      }
+    },
+    {
+      "id": "offering",
+      "mode": "operate",
+      "taskDensity": "high",
+      "states": {
+        "empty": "The offering renders its code, title and status with an empty checklist rather than a hidden section",
+        "error": "A rejected publish attempt keeps the editor input and shows the blocking reason inline",
+        "long-content": "The materials table scrolls inside its own frame; the page never scrolls horizontally",
+        "scan-pending": "Pending scan work is visible as a status pill, not as a silent omission"
+      }
+    },
+    {
+      "id": "editor-dashboard",
+      "mode": "operate",
+      "taskDensity": "highest",
+      "states": {
+        "empty": "Each queue renders its own empty state with the next useful action",
+        "error": "Failed actions report the exact field and keep the rest of the form intact",
+        "long-content": "Task lists stay one column with dense rows; counts stay visible while scrolling",
+        "lifecycle": "Draft, review, published and archived are distinguished by text as well as colour"
+      }
+    }
+  ],
+  "applications": [
+    {
+      "id": "desktop-branding",
+      "spec": "Masthead: full-colour artwork alone at 13-26rem wide (208-416px), no repeated wordmark text beside it; footer: reversed artwork on the anchor-deep substrate"
+    },
+    {
+      "id": "mobile-branding",
+      "spec": "The same full-colour artwork scales by clamp to 46vw (minimum 208px); it is never cropped and never shrunk below the lettering's legibility floor"
+    },
+    {
+      "id": "news-cover",
+      "spec": "16:9 cover: the artwork reversed on the anchor-deep field, kicker in the accent colour, headline in the interface family at h2-h1 scale"
+    },
+    {
+      "id": "course-document-cover",
+      "spec": "A4 cover: artwork at 40mm width on a light field, course code in the mono family, title at h1 scale"
+    },
+    {
+      "id": "social-preview",
+      "spec": "1200x630 social card (lps-og-default.png): anchor-deep field, white plate with the artwork and one accent rule; no text below 24px rendered size"
+    },
+    {
+      "id": "print",
+      "spec": "Grayscale-safe: the mark degrades to the mono symbol, hairlines and hard offsets stay visible, gradient fields are dropped"
+    }
+  ],
+  "bans": {
+    "effects": [
+      "a linear-gradient, radial-gradient or conic-gradient composed outside the --gradient-* token layer",
+      "a box-shadow or text-shadow written as a literal outside the --shadow-* tokens",
+      "a border-radius written as a literal outside the --radius-* tokens",
+      "a pill radius on a rectangular control surface (tags and status pills only)",
+      "backdrop-filter and any blurred substrate",
+      "transition: all, and any transition of a layout property",
+      "scroll-hijack, scroll-linked animation and forced smooth scrolling",
+      "marquee, autoplay media, looping background animation and parallax",
+      "a waveform drawn by any surface instead of referenced from the supplied artwork",
+      "a colour literal outside the :root token block, in CSS or in markup",
+      "decorative photography, stock imagery and fabricated claims of research impact"
+    ],
+    "note": "The 2026-09-18 revision banned these effects outright. This revision keeps the ban on ad-hoc effects and moves the permitted ones into the token layer: a gradient, shadow or radius exists once, as a token, and surfaces reference it. The decorative-waveform ban is unchanged and now enforced by asset identity — the motif is the supplied waveform, referenced. Depth is drawn with rules and hard offsets, so the ban on blurred substrates holds without banning separation."
+  }
+}

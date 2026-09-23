@@ -43,6 +43,9 @@ const REQUIRED_PAGE_KEYS = new Set([
   "contact",
   "privacy",
   "accessibility",
+  "teaching",
+  "course-detail",
+  "offering-detail",
 ]);
 const REQUIRED_RESEARCH_AREAS = new Set([
   "instrumentation",
@@ -388,6 +391,16 @@ function validateRoutes(contract, issues) {
     if (Array.isArray(page.tags) && page.tags.length > 0) {
       issues.push(issue("FREE_TAGS_FORBIDDEN", `${path}.tags`, "Pages cannot declare free tags."));
     }
+    const maxDepth = page.maxDepth ?? 2;
+    if (!Number.isInteger(maxDepth) || maxDepth < 2 || maxDepth > 5) {
+      issues.push(
+        issue(
+          "MAX_DEPTH_INVALID",
+          `${path}.maxDepth`,
+          "maxDepth must be an integer between 2 and 5.",
+        ),
+      );
+    }
     for (const locale of LOCALES) {
       const route = page.routes?.[locale];
       const routePath = `${path}.routes.${locale}`;
@@ -398,12 +411,12 @@ function validateRoutes(contract, issues) {
         continue;
       }
       const depth = route.split("/").filter(Boolean).length - 1;
-      if (depth > 2) {
+      if (depth > maxDepth) {
         issues.push(
           issue(
             "ROUTE_DEPTH_EXCEEDED",
             routePath,
-            "Routes may be at most two levels below locale.",
+            `Routes may be at most ${maxDepth} levels below locale.`,
           ),
         );
       }

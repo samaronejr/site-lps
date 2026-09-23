@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EEL710 — Instrumentação e Técnicas de Medidas — LPS/UFRJ</title>
+<meta name="description" content="Disciplina de graduação da Poli/UFRJ que cobre aspectos teóricos e práticos de instrumentação e medidas em engenharia elétrica.">
+<link rel="canonical" href="/ensino/disciplinas/eel710-instrumentacao-e-tecnicas-de-medidas/">
+<link rel="icon" href="/assets/img/mark/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/img/mark/apple-touch-icon.png">
+<link rel="stylesheet" href="/assets/css/theme.css">
+<meta name="theme-color" content="#061829">
+<link rel="manifest" href="/assets/img/mark/site.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:title" content="EEL710 — Instrumentação e Técnicas de Medidas — LPS/UFRJ">
+<meta property="og:description" content="Disciplina de graduação da Poli/UFRJ que cobre aspectos teóricos e práticos de instrumentação e medidas em engenharia elétrica.">
+<meta property="og:image" content="/assets/img/mark/lps-mark-social.png">
+
+<link rel="alternate" hreflang="pt-BR" href="/ensino/disciplinas/eel710-instrumentacao-e-tecnicas-de-medidas/">
+<link rel="alternate" hreflang="en" href="/en/teaching/courses/eel710-instrumentation-and-measurement-techniques/">
+<link rel="alternate" hreflang="x-default" href="/ensino/disciplinas/eel710-instrumentacao-e-tecnicas-de-medidas/"></head>
+<body>
+<a class="lps-skip-link" href="#lps-main">Pular para o conteúdo</a>
+<header class="lps-site-header">
+<div class="lps-utility-bar">
+<div class="lps-utility-inner lps-page-grid">
+<p>Laboratório de Processamento de Sinais · UFRJ · COPPE</p>
+<nav aria-label="Acesso rápido"><ul class="lps-utility-links"><li><a href="/publicacoes/">Publicações</a></li><li><a href="/infraestrutura/">Infraestrutura</a></li><li><a href="/contato/">Contato</a></li><li><a href="/acessibilidade/">Acessibilidade</a></li></ul></nav>
+<nav class="lps-locale-switch" aria-label="Idioma"><details name="lps-utility-tools">
+<summary><svg class="lps-flag" viewBox="0 0 18 13" aria-hidden="true" focusable="false"><rect width="18" height="13" fill="#009C3B"/><path d="M9 2 16.2 6.5 9 11 1.8 6.5Z" fill="#FFDF00"/><circle cx="9" cy="6.5" r="2.1" fill="#002776"/></svg><span>PT</span><span class="lps-locale-caret" aria-hidden="true"></span></summary>
+<ul class="lps-locale-menu">
+<li><a aria-current="page" hreflang="pt-BR" lang="pt-BR" href="/ensino/disciplinas/eel710-instrumentacao-e-tecnicas-de-medidas/"><svg class="lps-flag" viewBox="0 0 18 13" aria-hidden="true" focusable="false"><rect width="18" height="13" fill="#009C3B"/><path d="M9 2 16.2 6.5 9 11 1.8 6.5Z" fill="#FFDF00"/><circle cx="9" cy="6.5" r="2.1" fill="#002776"/></svg><span>Português</span></a></li>
+<li><a hreflang="en" lang="en" href="/en/teaching/courses/eel710-instrumentation-and-measurement-techniques/"><svg class="lps-flag" viewBox="0 0 18 13" aria-hidden="true" focusable="false"><rect width="18" height="13" fill="#fff"/><path d="M0 1h18M0 3h18M0 5h18M0 7h18M0 9h18M0 11h18" stroke="#B22234"/><rect width="8" height="7" fill="#3C3B6E"/></svg><span>English</span></a></li>
+</ul></details></nav>
+<details class="lps-search-disclosure" name="lps-utility-tools"><summary aria-label="Buscar no site do LPS"><svg class="lps-search-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m13.5 13.5 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/></svg></summary><div class="lps-search-panel"><form class="lps-search" role="search" action="/busca/" method="get">
+<label for="lps-search-input-1">Buscar no site do LPS</label>
+<div><input id="lps-search-input-1" name="q" type="search" autocomplete="off"><button class="lps-button" type="submit">Buscar</button></div>
+</form></div></details>
+<a class="lps-session-link" href="/entrar/">Entrar</a>
+</div>
+</div>
+<div class="lps-masthead lps-page-grid">
+<a class="lps-brand" href="/" aria-label="Laboratório de Processamento de Sinais — início">
+<span class="lps-logo-slot"><img class="lps-logo" src="/assets/brand/lps_coppe_blue_horizonte.svg" alt="" width="1846" height="233" decoding="async"></span>
+</a>
+<nav class="lps-primary-nav lps-masthead-nav" aria-label="Navegação principal"><ul><li class="lps-nav-item"><a class="lps-nav-link" href="/sobre/">Sobre<span class="lps-nav-caret" aria-hidden="true"></span></a><ul class="lps-nav-menu"><li><a href="/sobre/#historia">História</a></li><li><a href="/sobre/#missao">Missão, visão e valores</a></li><li><a href="/infraestrutura/">Infraestrutura</a></li><li><a href="/identidade-visual/">Identidade visual</a></li></ul></li><li class="lps-nav-item"><a class="lps-nav-link" href="/pesquisa/">Pesquisa<span class="lps-nav-caret" aria-hidden="true"></span></a><ul class="lps-nav-menu"><li><a href="/pesquisa/#linhas">Linhas de pesquisa</a></li><li><a href="/projetos/">Projetos</a></li><li><a href="/publicacoes/">Publicações</a></li></ul></li><li class="lps-nav-item"><a class="lps-nav-link" href="/pessoas/">Pessoas</a></li><li class="lps-nav-item"><a class="lps-nav-link" href="/ensino/">Ensino<span class="lps-nav-caret" aria-hidden="true"></span></a><ul class="lps-nav-menu"><li><a href="/ensino/#pos-graduacao">Pós-graduação</a></li><li><a href="/ensino/#graduacao">Graduação</a></li><li><a href="/ensino/#materiais">Materiais didáticos</a></li></ul></li><li class="lps-nav-item"><a class="lps-nav-link" href="/oportunidades/">Oportunidades</a></li><li class="lps-nav-item"><a class="lps-nav-link" href="/noticias/">Notícias e eventos</a></li></ul></nav>
+</div>
+<details class="lps-shell-disclosure">
+<summary>Menu e ferramentas do site</summary>
+<div class="lps-nav-panel lps-page-grid">
+<nav class="lps-primary-nav" aria-label="Navegação principal"><ul><li class="lps-nav-item"><a class="lps-nav-link" href="/sobre/">Sobre<span class="lps-nav-caret" aria-hidden="true"></span></a><ul class="lps-nav-menu"><li><a href="/sobre/#historia">História</a></li><li><a href="/sobre/#missao">Missão, visão e valores</a></li><li><a href="/infraestrutura/">Infraestrutura</a></li><li><a href="/identidade-visual/">Identidade visual</a></li></ul></li><li class="lps-nav-item"><a class="lps-nav-link" href="/pesquisa/">Pesquisa<span class="lps-nav-caret" aria-hidden="true"></span></a><ul class="lps-nav-menu"><li><a href="/pesquisa/#linhas">Linhas de pesquisa</a></li><li><a href="/projetos/">Projetos</a></li><li><a href="/publicacoes/">Publicações</a></li></ul></li><li class="lps-nav-item"><a class="lps-nav-link" href="/pessoas/">Pessoas</a></li><li class="lps-nav-item"><a class="lps-nav-link" href="/ensino/">Ensino<span class="lps-nav-caret" aria-hidden="true"></span></a><ul class="lps-nav-menu"><li><a href="/ensino/#pos-graduacao">Pós-graduação</a></li><li><a href="/ensino/#graduacao">Graduação</a></li><li><a href="/ensino/#materiais">Materiais didáticos</a></li></ul></li><li class="lps-nav-item"><a class="lps-nav-link" href="/oportunidades/">Oportunidades</a></li><li class="lps-nav-item"><a class="lps-nav-link" href="/noticias/">Notícias e eventos</a></li></ul></nav>
+<div class="lps-shell-tools"><form class="lps-search" role="search" action="/busca/" method="get">
+<label for="lps-search-input-2">Buscar no site do LPS</label>
+<div><input id="lps-search-input-2" name="q" type="search" autocomplete="off"><button class="lps-button" type="submit">Buscar</button></div>
+</form><a class="lps-button lps-button-primary" href="/contato/">Colabore</a></div>
+</div>
+</details>
+</header>
+<main id="lps-main" class="lps-main-content">
+<nav class="lps-breadcrumbs lps-page-grid" aria-label="Trilha de navegação"><ol><li><a href="/">Início</a></li><li><a href="/ensino/">Ensino</a></li><li aria-current="page">Instrumentação e Técnicas de Medidas</li></ol></nav><div class="lps-page-header">
+<div class="lps-page-header-inner lps-page-grid">
+<p class="lps-kicker">EEL710 · Graduação</p>
+<h1 class="lps-page-title">Instrumentação e Técnicas de Medidas</h1>
+<p class="lps-lead">Disciplina de graduação da Poli/UFRJ que cobre aspectos teóricos e práticos de instrumentação e medidas em engenharia elétrica.</p>
+
+</div>
+</div>
+<div class="lps-page-grid">
+<section class="lps-section lps-section--flush" aria-labelledby="course-about">
+<div class="lps-section-head">
+<div>
+<p class="lps-kicker">Disciplina</p>
+<h2 id="course-about">Sobre a disciplina</h2>
+</div>
+
+</div>
+<dl class="lps-facts"><dt>Professor</dt><dd><a href="/pessoas/joao-victor-da-fonseca-pinto/">João Victor da Fonseca Pinto</a></dd><dt>Programa</dt><dd>Engenharia Eletrônica e de Computação (Poli/UFRJ)</dd><dt>Oferta</dt><dd>2º semestre de 2026 · <em>Em andamento</em></dd><dt>Período</dt><dd>3 de agosto de 2026 a 19 de dezembro de 2026</dd><dt>Local</dt><dd>COPPE/UFRJ — Bloco H, sala 220</dd></dl>
+<div class="lps-reading lps-mt-8"><p>A disciplina apresenta a teoria de medição aplicada às medidas em engenharia elétrica, cobrindo parâmetros estatísticos, sensores e instrumentos eletrônicos de medição, além dos critérios e das ferramentas utilizadas na elaboração de projetos de instrumentação. Oferecida à Poli/UFRJ, a matéria é organizada em unidades temáticas com material de apoio publicado em cada página da disciplina.</p></div>
+</section>
+<section class="lps-section" aria-labelledby="course-syllabus">
+<div class="lps-section-head">
+<div>
+<p class="lps-kicker">Ementa</p>
+<h2 id="course-syllabus">Conteúdo da disciplina</h2>
+</div>
+
+</div>
+<ul class="lps-term-token"><li>Definição e propósito da medição</li><li>Sistema internacional de medidas</li><li>Caracterização estatística da medida</li><li>Propagação de erros</li><li>Protocolos de calibração</li><li>Análise de distribuições</li><li>Análise de regressão</li><li>Testes de hipóteses</li><li>Sensores e transdutores</li><li>Instrumentos de medição</li><li>Projeto de instrumentação</li></ul>
+</section>
+<section class="lps-section" aria-labelledby="course-bibliography">
+<div class="lps-section-head">
+<div>
+<p class="lps-kicker">Bibliografia</p>
+<h2 id="course-bibliography">Bibliografia</h2>
+</div>
+
+</div>
+<ul class="lps-record-list"><li><h3>Métodos Instrumentais de Medidas, João Victor da Fonseca Pinto, vol. I</h3></li><li><h3>Métodos Instrumentais de Medidas, João Victor da Fonseca Pinto, vol. II</h3></li></ul>
+</section>
+<section class="lps-section" aria-labelledby="course-units">
+<div class="lps-section-head">
+<div>
+<p class="lps-kicker">Unidades</p>
+<h2 id="course-units">Unidades e materiais</h2>
+</div>
+
+</div>
+<ol class="lps-course-units"><li>
+<h3>1. Planejamento e regras</h3>
+<p class="lps-summary">Orientações de trabalho, provas, trabalhos, recuperação e regras da disciplina, além do calendário de aulas.</p>
+<ul class="lps-record-list"><li><h3><a href="https://drive.google.com/file/d/1rxEygMUch5EaTeO2WKKqdeWz2hNRZS88/view?usp=drive_link" rel="external">Planejamento da disciplina</a></h3><p class="lps-summary">Organização e calendário da disciplina.</p><p class="lps-meta">documento · Português</p></li><li><h3><a href="https://drive.google.com/file/d/1QKhA85-P_cVjtcu07ZTKecPrDWUkXLeh/view?usp=drive_link" rel="external">Regras da disciplina</a></h3><p class="lps-summary">Diretrizes de avaliação, provas e trabalhos.</p><p class="lps-meta">documento · Português</p></li><li><h3><a href="https://drive.google.com/file/d/1-xNRViYAtXYNek0tsdBdzQlYLIoC8SVV/view?usp=drive_link" rel="external">Calendário de aulas</a></h3><p class="lps-summary">Cronograma de aulas, provas e entregas.</p><p class="lps-meta">documento · Português</p></li></ul>
+</li><li>
+<h3>2. Fundamentos</h3>
+<p class="lps-summary">Introdução à disciplina e aos conceitos fundamentais de medição.</p>
+<ul class="lps-record-list"><li><h3><a href="https://docs.google.com/document/d/18d2iTdTzn2koBiLEhEgPqc-lKp4_sViM/edit?usp=sharing&ouid=112475162842380807624&rtpof=true&sd=true" rel="external">Introdução à disciplina</a></h3><p class="lps-summary">Conceitos introdutórios de instrumentação e medidas.</p><p class="lps-meta">documento · Português</p></li><li><h3><a href="https://drive.google.com/file/d/1A0XZfxMsYcg1QBRTE__mn3hCwg1fS76u/view?usp=drive_link" rel="external">Medidas — slides</a></h3><p class="lps-summary">Material de apresentação sobre medição.</p><p class="lps-meta">slides · Português</p></li></ul>
+</li><li>
+<h3>3. Análise de distribuições</h3>
+<p class="lps-summary">Caracterização estatística de medidas e análise de distribuições.</p>
+<ul class="lps-record-list"><li><h3><a href="https://drive.google.com/file/d/1fW5vvK8e3CDYxAwCVu9nVNF6Hi50jomF/view?usp=drive_link" rel="external">Análise de distribuições — slides</a></h3><p class="lps-summary">Material de apresentação da unidade.</p><p class="lps-meta">slides · Português</p></li></ul>
+</li><li>
+<h3>4. Seminários</h3>
+<p class="lps-summary">Datas de apresentação dos trabalhos por grupo.</p>
+<ul class="lps-record-list"><li><h3><a href="https://drive.google.com/file/d/1kmTtzyShAlK8MZCGHTg9SKjdnLZSq9Cn/view?usp=drive_link" rel="external">Datas de apresentação</a></h3><p class="lps-summary">Cronograma de apresentações dos grupos.</p><p class="lps-meta">documento · Português</p></li></ul>
+</li></ol>
+</section>
+
+
+</div>
+</main>
+<footer class="lps-site-footer">
+<div class="lps-footer-inner lps-page-grid">
+<div class="lps-footer-brand">
+<a class="lps-wordmark lps-wordmark-light" href="/" aria-label="LPS — Início"><img class="lps-logo" src="/assets/brand/lps_coppe_reversed_lockup.svg" alt="LPS — Laboratório de Processamento de Sinais" width="1622" height="804" loading="lazy" decoding="async"></a>
+<address>
+Av. Athos da Silveira Ramos, 149<br>
+Centro de Tecnologia, Bloco H, sala 220<br>
+Cidade Universitária, Ilha do Fundão<br>
+Rio de Janeiro — RJ, CEP 21941-914<br>
+<a href="tel:+552139388205">(21) 3938-8205</a> · Ramal 8205<br>
+<a href="mailto:secretaria@lps.ufrj.br">secretaria@lps.ufrj.br</a>
+</address>
+</div>
+<div>
+<h2>O laboratório</h2>
+<ul><li><a href="/sobre/">Sobre</a></li><li><a href="/sobre/#historia">História</a></li><li><a href="/pessoas/">Pessoas</a></li><li><a href="/infraestrutura/">Infraestrutura</a></li><li><a href="/identidade-visual/">Identidade visual</a></li></ul>
+</div><div>
+<h2>Pesquisa</h2>
+<ul><li><a href="/pesquisa/">Linhas de pesquisa</a></li><li><a href="/projetos/">Projetos</a></li><li><a href="/publicacoes/">Publicações</a></li><li><a href="/ensino/">Ensino</a></li><li><a href="/noticias/">Notícias e eventos</a></li></ul>
+</div><div>
+<h2>Participe</h2>
+<ul><li><a href="/oportunidades/">Oportunidades</a></li><li><a href="/busca/">Busca</a></li><li><a href="/contato/">Contato</a></li><li><a href="/acessibilidade/">Acessibilidade</a></li><li><a href="/privacidade/">Privacidade</a></li></ul>
+</div>
+</div>
+<div class="lps-footer-bottom lps-page-grid">
+<p>© 2026 Laboratório de Processamento de Sinais. Todos os direitos reservados.</p>
+<ul>
+<li><a href="https://www.pee.ufrj.br/">PEE/COPPE</a></li>
+<li><a href="https://coppe.ufrj.br/">COPPE</a></li>
+<li><a href="https://ufrj.br/">UFRJ</a></li>
+</ul>
+</div>
+</footer>
+<script src="/assets/js/theme.js" defer></script>
+</body>
+</html>

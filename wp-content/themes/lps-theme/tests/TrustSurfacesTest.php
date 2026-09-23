@@ -213,6 +213,7 @@ final class TrustSurfacesTest extends \PHPUnit\Framework\TestCase {
 		self::assertStringNotContainsString( 'o melhor do país', $html );
 		self::assertStringContainsString( 'COPPE/UFRJ', $html );
 		self::assertStringContainsString( '2026-08-01', $html );
+		self::assertStringContainsString( 'lps-claims-warning', $html );
 	}
 
 	/** Claims past their review window are omitted. */
@@ -235,6 +236,8 @@ final class TrustSurfacesTest extends \PHPUnit\Framework\TestCase {
 		$html = TrustSurfaces::render_institutional_page( $page, 'pt-br', $this->now() );
 
 		self::assertStringNotContainsString( 'Reconhecido internacionalmente', $html );
+		self::assertStringContainsString( 'lps-claims-warning', $html );
+		self::assertStringContainsString( 'omitidas por falta de fonte ou revisão', $html );
 	}
 
 	/**
@@ -244,13 +247,14 @@ final class TrustSurfacesTest extends \PHPUnit\Framework\TestCase {
 	 */
 	public static function institutional_keys(): array {
 		return array(
-			'about'         => array( 'about' ),
-			'history'       => array( 'history' ),
-			'governance'    => array( 'governance' ),
-			'collaboration' => array( 'collaboration' ),
-			'contact'       => array( 'contact' ),
-			'privacy'       => array( 'privacy' ),
-			'accessibility' => array( 'accessibility' ),
+			'about'           => array( 'about' ),
+			'history'         => array( 'history' ),
+			'governance'      => array( 'governance' ),
+			'collaboration'   => array( 'collaboration' ),
+			'contact'         => array( 'contact' ),
+			'privacy'         => array( 'privacy' ),
+			'accessibility'   => array( 'accessibility' ),
+			'visual-identity' => array( 'visual-identity' ),
 		);
 	}
 
@@ -273,9 +277,11 @@ final class TrustSurfacesTest extends \PHPUnit\Framework\TestCase {
 			$this->now()
 		);
 
-		self::assertStringNotContainsString( '<form', $html );
-		self::assertStringNotContainsString( '<input', $html );
-		self::assertStringNotContainsString( 'cookie', strtolower( $html ) );
+		$lower = strtolower( $html );
+		self::assertStringNotContainsString( '<form', $lower );
+		self::assertStringNotContainsString( '<input', $lower );
+		self::assertStringNotContainsString( 'document.cookie', $lower );
+		self::assertStringNotContainsString( 'set-cookie', $lower );
 	}
 
 	/** Personal addresses never reach the contact page. */
@@ -330,6 +336,118 @@ final class TrustSurfacesTest extends \PHPUnit\Framework\TestCase {
 			$this->now()
 		);
 		self::assertStringContainsString( 'mailto:acessibilidade@lps.ufrj.br', $accessibility );
+	}
+
+	/** Verification details live in a named in-flow section with sources and review dates. */
+	public function test_institutional_page_groups_verification_in_a_named_section(): void {
+		$html = TrustSurfaces::render_institutional_page(
+			array(
+				'key'            => 'about',
+				'title'          => 'Sobre o LPS',
+				'summary'        => 'Laboratório de Processamento de Sinais.',
+				'reviewed_at'    => '2026-08-01',
+				'report_contact' => 'contato@lps.ufrj.br',
+				'claims'         => array(
+					array(
+						'statement'   => 'O laboratório mantém convênios ativos.',
+						'verified'    => true,
+						'source_url'  => 'https://www.ufrj.br/convenios',
+						'reviewed_at' => '2026-08-01',
+					),
+				),
+			),
+			'pt-br',
+			$this->now()
+		);
+
+		self::assertStringContainsString( '<section class="lps-section lps-verification" aria-labelledby="lps-verification-title">', $html );
+		self::assertStringNotContainsString( '<aside', $html );
+		self::assertStringContainsString( 'Verificação', $html );
+		self::assertStringContainsString( 'lps-claim-source', $html );
+		self::assertStringContainsString( 'revisado em <time datetime="2026-08-01">2026-08-01</time>', $html );
+		self::assertStringContainsString( 'lps-report-contact', $html );
+		self::assertStringContainsString( 'lps-reviewed-at', $html );
+	}
+
+	/** A page carrying claims without a recorded review says so instead of implying one. */
+	public function test_institutional_page_without_review_date_warns_explicitly(): void {
+		$html = TrustSurfaces::render_institutional_page(
+			array(
+				'key'     => 'about',
+				'title'   => 'Sobre o LPS',
+				'summary' => 'Resumo.',
+				'claims'  => array(
+					array(
+						'statement'   => 'Contexto verificado.',
+						'verified'    => true,
+						'source_url'  => 'https://www.ufrj.br/fonte',
+						'reviewed_at' => '2026-08-01',
+					),
+				),
+			),
+			'en',
+			$this->now()
+		);
+
+		self::assertStringContainsString( 'lps-claims-warning', $html );
+		self::assertStringContainsString( 'No recorded content review.', $html );
+		self::assertStringNotContainsString( 'lps-reviewed-at', $html );
+	}
+
+	/** A page without any verification data renders no verification section. */
+	public function test_institutional_page_without_verification_data_renders_no_verification(): void {
+		$html = TrustSurfaces::render_institutional_page(
+			array(
+				'key'     => 'about',
+				'title'   => 'Sobre o LPS',
+				'summary' => 'Resumo.',
+				'claims'  => array(),
+			),
+			'en',
+			$this->now()
+		);
+
+		self::assertStringNotContainsString( 'lps-verification', $html );
+	}
+
+	/** A stale English record announces the review state instead of falling back. */
+	public function test_stale_english_records_announce_review_instead_of_falling_back(): void {
+		$opportunity          = self::open_opportunity();
+		$opportunity['stale'] = true;
+
+		$html = TrustSurfaces::render_opportunity( $opportunity, 'en', $this->now() );
+		self::assertStringContainsString( 'lps-translation-notice', $html );
+		self::assertStringContainsString( 'under review', $html );
+
+		$event = TrustSurfaces::render_event(
+			array(
+				'title'     => 'LPS Seminar 2026',
+				'status'    => 'scheduled',
+				'starts_at' => '2026-10-01T13:00:00+00:00',
+				'stale'     => true,
+			),
+			'en',
+			$this->now()
+		);
+		self::assertStringContainsString( 'lps-translation-notice', $event );
+
+		$listing = TrustSurfaces::render_opportunity_listing( array( $opportunity ), 'en', $this->now() );
+		self::assertStringContainsString( 'Translation under review', $listing );
+
+		$news = TrustSurfaces::render_news_listing(
+			array(
+				array(
+					'slug'  => 'lab-news',
+					'title' => 'Lab news',
+					'stale' => true,
+				),
+			),
+			'en'
+		);
+		self::assertStringContainsString( 'Translation under review', $news );
+
+		$fresh = TrustSurfaces::render_opportunity( self::open_opportunity(), 'en', $this->now() );
+		self::assertStringNotContainsString( 'lps-translation-notice', $fresh );
 	}
 
 	/** Unsafe destinations are dropped from collaboration journeys. */

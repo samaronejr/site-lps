@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "fixture": "lps-redesign/faculty",
+  "synthetic": true,
+  "purpose": "Deterministic synthetic faculty and account inputs for the lps-redesign plan. Every record is invented test data; none of it names a real person, account, or institutional fact, and none of it may enter the public launch corpus.",
+  "attemptNamespace": {
+    "env": "LPS_ATTEMPT_ID",
+    "default": "attempt-1",
+    "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+    "slugPrefix": "lps-redesign"
+  },
+  "people": [
+    {
+      "id": "person-synthetic-ada",
+      "displayName": "Adelaide Nogueira Sintética",
+      "role": "professor",
+      "synthetic": true
+    },
+    {
+      "id": "person-synthetic-bento",
+      "displayName": "Bento Carvalho Sintético",
+      "role": "professor",
+      "synthetic": true
+    },
+    {
+      "id": "person-synthetic-celia",
+      "displayName": "Célia Duarte Sintética",
+      "role": "delegate",
+      "synthetic": true
+    }
+  ],
+  "accounts": [
+    {
+      "id": "account-synthetic-prof-a",
+      "login": "lps.fixture.prof-a",
+      "person": "person-synthetic-ada",
+      "role": "professor",
+      "mfaEnrolled": true,
+      "synthetic": true
+    },
+    {
+      "id": "account-synthetic-prof-b",
+      "login": "lps.fixture.prof-b",
+      "person": "person-synthetic-bento",
+      "role": "professor",
+      "mfaEnrolled": true,
+      "synthetic": true
+    },
+    {
+      "id": "account-synthetic-delegate",
+      "login": "lps.fixture.delegate",
+      "person": "person-synthetic-celia",
+      "role": "delegate",
+      "mfaEnrolled": false,
+      "synthetic": true
+    }
+  ]
+}

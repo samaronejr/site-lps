@@ -61,7 +61,7 @@ final class Hardening {
 	 * @return array<int, string>
 	 */
 	public static function allowed_plugins( array $plugins ): array {
-		return array_values( array_intersect( $plugins, self::PLUGINS ) );
+		return array_values( array_unique( array_intersect( $plugins, self::PLUGINS ) ) );
 	}
 
 	/**
@@ -158,9 +158,16 @@ final class Hardening {
 	 * @return array<string, string>
 	 */
 	public static function headers( bool $admin, bool $tls, string $nonce ): array {
-		$frames  = $admin ? "'self'" : "'none'";
-		$headers = array(
-			'Content-Security-Policy'           => "default-src 'none'; script-src 'self' 'nonce-$nonce'; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; media-src 'self'; connect-src 'self'; frame-src $frames; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'",
+		// The block editor mounts its canvas in a blob: iframe, so admin frames
+		// need the scheme allowance on top of same-origin documents. Public
+		// pages embed only the About map, so frames stay pinned to Google Maps.
+		$frames      = $admin ? "'self' blob:" : 'https://maps.google.com https://www.google.com';
+		$script_src  = $admin
+			? "'self' 'unsafe-inline'"
+			: "'self' 'nonce-$nonce'";
+		$script_attr = "'none'";
+		$headers     = array(
+			'Content-Security-Policy'           => "default-src 'none'; script-src $script_src; script-src-attr $script_attr; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; media-src 'self'; connect-src 'self'; frame-src $frames; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'",
 			'X-Content-Type-Options'            => 'nosniff',
 			'X-Frame-Options'                   => 'DENY',
 			'Referrer-Policy'                   => 'no-referrer',
@@ -175,6 +182,10 @@ final class Hardening {
 
 	/** Emits headers on public, REST, admin and login responses. */
 	public static function send_headers(): void {
+		// The edge hides X-Powered-By too; the application never relies on it.
+		if ( function_exists( 'header_remove' ) ) {
+			header_remove( 'X-Powered-By' );
+		}
 		foreach ( self::headers( is_admin(), is_ssl(), self::nonce() ) as $name => $value ) {
 			header( $name . ': ' . $value );
 		}

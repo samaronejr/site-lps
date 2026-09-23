@@ -13,21 +13,37 @@ use WP_Error;
 use WP_Post;
 use WP_User;
 
-/** Installs named roles and enforces per-account collection assignment. */
+/** Installs named roles and enforces per-account collection and offering-scope assignment. */
 final class Roles {
 	public const COLLECTIONS_META = '_lps_assigned_collections';
+	public const GRANTS_META      = '_lps_teaching_grants';
+	public const PERSON_META      = '_lps_person_id';
+
+	/**
+	 * Re-entrancy guard so only the grant helpers may persist grant metadata.
+	 *
+	 * @var bool
+	 */
+	private static bool $grant_syncing = false;
 
 	/** Registers runtime authorization hooks. */
 	public static function boot(): void {
 		add_filter( 'map_meta_cap', array( self::class, 'map_record_capability' ), 20, 4 );
 		add_filter( 'user_has_cap', array( self::class, 'strip_unassigned_collections' ), 15, 4 );
 		add_filter( 'user_has_cap', array( MFA::class, 'strip_unenrolled_privileges' ), 20, 4 );
+		add_filter( 'add_user_metadata', array( self::class, 'protect_grant_meta' ), 10, 5 );
+		add_filter( 'update_user_metadata', array( self::class, 'protect_grant_meta' ), 10, 5 );
+		add_filter( 'delete_user_metadata', array( self::class, 'protect_grant_meta' ), 10, 5 );
 		add_action( 'user_profile_update_errors', array( self::class, 'reject_shared_account' ), 10, 3 );
 		add_action( 'wp_login', array( self::class, 'record_login' ), 10, 2 );
 		add_action( 'show_user_profile', array( self::class, 'render_collection_assignments' ) );
 		add_action( 'edit_user_profile', array( self::class, 'render_collection_assignments' ) );
 		add_action( 'personal_options_update', array( self::class, 'save_collection_assignments' ) );
 		add_action( 'edit_user_profile_update', array( self::class, 'save_collection_assignments' ) );
+		add_action( 'show_user_profile', array( self::class, 'render_teaching_grants' ) );
+		add_action( 'edit_user_profile', array( self::class, 'render_teaching_grants' ) );
+		add_action( 'personal_options_update', array( self::class, 'save_teaching_grants' ) );
+		add_action( 'edit_user_profile_update', array( self::class, 'save_teaching_grants' ) );
 	}
 
 	/** Creates or repairs the seven least-privilege roles. */
@@ -99,16 +115,278 @@ final class Roles {
 
 	/** Checks the complete role/action/collection/MFA boundary.
 	 *
+	 * Scoped roles hold no collection rights at all: they must go through
+	 * `current_user_can_scoped_action`, which evaluates persisted grants.
+	 *
 	 * @param string $action     Action key.
 	 * @param string $collection Collection key.
 	 */
 	public static function current_user_can_action( string $action, string $collection = '' ): bool {
 		$user = wp_get_current_user();
 		$role = self::policy_role( $user );
-		if ( '' === $role || ! SecurityPolicy::allows( $role, $action, $collection, self::assigned_collections( $user->ID ) ) ) {
+		if ( '' === $role || TeachingPolicy::is_scoped_role( $role ) ) {
+			return false;
+		}
+		if ( ! SecurityPolicy::allows( $role, $action, $collection, self::assigned_collections( $user->ID ) ) ) {
 			return false;
 		}
 		return SecurityPolicy::privileged_session_allowed( $role, MFA::is_enrolled( $user->ID ) );
+	}
+
+	/**
+	 * Returns the persisted teaching-scope grants for an account.
+	 *
+	 * @param int $user_id Account ID.
+	 * @return array<int, array{scope: string, offering_id: int, role: string, granted_at: string, expires_at: string, revoked_at: string, granted_by: int}>
+	 */
+	public static function teaching_grants( int $user_id ): array {
+		return TeachingPolicy::normalize_grants( get_user_meta( $user_id, self::GRANTS_META, true ) );
+	}
+
+	/**
+	 * Grants one scoped role on one offering or the news lane to an account.
+	 *
+	 * The grant is validated against the pure policy, persisted as account
+	 * metadata, and recorded in the audit ledger. User-controlled input can
+	 * propose a grant but only an authorized granter may persist it.
+	 *
+	 * @param int    $target_user_id Account receiving the grant.
+	 * @param string $scope          Grant scope (`offering` or `news`).
+	 * @param int    $offering_id    Offering record ID (0 for the news scope).
+	 * @param string $role           Scoped role the grant enables.
+	 * @param string $expires_at     Optional ISO-8601 expiry; empty means none.
+	 * @return array{granted: true, index: int}|WP_Error
+	 */
+	public static function grant_scope( int $target_user_id, string $scope, int $offering_id, string $role, string $expires_at = '' ): array|WP_Error {
+		$actor       = wp_get_current_user();
+		$target      = get_user_by( 'id', $target_user_id );
+		$target_role = $target instanceof WP_User ? self::policy_role( $target ) : '';
+		$candidate   = array(
+			'scope'       => $scope,
+			'offering_id' => $offering_id,
+			'role'        => $role,
+			'granted_at'  => gmdate( 'c' ),
+			'expires_at'  => $expires_at,
+			'revoked_at'  => '',
+			'granted_by'  => $actor->ID,
+		);
+		$grants      = self::teaching_grants( $target_user_id );
+		$error       = TeachingPolicy::grant_error(
+			self::policy_role( $actor ),
+			self::assigned_collections( $actor->ID ),
+			$actor->ID,
+			$target_user_id,
+			$target_role,
+			$candidate,
+			$grants
+		);
+		if ( null !== $error ) {
+			return self::scope_wp_error( $error );
+		}
+		$grants[]            = TeachingPolicy::normalize_grant( $candidate );
+		self::$grant_syncing = true;
+		update_user_meta( $target_user_id, self::GRANTS_META, $grants );
+		self::$grant_syncing = false;
+		Audit::record(
+			'grant-scope',
+			$target_user_id,
+			0,
+			array(
+				'scope'       => $scope,
+				'offering_id' => $offering_id,
+				'role'        => $role,
+				'expires_at'  => TeachingPolicy::normalize_datetime( $expires_at ),
+			)
+		);
+		return array(
+			'granted' => true,
+			'index'   => count( $grants ) - 1,
+		);
+	}
+
+	/**
+	 * Revokes one persisted grant; the denial takes effect on the next check.
+	 *
+	 * @param int $target_user_id Account losing the grant.
+	 * @param int $grant_index    Index into the normalized grant list.
+	 * @return array{revoked: true}|WP_Error
+	 */
+	public static function revoke_scope( int $target_user_id, int $grant_index ): array|WP_Error {
+		$actor  = wp_get_current_user();
+		$grants = self::teaching_grants( $target_user_id );
+		$error  = TeachingPolicy::revoke_error(
+			self::policy_role( $actor ),
+			self::assigned_collections( $actor->ID ),
+			$actor->ID,
+			$target_user_id,
+			$grant_index,
+			$grants
+		);
+		if ( null !== $error ) {
+			return self::scope_wp_error( $error );
+		}
+		$grant                  = $grants[ $grant_index ];
+		$grant['revoked_at']    = gmdate( 'c' );
+		$grants[ $grant_index ] = $grant;
+		self::$grant_syncing    = true;
+		update_user_meta( $target_user_id, self::GRANTS_META, $grants );
+		self::$grant_syncing = false;
+		Audit::record(
+			'revoke-scope',
+			$target_user_id,
+			0,
+			array(
+				'scope'       => $grant['scope'],
+				'offering_id' => $grant['offering_id'],
+				'role'        => $grant['role'],
+			)
+		);
+		return array( 'revoked' => true );
+	}
+
+	/**
+	 * Checks the complete scoped role/action/post-type/grant/MFA boundary.
+	 *
+	 * @param string $action      Action key.
+	 * @param string $post_type   Governed record type.
+	 * @param int    $offering_id Resolved offering ID (0 for the news scope).
+	 */
+	public static function current_user_can_scoped_action( string $action, string $post_type, int $offering_id = 0 ): bool {
+		$user = wp_get_current_user();
+		$role = self::policy_role( $user );
+		if ( ! SecurityPolicy::privileged_session_allowed( $role, MFA::is_enrolled( $user->ID ) ) ) {
+			return false;
+		}
+		return null === TeachingPolicy::scope_error( $role, $action, $post_type, $offering_id, self::teaching_grants( $user->ID ), gmdate( 'c' ) );
+	}
+
+	/**
+	 * Returns the first scoped denial for one persisted record, or null.
+	 *
+	 * Scope resolves only from server-side state: the record type, its persisted
+	 * canonical relationships, and the account's persisted grants.
+	 *
+	 * @param int     $user_id Account ID.
+	 * @param string  $action  Action key.
+	 * @param WP_Post $post    Persisted record.
+	 */
+	public static function scoped_post_error( int $user_id, string $action, WP_Post $post ): ?string {
+		$user = get_user_by( 'id', $user_id );
+		$role = $user instanceof WP_User ? self::policy_role( $user ) : '';
+		if ( ! TeachingPolicy::is_scoped_role( $role ) ) {
+			return 'lps_teaching_role_not_scoped';
+		}
+		$offering_id = self::persisted_offering_id( $post );
+		return TeachingPolicy::scope_error( $role, $action, $post->post_type, $offering_id, self::teaching_grants( $user_id ), gmdate( 'c' ) );
+	}
+
+	/**
+	 * Resolves the offering scope for a persisted record from relationships.
+	 *
+	 * @param WP_Post $post Persisted record.
+	 */
+	public static function persisted_offering_id( WP_Post $post ): int {
+		if ( 'lps_offering' === $post->post_type ) {
+			return $post->ID;
+		}
+		$relationship = TeachingPolicy::RELATIONSHIP_SCOPES[ $post->post_type ] ?? '';
+		if ( '' === $relationship ) {
+			return 0;
+		}
+		$rows = Relationships::for_source( $post->ID, $relationship );
+		return Policy::sanitize_integer( $rows[0]['target_post_id'] ?? 0 );
+	}
+
+	/**
+	 * Returns the first scoped denial for a relationship write, or null.
+	 *
+	 * Scoped roles may only attach units and resources to offerings covered by
+	 * an active grant; every other relationship write is denied, including
+	 * teaching-team, course, and term changes, which are editor-owned.
+	 *
+	 * @param string                           $relationship_type Canonical relationship type.
+	 * @param int                              $source_post_id    Source record ID.
+	 * @param array<int, array<string, mixed>> $rows              Candidate rows.
+	 */
+	public static function scoped_relationship_error( string $relationship_type, int $source_post_id, array $rows ): ?string {
+		$user = wp_get_current_user();
+		$role = self::policy_role( $user );
+		if ( ! TeachingPolicy::is_scoped_role( $role ) ) {
+			return null;
+		}
+		if ( class_exists( TeachingCopy::class ) && TeachingCopy::in_operation() ) {
+			// The copy-forward boundary is the authorized writer of the
+			// offering's canonical rows inside its own operation; the REST
+			// permission check already proved the account's copy-forward scope
+			// on the source offering.
+			return null;
+		}
+		if ( ! SecurityPolicy::privileged_session_allowed( $role, MFA::is_enrolled( $user->ID ) ) ) {
+			return 'lps_mfa_required';
+		}
+		if ( ! in_array( $relationship_type, array( 'unit_offering', 'resource_offering', 'resource_unit' ), true ) ) {
+			return 'lps_teaching_relationship_forbidden';
+		}
+		$source = get_post( $source_post_id );
+		if ( ! $source instanceof WP_Post || ! in_array( $source->post_type, TeachingPolicy::SCOPED_POST_TYPES, true ) ) {
+			return 'lps_teaching_relationship_forbidden';
+		}
+		$grants          = self::teaching_grants( $user->ID );
+		$now             = gmdate( 'c' );
+		$source_offering = self::persisted_offering_id( $source );
+		if ( 0 < $source_offering ) {
+			$source_error = TeachingPolicy::scope_error( $role, 'edit', $source->post_type, $source_offering, $grants, $now );
+			if ( null !== $source_error ) {
+				return $source_error;
+			}
+		}
+		foreach ( $rows as $row ) {
+			$target_id = Policy::sanitize_integer( $row['target_post_id'] ?? 0 );
+			$target    = get_post( $target_id );
+			if ( ! $target instanceof WP_Post ) {
+				continue;
+			}
+			$target_offering = 'lps_offering' === $target->post_type ? $target->ID : self::persisted_offering_id( $target );
+			if ( 0 >= $target_offering ) {
+				return 'lps_teaching_relationship_forbidden';
+			}
+			$error = TeachingPolicy::scope_error( $role, 'edit', $source->post_type, $target_offering, $grants, $now );
+			if ( null !== $error ) {
+				return $error;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Blocks direct writes to grant metadata outside the grant helpers.
+	 *
+	 * @param mixed  $check      Existing short-circuit value.
+	 * @param int    $object_id  Account ID.
+	 * @param string $meta_key   Metadata key.
+	 * @param mixed  $meta_value Candidate value.
+	 * @param mixed  $prev_value Previous-value selector.
+	 * @return mixed
+	 */
+	public static function protect_grant_meta( mixed $check, int $object_id, string $meta_key, mixed $meta_value, mixed $prev_value ): mixed {
+		unset( $object_id, $meta_value, $prev_value );
+		if ( self::GRANTS_META === $meta_key && ! self::$grant_syncing ) {
+			return false;
+		}
+		return $check;
+	}
+
+	/**
+	 * Builds a typed denial for scoped authorization failures.
+	 *
+	 * @param string $code Stable error code.
+	 */
+	private static function scope_wp_error( string $code ): WP_Error {
+		return new WP_Error(
+			$code,
+			__( 'The requested teaching-scope operation is not allowed for this account.', 'lps-content-model' ),
+			array( 'status' => 403 )
+		);
 	}
 
 	/**
@@ -135,6 +413,9 @@ final class Roles {
 		}
 		$role   = self::policy_role( $user );
 		$action = 'delete_post' === $cap ? 'delete' : ( 'publish_post' === $cap ? 'publish' : 'edit' );
+		if ( TeachingPolicy::is_scoped_role( $role ) ) {
+			return null === self::scoped_post_error( $user_id, $action, $post ) ? $caps : array( 'do_not_allow' );
+		}
 		if ( ! SecurityPolicy::allows( $role, $action, self::collection_for_post_type( $post->post_type ), self::assigned_collections( $user_id ) ) ) {
 			return array( 'do_not_allow' );
 		}
@@ -153,6 +434,26 @@ final class Roles {
 	public static function strip_unassigned_collections( array $allcaps, array $caps, array $args, WP_User $user ): array {
 		unset( $caps, $args );
 		$role = self::policy_role( $user );
+		if ( TeachingPolicy::is_scoped_role( $role ) ) {
+			foreach ( array_keys( Contracts::post_types() ) as $post_type ) {
+				if ( in_array( $post_type, TeachingPolicy::SCOPED_POST_TYPES, true ) ) {
+					continue;
+				}
+				$plural = 'page' === $post_type ? 'pages' : $post_type . 's';
+				foreach ( array_keys( $allcaps ) as $capability ) {
+					if ( 'edit_posts' === $capability ) {
+						// Kept for the meta auth gate; `edit_post` on non-scoped
+						// records is still denied by the scoped branch of
+						// `map_record_capability`.
+						continue;
+					}
+					if ( str_contains( $capability, $plural ) ) {
+						$allcaps[ $capability ] = false;
+					}
+				}
+			}
+			return $allcaps;
+		}
 		if ( ! in_array( $role, array( 'contributor', 'translator', 'section-editor' ), true ) ) {
 			return $allcaps;
 		}
@@ -164,6 +465,11 @@ final class Roles {
 			}
 			$plural = 'page' === $post_type ? 'pages' : $post_type . 's';
 			foreach ( array_keys( $allcaps ) as $capability ) {
+				if ( 'edit_posts' === $capability ) {
+					// Kept for the meta auth gate; `edit_post` on unassigned
+					// records is still denied by `map_record_capability`.
+					continue;
+				}
 				if ( str_contains( $capability, $plural ) ) {
 					$allcaps[ $capability ] = false;
 				}
@@ -233,6 +539,143 @@ final class Roles {
 		update_user_meta( $user_id, self::COLLECTIONS_META, $assigned );
 	}
 
+	/** Renders the grant-management panel for teaching scopes.
+	 *
+	 * Only accounts that may manage grants see the controls; the persisted
+	 * grant list is shown to anyone who can edit the account.
+	 *
+	 * @param WP_User $user Account being edited.
+	 */
+	public static function render_teaching_grants( WP_User $user ): void {
+		if ( ! current_user_can( 'edit_user', $user->ID ) ) {
+			return;
+		}
+		$actor  = wp_get_current_user();
+		$may    = TeachingPolicy::may_manage_grants( self::policy_role( $actor ), self::assigned_collections( $actor->ID ) );
+		$grants = self::teaching_grants( $user->ID );
+		$now    = gmdate( 'c' );
+		wp_nonce_field( 'lps_teaching_grants_' . $user->ID, '_lps_grants_nonce' );
+		echo '<h2>' . esc_html__( 'LPS teaching scope grants', 'lps-content-model' ) . '</h2>';
+		echo '<p>' . esc_html__( 'Offering and news scopes are granted per account and take effect immediately; revocation and expiry are evaluated on every request.', 'lps-content-model' ) . '</p>';
+		echo '<fieldset><legend class="screen-reader-text">' . esc_html__( 'Persisted teaching grants', 'lps-content-model' ) . '</legend>';
+		if ( array() === $grants ) {
+			echo '<p>' . esc_html__( 'No teaching scope grants are recorded for this account.', 'lps-content-model' ) . '</p>';
+		}
+		foreach ( $grants as $index => $grant ) {
+			$state = '' !== $grant['revoked_at'] ? __( 'revoked', 'lps-content-model' ) : ( TeachingPolicy::grant_is_active( $grant, $now ) ? __( 'active', 'lps-content-model' ) : __( 'expired', 'lps-content-model' ) );
+			$label = sprintf(
+				/* translators: 1: grant scope, 2: offering record ID, 3: scoped role, 4: grant state, 5: expiry timestamp. */
+				__( '%1$s scope on offering %2$d as %3$s — %4$s (expires %5$s)', 'lps-content-model' ),
+				$grant['scope'],
+				$grant['offering_id'],
+				$grant['role'],
+				$state,
+				'' === $grant['expires_at'] ? __( 'never', 'lps-content-model' ) : $grant['expires_at']
+			);
+			$disabled = '' !== $grant['revoked_at'] || ! $may;
+			echo '<label style="display:block"><input type="checkbox" name="lps_revoke_grants[]" value="' . esc_attr( (string) $index ) . '" ' . disabled( $disabled, true, false ) . '> ' . esc_html__( 'Revoke:', 'lps-content-model' ) . ' ' . esc_html( $label ) . '</label>';
+		}
+		echo '</fieldset>';
+		if ( ! $may ) {
+			return;
+		}
+		echo '<fieldset><legend>' . esc_html__( 'Add a teaching scope grant', 'lps-content-model' ) . '</legend>';
+		echo '<p><label for="lps_grant_scope">' . esc_html__( 'Scope', 'lps-content-model' ) . '</label> <select id="lps_grant_scope" name="lps_grant_scope">';
+		foreach ( TeachingPolicy::SCOPES as $scope ) {
+			echo '<option value="' . esc_attr( $scope ) . '">' . esc_html( $scope ) . '</option>';
+		}
+		echo '</select> <label for="lps_grant_offering">' . esc_html__( 'Offering record ID', 'lps-content-model' ) . '</label> <input type="number" min="0" id="lps_grant_offering" name="lps_grant_offering" value="0">';
+		echo ' <label for="lps_grant_role">' . esc_html__( 'Scoped role', 'lps-content-model' ) . '</label> <select id="lps_grant_role" name="lps_grant_role">';
+		foreach ( TeachingPolicy::SCOPED_ROLES as $scoped_role ) {
+			echo '<option value="' . esc_attr( $scoped_role ) . '">' . esc_html( $scoped_role ) . '</option>';
+		}
+		echo '</select> <label for="lps_grant_expires">' . esc_html__( 'Expires at (optional, ISO-8601)', 'lps-content-model' ) . '</label> <input type="text" id="lps_grant_expires" name="lps_grant_expires" value="" placeholder="2027-01-01T00:00:00+00:00"></p>';
+		echo '</fieldset>';
+		self::render_person_link( $user, $may );
+	}
+
+	/** Renders the direct account-to-person-record link.
+	 *
+	 * The link is the authoritative resolution of `person_for_user`: it names
+	 * the one `lps_person` record the account owns so a professor's dashboard
+	 * profile, proposals and public page belong to them without depending on
+	 * authored-post or grant inference. Grant managers edit it; everyone else
+	 * who can edit the account reads it.
+	 *
+	 * @param WP_User $user Account being edited.
+	 * @param bool    $may  Whether the acting account may manage teaching grants.
+	 */
+	private static function render_person_link( WP_User $user, bool $may ): void {
+		$current = Policy::sanitize_integer( get_user_meta( $user->ID, self::PERSON_META, true ) );
+		$people  = function_exists( 'get_posts' ) ? get_posts(
+			array(
+				'post_type'      => 'lps_person',
+				'post_status'    => array( 'publish', 'draft', 'private' ),
+				// phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- A lab directory can exceed the sniff's 100 cap; the selector needs every record.
+				'posts_per_page' => 500,
+				'orderby'        => 'title',
+				'order'          => 'ASC',
+			)
+		) : array();
+		echo '<h2>' . esc_html__( 'Linked person record', 'lps-content-model' ) . '</h2>';
+		echo '<p>' . esc_html__( 'The record the account owns — its public page at /pessoas/ and the dashboard profile it proposes changes against.', 'lps-content-model' ) . '</p>';
+		if ( ! $may ) {
+			$title = 0 < $current && function_exists( 'get_post' ) && get_post( $current ) instanceof \WP_Post ? get_post( $current )->post_title : '';
+			echo '<p>' . ( '' !== $title ? esc_html( $title ) : esc_html__( 'No person record is linked to this account.', 'lps-content-model' ) ) . '</p>';
+			return;
+		}
+		echo '<p><label for="lps_person_id">' . esc_html__( 'Person record', 'lps-content-model' ) . '</label> <select id="lps_person_id" name="lps_person_id">';
+		echo '<option value="0">' . esc_html__( '— none —', 'lps-content-model' ) . '</option>';
+		foreach ( $people as $person ) {
+			echo '<option value="' . esc_attr( (string) $person->ID ) . '" ' . selected( $current, $person->ID, false ) . '>' . esc_html( $person->post_title . ' (#' . $person->ID . ')' ) . '</option>';
+		}
+		echo '</select></p>';
+	}
+
+	/** Saves nonce-protected teaching scope grants.
+	 *
+	 * @param int $user_id Account ID.
+	 */
+	public static function save_teaching_grants( int $user_id ): void {
+		if ( ! current_user_can( 'edit_user', $user_id ) || ! isset( $_POST['_lps_grants_nonce'] ) ) {
+			return;
+		}
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized as a scalar on the next line before verification.
+		$raw_nonce = wp_unslash( $_POST['_lps_grants_nonce'] );
+		$nonce     = is_string( $raw_nonce ) ? sanitize_text_field( $raw_nonce ) : '';
+		if ( ! wp_verify_nonce( $nonce, 'lps_teaching_grants_' . $user_id ) ) {
+			return;
+		}
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Every index is sanitized to an integer below.
+		$revocations = isset( $_POST['lps_revoke_grants'] ) && is_array( $_POST['lps_revoke_grants'] ) ? wp_unslash( $_POST['lps_revoke_grants'] ) : array();
+		$indexes     = array_map( array( Policy::class, 'sanitize_integer' ), $revocations );
+		rsort( $indexes );
+		foreach ( $indexes as $index ) {
+			self::revoke_scope( $user_id, $index );
+		}
+		$raw_scope   = isset( $_POST['lps_grant_scope'] ) ? sanitize_text_field( Policy::scalar_string( wp_unslash( $_POST['lps_grant_scope'] ) ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Read as a scalar then sanitized.
+		$scope       = sanitize_key( $raw_scope );
+		$raw_offer   = isset( $_POST['lps_grant_offering'] ) ? sanitize_text_field( Policy::scalar_string( wp_unslash( $_POST['lps_grant_offering'] ) ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Read as a scalar then sanitized.
+		$offering_id = Policy::sanitize_integer( $raw_offer );
+		$raw_role    = isset( $_POST['lps_grant_role'] ) ? sanitize_text_field( Policy::scalar_string( wp_unslash( $_POST['lps_grant_role'] ) ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Read as a scalar then sanitized.
+		$grant_role  = sanitize_key( $raw_role );
+		$expires     = isset( $_POST['lps_grant_expires'] ) ? sanitize_text_field( Policy::scalar_string( wp_unslash( $_POST['lps_grant_expires'] ) ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Read as a scalar then sanitized.
+		if ( '' !== $scope || 0 < $offering_id || '' !== $grant_role || '' !== $expires ) {
+			self::grant_scope( $user_id, $scope, $offering_id, $grant_role, $expires );
+		}
+		$actor = wp_get_current_user();
+		if ( TeachingPolicy::may_manage_grants( self::policy_role( $actor ), self::assigned_collections( $actor->ID ) ) && isset( $_POST['lps_person_id'] ) ) {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized as a scalar on the next line.
+			$raw_person = wp_unslash( $_POST['lps_person_id'] );
+			$person_id  = Policy::sanitize_integer( is_string( $raw_person ) ? sanitize_text_field( $raw_person ) : '' );
+			if ( 0 < $person_id && function_exists( 'get_post' ) && get_post( $person_id ) instanceof \WP_Post && 'lps_person' === get_post_type( $person_id ) ) {
+				update_user_meta( $user_id, self::PERSON_META, $person_id );
+			} elseif ( 0 >= $person_id ) {
+				delete_user_meta( $user_id, self::PERSON_META );
+			}
+		}
+	}
+
 	/** Returns governed collection keys.
 	 *
 	 * @return array<int, string>
@@ -257,6 +700,7 @@ final class Roles {
 			'lps_event' => 'event',
 			'lps_news' => 'news',
 			'lps_redirect' => 'redirect',
+			'lps_course', 'lps_term', 'lps_offering', 'lps_unit', 'lps_resource' => 'teaching',
 			default => $post_type,
 		};
 	}
@@ -277,7 +721,17 @@ final class Roles {
 	private static function native_capabilities( string $role ): array {
 		$capabilities = array();
 		$may_edit     = SecurityPolicy::allows( $role, 'edit' );
+		$scoped       = TeachingPolicy::is_scoped_role( $role );
+		if ( $may_edit ) {
+			// The registered meta auth callback (`Policy::can_edit_meta`) gates on
+			// `edit_posts`; without it every REST meta write is denied. Per-post
+			// and per-type checks still scope what this primitive can touch.
+			$capabilities[] = 'edit_posts';
+		}
 		foreach ( array_keys( Contracts::post_types() ) as $post_type ) {
+			if ( $scoped && ! in_array( $post_type, TeachingPolicy::SCOPED_POST_TYPES, true ) ) {
+				continue;
+			}
 			if ( 'page' === $post_type ) {
 				if ( $may_edit ) {
 					$capabilities[] = 'edit_pages';
@@ -293,10 +747,10 @@ final class Roles {
 				$capabilities[] = 'edit_' . $plural;
 				$capabilities[] = 'edit_' . $post_type;
 			}
-			if ( in_array( $role, array( 'section-editor', 'publisher', 'administrator' ), true ) ) {
+			if ( in_array( $role, array( 'section-editor', 'publisher', 'administrator' ), true ) || $scoped ) {
 				$capabilities[] = 'edit_others_' . $plural;
 			}
-			if ( SecurityPolicy::allows( $role, 'publish' ) ) {
+			if ( SecurityPolicy::allows( $role, 'publish' ) && ( ! $scoped || in_array( $post_type, TeachingPolicy::PUBLISHABLE_POST_TYPES, true ) ) ) {
 				$capabilities[] = 'publish_' . $plural;
 				$capabilities[] = 'edit_published_' . $plural;
 			}

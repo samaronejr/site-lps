@@ -9,6 +9,7 @@
     "docs/design/design-system-guide.md",
     "docs/handbook/editorial-quick-start.md",
     "docs/handbook/role-workflows.md",
+    "docs/handbook/guia-docente-painel.md",
     "docs/handbook/translation-freshness.md",
     "docs/handbook/publication-import-guide.md",
     "docs/handbook/accessibility-authoring-checklist.md",
@@ -98,12 +99,12 @@
       "id": "content-model-contract",
       "kind": "source",
       "doc": "docs/content/data-dictionary.md",
-      "reviewedAt": "2026-09-06",
+      "reviewedAt": "2026-09-22",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
-          "sha256": "f09d4d7deead3c2f952b83608838958bcb58845a16e2202eebf5a883c0a9a056"
+          "sha256": "07121dbeb15d527b4d8ff69695b3f6a7510ca9713cf9f929e4077ff238109fc4"
         }
       ]
     },
@@ -111,12 +112,12 @@
       "id": "role-policy-matrix",
       "kind": "source",
       "doc": "docs/handbook/role-workflows.md",
-      "reviewedAt": "2026-09-06",
+      "reviewedAt": "2026-09-18",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-securitypolicy.php",
-          "sha256": "23ee1be58ac9c5ef1671fed3fa2462b135dd1e1d613da0c330948e968e431a84"
+          "sha256": "165ed715c434d823da7108bcdcc282a67634c88b9cc8286f38c9070ce7fd1037"
         }
       ]
     },
@@ -124,12 +125,12 @@
       "id": "translation-en-editorial-fields",
       "kind": "translation",
       "doc": "docs/handbook/translation-freshness.md",
-      "reviewedAt": "2026-09-06",
+      "reviewedAt": "2026-09-22",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-translationpolicy.php",
-          "sha256": "418dcb111c238b4cbc103782d82ef673df5f87f5c567e1729a37bd662238c0d6"
+          "sha256": "cdab35523c4f7dd69ed876af2b74d828111249e3077c633d083bf0e84d44675d"
         }
       ]
     },
@@ -137,16 +138,16 @@
       "id": "design-tokens",
       "kind": "source",
       "doc": "docs/design/design-system-guide.md",
-      "reviewedAt": "2026-09-08",
+      "reviewedAt": "2026-09-23",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "wp-content/themes/lps-theme/theme.json",
-          "sha256": "35d799a79cda2726107153610ce172502fca43c6c17fe5f5bcaee0b00c658974"
+          "sha256": "4c3044af13db2dfff6a2c69d0a4a78f2d1675549dfeb549fd6b11da4e33c5b75"
         },
         {
           "path": "DESIGN.md",
-          "sha256": "0bae724aeb44ce0a87c68db46d08e058128d41222bb28ce82a2a9dd79311a5b2"
+          "sha256": "2bf41a050fdbc6c9aeb73aa998853ea36e13ec0b7cd1ee8ec6c9009112b97259"
         }
       ]
     },
@@ -154,12 +155,12 @@
       "id": "governance-matrix",
       "kind": "source",
       "doc": "docs/handbook/editorial-quick-start.md",
-      "reviewedAt": "2026-09-06",
+      "reviewedAt": "2026-09-22",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "tests/fixtures/governance/role-collection-matrix.json",
-          "sha256": "37b65f0aae8a28524dc3b8a3363eb1c0f2dc2aa1bfe5284eaadfb83c02581227"
+          "sha256": "fd694a63063b33adb7f3abb8768b69aef0df1f354808092e8574c2dd0fb80fa0"
         }
       ]
     },
@@ -173,6 +174,27 @@
         {
           "path": "docs/operations/recovery-objectives.json",
           "sha256": "daf9619f4374c7b346977362798bd74258351b364c6af469552f5986c1f007f9"
+        }
+      ]
+    },
+    {
+      "id": "faculty-dashboard-labels",
+      "kind": "source",
+      "doc": "docs/handbook/guia-docente-painel.md",
+      "reviewedAt": "2026-09-23",
+      "maxAgeDays": 180,
+      "sources": [
+        {
+          "path": "wp-content/themes/lps-theme/includes/class-dashboardsurfaces.php",
+          "sha256": "44b3787a01a0bae28128b244626f4f73b7bb5d53e85ed8863a0118e4fdb1acc5"
+        },
+        {
+          "path": "wp-content/plugins/lps-content-model/includes/class-taskdashboard.php",
+          "sha256": "e25d5f1640d7e83ded98b6210dd9c3d7b24abd74f7df5e046a5128d4f4114926"
+        },
+        {
+          "path": "wp-content/themes/lps-theme/includes/class-dashboardroutes.php",
+          "sha256": "c4739f4493fd7b43ac3ed948a724fb9901bdb50929369777e1730899e27b0ce4"
         }
       ]
     }
@@ -221,6 +243,24 @@
       "source": {
         "file": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
         "mustContain": "'founded_year'"
+      }
+    },
+    {
+      "id": "setting-lps_teaching_storage_root",
+      "category": "production-setting",
+      "token": "LPS_TEACHING_STORAGE_ROOT",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-teachingstorage.php",
+        "mustContain": "LPS_TEACHING_STORAGE_ROOT"
+      }
+    },
+    {
+      "id": "setting-lps_teaching_scanner_approved",
+      "category": "production-setting",
+      "token": "LPS_TEACHING_SCANNER_APPROVED",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-teachingstorage.php",
+        "mustContain": "LPS_TEACHING_SCANNER_APPROVED"
       }
     },
     {
@@ -563,6 +603,24 @@
       "source": {
         "file": "wp-content/plugins/lps-content-model/includes/class-securitypolicy.php",
         "mustContain": "'deployer'"
+      }
+    },
+    {
+      "id": "role-professor",
+      "category": "role",
+      "token": "professor",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-securitypolicy.php",
+        "mustContain": "'professor'"
+      }
+    },
+    {
+      "id": "role-delegate",
+      "category": "role",
+      "token": "delegate",
+      "source": {
+        "file": "wp-content/plugins/lps-content-model/includes/class-securitypolicy.php",
+        "mustContain": "'delegate'"
       }
     },
     {
