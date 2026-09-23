@@ -3364,9 +3364,14 @@ th code {
   }
 
   /* The brand block keeps a dead zone between itself and the link columns —
-     the columns pack against the right half of the band. */
+     the columns pack against the right half of the band and sit a step
+     lower than the logo. */
   .lps-footer-inner > .lps-footer-brand {
     margin-inline-end: clamp(var(--space-6), 6vw, var(--space-20));
+  }
+
+  .lps-footer-inner > div:not(.lps-footer-brand) {
+    margin-block-start: clamp(var(--space-4), 2.5vw, var(--space-10));
   }
 }
 
