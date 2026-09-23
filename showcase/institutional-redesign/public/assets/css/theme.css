@@ -1350,8 +1350,7 @@ textarea:focus-visible {
   border-color: var(--color-action);
 }
 
-.lps-locale ul,
-.lps-locale-switch ul {
+.lps-locale ul {
   align-items: center;
   display: flex;
   gap: var(--space-2) var(--space-3);
@@ -1367,50 +1366,110 @@ textarea:focus-visible {
   gap: var(--space-1);
 }
 
-.lps-locale-switch a,
-.lps-locale-switch span {
+.lps-locale-switch {
+  position: relative;
+}
+
+.lps-locale-switch > details > summary {
   align-items: center;
   border: var(--line-thin) solid transparent;
   border-radius: var(--radius-xs);
   color: var(--color-text-muted);
+  cursor: pointer;
   display: inline-flex;
   font-family: var(--font-mono);
   font-size: var(--type-meta);
   font-weight: 400;
+  gap: var(--space-2);
   letter-spacing: 0.08em;
+  list-style: none;
   min-block-size: var(--control-min);
   padding: var(--space-1) var(--space-3);
-  text-decoration: none;
   text-transform: uppercase;
 }
 
-.lps-locale-switch a:hover {
+.lps-locale-switch > details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.lps-locale-switch > details > summary:hover {
   border-color: var(--color-boundary-strong);
   color: var(--color-action-hover);
 }
 
-.lps-locale-switch [aria-current="true"],
-.lps-locale-switch [aria-current="page"] {
-  background: var(--color-anchor);
-  border-color: var(--color-anchor);
-  color: var(--color-surface);
-}
-
-.lps-utility-bar .lps-locale-switch a {
+.lps-utility-bar .lps-locale-switch > details > summary {
   color: var(--color-on-dark);
 }
 
-.lps-utility-bar .lps-locale-switch a:hover {
+.lps-utility-bar .lps-locale-switch > details > summary:hover {
   background: var(--overlay-light-12);
   border-color: var(--overlay-light-50);
   color: var(--color-surface);
 }
 
-.lps-utility-bar .lps-locale-switch [aria-current="true"],
-.lps-utility-bar .lps-locale-switch [aria-current="page"] {
-  background: var(--color-locale-selected);
-  border-color: var(--overlay-light-14);
-  color: var(--color-surface);
+.lps-flag {
+  border: var(--line-thin) solid var(--overlay-light-50);
+  border-radius: 1px;
+  block-size: auto;
+  display: block;
+  inline-size: 1.125rem;
+}
+
+.lps-locale-caret {
+  block-size: 0.35rem;
+  border-block-end: 1.5px solid currentColor;
+  border-inline-end: 1.5px solid currentColor;
+  inline-size: 0.35rem;
+  rotate: 45deg;
+  transition: rotate var(--motion-standard) var(--ease-state);
+}
+
+.lps-locale-switch > details[open] .lps-locale-caret {
+  rotate: 225deg;
+}
+
+.lps-locale-menu {
+  background: var(--color-surface);
+  border: var(--rule-hairline);
+  border-block-start: var(--line-heavy) solid var(--color-accent);
+  box-shadow: var(--shadow-md);
+  inset-block-start: 100%;
+  inset-inline-end: 0;
+  list-style: none;
+  margin: 0;
+  min-inline-size: 10.5rem;
+  padding: var(--space-1) 0;
+  position: absolute;
+  z-index: 40;
+}
+
+.lps-locale-menu a,
+.lps-locale-menu li > span {
+  align-items: center;
+  color: var(--color-text);
+  display: flex;
+  font-size: var(--type-small);
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  text-decoration: none;
+}
+
+.lps-locale-menu a:hover {
+  background: var(--color-wash-action-subtle);
+  color: var(--color-action-hover);
+}
+
+.lps-locale-menu [aria-current="page"] {
+  color: var(--color-anchor);
+  font-weight: 600;
+}
+
+.lps-locale-menu [aria-disabled="true"] {
+  color: var(--color-text-muted);
+}
+
+.lps-locale-switch > details:not([open]) > .lps-locale-menu {
+  display: none;
 }
 
 /* No-JS disclosure panel: closed means closed, stated explicitly rather than
