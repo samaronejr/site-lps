@@ -31,12 +31,14 @@ async function copyAssets() {
   await mkdir(join(outRoot, "assets", "css"), { recursive: true });
   await mkdir(join(outRoot, "assets", "fonts"), { recursive: true });
   await mkdir(join(outRoot, "assets", "img"), { recursive: true });
+  await mkdir(join(outRoot, "assets", "js"), { recursive: true });
 
-  // The shipped stylesheet, byte-identical.
+  // The shipped stylesheet and script, byte-identical.
   await cp(
     join(themeRoot, "assets", "css", "theme.css"),
     join(outRoot, "assets", "css", "theme.css"),
   );
+  await cp(join(themeRoot, "assets", "js", "theme.js"), join(outRoot, "assets", "js", "theme.js"));
 
   // Self-hosted fonts (SIL OFL 1.1) and their licence.
   for (const file of await readdir(join(themeRoot, "assets", "fonts"))) {

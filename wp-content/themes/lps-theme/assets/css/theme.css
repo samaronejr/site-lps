@@ -1005,6 +1005,13 @@ a.lps-button-quiet:hover {
   justify-content: space-between;
   min-block-size: 2.5rem;
   padding-block: var(--space-2);
+  position: relative;
+}
+
+/* The magnifier sits tight against the locale switch: the two disclosures
+   read as one tool pair rather than separate band items. */
+.lps-utility-bar .lps-locale-switch + .lps-search-disclosure {
+  margin-inline-start: calc(-1 * var(--space-3));
 }
 
 .lps-utility-inner p {
@@ -1547,6 +1554,36 @@ textarea:focus-visible {
   padding: var(--space-4);
   position: absolute;
   z-index: 40;
+}
+
+/* In the utility band the search opens as a full-width strip anchored to
+   the page grid — the institutional pattern — instead of a narrow card:
+   the disclosure is made static so the panel can span the row, and the
+   form centres in a comfortable measure with taller controls. */
+.lps-utility-bar .lps-search-disclosure {
+  position: static;
+}
+
+.lps-utility-bar .lps-search-panel {
+  inline-size: auto;
+  inset-inline: 0;
+  inset-block-start: calc(100% + 1px);
+  padding: var(--space-5) var(--space-6);
+}
+
+.lps-utility-bar .lps-search-panel .lps-search {
+  margin-inline: auto;
+  max-inline-size: 46rem;
+}
+
+.lps-utility-bar .lps-search-panel input[type="search"] {
+  font-size: var(--type-body);
+  min-block-size: 3rem;
+}
+
+.lps-utility-bar .lps-search-panel .lps-search button {
+  min-block-size: 3rem;
+  padding-inline: var(--space-6);
 }
 
 /* The dark-bar focus token reads white on the panel's surface: restore the

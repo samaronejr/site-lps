@@ -58,6 +58,7 @@ add_action(
 	static function (): void {
 		$version = wp_get_theme()->get( 'Version' );
 		wp_enqueue_style( 'lps-theme', get_theme_file_uri( 'assets/css/theme.css' ), array(), $version );
+		wp_enqueue_script( 'lps-theme', get_theme_file_uri( 'assets/js/theme.js' ), array(), $version, true );
 	}
 );
 

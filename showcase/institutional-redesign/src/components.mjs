@@ -443,6 +443,7 @@ ${header(locale, path, alternates)}
 ${body}
 </main>
 ${footer(locale)}
+<script src="/assets/js/theme.js" defer></script>
 </body>
 </html>
 `.replace("/* spacer */", "");
