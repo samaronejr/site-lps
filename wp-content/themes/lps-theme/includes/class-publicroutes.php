@@ -385,6 +385,30 @@ final class PublicRoutes {
 		return false;
 	}
 
+	/**
+	 * Answers core post-archive surfaces with the 404 template.
+	 *
+	 * The corpus publishes only `lps_*` records and pages, so the stock
+	 * archives (author, category, tag, taxonomy, date) and any stray `post`
+	 * single are dead surfaces — the author archive additionally discloses
+	 * every account name. The home surface is the front page and must be
+	 * left alone; editor previews keep working.
+	 */
+	public static function guard_dead_archives(): void {
+		if ( ! function_exists( 'is_author' ) ) {
+			return;
+		}
+		if ( ! ( is_author() || is_category() || is_tag() || is_tax() || is_date() || ( is_single() && 'post' === get_post_type() && ! is_preview() ) ) ) {
+			return;
+		}
+		global $wp_query;
+		if ( $wp_query instanceof WP_Query ) {
+			$wp_query->set_404();
+		}
+		status_header( 404 );
+		nocache_headers();
+	}
+
 	/** Answers a withheld or unknown single address with the 404 template. */
 	public static function guard_withheld_records(): void {
 		$route = self::match_path( self::request_path() );
@@ -412,6 +436,7 @@ final class PublicRoutes {
 		add_filter( 'redirect_canonical', array( self::class, 'keep_locale_route' ), 10, 2 );
 		add_filter( 'post_type_link', array( self::class, 'canonical_record_link' ), 10, 2 );
 		add_filter( 'language_attributes', array( self::class, 'route_language_attributes' ), 210 );
+		add_action( 'template_redirect', array( self::class, 'guard_dead_archives' ), 4 );
 		add_action( 'template_redirect', array( self::class, 'canonicalize_record_request' ), 4 );
 		add_action( 'template_redirect', array( self::class, 'guard_withheld_records' ), 5 );
 	}

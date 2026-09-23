@@ -86,7 +86,9 @@ class WP_Object_Cache {
 		if ( ! is_file( $file ) ) {
 			return null;
 		}
-		$raw = file_get_contents( $file );
+		// The expiry sweep in another request can remove the file between
+		// is_file() and the read, so the read is allowed to lose the race.
+		$raw = @file_get_contents( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents,WordPress.PHP.NoSilencedErrors.Discouraged -- a missing entry means a cache miss, not an error.
 		if ( false === $raw ) {
 			return null;
 		}
@@ -120,7 +122,15 @@ class WP_Object_Cache {
 		if ( false === file_put_contents( $tmp, serialize( $entry ) ) ) {
 			return false;
 		}
-		return rename( $tmp, $this->file( $key, $group ) );
+		$target = $this->file( $key, $group );
+		// The ops volume does not support rename-over-existing, so an
+		// occupied slot is removed first and the write stays atomic enough
+		// for a cache (a concurrent reader simply misses).
+		if ( is_file( $target ) && ! wp_delete_file( $target ) ) {
+			wp_delete_file( $tmp );
+			return false;
+		}
+		return rename( $tmp, $target );
 	}
 
 	/**
