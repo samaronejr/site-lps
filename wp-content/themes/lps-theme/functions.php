@@ -56,8 +56,11 @@ add_action(
 add_action(
 	'wp_enqueue_scripts',
 	static function (): void {
-		$version = wp_get_theme()->get( 'Version' );
+		// Bust browser caches on content, not on the static theme version —
+		// otherwise every deployed change stays invisible until a hard reload.
+		$version = wp_get_theme()->get( 'Version' ) . '.' . filemtime( get_theme_file_path( 'assets/css/theme.css' ) );
 		wp_enqueue_style( 'lps-theme', get_theme_file_uri( 'assets/css/theme.css' ), array(), $version );
+		$version = wp_get_theme()->get( 'Version' ) . '.' . filemtime( get_theme_file_path( 'assets/js/theme.js' ) );
 		wp_enqueue_script( 'lps-theme', get_theme_file_uri( 'assets/js/theme.js' ), array(), $version, true );
 	}
 );
