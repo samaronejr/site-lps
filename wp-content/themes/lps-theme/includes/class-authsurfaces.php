@@ -25,6 +25,10 @@ declare(strict_types=1);
 
 namespace LPS\Theme;
 
+if ( ! class_exists( SeoSurfaces::class ) ) {
+	require_once __DIR__ . '/class-seosurfaces.php';
+}
+
 /** Renders the sign-in document and its states. */
 final class AuthSurfaces {
 
@@ -50,6 +54,7 @@ final class AuthSurfaces {
 			. '<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
 			. '<meta name="robots" content="noindex, nofollow">'
 			. '<title>' . self::esc( $title . ' — LPS' ) . '</title>'
+			. SeoSurfaces::icon_links()
 			. ( '' !== $css_url ? '<link rel="stylesheet" href="' . self::esc( $css_url ) . '">' : '' ) // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet -- This route renders a whole standalone document; wp_enqueue_style has no pipeline to attach to.
 			. '</head><body class="lps-signin-page">'
 			. $header

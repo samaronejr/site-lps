@@ -205,7 +205,7 @@ final class SeoSurfaces {
 	 * (DESIGN.md §9): they never appear in page content. Every URL is
 	 * root-relative so the head stays origin-agnostic like the rest of the shell.
 	 */
-	private static function icon_links(): string {
+	public static function icon_links(): string {
 		$base = '/wp-content/themes/lps-theme/assets/img/mark';
 		return '<link rel="icon" href="' . $base . '/lps-mark-favicon.svg" type="image/svg+xml">'
 			. '<link rel="icon" href="' . $base . '/favicon-32.png" type="image/png" sizes="32x32">'

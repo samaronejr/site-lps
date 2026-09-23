@@ -32,6 +32,10 @@ if ( ! class_exists( TaskDashboard::class ) ) {
 	require_once dirname( __DIR__, 3 ) . '/plugins/lps-content-model/includes/class-taskdashboard.php';
 }
 
+if ( ! class_exists( SeoSurfaces::class ) ) {
+	require_once __DIR__ . '/class-seosurfaces.php';
+}
+
 /** Renders the dashboard document and its task views. */
 final class DashboardSurfaces {
 	/**
@@ -56,6 +60,7 @@ final class DashboardSurfaces {
 			. '<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
 			. '<meta name="robots" content="noindex, nofollow">'
 			. '<title>' . self::esc( $title . ' — LPS' ) . '</title>'
+			. SeoSurfaces::icon_links()
 			// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet -- Standalone dashboard document outside wp_head; the theme stylesheet is emitted directly.
 			. ( '' !== $css_url ? '<link rel="stylesheet" href="' . self::esc( $css_url ) . '">' : '' )
 			. '</head><body class="lps-dashboard">'
