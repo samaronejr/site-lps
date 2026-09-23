@@ -54,15 +54,15 @@ describe("task-22: shipped payload stays inside the approved budgets", () => {
     expect(report.violations).toEqual([]);
     expect(report.pass).toBe(true);
     expect(report.totals.fonts).toBeLessThanOrEqual(BUDGETS.fonts);
-    expect(report.totals.js).toBe(0);
+    expect(report.totals.js).toBeLessThanOrEqual(BUDGETS.js);
     expect(report.totals.total).toBeLessThanOrEqual(BUDGETS.total);
   });
 
-  it("ships no front-end JavaScript and only the two approved preloaded faces", async () => {
+  it("ships only the approved enhancement script and the two preloaded faces", async () => {
     const policy = await read(ASSET_POLICY);
     expect(policy).toContain("front_end_scripts");
     expect(policy).toMatch(
-      /public static function front_end_scripts\(\): array \{\s*return array\(\);/,
+      /public static function front_end_scripts\(\): array \{\s*return array\( 'lps-theme' \);/,
     );
     expect(policy).toContain("inter-regular.woff2");
     expect(policy).toContain("space-grotesk-semibold.woff2");

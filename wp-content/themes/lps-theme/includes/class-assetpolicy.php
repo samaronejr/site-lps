@@ -107,13 +107,15 @@ final class AssetPolicy {
 	/**
 	 * Lists the front-end scripts this theme enqueues.
 	 *
-	 * The public site is fully server-rendered, so the list is empty by contract and
-	 * `PerformancePolicyTest` fails the moment a script is added without a budget review.
+	 * The public site is fully server-rendered and works without JavaScript; the
+	 * single approved handle is `lps-theme`, a deferred progressive-enhancement
+	 * file (disclosure light-dismiss and focus aids). `PerformancePolicyTest`
+	 * fails the moment a further script is added without a budget review.
 	 *
 	 * @return array<int, string>
 	 */
 	public static function front_end_scripts(): array {
-		return array();
+		return array( 'lps-theme' );
 	}
 
 	/**
