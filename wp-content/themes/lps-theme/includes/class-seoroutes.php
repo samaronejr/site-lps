@@ -709,10 +709,11 @@ final class SeoRoutes {
 					$state['expired'] = true;
 				}
 			}
-			if ( 'lps_person' === $post->post_type && ! get_post_meta( $post->ID, '_lps_privacy_reviewed', true ) ) {
+			if ( 'lps_person' === $post->post_type && ! get_post_meta( self::source_id( $post ), '_lps_privacy_reviewed', true ) ) {
 				// The sitemap withholds a person until the privacy review is recorded;
 				// the document itself must answer with the same private state so an
-				// unreviewed profile is never indexable while unlisted.
+				// unreviewed profile is never indexable while unlisted. The flag is
+				// Portuguese-authoritative, so the source record carries it.
 				$state['private'] = true;
 			}
 		}
@@ -1095,7 +1096,7 @@ final class SeoRoutes {
 					$state['expired'] = true;
 				}
 			}
-			if ( 'lps_person' === $post->post_type && ! get_post_meta( $post->ID, '_lps_privacy_reviewed', true ) ) {
+			if ( 'lps_person' === $post->post_type && ! get_post_meta( self::source_id( $post ), '_lps_privacy_reviewed', true ) ) {
 				$state['private'] = true;
 			}
 			if ( isset( $addressable[ $post->post_type ] ) && ! in_array( $post->post_name, $addressable[ $post->post_type ], true ) ) {
@@ -1225,10 +1226,11 @@ final class SeoRoutes {
 			}
 			return self::publicly_visible( $course, $locale );
 		}
-		if ( 'lps_person' === $post->post_type && ! get_post_meta( $post->ID, '_lps_privacy_reviewed', true ) ) {
+		if ( 'lps_person' === $post->post_type && ! get_post_meta( self::source_id( $post ), '_lps_privacy_reviewed', true ) ) {
 			// Same privacy gate the sitemap applies: an unreviewed person is not a
 			// public variant, so it must not be advertised by hreflang or the
-			// switcher either.
+			// switcher either. The flag lives on the Portuguese source record —
+			// an English variant is forbidden from carrying its own copy.
 			return false;
 		}
 		return true;
