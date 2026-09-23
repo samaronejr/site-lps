@@ -1840,7 +1840,7 @@ textarea:focus-visible {
  * ------------------------------------------------------------------------- */
 
 .lps-page-header {
-  background: var(--gradient-page-header);
+  background: var(--color-canvas);
   border-block-end: var(--line-heavy) solid var(--color-anchor);
   overflow: clip;
   position: relative;
