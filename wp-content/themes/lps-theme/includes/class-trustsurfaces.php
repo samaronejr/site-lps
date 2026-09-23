@@ -748,6 +748,14 @@ final class TrustSurfaces {
 			$items .= '</li>';
 		}
 
+		// A section needs a real trail: verified claims, omitted claims the
+		// reader should know about, or a reporting contact. The review stamp
+		// alone is metadata, not something to verify, so a page carrying
+		// nothing else renders no section at all.
+		if ( '' === $items && 0 === $dropped && ( '' === $report || ! self::is_email( $report ) ) ) {
+			return '';
+		}
+
 		$body = '';
 		if ( '' !== $items ) {
 			$body .= '<section class="lps-claims"><h3>' . self::esc( $english ? 'Verified institutional context' : 'Contexto institucional verificado' ) . '</h3><ul>' . $items . '</ul></section>';
