@@ -3359,7 +3359,14 @@ th code {
 
 @media (min-width: 68rem) {
   .lps-footer-inner {
-    grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr));
+    column-gap: clamp(var(--space-8), 4.5vw, var(--space-16));
+    grid-template-columns: minmax(0, 1.15fr) repeat(3, minmax(0, 0.95fr));
+  }
+
+  /* The brand block keeps a dead zone between itself and the link columns —
+     the columns pack against the right half of the band. */
+  .lps-footer-inner > .lps-footer-brand {
+    margin-inline-end: clamp(var(--space-6), 6vw, var(--space-20));
   }
 }
 
