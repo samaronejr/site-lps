@@ -278,6 +278,13 @@ final class Shell {
 			$current        = rtrim( $path, '/' ) === rtrim( $url, '/' ) ? ' aria-current="page"' : '';
 			$utility_items .= '<li><a' . $current . ' href="' . self::escape( $url ) . '">' . self::escape( $label ) . '</a></li>';
 		}
+		// The intranet joins the band only for signed-in sessions; the edge
+		// cache never stores logged-in responses, so anonymous caches stay clean.
+		if ( function_exists( 'is_user_logged_in' ) && is_user_logged_in() ) {
+			$intranet       = IntranetRoutes::intranet_path( $locale );
+			$current        = rtrim( $path, '/' ) === rtrim( $intranet, '/' ) ? ' aria-current="page"' : '';
+			$utility_items .= '<li><a' . $current . ' href="' . self::escape( $intranet ) . '">' . self::escape( 'Intranet' ) . '</a></li>';
+		}
 		// The utility band carries the search as a magnifier disclosure, like the
 		// reference institution's header: the icon opens a panel with the form,
 		// so the masthead row only has to carry the artwork and the navigation.
