@@ -169,8 +169,11 @@ final class IntranetRoutes {
 			return true;
 		}
 		$access = self::section_access( $post );
-		if ( 'project' !== $access['level'] || $access['project'] <= 0 ) {
+		if ( 'project' !== $access['level'] ) {
 			return true;
+		}
+		if ( $access['project'] <= 0 ) {
+			return false;
 		}
 		return in_array( $access['project'], self::user_projects( $user ), true );
 	}
@@ -235,7 +238,7 @@ final class IntranetRoutes {
 			}
 		}
 		if ( function_exists( 'status_header' ) ) {
-			status_header( 'locked' === $route['view'] || 'missing' === $route['view'] ? 403 : 200 );
+			status_header( 'missing' === $route['view'] ? 404 : ( 'locked' === $route['view'] ? 403 : 200 ) );
 		}
 		header( 'Content-Type: text/html; charset=utf-8' );
 		header( 'Cache-Control: private, no-store' );
