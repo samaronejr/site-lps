@@ -141,6 +141,8 @@ export function header(locale, currentPath, alternates) {
 <li><a${locale === "en" ? ' aria-current="page"' : ""} hreflang="en" lang="en" href="${alternates?.en ?? "/en/"}">${flags.en}<span>English</span></a></li>
 </ul></details></nav>`;
 
+  const searchToggle = `<details class="lps-search-disclosure"><summary aria-label="${esc(t.searchLabel)}"><svg class="lps-search-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m13.5 13.5 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/></svg></summary><div class="lps-search-panel">${searchForm()}</div></details>`;
+
   return `<a class="lps-skip-link" href="#lps-main">${esc(t.skip)}</a>
 <header class="lps-site-header">
 <div class="lps-utility-bar">
@@ -148,18 +150,13 @@ export function header(locale, currentPath, alternates) {
 <p>${esc(locale === "en" ? "Signal Processing Laboratory · UFRJ · COPPE" : "Laboratório de Processamento de Sinais · UFRJ · COPPE")}</p>
 <nav aria-label="${esc(t.quickLabel)}"><ul class="lps-utility-links">${utility}</ul></nav>
 ${localeSwitch}
+${searchToggle}
 <a class="lps-session-link" href="${locale === "en" ? "/en/sign-in/" : "/entrar/"}">${esc(t.signIn)}</a>
 </div>
 </div>
 <div class="lps-masthead lps-page-grid">
 ${brandMarkup(locale)}
-<div class="lps-shell-tools">
-${searchForm()}
-<a class="lps-button lps-button-primary" href="${locale === "en" ? "/en/contact/" : "/contato/"}">${esc(t.collaborate)}</a>
-</div>
-</div>
-<div class="lps-masthead-nav lps-page-grid">
-<nav class="lps-primary-nav" aria-label="${esc(t.navLabel)}"><ul>${navItems}</ul></nav>
+<nav class="lps-primary-nav lps-masthead-nav" aria-label="${esc(t.navLabel)}"><ul>${navItems}</ul></nav>
 </div>
 <details class="lps-shell-disclosure">
 <summary>${esc(t.menu)}</summary>

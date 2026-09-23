@@ -1449,8 +1449,15 @@ textarea:focus-visible {
   display: flex;
   font-size: var(--type-small);
   gap: var(--space-2);
+  min-block-size: var(--control-min);
   padding: var(--space-2) var(--space-3);
   text-decoration: none;
+}
+
+/* The dark-bar focus token reads white on the menu's own surface: restore the
+   action outline for controls that open inside the light dropdown panel. */
+.lps-utility-bar .lps-locale-menu :focus-visible {
+  outline-color: var(--color-action);
 }
 
 .lps-locale-menu a:hover {
@@ -1478,14 +1485,71 @@ textarea:focus-visible {
   display: none;
 }
 
-/* The desktop navigation row: a second, ruled tier under the masthead, exactly
-   as the reference institution separates identity from navigation. */
-.lps-masthead-nav {
-  border-block-start: var(--rule-hairline);
+/* The desktop navigation rides inside the masthead row, beside the artwork. */
+.lps-masthead .lps-primary-nav {
+  margin-inline-start: auto;
 }
 
-.lps-masthead-nav .lps-primary-nav > ul {
-  justify-content: flex-start;
+.lps-masthead .lps-primary-nav > ul {
+  justify-content: flex-end;
+}
+
+/* The utility band's search toggle: a magnifier that opens a panel holding the
+   form — the same disclosure pattern the locale switch uses, so no script is
+   needed to reach it. */
+.lps-search-disclosure {
+  position: relative;
+}
+
+.lps-search-disclosure > summary {
+  align-items: center;
+  border: var(--line-thin) solid transparent;
+  border-radius: var(--radius-xs);
+  color: var(--color-on-dark);
+  cursor: pointer;
+  display: inline-flex;
+  list-style: none;
+  min-block-size: var(--control-min);
+  padding: var(--space-1) var(--space-2);
+}
+
+.lps-search-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.lps-search-disclosure > summary:hover {
+  background: var(--overlay-light-12);
+  border-color: var(--overlay-light-50);
+  color: var(--color-surface);
+}
+
+.lps-search-icon {
+  block-size: 1.125rem;
+  display: block;
+  inline-size: 1.125rem;
+}
+
+.lps-search-panel {
+  background: var(--color-surface);
+  border: var(--rule-hairline);
+  border-block-start: var(--line-heavy) solid var(--color-accent);
+  box-shadow: var(--shadow-md);
+  inline-size: min(22rem, calc(100vw - (2 * var(--grid-gutter))));
+  inset-block-start: 100%;
+  inset-inline-end: 0;
+  padding: var(--space-4);
+  position: absolute;
+  z-index: 40;
+}
+
+/* The dark-bar focus token reads white on the panel's surface: restore the
+   action outline for the controls that open inside it. */
+.lps-utility-bar .lps-search-panel :focus-visible {
+  outline-color: var(--color-action);
+}
+
+.lps-search-disclosure:not([open]) > .lps-search-panel {
+  display: none;
 }
 
 /* ----------------------------------------------------------------------------

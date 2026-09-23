@@ -264,30 +264,30 @@ final class ThemeShellTest extends \PHPUnit\Framework\TestCase {
 		// Given: a rendered English header.
 		$header = Shell::header_markup( 'en', '/en/research/' );
 
-		// Then: skip link, banner, locale switch, masthead search, CTA, nav and
+		// Then: skip link, banner, locale switch, utility search, nav and
 		// disclosure appear in reading order; the disclosure repeats nav+tools.
 		$positions = array(
 			'skip'    => strpos( $header, 'href="#lps-main"' ),
 			'banner'  => strpos( $header, '<header' ),
 			'locale'  => strpos( $header, 'aria-label="Language"' ),
 			'search'  => strpos( $header, 'role="search"' ),
-			'cta'     => strpos( $header, 'href="/en/collaborate/"' ),
 			'nav'     => strpos( $header, 'aria-label="Primary navigation"' ),
 			'summary' => strpos( $header, 'lps-shell-disclosure' ),
+			'cta'     => strpos( $header, 'href="/en/collaborate/"' ),
 		);
 		foreach ( $positions as $position ) {
 			self::assertNotFalse( $position );
 		}
-		// The locale switch rides the utility band, the masthead carries the
-		// search and the collaborate CTA, and the desktop navigation tier
-		// precedes the disclosure's own copy of the nav and tools.
+		// The locale switch and the search toggle ride the utility band, the
+		// masthead row carries the desktop navigation, and the disclosure panel
+		// repeats the nav with the search and the collaborate CTA inside it.
 		self::assertTrue(
 			$positions['skip'] < $positions['banner']
 			&& $positions['banner'] < $positions['locale']
 			&& $positions['locale'] < $positions['search']
-			&& $positions['search'] < $positions['cta']
-			&& $positions['cta'] < $positions['nav']
+			&& $positions['search'] < $positions['nav']
 			&& $positions['nav'] < $positions['summary']
+			&& $positions['summary'] < $positions['cta']
 			&& false !== strpos( $header, 'id="lps-search-input-2"', $positions['summary'] )
 		);
 	}

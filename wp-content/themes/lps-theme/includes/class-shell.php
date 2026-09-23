@@ -278,15 +278,20 @@ final class Shell {
 			$current        = rtrim( $path, '/' ) === rtrim( $url, '/' ) ? ' aria-current="page"' : '';
 			$utility_items .= '<li><a' . $current . ' href="' . self::escape( $url ) . '">' . self::escape( $label ) . '</a></li>';
 		}
-		$affiliation = $english ? 'Signal Processing Laboratory · UFRJ · COPPE' : 'Laboratório de Processamento de Sinais · UFRJ · COPPE';
+		// The utility band carries the search as a magnifier disclosure, like the
+		// reference institution's header: the icon opens a panel with the form,
+		// so the masthead row only has to carry the artwork and the navigation.
+		$search_toggle = '<details class="lps-search-disclosure"><summary aria-label="'
+			. self::escape( $search_label ) . '"><svg class="lps-search-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m13.5 13.5 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/></svg></summary>'
+			. '<div class="lps-search-panel">' . $search_tools( 'lps-search-input-1' ) . '</div></details>';
+		$affiliation   = $english ? 'Signal Processing Laboratory · UFRJ · COPPE' : 'Laboratório de Processamento de Sinais · UFRJ · COPPE';
 		return '<a class="lps-skip-link" href="#lps-main">' . self::escape( $skip ) . '</a>'
 			. '<header class="lps-site-header">'
-			. '<div class="lps-utility-bar"><div class="lps-utility-inner lps-page-grid"><p>' . self::escape( $affiliation ) . '</p><nav aria-label="' . self::escape( $quick_label ) . '"><ul class="lps-utility-links">' . $utility_items . '</ul></nav>' . $locale_switch . self::session_link( $locale ) . '</div></div>'
-			// The masthead pairs the artwork with the visitor's primary tools —
-			// search and the collaborate entrance — the way the showcase pins them
-			// beside the mark instead of hiding them inside the disclosure.
-			. '<div class="lps-masthead lps-page-grid"><a class="lps-brand" href="' . $home . '" aria-label="LPS — ' . ( $english ? 'home' : 'início' ) . '">' . $mark . '</a><div class="lps-shell-tools">' . $search_tools( 'lps-search-input-1' ) . $collaborate_cta . '</div></div>'
-			. '<div class="lps-masthead-nav lps-page-grid"><nav class="lps-primary-nav" aria-label="' . self::escape( $nav_label ) . '">' . $items . '</nav></div>'
+			. '<div class="lps-utility-bar"><div class="lps-utility-inner lps-page-grid"><p>' . self::escape( $affiliation ) . '</p><nav aria-label="' . self::escape( $quick_label ) . '"><ul class="lps-utility-links">' . $utility_items . '</ul></nav>' . $locale_switch . $search_toggle . self::session_link( $locale ) . '</div></div>'
+			// The masthead pairs the artwork with the primary navigation on one
+			// row; the collaborate entrance and a second search stay inside the
+			// touch disclosure panel.
+			. '<div class="lps-masthead lps-page-grid"><a class="lps-brand" href="' . $home . '" aria-label="LPS — ' . ( $english ? 'home' : 'início' ) . '">' . $mark . '</a><nav class="lps-primary-nav lps-masthead-nav" aria-label="' . self::escape( $nav_label ) . '">' . $items . '</nav></div>'
 			. '<details class="lps-shell-disclosure"><summary>' . self::escape( $menu ) . '</summary><div class="lps-nav-panel lps-page-grid">'
 			. '<nav class="lps-primary-nav" aria-label="' . self::escape( $nav_label ) . '">' . $items . '</nav>'
 			. '<div class="lps-shell-tools">' . $search_tools( 'lps-search-input-2' ) . $collaborate_cta . '</div></div></details></header>';
