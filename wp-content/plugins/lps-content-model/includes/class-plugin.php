@@ -53,6 +53,8 @@ final class Plugin {
 		add_filter( 'update_post_metadata', array( self::class, 'protect_identity_meta' ), 10, 5 );
 		add_filter( 'update_post_metadata', array( self::class, 'protect_role_meta' ), 11, 5 );
 		add_filter( 'pre_delete_post', array( self::class, 'archive_instead_of_delete' ), 10, 3 );
+		add_filter( 'post_row_actions', array( self::class, 'archive_row_action' ), 10, 2 );
+		add_action( 'admin_post_lps_archive', array( self::class, 'handle_archive' ) );
 		add_filter( 'rest_pre_dispatch', array( self::class, 'validate_rest_delete' ), 10, 3 );
 		add_action( 'admin_menu', array( self::class, 'settings_page' ) );
 		add_action( 'admin_notices', array( self::class, 'admin_notices' ) );
@@ -100,12 +102,13 @@ final class Plugin {
 		register_post_status(
 			'lps_archived',
 			array(
-				'label'                  => __( 'Archived', 'lps-content-model' ),
-				'public'                 => false,
-				'internal'               => true,
-				'show_in_admin_all_list' => true,
+				'label'                     => __( 'Archived', 'lps-content-model' ),
+				'public'                    => false,
+				'internal'                  => true,
+				'show_in_admin_all_list'    => true,
+				'show_in_admin_status_list' => true,
 				// translators: %s is the number of archived records.
-				'label_count'            => _n_noop( 'Archived <span class="count">(%s)</span>', 'Archived <span class="count">(%s)</span>', 'lps-content-model' ),
+				'label_count'               => _n_noop( 'Archived <span class="count">(%s)</span>', 'Archived <span class="count">(%s)</span>', 'lps-content-model' ),
 			)
 		);
 
@@ -638,6 +641,19 @@ final class Plugin {
 		if ( null === Policy::deletion_error( $published, $referenced ) ) {
 			return $check;
 		}
+		self::archive_record( $post );
+		return false;
+	}
+
+	/**
+	 * Archives one governed record in place.
+	 *
+	 * Shared by the delete-interception path and the explicit admin action so
+	 * both leave the same `_lps_state` / `_lps_archived_at` footprint.
+	 *
+	 * @param WP_Post $post Record to archive.
+	 */
+	public static function archive_record( WP_Post $post ): void {
 		update_post_meta( $post->ID, '_lps_state', 'archived' );
 		update_post_meta( $post->ID, '_lps_archived_at', gmdate( 'c' ) );
 		wp_update_post(
@@ -647,7 +663,96 @@ final class Plugin {
 			),
 			true
 		);
-		return false;
+	}
+
+	/**
+	 * Adds the Archive row action on governed list tables.
+	 *
+	 * @param array<string, string> $actions Existing row actions.
+	 * @param WP_Post               $post    Row record.
+	 * @return array<string, string>
+	 */
+	public static function archive_row_action( array $actions, WP_Post $post ): array {
+		if ( ! self::may_archive( $post ) ) {
+			return $actions;
+		}
+		$actions['lps_archive'] = sprintf(
+			'<a href="%1$s">%2$s</a>',
+			esc_url( self::archive_url( $post->ID ) ),
+			esc_html__( 'Archive', 'lps-content-model' )
+		);
+		return $actions;
+	}
+
+	/**
+	 * Handles the wp-admin Archive action.
+	 */
+	public static function handle_archive(): void {
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized immediately by sanitize_text_field, Policy, and absint.
+		$post_id = isset( $_GET['post_id'] ) ? absint( sanitize_text_field( Policy::scalar_string( wp_unslash( $_GET['post_id'] ) ) ) ) : 0;
+		$post    = 0 < $post_id ? get_post( $post_id ) : null;
+		if ( ! $post instanceof WP_Post || ! isset( Contracts::post_types()[ $post->post_type ] ) ) {
+			self::redirect_archive( 'lps_error', 'archive-not-found', $post instanceof WP_Post ? $post : null );
+		}
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended -- The nonce itself; sanitized by sanitize_key and verified by wp_verify_nonce on the next line.
+		$nonce = isset( $_GET['_lps_nonce'] ) ? sanitize_key( sanitize_text_field( Policy::scalar_string( wp_unslash( $_GET['_lps_nonce'] ) ) ) ) : '';
+		if ( ! wp_verify_nonce( $nonce, 'lps_archive_' . $post->ID ) ) {
+			self::redirect_archive( 'lps_error', 'archive-nonce', $post );
+		}
+		if ( ! Roles::current_user_can_action( 'archive', Roles::collection_for_post_type( $post->post_type ) ) ) {
+			self::redirect_archive( 'lps_error', 'archive-forbidden', $post );
+		}
+		if ( 'lps_archived' !== $post->post_status ) {
+			self::archive_record( $post );
+		}
+		self::redirect_archive( 'lps_notice', 'archived', $post );
+	}
+
+	/**
+	 * Whether the current user may archive the record from wp-admin.
+	 *
+	 * @param WP_Post $post Candidate record.
+	 */
+	private static function may_archive( WP_Post $post ): bool {
+		return isset( Contracts::post_types()[ $post->post_type ] )
+			&& 'lps_archived' !== $post->post_status
+			&& Roles::current_user_can_action( 'archive', Roles::collection_for_post_type( $post->post_type ) );
+	}
+
+	/**
+	 * Returns the nonced Archive URL for one record.
+	 *
+	 * @param int $post_id Record ID.
+	 */
+	private static function archive_url( int $post_id ): string {
+		return wp_nonce_url(
+			add_query_arg(
+				array(
+					'action'  => 'lps_archive',
+					'post_id' => $post_id,
+				),
+				admin_url( 'admin-post.php' )
+			),
+			'lps_archive_' . $post_id,
+			'_lps_nonce'
+		);
+	}
+
+	/**
+	 * Redirects back to the referring screen with a notice flag.
+	 *
+	 * @param string       $key   Notice query key (`lps_notice` or `lps_error`).
+	 * @param string       $value Notice code.
+	 * @param WP_Post|null $post  Record the action ran on, when known.
+	 */
+	private static function redirect_archive( string $key, string $value, ?WP_Post $post = null ): never {
+		$target = wp_get_referer();
+		if ( ! is_string( $target ) || '' === $target ) {
+			$target = admin_url( null === $post ? 'edit.php' : 'edit.php?post_type=' . $post->post_type );
+		}
+		$target = remove_query_arg( array( 'lps_notice', 'lps_error' ), $target );
+		wp_safe_redirect( add_query_arg( $key, $value, $target ) );
+		exit;
 	}
 
 	/** Registers accessible structured-record panels. */
@@ -691,6 +796,9 @@ final class Plugin {
 			}
 			// translators: %s is an immutable machine field key.
 			echo '<br><span class="description">' . esc_html( sprintf( __( 'Machine key: %s', 'lps-content-model' ), $key ) ) . '</span></p>';
+		}
+		if ( self::may_archive( $post ) ) {
+			echo '<p><a class="button" href="' . esc_url( self::archive_url( $post->ID ) ) . '">' . esc_html__( 'Archive this record', 'lps-content-model' ) . '</a></p>';
 		}
 	}
 
@@ -755,6 +863,16 @@ final class Plugin {
 
 	/** Renders actionable server-side validation notices. */
 	public static function admin_notices(): void {
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended -- Read-only feedback flag set by our own post-archive redirect; it changes no state and is sanitized by sanitize_key.
+		$notice = isset( $_GET['lps_notice'] ) ? sanitize_key( sanitize_text_field( Policy::scalar_string( wp_unslash( $_GET['lps_notice'] ) ) ) ) : '';
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended -- Read-only feedback flag set by our own post-archive redirect; it changes no state and is sanitized by sanitize_key.
+		$error = isset( $_GET['lps_error'] ) ? sanitize_key( sanitize_text_field( Policy::scalar_string( wp_unslash( $_GET['lps_error'] ) ) ) ) : '';
+		if ( 'archived' === $notice ) {
+			echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Record archived.', 'lps-content-model' ) . '</p></div>';
+		}
+		if ( in_array( $error, array( 'archive-not-found', 'archive-nonce', 'archive-forbidden' ), true ) ) {
+			echo '<div class="notice notice-error"><p>' . esc_html__( 'The record could not be archived.', 'lps-content-model' ) . '</p></div>';
+		}
 		if ( empty( self::$pending_errors ) ) {
 			return;
 		}
