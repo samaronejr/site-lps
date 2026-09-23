@@ -281,7 +281,7 @@ final class Shell {
 		// The utility band carries the search as a magnifier disclosure, like the
 		// reference institution's header: the icon opens a panel with the form,
 		// so the masthead row only has to carry the artwork and the navigation.
-		$search_toggle = '<details class="lps-search-disclosure"><summary aria-label="'
+		$search_toggle = '<details class="lps-search-disclosure" name="lps-utility-tools"><summary aria-label="'
 			. self::escape( $search_label ) . '"><svg class="lps-search-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m13.5 13.5 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/></svg></summary>'
 			. '<div class="lps-search-panel">' . $search_tools( 'lps-search-input-1' ) . '</div></details>';
 		$affiliation   = $english ? 'Signal Processing Laboratory · UFRJ · COPPE' : 'Laboratório de Processamento de Sinais · UFRJ · COPPE';
@@ -320,16 +320,16 @@ final class Shell {
 		// destination, so a wordmark alt would announce the brand twice.
 		// The logo never claims a priority hint: fetchpriority is reserved for
 		// the single LCP image so the brand mark cannot compete with it.
-		return '<span class="lps-logo-slot"><img class="lps-logo" src="' . self::escape( $sources['full'] ) . '" alt="" width="1622" height="804" decoding="async"></span>';
+		return '<span class="lps-logo-slot"><img class="lps-logo" src="' . self::escape( $sources['full'] ) . '" alt="" width="1846" height="233" decoding="async"></span>';
 	}
 
 	/**
 	 * Resolves the masthead artwork sources: the COPPE/UFRJ lockup in its
 	 * tight-crop variant for both slots — a faithful swap, never a crop.
 	 *
-	 * The lockup (≈2.02:1) holds the descriptive COPPE · POLI · UFRJ
-	 * lettering at the ~90px rendered height of the masthead slot, so one
-	 * source serves both density descriptors.
+	 * The horizontal lockup (≈7.9:1) holds the descriptive COPPE · POLI ·
+	 * UFRJ lettering beside the wave mark at the ~52px rendered height of
+	 * the masthead slot, so one source serves both density descriptors.
 	 *
 	 * @return array{full: string, compact: string} Resolved artwork URLs;
 	 *                                              empty when unresolvable.
@@ -343,8 +343,8 @@ final class Shell {
 			);
 		}
 		return array(
-			'full'    => $base . 'lps_coppe_blue_lockup.svg',
-			'compact' => $base . 'lps_coppe_blue_lockup.svg',
+			'full'    => $base . 'lps_coppe_blue_horizonte.svg',
+			'compact' => $base . 'lps_coppe_blue_horizonte.svg',
 		);
 	}
 
@@ -452,7 +452,7 @@ final class Shell {
 			$items  .= '<li><a' . $current . ' hreflang="' . $definition['hreflang'] . '" lang="' . $definition['hreflang'] . '" href="' . self::escape( self::internal_href( $variants[ $slug ] ) ) . '">' . $entry . '</a></li>';
 		}
 		$short = isset( $locales[ $locale ] ) ? $locales[ $locale ]['short'] : 'PT';
-		return '<nav class="lps-locale-switch" aria-label="' . self::escape( $label ) . '"><details>'
+		return '<nav class="lps-locale-switch" aria-label="' . self::escape( $label ) . '"><details name="lps-utility-tools">'
 			. '<summary>' . self::locale_flag( $locale ) . '<span>' . self::escape( $short ) . '</span><span class="lps-locale-caret" aria-hidden="true"></span></summary>'
 			. '<ul class="lps-locale-menu">' . $items . '</ul></details></nav>';
 	}

@@ -177,7 +177,7 @@ final class ThemeShellTest extends \PHPUnit\Framework\TestCase {
 		self::assertStringContainsString( 'action="/pt-br/busca/"', $header );
 		self::assertStringContainsString( 'name="q"', $header );
 		self::assertStringContainsString( 'hreflang="en"', $header );
-		self::assertStringContainsString( '/lps-brand/lps_coppe_blue_lockup.svg', $header );
+		self::assertStringContainsString( '/lps-brand/lps_coppe_blue_horizonte.svg', $header );
 		self::assertStringContainsString( 'lps-logo-slot', $header );
 		self::assertStringContainsString( '<footer', $footer );
 		self::assertStringContainsString( '/pt-br/ensino/', $footer );
@@ -214,9 +214,9 @@ final class ThemeShellTest extends \PHPUnit\Framework\TestCase {
 			self::assertStringContainsString( 'class="lps-brand"', $header );
 			self::assertStringContainsString( 'aria-label="LPS — ', $header );
 			self::assertStringContainsString( 'class="lps-logo-slot"', $header );
-			self::assertStringContainsString( '/lps-brand/lps_coppe_blue_lockup.svg', $header );
+			self::assertStringContainsString( '/lps-brand/lps_coppe_blue_horizonte.svg', $header );
 			self::assertStringContainsString( 'alt=""', $header );
-			self::assertStringContainsString( 'width="1622" height="804"', $header );
+			self::assertStringContainsString( 'width="1846" height="233"', $header );
 			self::assertSame( 1, substr_count( $header, '<img' ) );
 		}
 		self::assertStringContainsString( 'aria-label="LPS — início"', $portuguese );

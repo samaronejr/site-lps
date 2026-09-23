@@ -70,6 +70,14 @@ export const MARK_PATH_SHA256 = new Set([
   "c05ee27687a0fe72954a6887127fae47cddfbd0a3caf26563ff83d80199dd30f",
   "b3afb41551d34a93ef2448a97fa2616a2b1ce11eed716075289d8d94a9adbe11",
   "8e7a7a2ca68d79cfe6c31700cd302999b6517aef8eade55d1a90537de1ab8c22",
+  // LPS_COPPE_Blue_horizonte.svg — the horizontal lockup (sha256 f4ff18d8…),
+  // owner-supplied and re-serialised at reduced float precision like the
+  // lockups above: baseline, waveform-and-monogram, affiliation, and
+  // laboratory-and-tagline paths.
+  "47cb4bbf40543024981395478a1987525f10e1b4b21b2a0db68302f6a3b03c40",
+  "32ce4300a5b34f3477c21b9036cd5bcac651bbaa69da3832a9cc209bc57b1d81",
+  "5d87f4cb1f2d721f466214841f40b86bbb1e26842526f8947ca06e2eb96f3c01",
+  "dc938aee7ff2e6d1a01efe89c6958d2df71824a8802a67ee7a111d7320caee52",
 ]);
 export const MARK_GRADIENT_SHA256 = new Set([
   "532ff2aed9b4c04f837d7b2229f41dda2948a8007d46c87ca5cb38ef7448ce65", // wave-gradient

@@ -1108,6 +1108,13 @@ a.lps-button-quiet:hover {
   max-inline-size: 100%;
 }
 
+/* The horizontal lockup (≈7.9:1) fills the masthead slot the stacked lockup
+   left: at the 3.25rem row height the descriptive lettering stays legible
+   and the wordmark fits beside the primary nav on the same row. */
+.lps-masthead .lps-logo {
+  block-size: clamp(2.5rem, 6vw, 3.25rem);
+}
+
 /* The shell's own lettering tier is retired with the descriptor: identity is
    the artwork, and the laboratory name lives in the title, the footer and the
    structured data. */
@@ -1550,6 +1557,27 @@ textarea:focus-visible {
 
 .lps-search-disclosure:not([open]) > .lps-search-panel {
   display: none;
+}
+
+/* Below the utility row's wrap point both dropdown panels anchor to the page
+   gutter, not their trigger: a control sitting mid-row would push an
+   end-anchored panel past the left viewport edge. */
+@media (max-width: 40rem) {
+  .lps-utility-inner {
+    position: relative;
+  }
+
+  .lps-utility-bar .lps-locale-switch,
+  .lps-utility-bar .lps-search-disclosure {
+    position: static;
+  }
+
+  .lps-utility-bar .lps-locale-menu,
+  .lps-utility-bar .lps-search-panel {
+    inline-size: auto;
+    inset-inline: 0;
+    min-inline-size: 0;
+  }
 }
 
 /* ----------------------------------------------------------------------------
