@@ -69,23 +69,39 @@ add_action(
 
 /*
  * wp-login screens — the Two Factor challenge step in particular — otherwise
- * render stock WordPress chrome mid-flow. The site lockup, the anchor palette
- * and the home link keep the hand-off inside the laboratory's identity.
+ * render stock WordPress chrome mid-flow. The full theme stylesheet carries the
+ * tokens, fonts and canvas baseline; the inline layer then re-skins the fixed
+ * wp-login markup so the step reads as the branded sign-in card.
  */
 add_action(
 	'login_enqueue_scripts',
 	static function (): void {
+		$version = wp_get_theme()->get( 'Version' ) . '.' . filemtime( get_theme_file_path( 'assets/css/theme.css' ) );
+		wp_enqueue_style( 'lps-theme', get_theme_file_uri( 'assets/css/theme.css' ), array(), $version );
+
 		$mark = get_theme_file_uri( 'assets/brand/lps_coppe_blue_lockup.svg' );
-		wp_register_style( 'lps-login', false, array(), wp_get_theme()->get( 'Version' ) );
+		wp_register_style( 'lps-login', false, array( 'lps-theme' ), $version );
 		wp_enqueue_style( 'lps-login' );
 		wp_add_inline_style(
 			'lps-login',
-			'body.login{background:#0b1f33;background-image:none;color:#eaf1f8;}'
-			. '#login h1 a{background-image:url(' . esc_url_raw( $mark ) . ');background-position:center center;background-repeat:no-repeat;background-size:contain;height:5.5rem;width:17rem;}'
-			. '.login #backtoblog a,.login #nav a,.login .privacy-policy-page-link a{color:#b8d4ee;}'
-			. '.login #backtoblog a:hover,.login #nav a:hover{color:#fff;}'
-			. '.login form{background:#fff;border:1px solid #d4e2ef;box-shadow:0 10px 30px rgba(4,16,31,.28);}'
-			. '.login .privacy-policy-page-link{color:#b8d4ee;}'
+			'body.login{background:var(--color-canvas);background-image:none;color:var(--color-text);font-family:var(--font-interface);font-size:var(--type-body,1rem);}'
+			. '#login{margin-inline:auto;padding:var(--space-8) var(--space-3);width:min(100% - 2rem,26rem);}'
+			. '#login h1 a{background-image:url(' . esc_url_raw( $mark ) . ');background-position:center center;background-repeat:no-repeat;background-size:contain;height:5.5rem;width:17rem;margin-inline:auto;}'
+			. '.login form{background:var(--color-surface);border:1px solid var(--color-card-rule);border-radius:var(--radius-card);box-shadow:var(--shadow-card);color:var(--color-text);margin-block-start:var(--space-6);padding:var(--space-8);}'
+			. '.login form p{margin-block:0 0 var(--space-4);}'
+			. '.login label,.login legend{color:var(--color-text);font-family:var(--font-interface);font-size:var(--type-small);font-weight:600;letter-spacing:0.01em;}'
+			. '.login form .input,.login form input[type="text"],.login form input[type="password"],.login form input[type="email"],.login form input[type="number"],.login form input[type="tel"],.login form input[type="url"]{background:var(--color-surface);border:1px solid var(--color-info-rule);border-radius:var(--radius-control);box-shadow:none;color:var(--color-text);font-size:1rem;line-height:1.4;min-block-size:var(--control-min);padding:var(--space-2) var(--space-3);}'
+			. '.login form .input:focus,.login form input:focus{border-color:var(--color-action);box-shadow:0 0 0 3px var(--color-wash-action);outline:none;}'
+			. '.login form input[type="checkbox"]{margin-inline-end:var(--space-2);}'
+			. '.login form .button,.login form .button-primary,.login form input[type="submit"]{background:var(--color-action);border:1px solid var(--color-action);border-radius:var(--radius-control);color:var(--color-surface);cursor:pointer;display:inline-flex;font-family:var(--font-interface);font-size:var(--type-small);font-weight:600;justify-content:center;line-height:1.2;min-block-size:var(--control-min);padding:var(--space-3) var(--space-5);text-decoration:none;text-shadow:none;width:100%;}'
+			. '.login form .button:hover,.login form .button-primary:hover,.login form input[type="submit"]:hover{background:var(--color-action-hover);border-color:var(--color-action-hover);color:var(--color-surface);}'
+			. '.login #login_error{background:var(--color-error-wash);border:1px solid var(--color-error-rule);border-inline-start:4px solid var(--color-error);border-left:4px solid var(--color-error);border-radius:var(--radius-control);color:var(--color-error-ink);font-size:var(--type-small);padding:var(--space-4) var(--space-5);}'
+			. '.login .message,.login .notice{background:var(--color-info-wash);border:1px solid var(--color-info-rule);border-inline-start:4px solid var(--color-action);border-left:4px solid var(--color-action);border-radius:var(--radius-control);color:var(--color-anchor);font-size:var(--type-small);padding:var(--space-4) var(--space-5);}'
+			. '.login #login_error a,.login .message a,.login .notice a{color:inherit;font-weight:600;}'
+			. '.login #backtoblog a,.login #nav a,.login .privacy-policy-page-link a{color:var(--color-action);text-decoration:none;}'
+			. '.login #backtoblog a:hover,.login #nav a:hover,.login .privacy-policy-page-link a:hover{color:var(--color-action-hover);text-decoration:underline;}'
+			. '.login .privacy-policy-page-link{color:var(--color-text-muted);}'
+			. '.login form .forgetmenot{font-size:var(--type-small);font-weight:400;}'
 		);
 	}
 );
