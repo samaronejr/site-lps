@@ -3344,6 +3344,77 @@ th code {
   padding: var(--space-5);
 }
 
+/* The staged news card previews the public composition before submit: the
+   agenda row (date tile, topic chip, title, summary) plus the featured image,
+   framed by the heavy rule so it reads as a review artefact, not content yet. */
+.lps-news-preview-card {
+  align-items: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-card-rule);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  margin-block-start: var(--space-5);
+  padding: var(--space-5);
+}
+
+.lps-news-preview-card h3 {
+  font-size: var(--type-h4);
+  margin-block-end: var(--space-1);
+}
+
+.lps-news-preview-card p {
+  color: var(--color-text-muted);
+  font-size: var(--type-small);
+  margin: 0;
+}
+
+@media (max-width: 40rem) {
+  .lps-news-preview-card {
+    align-items: start;
+    gap: var(--space-4);
+    grid-template-columns: 1fr;
+  }
+
+  .lps-news-preview-card .lps-event-date {
+    justify-self: start;
+  }
+}
+
+.lps-news-preview-media {
+  margin: var(--space-5) 0 0;
+}
+
+.lps-news-preview-media img {
+  border-radius: var(--radius-card);
+  display: block;
+  inline-size: 100%;
+  max-block-size: 26rem;
+  object-fit: cover;
+}
+
+.lps-news-preview-media figcaption {
+  color: var(--color-text-soft);
+  font-size: var(--type-small);
+  margin-block-start: var(--space-2);
+}
+
+.lps-news-preview-body {
+  color: var(--color-text-muted);
+  font-size: var(--type-small);
+  margin-block-start: var(--space-4);
+}
+
+.lps-news-preview .lps-button-row {
+  margin-block-start: var(--space-5);
+}
+
+.lps-news-preview .lps-button-row form {
+  margin: 0;
+}
+
 /* ----------------------------------------------------------------------------
  * 18. Footer
  * ------------------------------------------------------------------------- */
