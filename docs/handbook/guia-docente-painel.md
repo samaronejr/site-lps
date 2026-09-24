@@ -137,30 +137,6 @@ registro de pessoa vinculado; sem isso, a tela mostra o aviso de acesso em vez d
 Se a segunda etapa falhar, a disciplina recém-criada é removida automaticamente — tente de
 novo sem medo de duplicar cadastros.
 
-## Criar disciplina (`/pt-br/painel/disciplinas/`)
-
-Disponível para professor e administrador — o docente cadastra disciplinas diretamente, sem
-passar por revisão editorial. A conta precisa ter a verificação em duas etapas ativa e um
-registro de pessoa vinculado; sem isso, a tela mostra o aviso de acesso em vez do formulário.
-
-1. Abra `Criar disciplina`. O formulário tem dois blocos: `Disciplina` e `Primeira oferta`.
-2. Em `Disciplina`, preencha `Título`, `Código`, `Nível`, `Calendário`, `Resumo` e
-   `Conteúdo` (obrigatórios) e, opcionalmente, `Programa`, `Pré-requisitos` e `Ementa`.
-3. Em `Primeira oferta`, escolha o `Período`, informe a `Turma` e, opcionalmente, `Horários`,
-   `Local` e a `Equipe docente`. A oferta precisa de uma equipe com responsável e, como
-   docente, você precisa constar nela — disciplinas só podem ser criadas por quem leciona.
-4. Clique em `Criar disciplina e primeira oferta`. O aviso "Disciplina e primeira
-   oferta criadas como rascunho — publique a oferta pela área de trabalho e a
-   disciplina entra no ar junto." confirma.
-5. Os dois registros nascem como rascunho e a oferta já aparece na sua lista
-   `Minhas ofertas`: a permissão sobre ela é concedida automaticamente. Ao publicar a
-   oferta pela área de trabalho, a disciplina publica junto automaticamente. O envio
-   primeiro em português é permitido — a variante em inglês pode ser adicionada depois
-   pela tarefa de tradução.
-
-Se a segunda etapa falhar, a disciplina recém-criada é removida automaticamente — tente de
-novo sem medo de duplicar cadastros.
-
 ## Área da oferta (`/pt-br/painel/ofertas/`)
 
 Cada oferta atribuída abre uma área de trabalho com os links `Ver a página pública` e
@@ -259,6 +235,26 @@ e uma eventual revogação.
 - Ninguém concede permissão a si mesmo, e o papel da permissão é sempre igual ao papel da conta.
 - Pedidos de concessão, renovação ou revogação vão para um administrador ou para o editor de seção
   da coleção `teaching`. O docente não gerencia permissões pelo painel.
+
+## Atividade recente e notificações por e-mail
+
+A página inicial do painel fecha com a seção `Atividade recente`: uma lista dos seus últimos
+eventos, no máximo oito, do mais novo ao mais antigo. Entram aí os seus envios para revisão, as
+decisões do editor sobre os seus registros, as permissões concedidas ou revogadas na sua conta e
+as unidades e materiais que você criou — cada item com um rótulo em linguagem corrente e a data.
+Enquanto não houver nada seu registrado, a seção mostra o aviso "Seus envios, resultados de
+revisão e mudanças de acesso aparecem aqui."
+
+Duas decisões do sistema também chegam por e-mail, no idioma da sua conta:
+
+- revisão de notícia — aprovada ("Notícia publicada: …") ou devolvida com a nota do editor
+  ("Notícia devolvida pela revisão: …");
+- permissão concedida — quando um administrador ou editor registra um escopo novo na sua conta
+  ("Acesso liberado: …"), com o escopo, o papel e a validade.
+
+As mensagens são simples e vão só para o endereço da sua conta: nenhum e-mail carrega dado de
+outra pessoa. Se uma decisão aconteceu e o e-mail não chegou, verifique a caixa de spam e avise a
+equipe técnica.
 
 ## Acessibilidade na autoria
 

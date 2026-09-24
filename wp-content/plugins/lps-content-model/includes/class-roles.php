@@ -213,6 +213,15 @@ final class Roles {
 				'expires_at'  => TeachingPolicy::normalize_datetime( $expires_at ),
 			)
 		);
+		Notifications::scope_granted(
+			$target_user_id,
+			array(
+				'scope'       => $scope,
+				'offering_id' => $offering_id,
+				'role'        => $role,
+				'expires_at'  => TeachingPolicy::normalize_datetime( $expires_at ),
+			)
+		);
 		return array(
 			'granted' => true,
 			'index'   => count( $grants ) - 1,
@@ -295,6 +304,15 @@ final class Roles {
 				'role'        => $role,
 				'expires_at'  => TeachingPolicy::normalize_datetime( $expires_at ),
 				'via'         => 'trusted-boundary',
+			)
+		);
+		Notifications::scope_granted(
+			$target_user_id,
+			array(
+				'scope'       => $scope,
+				'offering_id' => $offering_id,
+				'role'        => $role,
+				'expires_at'  => TeachingPolicy::normalize_datetime( $expires_at ),
 			)
 		);
 		return array(
