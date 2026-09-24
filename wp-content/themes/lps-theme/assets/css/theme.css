@@ -5062,79 +5062,138 @@ a.lps-button-ghost {
   overflow: hidden;
 }
 
-.lps-timeline {
+/* Institutional timeline: sticky year in the gutter, entries ruled off a
+   continuous rail. */
+.lps-chrono {
   display: grid;
-  gap: 2rem;
+  gap: var(--space-12);
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.lps-timeline-year {
+.lps-chrono-year {
+  column-gap: var(--space-8);
   display: grid;
-  gap: 1rem;
-  grid-template-columns: 4.5rem 1fr;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
 }
 
-.lps-timeline-year > h3 {
+.lps-chrono-year > h3 {
   color: var(--color-accent);
-  font-size: 1.25rem;
+  font-size: var(--type-h3);
+  font-variant-numeric: tabular-nums;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
   margin: 0;
   position: sticky;
-  top: 1rem;
+  top: var(--space-4);
 }
 
-.lps-timeline-year > ol {
-  border-inline-start: var(--rule-hairline);
+.lps-chrono-year > ol {
+  border-block-start: var(--rule-hairline);
+  border-inline-start: var(--line-thin) solid var(--color-boundary-strong);
   display: grid;
-  gap: 0.75rem;
   list-style: none;
   margin: 0;
-  padding: 0 0 0 1.5rem;
+  padding: 0;
 }
 
-.lps-timeline-item {
+.lps-chrono-item {
   align-items: baseline;
+  border-block-end: var(--rule-hairline);
+  column-gap: var(--space-5);
   display: grid;
-  gap: 0.375rem 1rem;
-  grid-template-columns: 4.5rem 6.5rem 1fr;
+  grid-template-columns: 4.75rem minmax(0, 1fr);
+  padding: var(--space-4) var(--space-3) var(--space-4) var(--space-6);
   position: relative;
+  transition: background-color var(--motion-fast) var(--ease-state);
 }
 
-.lps-timeline-item::before {
+.lps-chrono-item::before {
   background: var(--color-accent);
   border-radius: var(--radius-pill);
-  block-size: 0.375rem;
+  block-size: 0.45rem;
   content: "";
-  inline-size: 0.375rem;
-  inset-inline-start: -1.6875rem;
+  inline-size: 0.45rem;
+  inset-block-start: calc(var(--space-4) + 0.4rem);
+  inset-inline-start: -0.26rem;
   position: absolute;
-  top: 0.5rem;
+  transition: transform var(--motion-fast) var(--ease-state);
 }
 
-.lps-timeline-item time {
+.lps-chrono-item:hover {
+  background-color: var(--color-surface);
+}
+
+.lps-chrono-item:hover::before {
+  transform: scale(1.4);
+}
+
+.lps-chrono-item:last-child {
+  border-block-end: none;
+}
+
+.lps-chrono-date {
   color: var(--color-anchor-soft);
-  font-size: 0.8125rem;
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
   font-variant-numeric: tabular-nums;
-}
-
-.lps-timeline-kind {
-  color: var(--color-anchor-soft);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
   text-transform: uppercase;
 }
 
-.lps-timeline-item a {
-  color: var(--color-anchor);
-  font-weight: 550;
-  transition: color var(--motion-standard) var(--ease-state);
+.lps-chrono-body {
+  font-size: var(--type-body);
+  line-height: 1.5;
+  min-inline-size: 0;
 }
 
-.lps-timeline-item a:hover {
+.lps-chrono-kind {
+  border-radius: var(--radius-pill);
+  display: inline-block;
+  font-size: var(--type-meta);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1.4;
+  margin-inline-end: var(--space-3);
+  padding: 0.0625rem 0.5rem;
+  text-transform: uppercase;
+}
+
+.lps-chrono-item[data-state="news"] .lps-chrono-kind {
+  background: var(--color-info-wash);
+  color: var(--color-anchor);
+}
+
+.lps-chrono-item[data-state="upcoming"] .lps-chrono-kind,
+.lps-chrono-item[data-state="ongoing"] .lps-chrono-kind {
+  background: var(--color-teal-wash);
+  color: var(--color-teal-ink);
+}
+
+.lps-chrono-item[data-state="past"] .lps-chrono-kind {
+  background: var(--color-accent-wash);
+  color: var(--color-anchor-soft);
+}
+
+.lps-chrono-item[data-state="cancelled"] .lps-chrono-kind,
+.lps-chrono-item[data-state="postponed"] .lps-chrono-kind {
+  background: var(--color-error-wash);
+  color: var(--color-error-ink);
+}
+
+.lps-chrono-body a {
+  color: var(--color-anchor);
+  font-weight: 550;
+  text-decoration-color: var(--color-rule-quiet);
+  text-underline-offset: 0.2em;
+  transition: color var(--motion-fast) var(--ease-state);
+}
+
+.lps-chrono-body a:hover {
   color: var(--color-action);
 }
 
@@ -5152,15 +5211,17 @@ a.lps-button-ghost {
     aspect-ratio: 16 / 9;
   }
 
-  .lps-timeline-year {
+  .lps-chrono-year {
     grid-template-columns: 1fr;
   }
 
-  .lps-timeline-year > h3 {
+  .lps-chrono-year > h3 {
     position: static;
   }
 
-  .lps-timeline-item {
-    grid-template-columns: 1fr;
+  .lps-chrono-item {
+    column-gap: var(--space-3);
+    grid-template-columns: 3.75rem minmax(0, 1fr);
+    padding-inline: var(--space-5) 0;
   }
 }

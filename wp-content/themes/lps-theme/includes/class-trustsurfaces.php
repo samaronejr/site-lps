@@ -756,6 +756,7 @@ final class TrustSurfaces {
 				'stamp' => substr( $date, 0, 10 ),
 				'label' => self::text( $record['date_label'] ?? '' ),
 				'kind'  => $english ? 'News' : 'Notícia',
+				'state' => 'news',
 				'title' => $title,
 				'url'   => self::single_path( 'lps_news', $locale, $slug ),
 			);
@@ -776,6 +777,7 @@ final class TrustSurfaces {
 				'stamp' => substr( $starts, 0, 10 ),
 				'label' => '',
 				'kind'  => self::EVENT_LABELS[ $state ][ $locale ] ?? ( $english ? 'Event' : 'Evento' ),
+				'state' => $state,
 				'title' => $title,
 				'url'   => self::single_path( 'lps_event', $locale, $slug ),
 			);
@@ -795,7 +797,7 @@ final class TrustSurfaces {
 					$list .= '</ol></li>';
 				}
 				$year  = $entry_year;
-				$list .= '<li class="lps-timeline-year"><h3>' . self::esc( $year ) . '</h3><ol>';
+				$list .= '<li class="lps-chrono-year"><h3>' . self::esc( $year ) . '</h3><ol>';
 			}
 			$month  = (int) substr( $entry['stamp'], 5, 2 );
 			$months = $english
@@ -807,9 +809,9 @@ final class TrustSurfaces {
 			if ( '' !== $entry['label'] ) {
 				$day = $entry['label'];
 			}
-			$list .= '<li class="lps-timeline-item"><time datetime="' . self::esc( $entry['stamp'] ) . '">' . self::esc( $day ) . '</time>'
-				. '<span class="lps-timeline-kind">' . self::esc( $entry['kind'] ) . '</span>'
-				. '<a href="' . self::esc( $entry['url'] ) . '">' . self::esc( $entry['title'] ) . '</a></li>';
+			$list .= '<li class="lps-chrono-item" data-state="' . self::esc( $entry['state'] ) . '"><time class="lps-chrono-date" datetime="' . self::esc( $entry['stamp'] ) . '">' . self::esc( $day ) . '</time>'
+				. '<div class="lps-chrono-body"><span class="lps-chrono-kind">' . self::esc( $entry['kind'] ) . '</span>'
+				. '<a href="' . self::esc( $entry['url'] ) . '">' . self::esc( $entry['title'] ) . '</a></div></li>';
 		}
 		if ( '' !== $list ) {
 			$list .= '</ol></li>';
@@ -817,7 +819,7 @@ final class TrustSurfaces {
 		$html  = '<section class="lps-section" aria-labelledby="lps-news-timeline">';
 		$html .= '<div class="lps-section-head"><div><p class="lps-kicker">' . self::esc( $english ? 'Records' : 'Registros' ) . '</p><h2 id="lps-news-timeline">' . self::esc( $english ? 'Institutional timeline' : 'Linha do tempo institucional' ) . '</h2></div></div>';
 		$html .= '' !== $list
-			? '<ol class="lps-timeline">' . $list . '</ol>'
+			? '<ol class="lps-chrono">' . $list . '</ol>'
 			: '<p class="lps-empty">' . self::esc( $english ? 'No recorded entry' : 'Nenhum registro publicado' ) . '</p>';
 		return $html . '</section>';
 	}
