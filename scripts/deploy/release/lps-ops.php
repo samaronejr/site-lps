@@ -65,12 +65,17 @@ add_filter(
 		$to      = $atts['to'] ?? '';
 		$subject = $atts['subject'] ?? '';
 		$message = $atts['message'] ?? '';
+		$headers = $atts['headers'] ?? array();
 		$entry   = array(
-			'ts'           => gmdate( 'c' ),
-			'to'           => is_array( $to ) ? implode( ',', $to ) : (string) $to,
-			'subject'      => (string) $subject,
-			'message_sha'  => hash( 'sha256', (string) $message ),
+			'ts'            => gmdate( 'c' ),
+			'to'            => is_array( $to ) ? implode( ',', $to ) : (string) $to,
+			'subject'       => (string) $subject,
+			'message_sha'   => hash( 'sha256', (string) $message ),
 			'message_bytes' => strlen( (string) $message ),
+			// The body and headers ride along so verification can assert the
+			// localized copy that was emitted, not only that mail was called.
+			'message'       => (string) $message,
+			'headers'       => is_array( $headers ) ? implode( "\n", array_map( 'strval', $headers ) ) : (string) $headers,
 		);
 		file_put_contents( $dir . '/mail-outbox.jsonl', wp_json_encode( $entry ) . "\n", FILE_APPEND | LOCK_EX );
 		lps_ops_log( 'mail_captured', array( 'to' => $entry['to'], 'subject' => $entry['subject'] ) );
