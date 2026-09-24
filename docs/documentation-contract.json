@@ -186,15 +186,15 @@
       "sources": [
         {
           "path": "wp-content/themes/lps-theme/includes/class-dashboardsurfaces.php",
-          "sha256": "1fc007dc3967384c6d887e13500c2f9bb0e78ca00457cc6f5b1d9b8bb67f9ac8"
+          "sha256": "ba2aafc4d8df64a8d89929630e666186123ed1c6492c5edb28ce0104ec0b5f99"
         },
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-taskdashboard.php",
-          "sha256": "40881e86f9216097e29cb14cc3c172ef9e71b3c1930be60160812a423e0b3d9d"
+          "sha256": "40c914106d599d0da0ee54d5b6afc96f258996701ceeb35a7a800b96e402f8b5"
         },
         {
           "path": "wp-content/themes/lps-theme/includes/class-dashboardroutes.php",
-          "sha256": "06b7ee3247c44a9edd5d7ec2a8af8258486f87116ad31875bbb5b4c589a93ca3"
+          "sha256": "b014b1deea7ec6fdee27060859ccc0c7a9275484e78bcd7089ddcb926acf549d"
         }
       ]
     }

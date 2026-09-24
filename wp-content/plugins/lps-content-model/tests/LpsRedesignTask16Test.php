@@ -34,7 +34,7 @@ final class LpsRedesignTask16Test extends TestCase {
 		// the full scoped task set plus the trusted course lane — but never
 		// the editor-only offering-create task.
 		self::assertSame(
-			array( 'profile', 'offerings', 'news', 'course' ),
+			array( 'profile', 'offerings', 'news', 'events', 'course' ),
 			TaskDashboard::tasks_for_role( 'professor', true, true, true, false )
 		);
 		// A professor with no offerings keeps the profile and course tasks.

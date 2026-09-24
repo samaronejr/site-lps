@@ -114,12 +114,13 @@ final class TaskDashboard {
 	 *
 	 * @param string $role           Policy role.
 	 * @param bool   $has_offerings  Whether at least one offering is in scope.
-	 * @param bool   $has_news_scope Whether a news-scope grant exists.
+	 * @param bool   $has_news_scope  Whether a news-scope grant exists.
 	 * @param bool   $has_person     Whether a person record resolved.
 	 * @param bool   $may_review     Whether the account reviews submissions.
+	 * @param bool   $may_create_event Whether the account may submit events.
 	 * @return array<int, string>
 	 */
-	public static function tasks_for_role( string $role, bool $has_offerings, bool $has_news_scope, bool $has_person, bool $may_review ): array {
+	public static function tasks_for_role( string $role, bool $has_offerings, bool $has_news_scope, bool $has_person, bool $may_review, bool $may_create_event = false ): array {
 		$tasks = array();
 		if ( $has_person ) {
 			$tasks[] = 'profile';
@@ -129,6 +130,9 @@ final class TaskDashboard {
 		}
 		if ( $has_news_scope ) {
 			$tasks[] = 'news';
+		}
+		if ( $has_news_scope || $may_create_event ) {
+			$tasks[] = 'events';
 		}
 		if ( $may_review ) {
 			$tasks[] = 'review';
@@ -372,6 +376,11 @@ final class TaskDashboard {
 			'featured_image'         => $english ? 'Featured image' : 'Imagem destacada',
 			'featured_alt'           => $english ? 'Image description (alt text and caption)' : 'Descrição da imagem (texto alternativo e legenda)',
 			'news_category'          => $english ? 'Topic' : 'Tema',
+			'_lps_starts_at'         => $english ? 'Start (date and time)' : 'Início (data e hora)',
+			'_lps_ends_at'           => $english ? 'End (date and time)' : 'Término (data e hora)',
+			'_lps_online_url'        => $english ? 'Online event URL' : 'URL do evento online',
+			'_lps_registration_url'  => $english ? 'Registration URL' : 'URL de inscrição',
+			'event_status'           => $english ? 'Event status' : 'Status do evento',
 			'en_title'               => $english ? 'English title' : 'Título em inglês',
 			'en_excerpt'             => $english ? 'English summary' : 'Resumo em inglês',
 			'en_content'             => $english ? 'English body' : 'Conteúdo em inglês',
@@ -456,6 +465,8 @@ final class TaskDashboard {
 			'lps_invalid_resource_type'               => $english ? 'Choose a valid material type.' : 'Escolha um tipo de material válido.',
 			'lps_invalid_resource_language'           => $english ? 'Enter a valid language tag.' : 'Informe uma etiqueta de idioma válida.',
 			'lps_invalid_topic_date'                  => $english ? 'Use the YYYY-MM-DD date format.' : 'Use o formato de data AAAA-MM-DD.',
+			'lps_required_starts'                     => $english ? 'The event needs a start date and time.' : 'O evento precisa de data e horário de início.',
+			'lps_invalid_ends'                        => $english ? 'The end must come after the start.' : 'O término deve ser depois do início.',
 			'lps_invalid_release_state'               => $english ? 'Choose a valid release state.' : 'Escolha um estado de publicação válido.',
 			'lps_release_at_required'                 => $english ? 'A scheduled release needs a date and time.' : 'Uma publicação agendada precisa de data e hora.',
 			'lps_resource_rights_not_approved'        => $english ? 'The rights review must be approved before release.' : 'A revisão de direitos precisa estar aprovada antes da publicação.',
@@ -517,6 +528,8 @@ final class TaskDashboard {
 		add_action( 'admin_post_lps_dashboard_publish', array( self::class, 'handle_publish' ) );
 		add_action( 'admin_post_lps_dashboard_news', array( self::class, 'handle_news' ) );
 		add_action( 'admin_post_lps_dashboard_news_translation', array( self::class, 'handle_news_translation' ) );
+		add_action( 'admin_post_lps_dashboard_event', array( self::class, 'handle_event' ) );
+		add_action( 'admin_post_lps_dashboard_event_translation', array( self::class, 'handle_event_translation' ) );
 		add_action( 'admin_post_lps_dashboard_copy', array( self::class, 'handle_copy' ) );
 		add_action( 'admin_post_lps_dashboard_review', array( self::class, 'handle_review' ) );
 		add_action( 'admin_post_lps_dashboard_offering', array( self::class, 'handle_offering' ) );
@@ -756,6 +769,7 @@ final class TaskDashboard {
 	public static function review_queue( int $user_id ): array {
 		$queue = array(
 			'news'      => array(),
+			'events'    => array(),
 			'proposals' => array(),
 		);
 		$user  = get_user_by( 'id', $user_id );
@@ -787,6 +801,34 @@ final class TaskDashboard {
 						'title'   => Policy::scalar_string( get_post_field( 'post_title', $post_id ) ),
 						'author'  => Policy::sanitize_integer( get_post_field( 'post_author', $post_id ) ),
 						'date'    => Policy::scalar_string( get_post_meta( $post_id, '_lps_canonical_date', true ) ),
+						'summary' => Policy::scalar_string( get_post_field( 'post_excerpt', $post_id ) ),
+					);
+				}
+			}
+		}
+		if ( SecurityPolicy::allows( $role, 'review', 'event', $assigned ) || SecurityPolicy::allows( $role, 'publish', 'event', $assigned ) ) {
+			$allowed = ! in_array( $role, array( 'contributor', 'translator', 'section-editor' ), true ) || in_array( 'event', $assigned, true );
+			if ( $allowed ) {
+				$events = get_posts(
+					array(
+						'post_type'      => 'lps_event',
+						'post_status'    => array( 'draft', 'pending' ),
+						'posts_per_page' => 50,
+						'fields'         => 'ids',
+						'orderby'        => 'date',
+						'order'          => 'DESC',
+					)
+				);
+				foreach ( $events as $post_id ) {
+					$state = Policy::scalar_string( get_post_meta( $post_id, '_lps_state', true ) );
+					if ( 'in_review' !== $state ) {
+						continue;
+					}
+					$queue['events'][] = array(
+						'id'      => (int) $post_id,
+						'title'   => Policy::scalar_string( get_post_field( 'post_title', $post_id ) ),
+						'author'  => Policy::sanitize_integer( get_post_field( 'post_author', $post_id ) ),
+						'date'    => Policy::scalar_string( get_post_meta( $post_id, '_lps_starts_at', true ) ),
 						'summary' => Policy::scalar_string( get_post_field( 'post_excerpt', $post_id ) ),
 					);
 				}
@@ -1109,15 +1151,17 @@ final class TaskDashboard {
 		}
 		$person_id  = self::person_for_user( $user->ID );
 		$news_scope = self::has_news_scope( $user->ID );
+		$may_events = $news_scope || Roles::current_user_can_action( 'create', 'event' );
 		$may_review = '' !== $role && ! TeachingPolicy::is_scoped_role( $role )
 			&& ( SecurityPolicy::allows( $role, 'review' ) || SecurityPolicy::allows( $role, 'publish' ) );
-		$tasks      = self::tasks_for_role( $role, array() !== $offerings, $news_scope, 0 < $person_id, $may_review );
+		$tasks      = self::tasks_for_role( $role, array() !== $offerings, $news_scope, 0 < $person_id, $may_review, $may_events );
 		return array(
 			'role'       => $role,
 			'user'       => $user,
 			'tasks'      => $tasks,
 			'offerings'  => $offerings,
 			'news'       => $news_scope ? self::news_for_user( $user->ID ) : array(),
+			'events'     => $may_events ? self::events_for_user( $user->ID ) : array(),
 			'person_id'  => $person_id,
 			'proposals'  => 0 < $person_id ? self::proposals_for_person( $person_id ) : array(),
 			'review'     => $may_review ? self::review_queue( $user->ID ) : array(
@@ -1346,6 +1390,70 @@ final class TaskDashboard {
 				'prepared_by'       => $prepared_by,
 				'prepared_by_name'  => self::prepared_name( $prepared_by ),
 				'can_resubmit'      => (int) get_post_field( 'post_author', $post_id ) === $user_id || ( 0 < $adoptable && self::may( 'publish', 'lps_news', 0 ) ),
+				'public_url'        => 'publish' === get_post_status( $post_id ) ? (string) get_permalink( $post_id ) : '',
+				'edit_url'          => get_edit_post_link( $post_id, 'raw' ),
+				'translation_state' => 0 === $en_id ? 'missing' : ( Translations::is_stale( $en_id ) ? 'stale' : 'reviewed' ),
+				'en_id'             => $en_id,
+				'en_title'          => $english instanceof WP_Post ? Policy::scalar_string( $english->post_title ) : '',
+				'en_excerpt'        => $english instanceof WP_Post ? Policy::scalar_string( $english->post_excerpt ) : '',
+				'en_content'        => $english instanceof WP_Post ? Policy::scalar_string( $english->post_content ) : '',
+			);
+		}
+		return $items;
+	}
+
+	/**
+	 * Lists the signed-in author's event records for the dashboard lane.
+	 *
+	 * Mirrors `news_for_user` without the delegate-adoption branch: events
+	 * carry no shared-prep lane, so the list is the account's own submissions
+	 * plus their English-variant task state.
+	 *
+	 * @param int $user_id Signed-in account ID.
+	 * @return array<int, array<string, mixed>>
+	 */
+	public static function events_for_user( int $user_id ): array {
+		$posts = get_posts(
+			array(
+				'post_type'      => 'lps_event',
+				'post_status'    => array( 'draft', 'pending', 'publish', 'future' ),
+				'author'         => $user_id,
+				'posts_per_page' => 50,
+				'fields'         => 'ids',
+				'orderby'        => 'date',
+				'order'          => 'DESC',
+			)
+		);
+		$items = array();
+		foreach ( $posts as $post_id ) {
+			$locale = Translations::locale( (int) $post_id );
+			if ( TranslationPolicy::TARGET_LOCALE === $locale ) {
+				// The English variant stays bound to its Portuguese authority;
+				// the author updates it through the translation task on the
+				// source row, never as a separate submission.
+				continue;
+			}
+			$variants = Translations::variants( (int) $post_id );
+			$en_id    = Policy::sanitize_integer( $variants[ TranslationPolicy::TARGET_LOCALE ] ?? 0 );
+			$english  = 0 < $en_id ? get_post( $en_id ) : null;
+			$items[]  = array(
+				'id'                => (int) $post_id,
+				'title'             => Policy::scalar_string( get_post_field( 'post_title', $post_id ) ),
+				'summary'           => Policy::scalar_string( get_post_field( 'post_excerpt', $post_id ) ),
+				'content'           => Policy::scalar_string( get_post_field( 'post_content', $post_id ) ),
+				'status'            => (string) get_post_status( $post_id ),
+				'state'             => self::state_key(
+					(string) get_post_status( $post_id ),
+					Policy::scalar_string( get_post_meta( $post_id, '_lps_state', true ) )
+				),
+				'starts_at'         => Policy::scalar_string( get_post_meta( $post_id, '_lps_starts_at', true ) ),
+				'ends_at'           => Policy::scalar_string( get_post_meta( $post_id, '_lps_ends_at', true ) ),
+				'venue'             => Policy::scalar_string( get_post_meta( $post_id, '_lps_venue', true ) ),
+				'event_status'      => Policy::scalar_string( get_post_meta( $post_id, '_lps_event_status', true ) ),
+				'online_url'        => Policy::scalar_string( get_post_meta( $post_id, '_lps_online_url', true ) ),
+				'registration_url'  => Policy::scalar_string( get_post_meta( $post_id, '_lps_registration_url', true ) ),
+				'note'              => Policy::scalar_string( get_post_meta( $post_id, self::REVIEW_NOTE_META, true ) ),
+				'can_resubmit'      => (int) get_post_field( 'post_author', $post_id ) === $user_id,
 				'public_url'        => 'publish' === get_post_status( $post_id ) ? (string) get_permalink( $post_id ) : '',
 				'edit_url'          => get_edit_post_link( $post_id, 'raw' ),
 				'translation_state' => 0 === $en_id ? 'missing' : ( Translations::is_stale( $en_id ) ? 'stale' : 'reviewed' ),
@@ -1985,6 +2093,383 @@ final class TaskDashboard {
 		delete_transient( self::PREVIEW_PREFIX . $user->ID . '_news' );
 		Audit::record( 'submit', (int) $post_id, 0, array( 'decision' => 'news-submission' ) );
 		self::succeed( 'submitted' );
+	}
+
+	/**
+	 * Handles the event submission form: preview, confirm, cancel, resubmit.
+	 *
+	 * Mirrors the news lane — submissions enter review as drafts and an
+	 * editor decides them. The lane gate is the same scoped publishing
+	 * permission (the news scope or a role that may create events).
+	 */
+	public static function handle_event(): void {
+		$user = wp_get_current_user();
+		if ( ! self::verify_nonce( 'lps_dashboard_event' ) ) {
+			self::fail( 'lps_dashboard_nonce' );
+		}
+		if ( ! self::has_news_scope( $user->ID ) && ! Roles::current_user_can_action( 'create', 'event' ) ) {
+			self::fail( 'lps_dashboard_forbidden' );
+		}
+		$step = self::post_text( 'step' );
+		if ( 'cancel' === $step ) {
+			self::discard_preview( $user->ID, 'event' );
+			self::succeed( 'preview-cancelled' );
+		}
+		if ( 'confirm' === $step ) {
+			self::confirm_event( $user );
+		}
+		$title        = self::post_text( 'title' );
+		$excerpt      = self::post_text( 'excerpt' );
+		$content      = self::post_text( 'content' );
+		$starts       = self::post_text( 'starts_at' );
+		$ends         = self::post_text( 'ends_at' );
+		$venue        = self::post_text( 'venue' );
+		$online       = self::post_text( 'online_url' );
+		$registration = self::post_text( 'registration_url' );
+		$status       = self::sanitize_event_status( self::post_text( 'event_status' ) );
+		$alt          = self::post_text( 'featured_alt' );
+		$errors       = array();
+		if ( '' === $title ) {
+			$errors['post_title'] = 'lps_required_title';
+		}
+		if ( '' === $excerpt ) {
+			$errors['post_excerpt'] = 'lps_required_summary';
+		}
+		if ( '' === $content ) {
+			$errors['post_content'] = 'lps_required_body';
+		}
+		$normalized_starts = TeachingPolicy::normalize_datetime( $starts );
+		$normalized_ends   = TeachingPolicy::normalize_datetime( $ends );
+		if ( '' === $normalized_starts ) {
+			$errors['_lps_starts_at'] = 'lps_required_starts';
+		}
+		if ( '' !== $ends && '' === $normalized_ends ) {
+			$errors['_lps_ends_at'] = 'lps_invalid_ends';
+		} elseif ( '' !== $normalized_ends && '' !== $normalized_starts && strcmp( $normalized_ends, $normalized_starts ) <= 0 ) {
+			$errors['_lps_ends_at'] = 'lps_invalid_ends';
+		}
+		$input = array(
+			'title'            => $title,
+			'excerpt'          => $excerpt,
+			'content'          => $content,
+			'starts_at'        => $starts,
+			'ends_at'          => $ends,
+			'venue'            => $venue,
+			'online_url'       => $online,
+			'registration_url' => $registration,
+			'event_status'     => $status,
+			'featured_alt'     => $alt,
+		);
+		if ( array() !== $errors ) {
+			self::recall( 'event', $input );
+			self::fail( (string) reset( $errors ), (string) array_key_first( $errors ) );
+		}
+		$file = self::posted_upload( 'featured_image' );
+		if ( null !== $file && '' === $alt ) {
+			self::recall( 'event', $input );
+			self::fail( 'lps_required_alt', 'featured_alt' );
+		}
+		$post_id = self::post_int( 'id' );
+		if ( 0 < $post_id ) {
+			// A resubmit edits the author's own draft and returns it to review.
+			$existing = get_post( $post_id );
+			if ( ! $existing instanceof WP_Post || 'lps_event' !== $existing->post_type || 'draft' !== $existing->post_status
+				|| TranslationPolicy::TARGET_LOCALE === Translations::locale( $post_id )
+				|| (int) $existing->post_author !== $user->ID ) {
+				self::fail( 'lps_dashboard_forbidden' );
+			}
+			$attachment_id = 0;
+			if ( null !== $file ) {
+				$staged = self::stage_news_image( $file, $alt, $user->ID );
+				if ( $staged instanceof WP_Error ) {
+					self::recall( 'event', $input );
+					self::fail_upload( $staged, 'featured_image' );
+				}
+				$attachment_id = $staged['id'];
+			}
+			remove_filter( 'update_post_metadata', array( Plugin::class, 'protect_role_meta' ), 11 );
+			$updated = wp_update_post(
+				array(
+					'ID'           => $post_id,
+					'post_title'   => $title,
+					'post_excerpt' => $excerpt,
+					'post_content' => $content,
+				),
+				true
+			);
+			if ( $updated instanceof WP_Error ) {
+				add_filter( 'update_post_metadata', array( Plugin::class, 'protect_role_meta' ), 11, 5 );
+				self::fail( 'lps_dashboard_forbidden' );
+			}
+			// complete_record re-adds the field guard during wp_update_post, so
+			// the boundary lifts it again for the post-update state writes.
+			remove_filter( 'update_post_metadata', array( Plugin::class, 'protect_role_meta' ), 11 );
+			update_post_meta( $post_id, '_lps_starts_at', $normalized_starts );
+			update_post_meta( $post_id, '_lps_ends_at', $normalized_ends );
+			update_post_meta( $post_id, '_lps_venue', $venue );
+			update_post_meta( $post_id, '_lps_online_url', $online );
+			update_post_meta( $post_id, '_lps_registration_url', $registration );
+			update_post_meta( $post_id, '_lps_event_status', $status );
+			if ( 0 < $attachment_id ) {
+				update_post_meta( $post_id, '_thumbnail_id', $attachment_id );
+			}
+			update_post_meta( $post_id, '_lps_state', 'in_review' );
+			update_post_meta( $post_id, self::REVIEW_NOTE_META, '' );
+			add_filter( 'update_post_metadata', array( Plugin::class, 'protect_role_meta' ), 11, 5 );
+			Audit::record( 'submit', $post_id, 0, array( 'decision' => 'event-resubmission' ) );
+			self::succeed( 'submitted' );
+		}
+		$attachment = array(
+			'id'   => 0,
+			'url'  => '',
+			'name' => '',
+			'alt'  => '',
+		);
+		if ( null !== $file ) {
+			$staged = self::stage_news_image( $file, $alt, $user->ID );
+			if ( $staged instanceof WP_Error ) {
+				self::recall( 'event', $input );
+				self::fail_upload( $staged, 'featured_image' );
+			}
+			$attachment = $staged;
+		}
+		// The author confirms the rendered card before the record exists: the
+		// payload is staged per account and the confirm step performs the real
+		// draft insert. A fresh preview discards the previously staged image.
+		self::store_preview(
+			$user->ID,
+			array_merge(
+				$input,
+				array(
+					'attachment_id'   => $attachment['id'],
+					'attachment_url'  => $attachment['url'],
+					'attachment_name' => $attachment['name'],
+				)
+			),
+			'event'
+		);
+		self::recall( 'event', $input );
+		self::succeed( 'previewed' );
+	}
+
+	/**
+	 * Performs the confirmed event submission from the staged preview.
+	 *
+	 * @param WP_User $user Signed-in account.
+	 */
+	private static function confirm_event( WP_User $user ): void {
+		$payload = self::preview_payload( $user->ID, 'event' );
+		if ( array() === $payload ) {
+			self::fail( 'lps_preview_expired' );
+		}
+		$title         = Policy::scalar_string( $payload['title'] ?? '' );
+		$excerpt       = Policy::scalar_string( $payload['excerpt'] ?? '' );
+		$content       = Policy::scalar_string( $payload['content'] ?? '' );
+		$starts        = TeachingPolicy::normalize_datetime( Policy::scalar_string( $payload['starts_at'] ?? '' ) );
+		$ends          = TeachingPolicy::normalize_datetime( Policy::scalar_string( $payload['ends_at'] ?? '' ) );
+		$venue         = Policy::scalar_string( $payload['venue'] ?? '' );
+		$online        = Policy::scalar_string( $payload['online_url'] ?? '' );
+		$registration  = Policy::scalar_string( $payload['registration_url'] ?? '' );
+		$status        = self::sanitize_event_status( Policy::scalar_string( $payload['event_status'] ?? '' ) );
+		$attachment_id = Policy::sanitize_integer( $payload['attachment_id'] ?? 0 );
+		if ( '' === $title || '' === $excerpt || '' === $content || '' === $starts ) {
+			self::discard_preview( $user->ID, 'event' );
+			self::fail( 'lps_preview_expired' );
+		}
+		if ( 0 < $attachment_id ) {
+			$attachment = get_post( $attachment_id );
+			if ( ! $attachment instanceof WP_Post || 'attachment' !== $attachment->post_type || (int) $attachment->post_author !== $user->ID ) {
+				self::discard_preview( $user->ID, 'event' );
+				self::fail( 'lps_preview_expired' );
+			}
+		}
+		$meta = array(
+			'_lps_locale'           => 'pt-br',
+			'_lps_starts_at'        => $starts,
+			'_lps_ends_at'          => $ends,
+			'_lps_venue'            => $venue,
+			'_lps_online_url'       => $online,
+			'_lps_registration_url' => $registration,
+			'_lps_event_status'     => $status,
+		);
+		if ( 0 < $attachment_id ) {
+			$meta['_thumbnail_id'] = $attachment_id;
+		}
+		// The insert and the state write are system-owned fields the scoped
+		// guard correctly denies to direct writes; the boundary lifts that one
+		// guard for its own writes and restores it immediately.
+		remove_filter( 'update_post_metadata', array( Plugin::class, 'protect_role_meta' ), 11 );
+		$post_id = wp_insert_post(
+			array(
+				'post_type'    => 'lps_event',
+				'post_status'  => 'draft',
+				'post_title'   => $title,
+				'post_excerpt' => $excerpt,
+				'post_content' => $content,
+				'post_author'  => $user->ID,
+				'meta_input'   => $meta,
+			),
+			true
+		);
+		if ( $post_id instanceof WP_Error ) {
+			add_filter( 'update_post_metadata', array( Plugin::class, 'protect_role_meta' ), 11, 5 );
+			self::fail( 'lps_dashboard_forbidden' );
+		}
+		// complete_record re-adds the field guard during wp_insert_post, so the
+		// boundary lifts it again for the post-insert state write.
+		remove_filter( 'update_post_metadata', array( Plugin::class, 'protect_role_meta' ), 11 );
+		update_post_meta( (int) $post_id, '_lps_state', 'in_review' );
+		add_filter( 'update_post_metadata', array( Plugin::class, 'protect_role_meta' ), 11, 5 );
+		delete_transient( self::PREVIEW_PREFIX . $user->ID . '_event' );
+		Audit::record( 'submit', (int) $post_id, 0, array( 'decision' => 'event-submission' ) );
+		self::succeed( 'submitted' );
+	}
+
+	/**
+	 * Handles the EN-translation task on one of the author's own events.
+	 *
+	 * Mirrors the news translation task: the Portuguese authority stays the
+	 * record of truth and the English variant is created or refreshed in
+	 * place, returning to review on either path.
+	 */
+	public static function handle_event_translation(): void {
+		$user = wp_get_current_user();
+		if ( ! self::verify_nonce( 'lps_dashboard_event_translation' ) ) {
+			self::fail( 'lps_dashboard_nonce' );
+		}
+		if ( ! self::has_news_scope( $user->ID ) && ! Roles::current_user_can_action( 'create', 'event' ) ) {
+			self::fail( 'lps_dashboard_forbidden' );
+		}
+		$event_id = self::post_int( 'event_id' );
+		$source   = 0 < $event_id ? get_post( $event_id ) : null;
+		if ( ! $source instanceof WP_Post || 'lps_event' !== $source->post_type || TranslationPolicy::TARGET_LOCALE === Translations::locale( $event_id )
+			|| (int) $source->post_author !== $user->ID ) {
+			self::fail( 'lps_translation_source_invalid', 'event_id' );
+		}
+		$title   = self::post_text( 'en_title' );
+		$excerpt = self::post_text( 'en_excerpt' );
+		$content = self::post_text( 'en_content' );
+		$errors  = array();
+		if ( '' === $title ) {
+			$errors['en_title'] = 'lps_required_title';
+		}
+		if ( '' === $excerpt ) {
+			$errors['en_excerpt'] = 'lps_required_summary';
+		}
+		if ( '' === $content ) {
+			$errors['en_content'] = 'lps_required_body';
+		}
+		if ( array() !== $errors ) {
+			self::recall(
+				'event-translation-' . $event_id,
+				array(
+					'en_title'   => $title,
+					'en_excerpt' => $excerpt,
+					'en_content' => $content,
+				)
+			);
+			self::fail( (string) reset( $errors ), (string) array_key_first( $errors ) );
+		}
+		$variants = Translations::variants( $event_id );
+		$en_id    = Policy::sanitize_integer( $variants[ TranslationPolicy::TARGET_LOCALE ] ?? 0 );
+		if ( 0 < $en_id && get_post( $en_id ) instanceof WP_Post ) {
+			remove_filter( 'update_post_metadata', array( Plugin::class, 'protect_role_meta' ), 11 );
+			$updated = wp_update_post(
+				array(
+					'ID'           => $en_id,
+					'post_title'   => $title,
+					'post_excerpt' => $excerpt,
+					'post_content' => $content,
+				),
+				true
+			);
+			add_filter( 'update_post_metadata', array( Plugin::class, 'protect_role_meta' ), 11, 5 );
+			if ( $updated instanceof WP_Error ) {
+				self::fail( 'lps_dashboard_forbidden' );
+			}
+			self::system_meta( $en_id, '_lps_state', 'in_review' );
+		} else {
+			remove_filter( 'update_post_metadata', array( Plugin::class, 'protect_role_meta' ), 11 );
+			$created = wp_insert_post(
+				array(
+					'post_type'    => 'lps_event',
+					'post_status'  => 'draft',
+					'post_title'   => $title,
+					'post_excerpt' => $excerpt,
+					'post_content' => $content,
+					'post_author'  => $user->ID,
+					'meta_input'   => array(
+						'_lps_event_status' => 'draft',
+					),
+				),
+				true
+			);
+			add_filter( 'update_post_metadata', array( Plugin::class, 'protect_role_meta' ), 11, 5 );
+			if ( $created instanceof WP_Error ) {
+				self::fail( 'lps_dashboard_forbidden' );
+			}
+			$en_id      = (int) $created;
+			$associated = self::call_guarded(
+				static function () use ( $event_id, $en_id ) {
+					return Translations::associate( $event_id, $en_id );
+				}
+			);
+			if ( $associated instanceof WP_Error ) {
+				wp_delete_post( $en_id, true );
+				self::fail( (string) $associated->get_error_code(), 'translation' );
+			}
+			self::system_meta( $en_id, '_lps_state', 'in_review' );
+		}
+		$reviewed = self::call_guarded(
+			static function () use ( $en_id, $user ) {
+				return Translations::review( $en_id, $user->ID );
+			}
+		);
+		if ( $reviewed instanceof WP_Error ) {
+			self::fail( (string) $reviewed->get_error_code(), 'translation' );
+		}
+		Audit::record(
+			'submit',
+			$event_id,
+			0,
+			array(
+				'decision'       => 'event-translation',
+				'target_post_id' => $en_id,
+			)
+		);
+		self::succeed( 'translated' );
+	}
+
+	/**
+	 * Sanitizes one stored event-status override against the pinned set.
+	 *
+	 * @param string $status Submitted status key.
+	 */
+	private static function sanitize_event_status( string $status ): string {
+		return in_array( $status, array( 'postponed', 'cancelled' ), true ) ? $status : '';
+	}
+
+	/**
+	 * Returns the event-status options for the dashboard select.
+	 *
+	 * @return array<int, array{id: string, title: string}>
+	 */
+	public static function event_status_options(): array {
+		$options = array(
+			array(
+				'id'    => 'scheduled',
+				'title' => 'Agendado',
+			),
+			array(
+				'id'    => 'postponed',
+				'title' => 'Adiado',
+			),
+			array(
+				'id'    => 'cancelled',
+				'title' => 'Cancelado',
+			),
+		);
+		return $options;
 	}
 
 	/**
@@ -2673,29 +3158,25 @@ final class TaskDashboard {
 			if ( ! $post instanceof WP_Post || 'lps_news' !== $post->post_type ) {
 				self::fail( 'lps_teaching_offering_invalid' );
 			}
+			if ( 'in_review' !== Policy::scalar_string( get_post_meta( $post_id, '_lps_state', true ) ) ) {
+				self::fail( 'lps_dashboard_forbidden' );
+			}
 			if ( 'approve' === $decision ) {
 				if ( ! Roles::current_user_can_action( 'publish', 'news' ) ) {
 					self::fail( 'lps_dashboard_forbidden' );
 				}
-				// The decision email fires on an actual review outcome — a pending
-				// item reaching a verdict — so a retried decision on an
-				// already-decided record does not mail the author again.
-				$awaiting = 'in_review' === Policy::scalar_string( get_post_meta( $post_id, '_lps_state', true ) );
-				$result   = TeachingRecords::publish_record( $post_id );
+				$result = TeachingRecords::publish_record( $post_id );
 				if ( $result instanceof WP_Error ) {
 					self::fail( (string) $result->get_error_code(), self::error_field( $result ) );
 				}
 				self::system_meta( $post_id, '_lps_news_status', 'published' );
 				self::system_meta( $post_id, self::REVIEW_NOTE_META, $note );
-				if ( $awaiting ) {
-					Notifications::news_decision( $post, 'approve', $note );
-				}
+				Notifications::news_decision( $post, 'approve', $note );
 				self::succeed( 'published' );
 			}
 			if ( ! SecurityPolicy::allows( $role, 'review', 'news', Roles::assigned_collections( $user->ID ) ) ) {
 				self::fail( 'lps_dashboard_forbidden' );
 			}
-			$awaiting = 'in_review' === Policy::scalar_string( get_post_meta( $post_id, '_lps_state', true ) );
 			self::system_meta( $post_id, '_lps_state', 'draft' );
 			self::system_meta( $post_id, self::REVIEW_NOTE_META, $note );
 			Audit::record(
@@ -2707,9 +3188,45 @@ final class TaskDashboard {
 					'note'     => $note,
 				)
 			);
-			if ( $awaiting ) {
-				Notifications::news_decision( $post, 'reject', $note );
+			Notifications::news_decision( $post, 'reject', $note );
+			self::succeed( 'reviewed' );
+		}
+		if ( 'event' === $kind ) {
+			$post_id = self::post_int( 'post_id' );
+			$post    = 0 < $post_id ? get_post( $post_id ) : null;
+			if ( ! $post instanceof WP_Post || 'lps_event' !== $post->post_type ) {
+				self::fail( 'lps_teaching_offering_invalid' );
 			}
+			if ( 'in_review' !== Policy::scalar_string( get_post_meta( $post_id, '_lps_state', true ) ) ) {
+				self::fail( 'lps_dashboard_forbidden' );
+			}
+			if ( 'approve' === $decision ) {
+				if ( ! Roles::current_user_can_action( 'publish', 'event' ) ) {
+					self::fail( 'lps_dashboard_forbidden' );
+				}
+				$result = TeachingRecords::publish_record( $post_id );
+				if ( $result instanceof WP_Error ) {
+					self::fail( (string) $result->get_error_code(), self::error_field( $result ) );
+				}
+				self::system_meta( $post_id, self::REVIEW_NOTE_META, $note );
+				Notifications::event_decision( $post, 'approve', $note );
+				self::succeed( 'published' );
+			}
+			if ( ! SecurityPolicy::allows( $role, 'review', 'event', Roles::assigned_collections( $user->ID ) ) ) {
+				self::fail( 'lps_dashboard_forbidden' );
+			}
+			self::system_meta( $post_id, '_lps_state', 'draft' );
+			self::system_meta( $post_id, self::REVIEW_NOTE_META, $note );
+			Audit::record(
+				'review',
+				$post_id,
+				0,
+				array(
+					'decision' => 'reject',
+					'note'     => $note,
+				)
+			);
+			Notifications::event_decision( $post, 'reject', $note );
 			self::succeed( 'reviewed' );
 		}
 		if ( 'proposal' === $kind ) {
@@ -3229,29 +3746,31 @@ final class TaskDashboard {
 	 *
 	 * @param int                  $user_id Account ID.
 	 * @param array<string, mixed> $payload Staged form values plus attachment data.
+	 * @param string               $kind    Preview kind (`news` or `event`).
 	 */
-	private static function store_preview( int $user_id, array $payload ): void {
-		$previous    = self::preview_payload( $user_id );
+	private static function store_preview( int $user_id, array $payload, string $kind = 'news' ): void {
+		$previous    = self::preview_payload( $user_id, $kind );
 		$previous_id = Policy::sanitize_integer( $previous['attachment_id'] ?? 0 );
 		$current_id  = Policy::sanitize_integer( $payload['attachment_id'] ?? 0 );
 		if ( 0 < $previous_id && $previous_id !== $current_id ) {
 			// An abandoned preview never orphans a staged attachment.
 			wp_delete_attachment( $previous_id, true );
 		}
-		set_transient( self::PREVIEW_PREFIX . $user_id . '_news', $payload, self::RECALL_TTL );
+		set_transient( self::PREVIEW_PREFIX . $user_id . '_' . $kind, $payload, self::RECALL_TTL );
 	}
 
 	/**
 	 * Returns the staged news preview payload for one account.
 	 *
-	 * @param int $user_id Account ID.
+	 * @param int    $user_id Account ID.
+	 * @param string $kind    Preview kind (`news` or `event`).
 	 * @return array<string, mixed>
 	 */
-	private static function preview_payload( int $user_id ): array {
+	private static function preview_payload( int $user_id, string $kind = 'news' ): array {
 		if ( ! function_exists( 'get_transient' ) ) {
 			return array();
 		}
-		$stored = get_transient( self::PREVIEW_PREFIX . $user_id . '_news' );
+		$stored = get_transient( self::PREVIEW_PREFIX . $user_id . '_' . $kind );
 		if ( ! is_array( $stored ) ) {
 			return array();
 		}
@@ -3278,14 +3797,28 @@ final class TaskDashboard {
 	}
 
 	/**
+	 * Returns the staged event preview for the signed-in account, or empty.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function event_preview(): array {
+		if ( ! function_exists( 'wp_get_current_user' ) ) {
+			return array();
+		}
+		$user = wp_get_current_user();
+		return self::preview_payload( $user->ID, 'event' );
+	}
+
+	/**
 	 * Discards the staged preview and its staged attachment when possible.
 	 *
-	 * @param int $user_id Account ID.
+	 * @param int    $user_id Account ID.
+	 * @param string $kind    Preview kind (`news` or `event`).
 	 */
-	private static function discard_preview( int $user_id ): void {
-		$payload = self::preview_payload( $user_id );
+	private static function discard_preview( int $user_id, string $kind = 'news' ): void {
+		$payload = self::preview_payload( $user_id, $kind );
 		$id      = Policy::sanitize_integer( $payload['attachment_id'] ?? 0 );
-		delete_transient( self::PREVIEW_PREFIX . $user_id . '_news' );
+		delete_transient( self::PREVIEW_PREFIX . $user_id . '_' . $kind );
 		if ( 0 < $id ) {
 			wp_delete_attachment( $id, true );
 		}

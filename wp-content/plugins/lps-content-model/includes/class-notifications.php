@@ -67,6 +67,45 @@ final class Notifications {
 	}
 
 	/**
+	 * Emails the author their event's review outcome in their locale.
+	 *
+	 * @param WP_Post $post     Event record.
+	 * @param string  $decision `approve` or `reject`.
+	 * @param string  $note     Review note attached to a rejection.
+	 */
+	public static function event_decision( WP_Post $post, string $decision, string $note ): void {
+		if ( 'lps_event' !== $post->post_type ) {
+			return;
+		}
+		$recipient = get_user_by( 'id', (int) $post->post_author );
+		if ( ! $recipient instanceof WP_User ) {
+			return;
+		}
+		$locale    = self::locale_for_user( (int) $recipient->ID );
+		$english   = 'en' === $locale;
+		$title     = '' !== $post->post_title ? $post->post_title : ( $english ? 'Untitled' : 'Sem título' );
+		$dashboard = self::dashboard_url( $locale );
+		$greet     = $english ? "Hello {$recipient->display_name}," : "Olá, {$recipient->display_name}!";
+		$sign      = $english ? 'The LPS editorial team' : 'Equipe editorial do LPS';
+		if ( 'reject' === $decision ) {
+			$subject = $english ? "Event returned by review: {$title}" : "Evento devolvido pela revisão: {$title}";
+			$body    = "{$greet}\n\n"
+				. ( $english ? "Your event \"{$title}\" was returned by the editorial review with this note:" : "Seu evento \"{$title}\" foi devolvido pela revisão editorial com esta nota:" )
+				. "\n\n{$note}\n\n"
+				. ( $english ? 'Fix it and resubmit from the dashboard:' : 'Corrija e reenvie pelo painel:' )
+				. " {$dashboard}\n\n— {$sign}";
+		} else {
+			$subject = $english ? "Event published: {$title}" : "Evento publicado: {$title}";
+			$body    = "{$greet}\n\n"
+				. ( $english ? "Your event \"{$title}\" was approved and is now public." : "Seu evento \"{$title}\" foi aprovado e está público." )
+				. "\n\n"
+				. ( $english ? 'See it on the dashboard:' : 'Veja no painel:' )
+				. " {$dashboard}\n\n— {$sign}";
+		}
+		self::send( $recipient, $subject, $body );
+	}
+
+	/**
 	 * Emails the account a persisted scope grant was registered for.
 	 *
 	 * @param int                   $target_user_id Account receiving the grant.
