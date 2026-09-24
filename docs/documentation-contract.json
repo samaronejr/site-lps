@@ -99,7 +99,7 @@
       "id": "content-model-contract",
       "kind": "source",
       "doc": "docs/content/data-dictionary.md",
-      "reviewedAt": "2026-09-22",
+      "reviewedAt": "2026-09-24",
       "maxAgeDays": 180,
       "sources": [
         {
@@ -112,7 +112,7 @@
       "id": "role-policy-matrix",
       "kind": "source",
       "doc": "docs/handbook/role-workflows.md",
-      "reviewedAt": "2026-09-18",
+      "reviewedAt": "2026-09-24",
       "maxAgeDays": 180,
       "sources": [
         {
@@ -125,7 +125,7 @@
       "id": "translation-en-editorial-fields",
       "kind": "translation",
       "doc": "docs/handbook/translation-freshness.md",
-      "reviewedAt": "2026-09-22",
+      "reviewedAt": "2026-09-24",
       "maxAgeDays": 180,
       "sources": [
         {
@@ -138,7 +138,7 @@
       "id": "design-tokens",
       "kind": "source",
       "doc": "docs/design/design-system-guide.md",
-      "reviewedAt": "2026-09-23",
+      "reviewedAt": "2026-09-24",
       "maxAgeDays": 180,
       "sources": [
         {
@@ -155,7 +155,7 @@
       "id": "governance-matrix",
       "kind": "source",
       "doc": "docs/handbook/editorial-quick-start.md",
-      "reviewedAt": "2026-09-22",
+      "reviewedAt": "2026-09-24",
       "maxAgeDays": 180,
       "sources": [
         {
@@ -168,7 +168,7 @@
       "id": "recovery-objectives",
       "kind": "source",
       "doc": "docs/operations/release-runbook-index.md",
-      "reviewedAt": "2026-09-06",
+      "reviewedAt": "2026-09-24",
       "maxAgeDays": 180,
       "sources": [
         {
@@ -186,11 +186,11 @@
       "sources": [
         {
           "path": "wp-content/themes/lps-theme/includes/class-dashboardsurfaces.php",
-          "sha256": "153361c55100eaa6074216dd94e5bdf06230c0c2f1a6e8da058392ee2db953c6"
+          "sha256": "145e11ee9d57ad5f8b7a2e02ac84054e68b087eeca82ac9aaca81c6fb0056482"
         },
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-taskdashboard.php",
-          "sha256": "8da63147e74912e98a910ea6efe0ef505d1220eedc1fb98576f783493f99663e"
+          "sha256": "088e54600a4df39b5152104c66736154a7123733a0d2926ffc04e6fe8a723083"
         },
         {
           "path": "wp-content/themes/lps-theme/includes/class-dashboardroutes.php",
