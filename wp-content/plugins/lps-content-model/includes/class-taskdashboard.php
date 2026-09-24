@@ -457,6 +457,7 @@ final class TaskDashboard {
 			'lps_resource_accessibility_not_approved' => $english ? 'The accessibility review must be approved before release.' : 'A revisão de acessibilidade precisa estar aprovada antes da publicação.',
 			'lps_resource_version_or_url_required'    => $english ? 'Attach a file version or an external URL first.' : 'Anexe uma versão de arquivo ou uma URL externa primeiro.',
 			'lps_resource_version_missing'            => $english ? 'The selected version does not exist.' : 'A versão selecionada não existe.',
+			'lps_resource_version_and_url_conflict'   => $english ? 'A resource is one local version or one external URL, never both.' : 'Um material é uma versão local ou uma URL externa, nunca os dois.',
 			'lps_copy_forward_team_review_required'   => $english ? 'Confirm the reviewed teaching team before copying.' : 'Confirme a equipe docente revisada antes de copiar.',
 			'lps_teaching_team_required'              => $english ? 'The new offering needs a teaching team with a lead.' : 'A nova oferta precisa de uma equipe docente com responsável.',
 			'lps_course_team_creator_missing'         => $english ? 'Include yourself in the teaching team — professors can only create subjects they teach.' : 'Inclua você na equipe docente — professores só criam disciplinas que lecionam.',
@@ -655,19 +656,23 @@ final class TaskDashboard {
 			return array();
 		}
 		$normalized = array();
-		foreach ( $notices as $notice ) {
+		foreach ( $notices as $index => $notice ) {
 			$row = self::normalize_notice( $notice );
 			if ( '' === $row['id'] || '' === $row['body'] || '' === $row['created_at'] ) {
 				continue;
 			}
+			$row['_seq']  = $index;
 			$normalized[] = $row;
 		}
 		usort(
 			$normalized,
 			static fn( array $left, array $right ): int => 0 !== strcmp( $right['created_at'], $left['created_at'] )
 				? strcmp( $right['created_at'], $left['created_at'] )
-				: strcmp( $right['id'], $left['id'] )
+				: $right['_seq'] <=> $left['_seq']
 		);
+		foreach ( $normalized as $key => $row ) {
+			unset( $normalized[ $key ]['_seq'] );
+		}
 		return $normalized;
 	}
 
@@ -1694,9 +1699,17 @@ final class TaskDashboard {
 		if ( '' !== $external_url && '' === Policy::sanitize_url( $external_url ) ) {
 			$errors['external_url'] = 'lps_invalid_url';
 		}
+		if ( '' !== $external_url && '' !== Policy::scalar_string( get_post_meta( $resource_id, '_lps_version_id', true ) ) ) {
+			$errors['external_url'] = 'lps_resource_version_and_url_conflict';
+		}
 		if ( array() !== $errors ) {
 			self::fail( (string) reset( $errors ), (string) array_key_first( $errors ) );
 		}
+		// Metadata leads the post update so the index and purge hooks that fire
+		// on `transition_post_status` observe the final descriptive values.
+		update_post_meta( $resource_id, '_lps_resource_type', $type );
+		update_post_meta( $resource_id, '_lps_resource_language', TeachingContracts::normalize_language( $language ) );
+		update_post_meta( $resource_id, '_lps_external_url', Policy::sanitize_url( $external_url ) );
 		$updated = wp_update_post(
 			array(
 				'ID'           => $resource_id,
@@ -1708,9 +1721,6 @@ final class TaskDashboard {
 		if ( $updated instanceof WP_Error ) {
 			self::fail( 'lps_dashboard_forbidden' );
 		}
-		update_post_meta( $resource_id, '_lps_resource_type', $type );
-		update_post_meta( $resource_id, '_lps_resource_language', TeachingContracts::normalize_language( $language ) );
-		update_post_meta( $resource_id, '_lps_external_url', Policy::sanitize_url( $external_url ) );
 		Audit::record(
 			'edit',
 			$resource_id,

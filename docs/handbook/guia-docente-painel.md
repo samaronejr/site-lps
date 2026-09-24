@@ -93,29 +93,6 @@ passar por revisão editorial. A conta precisa ter a verificação em duas etapa
 registro de pessoa vinculado; sem isso, a tela mostra o aviso de acesso em vez do formulário.
 
 1. Abra `Criar disciplina`. O formulário tem dois blocos: `Disciplina` e `Primeira oferta`.
-2. Em `Disciplina`, preencha `Título`, `Código`, `Nível` e `Calendário` (obrigatórios) e,
-   opcionalmente, `Programa`, `Pré-requisitos`, `Ementa`, `Resumo` e `Conteúdo`.
-3. Em `Primeira oferta`, escolha o `Período`, informe a `Turma` e, opcionalmente, `Horários`,
-   `Local` e a `Equipe docente`. A oferta precisa de uma equipe com responsável.
-4. Clique em `Criar disciplina e primeira oferta`. O aviso "Disciplina e primeira
-   oferta criadas como rascunho — publique a oferta pela área de trabalho e a
-   disciplina entra no ar junto." confirma.
-5. Os dois registros nascem como rascunho e a oferta já aparece na sua lista
-   `Minhas ofertas`: a permissão sobre ela é concedida automaticamente. Quando a
-   oferta estiver pronta (incluindo a variante em inglês, que pode ser adicionada
-   depois), publique-a pela área de trabalho — a disciplina publica junto
-   automaticamente.
-
-Se a segunda etapa falhar, a disciplina recém-criada é removida automaticamente — tente de
-novo sem medo de duplicar cadastros.
-
-## Criar disciplina (`/pt-br/painel/disciplinas/`)
-
-Disponível para professor e administrador — o docente cadastra disciplinas diretamente, sem
-passar por revisão editorial. A conta precisa ter a verificação em duas etapas ativa e um
-registro de pessoa vinculado; sem isso, a tela mostra o aviso de acesso em vez do formulário.
-
-1. Abra `Criar disciplina`. O formulário tem dois blocos: `Disciplina` e `Primeira oferta`.
 2. Em `Disciplina`, preencha `Título`, `Código`, `Nível`, `Calendário`, `Resumo` e
    `Conteúdo` (obrigatórios) e, opcionalmente, `Programa`, `Pré-requisitos` e `Ementa`.
 3. Em `Primeira oferta`, escolha o `Período`, informe a `Turma` e, opcionalmente, `Horários`,
@@ -143,8 +120,9 @@ Cada oferta atribuída abre uma área de trabalho com os links `Ver a página p�
 
 1. Em `Dados da oferta`, ajuste `Horários`, `Local` e `Notas do período` e clique em
    `Salvar dados da oferta`.
-2. Os campos valem para a página pública da oferta nos dois idiomas: `Horários` e `Local`
-   entram na ficha da turma e as `Notas do período` viram o texto de "Sobre esta turma".
+2. `Horários` e `Local` aparecem na página pública da oferta nos dois idiomas. As
+   `Notas do período` são do registro em português — a versão em inglês é um campo
+   localizado da variante e atualiza pela tarefa de tradução.
 3. A edição exige permissão sobre a oferta; fora do seu escopo, o envio é recusado com
    "Este registro está fora do seu escopo atribuído.".
 

@@ -218,7 +218,7 @@ final class DashboardSurfaces {
 		$content     = array_key_exists( 'content', $recall ) ? self::text( $recall['content'] ) : self::text( $offering['content'] ?? '' );
 		return '<section class="lps-dashboard-form" aria-labelledby="lps-offering-form"><h3 id="lps-offering-form">'
 			. self::esc( $english ? 'Offering details' : 'Dados da oferta' ) . '</h3>'
-			. '<p class="lps-field-hint">' . self::esc( $english ? 'Schedule, venue and term notes appear on the public offering page.' : 'Horários, local e notas do período aparecem na página pública da oferta.' ) . '</p>'
+			. '<p class="lps-field-hint">' . self::esc( $english ? 'Schedule and venue appear on both locale pages; the term notes are Portuguese-first — the English variant updates through the translation task.' : 'Horários e local aparecem nas duas páginas; as notas do período são em português primeiro — a variante em inglês atualiza pela tarefa de tradução.' ) . '</p>'
 			. self::form_open( 'lps_dashboard_offering_edit' )
 			. self::hidden( 'offering_id', (string) $offering_id )
 			. self::textarea( 'schedule', TaskDashboard::field_label( '_lps_schedule', $locale ), $schedule, $locale, false )
@@ -837,7 +837,7 @@ final class DashboardSurfaces {
 				'positions[' . Policy::sanitize_integer( $resource['id'] ?? 0 ) . ']',
 				self::text( $resource['title'] ?? '' ),
 				'number',
-				(string) $index,
+				(string) Policy::sanitize_integer( $resource['sort_order'] ?? $index ),
 				$locale,
 				true
 			);
