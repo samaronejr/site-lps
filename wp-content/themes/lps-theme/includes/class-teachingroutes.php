@@ -465,7 +465,7 @@ final class TeachingRoutes {
 				// Sorted newest-first already — the landing's professor cell
 				// falls back to the latest offering when nothing is current.
 				$record['latest_offering'] = $offerings[0] ?? null;
-				$courses[] = $record;
+				$courses[]                 = $record;
 			}
 		}
 		return $courses;
