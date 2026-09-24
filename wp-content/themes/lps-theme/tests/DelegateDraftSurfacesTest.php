@@ -157,4 +157,22 @@ final class DelegateDraftSurfacesTest extends TestCase {
 		self::assertStringContainsString( 'lps-status-delegate', $html );
 		self::assertStringContainsString( 'Prepared by: Ana Delegada', $html );
 	}
+
+	/**
+	 * A fresh course form offers two member rows: a co-teacher submitting for
+	 * someone else's lead needs one row for themselves plus one for the lead.
+	 */
+	public function test_course_form_renders_room_for_co_teacher_team(): void {
+		$model = array(
+			'may_course' => true,
+			'courses'    => array(),
+			'terms'      => array( array( 'id' => 55, 'label' => '2026.1' ) ),
+			'people'     => array(
+				array( 'id' => 53, 'title' => 'Professora Teste' ),
+				array( 'id' => 54, 'title' => 'Ana Delegada' ),
+			),
+		);
+		$html  = DashboardSurfaces::course_view( $model, 'pt-br' );
+		self::assertSame( 2, substr_count( $html, 'lps-team-row' ), 'fresh course form needs a row for the submitter and one for the lead' );
+	}
 }

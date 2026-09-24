@@ -269,7 +269,7 @@ final class Translations {
 		$stale             = TranslationPolicy::TARGET_LOCALE === $locale && 0 < $counterpart_id ? self::is_stale( $post_id ) : null;
 		$error             = TranslationPolicy::publish_error( $post_type, $page_key, $locale, $requested_status, $counterpart_state, $stale );
 		if ( in_array( (string) $error, array( 'lps_required_english_variant_missing', 'lps_required_english_variant_unpublished' ), true )
-			&& '1' === Policy::scalar_string( get_post_meta( $post_id, '_lps_pt_first', true ) ) ) {
+			&& 0 < Policy::sanitize_integer( get_post_meta( $post_id, '_lps_pt_first', true ) ) ) {
 			// PT-first lane: records minted through the trusted course boundary
 			// may publish before their EN pair exists; the translation task
 			// backfills and reviews the English variant later.
