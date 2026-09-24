@@ -99,12 +99,12 @@
       "id": "content-model-contract",
       "kind": "source",
       "doc": "docs/content/data-dictionary.md",
-      "reviewedAt": "2026-09-22",
+      "reviewedAt": "2026-09-24",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
-          "sha256": "07121dbeb15d527b4d8ff69695b3f6a7510ca9713cf9f929e4077ff238109fc4"
+          "sha256": "e0f5c61afae77e6068bd590ee61342ff77711cc39ec4d5f8d92b240956caddb9"
         }
       ]
     },
@@ -112,12 +112,12 @@
       "id": "role-policy-matrix",
       "kind": "source",
       "doc": "docs/handbook/role-workflows.md",
-      "reviewedAt": "2026-09-18",
+      "reviewedAt": "2026-09-24",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-securitypolicy.php",
-          "sha256": "165ed715c434d823da7108bcdcc282a67634c88b9cc8286f38c9070ce7fd1037"
+          "sha256": "3f97993b9c16c4aab559c5d627f7a574a89109c635650694720ceabd490b8189"
         }
       ]
     },
@@ -186,11 +186,11 @@
       "sources": [
         {
           "path": "wp-content/themes/lps-theme/includes/class-dashboardsurfaces.php",
-          "sha256": "fdc30f7c2c2e2812dcf23564f30ebfd05609f53395fe5bdf40fe91829605287a"
+          "sha256": "3e87100855a5082fdbbe0513495036d1fffe71f1c7435aa33ccc71436e33d028"
         },
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-taskdashboard.php",
-          "sha256": "adeae7e97b9909cb1cea1d94e0019b05ca24646370b069f84f627ad38336dbb7"
+          "sha256": "3622025754480974a624434eaad1f19ba0392fcc7a143853d498d73a73c29cfb"
         },
         {
           "path": "wp-content/themes/lps-theme/includes/class-dashboardroutes.php",

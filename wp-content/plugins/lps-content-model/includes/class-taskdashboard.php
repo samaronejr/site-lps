@@ -362,6 +362,7 @@ final class TaskDashboard {
 			'new_section'            => $english ? 'Target section' : 'Turma de destino',
 			'team'                   => $english ? 'Teaching team' : 'Equipe docente',
 			'team_reviewed'          => $english ? 'Team review' : 'Revisão da equipe',
+			'prepared_by'            => $english ? 'Prepared by' : 'Preparado por',
 			'note'                   => $english ? 'Review note' : 'Nota de revisão',
 			'file'                   => $english ? 'File' : 'Arquivo',
 			'fields'                 => $english ? 'Fields' : 'Campos',
@@ -1161,16 +1162,20 @@ final class TaskDashboard {
 			if ( ! $unit instanceof WP_Post || 'lps_unit' !== $unit->post_type || 'trash' === $unit->post_status ) {
 				continue;
 			}
-			$units[] = array(
-				'id'         => $unit_id,
-				'title'      => $unit->post_title,
-				'status'     => $unit->post_status,
-				'state'      => self::state_key( $unit->post_status, Policy::scalar_string( get_post_meta( $unit_id, '_lps_state', true ) ) ),
-				'excerpt'    => $unit->post_excerpt,
-				'content'    => $unit->post_content,
-				'anchor'     => Policy::scalar_string( get_post_meta( $unit_id, '_lps_anchor', true ) ),
-				'position'   => Policy::sanitize_integer( get_post_meta( $unit_id, '_lps_position', true ) ),
-				'topic_date' => Policy::scalar_string( get_post_meta( $unit_id, '_lps_topic_date', true ) ),
+			$unit_prepared = self::prepared_marker_for( $unit_id );
+			$units[]       = array(
+				'id'               => $unit_id,
+				'title'            => $unit->post_title,
+				'status'           => $unit->post_status,
+				'state'            => self::state_key( $unit->post_status, Policy::scalar_string( get_post_meta( $unit_id, '_lps_state', true ) ) ),
+				'excerpt'          => $unit->post_excerpt,
+				'content'          => $unit->post_content,
+				'anchor'           => Policy::scalar_string( get_post_meta( $unit_id, '_lps_anchor', true ) ),
+				'position'         => Policy::sanitize_integer( get_post_meta( $unit_id, '_lps_position', true ) ),
+				'topic_date'       => Policy::scalar_string( get_post_meta( $unit_id, '_lps_topic_date', true ) ),
+				'prepared_by'      => $unit_prepared,
+				'prepared_by_name' => self::prepared_name( $unit_prepared ),
+				'edit_url'         => get_edit_post_link( $unit_id, 'raw' ),
 			);
 		}
 		usort(
@@ -1184,8 +1189,9 @@ final class TaskDashboard {
 			if ( ! $resource instanceof WP_Post || 'lps_resource' !== $resource->post_type || 'trash' === $resource->post_status ) {
 				continue;
 			}
-			$unit_rows   = Relationships::for_source( $resource_id, 'resource_unit' );
-			$resources[] = array(
+			$unit_rows         = Relationships::for_source( $resource_id, 'resource_unit' );
+			$resource_prepared = self::prepared_marker_for( $resource_id );
+			$resources[]       = array(
 				'id'                   => $resource_id,
 				'title'                => $resource->post_title,
 				'status'               => $resource->post_status,
@@ -1206,6 +1212,9 @@ final class TaskDashboard {
 				'scan_state'           => Policy::scalar_string( get_post_meta( $resource_id, '_lps_scan_state', true ) ),
 				'rights_review'        => Policy::scalar_string( get_post_meta( $resource_id, '_lps_rights_review', true ) ),
 				'accessibility_review' => Policy::scalar_string( get_post_meta( $resource_id, '_lps_accessibility_review', true ) ),
+				'prepared_by'          => $resource_prepared,
+				'prepared_by_name'     => self::prepared_name( $resource_prepared ),
+				'edit_url'             => get_edit_post_link( $resource_id, 'raw' ),
 				'download_url'         => TeachingResources::download_url( $resource_id ),
 			);
 		}
@@ -1274,8 +1283,41 @@ final class TaskDashboard {
 				'order'          => 'DESC',
 			)
 		);
-		$items = array();
-		foreach ( $posts as $post_id ) {
+		// Delegate-prepared drafts sit in the same news lane as the professor's
+		// own submissions, but only for accounts that may publish the lane —
+		// adoption is a publisher's action, so a fellow delegate never lists
+		// another account's private drafts. Only actionable statuses list here;
+		// published items are live, not adoptable work.
+		$prepared = ! self::may( 'publish', 'lps_news', 0 ) ? array() : get_posts(
+			array(
+				'post_type'      => 'lps_news',
+				'post_status'    => array( 'draft', 'pending' ),
+				'author__not_in' => array( $user_id ),
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Shared-lane provenance lookup; the lane is small and per-account.
+				'meta_query'     => array(
+					array(
+						'key'     => '_lps_prepared_by',
+						'value'   => 0,
+						'compare' => '>',
+						'type'    => 'NUMERIC',
+					),
+				),
+				'posts_per_page' => 50,
+				'fields'         => 'ids',
+				'orderby'        => 'date',
+				'order'          => 'DESC',
+			)
+		);
+		// A marker is only provenance when it names the draft's own author —
+		// anything else was written outside the delegate stamp and stays hidden.
+		$prepared = array_values(
+			array_filter(
+				$prepared,
+				static fn( $prepared_id ) => 0 < self::prepared_marker_for( (int) $prepared_id )
+			)
+		);
+		$items    = array();
+		foreach ( array_merge( $posts, $prepared ) as $post_id ) {
 			$locale = Translations::locale( (int) $post_id );
 			if ( TranslationPolicy::TARGET_LOCALE === $locale ) {
 				// The English variant stays bound to its Portuguese authority;
@@ -1283,10 +1325,11 @@ final class TaskDashboard {
 				// source row, never as a separate submission.
 				continue;
 			}
-			$variants = Translations::variants( (int) $post_id );
-			$en_id    = Policy::sanitize_integer( $variants[ TranslationPolicy::TARGET_LOCALE ] ?? 0 );
-			$english  = 0 < $en_id ? get_post( $en_id ) : null;
-			$items[]  = array(
+			$variants    = Translations::variants( (int) $post_id );
+			$en_id       = Policy::sanitize_integer( $variants[ TranslationPolicy::TARGET_LOCALE ] ?? 0 );
+			$english     = 0 < $en_id ? get_post( $en_id ) : null;
+			$prepared_by = self::prepared_marker_for( (int) $post_id );
+			$items[]     = array(
 				'id'                => (int) $post_id,
 				'title'             => Policy::scalar_string( get_post_field( 'post_title', $post_id ) ),
 				'summary'           => Policy::scalar_string( get_post_field( 'post_excerpt', $post_id ) ),
@@ -1299,6 +1342,9 @@ final class TaskDashboard {
 				'date'              => Policy::scalar_string( get_post_meta( $post_id, '_lps_canonical_date', true ) ),
 				'category'          => Policy::scalar_string( get_post_meta( $post_id, '_lps_news_category', true ) ),
 				'note'              => Policy::scalar_string( get_post_meta( $post_id, self::REVIEW_NOTE_META, true ) ),
+				'prepared_by'       => $prepared_by,
+				'prepared_by_name'  => self::prepared_name( $prepared_by ),
+				'can_resubmit'      => (int) get_post_field( 'post_author', $post_id ) === $user_id || ( 0 < $prepared_by && self::may( 'publish', 'lps_news', 0 ) ),
 				'public_url'        => 'publish' === get_post_status( $post_id ) ? (string) get_permalink( $post_id ) : '',
 				'edit_url'          => get_edit_post_link( $post_id, 'raw' ),
 				'translation_state' => 0 === $en_id ? 'missing' : ( Translations::is_stale( $en_id ) ? 'stale' : 'reviewed' ),
@@ -1772,8 +1818,19 @@ final class TaskDashboard {
 		if ( 0 < $post_id ) {
 			// A resubmit edits the author's own draft and returns it to review;
 			// the scoped guard still decides whether the account may touch it.
+			// A delegate-prepared draft may be adopted by any account allowed to
+			// publish the lane — the professor submits it under her own authority
+			// while the delegate's authorship and prepared-by marker stay intact.
 			$existing = get_post( $post_id );
-			if ( ! $existing instanceof WP_Post || 'lps_news' !== $existing->post_type || (int) $existing->post_author !== $user->ID || 'draft' !== $existing->post_status || TranslationPolicy::TARGET_LOCALE === Translations::locale( $post_id ) ) {
+			// The stamp always names the draft's creator, so adoption only opens
+			// for a marker that echoes post_author — a meta value written by
+			// hand can at most self-attribute, never forge another's draft.
+			$adoptable = $existing instanceof WP_Post
+				&& 0 < self::prepared_marker_for( $post_id )
+				&& self::may( 'publish', 'lps_news', 0 );
+			if ( ! $existing instanceof WP_Post || 'lps_news' !== $existing->post_type || 'draft' !== $existing->post_status
+				|| TranslationPolicy::TARGET_LOCALE === Translations::locale( $post_id )
+				|| ( (int) $existing->post_author !== $user->ID && ! $adoptable ) ) {
 				self::fail( 'lps_dashboard_forbidden' );
 			}
 			$attachment_id = 0;
@@ -2200,7 +2257,13 @@ final class TaskDashboard {
 		}
 		$news_id = self::post_int( 'news_id' );
 		$source  = 0 < $news_id ? get_post( $news_id ) : null;
-		if ( ! $source instanceof WP_Post || 'lps_news' !== $source->post_type || (int) $source->post_author !== $user->ID || TranslationPolicy::TARGET_LOCALE === Translations::locale( $news_id ) ) {
+		// The English task follows the same adoption rule as the resubmit: a
+		// lane publisher may translate a delegate-prepared draft it adopted.
+		$adoptable = $source instanceof WP_Post
+			&& 0 < self::prepared_marker_for( $news_id )
+			&& self::may( 'publish', 'lps_news', 0 );
+		if ( ! $source instanceof WP_Post || 'lps_news' !== $source->post_type || TranslationPolicy::TARGET_LOCALE === Translations::locale( $news_id )
+			|| ( (int) $source->post_author !== $user->ID && ! $adoptable ) ) {
 			self::fail( 'lps_translation_source_invalid', 'news_id' );
 		}
 		$title   = self::post_text( 'en_title' );
@@ -2856,6 +2919,37 @@ final class TaskDashboard {
 	 */
 	private static function may_copy( int $offering_id ): bool {
 		return Roles::current_user_can_scoped_action( 'copy-forward', 'lps_offering', $offering_id ) || Roles::current_user_can_action( 'create', 'teaching' );
+	}
+
+	/**
+	 * Returns the delegate-prepared marker only when it is genuine provenance.
+	 *
+	 * The stamp names the draft's own author, so a marker that points anywhere
+	 * else was written outside the stamp and is ignored wherever it matters.
+	 *
+	 * @param int $post_id Record to inspect.
+	 * @return int Delegate account ID, or 0 when the marker is absent or foreign.
+	 */
+	private static function prepared_marker_for( int $post_id ): int {
+		$marker = Policy::sanitize_integer( get_post_meta( $post_id, '_lps_prepared_by', true ) );
+		return (int) get_post_field( 'post_author', $post_id ) === $marker ? $marker : 0;
+	}
+
+	/**
+	 * Returns the display name of the delegate that prepared one record.
+	 *
+	 * @param int $user_id Delegate account ID (0 when unmarked).
+	 */
+	private static function prepared_name( int $user_id ): string {
+		if ( 0 >= $user_id ) {
+			return '';
+		}
+		$account = get_userdata( $user_id );
+		if ( ! $account instanceof WP_User ) {
+			return '';
+		}
+		$name = Policy::scalar_string( $account->display_name );
+		return '' !== $name ? $name : Policy::scalar_string( $account->user_login );
 	}
 
 	/**

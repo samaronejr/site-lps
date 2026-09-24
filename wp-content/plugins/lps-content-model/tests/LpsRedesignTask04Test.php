@@ -204,9 +204,9 @@ final class LpsRedesignTask04Test extends TestCase {
 			self::assertTrue( TeachingPolicy::scope_source_is_server_side( $source ) );
 		}
 		$forbidden = array(
-			'lps_offering' => array( '_lps_owner_user_id', '_lps_record_id', '_lps_locale', '_lps_state', '_lps_claim_verified', '_lps_section_key', '_lps_lms_url', '_lps_lms_url_approved', '_lps_cancelled', '_lps_temporal_status', '_lps_teaching_team_ids' ),
-			'lps_resource' => array( '_lps_version_id', '_lps_storage_key', '_lps_uploader_user_id', '_lps_sha256', '_lps_mime_type', '_lps_byte_size', '_lps_scan_state', '_lps_scan_version', '_lps_rights_review', '_lps_accessibility_review', '_lps_import_source_id' ),
-			'lps_news'     => array( '_lps_featured_until', '_lps_translation_reviewer_id', '_lps_owner_user_id' ),
+			'lps_offering' => array( '_lps_owner_user_id', '_lps_prepared_by', '_lps_record_id', '_lps_locale', '_lps_state', '_lps_claim_verified', '_lps_section_key', '_lps_lms_url', '_lps_lms_url_approved', '_lps_cancelled', '_lps_temporal_status', '_lps_teaching_team_ids' ),
+			'lps_resource' => array( '_lps_version_id', '_lps_storage_key', '_lps_uploader_user_id', '_lps_sha256', '_lps_mime_type', '_lps_byte_size', '_lps_scan_state', '_lps_scan_version', '_lps_rights_review', '_lps_accessibility_review', '_lps_import_source_id', '_lps_prepared_by' ),
+			'lps_news'     => array( '_lps_featured_until', '_lps_translation_reviewer_id', '_lps_owner_user_id', '_lps_prepared_by' ),
 		);
 		foreach ( $forbidden as $post_type => $fields ) {
 			foreach ( $fields as $field ) {

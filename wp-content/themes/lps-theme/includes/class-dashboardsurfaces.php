@@ -141,6 +141,7 @@ final class DashboardSurfaces {
 				$item  = self::record( $item );
 				$html .= '<li class="lps-record">' . self::esc( self::text( $item['title'] ?? '' ) )
 					. ' ' . self::chip( self::text( $item['state'] ?? 'draft' ), $locale )
+					. self::prepared_badge( $item, $locale )
 					. self::item_links( $item, $locale )
 					. self::note_html( $item, $locale )
 					. '</li>';
@@ -334,10 +335,11 @@ final class DashboardSurfaces {
 				$item  = self::record( $item );
 				$html .= '<li class="lps-record">' . self::esc( self::text( $item['title'] ?? '' ) )
 					. ' ' . self::chip( self::text( $item['state'] ?? 'draft' ), $locale )
+					. self::prepared_badge( $item, $locale )
 					. self::item_links( $item, $locale )
 					. self::note_html( $item, $locale )
 					. self::translation_task_html( $item, $locale );
-				if ( 'draft' === self::text( $item['status'] ?? '' ) ) {
+				if ( 'draft' === self::text( $item['status'] ?? '' ) && ! empty( $item['can_resubmit'] ) ) {
 					// A rejected item keeps its note and reopens for edits; the
 					// resubmit returns it to review instead of minting a new record.
 					$html .= '<details class="lps-dashboard-edit"><summary>' . self::esc( $english ? 'Edit and resubmit' : 'Editar e reenviar' ) . '</summary>'
@@ -732,7 +734,12 @@ final class DashboardSurfaces {
 				$unit_id = Policy::sanitize_integer( $unit['id'] ?? 0 );
 				$html   .= '<li class="lps-record">' . self::esc( self::text( $unit['title'] ?? '' ) )
 					. ' ' . self::chip( self::text( $unit['state'] ?? 'draft' ), $locale )
+					. self::prepared_badge( $unit, $locale )
 					. ' <span class="lps-meta">' . self::esc( self::text( $unit['anchor'] ?? '' ) ) . '</span>';
+				$edit  = self::safe_url( self::text( $unit['edit_url'] ?? '' ) );
+				if ( '' !== $edit && ! empty( $offering['can_edit'] ) ) {
+					$html .= ' <a href="' . self::esc( $edit ) . '">' . self::esc( $english ? 'Edit' : 'Editar' ) . '</a>';
+				}
 				if ( ! empty( $offering['can_publish'] ) && 'publish' !== self::text( $unit['status'] ?? '' ) ) {
 					$html .= self::action_form( 'lps_dashboard_publish', array( 'post_id' => $unit_id ), $english ? 'Publish unit' : 'Publicar unidade', 'publish-unit' );
 				}
@@ -778,8 +785,13 @@ final class DashboardSurfaces {
 				$state       = self::text( $resource['state'] ?? 'draft' );
 				$html       .= '<li class="lps-record" data-resource-id="' . $resource_id . '"><strong>' . self::esc( self::text( $resource['title'] ?? '' ) ) . '</strong>'
 					. ' ' . self::chip( $state, $locale )
+					. self::prepared_badge( $resource, $locale )
 					. ' <span class="lps-meta">' . self::esc( self::text( $resource['resource_type'] ?? '' ) . ' · ' . self::text( $resource['resource_language'] ?? '' ) ) . '</span>';
-				$download    = self::safe_url( self::text( $resource['download_url'] ?? '' ) );
+				$edit        = self::safe_url( self::text( $resource['edit_url'] ?? '' ) );
+				if ( '' !== $edit && ! empty( $offering['can_edit'] ) ) {
+					$html .= ' <a href="' . self::esc( $edit ) . '">' . self::esc( $english ? 'Edit' : 'Editar' ) . '</a>';
+				}
+				$download = self::safe_url( self::text( $resource['download_url'] ?? '' ) );
 				if ( 'released' === self::text( $resource['release_state'] ?? '' ) && 'publish' === self::text( $resource['status'] ?? '' ) && '' !== $download ) {
 					$html .= ' <a href="' . self::esc( $download ) . '">' . self::esc( $english ? 'Download' : 'Baixar' ) . '</a>';
 				} elseif ( '' !== self::text( $resource['scan_state'] ?? '' ) && 'clean' !== self::text( $resource['scan_state'] ?? '' ) ) {
@@ -1099,6 +1111,25 @@ final class DashboardSurfaces {
 			$html .= self::hidden( (string) $key, is_scalar( $value ) ? (string) $value : '' );
 		}
 		return $html . '<button class="lps-button" type="submit" data-action="' . self::esc( $data ) . '">' . self::esc( $label ) . '</button></form>';
+	}
+
+	/**
+	 * Renders the prepared-by badge for a delegate-drafted record.
+	 *
+	 * The badge is attribution, not lifecycle: it sits beside the state chip in
+	 * the same chip family but on the delegate tone, so a professor scanning
+	 * the lane sees who prepared the draft without reading it as a state.
+	 *
+	 * @param array<string, mixed> $row    Record row.
+	 * @param string               $locale Supported locale slug.
+	 */
+	private static function prepared_badge( array $row, string $locale ): string {
+		$name = self::text( $row['prepared_by_name'] ?? '' );
+		if ( '' === $name ) {
+			return '';
+		}
+		return ' <span class="lps-status lps-status-delegate" data-prepared-by="' . (int) Policy::sanitize_integer( $row['prepared_by'] ?? 0 ) . '">'
+			. self::esc( TaskDashboard::field_label( 'prepared_by', $locale ) . ': ' . $name ) . '</span>';
 	}
 
 	/**

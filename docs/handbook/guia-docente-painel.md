@@ -21,7 +21,9 @@ papel que a API usa. Quem pode fazer o quê está em
   validade e pode ser revogada. Sem permissão, a lista de tarefas aparece vazia com o aviso
   "Nenhuma oferta está atribuída à sua conta ainda".
 - Delegado prepara rascunhos. Publicar, liberar material e copiar para o próximo período são
-  ações exclusivas do professor; os botões correspondentes nem aparecem para o delegado.
+  ações exclusivas do professor; os botões correspondentes nem aparecem para o delegado. Cada
+  rascunho criado por um delegado carrega a marca `Preparado por` com o nome dele e aparece com
+  esse selo na área do professor, que revisa, edita e publica sob a própria autoridade.
 
 ## As tarefas do painel
 
@@ -31,7 +33,7 @@ A página inicial do painel lista apenas as tarefas que o seu escopo cobre:
 | --- | --- | --- |
 | `Meu perfil` | professor, delegado | Propor alterações no seu registro público de pessoa. |
 | `Minhas ofertas` | professor, delegado | Abrir a área da oferta: unidades, materiais e a cópia do próximo período. |
-| `Enviar notícia` | professor com escopo `news` | Rascunhar uma notícia para revisão editorial. |
+| `Enviar notícia` | professor ou delegado com escopo `news` | Rascunhar uma notícia para revisão editorial. |
 | `Fila de revisão` | editor de seção, publicador | Aprovar ou rejeitar envios e propostas pendentes. |
 | `Criar oferta` | editor de seção, publicador | Criar uma oferta em rascunho ligando disciplina, período e turma. |
 | `Criar disciplina` | professor, administrador | Cadastrar uma disciplina e abrir a primeira oferta em um único envio, sem revisão. |
@@ -59,8 +61,10 @@ erro de validação devolve o formulário com o campo indicado e os valores pres
 
 ## Enviar notícia (`/pt-br/painel/noticias/`)
 
-Disponível apenas para professor com o escopo `news` concedido. Os envios entram em revisão como
-rascunhos; um rascunho salvo nunca é público.
+Disponível para professor e delegado com o escopo `news` concedido. Os envios entram em revisão como
+rascunhos; um rascunho salvo nunca é público. Um rascunho criado por um delegado aparece na lista
+do professor com o selo `Preparado por` seguido do nome do delegado: o professor abre
+`Editar e reenviar`, ajusta e envia sob a própria autoridade — a marca continua como procedência.
 
 1. Abra `Enviar notícia` e preencha `Título`, `Resumo`, `Conteúdo` e `Data de publicação`.
    Opcionalmente escolha o `Tema` (Pessoas, Pesquisa, História, Ensino, Institucional ou
@@ -93,19 +97,18 @@ passar por revisão editorial. A conta precisa ter a verificação em duas etapa
 registro de pessoa vinculado; sem isso, a tela mostra o aviso de acesso em vez do formulário.
 
 1. Abra `Criar disciplina`. O formulário tem dois blocos: `Disciplina` e `Primeira oferta`.
-2. Em `Disciplina`, preencha `Título`, `Código`, `Nível`, `Calendário`, `Resumo` e
-   `Conteúdo` (obrigatórios) e, opcionalmente, `Programa`, `Pré-requisitos` e `Ementa`.
+2. Em `Disciplina`, preencha `Título`, `Código`, `Nível` e `Calendário` (obrigatórios) e,
+   opcionalmente, `Programa`, `Pré-requisitos`, `Ementa`, `Resumo` e `Conteúdo`.
 3. Em `Primeira oferta`, escolha o `Período`, informe a `Turma` e, opcionalmente, `Horários`,
-   `Local` e a `Equipe docente`. A oferta precisa de uma equipe com responsável e, como
-   docente, você precisa constar nela — disciplinas só podem ser criadas por quem leciona.
+   `Local` e a `Equipe docente`. A oferta precisa de uma equipe com responsável.
 4. Clique em `Criar disciplina e primeira oferta`. O aviso "Disciplina e primeira
    oferta criadas como rascunho — publique a oferta pela área de trabalho e a
    disciplina entra no ar junto." confirma.
 5. Os dois registros nascem como rascunho e a oferta já aparece na sua lista
-   `Minhas ofertas`: a permissão sobre ela é concedida automaticamente. Ao publicar a
-   oferta pela área de trabalho, a disciplina publica junto automaticamente. O envio
-   primeiro em português é permitido — a variante em inglês pode ser adicionada depois
-   pela tarefa de tradução.
+   `Minhas ofertas`: a permissão sobre ela é concedida automaticamente. Quando a
+   oferta estiver pronta (incluindo a variante em inglês, que pode ser adicionada
+   depois), publique-a pela área de trabalho — a disciplina publica junto
+   automaticamente.
 
 Se a segunda etapa falhar, a disciplina recém-criada é removida automaticamente — tente de
 novo sem medo de duplicar cadastros.
@@ -141,11 +144,15 @@ Cada oferta atribuída abre uma área de trabalho com os links `Ver a página p�
    `Posição` (número inteiro a partir de 1) e, se quiser, `Resumo`, `Conteúdo` (o corpo da
    aula, com parágrafos e HTML básico) e `Data do tópico` no formato `AAAA-MM-DD`.
 2. Clique em `Criar a unidade em rascunho`. A unidade entra na lista como `Rascunho`.
-3. Para ajustar uma unidade existente, abra `Editar unidade` nela: título, resumo, conteúdo,
-   âncora, posição e data do tópico ficam editáveis, e `Salvar unidade` grava tudo.
+3. Para ajustar uma unidade existente, abra `Editar unidade` nela ou use o link `Editar` para
+   abri-la no editor: título, resumo, conteúdo, âncora, posição e data do tópico ficam
+   editáveis, e `Salvar unidade` grava tudo.
 4. Professor pode publicar a unidade com `Publicar unidade`. Unidade é conteúdo interno: ela
    organiza os materiais e não vira página pública própria — mas seu `Conteúdo` renderiza na
    página pública da oferta, dentro da unidade.
+
+Uma unidade preparada por um delegado aparece na lista com o selo `Preparado por` seguido do nome
+do delegado; o professor edita e publica normalmente sob a própria autoridade.
 
 ### Adicionar material
 
@@ -154,7 +161,8 @@ Cada oferta atribuída abre uma área de trabalho com os links `Ver a página p�
 2. Anexe um arquivo ou informe uma `URL externa`, nunca os dois. O sistema recusa o envio com os
    dois preenchidos.
 3. Clique em `Criar o material em rascunho`. O material entra na lista `Materiais` como
-   `Rascunho`.
+   `Rascunho`. Um material preparado por um delegado aparece com o selo `Preparado por`, como
+   nas unidades.
 
 Um arquivo enviado vira uma versão imutável identificada pelo seu hash. Ninguém edita um arquivo
 já enviado: corrigir é enviar uma versão nova (veja "Corrigir ou retirar" abaixo).

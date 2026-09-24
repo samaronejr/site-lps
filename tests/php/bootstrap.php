@@ -149,6 +149,17 @@ if (! function_exists('sanitize_key')) {
 	}
 }
 
+if (! function_exists('sanitize_url')) {
+	/**
+	 * Mirrors the WordPress URL sanitizer used by form-target seams.
+	 *
+	 * @param string $url Candidate URL.
+	 */
+	function sanitize_url(string $url): string {
+		return filter_var($url, FILTER_SANITIZE_URL) ?: '';
+	}
+}
+
 if (! function_exists('wp_unslash')) {
 	/**
 	 * Mirrors the WordPress unslashing helper used by request-boundary seams.

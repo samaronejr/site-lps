@@ -127,7 +127,7 @@ final class SecurityPolicy {
 	 * @return array<int, string>
 	 */
 	public static function private_fields(): array {
-		return array( 'capabilities', 'allcaps', '_lps_owner_user_id', '_lps_translation_reviewer_id', 'audit', 'audit_id', 'actor_user_id', 'revision_id', 'previous_hash', 'entry_hash' );
+		return array( 'capabilities', 'allcaps', '_lps_owner_user_id', '_lps_translation_reviewer_id', '_lps_prepared_by', 'audit', 'audit_id', 'actor_user_id', 'revision_id', 'previous_hash', 'entry_hash' );
 	}
 
 	/** Returns public REST response fields.
