@@ -471,8 +471,8 @@ final class DashboardSurfaces {
 			. self::field( 'program', TaskDashboard::field_label( '_lps_program', $locale ), 'text', self::text( $recall['program'] ?? '' ), $locale, false )
 			. self::textarea( 'prerequisites', TaskDashboard::field_label( '_lps_prerequisites', $locale ), self::text( $recall['prerequisites'] ?? '' ), $locale, false )
 			. self::textarea( 'syllabus', TaskDashboard::field_label( '_lps_syllabus', $locale ), self::text( $recall['syllabus'] ?? '' ), $locale, false )
-			. self::textarea( 'excerpt', TaskDashboard::field_label( 'post_excerpt', $locale ), self::text( $recall['excerpt'] ?? '' ), $locale, false )
-			. self::textarea( 'content', TaskDashboard::field_label( 'post_content', $locale ), self::text( $recall['content'] ?? '' ), $locale, false )
+			. self::textarea( 'excerpt', TaskDashboard::field_label( 'post_excerpt', $locale ), self::text( $recall['excerpt'] ?? '' ), $locale, true )
+			. self::textarea( 'content', TaskDashboard::field_label( 'post_content', $locale ), self::text( $recall['content'] ?? '' ), $locale, true )
 			. '</fieldset>'
 			. '<fieldset class="lps-fieldset"><legend>' . self::esc( $english ? 'First offering' : 'Primeira oferta' ) . '</legend>'
 			. self::select( 'term_id', TaskDashboard::field_label( 'term_id', $locale ), self::options_for( $terms, 'label' ), Policy::sanitize_integer( $recall['term_id'] ?? 0 ), $locale, true )
