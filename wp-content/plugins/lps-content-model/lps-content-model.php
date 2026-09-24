@@ -45,6 +45,7 @@ require_once __DIR__ . '/includes/class-mfa.php';
 require_once __DIR__ . '/includes/class-teachingpolicy.php';
 require_once __DIR__ . '/includes/class-roles.php';
 require_once __DIR__ . '/includes/class-audit.php';
+require_once __DIR__ . '/includes/class-notifications.php';
 require_once __DIR__ . '/includes/class-reports.php';
 require_once __DIR__ . '/includes/class-translations.php';
 require_once __DIR__ . '/includes/class-media.php';

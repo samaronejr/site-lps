@@ -114,19 +114,69 @@ final class Audit {
 		$rows   = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM %i ORDER BY audit_id DESC LIMIT %d', $table, max( 1, min( 1000, $limit ) ) ), 'ARRAY_A' );
 		$result = array();
 		foreach ( is_array( $rows ) ? $rows : array() as $row ) {
-			$result[] = array(
-				'audit_id'      => Policy::sanitize_integer( $row['audit_id'] ?? 0 ),
-				'actor_user_id' => Policy::sanitize_integer( $row['actor_user_id'] ?? 0 ),
-				'occurred_at'   => Policy::scalar_string( $row['occurred_at'] ?? '' ),
-				'action'        => Policy::scalar_string( $row['action'] ?? '' ),
-				'object_id'     => Policy::sanitize_integer( $row['object_id'] ?? 0 ),
-				'revision_id'   => Policy::sanitize_integer( $row['revision_id'] ?? 0 ),
-				'context_json'  => Policy::scalar_string( $row['context_json'] ?? '{}' ),
-				'previous_hash' => Policy::scalar_string( $row['previous_hash'] ?? '' ),
-				'entry_hash'    => Policy::scalar_string( $row['entry_hash'] ?? '' ),
-			);
+			$result[] = self::normalize_row( $row );
 		}
 		return $result;
+	}
+
+	/**
+	 * Returns ledger entries visible to one account, newest first.
+	 *
+	 * "Visible" covers only events on the account's own records and grants:
+	 * the scope grants and revocations stored against the account (the ledger
+	 * keys those by the target account ID), and the entries recorded on the
+	 * records the account owns — its own actions plus the review and
+	 * publication decisions other accounts made there. Actions the account
+	 * performed on other accounts' records stay out: they are that other
+	 * account's events, not this one's. Row identity stays unchanged — this
+	 * reads the same ledger `entries()` reads, never a parallel store.
+	 *
+	 * @param int             $user_id    Account the selection is for.
+	 * @param array<int, int> $object_ids Record IDs the account owns.
+	 * @param int             $limit      Maximum rows.
+	 * @return array<int, array<string, int|string>>
+	 */
+	public static function entries_for_account( int $user_id, array $object_ids, int $limit = 200 ): array {
+		$wpdb       = self::database();
+		$table      = self::table_name( $wpdb );
+		$limit      = max( 1, min( 1000, $limit ) );
+		$object_ids = array_values( array_unique( array_filter( array_map( 'intval', $object_ids ) ) ) );
+		$user_id    = max( 0, $user_id );
+		// The selection is assembled from ints and fixed literals only — the
+		// trusted migration-owned table name is the file's own convention — so
+		// the composed statement stays injection-safe without prepare().
+		$where = "( action IN ( 'grant-scope', 'revoke-scope' ) AND object_id = {$user_id} )";
+		if ( array() !== $object_ids ) {
+			$in     = implode( ', ', $object_ids );
+			$where .= " OR ( object_id IN ( {$in} ) AND action NOT IN ( 'grant-scope', 'revoke-scope' )"
+				. " AND ( actor_user_id = {$user_id} OR action IN ( 'review', 'publish', 'unpublish', 'archive' ) ) )";
+		}
+		$rows   = $wpdb->get_results( "SELECT * FROM {$table} WHERE {$where} ORDER BY audit_id DESC LIMIT {$limit}", 'ARRAY_A' ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Every interpolated value is an int, the trusted table name, or a fixed action literal.
+		$result = array();
+		foreach ( is_array( $rows ) ? $rows : array() as $row ) {
+			$result[] = self::normalize_row( $row );
+		}
+		return $result;
+	}
+
+	/**
+	 * Normalizes one raw ledger row to the public entry shape.
+	 *
+	 * @param array<mixed> $row Raw database row.
+	 * @return array<string, int|string>
+	 */
+	private static function normalize_row( array $row ): array {
+		return array(
+			'audit_id'      => Policy::sanitize_integer( $row['audit_id'] ?? 0 ),
+			'actor_user_id' => Policy::sanitize_integer( $row['actor_user_id'] ?? 0 ),
+			'occurred_at'   => Policy::scalar_string( $row['occurred_at'] ?? '' ),
+			'action'        => Policy::scalar_string( $row['action'] ?? '' ),
+			'object_id'     => Policy::sanitize_integer( $row['object_id'] ?? 0 ),
+			'revision_id'   => Policy::sanitize_integer( $row['revision_id'] ?? 0 ),
+			'context_json'  => Policy::scalar_string( $row['context_json'] ?? '{}' ),
+			'previous_hash' => Policy::scalar_string( $row['previous_hash'] ?? '' ),
+			'entry_hash'    => Policy::scalar_string( $row['entry_hash'] ?? '' ),
+		);
 	}
 
 	/** Verifies the complete immutable hash chain from oldest to newest. */
