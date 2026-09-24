@@ -53,6 +53,10 @@ final class DashboardRoutes {
 			'pt-br' => 'noticias',
 			'en'    => 'news',
 		),
+		'events'   => array(
+			'pt-br' => 'eventos',
+			'en'    => 'events',
+		),
 		'profile'  => array(
 			'pt-br' => 'perfil',
 			'en'    => 'profile',

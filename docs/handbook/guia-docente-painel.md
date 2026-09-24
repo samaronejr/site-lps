@@ -34,6 +34,7 @@ A página inicial do painel lista apenas as tarefas que o seu escopo cobre:
 | `Meu perfil` | professor, delegado | Propor alterações no seu registro público de pessoa. |
 | `Minhas ofertas` | professor, delegado | Abrir a área da oferta: unidades, materiais e a cópia do próximo período. |
 | `Enviar notícia` | professor ou delegado com escopo `news` | Rascunhar uma notícia para revisão editorial. |
+| `Enviar evento` | professor ou delegado com escopo `news` | Rascunhar um evento para revisão editorial. |
 | `Fila de revisão` | editor de seção, publicador | Aprovar ou rejeitar envios e propostas pendentes. |
 | `Criar oferta` | editor de seção, publicador | Criar uma oferta em rascunho ligando disciplina, período e turma. |
 | `Criar disciplina` | professor, administrador | Cadastrar uma disciplina e abrir a primeira oferta em um único envio, sem revisão. |
@@ -90,6 +91,31 @@ inglês`, `Resumo em inglês` e `Conteúdo em inglês`. O envio cria a variante 
 revisada — o aviso "Tradução em inglês registrada e enviada para revisão." confirma. Se o texto
 em português mudar depois, a tarefa volta como `Atualizar a tradução EN` até que a variante
 seja revista de novo; quando a tradução existe e está revisada, a tarefa desaparece.
+
+## Enviar evento (`/pt-br/painel/eventos/`)
+
+Disponível para professor e delegado com o escopo `news` concedido — a mesma permissão da
+notícia, em faixa própria. Os envios entram em revisão como rascunhos e um editor decide a
+publicação; um rascunho nunca é público.
+
+1. Abra `Enviar evento` e preencha `Título`, `Resumo`, `Conteúdo` e `Início (data e hora)`
+   — obrigatórios. Opcionalmente informe `Término (data e hora)`, `Local`, `Link on-line`,
+   `Link de inscrição`, o `Status do evento` (programado, adiado ou cancelado) e uma
+   `Imagem destacada` com a `Descrição da imagem` — mesma disciplina de upload da notícia.
+2. Clique em `Pré-visualizar o cartão`. A etapa mostra o cartão do evento como aparecerá
+   publicamente — data, título, resumo, local e a imagem. Nada é enviado nesse ponto:
+   confirme em `Enviar para revisão` ou volte com `Descartar pré-visualização`.
+3. O aviso "Enviado para revisão. Um editor decidirá." confirma o envio e o item aparece
+   em `Meus eventos` com o estado `Em revisão`. A `Fila de revisão` dos editores lista
+   eventos na faixa própria, abaixo das notícias.
+4. Se o editor rejeitar, o item volta para `Rascunho` com a nota da revisão visível e a
+   decisão chega por e-mail. Abra `Editar e reenviar`, corrija e reenvie.
+5. Aprovado, o evento fica `Público` e passa a aparecer na seção de eventos e na linha do
+   tempo institucional da página `Notícias e eventos`.
+
+A tradução funciona como a da notícia: com o item em `Meus eventos`, abra `Adicionar
+tradução EN` e preencha os campos em inglês. O envio cria a variante EN já associada e
+revisada; se o português mudar depois, a tarefa volta como `Atualizar a tradução EN`.
 
 ## Criar disciplina (`/pt-br/painel/disciplinas/`)
 
