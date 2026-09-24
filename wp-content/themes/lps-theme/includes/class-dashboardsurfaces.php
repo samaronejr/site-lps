@@ -161,6 +161,23 @@ final class DashboardSurfaces {
 			}
 			$html .= '</ul></section>';
 		}
+		$activity = is_array( $model['activity'] ?? null ) ? $model['activity'] : array();
+		$html    .= '<section class="lps-dashboard-section" aria-labelledby="lps-dash-activity"><h2 id="lps-dash-activity">'
+			. self::esc( $english ? 'Recent activity' : 'Atividade recente' ) . '</h2>';
+		if ( array() === $activity ) {
+			$html .= '<p class="lps-field-hint">' . self::esc( $english ? 'Your submissions, review outcomes and access changes appear here.' : 'Seus envios, resultados de revisão e mudanças de acesso aparecem aqui.' ) . '</p>';
+		} else {
+			$html .= '<ul class="lps-record-list">';
+			foreach ( $activity as $event ) {
+				$event = self::record( $event );
+				$at    = self::text( $event['at'] ?? '' );
+				$html .= '<li class="lps-record">' . self::esc( self::text( $event['label'] ?? '' ) )
+					. ( '' !== $at ? ' <time class="lps-meta" datetime="' . self::esc( self::text( $event['occurred_at'] ?? '' ) ) . '">' . self::esc( $at ) . '</time>' : '' )
+					. '</li>';
+			}
+			$html .= '</ul>';
+		}
+		$html .= '</section>';
 		return $html . '</section>';
 	}
 

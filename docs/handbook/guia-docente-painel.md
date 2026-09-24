@@ -230,6 +230,26 @@ e uma eventual revogação.
 - Pedidos de concessão, renovação ou revogação vão para um administrador ou para o editor de seção
   da coleção `teaching`. O docente não gerencia permissões pelo painel.
 
+## Atividade recente e notificações por e-mail
+
+A página inicial do painel fecha com a seção `Atividade recente`: uma lista dos seus últimos
+eventos, no máximo oito, do mais novo ao mais antigo. Entram aí os seus envios para revisão, as
+decisões do editor sobre os seus registros, as permissões concedidas ou revogadas na sua conta e
+as unidades e materiais que você criou — cada item com um rótulo em linguagem corrente e a data.
+Enquanto não houver nada seu registrado, a seção mostra o aviso "Seus envios, resultados de
+revisão e mudanças de acesso aparecem aqui."
+
+Duas decisões do sistema também chegam por e-mail, no idioma da sua conta:
+
+- revisão de notícia — aprovada ("Notícia publicada: …") ou devolvida com a nota do editor
+  ("Notícia devolvida pela revisão: …");
+- permissão concedida — quando um administrador ou editor registra um escopo novo na sua conta
+  ("Acesso liberado: …"), com o escopo, o papel e a validade.
+
+As mensagens são simples e vão só para o endereço da sua conta: nenhum e-mail carrega dado de
+outra pessoa. Se uma decisão aconteceu e o e-mail não chegou, verifique a caixa de spam e avise a
+equipe técnica.
+
 ## Acessibilidade na autoria
 
 As mesmas regras do [checklist de acessibilidade](accessibility-authoring-checklist.md) valem no
