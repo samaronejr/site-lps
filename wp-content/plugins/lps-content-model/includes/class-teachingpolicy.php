@@ -33,8 +33,8 @@ final class TeachingPolicy {
 	/** Record types a scoped role may ever touch. */
 	public const SCOPED_POST_TYPES = array( 'lps_offering', 'lps_unit', 'lps_resource', 'lps_news' );
 
-	/** Record types a scoped role may publish (materials and scoped news only). */
-	public const PUBLISHABLE_POST_TYPES = array( 'lps_unit', 'lps_resource', 'lps_news' );
+	/** Record types a scoped role may publish: their own offering plus materials and scoped news. */
+	public const PUBLISHABLE_POST_TYPES = array( 'lps_offering', 'lps_unit', 'lps_resource', 'lps_news' );
 
 	/** Canonical relationship that supplies the offering scope per record type. */
 	public const RELATIONSHIP_SCOPES = array(

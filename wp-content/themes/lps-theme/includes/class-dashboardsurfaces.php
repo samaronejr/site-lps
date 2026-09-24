@@ -171,10 +171,13 @@ final class DashboardSurfaces {
 				. self::esc( $english ? 'This offering is outside your assigned scope.' : 'Esta oferta está fora do seu escopo atribuído.' )
 				. '</p></div>';
 		}
-		$html   = '<section class="lps-dashboard-offering" data-dashboard-view="offering" data-offering-id="' . (int) $id . '">';
-		$html  .= '<p class="lps-kicker">' . self::esc( $english ? 'Offering workspace' : 'Área da oferta' ) . '</p>';
-		$html  .= '<h2>' . self::esc( self::text( $offering['title'] ?? '' ) ) . '</h2>';
-		$html  .= '<p>' . self::chip( self::text( $offering['state'] ?? 'draft' ), $locale ) . '</p>';
+		$html  = '<section class="lps-dashboard-offering" data-dashboard-view="offering" data-offering-id="' . (int) $id . '">';
+		$html .= '<p class="lps-kicker">' . self::esc( $english ? 'Offering workspace' : 'Área da oferta' ) . '</p>';
+		$html .= '<h2>' . self::esc( self::text( $offering['title'] ?? '' ) ) . '</h2>';
+		$html .= '<p>' . self::chip( self::text( $offering['state'] ?? 'draft' ), $locale ) . '</p>';
+		if ( ! empty( $offering['can_publish'] ) && 'publish' !== self::text( $offering['state'] ?? 'draft' ) ) {
+			$html .= self::action_form( 'lps_dashboard_publish', array( 'post_id' => Policy::sanitize_integer( $offering['id'] ?? 0 ) ), $english ? 'Publish the offering' : 'Publicar a oferta', 'publish-offering' );
+		}
 		$html  .= self::identity_line( $offering );
 		$public = self::safe_url( self::text( $offering['public_url'] ?? '' ) );
 		$edit   = self::safe_url( self::text( $offering['edit_url'] ?? '' ) );

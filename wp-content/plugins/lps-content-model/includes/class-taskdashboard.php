@@ -352,7 +352,7 @@ final class TaskDashboard {
 		$messages = array(
 			'saved'             => $english ? 'Saved. The record stays a draft until it is published.' : 'Salvo. O registro continua rascunho até ser publicado.',
 			'created'           => $english ? 'Created as a draft.' : 'Criado como rascunho.',
-			'course-created'    => $english ? 'Course and first offering created as drafts; the workspace is listed below.' : 'Disciplina e primeira oferta criadas como rascunho; a área de trabalho aparece abaixo.',
+			'course-created'    => $english ? 'Course and first offering created as drafts — publish the offering from its workspace and the course goes live with it.' : 'Disciplina e primeira oferta criadas como rascunho — publique a oferta pela área de trabalho e a disciplina entra no ar junto.',
 			'published'         => $english ? 'Published. The public link is now live.' : 'Publicado. O link público está ativo.',
 			'submitted'         => $english ? 'Submitted for review. An editor will decide it.' : 'Enviado para revisão. Um editor decidirá.',
 			'proposal-sent'     => $english ? 'Profile proposal sent for review.' : 'Proposta de perfil enviada para revisão.',
@@ -789,7 +789,7 @@ final class TaskDashboard {
 			'public_url'      => 'publish' === $offering->post_status ? TeachingRecords::offering_url( $offering_id, $locale ) : '',
 			'edit_url'        => get_edit_post_link( $offering_id, 'raw' ),
 			'can_edit'        => Roles::current_user_can_scoped_action( 'edit', 'lps_offering', $offering_id ) || Roles::current_user_can_action( 'edit', 'teaching' ),
-			'can_publish'     => Roles::current_user_can_scoped_action( 'publish', 'lps_unit', $offering_id ) || Roles::current_user_can_action( 'publish', 'teaching' ),
+			'can_publish'     => Roles::current_user_can_scoped_action( 'publish', 'lps_offering', $offering_id ) || Roles::current_user_can_action( 'publish', 'teaching' ),
 			'can_copy'        => Roles::current_user_can_scoped_action( 'copy-forward', 'lps_offering', $offering_id ) || Roles::current_user_can_action( 'create', 'teaching' ),
 			'role'            => $role,
 		);
@@ -1154,6 +1154,24 @@ final class TaskDashboard {
 		if ( $result instanceof WP_Error ) {
 			self::fail( (string) $result->get_error_code(), self::error_field( $result ) );
 		}
+		if ( 'lps_offering' === $post->post_type ) {
+			// A professor-created course has no scoped edit lane of its own, so
+			// it publishes through this same trusted boundary when its offering
+			// goes live. By then the translation contract the course needs
+			// (paired EN variant, summary, body) has been authored; while it is
+			// unmet the course stays a draft and the offering's public route
+			// simply 404s, matching any other unpublished dependency.
+			$course_rows = Relationships::for_source( $post_id, 'offering_course' );
+			$course_id   = isset( $course_rows[0]['target_post_id'] ) ? (int) $course_rows[0]['target_post_id'] : 0;
+			if ( 0 < $course_id && 'publish' !== get_post_status( $course_id ) ) {
+				Roles::begin_course_create();
+				try {
+					self::call_guarded( static fn() => TeachingRecords::publish_record( $course_id ) );
+				} finally {
+					Roles::end_course_create();
+				}
+			}
+		}
 		self::succeed( 'published' );
 	}
 
@@ -1412,71 +1430,92 @@ final class TaskDashboard {
 			self::recall( 'course', $input );
 			self::fail( (string) reset( $errors ), (string) array_key_first( $errors ) );
 		}
-		$course = self::call_guarded(
-			static fn() => TeachingRecords::create_course(
-				array(
-					'title'   => $input['title'],
-					'excerpt' => $input['excerpt'],
-					'content' => $input['content'],
-					'meta'    => array(
-						'_lps_course_code'   => $input['course_code'],
-						'_lps_course_level'  => $input['course_level'],
-						'_lps_calendar_key'  => $input['calendar_key'],
-						'_lps_program'       => $input['program'],
-						'_lps_prerequisites' => $input['prerequisites'],
-						'_lps_syllabus'      => $input['syllabus'],
-					),
-				)
-			)
-		);
-		if ( $course instanceof WP_Error ) {
+		// The first offering must sit on the same calendar the course declares:
+		// copy-forward enforces that equality, so the create enforces it here.
+		$term_calendar = TeachingContracts::normalize_calendar_key( get_post_meta( $input['term_id'], '_lps_calendar_key', true ) );
+		if ( '' !== $term_calendar && TeachingContracts::normalize_calendar_key( $input['calendar_key'] ) !== $term_calendar ) {
 			self::recall( 'course', $input );
-			self::fail( (string) $course->get_error_code(), self::error_field( $course ) );
+			self::fail( 'lps_copy_forward_calendar_mismatch', 'term_id' );
 		}
-		$course_id  = Policy::sanitize_integer( $course['id'] ?? 0 );
-		$term_label = Policy::scalar_string( get_post_meta( $input['term_id'], '_lps_period_label', true ) );
-		$offering   = self::call_guarded(
-			static fn() => TeachingRecords::create_offering(
-				array(
-					'title'     => '' !== $term_label ? $input['title'] . ' — ' . $term_label . ' ' . $input['section'] : $input['title'] . ' — ' . $input['section'],
-					'excerpt'   => $input['excerpt'],
-					'course_id' => $course_id,
-					'term_id'   => $input['term_id'],
-					'section'   => $input['section'],
-					'team'      => $input['team'],
-					'meta'      => array(
-						'_lps_schedule' => $input['schedule'],
-						'_lps_venue'    => $input['venue'],
-					),
+		// The flag marks the trusted create boundary mid-flight so the scoped
+		// relationship guard lets the canonical boundaries write the new
+		// offering's editor-owned rows. It is set only after may_course
+		// authorized this account and always cleared in the finally.
+		Roles::begin_course_create();
+		try {
+			$course = self::call_guarded(
+				static fn() => TeachingRecords::create_course(
+					array(
+						'title'   => $input['title'],
+						'excerpt' => $input['excerpt'],
+						'content' => $input['content'],
+						'meta'    => array(
+							'_lps_course_code'   => $input['course_code'],
+							'_lps_course_level'  => $input['course_level'],
+							'_lps_calendar_key'  => $input['calendar_key'],
+							'_lps_program'       => $input['program'],
+							'_lps_prerequisites' => $input['prerequisites'],
+							'_lps_syllabus'      => $input['syllabus'],
+						),
+					)
 				)
-			)
-		);
-		if ( $offering instanceof WP_Error ) {
-			self::call_guarded(
-				static function () use ( $course_id ): array {
-					wp_delete_post( $course_id, true );
-					return array( 'deleted' => true );
-				}
 			);
-			self::recall( 'course', $input );
-			self::fail( (string) $offering->get_error_code(), self::error_field( $offering ) );
+			if ( $course instanceof WP_Error ) {
+				self::recall( 'course', $input );
+				self::fail( (string) $course->get_error_code(), self::error_field( $course ) );
+			}
+			$course_id  = Policy::sanitize_integer( $course['id'] ?? 0 );
+			$term_label = Policy::scalar_string( get_post_meta( $input['term_id'], '_lps_period_label', true ) );
+			$offering   = self::call_guarded(
+				static fn() => TeachingRecords::create_offering(
+					array(
+						'title'     => '' !== $term_label ? $input['title'] . ' — ' . $term_label . ' ' . $input['section'] : $input['title'] . ' — ' . $input['section'],
+						'excerpt'   => $input['excerpt'],
+						'content'   => $input['content'],
+						'course_id' => $course_id,
+						'term_id'   => $input['term_id'],
+						'section'   => $input['section'],
+						'team'      => $input['team'],
+						'meta'      => array(
+							'_lps_schedule' => $input['schedule'],
+							'_lps_venue'    => $input['venue'],
+						),
+					)
+				)
+			);
+			if ( $offering instanceof WP_Error ) {
+				self::call_guarded(
+					static function () use ( $course_id ): array {
+						wp_delete_post( $course_id, true );
+						return array( 'deleted' => true );
+					}
+				);
+				self::recall( 'course', $input );
+				self::fail( (string) $offering->get_error_code(), self::error_field( $offering ) );
+			}
+			// The course stays a draft here: its publish contract needs a paired
+			// EN variant that cannot exist yet (PT-first submission is allowed).
+			// The offering's scoped publish lane lifts it through this same
+			// boundary when the offering goes live — see handle_publish.
+			$offering_id = Policy::sanitize_integer( $offering['id'] ?? 0 );
+			$role        = Roles::policy_role( $user );
+			if ( 'professor' === $role || 'delegate' === $role ) {
+				// The trusted lane hands the just-created offering back to its
+				// creator so the workspace opens on the very next request.
+				Roles::grant_scope_trusted( $user->ID, 'offering', $offering_id, $role );
+			}
+			Audit::record(
+				'submit',
+				$course_id,
+				0,
+				array(
+					'decision'    => 'course-create',
+					'offering_id' => $offering_id,
+				)
+			);
+		} finally {
+			Roles::end_course_create();
 		}
-		$offering_id = Policy::sanitize_integer( $offering['id'] ?? 0 );
-		$role        = Roles::policy_role( $user );
-		if ( 'professor' === $role || 'delegate' === $role ) {
-			// The trusted lane hands the just-created offering back to its
-			// creator so the workspace opens on the very next request.
-			Roles::grant_scope_trusted( $user->ID, 'offering', $offering_id, $role );
-		}
-		Audit::record(
-			'submit',
-			$course_id,
-			0,
-			array(
-				'decision'    => 'course-create',
-				'offering_id' => $offering_id,
-			)
-		);
 		self::succeed( 'course-created' );
 	}
 

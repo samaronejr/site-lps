@@ -337,8 +337,9 @@ final class LpsRedesignTask20Test extends TestCase {
 		// Actions outside the role matrix are denied before grant lookup.
 		self::assertSame( 'lps_teaching_action_forbidden', TeachingPolicy::scope_error( 'delegate', 'publish', 'lps_unit', 42, $grants, $now ) );
 		self::assertSame( 'lps_teaching_action_forbidden', TeachingPolicy::scope_error( 'professor', 'grant-scope', 'lps_unit', 42, $grants, $now ) );
-		// Publish is refused on non-publishable types even with a grant.
-		self::assertSame( 'lps_teaching_publish_type_forbidden', TeachingPolicy::scope_error( 'professor', 'publish', 'lps_offering', 42, $grants, $now ) );
+		// Offerings publish under the scoped grant that mints them; delegates still cannot.
+		self::assertNull( TeachingPolicy::scope_error( 'professor', 'publish', 'lps_offering', 42, $grants, $now ) );
+		self::assertSame( 'lps_teaching_action_forbidden', TeachingPolicy::scope_error( 'delegate', 'publish', 'lps_offering', 42, $grants, $now ) );
 		// Copy-forward is scoped to offerings only.
 		self::assertSame( 'lps_teaching_action_forbidden', TeachingPolicy::scope_error( 'professor', 'copy-forward', 'lps_unit', 42, $grants, $now ) );
 		// An offering scope never satisfies the news lane and vice versa.
