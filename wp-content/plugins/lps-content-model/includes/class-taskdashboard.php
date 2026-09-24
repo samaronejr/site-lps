@@ -118,9 +118,10 @@ final class TaskDashboard {
 	 * @param bool   $has_person     Whether a person record resolved.
 	 * @param bool   $may_review     Whether the account reviews submissions.
 	 * @param bool   $may_create_event Whether the account may submit events.
+	 * @param bool   $may_news       Whether the account may submit news items.
 	 * @return array<int, string>
 	 */
-	public static function tasks_for_role( string $role, bool $has_offerings, bool $has_news_scope, bool $has_person, bool $may_review, bool $may_create_event = false ): array {
+	public static function tasks_for_role( string $role, bool $has_offerings, bool $has_news_scope, bool $has_person, bool $may_review, bool $may_create_event = false, bool $may_news = false ): array {
 		$tasks = array();
 		if ( $has_person ) {
 			$tasks[] = 'profile';
@@ -128,7 +129,7 @@ final class TaskDashboard {
 		if ( $has_offerings ) {
 			$tasks[] = 'offerings';
 		}
-		if ( $has_news_scope ) {
+		if ( $has_news_scope || $may_news ) {
 			$tasks[] = 'news';
 		}
 		if ( $has_news_scope || $may_create_event ) {
@@ -1151,16 +1152,17 @@ final class TaskDashboard {
 		}
 		$person_id  = self::person_for_user( $user->ID );
 		$news_scope = self::has_news_scope( $user->ID );
+		$may_news   = $news_scope || Roles::current_user_can_action( 'create', 'news' );
 		$may_events = $news_scope || Roles::current_user_can_action( 'create', 'event' );
 		$may_review = '' !== $role && ! TeachingPolicy::is_scoped_role( $role )
 			&& ( SecurityPolicy::allows( $role, 'review' ) || SecurityPolicy::allows( $role, 'publish' ) );
-		$tasks      = self::tasks_for_role( $role, array() !== $offerings, $news_scope, 0 < $person_id, $may_review, $may_events );
+		$tasks      = self::tasks_for_role( $role, array() !== $offerings, $news_scope, 0 < $person_id, $may_review, $may_events, $may_news );
 		return array(
 			'role'       => $role,
 			'user'       => $user,
 			'tasks'      => $tasks,
 			'offerings'  => $offerings,
-			'news'       => $news_scope ? self::news_for_user( $user->ID ) : array(),
+			'news'       => $may_news ? self::news_for_user( $user->ID ) : array(),
 			'events'     => $may_events ? self::events_for_user( $user->ID ) : array(),
 			'person_id'  => $person_id,
 			'proposals'  => 0 < $person_id ? self::proposals_for_person( $person_id ) : array(),

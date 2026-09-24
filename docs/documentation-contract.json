@@ -47,19 +47,31 @@
   "prerequisites": [
     {
       "doc": "README.md",
-      "tokens": ["npm ci", "npm run env:start", "tools/composer install"]
+      "tokens": [
+        "npm ci",
+        "npm run env:start",
+        "tools/composer install"
+      ]
     },
     {
       "doc": "docs/handbook/editorial-quick-start.md",
-      "tokens": ["_lps_assigned_collections", "Two-Factor"]
+      "tokens": [
+        "_lps_assigned_collections",
+        "Two-Factor"
+      ]
     },
     {
       "doc": "docs/handbook/role-workflows.md",
-      "tokens": ["npm run test", "tools/composer test"]
+      "tokens": [
+        "npm run test",
+        "tools/composer test"
+      ]
     },
     {
       "doc": "docs/handbook/translation-freshness.md",
-      "tokens": ["_lps_source_hash"]
+      "tokens": [
+        "_lps_source_hash"
+      ]
     },
     {
       "doc": "docs/handbook/publication-import-guide.md",
@@ -71,27 +83,41 @@
     },
     {
       "doc": "docs/handbook/role-acceptance-simulations.md",
-      "tokens": ["npx playwright test --list"]
+      "tokens": [
+        "npx playwright test --list"
+      ]
     },
     {
       "doc": "docs/operations/privacy-security-operations.md",
-      "tokens": ["npm run build"]
+      "tokens": [
+        "npm run build"
+      ]
     },
     {
       "doc": "docs/operations/plugin-update-policy.md",
-      "tokens": ["npm ci", "tools/composer install"]
+      "tokens": [
+        "npm ci",
+        "tools/composer install"
+      ]
     },
     {
       "doc": "docs/operations/release-runbook-index.md",
-      "tokens": ["npm run build"]
+      "tokens": [
+        "npm run build"
+      ]
     },
     {
       "doc": "docs/operations/troubleshooting.md",
-      "tokens": ["npm ci", "npm run env:start"]
+      "tokens": [
+        "npm ci",
+        "npm run env:start"
+      ]
     },
     {
       "doc": "docs/operations/evidence-retention.md",
-      "tokens": [".omo/evidence/"]
+      "tokens": [
+        ".omo/evidence/"
+      ]
     }
   ],
   "freshness": [
@@ -190,7 +216,7 @@
         },
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-taskdashboard.php",
-          "sha256": "ebf816c7caf59867265a1a30b2672faaf40345656bdb2c87cea0049d9cb98fdb"
+          "sha256": "e52fb53455db1c2769853211b665e0040a44164227083e62159ba84202410fb1"
         },
         {
           "path": "wp-content/themes/lps-theme/includes/class-dashboardroutes.php",
