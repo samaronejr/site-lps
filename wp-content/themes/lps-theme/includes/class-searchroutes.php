@@ -260,8 +260,18 @@ final class SearchRoutes {
 			return;
 		}
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only public search alias.
-		$query  = isset( $_GET['q'] ) && is_string( $_GET['q'] ) ? sanitize_text_field( wp_unslash( $_GET['q'] ) ) : '';
-		$state  = self::state_from_request( array( 'q' => '' === $query ? $core : $query ), $route['locale'] );
+		$unslashed = wp_unslash( $_GET );
+		$request   = array();
+		foreach ( $unslashed as $key => $value ) {
+			$request[ (string) $key ] = $value;
+		}
+		if ( 1 < $route['page'] ) {
+			$request['lps_page'] = (string) $route['page'];
+		}
+		if ( ! is_string( $request['q'] ?? null ) || '' === trim( $request['q'] ) ) {
+			$request['q'] = $core;
+		}
+		$state  = self::state_from_request( $request, $route['locale'] );
 		$target = home_url( self::canonical_url( self::search_path( $route['locale'] ), $state ) );
 		if ( function_exists( 'wp_safe_redirect' ) ) {
 			wp_safe_redirect( $target, 301 );
