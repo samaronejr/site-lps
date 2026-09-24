@@ -49,7 +49,10 @@ evaluated on every request, so a revoked or expired grant denies immediately.
 
 Scoped roles may touch only `lps_offering`, `lps_unit`, `lps_resource` and `lps_news`. Professors
 publish cleared materials (`lps_unit`, `lps_resource`) and scoped news; delegates prepare drafts
-and never publish or write release fields. Offering publication, course and term records,
+and never publish or write release fields. A record a delegate creates inside a granted scope
+carries the `_lps_prepared_by` marker — a system-written provenance field no scoped role may
+write — so the professor's dashboard shows the draft with a prepared-by badge, and the professor
+edits and submits it under her own authority while the marker stays as provenance. Offering publication, course and term records,
 teaching-team membership, owner fields, review states, scan and storage fields stay with
 institutional editors — a scoped role writing them is denied before any mutation. Professors may
 copy forward an assigned offering (`copy-forward`); the operation creates drafts only.
@@ -81,8 +84,10 @@ Routine work: prepare drafts inside granted offerings for a professor.
 
 1. Accept the delegate scope grant recorded by an administrator or teaching section editor.
 2. Create and edit draft units, resources and offering descriptive fields inside the granted
-   offering.
-3. Submit drafts for the professor or an editor to review.
+   offering. Every draft you create keeps the `_lps_prepared_by` marker with your account.
+3. Submit drafts for the professor or an editor to review. The professor sees your drafts marked
+   "prepared by" with your name, edits them and submits or publishes them under her own
+   authority; your marker stays as provenance.
 
 Boundaries: you cannot publish anything, write release or withdrawal fields, copy offerings
 forward, manage grants, or touch records outside the granted offering. An attempt is denied

@@ -10,8 +10,8 @@ field ownership, normalization, uniqueness identities, temporal state, copy-forw
 document describes what those files implement; when they change, this document is reported stale by
 `node tests/docs/docs-checker.mjs`.
 
-Field names are WordPress post-meta keys. Two keys are never exposed through REST:
-`_lps_owner_user_id` and `_lps_translation_reviewer_id`.
+Field names are WordPress post-meta keys. Three keys are never exposed through REST:
+`_lps_owner_user_id`, `_lps_translation_reviewer_id` and `_lps_prepared_by`.
 
 ## Collections
 
@@ -66,6 +66,7 @@ Archived is terminal: a referenced record is archived, never hard-deleted.
 | `_lps_locale` | locale | Record locale (`pt-br` authoritative, `en` reviewed variant). |
 | `_lps_state` | state | Editorial state (see the state machine). |
 | `_lps_owner_user_id` | integer, private | Accountable owner account. |
+| `_lps_prepared_by` | integer, private | Delegate account that drafted the record. Written by the insert boundary when a delegate creates the record inside a granted scope; the adopting professor submits it under her own authority while the marker stays as provenance. |
 | `_lps_review_date` | date | Next review date driven by the collection cadence. |
 | `_lps_created_at`, `_lps_updated_at`, `_lps_archived_at` | datetime | Lifecycle timestamps. |
 | `_lps_published_slug` | slug | Immutable first published slug. |
