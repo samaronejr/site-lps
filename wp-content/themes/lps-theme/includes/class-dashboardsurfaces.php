@@ -104,6 +104,7 @@ final class DashboardSurfaces {
 			'profile'  => self::profile_view( $model, $locale ),
 			'review'   => self::review_view( $model, $locale ),
 			'create'   => self::create_view( $model, $locale ),
+			'course'   => self::course_view( $model, $locale ),
 			default    => self::home_view( $model, $locale ),
 		};
 	}
@@ -184,10 +185,13 @@ final class DashboardSurfaces {
 				. self::esc( $english ? 'This offering is outside your assigned scope.' : 'Esta oferta está fora do seu escopo atribuído.' )
 				. '</p></div>';
 		}
-		$html   = '<section class="lps-dashboard-offering" data-dashboard-view="offering" data-offering-id="' . (int) $id . '">';
-		$html  .= '<p class="lps-kicker">' . self::esc( $english ? 'Offering workspace' : 'Área da oferta' ) . '</p>';
-		$html  .= '<h2>' . self::esc( self::text( $offering['title'] ?? '' ) ) . '</h2>';
-		$html  .= '<p>' . self::chip( self::text( $offering['state'] ?? 'draft' ), $locale ) . '</p>';
+		$html  = '<section class="lps-dashboard-offering" data-dashboard-view="offering" data-offering-id="' . (int) $id . '">';
+		$html .= '<p class="lps-kicker">' . self::esc( $english ? 'Offering workspace' : 'Área da oferta' ) . '</p>';
+		$html .= '<h2>' . self::esc( self::text( $offering['title'] ?? '' ) ) . '</h2>';
+		$html .= '<p>' . self::chip( self::text( $offering['state'] ?? 'draft' ), $locale ) . '</p>';
+		if ( ! empty( $offering['can_publish'] ) && 'publish' !== self::text( $offering['status'] ?? 'draft' ) ) {
+			$html .= self::action_form( 'lps_dashboard_publish', array( 'post_id' => Policy::sanitize_integer( $offering['id'] ?? 0 ) ), $english ? 'Publish the offering' : 'Publicar a oferta', 'publish-offering' );
+		}
 		$html  .= self::identity_line( $offering );
 		$public = self::safe_url( self::text( $offering['public_url'] ?? '' ) );
 		$edit   = self::safe_url( self::text( $offering['edit_url'] ?? '' ) );
@@ -431,6 +435,67 @@ final class DashboardSurfaces {
 			. self::field( 'venue', TaskDashboard::field_label( '_lps_venue', $locale ), 'text', self::text( $recall_meta['_lps_venue'] ?? '' ), $locale, false )
 			. self::team_fields( $people, array(), $locale )
 			. self::submit( $english ? 'Create the draft offering' : 'Criar a oferta em rascunho' )
+			. '</form>';
+		return $html . '</section>';
+	}
+
+	/**
+	 * Renders the trusted course-plus-offering create form.
+	 *
+	 * Professors submit the course identity and its first offering in one
+	 * pass — no editorial gate, per the site owner's decision. Accounts that
+	 * do not qualify (a professor without an enrolled second factor, or a
+	 * role outside the lane) see a denial panel instead of a dead form.
+	 *
+	 * @param array<string, mixed> $model  Dashboard model.
+	 * @param string               $locale Supported locale slug.
+	 */
+	public static function course_view( array $model, string $locale ): string {
+		$english = 'en' === $locale;
+		if ( empty( $model['may_course'] ) ) {
+			$message = ! empty( $model['mfa_needed'] )
+				? ( $english ? 'Enroll the second factor on your sign-in before creating subjects.' : 'Ative a verificação em duas etapas na sua conta antes de criar disciplinas.' )
+				: ( $english ? 'Creating subjects is a professor task.' : 'Criar disciplinas é uma tarefa de professor.' );
+			return '<div class="lps-alert lps-alert-error" data-dashboard-view="course-denied"><p>'
+				. self::esc( $message ) . '</p></div>';
+		}
+		$recall = self::recall( 'course' );
+		$terms  = self::records( $model['terms'] ?? null );
+		$people = self::records( $model['people'] ?? null );
+		$levels = array();
+		foreach ( TeachingContracts::COURSE_LEVELS as $level ) {
+			$levels[] = array(
+				'id'    => $level,
+				'title' => TaskDashboard::field_label( 'level-' . $level, $locale ),
+			);
+		}
+		$recall_team = self::records( $recall['team'] ?? null );
+		$html        = '<section class="lps-dashboard-create" data-dashboard-view="course">';
+		$html       .= '<p class="lps-summary">' . self::esc(
+			$english
+			? 'One submit registers the course and opens its first offering bound to a term and section. Both records start as drafts and the offering workspace opens right away.'
+			: 'Um único envio cadastra a disciplina e abre a primeira oferta ligada a um período e turma. Ambos os registros começam como rascunho e a área da oferta abre em seguida.'
+		) . '</p>';
+		$html       .= self::form_open( 'lps_dashboard_course' )
+			. '<fieldset class="lps-fieldset"><legend>' . self::esc( $english ? 'Course' : 'Disciplina' ) . '</legend>'
+			. self::field( 'title', TaskDashboard::field_label( 'post_title', $locale ), 'text', self::text( $recall['title'] ?? '' ), $locale, true )
+			. self::field( 'course_code', TaskDashboard::field_label( 'course_code', $locale ), 'text', self::text( $recall['course_code'] ?? '' ), $locale, true )
+			. self::select( 'course_level', TaskDashboard::field_label( 'course_level', $locale ), $levels, self::text( $recall['course_level'] ?? '' ), $locale, true )
+			. self::field( 'calendar_key', TaskDashboard::field_label( 'calendar_key', $locale ), 'text', self::text( $recall['calendar_key'] ?? '' ), $locale, true )
+			. self::field( 'program', TaskDashboard::field_label( '_lps_program', $locale ), 'text', self::text( $recall['program'] ?? '' ), $locale, false )
+			. self::textarea( 'prerequisites', TaskDashboard::field_label( '_lps_prerequisites', $locale ), self::text( $recall['prerequisites'] ?? '' ), $locale, false )
+			. self::textarea( 'syllabus', TaskDashboard::field_label( '_lps_syllabus', $locale ), self::text( $recall['syllabus'] ?? '' ), $locale, false )
+			. self::textarea( 'excerpt', TaskDashboard::field_label( 'post_excerpt', $locale ), self::text( $recall['excerpt'] ?? '' ), $locale, true )
+			. self::textarea( 'content', TaskDashboard::field_label( 'post_content', $locale ), self::text( $recall['content'] ?? '' ), $locale, true )
+			. '</fieldset>'
+			. '<fieldset class="lps-fieldset"><legend>' . self::esc( $english ? 'First offering' : 'Primeira oferta' ) . '</legend>'
+			. self::select( 'term_id', TaskDashboard::field_label( 'term_id', $locale ), self::options_for( $terms, 'label' ), Policy::sanitize_integer( $recall['term_id'] ?? 0 ), $locale, true )
+			. self::field( 'section', TaskDashboard::field_label( 'section', $locale ), 'text', self::text( $recall['section'] ?? '' ), $locale, true )
+			. self::field( 'schedule', TaskDashboard::field_label( '_lps_schedule', $locale ), 'text', self::text( $recall['schedule'] ?? '' ), $locale, false )
+			. self::field( 'venue', TaskDashboard::field_label( '_lps_venue', $locale ), 'text', self::text( $recall['venue'] ?? '' ), $locale, false )
+			. self::team_fields( $people, $recall_team, $locale )
+			. '</fieldset>'
+			. self::submit( $english ? 'Create subject and first offering' : 'Criar disciplina e primeira oferta' )
 			. '</form>';
 		return $html . '</section>';
 	}
@@ -900,6 +965,11 @@ final class DashboardSurfaces {
 				'hint'  => $english ? 'Bind a course to a term and section.' : 'Ligue uma disciplina a um período e turma.',
 				'view'  => 'create',
 			),
+			'course'          => array(
+				'label' => $english ? 'Create subject' : 'Criar disciplina',
+				'hint'  => $english ? 'Register a course and open its first offering.' : 'Cadastre uma disciplina e abra a primeira oferta.',
+				'view'  => 'course',
+			),
 		);
 		$links   = array();
 		foreach ( $tasks as $task ) {
@@ -930,6 +1000,7 @@ final class DashboardSurfaces {
 			'profile'  => $english ? 'My profile' : 'Meu perfil',
 			'review'   => $english ? 'Review queue' : 'Fila de revisão',
 			'create'   => $english ? 'Create offering' : 'Criar oferta',
+			'course'   => $english ? 'Create subject' : 'Criar disciplina',
 			default    => $english ? 'Dashboard' : 'Painel',
 		};
 	}

@@ -422,10 +422,9 @@ final class LpsRedesignTask04Test extends TestCase {
 				"professor edit on {$post_type} is outside every scope"
 			);
 		}
-		self::assertSame(
-			'lps_teaching_publish_type_forbidden',
+		self::assertNull(
 			TeachingPolicy::scope_error( 'professor', 'publish', 'lps_offering', 30, $grants, self::NOW ),
-			'offering publication stays with institutional editors'
+			'offering publication follows the scoped grant, matching the create lane'
 		);
 		foreach ( array( 'delete', 'unpublish', 'archive', 'review', 'import', 'redirect', 'settings', 'audit', 'grant-scope', 'revoke-scope' ) as $action ) {
 			self::assertSame(
@@ -531,7 +530,7 @@ final class LpsRedesignTask04Test extends TestCase {
 			TeachingPolicy::scope_error( '', 'edit', 'lps_offering', 30, array(), self::NOW ),
 			TeachingPolicy::scope_error( 'professor', 'delete', 'lps_offering', 30, array(), self::NOW ),
 			TeachingPolicy::scope_error( 'professor', 'edit', 'lps_person', 0, array(), self::NOW ),
-			TeachingPolicy::scope_error( 'professor', 'publish', 'lps_offering', 30, array( self::grant() ), self::NOW ),
+			TeachingPolicy::scope_error( 'professor', 'publish', 'lps_offering', 30, array( self::grant( array( 'expires_at' => '2026-02-01T00:00:00+00:00' ) ) ), self::NOW ),
 			TeachingPolicy::scope_error( 'professor', 'edit', 'lps_offering', 30, array(), self::NOW ),
 			TeachingPolicy::scope_error( 'professor', 'edit', 'lps_offering', 30, array( self::grant( array( 'revoked_at' => '2026-02-01T00:00:00+00:00' ) ) ), self::NOW ),
 			TeachingPolicy::scope_error( 'professor', 'edit', 'lps_offering', 30, array( self::grant( array( 'expires_at' => '2026-02-01T00:00:00+00:00' ) ) ), self::NOW ),
