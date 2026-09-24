@@ -101,6 +101,7 @@ final class DashboardSurfaces {
 		return match ( $view ) {
 			'offering' => self::offering_view( $model, $locale, $id ),
 			'news'     => self::news_view( $model, $locale ),
+			'events'   => self::events_view( $model, $locale ),
 			'profile'  => self::profile_view( $model, $locale ),
 			'review'   => self::review_view( $model, $locale ),
 			'create'   => self::create_view( $model, $locale ),
@@ -481,6 +482,178 @@ final class DashboardSurfaces {
 	}
 
 	/**
+	 * Renders the events lane: authored items and the submission form.
+	 *
+	 * Mirrors the news view — submissions enter review as drafts and an
+	 * editor decides them; a saved draft is never public.
+	 *
+	 * @param array<string, mixed> $model  Dashboard model.
+	 * @param string               $locale Supported locale slug.
+	 */
+	public static function events_view( array $model, string $locale ): string {
+		$english = 'en' === $locale;
+		if ( empty( $model['news_scope'] ) && ! self::may_collection( 'create', 'event' ) ) {
+			return '<div class="lps-alert lps-alert-error" data-dashboard-view="events-denied"><p>'
+				. self::esc( $english ? 'Your account has no events scope.' : 'Sua conta não tem escopo de eventos.' )
+				. '</p></div>';
+		}
+		$html    = '<section class="lps-dashboard-events" data-dashboard-view="events">';
+		$html   .= '<p class="lps-summary">' . self::esc(
+			$english
+			? 'Submissions enter review as drafts; an editor approves or returns them with a note. A saved draft is never public.'
+			: 'Os envios entram em revisão como rascunhos; um editor aprova ou devolve com uma nota. Um rascunho salvo nunca é público.'
+		) . '</p>';
+		$preview = class_exists( TaskDashboard::class ) ? self::record( TaskDashboard::event_preview() ) : array();
+		if ( array() !== $preview ) {
+			$html .= self::event_preview_html( $preview, $locale );
+		}
+		$items = is_array( $model['events'] ?? null ) ? $model['events'] : array();
+		if ( array() !== $items ) {
+			$html .= '<ul class="lps-record-list">';
+			foreach ( $items as $item ) {
+				$item  = self::record( $item );
+				$when  = self::text( $item['starts_at'] ?? '' );
+				$html .= '<li class="lps-record">' . self::esc( self::text( $item['title'] ?? '' ) )
+					. ' ' . self::chip( self::text( $item['state'] ?? 'draft' ), $locale )
+					. ( '' !== $when ? ' <time class="lps-meta" datetime="' . self::esc( $when ) . '">' . self::esc( substr( $when, 0, 10 ) ) . '</time>' : '' )
+					. self::item_links( $item, $locale )
+					. self::note_html( $item, $locale )
+					. self::event_translation_task_html( $item, $locale );
+				if ( 'draft' === self::text( $item['status'] ?? '' ) && ! empty( $item['can_resubmit'] ) ) {
+					// A rejected item keeps its note and reopens for edits; the
+					// resubmit returns it to review instead of minting a new record.
+					$html .= '<details class="lps-dashboard-edit"><summary>' . self::esc( $english ? 'Edit and resubmit' : 'Editar e reenviar' ) . '</summary>'
+						. self::form_open( 'lps_dashboard_event', true )
+						. self::hidden( 'id', (string) Policy::sanitize_integer( $item['id'] ?? 0 ) )
+						. self::field( 'title', TaskDashboard::field_label( 'post_title', $locale ), 'text', self::text( $item['title'] ?? '' ), $locale, true )
+						. self::textarea( 'excerpt', TaskDashboard::field_label( 'post_excerpt', $locale ), self::text( $item['summary'] ?? '' ), $locale, true )
+						. self::textarea( 'content', TaskDashboard::field_label( 'post_content', $locale ), self::text( $item['content'] ?? '' ), $locale, true )
+						. self::field( 'starts_at', TaskDashboard::field_label( '_lps_starts_at', $locale ), 'datetime-local', self::text( $item['starts_at'] ?? '' ), $locale, true )
+						. self::field( 'ends_at', TaskDashboard::field_label( '_lps_ends_at', $locale ), 'datetime-local', self::text( $item['ends_at'] ?? '' ), $locale, false )
+						. self::field( 'venue', TaskDashboard::field_label( '_lps_venue', $locale ), 'text', self::text( $item['venue'] ?? '' ), $locale, false )
+						. self::field( 'online_url', TaskDashboard::field_label( '_lps_online_url', $locale ), 'url', self::text( $item['online_url'] ?? '' ), $locale, false )
+						. self::field( 'registration_url', TaskDashboard::field_label( '_lps_registration_url', $locale ), 'url', self::text( $item['registration_url'] ?? '' ), $locale, false )
+						. self::select( 'event_status', TaskDashboard::field_label( 'event_status', $locale ), TaskDashboard::event_status_options(), self::text( $item['event_status'] ?? '' ), $locale, false )
+						. self::file_field( 'featured_image', TaskDashboard::field_label( 'featured_image', $locale ), $locale )
+						. self::field( 'featured_alt', TaskDashboard::field_label( 'featured_alt', $locale ), 'text', '', $locale, false )
+						. self::submit( $english ? 'Resubmit for review' : 'Reenviar para revisão' )
+						. '</form></details>';
+				}
+				$html .= '</li>';
+			}
+			$html .= '</ul>';
+		}
+		$recall = self::recall( 'event' );
+		$html  .= '<section class="lps-dashboard-form" aria-labelledby="lps-event-form"><h2 id="lps-event-form">'
+			. self::esc( $english ? 'Submit an event' : 'Enviar um evento' ) . '</h2>'
+			. '<p class="lps-field-hint">' . self::esc(
+				$english
+				? 'Before the item is submitted you see the card exactly as it will appear publicly; the submit happens on the confirmation step.'
+				: 'Antes do envio você vê o cartão exatamente como aparecerá publicamente; a submissão acontece na etapa de confirmação.'
+			) . '</p>'
+			. self::form_open( 'lps_dashboard_event', true )
+			. self::hidden( 'step', 'preview' )
+			. self::field( 'title', TaskDashboard::field_label( 'post_title', $locale ), 'text', self::text( $recall['title'] ?? '' ), $locale, true )
+			. self::textarea( 'excerpt', TaskDashboard::field_label( 'post_excerpt', $locale ), self::text( $recall['excerpt'] ?? '' ), $locale, true )
+			. self::textarea( 'content', TaskDashboard::field_label( 'post_content', $locale ), self::text( $recall['content'] ?? '' ), $locale, true )
+			. self::field( 'starts_at', TaskDashboard::field_label( '_lps_starts_at', $locale ), 'datetime-local', self::text( $recall['starts_at'] ?? '' ), $locale, true )
+			. self::field( 'ends_at', TaskDashboard::field_label( '_lps_ends_at', $locale ), 'datetime-local', self::text( $recall['ends_at'] ?? '' ), $locale, false )
+			. self::field( 'venue', TaskDashboard::field_label( '_lps_venue', $locale ), 'text', self::text( $recall['venue'] ?? '' ), $locale, false )
+			. self::field( 'online_url', TaskDashboard::field_label( '_lps_online_url', $locale ), 'url', self::text( $recall['online_url'] ?? '' ), $locale, false )
+			. self::field( 'registration_url', TaskDashboard::field_label( '_lps_registration_url', $locale ), 'url', self::text( $recall['registration_url'] ?? '' ), $locale, false )
+			. self::select( 'event_status', TaskDashboard::field_label( 'event_status', $locale ), TaskDashboard::event_status_options(), self::text( $recall['event_status'] ?? '' ), $locale, false )
+			. self::file_field( 'featured_image', TaskDashboard::field_label( 'featured_image', $locale ), $locale )
+			. self::field( 'featured_alt', TaskDashboard::field_label( 'featured_alt', $locale ), 'text', self::text( $recall['featured_alt'] ?? '' ), $locale, false )
+			. self::submit( $english ? 'Preview the card' : 'Pré-visualizar o cartão' )
+			. '</form></section>';
+		return $html . '</section>';
+	}
+
+	/**
+	 * Renders the staged event preview: the public row, then confirm/cancel.
+	 *
+	 * @param array<string, mixed> $preview Staged payload.
+	 * @param string               $locale  Supported locale slug.
+	 */
+	private static function event_preview_html( array $preview, string $locale ): string {
+		$english = 'en' === $locale;
+		$starts  = self::text( $preview['starts_at'] ?? '' );
+		$ends    = self::text( $preview['ends_at'] ?? '' );
+		$venue   = self::text( $preview['venue'] ?? '' );
+		$image   = '';
+		$url     = self::safe_url( self::text( $preview['attachment_url'] ?? '' ) );
+		$alt     = self::text( $preview['attachment_alt'] ?? self::text( $preview['featured_alt'] ?? '' ) );
+		if ( '' !== $url ) {
+			$image = '<figure class="lps-news-preview-media"><img src="' . self::esc( $url ) . '" alt="' . self::esc( $alt ) . '" loading="lazy">'
+				. ( '' !== $alt ? '<figcaption>' . self::esc( $alt ) . '</figcaption>' : '' )
+				. '</figure>';
+		}
+		$when = '' !== $starts ? substr( $starts, 0, 10 ) : '—';
+		if ( '' !== $ends ) {
+			$when .= ' – ' . substr( $ends, 0, 10 );
+		}
+		$html  = '<section class="lps-dashboard-section lps-news-preview" aria-labelledby="lps-event-preview">';
+		$html .= '<p class="lps-kicker">' . self::esc( $english ? 'Preview' : 'Pré-visualização' ) . '</p>';
+		$html .= '<h2 id="lps-event-preview">' . self::esc( $english ? 'This is how the card will appear publicly' : 'É assim que o cartão aparecerá publicamente' ) . '</h2>';
+		$html .= '<div class="lps-news-preview-card"><div class="lps-event-date"><strong>' . self::esc( $when ) . '</strong><span>'
+			. self::esc( $english ? 'Event' : 'Evento' ) . '</span></div>'
+			. '<div><h3>' . self::esc( self::text( $preview['title'] ?? '' ) ) . '</h3>'
+			. '<p>' . self::esc( self::text( $preview['excerpt'] ?? '' ) ) . '</p></div>'
+			. '<span class="lps-meta">' . self::esc( '' !== $venue ? $venue : $when ) . '</span></div>';
+		$html .= $image;
+		$html .= '<div class="lps-body lps-reading lps-news-preview-body"><p>' . self::esc( self::text( $preview['content'] ?? '' ) ) . '</p></div>';
+		$html .= '<div class="lps-button-row">'
+			. self::form_open( 'lps_dashboard_event' )
+			. self::hidden( 'step', 'confirm' )
+			. self::submit( $english ? 'Submit for review' : 'Enviar para revisão' )
+			. '</form>'
+			. self::form_open( 'lps_dashboard_event' )
+			. self::hidden( 'step', 'cancel' )
+			. '<button class="lps-button" type="submit">' . self::esc( $english ? 'Discard preview' : 'Descartar pré-visualização' ) . '</button>'
+			. '</form></div>';
+		return $html . '</section>';
+	}
+
+	/**
+	 * Renders the EN-translation task on one event item when the variant is
+	 * missing or stale.
+	 *
+	 * @param array<string, mixed> $item   Event record row.
+	 * @param string               $locale Supported locale slug.
+	 */
+	private static function event_translation_task_html( array $item, string $locale ): string {
+		$english = 'en' === $locale;
+		$state   = self::text( $item['translation_state'] ?? '' );
+		if ( ! in_array( $state, array( 'missing', 'stale' ), true ) ) {
+			return '';
+		}
+		$item_id = Policy::sanitize_integer( $item['id'] ?? 0 );
+		$recall  = self::recall( 'event-translation-' . $item_id );
+		$title   = '' !== self::text( $recall['en_title'] ?? '' ) ? self::text( $recall['en_title'] ?? '' ) : self::text( $item['en_title'] ?? '' );
+		$excerpt = '' !== self::text( $recall['en_excerpt'] ?? '' ) ? self::text( $recall['en_excerpt'] ?? '' ) : self::text( $item['en_excerpt'] ?? '' );
+		$content = '' !== self::text( $recall['en_content'] ?? '' ) ? self::text( $recall['en_content'] ?? '' ) : self::text( $item['en_content'] ?? '' );
+		$summary = 'stale' === $state
+			? ( $english ? 'Update the EN translation' : 'Atualizar a tradução EN' )
+			: ( $english ? 'Add the EN translation' : 'Adicionar tradução EN' );
+		$html    = '<details class="lps-dashboard-edit"><summary>' . self::esc( $summary ) . '</summary>';
+		if ( 'stale' === $state ) {
+			$html .= '<p class="lps-field-hint">' . self::esc(
+				$english
+				? 'The Portuguese record changed since the English variant was last reviewed; refresh it and resubmit.'
+				: 'O registro em português mudou desde a última revisão da variante em inglês; atualize-a e reenvie.'
+			) . '</p>';
+		}
+		$html .= self::form_open( 'lps_dashboard_event_translation' )
+			. self::hidden( 'event_id', (string) $item_id )
+			. self::field( 'en_title', TaskDashboard::field_label( 'en_title', $locale ), 'text', $title, $locale, true )
+			. self::textarea( 'en_excerpt', TaskDashboard::field_label( 'en_excerpt', $locale ), $excerpt, $locale, true )
+			. self::textarea( 'en_content', TaskDashboard::field_label( 'en_content', $locale ), $content, $locale, true )
+			. self::submit( $english ? 'Submit the EN translation' : 'Enviar a tradução EN' )
+			. '</form></details>';
+		return $html;
+	}
+
+	/**
 	 * Renders one labelled file input with the upload caps in its hint.
 	 *
 	 * @param string $name   Field name.
@@ -599,6 +772,24 @@ final class DashboardSurfaces {
 					. ' <span class="lps-meta">' . self::esc( self::text( $item['date'] ?? '' ) ) . '</span>'
 					. '<p>' . self::esc( self::text( $item['summary'] ?? '' ) ) . '</p>'
 					. self::review_form( 'news', Policy::sanitize_integer( $item['id'] ?? 0 ), 0, '', $locale )
+					. '</li>';
+			}
+			$html .= '</ul>';
+		}
+		$html  .= '</section>';
+		$events = is_array( $queue['events'] ?? null ) ? $queue['events'] : array();
+		$html  .= '<section class="lps-dashboard-section" aria-labelledby="lps-review-events"><h2 id="lps-review-events">'
+			. self::esc( $english ? 'Event submissions' : 'Eventos enviados' ) . '</h2>';
+		if ( array() === $events ) {
+			$html .= '<p class="lps-field-hint">' . self::esc( $english ? 'No event is waiting for review.' : 'Nenhum evento aguarda revisão.' ) . '</p>';
+		} else {
+			$html .= '<ul class="lps-record-list">';
+			foreach ( $events as $item ) {
+				$item  = self::record( $item );
+				$html .= '<li class="lps-record"><strong>' . self::esc( self::text( $item['title'] ?? '' ) ) . '</strong>'
+					. ' <span class="lps-meta">' . self::esc( self::text( $item['date'] ?? '' ) ) . '</span>'
+					. '<p>' . self::esc( self::text( $item['summary'] ?? '' ) ) . '</p>'
+					. self::review_form( 'event', Policy::sanitize_integer( $item['id'] ?? 0 ), 0, '', $locale )
 					. '</li>';
 			}
 			$html .= '</ul>';
@@ -1294,6 +1485,11 @@ final class DashboardSurfaces {
 				'hint'  => $english ? 'Draft a news item for editorial review.' : 'Rascunhe uma notícia para revisão editorial.',
 				'view'  => 'news',
 			),
+			'events'          => array(
+				'label' => $english ? 'Submit an event' : 'Enviar evento',
+				'hint'  => $english ? 'Draft an event for editorial review.' : 'Rascunhe um evento para revisão editorial.',
+				'view'  => 'events',
+			),
 			'review'          => array(
 				'label' => $english ? 'Review queue' : 'Fila de revisão',
 				'hint'  => $english ? 'Decide pending submissions and proposals.' : 'Decida envios e propostas pendentes.',
@@ -1336,6 +1532,7 @@ final class DashboardSurfaces {
 		return match ( $view ) {
 			'offering' => $english ? 'Offering workspace' : 'Área da oferta',
 			'news'     => $english ? 'News' : 'Notícias',
+			'events'   => $english ? 'Events' : 'Eventos',
 			'profile'  => $english ? 'My profile' : 'Meu perfil',
 			'review'   => $english ? 'Review queue' : 'Fila de revisão',
 			'create'   => $english ? 'Create offering' : 'Criar oferta',
