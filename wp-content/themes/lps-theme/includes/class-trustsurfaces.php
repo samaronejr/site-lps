@@ -566,7 +566,7 @@ final class TrustSurfaces {
 			$summary  = self::text( $record['summary'] ?? '' );
 			$slides  .= '<li class="lps-slide">';
 			$slides  .= '<a class="lps-slide-link" href="' . self::esc( $url ) . '">';
-			$slides  .= self::record_thumb( $record, 'lps-slide-media' );
+			$slides  .= self::record_thumb( $record, 'lps-slide-media', $locale );
 			$slides  .= '<span class="lps-slide-body"><span class="lps-slide-meta">'
 				. '<time datetime="' . self::esc( substr( $date, 0, 10 ) ) . '">' . self::esc( '' !== $label ? $label : '—' ) . '</time>'
 				. '<span class="lps-slide-sep" aria-hidden="true"></span>'
@@ -633,15 +633,22 @@ final class TrustSurfaces {
 	 *
 	 * @param array<mixed> $record       Record carrying a `media` pair.
 	 * @param string       $figure_class Figure class for the caller's layout.
+	 * @param string       $locale       Supported locale slug.
 	 */
-	private static function record_thumb( array $record, string $figure_class ): string {
+	private static function record_thumb( array $record, string $figure_class, string $locale ): string {
 		if ( ! class_exists( MediaPolicy::class ) ) {
 			return '';
 		}
 		$media = self::string_keyed( $record['media'] ?? array() );
 		$usage = self::string_keyed( $media['usage'] ?? array() );
 		$asset = self::string_keyed( $media['asset'] ?? array() );
-		if ( array() === $usage || array() === $asset || array() !== MediaPolicy::usage_errors( $usage, $asset ) ) {
+		if ( array() === $usage || array() === $asset ) {
+			return '';
+		}
+		$usage['locale']    = $locale;
+		$usage['placement'] = 'content';
+		$usage['block']     = 'image';
+		if ( array() !== MediaPolicy::usage_errors( $usage, $asset ) ) {
 			return '';
 		}
 		$url    = self::safe_url( MediaPolicy::string_value( $asset['url'] ?? '' ) );
@@ -694,7 +701,7 @@ final class TrustSurfaces {
 			if ( '' !== $ends && substr( $ends, 0, 10 ) !== $when ) {
 				$when .= ' – ' . substr( $ends, 0, 10 );
 			}
-			$thumb = self::record_thumb( $record, 'lps-event-thumb' );
+			$thumb = self::record_thumb( $record, 'lps-event-thumb', $locale );
 			if ( '' === $thumb ) {
 				$thumb = '<div class="lps-event-thumb lps-event-thumb--empty" aria-hidden="true"><span class="lps-event-thumb-date">'
 					. self::esc( '' !== $when ? substr( $when, 8, 2 ) : '—' ) . '</span><span class="lps-event-thumb-month">'
@@ -747,6 +754,7 @@ final class TrustSurfaces {
 			$entries[] = array(
 				'rank'  => self::canonical_date_rank( $date ),
 				'stamp' => substr( $date, 0, 10 ),
+				'label' => self::text( $record['date_label'] ?? '' ),
 				'kind'  => $english ? 'News' : 'Notícia',
 				'title' => $title,
 				'url'   => self::single_path( 'lps_news', $locale, $slug ),
@@ -766,6 +774,7 @@ final class TrustSurfaces {
 			$entries[] = array(
 				'rank'  => self::canonical_date_rank( $starts ),
 				'stamp' => substr( $starts, 0, 10 ),
+				'label' => '',
 				'kind'  => self::EVENT_LABELS[ $state ][ $locale ] ?? ( $english ? 'Event' : 'Evento' ),
 				'title' => $title,
 				'url'   => self::single_path( 'lps_event', $locale, $slug ),
@@ -795,7 +804,10 @@ final class TrustSurfaces {
 			$day    = 1 <= $month && 12 >= $month
 				? ( $english ? $months[ $month - 1 ] . ' ' . (int) substr( $entry['stamp'], 8, 2 ) : (int) substr( $entry['stamp'], 8, 2 ) . ' ' . $months[ $month - 1 ] )
 				: $entry['stamp'];
-			$list  .= '<li class="lps-timeline-item"><time datetime="' . self::esc( $entry['stamp'] ) . '">' . self::esc( $day ) . '</time>'
+			if ( '' !== $entry['label'] ) {
+				$day = $entry['label'];
+			}
+			$list .= '<li class="lps-timeline-item"><time datetime="' . self::esc( $entry['stamp'] ) . '">' . self::esc( $day ) . '</time>'
 				. '<span class="lps-timeline-kind">' . self::esc( $entry['kind'] ) . '</span>'
 				. '<a href="' . self::esc( $entry['url'] ) . '">' . self::esc( $entry['title'] ) . '</a></li>';
 		}

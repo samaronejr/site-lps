@@ -114,12 +114,13 @@ final class TaskDashboard {
 	 *
 	 * @param string $role           Policy role.
 	 * @param bool   $has_offerings  Whether at least one offering is in scope.
-	 * @param bool   $has_news_scope Whether a news-scope grant exists.
+	 * @param bool   $has_news_scope  Whether a news-scope grant exists.
 	 * @param bool   $has_person     Whether a person record resolved.
 	 * @param bool   $may_review     Whether the account reviews submissions.
+	 * @param bool   $may_create_event Whether the account may submit events.
 	 * @return array<int, string>
 	 */
-	public static function tasks_for_role( string $role, bool $has_offerings, bool $has_news_scope, bool $has_person, bool $may_review ): array {
+	public static function tasks_for_role( string $role, bool $has_offerings, bool $has_news_scope, bool $has_person, bool $may_review, bool $may_create_event = false ): array {
 		$tasks = array();
 		if ( $has_person ) {
 			$tasks[] = 'profile';
@@ -129,6 +130,8 @@ final class TaskDashboard {
 		}
 		if ( $has_news_scope ) {
 			$tasks[] = 'news';
+		}
+		if ( $has_news_scope || $may_create_event ) {
 			$tasks[] = 'events';
 		}
 		if ( $may_review ) {
@@ -801,6 +804,11 @@ final class TaskDashboard {
 						'summary' => Policy::scalar_string( get_post_field( 'post_excerpt', $post_id ) ),
 					);
 				}
+			}
+		}
+		if ( SecurityPolicy::allows( $role, 'review', 'event', $assigned ) || SecurityPolicy::allows( $role, 'publish', 'event', $assigned ) ) {
+			$allowed = ! in_array( $role, array( 'contributor', 'translator', 'section-editor' ), true ) || in_array( 'event', $assigned, true );
+			if ( $allowed ) {
 				$events = get_posts(
 					array(
 						'post_type'      => 'lps_event',
@@ -1143,16 +1151,17 @@ final class TaskDashboard {
 		}
 		$person_id  = self::person_for_user( $user->ID );
 		$news_scope = self::has_news_scope( $user->ID );
+		$may_events = $news_scope || Roles::current_user_can_action( 'create', 'event' );
 		$may_review = '' !== $role && ! TeachingPolicy::is_scoped_role( $role )
 			&& ( SecurityPolicy::allows( $role, 'review' ) || SecurityPolicy::allows( $role, 'publish' ) );
-		$tasks      = self::tasks_for_role( $role, array() !== $offerings, $news_scope, 0 < $person_id, $may_review );
+		$tasks      = self::tasks_for_role( $role, array() !== $offerings, $news_scope, 0 < $person_id, $may_review, $may_events );
 		return array(
 			'role'       => $role,
 			'user'       => $user,
 			'tasks'      => $tasks,
 			'offerings'  => $offerings,
 			'news'       => $news_scope ? self::news_for_user( $user->ID ) : array(),
-			'events'     => $news_scope ? self::events_for_user( $user->ID ) : array(),
+			'events'     => $may_events ? self::events_for_user( $user->ID ) : array(),
 			'person_id'  => $person_id,
 			'proposals'  => 0 < $person_id ? self::proposals_for_person( $person_id ) : array(),
 			'review'     => $may_review ? self::review_queue( $user->ID ) : array(
@@ -3143,29 +3152,25 @@ final class TaskDashboard {
 			if ( ! $post instanceof WP_Post || 'lps_news' !== $post->post_type ) {
 				self::fail( 'lps_teaching_offering_invalid' );
 			}
+			if ( 'in_review' !== Policy::scalar_string( get_post_meta( $post_id, '_lps_state', true ) ) ) {
+				self::fail( 'lps_dashboard_forbidden' );
+			}
 			if ( 'approve' === $decision ) {
 				if ( ! Roles::current_user_can_action( 'publish', 'news' ) ) {
 					self::fail( 'lps_dashboard_forbidden' );
 				}
-				// The decision email fires on an actual review outcome — a pending
-				// item reaching a verdict — so a retried decision on an
-				// already-decided record does not mail the author again.
-				$awaiting = 'in_review' === Policy::scalar_string( get_post_meta( $post_id, '_lps_state', true ) );
-				$result   = TeachingRecords::publish_record( $post_id );
+				$result = TeachingRecords::publish_record( $post_id );
 				if ( $result instanceof WP_Error ) {
 					self::fail( (string) $result->get_error_code(), self::error_field( $result ) );
 				}
 				self::system_meta( $post_id, '_lps_news_status', 'published' );
 				self::system_meta( $post_id, self::REVIEW_NOTE_META, $note );
-				if ( $awaiting ) {
-					Notifications::news_decision( $post, 'approve', $note );
-				}
+				Notifications::news_decision( $post, 'approve', $note );
 				self::succeed( 'published' );
 			}
 			if ( ! SecurityPolicy::allows( $role, 'review', 'news', Roles::assigned_collections( $user->ID ) ) ) {
 				self::fail( 'lps_dashboard_forbidden' );
 			}
-			$awaiting = 'in_review' === Policy::scalar_string( get_post_meta( $post_id, '_lps_state', true ) );
 			self::system_meta( $post_id, '_lps_state', 'draft' );
 			self::system_meta( $post_id, self::REVIEW_NOTE_META, $note );
 			Audit::record(
@@ -3177,9 +3182,7 @@ final class TaskDashboard {
 					'note'     => $note,
 				)
 			);
-			if ( $awaiting ) {
-				Notifications::news_decision( $post, 'reject', $note );
-			}
+			Notifications::news_decision( $post, 'reject', $note );
 			self::succeed( 'reviewed' );
 		}
 		if ( 'event' === $kind ) {
@@ -3188,28 +3191,24 @@ final class TaskDashboard {
 			if ( ! $post instanceof WP_Post || 'lps_event' !== $post->post_type ) {
 				self::fail( 'lps_teaching_offering_invalid' );
 			}
+			if ( 'in_review' !== Policy::scalar_string( get_post_meta( $post_id, '_lps_state', true ) ) ) {
+				self::fail( 'lps_dashboard_forbidden' );
+			}
 			if ( 'approve' === $decision ) {
 				if ( ! Roles::current_user_can_action( 'publish', 'event' ) ) {
 					self::fail( 'lps_dashboard_forbidden' );
 				}
-				// The decision email fires on an actual review outcome — a pending
-				// item reaching a verdict — so a retried decision on an
-				// already-decided record does not mail the author again.
-				$awaiting = 'in_review' === Policy::scalar_string( get_post_meta( $post_id, '_lps_state', true ) );
-				$result   = TeachingRecords::publish_record( $post_id );
+				$result = TeachingRecords::publish_record( $post_id );
 				if ( $result instanceof WP_Error ) {
 					self::fail( (string) $result->get_error_code(), self::error_field( $result ) );
 				}
 				self::system_meta( $post_id, self::REVIEW_NOTE_META, $note );
-				if ( $awaiting ) {
-					Notifications::event_decision( $post, 'approve', $note );
-				}
+				Notifications::event_decision( $post, 'approve', $note );
 				self::succeed( 'published' );
 			}
 			if ( ! SecurityPolicy::allows( $role, 'review', 'event', Roles::assigned_collections( $user->ID ) ) ) {
 				self::fail( 'lps_dashboard_forbidden' );
 			}
-			$awaiting = 'in_review' === Policy::scalar_string( get_post_meta( $post_id, '_lps_state', true ) );
 			self::system_meta( $post_id, '_lps_state', 'draft' );
 			self::system_meta( $post_id, self::REVIEW_NOTE_META, $note );
 			Audit::record(
@@ -3221,9 +3220,7 @@ final class TaskDashboard {
 					'note'     => $note,
 				)
 			);
-			if ( $awaiting ) {
-				Notifications::event_decision( $post, 'reject', $note );
-			}
+			Notifications::event_decision( $post, 'reject', $note );
 			self::succeed( 'reviewed' );
 		}
 		if ( 'proposal' === $kind ) {
