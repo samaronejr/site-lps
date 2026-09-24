@@ -49,6 +49,10 @@ final class AuthSurfaces {
 		$footer  = Shell::footer_markup( $locale );
 		$css     = function_exists( 'get_theme_file_uri' ) ? get_theme_file_uri( 'assets/css/theme.css' ) : '';
 		$version = function_exists( 'wp_get_theme' ) ? (string) wp_get_theme()->get( 'Version' ) : '';
+		$file    = function_exists( 'get_theme_file_path' ) ? get_theme_file_path( 'assets/css/theme.css' ) : '';
+		if ( '' !== $file && is_file( $file ) ) {
+			$version .= '.' . (string) filemtime( $file );
+		}
 		$css_url = '' !== $css ? $css . ( '' !== $version ? '?ver=' . rawurlencode( $version ) : '' ) : '';
 		return '<!DOCTYPE html><html lang="' . self::esc( self::bcp47( $locale ) ) . '"><head>'
 			. '<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'

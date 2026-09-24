@@ -27,7 +27,9 @@ papel que a API usa. Quem pode fazer o quê está em
 
 ## As tarefas do painel
 
-A página inicial do painel lista apenas as tarefas que o seu escopo cobre:
+Toda tela do painel abre com o selo `Área do membro`, o título da tela e a linha
+`Tarefas, ofertas e envios vinculados à sua conta.` — o mesmo cabeçalho das páginas públicas.
+A página inicial lista apenas as tarefas que o seu escopo cobre:
 
 | Tarefa | Quem vê | Para que serve |
 | --- | --- | --- |
