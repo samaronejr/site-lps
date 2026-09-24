@@ -743,16 +743,16 @@ final class TaskDashboard {
 	 * @return array{label: string, occurred_at: string, at: string}
 	 */
 	private static function activity_item( array $row, string $locale ): array {
-		$english   = 'en' === $locale;
-		$action    = Policy::scalar_string( $row['action'] ?? '' );
-		$context   = json_decode( Policy::scalar_string( $row['context_json'] ?? '{}' ), true );
-		$context   = is_array( $context ) ? $context : array();
-		$title     = self::activity_title( $row );
-		$base      = self::activity_label( $action, $context, $locale );
-		$label     = '' !== $title && ! in_array( $action, array( 'grant-scope', 'revoke-scope' ), true )
+		$english = 'en' === $locale;
+		$action  = Policy::scalar_string( $row['action'] ?? '' );
+		$context = json_decode( Policy::scalar_string( $row['context_json'] ?? '{}' ), true );
+		$context = is_array( $context ) ? $context : array();
+		$title   = self::activity_title( $row );
+		$base    = self::activity_label( $action, $context, $locale );
+		$label   = '' !== $title && ! in_array( $action, array( 'grant-scope', 'revoke-scope' ), true )
 			? "{$base}: {$title}"
 			: $base;
-		$stamp     = strtotime( Policy::scalar_string( $row['occurred_at'] ?? '' ) );
+		$stamp   = strtotime( Policy::scalar_string( $row['occurred_at'] ?? '' ) );
 		return array(
 			'label'       => $label,
 			'occurred_at' => Policy::scalar_string( $row['occurred_at'] ?? '' ),
