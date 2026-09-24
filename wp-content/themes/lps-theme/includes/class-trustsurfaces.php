@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace LPS\Theme;
 
 use DateTimeImmutable;
+use LPS\ContentModel\MediaPolicy;
 use LPS\ContentModel\TrustSurfacePolicy;
 
 require_once dirname( __DIR__, 3 ) . '/plugins/lps-content-model/includes/class-trustsurfacepolicy.php';
@@ -485,12 +486,45 @@ final class TrustSurfaces {
 		}
 		$html .= self::translation_notice( $record, $locale );
 		$html .= '</div></div>';
+		$html .= self::news_media_html( $record, $locale );
 		$body  = self::text( $record['body'] ?? '' );
 		if ( '' !== $body ) {
 			$rendered = function_exists( 'do_blocks' ) ? (string) do_blocks( $body ) : $body;
 			$html    .= '<div class="lps-body lps-reading">' . ( function_exists( 'wp_kses_post' ) ? wp_kses_post( $rendered ) : $rendered ) . '</div>';
 		}
 		return $html . '</article>';
+	}
+
+	/**
+	 * Renders the news featured image when the stored media pair satisfies the
+	 * public contract.
+	 *
+	 * The pair comes from `Media::record_image`, which resolves the thumbnail
+	 * on the Portuguese authority — an English variant renders its source's
+	 * image rather than owning one. Media that fails the usage contract (missing
+	 * provenance, missing locale/placement) renders nothing rather than a
+	 * broken figure.
+	 *
+	 * @param array<string, mixed> $record News record.
+	 * @param string               $locale Supported locale slug.
+	 */
+	private static function news_media_html( array $record, string $locale ): string {
+		$media = $record['media'] ?? null;
+		if ( ! is_array( $media ) || ! class_exists( MediaPolicy::class ) ) {
+			return '';
+		}
+		$usage = self::string_keyed( $media['usage'] ?? null );
+		$asset = self::string_keyed( $media['asset'] ?? null );
+		if ( array() === $usage ) {
+			return '';
+		}
+		$usage['locale']    = $locale;
+		$usage['placement'] = 'content';
+		$usage['block']     = 'image';
+		if ( array() !== MediaPolicy::usage_errors( $usage, $asset ) ) {
+			return '';
+		}
+		return MediaPolicy::render_image( $usage, $asset );
 	}
 
 	/**
@@ -1570,6 +1604,25 @@ final class TrustSurfaces {
 	 */
 	private static function is_email( string $value ): bool {
 		return false !== filter_var( $value, FILTER_VALIDATE_EMAIL );
+	}
+
+	/**
+	 * Narrows a boundary value to a string-keyed map.
+	 *
+	 * @param mixed $value Boundary input.
+	 * @return array<string, mixed>
+	 */
+	private static function string_keyed( mixed $value ): array {
+		if ( ! is_array( $value ) ) {
+			return array();
+		}
+		$map = array();
+		foreach ( $value as $key => $item ) {
+			if ( is_string( $key ) ) {
+				$map[ $key ] = $item;
+			}
+		}
+		return $map;
 	}
 
 	/**
