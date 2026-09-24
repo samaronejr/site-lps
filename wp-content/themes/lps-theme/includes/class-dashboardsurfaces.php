@@ -736,7 +736,7 @@ final class DashboardSurfaces {
 					. ' ' . self::chip( self::text( $unit['state'] ?? 'draft' ), $locale )
 					. self::prepared_badge( $unit, $locale )
 					. ' <span class="lps-meta">' . self::esc( self::text( $unit['anchor'] ?? '' ) ) . '</span>';
-				$edit  = self::safe_url( self::text( $unit['edit_url'] ?? '' ) );
+				$edit    = self::safe_url( self::text( $unit['edit_url'] ?? '' ) );
 				if ( '' !== $edit && ! empty( $offering['can_edit'] ) ) {
 					$html .= ' <a href="' . self::esc( $edit ) . '">' . self::esc( $english ? 'Edit' : 'Editar' ) . '</a>';
 				}
