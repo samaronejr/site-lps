@@ -12,6 +12,7 @@ namespace LPS\ContentModel;
 use WP_Error;
 use WP_Post;
 use WP_User;
+use wpdb;
 
 require_once __DIR__ . '/class-policy.php';
 require_once __DIR__ . '/class-securitypolicy.php';
@@ -56,6 +57,9 @@ final class TaskDashboard {
 
 	/** Seconds a recoverable form state is retained. */
 	public const RECALL_TTL = 900;
+
+	/** Maximum entries the dashboard home activity card lists. */
+	public const ACTIVITY_LIMIT = 8;
 
 	/** Transient prefix for the staged news preview. */
 	private const PREVIEW_PREFIX = 'lps_dash_preview_';
@@ -765,6 +769,275 @@ final class TaskDashboard {
 	}
 
 	/**
+	 * Assembles the recent-activity list the dashboard home shows one account.
+	 *
+	 * The audit ledger is the only source: it already records the account's
+	 * own actions, the scope grants stored against it, and the review and
+	 * publication decisions other accounts landed on its records — a parallel
+	 * store would record the same events twice. Labels are resolved here in
+	 * the viewer's locale; the ledger itself stays machine-keyed.
+	 *
+	 * @param int    $user_id Account ID.
+	 * @param string $locale  Supported locale slug.
+	 * @return array<int, array{label: string, occurred_at: string, at: string}>
+	 */
+	public static function activity_for_user( int $user_id, string $locale ): array {
+		$wpdb = self::database();
+		// Ownership is read straight from the posts table: get_posts would let
+		// Polylang's front-end query filter hide records in the language the
+		// page does not render in, and every status must count — drafts,
+		// archives and all. Values are an int and esc_sql'd code constants.
+		$types      = implode(
+			"', '",
+			array_map(
+				static function ( string $type ): string {
+					return Policy::scalar_string( esc_sql( $type ) );
+				},
+				array_keys( Contracts::post_types() )
+			)
+		);
+		$object_ids = array_values(
+			array_map(
+				static function ( $id ): int {
+					return Policy::sanitize_integer( $id );
+				},
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- post_author is an int, post types are esc_sql'd code constants, the table name is the trusted core prefix, and the feed must read through any page/query cache like the audit ledger it renders.
+				(array) $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE post_author = {$user_id} AND post_type IN ('{$types}')" )
+			)
+		);
+		$person_id = self::person_for_user( $user_id );
+		if ( 0 < $person_id ) {
+			$object_ids[] = $person_id;
+		}
+		$rows  = Audit::entries_for_account( $user_id, $object_ids, self::ACTIVITY_LIMIT );
+		$items = array();
+		foreach ( $rows as $row ) {
+			$items[] = self::activity_item( $row, $locale );
+		}
+		return $items;
+	}
+
+	/**
+	 * Renders one audit row as the localized label the activity card shows.
+	 *
+	 * @param array<string, int|string> $row    Normalized ledger row.
+	 * @param string                    $locale Supported locale slug.
+	 * @return array{label: string, occurred_at: string, at: string}
+	 */
+	private static function activity_item( array $row, string $locale ): array {
+		$english = 'en' === $locale;
+		$action  = Policy::scalar_string( $row['action'] ?? '' );
+		$context = json_decode( Policy::scalar_string( $row['context_json'] ?? '{}' ), true );
+		$context = is_array( $context ) ? $context : array();
+		$title   = self::activity_title( $row );
+		$base    = self::activity_label( $action, $context, $locale );
+		$label   = '' !== $title && ! in_array( $action, array( 'grant-scope', 'revoke-scope' ), true )
+			? "{$base}: {$title}"
+			: $base;
+		$stamp   = strtotime( Policy::scalar_string( $row['occurred_at'] ?? '' ) );
+		return array(
+			'label'       => $label,
+			'occurred_at' => Policy::scalar_string( $row['occurred_at'] ?? '' ),
+			'at'          => is_int( $stamp ) ? self::activity_date( $stamp, $english ) : '',
+		);
+	}
+
+	/**
+	 * Formats a ledger timestamp for the card in the dashboard's locale.
+	 *
+	 * `wp_date` translates month names through WordPress's active locale, which
+	 * follows the site — not the dashboard route — so the English rendering
+	 * uses the fixed month abbreviations instead of a translated format.
+	 *
+	 * @param int  $stamp   Unix timestamp.
+	 * @param bool $english Whether the dashboard renders English.
+	 */
+	private static function activity_date( int $stamp, bool $english ): string {
+		if ( ! $english ) {
+			return Policy::scalar_string( wp_date( 'd/m/Y', $stamp ) );
+		}
+		$months = array( 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' );
+		$month  = Policy::sanitize_integer( wp_date( 'n', $stamp ) );
+		return $months[ $month - 1 ] . ' ' . Policy::scalar_string( wp_date( 'j', $stamp ) ) . ', ' . Policy::scalar_string( wp_date( 'Y', $stamp ) );
+	}
+
+	/**
+	 * Maps one ledger action and its context to the human label.
+	 *
+	 * @param string       $action  Ledger action key.
+	 * @param array<mixed> $context Decoded entry context.
+	 * @param string       $locale  Supported locale slug.
+	 */
+	private static function activity_label( string $action, array $context, string $locale ): string {
+		$english  = 'en' === $locale;
+		$decision = Policy::scalar_string( $context['decision'] ?? '' );
+		if ( 'grant-scope' === $action || 'revoke-scope' === $action ) {
+			$scope = self::activity_scope_label( $context, $locale );
+			return 'grant-scope' === $action
+				? ( $english ? "Access granted — {$scope}" : "Acesso liberado — {$scope}" )
+				: ( $english ? "Access revoked — {$scope}" : "Acesso revogado — {$scope}" );
+		}
+		if ( 'submit' === $action ) {
+			return match ( $decision ) {
+				'news-submission'   => $english ? 'News item sent for review' : 'Notícia enviada para revisão',
+				'news-resubmission' => $english ? 'News item resent for review' : 'Notícia reenviada para revisão',
+				'profile-proposal'  => $english ? 'Profile proposal sent for review' : 'Proposta de perfil enviada para revisão',
+				'course-create'     => $english ? 'Course and first offering created' : 'Disciplina e primeira oferta criadas',
+				default             => $english ? 'Sent for review' : 'Enviado para revisão',
+			};
+		}
+		if ( 'review' === $action ) {
+			return match ( $decision ) {
+				'reject'          => $english ? 'Review returned your news item with a note' : 'Revisão devolveu sua notícia com uma nota',
+				'profile-approve' => $english ? 'Profile proposal approved' : 'Proposta de perfil aprovada',
+				'profile-reject'  => $english ? 'Profile proposal rejected' : 'Proposta de perfil rejeitada',
+				default           => $english ? 'Sent to editorial review' : 'Enviado para revisão editorial',
+			};
+		}
+		if ( 'create' === $action ) {
+			if ( isset( $context['operation_id'] ) ) {
+				return $english ? 'Next-term draft created' : 'Rascunho do próximo período criado';
+			}
+			return self::activity_type_label( $context, 'new', $locale );
+		}
+		if ( 'edit' === $action ) {
+			return match ( $decision ) {
+				'propagate-correction' => $english ? 'Correction propagated' : 'Correção propagada',
+				default                => '_lps_version_id' === Policy::scalar_string( $context['field'] ?? '' )
+					? ( $english ? 'File version selected' : 'Versão de arquivo selecionada' )
+					: self::activity_type_label( $context, 'updated', $locale ),
+			};
+		}
+		if ( 'publish' === $action ) {
+			if ( 'release' === $decision ) {
+				return $english ? 'Material released' : 'Material liberado';
+			}
+			return self::activity_state_label( $context, $locale );
+		}
+		if ( 'unpublish' === $action ) {
+			if ( 'withdraw' === $decision ) {
+				return $english ? 'Material withdrawn' : 'Material retirado';
+			}
+			return self::activity_state_label( $context, $locale );
+		}
+		return match ( $action ) {
+			'archive'  => $english ? 'Archived' : 'Arquivado',
+			'import'   => $english ? 'Content import' : 'Importação de conteúdo',
+			'redirect' => $english ? 'Redirect changed' : 'Redirecionamento alterado',
+			'settings' => $english ? 'Site settings changed' : 'Configuração do site alterada',
+			default    => $english ? 'Activity recorded' : 'Atividade registrada',
+		};
+	}
+
+	/**
+	 * Maps a stored status transition to a "from → to" state label.
+	 *
+	 * @param array<mixed> $context Decoded entry context.
+	 * @param string       $locale  Supported locale slug.
+	 */
+	private static function activity_state_label( array $context, string $locale ): string {
+		$map   = array(
+			'draft'        => 'draft',
+			'pending'      => 'pending',
+			'publish'      => 'public',
+			'lps_archived' => 'archived',
+			'private'      => 'draft',
+			'trash'        => 'archived',
+		);
+		$from  = Policy::scalar_string( $context['from'] ?? '' );
+		$to    = Policy::scalar_string( $context['to'] ?? '' );
+		$label = self::state_label( Policy::scalar_string( $map[ $to ] ?? $to ), $locale );
+		if ( '' !== $from ) {
+			$before = self::state_label( Policy::scalar_string( $map[ $from ] ?? $from ), $locale );
+			return 'en' === $locale ? "State changed from {$before} to {$label}" : "Estado alterado de {$before} para {$label}";
+		}
+		return 'en' === $locale ? "Moved to {$label}" : "Movido para {$label}";
+	}
+
+	/**
+	 * Maps a create/edit context's record type to a gender-correct label.
+	 *
+	 * @param array<mixed> $context Decoded entry context.
+	 * @param string       $form    `new` or `updated`.
+	 * @param string       $locale  Supported locale slug.
+	 */
+	private static function activity_type_label( array $context, string $form, string $locale ): string {
+		$english = 'en' === $locale;
+		$new     = array(
+			'lps_unit'     => $english ? 'New unit' : 'Nova unidade',
+			'lps_resource' => $english ? 'New material' : 'Novo material',
+			'lps_news'     => $english ? 'New news item' : 'Nova notícia',
+			'lps_offering' => $english ? 'New offering' : 'Nova oferta',
+			'lps_course'   => $english ? 'New course' : 'Nova disciplina',
+			'lps_term'     => $english ? 'New term' : 'Novo período',
+			'lps_person'   => $english ? 'New profile' : 'Novo perfil',
+		);
+		$updated = array(
+			'lps_unit'     => $english ? 'Unit updated' : 'Unidade atualizada',
+			'lps_resource' => $english ? 'Material updated' : 'Material atualizado',
+			'lps_news'     => $english ? 'News item updated' : 'Notícia atualizada',
+			'lps_offering' => $english ? 'Offering updated' : 'Oferta atualizada',
+			'lps_course'   => $english ? 'Course updated' : 'Disciplina atualizada',
+			'lps_term'     => $english ? 'Term updated' : 'Período atualizado',
+			'lps_person'   => $english ? 'Profile updated' : 'Perfil atualizado',
+		);
+		$type    = Policy::scalar_string( $context['post_type'] ?? '' );
+		$map     = 'new' === $form ? $new : $updated;
+		return $map[ $type ] ?? ( $english ? ( 'new' === $form ? 'New record' : 'Record updated' ) : ( 'new' === $form ? 'Novo registro' : 'Registro atualizado' ) );
+	}
+
+	/**
+	 * Maps a grant/revoke context to its scope name in the viewer's locale.
+	 *
+	 * @param array<mixed> $context Decoded entry context.
+	 * @param string       $locale  Supported locale slug.
+	 */
+	private static function activity_scope_label( array $context, string $locale ): string {
+		$english = 'en' === $locale;
+		$scope   = Policy::scalar_string( $context['scope'] ?? '' );
+		if ( 'news' === $scope ) {
+			return $english ? 'news submissions' : 'envio de notícias';
+		}
+		if ( 'offering' === $scope ) {
+			$offering_id = Policy::sanitize_integer( $context['offering_id'] ?? 0 );
+			$title       = 0 < $offering_id ? Policy::scalar_string( get_post_field( 'post_title', $offering_id ) ) : '';
+			return $english
+				? ( '' !== $title ? "the offering \"{$title}\"" : 'an offering' )
+				: ( '' !== $title ? "a oferta \"{$title}\"" : 'uma oferta' );
+		}
+		return '' !== $scope ? $scope : ( $english ? 'the dashboard' : 'o painel' );
+	}
+
+	/**
+	 * Resolves the display title of a row's post object, or empty.
+	 *
+	 * Grant rows key the object by account ID rather than post ID, so they
+	 * never resolve here — their label already carries the scope name.
+	 *
+	 * @param array<string, int|string> $row Normalized ledger row.
+	 */
+	private static function activity_title( array $row ): string {
+		if ( in_array( Policy::scalar_string( $row['action'] ?? '' ), array( 'grant-scope', 'revoke-scope' ), true ) ) {
+			return '';
+		}
+		$post = get_post( Policy::sanitize_integer( $row['object_id'] ?? 0 ) );
+		return $post instanceof WP_Post ? $post->post_title : '';
+	}
+
+	/**
+	 * Returns the initialized database adapter.
+	 *
+	 * @throws \RuntimeException Missing adapter.
+	 */
+	private static function database(): wpdb {
+		global $wpdb;
+		if ( ! $wpdb instanceof wpdb ) {
+			throw new \RuntimeException( 'WordPress database adapter is unavailable.' );
+		}
+		return $wpdb;
+	}
+
+	/**
 	 * Assembles the complete dashboard model for one account.
 	 *
 	 * @param WP_User $user   Signed-in account.
@@ -802,6 +1075,7 @@ final class TaskDashboard {
 			'courses'    => self::published_courses(),
 			'people'     => self::people_options(),
 			'news_scope' => $news_scope,
+			'activity'   => self::activity_for_user( $user->ID, $locale ),
 			'may_review' => $may_review,
 			'may_course' => self::may_course( $user ),
 			'mfa'        => MFA::is_enrolled( $user->ID ),
@@ -2250,17 +2524,25 @@ final class TaskDashboard {
 				if ( ! Roles::current_user_can_action( 'publish', 'news' ) ) {
 					self::fail( 'lps_dashboard_forbidden' );
 				}
-				$result = TeachingRecords::publish_record( $post_id );
+				// The decision email fires on an actual review outcome — a pending
+				// item reaching a verdict — so a retried decision on an
+				// already-decided record does not mail the author again.
+				$awaiting = 'in_review' === Policy::scalar_string( get_post_meta( $post_id, '_lps_state', true ) );
+				$result   = TeachingRecords::publish_record( $post_id );
 				if ( $result instanceof WP_Error ) {
 					self::fail( (string) $result->get_error_code(), self::error_field( $result ) );
 				}
 				self::system_meta( $post_id, '_lps_news_status', 'published' );
 				self::system_meta( $post_id, self::REVIEW_NOTE_META, $note );
+				if ( $awaiting ) {
+					Notifications::news_decision( $post, 'approve', $note );
+				}
 				self::succeed( 'published' );
 			}
 			if ( ! SecurityPolicy::allows( $role, 'review', 'news', Roles::assigned_collections( $user->ID ) ) ) {
 				self::fail( 'lps_dashboard_forbidden' );
 			}
+			$awaiting = 'in_review' === Policy::scalar_string( get_post_meta( $post_id, '_lps_state', true ) );
 			self::system_meta( $post_id, '_lps_state', 'draft' );
 			self::system_meta( $post_id, self::REVIEW_NOTE_META, $note );
 			Audit::record(
@@ -2272,6 +2554,9 @@ final class TaskDashboard {
 					'note'     => $note,
 				)
 			);
+			if ( $awaiting ) {
+				Notifications::news_decision( $post, 'reject', $note );
+			}
 			self::succeed( 'reviewed' );
 		}
 		if ( 'proposal' === $kind ) {
