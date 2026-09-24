@@ -205,11 +205,103 @@ final class DashboardSurfaces {
 			$html .= '<p><a href="' . self::esc( $edit ) . '">' . self::esc( $english ? 'Edit the offering record' : 'Editar o registro da oferta' ) . '</a></p>';
 		}
 		$html .= self::team_html( $offering, $locale );
+		$html .= self::offering_form( $offering, $locale );
+		$html .= self::notices_html( $offering, $locale );
 		$html .= self::units_html( $offering, $locale );
 		$html .= self::resources_html( $offering, $locale );
 		$html .= self::unit_form( $offering, $locale );
 		$html .= self::resource_form( $offering, $locale );
 		$html .= self::copy_form( $offering, $model, $locale );
+		return $html . '</section>';
+	}
+
+	/**
+	 * Renders the offering-details edit form: schedule, venue, period notes.
+	 *
+	 * Term-side fields the professor maintains on their own offering; the
+	 * backend rechecks the grant on submit regardless of what the form shows.
+	 *
+	 * @param array<string, mixed> $offering Offering workspace model.
+	 * @param string               $locale   Supported locale slug.
+	 */
+	private static function offering_form( array $offering, string $locale ): string {
+		if ( empty( $offering['can_edit'] ) ) {
+			return '';
+		}
+		$english     = 'en' === $locale;
+		$offering_id = Policy::sanitize_integer( $offering['id'] ?? 0 );
+		$recall      = self::recall( 'offering-edit-' . $offering_id );
+		$schedule    = array_key_exists( 'schedule', $recall ) ? self::text( $recall['schedule'] ) : self::text( $offering['schedule'] ?? '' );
+		$venue       = array_key_exists( 'venue', $recall ) ? self::text( $recall['venue'] ) : self::text( $offering['venue'] ?? '' );
+		$content     = array_key_exists( 'content', $recall ) ? self::text( $recall['content'] ) : self::text( $offering['content'] ?? '' );
+		return '<section class="lps-dashboard-form" aria-labelledby="lps-offering-form"><h3 id="lps-offering-form">'
+			. self::esc( $english ? 'Offering details' : 'Dados da oferta' ) . '</h3>'
+			. '<p class="lps-field-hint">' . self::esc( $english ? 'Schedule and venue appear on both locale pages; the term notes are Portuguese-first — the English variant updates through the translation task.' : 'Horários e local aparecem nas duas páginas; as notas do período são em português primeiro — a variante em inglês atualiza pela tarefa de tradução.' ) . '</p>'
+			. self::form_open( 'lps_dashboard_offering_edit' )
+			. self::hidden( 'offering_id', (string) $offering_id )
+			. self::textarea( 'schedule', TaskDashboard::field_label( '_lps_schedule', $locale ), $schedule, $locale, false )
+			. self::field( 'venue', TaskDashboard::field_label( '_lps_venue', $locale ), 'text', $venue, $locale, false )
+			. self::textarea( 'content', TaskDashboard::field_label( 'offering_notes', $locale ), $content, $locale, false )
+			. self::submit( $english ? 'Save offering details' : 'Salvar dados da oferta' )
+			. '</form></section>';
+	}
+
+	/**
+	 * Renders the announcement stream with the post form.
+	 *
+	 * Avisos are public the moment they post — a dedicated PT-first stream on
+	 * the offering authority — so the list previews each notice exactly as
+	 * visitors read it, newest first.
+	 *
+	 * @param array<string, mixed> $offering Offering workspace model.
+	 * @param string               $locale   Supported locale slug.
+	 */
+	private static function notices_html( array $offering, string $locale ): string {
+		$english = 'en' === $locale;
+		$notices = is_array( $offering['notices'] ?? null ) ? $offering['notices'] : array();
+		$html    = '<section class="lps-dashboard-section" aria-labelledby="lps-notices"><h3 id="lps-notices">'
+			. self::esc( $english ? 'Announcements' : 'Avisos' ) . '</h3>';
+		if ( array() === $notices ) {
+			$html .= '<p class="lps-field-hint">' . self::esc( $english ? 'No announcements yet; posted ones appear on the public page newest first.' : 'Nenhum aviso ainda; os publicados aparecem na página pública do mais recente ao mais antigo.' ) . '</p>';
+		} else {
+			$html .= '<ul class="lps-record-list">';
+			foreach ( $notices as $notice ) {
+				$notice = self::record( $notice );
+				// The stored body is rich HTML; the workspace preview shows
+				// the flattened text, the public page renders it fully.
+				$body = self::text( $notice['body'] ?? '' );
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.strip_tags_strip_tags -- Unit-test seam without WordPress; production always takes wp_strip_all_tags.
+				$body  = function_exists( 'wp_strip_all_tags' ) ? wp_strip_all_tags( $body ) : strip_tags( $body );
+				$body  = trim( preg_replace( '/\s+/', ' ', $body ) ?? '' );
+				$html .= '<li class="lps-record"><span class="lps-meta">'
+					. self::esc( substr( self::text( $notice['created_at'] ?? '' ), 0, 10 ) )
+					. '</span> ' . self::esc( $body );
+				if ( ! empty( $offering['can_edit'] ) ) {
+					$html .= self::action_form(
+						'lps_dashboard_notice',
+						array(
+							'offering_id'   => Policy::sanitize_integer( $offering['id'] ?? 0 ),
+							'notice_action' => 'remove',
+							'notice_id'     => self::text( $notice['id'] ?? '' ),
+						),
+						$english ? 'Remove' : 'Remover',
+						'remove-notice'
+					);
+				}
+				$html .= '</li>';
+			}
+			$html .= '</ul>';
+		}
+		if ( ! empty( $offering['can_edit'] ) ) {
+			$body  = self::recall( 'notice-' . Policy::sanitize_integer( $offering['id'] ?? 0 ) );
+			$html .= '<div class="lps-dashboard-form">'
+				. self::form_open( 'lps_dashboard_notice' )
+				. self::hidden( 'offering_id', (string) Policy::sanitize_integer( $offering['id'] ?? 0 ) )
+				. self::hidden( 'notice_action', 'post' )
+				. self::textarea( 'body', TaskDashboard::field_label( 'body', $locale ), self::text( $body['body'] ?? '' ), $locale, true )
+				. self::submit( $english ? 'Post the announcement' : 'Publicar aviso' )
+				. '</form></div>';
+		}
 		return $html . '</section>';
 	}
 
@@ -638,17 +730,32 @@ final class DashboardSurfaces {
 		} else {
 			$html .= '<ol class="lps-record-list">';
 			foreach ( $units as $unit ) {
-				$unit  = self::record( $unit );
-				$html .= '<li class="lps-record">' . self::esc( self::text( $unit['title'] ?? '' ) )
+				$unit    = self::record( $unit );
+				$unit_id = Policy::sanitize_integer( $unit['id'] ?? 0 );
+				$html   .= '<li class="lps-record">' . self::esc( self::text( $unit['title'] ?? '' ) )
 					. ' ' . self::chip( self::text( $unit['state'] ?? 'draft' ), $locale )
 					. self::prepared_badge( $unit, $locale )
 					. ' <span class="lps-meta">' . self::esc( self::text( $unit['anchor'] ?? '' ) ) . '</span>';
-				$edit  = self::safe_url( self::text( $unit['edit_url'] ?? '' ) );
+				$edit    = self::safe_url( self::text( $unit['edit_url'] ?? '' ) );
 				if ( '' !== $edit && ! empty( $offering['can_edit'] ) ) {
 					$html .= ' <a href="' . self::esc( $edit ) . '">' . self::esc( $english ? 'Edit' : 'Editar' ) . '</a>';
 				}
 				if ( ! empty( $offering['can_publish'] ) && 'publish' !== self::text( $unit['status'] ?? '' ) ) {
-					$html .= self::action_form( 'lps_dashboard_publish', array( 'post_id' => Policy::sanitize_integer( $unit['id'] ?? 0 ) ), $english ? 'Publish unit' : 'Publicar unidade', 'publish-unit' );
+					$html .= self::action_form( 'lps_dashboard_publish', array( 'post_id' => $unit_id ), $english ? 'Publish unit' : 'Publicar unidade', 'publish-unit' );
+				}
+				if ( ! empty( $offering['can_edit'] ) ) {
+					$html .= '<details class="lps-dashboard-edit"><summary>' . self::esc( $english ? 'Edit unit' : 'Editar unidade' ) . '</summary>'
+						. self::form_open( 'lps_dashboard_unit' )
+						. self::hidden( 'id', (string) $unit_id )
+						. self::hidden( 'offering_id', (string) Policy::sanitize_integer( $offering['id'] ?? 0 ) )
+						. self::field( 'title', TaskDashboard::field_label( 'post_title', $locale ), 'text', self::text( $unit['title'] ?? '' ), $locale, true )
+						. self::textarea( 'excerpt', TaskDashboard::field_label( 'post_excerpt', $locale ), self::text( $unit['excerpt'] ?? '' ), $locale, false )
+						. self::textarea( 'content', TaskDashboard::field_label( 'post_content', $locale ), self::text( $unit['content'] ?? '' ), $locale, false )
+						. self::field( 'anchor', TaskDashboard::field_label( '_lps_anchor', $locale ), 'text', self::text( $unit['anchor'] ?? '' ), $locale, true )
+						. self::field( 'position', TaskDashboard::field_label( '_lps_position', $locale ), 'number', (string) Policy::sanitize_integer( $unit['position'] ?? 0 ), $locale, true )
+						. self::field( 'topic_date', TaskDashboard::field_label( '_lps_topic_date', $locale ), 'date', self::text( $unit['topic_date'] ?? '' ), $locale, false )
+						. self::submit( $english ? 'Save unit' : 'Salvar unidade' )
+						. '</form></details>';
 				}
 				$html .= '</li>';
 			}
@@ -711,11 +818,79 @@ final class DashboardSurfaces {
 						$html .= self::action_form( 'lps_dashboard_publish', array( 'post_id' => $resource_id ), $english ? 'Publish material' : 'Publicar material', 'publish-resource' );
 					}
 				}
+				if ( ! empty( $offering['can_edit'] ) ) {
+					$html .= '<details class="lps-dashboard-edit"><summary>' . self::esc( $english ? 'Edit material' : 'Editar material' ) . '</summary>'
+						. self::form_open( 'lps_dashboard_material' )
+						. self::hidden( 'resource_id', (string) $resource_id )
+						. self::field( 'title', TaskDashboard::field_label( 'post_title', $locale ), 'text', self::text( $resource['title'] ?? '' ), $locale, true )
+						. self::textarea( 'excerpt', TaskDashboard::field_label( 'post_excerpt', $locale ), self::text( $resource['excerpt'] ?? '' ), $locale, false )
+						. self::select( 'resource_type', TaskDashboard::field_label( '_lps_resource_type', $locale ), self::resource_types(), self::text( $resource['resource_type'] ?? 'document' ), $locale, true )
+						. self::field( 'resource_language', TaskDashboard::field_label( '_lps_resource_language', $locale ), 'text', self::text( $resource['resource_language'] ?? 'pt-br' ), $locale, true )
+						. self::field( 'external_url', TaskDashboard::field_label( '_lps_external_url', $locale ), 'url', self::text( $resource['external_url'] ?? '' ), $locale, false )
+						. self::submit( $english ? 'Save material' : 'Salvar material' )
+						. '</form></details>';
+				}
 				$html .= '</li>';
 			}
 			$html .= '</ul>';
 		}
+		$html .= self::order_form( $offering, $resources, $locale );
 		return $html . '</section>';
+	}
+
+	/**
+	 * Renders the material reorder form, or nothing when ordering is moot.
+	 *
+	 * Each listed material gets a position input; the submitted order is
+	 * written to the canonical `sort_order` on the resource-offering rows.
+	 *
+	 * @param array<string, mixed> $offering  Offering workspace model.
+	 * @param array<mixed>         $resources Resource rows.
+	 * @param string               $locale    Supported locale slug.
+	 */
+	private static function order_form( array $offering, array $resources, string $locale ): string {
+		if ( empty( $offering['can_edit'] ) || 2 > count( $resources ) ) {
+			return '';
+		}
+		$english = 'en' === $locale;
+		$html    = '<details class="lps-dashboard-edit"><summary>'
+			. self::esc( $english ? 'Reorder materials' : 'Reordenar materiais' ) . '</summary>'
+			. self::form_open( 'lps_dashboard_order' )
+			. self::hidden( 'offering_id', (string) Policy::sanitize_integer( $offering['id'] ?? 0 ) )
+			. '<fieldset class="lps-fieldset"><legend>' . self::esc( TaskDashboard::field_label( 'positions', $locale ) ) . '</legend>';
+		$index   = 0;
+		foreach ( $resources as $resource ) {
+			++$index;
+			$resource = self::record( $resource );
+			$html    .= self::field(
+				'positions[' . Policy::sanitize_integer( $resource['id'] ?? 0 ) . ']',
+				self::text( $resource['title'] ?? '' ),
+				'number',
+				(string) Policy::sanitize_integer( $resource['sort_order'] ?? $index ),
+				$locale,
+				true
+			);
+		}
+		$html .= '</fieldset>'
+			. self::submit( $english ? 'Save order' : 'Salvar ordem' )
+			. '</form></details>';
+		return $html;
+	}
+
+	/**
+	 * Returns the material type options shared by the create and edit forms.
+	 *
+	 * @return array<int, array{id: string, title: string}>
+	 */
+	private static function resource_types(): array {
+		$types = array();
+		foreach ( TeachingContracts::RESOURCE_TYPES as $type ) {
+			$types[] = array(
+				'id'    => $type,
+				'title' => $type,
+			);
+		}
+		return $types;
 	}
 
 	/**
@@ -738,6 +913,7 @@ final class DashboardSurfaces {
 			. self::hidden( 'offering_id', (string) $offering_id )
 			. self::field( 'title', TaskDashboard::field_label( 'post_title', $locale ), 'text', self::text( $recall['title'] ?? '' ), $locale, true )
 			. self::textarea( 'excerpt', TaskDashboard::field_label( 'post_excerpt', $locale ), self::text( $recall['excerpt'] ?? '' ), $locale, false )
+			. self::textarea( 'content', TaskDashboard::field_label( 'post_content', $locale ), self::text( $recall['content'] ?? '' ), $locale, false )
 			. self::field( 'anchor', TaskDashboard::field_label( '_lps_anchor', $locale ), 'text', self::text( $meta['_lps_anchor'] ?? '' ), $locale, true )
 			. self::field( 'position', TaskDashboard::field_label( '_lps_position', $locale ), 'number', (string) Policy::sanitize_integer( $meta['_lps_position'] ?? 0 ), $locale, true )
 			. self::field( 'topic_date', TaskDashboard::field_label( '_lps_topic_date', $locale ), 'date', self::text( $meta['_lps_topic_date'] ?? '' ), $locale, false )
@@ -766,13 +942,7 @@ final class DashboardSurfaces {
 				'title' => self::text( $unit['title'] ?? '' ),
 			);
 		}
-		$types = array();
-		foreach ( TeachingContracts::RESOURCE_TYPES as $type ) {
-			$types[] = array(
-				'id'    => $type,
-				'title' => $type,
-			);
-		}
+		$types = self::resource_types();
 		return '<section class="lps-dashboard-form" aria-labelledby="lps-resource-form"><h3 id="lps-resource-form">'
 			. self::esc( $english ? 'Add a material' : 'Adicionar material' ) . '</h3>'
 			. self::form_open( 'lps_dashboard_resource', true )

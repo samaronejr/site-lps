@@ -146,6 +146,43 @@ final class LpsRedesignTask16Test extends TestCase {
 		);
 	}
 
+	/** Notice normalization drops malformed rows and orders newest first. */
+	public function test_normalize_notices_filters_and_sorts(): void {
+		$notices = TaskDashboard::normalize_notices(
+			array(
+				array(
+					'id'         => 'a1',
+					'body'       => '<p>Primeiro aviso.</p>',
+					'created_at' => '2026-09-20T10:00:00+00:00',
+					'author_id'  => 5,
+					'extra'      => 'dropped',
+				),
+				array(
+					'id'         => 'a2',
+					'body'       => '<p>Aviso mais recente.</p>',
+					'created_at' => '2026-09-22T09:00:00+00:00',
+					'author_id'  => 5,
+				),
+				array(
+					'id'   => '',
+					'body' => '<p>sem id</p>',
+				),
+				array(
+					'id'         => 'a3',
+					'body'       => '',
+					'created_at' => '2026-09-23T09:00:00+00:00',
+				),
+				'not-an-array',
+			)
+		);
+		self::assertCount( 2, $notices );
+		self::assertSame( 'a2', $notices[0]['id'] );
+		self::assertSame( 'a1', $notices[1]['id'] );
+		self::assertSame( 5, $notices[0]['author_id'] );
+		self::assertArrayNotHasKey( 'extra', $notices[1] );
+		self::assertSame( array(), TaskDashboard::normalize_notices( 'junk' ) );
+	}
+
 	/** Copy-forward team input keeps only real person IDs and known roles. */
 	public function test_team_from_input_filters_rows(): void {
 		self::assertSame(
@@ -190,7 +227,7 @@ final class LpsRedesignTask16Test extends TestCase {
 			self::assertNotSame( $state, TaskDashboard::state_label( $state, 'pt-br' ) );
 			self::assertNotSame( $state, TaskDashboard::state_label( $state, 'en' ) );
 		}
-		foreach ( array( 'saved', 'created', 'published', 'submitted', 'proposal-sent', 'proposal-approved', 'proposal-rejected', 'reviewed', 'copied', 'copy-replayed', 'version-uploaded', 'version-selected', 'released', 'scheduled', 'withdrawn' ) as $code ) {
+		foreach ( array( 'saved', 'created', 'published', 'submitted', 'proposal-sent', 'proposal-approved', 'proposal-rejected', 'reviewed', 'copied', 'copy-replayed', 'version-uploaded', 'version-selected', 'released', 'scheduled', 'withdrawn', 'notice-posted', 'notice-removed', 'ordered' ) as $code ) {
 			self::assertNotSame( $code, TaskDashboard::notice_message( $code, 'pt-br' ) );
 			self::assertNotSame( $code, TaskDashboard::notice_message( $code, 'en' ) );
 		}
