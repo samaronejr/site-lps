@@ -250,6 +250,9 @@ final class Roles {
 	 * @return array{granted: true, index: int}|WP_Error
 	 */
 	public static function grant_scope_trusted( int $target_user_id, string $scope, int $offering_id, string $role, string $expires_at = '' ): array|WP_Error {
+		if ( ! self::in_course_create() ) {
+			return new WP_Error( 'lps_teaching_grant_forbidden', 'Trusted grants run only inside the course-create boundary.' );
+		}
 		$actor       = wp_get_current_user();
 		$target      = get_user_by( 'id', $target_user_id );
 		$target_role = $target instanceof WP_User ? self::policy_role( $target ) : '';

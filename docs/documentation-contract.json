@@ -186,11 +186,11 @@
       "sources": [
         {
           "path": "wp-content/themes/lps-theme/includes/class-dashboardsurfaces.php",
-          "sha256": "1d46cb34d7b8390a8cbe05e2f7e7d9540425316f5d1e548a6582dc88e3bcc2b0"
+          "sha256": "b94244a7744763b3dc81500bb6f5994f1e3fdbd1de4e60af145875c48d541454"
         },
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-taskdashboard.php",
-          "sha256": "c613ef468bd183f860e9fead80eb7d082e2d27dd0a5b846c88e1d338062c0cc7"
+          "sha256": "a2587f79c6094b9a949bf352886137395cce8824a4bd6027d1d04a0400ad06de"
         },
         {
           "path": "wp-content/themes/lps-theme/includes/class-dashboardroutes.php",
