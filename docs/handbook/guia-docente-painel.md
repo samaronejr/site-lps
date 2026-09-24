@@ -63,11 +63,51 @@ Disponível apenas para professor com o escopo `news` concedido. Os envios entra
 rascunhos; um rascunho salvo nunca é público.
 
 1. Abra `Enviar notícia` e preencha `Título`, `Resumo`, `Conteúdo` e `Data de publicação`.
-2. Clique em `Enviar para revisão`. O aviso "Enviado para revisão. Um editor decidirá." confirma,
-   e o item aparece em `Minhas notícias` com o estado `Em revisão`.
-3. Se o editor rejeitar, o item volta para `Rascunho` com a nota da revisão visível. Abra
-   `Editar e reenviar`, corrija e clique em `Reenviar para revisão`.
-4. Quando aprovada, a notícia fica `Público` e o link público passa a funcionar.
+   Opcionalmente escolha o `Tema` (Pessoas, Pesquisa, História, Ensino, Institucional ou
+   Parcerias) e anexe uma `Imagem destacada` — JPG, PNG ou WebP, até 15 MB — com a
+   `Descrição da imagem` preenchida (ela serve como texto alternativo e legenda).
+2. Clique em `Pré-visualizar o cartão`. A etapa de pré-visualização mostra o cartão da
+   notícia exatamente como aparecerá publicamente — data, tema, título, resumo e a imagem.
+   Nada é enviado nesse ponto: confira e clique em `Enviar para revisão` ou em
+   `Descartar pré-visualização` para voltar ao formulário.
+3. O aviso "Enviado para revisão. Um editor decidirá." confirma o envio e o item aparece em
+   `Minhas notícias` com o estado `Em revisão`.
+4. Se o editor rejeitar, o item volta para `Rascunho` com a nota da revisão visível. Abra
+   `Editar e reenviar`, corrija — tema e imagem também podem ser trocados aí — e clique em
+   `Reenviar para revisão`.
+5. Quando aprovada, a notícia fica `Público` e o link público passa a funcionar. Se a imagem
+   for recusada, o erro nomeia o arquivo e os tipos aceitos ("O arquivo "X" não é um tipo
+   aceito. Tipos permitidos: JPG, PNG, WebP.").
+
+A submissão é em português primeiro; a variante em inglês vem depois. Com o item em
+`Minhas notícias`, abra `Adicionar tradução EN` no próprio registro e preencha `Título em
+inglês`, `Resumo em inglês` e `Conteúdo em inglês`. O envio cria a variante EN já associada e
+revisada — o aviso "Tradução em inglês registrada e enviada para revisão." confirma. Se o texto
+em português mudar depois, a tarefa volta como `Atualizar a tradução EN` até que a variante
+seja revista de novo; quando a tradução existe e está revisada, a tarefa desaparece.
+
+## Criar disciplina (`/pt-br/painel/disciplinas/`)
+
+Disponível para professor e administrador — o docente cadastra disciplinas diretamente, sem
+passar por revisão editorial. A conta precisa ter a verificação em duas etapas ativa e um
+registro de pessoa vinculado; sem isso, a tela mostra o aviso de acesso em vez do formulário.
+
+1. Abra `Criar disciplina`. O formulário tem dois blocos: `Disciplina` e `Primeira oferta`.
+2. Em `Disciplina`, preencha `Título`, `Código`, `Nível` e `Calendário` (obrigatórios) e,
+   opcionalmente, `Programa`, `Pré-requisitos`, `Ementa`, `Resumo` e `Conteúdo`.
+3. Em `Primeira oferta`, escolha o `Período`, informe a `Turma` e, opcionalmente, `Horários`,
+   `Local` e a `Equipe docente`. A oferta precisa de uma equipe com responsável.
+4. Clique em `Criar disciplina e primeira oferta`. O aviso "Disciplina e primeira
+   oferta criadas como rascunho — publique a oferta pela área de trabalho e a
+   disciplina entra no ar junto." confirma.
+5. Os dois registros nascem como rascunho e a oferta já aparece na sua lista
+   `Minhas ofertas`: a permissão sobre ela é concedida automaticamente. Quando a
+   oferta estiver pronta (incluindo a variante em inglês, que pode ser adicionada
+   depois), publique-a pela área de trabalho — a disciplina publica junto
+   automaticamente.
+
+Se a segunda etapa falhar, a disciplina recém-criada é removida automaticamente — tente de
+novo sem medo de duplicar cadastros.
 
 ## Criar disciplina (`/pt-br/painel/disciplinas/`)
 
@@ -250,3 +290,10 @@ contato para divulgar, e nenhum endereço pessoal deve ser publicado como se fos
 | "Uma rejeição precisa de uma nota explicando a correção necessária." | Revisão: rejeitar exige nota. |
 | "Este período e turma já existem para a disciplina." | Escolha outra turma de destino. |
 | "O período de destino pertence a outro calendário." | A cópia só vale dentro do mesmo calendário. |
+| "Pré-visualização gerada — confirme para enviar para revisão." | Confira o cartão e confirme; nada foi enviado ainda. |
+| "Pré-visualização descartada. Nada foi enviado." | A prévia foi descartada; o formulário continua disponível. |
+| "A pré-visualização expirou. Envie o formulário novamente." | Preencha e gere a pré-visualização de novo. |
+| "Tradução em inglês registrada e enviada para revisão." | A variante EN foi criada, associada e revisada. |
+| "O arquivo "X" não é um tipo aceito. Tipos permitidos: JPG, PNG, WebP." | A imagem destacada foi recusada; envie JPG, PNG ou WebP. |
+| "O arquivo "X" excede o limite de 15 MB." | A imagem destacada passou do tamanho máximo. |
+| "A imagem destacada precisa da descrição." | Imagem sem descrição não pode ser enviada. |

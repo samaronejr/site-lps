@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace LPS\Theme;
 
 use DateTimeImmutable;
+use LPS\ContentModel\Media;
 use LPS\ContentModel\Policy;
 use LPS\ContentModel\TranslationPolicy;
 use LPS\ContentModel\Translations;
@@ -388,6 +389,7 @@ final class TrustRoutes {
 			'category'             => $meta( '_lps_news_category' ),
 			'source_label'         => $meta( '_lps_source_label' ),
 			'stale'                => self::is_stale_translation( $post ),
+			'media'                => class_exists( Media::class ) ? Media::record_image( $post ) : array(),
 		);
 	}
 

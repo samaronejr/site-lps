@@ -300,12 +300,16 @@ final class DashboardSurfaces {
 				. self::esc( $english ? 'Your account has no news scope.' : 'Sua conta não tem escopo de notícias.' )
 				. '</p></div>';
 		}
-		$html  = '<section class="lps-dashboard-news" data-dashboard-view="news">';
-		$html .= '<p class="lps-summary">' . self::esc(
+		$html    = '<section class="lps-dashboard-news" data-dashboard-view="news">';
+		$html   .= '<p class="lps-summary">' . self::esc(
 			$english
 			? 'Submissions enter review as drafts; an editor approves or returns them with a note. A saved draft is never public.'
 			: 'Os envios entram em revisão como rascunhos; um editor aprova ou devolve com uma nota. Um rascunho salvo nunca é público.'
 		) . '</p>';
+		$preview = class_exists( TaskDashboard::class ) ? self::record( TaskDashboard::news_preview() ) : array();
+		if ( array() !== $preview ) {
+			$html .= self::news_preview_html( $preview, $locale );
+		}
 		$items = is_array( $model['news'] ?? null ) ? $model['news'] : array();
 		if ( array() !== $items ) {
 			$html .= '<ul class="lps-record-list">';
@@ -314,17 +318,21 @@ final class DashboardSurfaces {
 				$html .= '<li class="lps-record">' . self::esc( self::text( $item['title'] ?? '' ) )
 					. ' ' . self::chip( self::text( $item['state'] ?? 'draft' ), $locale )
 					. self::item_links( $item, $locale )
-					. self::note_html( $item, $locale );
+					. self::note_html( $item, $locale )
+					. self::translation_task_html( $item, $locale );
 				if ( 'draft' === self::text( $item['status'] ?? '' ) ) {
 					// A rejected item keeps its note and reopens for edits; the
 					// resubmit returns it to review instead of minting a new record.
 					$html .= '<details class="lps-dashboard-edit"><summary>' . self::esc( $english ? 'Edit and resubmit' : 'Editar e reenviar' ) . '</summary>'
-						. self::form_open( 'lps_dashboard_news' )
+						. self::form_open( 'lps_dashboard_news', true )
 						. self::hidden( 'id', (string) Policy::sanitize_integer( $item['id'] ?? 0 ) )
 						. self::field( 'title', TaskDashboard::field_label( 'post_title', $locale ), 'text', self::text( $item['title'] ?? '' ), $locale, true )
 						. self::textarea( 'excerpt', TaskDashboard::field_label( 'post_excerpt', $locale ), self::text( $item['summary'] ?? '' ), $locale, true )
 						. self::textarea( 'content', TaskDashboard::field_label( 'post_content', $locale ), self::text( $item['content'] ?? '' ), $locale, true )
 						. self::field( 'canonical_date', TaskDashboard::field_label( '_lps_canonical_date', $locale ), 'datetime-local', self::text( $item['date'] ?? '' ), $locale, true )
+						. self::select( 'news_category', TaskDashboard::field_label( 'news_category', $locale ), TaskDashboard::news_category_options(), self::text( $item['category'] ?? '' ), $locale, false )
+						. self::file_field( 'featured_image', TaskDashboard::field_label( 'featured_image', $locale ), $locale )
+						. self::field( 'featured_alt', TaskDashboard::field_label( 'featured_alt', $locale ), 'text', '', $locale, false )
 						. self::submit( $english ? 'Resubmit for review' : 'Reenviar para revisão' )
 						. '</form></details>';
 				}
@@ -335,14 +343,123 @@ final class DashboardSurfaces {
 		$recall = self::recall( 'news' );
 		$html  .= '<section class="lps-dashboard-form" aria-labelledby="lps-news-form"><h2 id="lps-news-form">'
 			. self::esc( $english ? 'Submit a news item' : 'Enviar uma notícia' ) . '</h2>'
-			. self::form_open( 'lps_dashboard_news' )
+			. '<p class="lps-field-hint">' . self::esc(
+				$english
+				? 'Before the item is submitted you see the card exactly as it will appear publicly; the submit happens on the confirmation step.'
+				: 'Antes do envio você vê o cartão exatamente como aparecerá publicamente; a submissão acontece na etapa de confirmação.'
+			) . '</p>'
+			. self::form_open( 'lps_dashboard_news', true )
+			. self::hidden( 'step', 'preview' )
 			. self::field( 'title', TaskDashboard::field_label( 'post_title', $locale ), 'text', self::text( $recall['title'] ?? '' ), $locale, true )
 			. self::textarea( 'excerpt', TaskDashboard::field_label( 'post_excerpt', $locale ), self::text( $recall['excerpt'] ?? '' ), $locale, true )
 			. self::textarea( 'content', TaskDashboard::field_label( 'post_content', $locale ), self::text( $recall['content'] ?? '' ), $locale, true )
 			. self::field( 'canonical_date', TaskDashboard::field_label( '_lps_canonical_date', $locale ), 'datetime-local', self::text( $recall['canonical_date'] ?? '' ), $locale, true )
-			. self::submit( $english ? 'Submit for review' : 'Enviar para revisão' )
+			. self::select( 'news_category', TaskDashboard::field_label( 'news_category', $locale ), TaskDashboard::news_category_options(), self::text( $recall['news_category'] ?? '' ), $locale, false )
+			. self::file_field( 'featured_image', TaskDashboard::field_label( 'featured_image', $locale ), $locale )
+			. self::field( 'featured_alt', TaskDashboard::field_label( 'featured_alt', $locale ), 'text', self::text( $recall['featured_alt'] ?? '' ), $locale, false )
+			. self::submit( $english ? 'Preview the card' : 'Pré-visualizar o cartão' )
 			. '</form></section>';
 		return $html . '</section>';
+	}
+
+	/**
+	 * Renders the staged preview block: the public card, then confirm/cancel.
+	 *
+	 * The card mirrors the public news markup — date label, topic chip, title,
+	 * summary and the featured image — so the confirmation is an informed one.
+	 * Confirm re-reads the staged payload server-side; cancel discards it and
+	 * its staged attachment.
+	 *
+	 * @param array<string, mixed> $preview Staged payload.
+	 * @param string               $locale  Supported locale slug.
+	 */
+	private static function news_preview_html( array $preview, string $locale ): string {
+		$english  = 'en' === $locale;
+		$date     = self::text( $preview['canonical_date'] ?? '' );
+		$category = self::text( $preview['news_category'] ?? '' );
+		$label    = '' !== $category && class_exists( TaskDashboard::class ) ? TaskDashboard::news_category_label( $category ) : '';
+		$image    = '';
+		$url      = self::safe_url( self::text( $preview['attachment_url'] ?? '' ) );
+		$alt      = self::text( $preview['attachment_alt'] ?? self::text( $preview['featured_alt'] ?? '' ) );
+		if ( '' !== $url ) {
+			$image = '<figure class="lps-news-preview-media"><img src="' . self::esc( $url ) . '" alt="' . self::esc( $alt ) . '" loading="lazy">'
+				. ( '' !== $alt ? '<figcaption>' . self::esc( $alt ) . '</figcaption>' : '' )
+				. '</figure>';
+		}
+		$html  = '<section class="lps-dashboard-section lps-news-preview" aria-labelledby="lps-news-preview">';
+		$html .= '<p class="lps-kicker">' . self::esc( $english ? 'Preview' : 'Pré-visualização' ) . '</p>';
+		$html .= '<h2 id="lps-news-preview">' . self::esc( $english ? 'This is how the card will appear publicly' : 'É assim que o cartão aparecerá publicamente' ) . '</h2>';
+		$html .= '<div class="lps-news-preview-card"><div class="lps-event-date"><strong>' . self::esc( '' !== $date ? substr( $date, 0, 10 ) : '—' ) . '</strong><span>'
+			. self::esc( '' !== $label ? $label : ( $english ? 'News' : 'Notícia' ) ) . '</span></div>'
+			. '<div><h3>' . self::esc( self::text( $preview['title'] ?? '' ) ) . '</h3>'
+			. '<p>' . self::esc( self::text( $preview['excerpt'] ?? '' ) ) . '</p></div>'
+			. '<span class="lps-meta">' . self::esc( '' !== $date ? substr( $date, 0, 10 ) : '—' ) . '</span></div>';
+		$html .= $image;
+		$html .= '<div class="lps-body lps-reading lps-news-preview-body"><p>' . self::esc( self::text( $preview['content'] ?? '' ) ) . '</p></div>';
+		$html .= '<div class="lps-button-row">'
+			. self::form_open( 'lps_dashboard_news' )
+			. self::hidden( 'step', 'confirm' )
+			. self::submit( $english ? 'Submit for review' : 'Enviar para revisão' )
+			. '</form>'
+			. self::form_open( 'lps_dashboard_news' )
+			. self::hidden( 'step', 'cancel' )
+			. '<button class="lps-button" type="submit">' . self::esc( $english ? 'Discard preview' : 'Descartar pré-visualização' ) . '</button>'
+			. '</form></div>';
+		return $html . '</section>';
+	}
+
+	/**
+	 * Renders the EN-translation task on one news item when the variant is
+	 * missing or stale.
+	 *
+	 * @param array<string, mixed> $item   News record row.
+	 * @param string               $locale Supported locale slug.
+	 */
+	private static function translation_task_html( array $item, string $locale ): string {
+		$english = 'en' === $locale;
+		$state   = self::text( $item['translation_state'] ?? '' );
+		if ( ! in_array( $state, array( 'missing', 'stale' ), true ) ) {
+			return '';
+		}
+		$item_id = Policy::sanitize_integer( $item['id'] ?? 0 );
+		$recall  = self::recall( 'news-translation-' . $item_id );
+		$title   = '' !== self::text( $recall['en_title'] ?? '' ) ? self::text( $recall['en_title'] ?? '' ) : self::text( $item['en_title'] ?? '' );
+		$excerpt = '' !== self::text( $recall['en_excerpt'] ?? '' ) ? self::text( $recall['en_excerpt'] ?? '' ) : self::text( $item['en_excerpt'] ?? '' );
+		$content = '' !== self::text( $recall['en_content'] ?? '' ) ? self::text( $recall['en_content'] ?? '' ) : self::text( $item['en_content'] ?? '' );
+		$summary = 'stale' === $state
+			? ( $english ? 'Update the EN translation' : 'Atualizar a tradução EN' )
+			: ( $english ? 'Add the EN translation' : 'Adicionar tradução EN' );
+		$html    = '<details class="lps-dashboard-edit"><summary>' . self::esc( $summary ) . '</summary>';
+		if ( 'stale' === $state ) {
+			$html .= '<p class="lps-field-hint">' . self::esc(
+				$english
+				? 'The Portuguese record changed since the English variant was last reviewed; refresh it and resubmit.'
+				: 'O registro em português mudou desde a última revisão da variante em inglês; atualize-a e reenvie.'
+			) . '</p>';
+		}
+		$html .= self::form_open( 'lps_dashboard_news_translation' )
+			. self::hidden( 'news_id', (string) $item_id )
+			. self::field( 'en_title', TaskDashboard::field_label( 'en_title', $locale ), 'text', $title, $locale, true )
+			. self::textarea( 'en_excerpt', TaskDashboard::field_label( 'en_excerpt', $locale ), $excerpt, $locale, true )
+			. self::textarea( 'en_content', TaskDashboard::field_label( 'en_content', $locale ), $content, $locale, true )
+			. self::submit( $english ? 'Submit the EN translation' : 'Enviar a tradução EN' )
+			. '</form></details>';
+		return $html;
+	}
+
+	/**
+	 * Renders one labelled file input with the upload caps in its hint.
+	 *
+	 * @param string $name   Field name.
+	 * @param string $label  Field label.
+	 * @param string $locale Supported locale slug.
+	 */
+	private static function file_field( string $name, string $label, string $locale ): string {
+		$id   = 'lps-f-' . sanitize_key( str_replace( array( '[', ']' ), array( '-', '' ), $name ) );
+		$html = '<p class="lps-field"><label for="' . self::esc( $id ) . '">' . self::esc( $label ) . '</label>'
+			. '<input id="' . self::esc( $id ) . '" name="' . self::esc( $name ) . '" type="file" accept="image/jpeg,image/png,image/webp">'
+			. '<span class="lps-field-hint">' . self::esc( 'en' === $locale ? 'JPG, PNG or WebP, up to 15 MB.' : 'JPG, PNG ou WebP, até 15 MB.' ) . '</span>';
+		return $html . '</p>';
 	}
 
 	/**
