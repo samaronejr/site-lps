@@ -527,7 +527,7 @@ final class TeachingSurfaces {
 
 		// Materials-first navigation: the contents strip links every unit anchor
 		// and the materials section so a long list stays reachable near the top.
-		if ( array() !== $units || $render_materials_section ) {
+		if ( array() !== $units || $render_materials_section || array() !== $notices ) {
 			$html .= '<nav class="lps-toc" aria-label="' . self::esc( $english ? 'Units and materials' : 'Unidades e materiais' ) . '">';
 			$html .= '<h2>' . self::esc( $english ? 'Contents' : 'Conteúdo' ) . '</h2>';
 			$html .= '<ul>';

@@ -691,6 +691,58 @@ final class TaskDashboard {
 	}
 
 	/**
+	 * Rewrites the notice list under an exclusive meta-row lock.
+	 *
+	 * Post meta offers no compare-and-swap, so concurrent posts or removals
+	 * would silently overwrite each other's list. A unique `_lps_notice_lock`
+	 * row (`add_post_meta` fails while it exists) serializes each
+	 * read-modify-write across both supported database adapters.
+	 *
+	 * @param int      $offering_id Offering authority record ID.
+	 * @param callable $mutate      Receives the current list, returns the replacement or null to abort the write.
+	 * @return bool Whether the mutation was applied.
+	 */
+	private static function mutate_notices( int $offering_id, callable $mutate ): bool {
+		$locked = false;
+		for ( $attempt = 0; $attempt < 20; $attempt++ ) {
+			if ( add_post_meta( $offering_id, '_lps_notice_lock', '1', true ) ) {
+				$locked = true;
+				break;
+			}
+			usleep( 50000 );
+		}
+		if ( ! $locked ) {
+			return false;
+		}
+		$next = $mutate( self::notices_for_offering( $offering_id ) );
+		if ( null !== $next ) {
+			self::system_meta( $offering_id, self::NOTICES_META, $next );
+		}
+		delete_post_meta( $offering_id, '_lps_notice_lock' );
+		return null !== $next;
+	}
+
+	/**
+	 * Drops one notice from the list, or returns null when the ID is absent.
+	 *
+	 * @param array<int, mixed> $notices   Current notices.
+	 * @param string            $notice_id Notice ID.
+	 * @return array<int, mixed>|null
+	 */
+	private static function remove_notice( array $notices, string $notice_id ): ?array {
+		$kept  = array();
+		$found = false;
+		foreach ( $notices as $notice ) {
+			if ( is_array( $notice ) && ( $notice['id'] ?? '' ) === $notice_id ) {
+				$found = true;
+				continue;
+			}
+			$kept[] = $notice;
+		}
+		return $found ? $kept : null;
+	}
+
+	/**
 	 * Returns the pending review queue for an editor account.
 	 *
 	 * News submissions waiting on `in_review` and pending profile proposals
@@ -1887,23 +1939,16 @@ final class TaskDashboard {
 		if ( ! self::may( 'edit', 'lps_offering', $offering_id ) ) {
 			self::fail( 'lps_dashboard_scope' );
 		}
-		$action  = self::post_text( 'notice_action' );
-		$notices = self::notices_for_offering( $offering_id );
+		$action = self::post_text( 'notice_action' );
 		if ( 'remove' === $action ) {
 			$notice_id = self::post_text( 'notice_id' );
-			$kept      = array();
-			$found     = false;
-			foreach ( $notices as $notice ) {
-				if ( $notice['id'] === $notice_id ) {
-					$found = true;
-					continue;
-				}
-				$kept[] = $notice;
-			}
-			if ( ! $found ) {
+			$mutated   = self::mutate_notices(
+				$offering_id,
+				static fn( array $notices ): ?array => self::remove_notice( array_values( $notices ), $notice_id )
+			);
+			if ( ! $mutated ) {
 				self::fail( 'lps_dashboard_forbidden' );
 			}
-			self::system_meta( $offering_id, self::NOTICES_META, $kept );
 			// The notice write is pure metadata, so it never fires
 			// `transition_post_status`; touching the offering is the public
 			// page cache's only invalidation signal.
@@ -1923,13 +1968,19 @@ final class TaskDashboard {
 		if ( '' === $body ) {
 			self::fail( 'lps_required_body', 'body' );
 		}
-		$notices[] = array(
+		$entry   = array(
 			'id'         => wp_generate_uuid4(),
 			'body'       => $body,
 			'created_at' => gmdate( 'c' ),
 			'author_id'  => $user->ID,
 		);
-		self::system_meta( $offering_id, self::NOTICES_META, $notices );
+		$mutated = self::mutate_notices(
+			$offering_id,
+			static fn( array $notices ): array => array_merge( $notices, array( $entry ) )
+		);
+		if ( ! $mutated ) {
+			self::fail( 'lps_dashboard_forbidden' );
+		}
 		wp_update_post( array( 'ID' => $offering_id ), true );
 		Audit::record( 'submit', $offering_id, 0, array( 'decision' => 'offering-notice' ) );
 		self::succeed( 'notice-posted' );
@@ -1973,8 +2024,17 @@ final class TaskDashboard {
 		if ( '' !== $external_url && '' === Policy::sanitize_url( $external_url ) ) {
 			$errors['external_url'] = 'lps_invalid_url';
 		}
-		if ( '' !== $external_url && '' !== Policy::scalar_string( get_post_meta( $resource_id, '_lps_version_id', true ) ) ) {
+		$version_id = Policy::scalar_string( get_post_meta( $resource_id, '_lps_version_id', true ) );
+		if ( '' !== $external_url && '' !== $version_id ) {
 			$errors['external_url'] = 'lps_resource_version_and_url_conflict';
+		}
+		$released = 'released' === TeachingResources::effective_release_state(
+			Policy::scalar_string( get_post_meta( $resource_id, '_lps_release_state', true ) ),
+			Policy::scalar_string( get_post_meta( $resource_id, '_lps_release_at', true ) ),
+			gmdate( 'c' )
+		);
+		if ( '' === $external_url && '' === $version_id && $released ) {
+			$errors['external_url'] = 'lps_resource_version_or_url_required';
 		}
 		if ( array() !== $errors ) {
 			self::fail( (string) reset( $errors ), (string) array_key_first( $errors ) );
@@ -2044,7 +2104,7 @@ final class TaskDashboard {
 			$entries,
 			static fn( array $left, array $right ): int => 0 !== ( $left['position'] <=> $right['position'] )
 				? $left['position'] <=> $right['position']
-				: Policy::sanitize_integer( $left['row']['source_post_id'] ) <=> Policy::sanitize_integer( $right['row']['source_post_id'] )
+				: Policy::sanitize_integer( $left['row']['sort_order'] ) <=> Policy::sanitize_integer( $right['row']['sort_order'] )
 		);
 		$order   = 0;
 		$changed = false;
@@ -2091,10 +2151,20 @@ final class TaskDashboard {
 		$schedule = self::post_textarea( 'schedule' );
 		$venue    = self::post_text( 'venue' );
 		$content  = self::post_body( 'content' );
-		// The scoped field guard covers the schedule/venue keys, but the boundary
-		// already proved the grant here; lifting it keeps one write path for all
-		// roles the form may serve.
-		self::system_meta( $offering_id, '_lps_schedule', $schedule );
+		// Schedule is a material field: the same authority value is mirrored onto
+		// every published variant, exactly as the publish boundary synchronizes it.
+		$sync = Translations::synchronize_material(
+			$offering_id,
+			array(
+				'_lps_cancelled' => Policy::scalar_string( get_post_meta( $offering_id, '_lps_cancelled', true ) ),
+				'_lps_schedule'  => $schedule,
+			)
+		);
+		if ( $sync instanceof WP_Error ) {
+			self::fail( (string) $sync->get_error_code(), self::error_field( $sync ) );
+		}
+		// Venue has no variant mirror — both locale routes read it from the
+		// authority record, so a single system write covers the public pages.
 		self::system_meta( $offering_id, '_lps_venue', $venue );
 		$updated = wp_update_post(
 			array(
