@@ -2091,12 +2091,16 @@ final class TaskDashboard {
 		if ( '' !== $external_url && '' !== $version_id ) {
 			$errors['external_url'] = 'lps_resource_version_and_url_conflict';
 		}
-		$released = 'released' === TeachingResources::effective_release_state(
-			Policy::scalar_string( get_post_meta( $resource_id, '_lps_release_state', true ) ),
-			Policy::scalar_string( get_post_meta( $resource_id, '_lps_release_at', true ) ),
-			gmdate( 'c' )
+		$public_or_scheduled = in_array(
+			TeachingResources::effective_release_state(
+				Policy::scalar_string( get_post_meta( $resource_id, '_lps_release_state', true ) ),
+				Policy::scalar_string( get_post_meta( $resource_id, '_lps_release_at', true ) ),
+				gmdate( 'c' )
+			),
+			array( 'released', 'scheduled' ),
+			true
 		);
-		if ( '' === $external_url && '' === $version_id && $released ) {
+		if ( '' === $external_url && '' === $version_id && $public_or_scheduled ) {
 			$errors['external_url'] = 'lps_resource_version_or_url_required';
 		}
 		if ( array() !== $errors ) {
@@ -2839,6 +2843,11 @@ final class TaskDashboard {
 		if ( array() !== $errors ) {
 			self::fail( (string) reset( $errors ), (string) array_key_first( $errors ) );
 		}
+		// Metadata leads the post update so the index and purge hooks that fire
+		// on `transition_post_status` observe the final field values.
+		update_post_meta( $unit_id, '_lps_anchor', $anchor );
+		update_post_meta( $unit_id, '_lps_position', $position );
+		update_post_meta( $unit_id, '_lps_topic_date', TeachingContracts::normalize_iso_date( $date ) );
 		$updated = wp_update_post(
 			array(
 				'ID'           => $unit_id,
@@ -2851,9 +2860,6 @@ final class TaskDashboard {
 		if ( $updated instanceof WP_Error ) {
 			self::fail( 'lps_dashboard_forbidden' );
 		}
-		update_post_meta( $unit_id, '_lps_anchor', $anchor );
-		update_post_meta( $unit_id, '_lps_position', $position );
-		update_post_meta( $unit_id, '_lps_topic_date', TeachingContracts::normalize_iso_date( $date ) );
 		Audit::record(
 			'edit',
 			$unit_id,
