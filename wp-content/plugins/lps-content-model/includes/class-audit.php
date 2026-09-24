@@ -122,12 +122,14 @@ final class Audit {
 	/**
 	 * Returns ledger entries visible to one account, newest first.
 	 *
-	 * "Visible" mirrors what the dashboard may show the account about itself:
-	 * the entries it authored, the scope grants and revocations stored against
-	 * it (the ledger keys those by the target account ID), and the review and
-	 * publication decisions other accounts recorded on the account's own
-	 * records. Row identity stays unchanged — this reads the same ledger
-	 * `entries()` reads, never a parallel store.
+	 * "Visible" covers only events on the account's own records and grants:
+	 * the scope grants and revocations stored against the account (the ledger
+	 * keys those by the target account ID), and the entries recorded on the
+	 * records the account owns — its own actions plus the review and
+	 * publication decisions other accounts made there. Actions the account
+	 * performed on other accounts' records stay out: they are that other
+	 * account's events, not this one's. Row identity stays unchanged — this
+	 * reads the same ledger `entries()` reads, never a parallel store.
 	 *
 	 * @param int             $user_id    Account the selection is for.
 	 * @param array<int, int> $object_ids Record IDs the account owns.
@@ -143,10 +145,11 @@ final class Audit {
 		// The selection is assembled from ints and fixed literals only — the
 		// trusted migration-owned table name is the file's own convention — so
 		// the composed statement stays injection-safe without prepare().
-		$where = "actor_user_id = {$user_id} OR ( action IN ( 'grant-scope', 'revoke-scope' ) AND object_id = {$user_id} )";
+		$where = "( action IN ( 'grant-scope', 'revoke-scope' ) AND object_id = {$user_id} )";
 		if ( array() !== $object_ids ) {
 			$in     = implode( ', ', $object_ids );
-			$where .= " OR ( actor_user_id <> {$user_id} AND action IN ( 'review', 'publish', 'unpublish', 'archive' ) AND object_id IN ( {$in} ) )";
+			$where .= " OR ( object_id IN ( {$in} ) AND action NOT IN ( 'grant-scope', 'revoke-scope' )"
+				. " AND ( actor_user_id = {$user_id} OR action IN ( 'review', 'publish', 'unpublish', 'archive' ) ) )";
 		}
 		$rows   = $wpdb->get_results( "SELECT * FROM {$table} WHERE {$where} ORDER BY audit_id DESC LIMIT {$limit}", 'ARRAY_A' ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Every interpolated value is an int, the trusted table name, or a fixed action literal.
 		$result = array();

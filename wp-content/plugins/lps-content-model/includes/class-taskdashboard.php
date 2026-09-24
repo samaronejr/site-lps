@@ -711,12 +711,30 @@ final class TaskDashboard {
 			? "{$base}: {$title}"
 			: $base;
 		$stamp     = strtotime( Policy::scalar_string( $row['occurred_at'] ?? '' ) );
-		$formatted = is_int( $stamp ) ? wp_date( $english ? 'M j, Y' : 'd/m/Y', $stamp ) : '';
 		return array(
 			'label'       => $label,
 			'occurred_at' => Policy::scalar_string( $row['occurred_at'] ?? '' ),
-			'at'          => is_string( $formatted ) ? $formatted : '',
+			'at'          => is_int( $stamp ) ? self::activity_date( $stamp, $english ) : '',
 		);
+	}
+
+	/**
+	 * Formats a ledger timestamp for the card in the dashboard's locale.
+	 *
+	 * `wp_date` translates month names through WordPress's active locale, which
+	 * follows the site — not the dashboard route — so the English rendering
+	 * uses the fixed month abbreviations instead of a translated format.
+	 *
+	 * @param int  $stamp   Unix timestamp.
+	 * @param bool $english Whether the dashboard renders English.
+	 */
+	private static function activity_date( int $stamp, bool $english ): string {
+		if ( ! $english ) {
+			return Policy::scalar_string( wp_date( 'd/m/Y', $stamp ) );
+		}
+		$months = array( 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' );
+		$month  = Policy::sanitize_integer( wp_date( 'n', $stamp ) );
+		return $months[ $month - 1 ] . ' ' . Policy::scalar_string( wp_date( 'j', $stamp ) ) . ', ' . Policy::scalar_string( wp_date( 'Y', $stamp ) );
 	}
 
 	/**
@@ -1463,24 +1481,6 @@ final class TaskDashboard {
 			}
 			self::fail( (string) $result->get_error_code(), self::error_field( $result ) );
 		}
-		if ( 'lps_offering' === $post->post_type ) {
-			// A professor-created course has no scoped edit lane of its own, so
-			// it publishes through this same trusted boundary when its offering
-			// goes live. By then the translation contract the course needs
-			// (paired EN variant, summary, body) has been authored; while it is
-			// unmet the course stays a draft and the offering's public route
-			// simply 404s, matching any other unpublished dependency.
-			$course_rows = Relationships::for_source( $post_id, 'offering_course' );
-			$course_id   = isset( $course_rows[0]['target_post_id'] ) ? (int) $course_rows[0]['target_post_id'] : 0;
-			if ( 0 < $course_id && 'publish' !== get_post_status( $course_id ) ) {
-				Roles::begin_course_create();
-				try {
-					self::call_guarded( static fn() => TeachingRecords::publish_record( $course_id ) );
-				} finally {
-					Roles::end_course_create();
-				}
-			}
-		}
 		self::succeed( 'published' );
 	}
 
@@ -1888,18 +1888,25 @@ final class TaskDashboard {
 				if ( ! Roles::current_user_can_action( 'publish', 'news' ) ) {
 					self::fail( 'lps_dashboard_forbidden' );
 				}
-				$result = TeachingRecords::publish_record( $post_id );
+				// The decision email fires on an actual review outcome — a pending
+				// item reaching a verdict — so a retried decision on an
+				// already-decided record does not mail the author again.
+				$awaiting = 'in_review' === Policy::scalar_string( get_post_meta( $post_id, '_lps_state', true ) );
+				$result   = TeachingRecords::publish_record( $post_id );
 				if ( $result instanceof WP_Error ) {
 					self::fail( (string) $result->get_error_code(), self::error_field( $result ) );
 				}
 				self::system_meta( $post_id, '_lps_news_status', 'published' );
 				self::system_meta( $post_id, self::REVIEW_NOTE_META, $note );
-				Notifications::news_decision( $post, 'approve', $note );
+				if ( $awaiting ) {
+					Notifications::news_decision( $post, 'approve', $note );
+				}
 				self::succeed( 'published' );
 			}
 			if ( ! SecurityPolicy::allows( $role, 'review', 'news', Roles::assigned_collections( $user->ID ) ) ) {
 				self::fail( 'lps_dashboard_forbidden' );
 			}
+			$awaiting = 'in_review' === Policy::scalar_string( get_post_meta( $post_id, '_lps_state', true ) );
 			self::system_meta( $post_id, '_lps_state', 'draft' );
 			self::system_meta( $post_id, self::REVIEW_NOTE_META, $note );
 			Audit::record(
@@ -1911,7 +1918,9 @@ final class TaskDashboard {
 					'note'     => $note,
 				)
 			);
-			Notifications::news_decision( $post, 'reject', $note );
+			if ( $awaiting ) {
+				Notifications::news_decision( $post, 'reject', $note );
+			}
 			self::succeed( 'reviewed' );
 		}
 		if ( 'proposal' === $kind ) {
