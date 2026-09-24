@@ -45,7 +45,14 @@ final class AuthSurfaces {
 	public static function document( string $locale, array $state ): string {
 		$english = 'en' === $locale;
 		$title   = $english ? 'Sign in' : 'Entrar';
-		$header  = Shell::header_markup( $locale, Shell::signin_path( $locale ) );
+		$header  = Shell::header_markup(
+			$locale,
+			Shell::signin_path( $locale ),
+			array(
+				'pt-br' => Shell::signin_path( 'pt-br' ),
+				'en'    => Shell::signin_path( 'en' ),
+			)
+		);
 		$footer  = Shell::footer_markup( $locale );
 		$css     = function_exists( 'get_theme_file_uri' ) ? get_theme_file_uri( 'assets/css/theme.css' ) : '';
 		$version = function_exists( 'wp_get_theme' ) ? (string) wp_get_theme()->get( 'Version' ) : '';

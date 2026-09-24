@@ -186,7 +186,7 @@
       "sources": [
         {
           "path": "wp-content/themes/lps-theme/includes/class-dashboardsurfaces.php",
-          "sha256": "67d61fad4cc0e4f30538259c72430ae76e40f39307463465488f34409fa711f3"
+          "sha256": "daf68fd30f9e4dc805ec57731bf4c337589a2ba04062d89dbda30dec5f890eae"
         },
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-taskdashboard.php",

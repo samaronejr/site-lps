@@ -51,7 +51,16 @@ final class DashboardSurfaces {
 		$english = 'en' === $locale;
 		$title   = self::view_title( $view, $locale );
 		$body    = self::view( $view, $model, $locale, $id );
-		$header  = Shell::header_markup( $locale, DashboardRoutes::dashboard_path( $locale ) );
+		$header  = Shell::header_markup(
+			$locale,
+			DashboardRoutes::dashboard_path( $locale ),
+			array_filter(
+				array(
+					'pt-br' => DashboardRoutes::view_path( $view, 'pt-br', $id ),
+					'en'    => DashboardRoutes::view_path( $view, 'en', $id ),
+				)
+			)
+		);
 		$footer  = Shell::footer_markup( $locale );
 		$css     = function_exists( 'get_theme_file_uri' ) ? get_theme_file_uri( 'assets/css/theme.css' ) : '';
 		$version = function_exists( 'wp_get_theme' ) ? (string) wp_get_theme()->get( 'Version' ) : '';
