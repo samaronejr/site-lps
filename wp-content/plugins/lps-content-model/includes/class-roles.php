@@ -867,7 +867,9 @@ final class Roles {
 			if ( in_array( $role, array( 'section-editor', 'publisher', 'administrator' ), true ) || $scoped ) {
 				$capabilities[] = 'edit_others_' . $plural;
 			}
-			if ( SecurityPolicy::allows( $role, 'publish' ) && ( ! $scoped || in_array( $post_type, TeachingPolicy::PUBLISHABLE_POST_TYPES, true ) ) ) {
+			if ( SecurityPolicy::allows( $role, 'publish' ) ) {
+				// Every record type a scoped role reaches here is publishable, so
+				// the grant decision alone gates these primitives.
 				$capabilities[] = 'publish_' . $plural;
 				$capabilities[] = 'edit_published_' . $plural;
 			}

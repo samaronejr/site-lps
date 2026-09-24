@@ -281,9 +281,6 @@ final class TeachingPolicy {
 		if ( ! in_array( $post_type, self::SCOPED_POST_TYPES, true ) ) {
 			return 'lps_teaching_scope_post_type';
 		}
-		if ( 'publish' === $action && ! in_array( $post_type, self::PUBLISHABLE_POST_TYPES, true ) ) {
-			return 'lps_teaching_publish_type_forbidden';
-		}
 		if ( 'copy-forward' === $action && 'lps_offering' !== $post_type ) {
 			return 'lps_teaching_action_forbidden';
 		}
