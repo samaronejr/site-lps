@@ -307,7 +307,7 @@ final class DashboardSurfaces {
 		$html .= '<div class="lps-button-row">'
 			. self::form_open( 'lps_dashboard_news' )
 			. self::hidden( 'step', 'confirm' )
-			. self::submit( $english ? 'Confirm and submit for review' : 'Confirmar e enviar para revisão' )
+			. self::submit( $english ? 'Submit for review' : 'Enviar para revisão' )
 			. '</form>'
 			. self::form_open( 'lps_dashboard_news' )
 			. self::hidden( 'step', 'cancel' )

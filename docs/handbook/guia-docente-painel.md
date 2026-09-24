@@ -68,7 +68,7 @@ rascunhos; um rascunho salvo nunca é público.
    `Descrição da imagem` preenchida (ela serve como texto alternativo e legenda).
 2. Clique em `Pré-visualizar o cartão`. A etapa de pré-visualização mostra o cartão da
    notícia exatamente como aparecerá publicamente — data, tema, título, resumo e a imagem.
-   Nada é enviado nesse ponto: confira e clique em `Confirmar e enviar para revisão` ou em
+   Nada é enviado nesse ponto: confira e clique em `Enviar para revisão` ou em
    `Descartar pré-visualização` para voltar ao formulário.
 3. O aviso "Enviado para revisão. Um editor decidirá." confirma o envio e o item aparece em
    `Minhas notícias` com o estado `Em revisão`.
