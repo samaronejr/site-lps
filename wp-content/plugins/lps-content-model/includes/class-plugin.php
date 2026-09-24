@@ -211,7 +211,8 @@ final class Plugin {
 		$raw_post_id = $postarr['ID'] ?? 0;
 		$post_id     = is_numeric( $raw_post_id ) ? (int) $raw_post_id : 0;
 		$role        = Roles::policy_role();
-		if ( TeachingPolicy::is_scoped_role( $role ) && ! Roles::in_course_create() ) {
+		if ( TeachingPolicy::is_scoped_role( $role )
+			&& ! ( Roles::in_course_create() && in_array( Policy::scalar_string( $data['post_type'] ?? '' ), array( 'lps_course', 'lps_offering' ), true ) ) ) {
 			$stored_post = 0 < $post_id ? get_post( $post_id ) : null;
 			if ( $stored_post instanceof WP_Post ) {
 				$scoped_error = Roles::scoped_post_error( get_current_user_id(), 'edit', $stored_post );
@@ -258,9 +259,14 @@ final class Plugin {
 				return $data;
 			}
 		}
-		if ( true === $update && 'publish' === get_post_status( $post_id ) ) {
+		if ( true === $update ) {
 			$stored_slug = Policy::scalar_string( get_post_meta( $post_id, '_lps_published_slug', true ) );
-			if ( '' !== $stored_slug && isset( $unsanitized['post_name'] ) && ! hash_equals( $stored_slug, sanitize_title( Policy::scalar_string( $unsanitized['post_name'] ) ) ) ) {
+			// Editorial drafts may rename per the lps_redirect workflow, but a
+			// lane-minted record keeps its first slug at every status: its owner
+			// cannot register redirects, so a rename would orphan the live URLs.
+			$lane_owned = '1' === Policy::scalar_string( get_post_meta( $post_id, '_lps_pt_first', true ) );
+			if ( '' !== $stored_slug && ( 'publish' === get_post_status( $post_id ) || $lane_owned )
+				&& isset( $unsanitized['post_name'] ) && ! hash_equals( $stored_slug, sanitize_title( Policy::scalar_string( $unsanitized['post_name'] ) ) ) ) {
 				self::$pending_errors[ $post_id ]['post_name'] = 'lps_immutable_published_slug';
 				$data['post_name']                             = $stored_slug;
 			}
@@ -380,9 +386,11 @@ final class Plugin {
 		}
 
 		$requested_slug = $request->get_param( 'slug' );
-		if ( 0 < $post_id && 'publish' === get_post_status( $post_id ) && is_string( $requested_slug ) ) {
+		if ( 0 < $post_id && is_string( $requested_slug ) ) {
 			$stored_slug = Policy::scalar_string( get_post_meta( $post_id, '_lps_published_slug', true ) );
-			if ( '' !== $stored_slug && ! hash_equals( $stored_slug, sanitize_title( $requested_slug ) ) ) {
+			$lane_owned  = '1' === Policy::scalar_string( get_post_meta( $post_id, '_lps_pt_first', true ) );
+			if ( '' !== $stored_slug && ( 'publish' === get_post_status( $post_id ) || $lane_owned )
+				&& ! hash_equals( $stored_slug, sanitize_title( $requested_slug ) ) ) {
 				return self::error( 'lps_immutable_published_slug', 'A published slug is immutable.', 'slug' );
 			}
 		}

@@ -175,7 +175,7 @@ final class DashboardSurfaces {
 		$html .= '<p class="lps-kicker">' . self::esc( $english ? 'Offering workspace' : 'Área da oferta' ) . '</p>';
 		$html .= '<h2>' . self::esc( self::text( $offering['title'] ?? '' ) ) . '</h2>';
 		$html .= '<p>' . self::chip( self::text( $offering['state'] ?? 'draft' ), $locale ) . '</p>';
-		if ( ! empty( $offering['can_publish'] ) && 'publish' !== self::text( $offering['state'] ?? 'draft' ) ) {
+		if ( ! empty( $offering['can_publish'] ) && 'publish' !== self::text( $offering['status'] ?? 'draft' ) ) {
 			$html .= self::action_form( 'lps_dashboard_publish', array( 'post_id' => Policy::sanitize_integer( $offering['id'] ?? 0 ) ), $english ? 'Publish the offering' : 'Publicar a oferta', 'publish-offering' );
 		}
 		$html  .= self::identity_line( $offering );
