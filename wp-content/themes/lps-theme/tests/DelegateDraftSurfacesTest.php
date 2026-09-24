@@ -166,10 +166,21 @@ final class DelegateDraftSurfacesTest extends TestCase {
 		$model = array(
 			'may_course' => true,
 			'courses'    => array(),
-			'terms'      => array( array( 'id' => 55, 'label' => '2026.1' ) ),
+			'terms'      => array(
+				array(
+					'id'    => 55,
+					'label' => '2026.1',
+				),
+			),
 			'people'     => array(
-				array( 'id' => 53, 'title' => 'Professora Teste' ),
-				array( 'id' => 54, 'title' => 'Ana Delegada' ),
+				array(
+					'id'    => 53,
+					'title' => 'Professora Teste',
+				),
+				array(
+					'id'    => 54,
+					'title' => 'Ana Delegada',
+				),
 			),
 		);
 		$html  = DashboardSurfaces::course_view( $model, 'pt-br' );
