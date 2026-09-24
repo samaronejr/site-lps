@@ -41,6 +41,16 @@ final class TaskDashboard {
 	/** Private meta carrying the latest review outcome note. */
 	public const REVIEW_NOTE_META = '_lps_review_comments';
 
+	/**
+	 * Offering meta holding the public announcement stream.
+	 *
+	 * Avisos are a dedicated offering-scoped stream: they render immediately
+	 * on the public offering page in both locales and deliberately bypass
+	 * `publish_record` and its EN-variant pair gate, matching the owner's
+	 * low-friction PT-first decision for notices.
+	 */
+	public const NOTICES_META = '_lps_offering_notices';
+
 	/** Transient prefix for recoverable form state after a denied submit. */
 	public const RECALL_PREFIX = 'lps_dash_recall_';
 
@@ -333,6 +343,9 @@ final class TaskDashboard {
 			'note'                   => $english ? 'Review note' : 'Nota de revisão',
 			'file'                   => $english ? 'File' : 'Arquivo',
 			'fields'                 => $english ? 'Fields' : 'Campos',
+			'body'                   => $english ? 'Announcement' : 'Aviso',
+			'positions'              => $english ? 'Order' : 'Ordem',
+			'offering_notes'         => $english ? 'Term notes' : 'Notas do período',
 		);
 		return $labels[ $field ] ?? $field;
 	}
@@ -366,6 +379,9 @@ final class TaskDashboard {
 			'released'          => $english ? 'Material released for public download.' : 'Material liberado para download público.',
 			'scheduled'         => $english ? 'Material scheduled for release.' : 'Material agendado para publicação.',
 			'withdrawn'         => $english ? 'Material withdrawn from public delivery.' : 'Material retirado da entrega pública.',
+			'notice-posted'     => $english ? 'Announcement posted; it is live on the public offering page.' : 'Aviso publicado; ele já está na página pública da oferta.',
+			'notice-removed'    => $english ? 'Announcement removed.' : 'Aviso removido.',
+			'ordered'           => $english ? 'Material order saved.' : 'Ordem dos materiais salva.',
 			'logged-out'        => $english ? 'Your session ended. Sign in again to continue.' : 'Sua sessão terminou. Entre novamente para continuar.',
 		);
 		return $messages[ $code ] ?? $code;
@@ -455,7 +471,11 @@ final class TaskDashboard {
 		add_action( 'admin_post_lps_dashboard_copy', array( self::class, 'handle_copy' ) );
 		add_action( 'admin_post_lps_dashboard_review', array( self::class, 'handle_review' ) );
 		add_action( 'admin_post_lps_dashboard_offering', array( self::class, 'handle_offering' ) );
+		add_action( 'admin_post_lps_dashboard_offering_edit', array( self::class, 'handle_offering_edit' ) );
 		add_action( 'admin_post_lps_dashboard_course', array( self::class, 'handle_course' ) );
+		add_action( 'admin_post_lps_dashboard_notice', array( self::class, 'handle_notice' ) );
+		add_action( 'admin_post_lps_dashboard_material', array( self::class, 'handle_material' ) );
+		add_action( 'admin_post_lps_dashboard_order', array( self::class, 'handle_order' ) );
 	}
 
 	/**
@@ -559,6 +579,63 @@ final class TaskDashboard {
 	 */
 	public static function proposals_for_person( int $person_id ): array {
 		return self::normalize_proposals( get_post_meta( $person_id, self::PROPOSALS_META, true ) );
+	}
+
+	/**
+	 * Normalizes one stored announcement row; unknown keys are dropped.
+	 *
+	 * @param mixed $notice Stored notice row.
+	 * @return array{id: string, body: string, created_at: string, author_id: int}
+	 */
+	public static function normalize_notice( mixed $notice ): array {
+		$row = is_array( $notice ) ? $notice : array();
+		return array(
+			'id'         => Policy::scalar_string( $row['id'] ?? '' ),
+			'body'       => Policy::scalar_string( $row['body'] ?? '' ),
+			'created_at' => Policy::scalar_string( $row['created_at'] ?? '' ),
+			'author_id'  => Policy::sanitize_integer( $row['author_id'] ?? 0 ),
+		);
+	}
+
+	/**
+	 * Normalizes the stored announcement list, newest first.
+	 *
+	 * Rows missing an id, a body or a timestamp are dropped; the list is the
+	 * canonical public order, so the workspace and both locale surfaces share
+	 * the same newest-first stream.
+	 *
+	 * @param mixed $notices Stored notice list.
+	 * @return array<int, array{id: string, body: string, created_at: string, author_id: int}>
+	 */
+	public static function normalize_notices( mixed $notices ): array {
+		if ( ! is_array( $notices ) ) {
+			return array();
+		}
+		$normalized = array();
+		foreach ( $notices as $notice ) {
+			$row = self::normalize_notice( $notice );
+			if ( '' === $row['id'] || '' === $row['body'] || '' === $row['created_at'] ) {
+				continue;
+			}
+			$normalized[] = $row;
+		}
+		usort(
+			$normalized,
+			static fn( array $left, array $right ): int => 0 !== strcmp( $right['created_at'], $left['created_at'] )
+				? strcmp( $right['created_at'], $left['created_at'] )
+				: strcmp( $right['id'], $left['id'] )
+		);
+		return $normalized;
+	}
+
+	/**
+	 * Returns the public announcement stream of one offering, newest first.
+	 *
+	 * @param int $offering_id Offering authority record ID.
+	 * @return array<int, array{id: string, body: string, created_at: string, author_id: int}>
+	 */
+	public static function notices_for_offering( int $offering_id ): array {
+		return self::normalize_notices( get_post_meta( $offering_id, self::NOTICES_META, true ) );
 	}
 
 	/**
@@ -711,12 +788,15 @@ final class TaskDashboard {
 				continue;
 			}
 			$units[] = array(
-				'id'       => $unit_id,
-				'title'    => $unit->post_title,
-				'status'   => $unit->post_status,
-				'state'    => self::state_key( $unit->post_status, Policy::scalar_string( get_post_meta( $unit_id, '_lps_state', true ) ) ),
-				'anchor'   => Policy::scalar_string( get_post_meta( $unit_id, '_lps_anchor', true ) ),
-				'position' => Policy::sanitize_integer( get_post_meta( $unit_id, '_lps_position', true ) ),
+				'id'         => $unit_id,
+				'title'      => $unit->post_title,
+				'status'     => $unit->post_status,
+				'state'      => self::state_key( $unit->post_status, Policy::scalar_string( get_post_meta( $unit_id, '_lps_state', true ) ) ),
+				'excerpt'    => $unit->post_excerpt,
+				'content'    => $unit->post_content,
+				'anchor'     => Policy::scalar_string( get_post_meta( $unit_id, '_lps_anchor', true ) ),
+				'position'   => Policy::sanitize_integer( get_post_meta( $unit_id, '_lps_position', true ) ),
+				'topic_date' => Policy::scalar_string( get_post_meta( $unit_id, '_lps_topic_date', true ) ),
 			);
 		}
 		usort(
@@ -735,6 +815,8 @@ final class TaskDashboard {
 				'id'                   => $resource_id,
 				'title'                => $resource->post_title,
 				'status'               => $resource->post_status,
+				'excerpt'              => $resource->post_excerpt,
+				'sort_order'           => Policy::sanitize_integer( $row['sort_order'] ),
 				'state'                => self::state_key(
 					$resource->post_status,
 					Policy::scalar_string( get_post_meta( $resource_id, '_lps_state', true ) ),
@@ -782,6 +864,10 @@ final class TaskDashboard {
 			'status'          => $offering->post_status,
 			'state'           => self::state_key( $offering->post_status, Policy::scalar_string( get_post_meta( $offering_id, '_lps_state', true ) ) ),
 			'temporal_status' => Policy::scalar_string( get_post_meta( $offering_id, '_lps_temporal_status', true ) ),
+			'schedule'        => Policy::scalar_string( get_post_meta( $offering_id, '_lps_schedule', true ) ),
+			'venue'           => Policy::scalar_string( get_post_meta( $offering_id, '_lps_venue', true ) ),
+			'content'         => $offering->post_content,
+			'notices'         => self::notices_for_offering( $offering_id ),
 			'identity'        => $identity,
 			'team'            => $team,
 			'units'           => $units,
@@ -982,11 +1068,15 @@ final class TaskDashboard {
 	}
 
 	/**
-	 * Handles the unit create form.
+	 * Handles the unit create and edit forms.
 	 */
 	public static function handle_unit(): void {
 		if ( ! self::verify_nonce( 'lps_dashboard_unit' ) ) {
 			self::fail( 'lps_dashboard_nonce' );
+		}
+		$unit_id = self::post_int( 'id' );
+		if ( 0 < $unit_id ) {
+			self::update_unit( $unit_id );
 		}
 		$offering_id = self::post_int( 'offering_id' );
 		if ( ! self::may( 'create', 'lps_unit', $offering_id ) ) {
@@ -995,7 +1085,7 @@ final class TaskDashboard {
 		$input = array(
 			'title'       => self::post_text( 'title' ),
 			'excerpt'     => self::post_text( 'excerpt' ),
-			'content'     => self::post_text( 'content' ),
+			'content'     => self::post_body( 'content' ),
 			'offering_id' => $offering_id,
 			'meta'        => array(
 				'_lps_anchor'     => self::post_text( 'anchor' ),
@@ -1285,6 +1375,245 @@ final class TaskDashboard {
 		add_filter( 'update_post_metadata', array( Plugin::class, 'protect_role_meta' ), 11, 5 );
 		Audit::record( 'submit', (int) $post_id, 0, array( 'decision' => 'news-submission' ) );
 		self::succeed( 'submitted' );
+	}
+
+	/**
+	 * Handles the offering-scoped announcement post and removal forms.
+	 *
+	 * Avisos live on the offering authority as a typed meta list and render
+	 * immediately on the public page — a dedicated PT-first stream that never
+	 * enters `publish_record`, so no EN variant is required for a notice to
+	 * appear on either locale route.
+	 */
+	public static function handle_notice(): void {
+		$user = wp_get_current_user();
+		if ( ! self::verify_nonce( 'lps_dashboard_notice' ) ) {
+			self::fail( 'lps_dashboard_nonce' );
+		}
+		$offering_id = self::post_int( 'offering_id' );
+		$offering    = 0 < $offering_id ? get_post( $offering_id ) : null;
+		if ( ! $offering instanceof WP_Post || 'lps_offering' !== $offering->post_type ) {
+			self::fail( 'lps_teaching_offering_invalid' );
+		}
+		if ( ! self::may( 'edit', 'lps_offering', $offering_id ) ) {
+			self::fail( 'lps_dashboard_scope' );
+		}
+		$action  = self::post_text( 'notice_action' );
+		$notices = self::notices_for_offering( $offering_id );
+		if ( 'remove' === $action ) {
+			$notice_id = self::post_text( 'notice_id' );
+			$kept      = array();
+			$found     = false;
+			foreach ( $notices as $notice ) {
+				if ( $notice['id'] === $notice_id ) {
+					$found = true;
+					continue;
+				}
+				$kept[] = $notice;
+			}
+			if ( ! $found ) {
+				self::fail( 'lps_dashboard_forbidden' );
+			}
+			self::system_meta( $offering_id, self::NOTICES_META, $kept );
+			// The notice write is pure metadata, so it never fires
+			// `transition_post_status`; touching the offering is the public
+			// page cache's only invalidation signal.
+			wp_update_post( array( 'ID' => $offering_id ), true );
+			Audit::record(
+				'edit',
+				$offering_id,
+				0,
+				array(
+					'decision'  => 'offering-notice-remove',
+					'notice_id' => $notice_id,
+				)
+			);
+			self::succeed( 'notice-removed' );
+		}
+		$body = self::post_body( 'body' );
+		if ( '' === $body ) {
+			self::fail( 'lps_required_body', 'body' );
+		}
+		$notices[] = array(
+			'id'         => wp_generate_uuid4(),
+			'body'       => $body,
+			'created_at' => gmdate( 'c' ),
+			'author_id'  => $user->ID,
+		);
+		self::system_meta( $offering_id, self::NOTICES_META, $notices );
+		wp_update_post( array( 'ID' => $offering_id ), true );
+		Audit::record( 'submit', $offering_id, 0, array( 'decision' => 'offering-notice' ) );
+		self::succeed( 'notice-posted' );
+	}
+
+	/**
+	 * Handles the descriptive edit form on an existing resource.
+	 *
+	 * Title, summary, type, language and the external URL are the fields a
+	 * scoped account may already write; the scoped boundary re-checks the
+	 * offering grant before any of them change.
+	 */
+	public static function handle_material(): void {
+		if ( ! self::verify_nonce( 'lps_dashboard_material' ) ) {
+			self::fail( 'lps_dashboard_nonce' );
+		}
+		$resource_id = self::post_int( 'resource_id' );
+		$resource    = 0 < $resource_id ? get_post( $resource_id ) : null;
+		if ( ! $resource instanceof WP_Post || 'lps_resource' !== $resource->post_type || 'trash' === $resource->post_status ) {
+			self::fail( 'lps_dashboard_forbidden' );
+		}
+		$offering_id = Roles::persisted_offering_id( $resource );
+		if ( ! self::may( 'edit', 'lps_resource', $offering_id ) ) {
+			self::fail( 'lps_dashboard_scope' );
+		}
+		$title        = self::post_text( 'title' );
+		$excerpt      = self::post_text( 'excerpt' );
+		$external_url = self::post_text( 'external_url' );
+		$type         = self::post_text( 'resource_type' );
+		$language     = self::post_text( 'resource_language' );
+		$errors       = array();
+		if ( '' === $title ) {
+			$errors['title'] = 'lps_required_title';
+		}
+		if ( ! in_array( $type, TeachingContracts::RESOURCE_TYPES, true ) ) {
+			$errors['resource_type'] = 'lps_invalid_resource_type';
+		}
+		if ( '' === TeachingContracts::normalize_language( $language ) ) {
+			$errors['resource_language'] = 'lps_invalid_resource_language';
+		}
+		if ( '' !== $external_url && '' === Policy::sanitize_url( $external_url ) ) {
+			$errors['external_url'] = 'lps_invalid_url';
+		}
+		if ( array() !== $errors ) {
+			self::fail( (string) reset( $errors ), (string) array_key_first( $errors ) );
+		}
+		$updated = wp_update_post(
+			array(
+				'ID'           => $resource_id,
+				'post_title'   => $title,
+				'post_excerpt' => $excerpt,
+			),
+			true
+		);
+		if ( $updated instanceof WP_Error ) {
+			self::fail( 'lps_dashboard_forbidden' );
+		}
+		update_post_meta( $resource_id, '_lps_resource_type', $type );
+		update_post_meta( $resource_id, '_lps_resource_language', TeachingContracts::normalize_language( $language ) );
+		update_post_meta( $resource_id, '_lps_external_url', Policy::sanitize_url( $external_url ) );
+		Audit::record(
+			'edit',
+			$resource_id,
+			0,
+			array(
+				'decision'    => 'material-edit',
+				'offering_id' => $offering_id,
+			)
+		);
+		self::succeed( 'saved' );
+	}
+
+	/**
+	 * Handles the material reorder form on an offering.
+	 *
+	 * The submitted positions re-sequence the canonical `resource_offering`
+	 * rows' `sort_order`, the same ordering the public materials list reads.
+	 * Unaddressed rows keep a stable tail position rather than being dropped.
+	 */
+	public static function handle_order(): void {
+		if ( ! self::verify_nonce( 'lps_dashboard_order' ) ) {
+			self::fail( 'lps_dashboard_nonce' );
+		}
+		$offering_id = self::post_int( 'offering_id' );
+		$offering    = 0 < $offering_id ? get_post( $offering_id ) : null;
+		if ( ! $offering instanceof WP_Post || 'lps_offering' !== $offering->post_type ) {
+			self::fail( 'lps_teaching_offering_invalid' );
+		}
+		if ( ! self::may( 'edit', 'lps_offering', $offering_id ) ) {
+			self::fail( 'lps_dashboard_scope' );
+		}
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing -- Every key and value is sanitized to an integer before use.
+		$positions = isset( $_POST['positions'] ) && is_array( $_POST['positions'] ) ? wp_unslash( $_POST['positions'] ) : array();
+		$submitted = array();
+		foreach ( $positions as $resource_id => $position ) {
+			$submitted[ Policy::sanitize_integer( $resource_id ) ] = Policy::sanitize_integer( $position );
+		}
+		$entries = array();
+		foreach ( Relationships::reverse_for( $offering_id, 'resource_offering' ) as $row ) {
+			$resource_id = Policy::sanitize_integer( $row['source_post_id'] );
+			$entries[]   = array(
+				'row'      => $row,
+				'position' => $submitted[ $resource_id ] ?? PHP_INT_MAX,
+			);
+		}
+		usort(
+			$entries,
+			static fn( array $left, array $right ): int => 0 !== ( $left['position'] <=> $right['position'] )
+				? $left['position'] <=> $right['position']
+				: Policy::sanitize_integer( $left['row']['source_post_id'] ) <=> Policy::sanitize_integer( $right['row']['source_post_id'] )
+		);
+		$order   = 0;
+		$changed = false;
+		foreach ( $entries as $entry ) {
+			++$order;
+			$row = $entry['row'];
+			if ( Policy::sanitize_integer( $row['sort_order'] ) === $order ) {
+				continue;
+			}
+			$row['sort_order'] = $order;
+			$result            = Relationships::replace( Policy::sanitize_integer( $row['source_post_id'] ), 'resource_offering', array( $row ) );
+			if ( $result instanceof WP_Error ) {
+				self::fail( (string) $result->get_error_code(), self::error_field( $result ) );
+			}
+			$changed = true;
+		}
+		if ( $changed ) {
+			// Relationship rows are a plain table write: no post or meta hook
+			// fires, so the offering page must be touched to expire its cache.
+			wp_update_post( array( 'ID' => $offering_id ), true );
+		}
+		Audit::record( 'edit', $offering_id, 0, array( 'decision' => 'material-order' ) );
+		self::succeed( 'ordered' );
+	}
+
+	/**
+	 * Handles the offering-details edit form: schedule, venue, period notes.
+	 *
+	 * Term-side fields a professor adjusts on their own offering; the scoped
+	 * boundary checks the grant on this offering before anything is written.
+	 */
+	public static function handle_offering_edit(): void {
+		if ( ! self::verify_nonce( 'lps_dashboard_offering_edit' ) ) {
+			self::fail( 'lps_dashboard_nonce' );
+		}
+		$offering_id = self::post_int( 'offering_id' );
+		$offering    = 0 < $offering_id ? get_post( $offering_id ) : null;
+		if ( ! $offering instanceof WP_Post || 'lps_offering' !== $offering->post_type ) {
+			self::fail( 'lps_teaching_offering_invalid' );
+		}
+		if ( ! self::may( 'edit', 'lps_offering', $offering_id ) ) {
+			self::fail( 'lps_dashboard_scope' );
+		}
+		$schedule = self::post_textarea( 'schedule' );
+		$venue    = self::post_text( 'venue' );
+		$content  = self::post_body( 'content' );
+		// The scoped field guard covers the schedule/venue keys, but the boundary
+		// already proved the grant here; lifting it keeps one write path for all
+		// roles the form may serve.
+		self::system_meta( $offering_id, '_lps_schedule', $schedule );
+		self::system_meta( $offering_id, '_lps_venue', $venue );
+		$updated = wp_update_post(
+			array(
+				'ID'           => $offering_id,
+				'post_content' => $content,
+			),
+			true
+		);
+		if ( $updated instanceof WP_Error ) {
+			self::fail( 'lps_dashboard_forbidden' );
+		}
+		Audit::record( 'edit', $offering_id, 0, array( 'decision' => 'offering-details' ) );
+		self::succeed( 'saved' );
 	}
 
 	/**
@@ -1665,6 +1994,112 @@ final class TaskDashboard {
 	}
 
 	/**
+	 * Reads one POST textarea field, keeping line breaks.
+	 *
+	 * @param string $key Field name.
+	 */
+	private static function post_textarea( string $key ): string {
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing -- Sanitized as a multiline field on return.
+		$value = isset( $_POST[ $key ] ) ? wp_unslash( $_POST[ $key ] ) : '';
+		return is_scalar( $value ) ? sanitize_textarea_field( (string) $value ) : '';
+	}
+
+	/**
+	 * Reads one POST rich-body field.
+	 *
+	 * The body is kept to the wp_kses_post vocabulary and paragraph-marked for
+	 * storage, matching how the theme's `rich()` renderer treats record bodies
+	 * (it kses' again at render but never wpautops).
+	 *
+	 * @param string $key Field name.
+	 */
+	private static function post_body( string $key ): string {
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing -- Sanitized to the safe-HTML vocabulary on return.
+		$value = isset( $_POST[ $key ] ) ? wp_unslash( $_POST[ $key ] ) : '';
+		$value = is_scalar( $value ) ? (string) $value : '';
+		$clean = '' === trim( $value ) ? '' : wp_kses_post( $value );
+		return '' === trim( $clean ) ? '' : wpautop( $clean );
+	}
+
+	/**
+	 * Reads one POST integer field.
+	 *
+	 * @param string $key Field name.
+	 */
+	private static function post_int( string $key ): int {
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing -- Sanitized as an integer on return.
+		$value = isset( $_POST[ $key ] ) ? wp_unslash( $_POST[ $key ] ) : 0;
+		return Policy::sanitize_integer( $value );
+	}
+
+	/**
+	 * Updates one existing unit's title, summary, body, anchor, position and date.
+	 *
+	 * The scoped boundary resolves the unit's persisted offering and checks the
+	 * account's edit grant on it; the meta keys it writes are exactly the ones
+	 * the scoped field allowlist names for `lps_unit`.
+	 *
+	 * @param int $unit_id Unit record ID.
+	 */
+	private static function update_unit( int $unit_id ): void {
+		$unit = get_post( $unit_id );
+		if ( ! $unit instanceof WP_Post || 'lps_unit' !== $unit->post_type || 'trash' === $unit->post_status ) {
+			self::fail( 'lps_teaching_unit_invalid' );
+		}
+		$offering_id = Roles::persisted_offering_id( $unit );
+		if ( ! self::may( 'edit', 'lps_unit', $offering_id ) ) {
+			self::fail( 'lps_dashboard_scope' );
+		}
+		$title    = self::post_text( 'title' );
+		$excerpt  = self::post_text( 'excerpt' );
+		$content  = self::post_body( 'content' );
+		$anchor   = self::post_text( 'anchor' );
+		$position = self::post_int( 'position' );
+		$date     = self::post_text( 'topic_date' );
+		$errors   = array();
+		if ( '' === $title ) {
+			$errors['title'] = 'lps_required_title';
+		}
+		if ( '' === $anchor ) {
+			$errors['anchor'] = 'lps_required_anchor';
+		}
+		if ( 1 > $position ) {
+			$errors['position'] = 'lps_invalid_unit_position';
+		}
+		if ( '' !== $date && '' === TeachingContracts::normalize_iso_date( $date ) ) {
+			$errors['topic_date'] = 'lps_invalid_topic_date';
+		}
+		if ( array() !== $errors ) {
+			self::fail( (string) reset( $errors ), (string) array_key_first( $errors ) );
+		}
+		$updated = wp_update_post(
+			array(
+				'ID'           => $unit_id,
+				'post_title'   => $title,
+				'post_excerpt' => $excerpt,
+				'post_content' => $content,
+			),
+			true
+		);
+		if ( $updated instanceof WP_Error ) {
+			self::fail( 'lps_dashboard_forbidden' );
+		}
+		update_post_meta( $unit_id, '_lps_anchor', $anchor );
+		update_post_meta( $unit_id, '_lps_position', $position );
+		update_post_meta( $unit_id, '_lps_topic_date', TeachingContracts::normalize_iso_date( $date ) );
+		Audit::record(
+			'edit',
+			$unit_id,
+			0,
+			array(
+				'decision'    => 'unit-edit',
+				'offering_id' => $offering_id,
+			)
+		);
+		self::succeed( 'saved' );
+	}
+
+	/**
 	 * Runs one canonical create with the scoped field guard lifted.
 	 *
 	 * `create_unit` and `create_offering` write their allowlisted meta inside
@@ -1763,17 +2198,6 @@ final class TaskDashboard {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing -- Sanitized as a scalar on return.
 		$value = isset( $_POST[ $key ] ) ? wp_unslash( $_POST[ $key ] ) : '';
 		return is_scalar( $value ) ? sanitize_text_field( (string) $value ) : '';
-	}
-
-	/**
-	 * Reads one POST integer field.
-	 *
-	 * @param string $key Field name.
-	 */
-	private static function post_int( string $key ): int {
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing -- Sanitized as an integer on return.
-		$value = isset( $_POST[ $key ] ) ? wp_unslash( $_POST[ $key ] ) : 0;
-		return Policy::sanitize_integer( $value );
 	}
 
 	/**
