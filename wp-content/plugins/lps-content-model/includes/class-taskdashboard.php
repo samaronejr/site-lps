@@ -1693,11 +1693,17 @@ final class TaskDashboard {
 			$course_id   = isset( $course_rows[0]['target_post_id'] ) ? (int) $course_rows[0]['target_post_id'] : 0;
 			if ( 0 < $course_id && 'publish' !== get_post_status( $course_id ) ) {
 				// The marker records which account minted the course through the
-				// create lane: the lift runs only for that minter or for a member
-				// of the offering's teaching team — a bare grant on the offering
-				// must never publish an unrelated professor's course.
+				// create lane: the lift runs only for that minter, for a member
+				// of the offering's teaching team, or for an account holding
+				// unscoped teaching-publish authority (it could publish the
+				// course outright anyway) — a bare grant on the offering must
+				// never publish an unrelated professor's course.
 				$minter = Policy::sanitize_integer( get_post_meta( $course_id, '_lps_pt_first', true ) );
-				if ( 0 >= $minter || ( get_current_user_id() !== $minter && ! self::on_offering_team( get_current_user_id(), $post_id ) ) ) {
+				if ( 0 >= $minter
+					|| ( get_current_user_id() !== $minter
+						&& ! self::on_offering_team( get_current_user_id(), $post_id )
+						&& ! Roles::current_user_can_action( 'publish', 'teaching' ) )
+				) {
 					self::fail( 'lps_offering_course_unpublished', 'course' );
 				}
 				Roles::begin_course_create();
