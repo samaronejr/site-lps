@@ -1141,12 +1141,14 @@ final class TaskDashboard {
 			)
 		);
 		// Delegate-prepared drafts sit in the same news lane as the professor's
-		// own submissions: any news-scoped account that may publish the lane may
-		// adopt them, so they list here marked with their prepared-by badge.
-		$prepared = get_posts(
+		// own submissions, but only for accounts that may publish the lane —
+		// adoption is a publisher's action, so a fellow delegate never lists
+		// another account's private drafts. Only actionable statuses list here;
+		// published items are live, not adoptable work.
+		$prepared = ! self::may( 'publish', 'lps_news', 0 ) ? array() : get_posts(
 			array(
 				'post_type'      => 'lps_news',
-				'post_status'    => array( 'draft', 'pending', 'publish', 'future' ),
+				'post_status'    => array( 'draft', 'pending' ),
 				'author__not_in' => array( $user_id ),
 				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Shared-lane provenance lookup; the lane is small and per-account.
 				'meta_query'     => array(
@@ -1846,7 +1848,13 @@ final class TaskDashboard {
 		}
 		$news_id = self::post_int( 'news_id' );
 		$source  = 0 < $news_id ? get_post( $news_id ) : null;
-		if ( ! $source instanceof WP_Post || 'lps_news' !== $source->post_type || (int) $source->post_author !== $user->ID || TranslationPolicy::TARGET_LOCALE === Translations::locale( $news_id ) ) {
+		// The English task follows the same adoption rule as the resubmit: a
+		// lane publisher may translate a delegate-prepared draft it adopted.
+		$adoptable = $source instanceof WP_Post
+			&& 0 < self::prepared_marker_for( $news_id )
+			&& self::may( 'publish', 'lps_news', 0 );
+		if ( ! $source instanceof WP_Post || 'lps_news' !== $source->post_type || TranslationPolicy::TARGET_LOCALE === Translations::locale( $news_id )
+			|| ( (int) $source->post_author !== $user->ID && ! $adoptable ) ) {
 			self::fail( 'lps_translation_source_invalid', 'news_id' );
 		}
 		$title   = self::post_text( 'en_title' );

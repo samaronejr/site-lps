@@ -190,7 +190,7 @@
         },
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-taskdashboard.php",
-          "sha256": "cd81d02542dfc20300dae3f7e3fd6d6804e46a7bfc98d9704d48fa20d73fac7c"
+          "sha256": "9788c1e5dce068971456464343e8a5699899054e318693b26fe53a6223fa5cc9"
         },
         {
           "path": "wp-content/themes/lps-theme/includes/class-dashboardroutes.php",
