@@ -330,6 +330,7 @@ final class TaskDashboard {
 			'new_section'            => $english ? 'Target section' : 'Turma de destino',
 			'team'                   => $english ? 'Teaching team' : 'Equipe docente',
 			'team_reviewed'          => $english ? 'Team review' : 'Revisão da equipe',
+			'prepared_by'            => $english ? 'Prepared by' : 'Preparado por',
 			'note'                   => $english ? 'Review note' : 'Nota de revisão',
 			'file'                   => $english ? 'File' : 'Arquivo',
 			'fields'                 => $english ? 'Fields' : 'Campos',
@@ -712,12 +713,15 @@ final class TaskDashboard {
 				continue;
 			}
 			$units[] = array(
-				'id'       => $unit_id,
-				'title'    => $unit->post_title,
-				'status'   => $unit->post_status,
-				'state'    => self::state_key( $unit->post_status, Policy::scalar_string( get_post_meta( $unit_id, '_lps_state', true ) ) ),
-				'anchor'   => Policy::scalar_string( get_post_meta( $unit_id, '_lps_anchor', true ) ),
-				'position' => Policy::sanitize_integer( get_post_meta( $unit_id, '_lps_position', true ) ),
+				'id'               => $unit_id,
+				'title'            => $unit->post_title,
+				'status'           => $unit->post_status,
+				'state'            => self::state_key( $unit->post_status, Policy::scalar_string( get_post_meta( $unit_id, '_lps_state', true ) ) ),
+				'anchor'           => Policy::scalar_string( get_post_meta( $unit_id, '_lps_anchor', true ) ),
+				'position'         => Policy::sanitize_integer( get_post_meta( $unit_id, '_lps_position', true ) ),
+				'prepared_by'      => Policy::sanitize_integer( get_post_meta( $unit_id, '_lps_prepared_by', true ) ),
+				'prepared_by_name' => self::prepared_name( Policy::sanitize_integer( get_post_meta( $unit_id, '_lps_prepared_by', true ) ) ),
+				'edit_url'         => get_edit_post_link( $unit_id, 'raw' ),
 			);
 		}
 		usort(
@@ -751,6 +755,9 @@ final class TaskDashboard {
 				'scan_state'           => Policy::scalar_string( get_post_meta( $resource_id, '_lps_scan_state', true ) ),
 				'rights_review'        => Policy::scalar_string( get_post_meta( $resource_id, '_lps_rights_review', true ) ),
 				'accessibility_review' => Policy::scalar_string( get_post_meta( $resource_id, '_lps_accessibility_review', true ) ),
+				'prepared_by'          => Policy::sanitize_integer( get_post_meta( $resource_id, '_lps_prepared_by', true ) ),
+				'prepared_by_name'     => self::prepared_name( Policy::sanitize_integer( get_post_meta( $resource_id, '_lps_prepared_by', true ) ) ),
+				'edit_url'             => get_edit_post_link( $resource_id, 'raw' ),
 				'download_url'         => TeachingResources::download_url( $resource_id ),
 			);
 		}
@@ -815,20 +822,49 @@ final class TaskDashboard {
 				'order'          => 'DESC',
 			)
 		);
+		// Delegate-prepared drafts sit in the same news lane as the professor's
+		// own submissions: any news-scoped account that may publish the lane may
+		// adopt them, so they list here marked with their prepared-by badge.
+		$prepared = get_posts(
+			array(
+				'post_type'      => 'lps_news',
+				'post_status'    => array( 'draft', 'pending', 'publish', 'future' ),
+				'author__not_in' => array( $user_id ),
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Shared-lane provenance lookup; the lane is small and per-account.
+				'meta_query'     => array(
+					array(
+						'key'     => '_lps_prepared_by',
+						'value'   => 0,
+						'compare' => '>',
+						'type'    => 'NUMERIC',
+					),
+				),
+				'posts_per_page' => 50,
+				'fields'         => 'ids',
+				'orderby'        => 'date',
+				'order'          => 'DESC',
+			)
+		);
 		$items = array();
-		foreach ( $posts as $post_id ) {
-			$items[] = array(
-				'id'         => (int) $post_id,
-				'title'      => Policy::scalar_string( get_post_field( 'post_title', $post_id ) ),
-				'status'     => (string) get_post_status( $post_id ),
-				'state'      => self::state_key(
+		foreach ( array_merge( $posts, $prepared ) as $post_id ) {
+			$prepared_by = Policy::sanitize_integer( get_post_meta( $post_id, '_lps_prepared_by', true ) );
+			$items[]     = array(
+				'id'               => (int) $post_id,
+				'title'            => Policy::scalar_string( get_post_field( 'post_title', $post_id ) ),
+				'status'           => (string) get_post_status( $post_id ),
+				'state'            => self::state_key(
 					(string) get_post_status( $post_id ),
 					Policy::scalar_string( get_post_meta( $post_id, '_lps_state', true ) )
 				),
-				'date'       => Policy::scalar_string( get_post_meta( $post_id, '_lps_canonical_date', true ) ),
-				'note'       => Policy::scalar_string( get_post_meta( $post_id, self::REVIEW_NOTE_META, true ) ),
-				'public_url' => 'publish' === get_post_status( $post_id ) ? (string) get_permalink( $post_id ) : '',
-				'edit_url'   => get_edit_post_link( $post_id, 'raw' ),
+				'date'             => Policy::scalar_string( get_post_meta( $post_id, '_lps_canonical_date', true ) ),
+				'summary'          => Policy::scalar_string( get_post_field( 'post_excerpt', $post_id ) ),
+				'content'          => Policy::scalar_string( get_post_field( 'post_content', $post_id ) ),
+				'note'             => Policy::scalar_string( get_post_meta( $post_id, self::REVIEW_NOTE_META, true ) ),
+				'prepared_by'      => $prepared_by,
+				'prepared_by_name' => self::prepared_name( $prepared_by ),
+				'can_resubmit'     => (int) get_post_field( 'post_author', $post_id ) === $user_id || ( 0 < $prepared_by && self::may( 'publish', 'lps_news', 0 ) ),
+				'public_url'       => 'publish' === get_post_status( $post_id ) ? (string) get_permalink( $post_id ) : '',
+				'edit_url'         => get_edit_post_link( $post_id, 'raw' ),
 			);
 		}
 		return $items;
@@ -1250,8 +1286,15 @@ final class TaskDashboard {
 		if ( 0 < $post_id ) {
 			// A resubmit edits the author's own draft and returns it to review;
 			// the scoped guard still decides whether the account may touch it.
-			$existing = get_post( $post_id );
-			if ( ! $existing instanceof WP_Post || 'lps_news' !== $existing->post_type || (int) $existing->post_author !== $user->ID || 'draft' !== $existing->post_status ) {
+			// A delegate-prepared draft may be adopted by any account allowed to
+			// publish the lane — the professor submits it under her own authority
+			// while the delegate's authorship and prepared-by marker stay intact.
+			$existing  = get_post( $post_id );
+			$adoptable = $existing instanceof WP_Post
+				&& 0 < Policy::sanitize_integer( get_post_meta( $post_id, '_lps_prepared_by', true ) )
+				&& self::may( 'publish', 'lps_news', 0 );
+			if ( ! $existing instanceof WP_Post || 'lps_news' !== $existing->post_type || 'draft' !== $existing->post_status
+				|| ( (int) $existing->post_author !== $user->ID && ! $adoptable ) ) {
 				self::fail( 'lps_dashboard_forbidden' );
 			}
 			remove_filter( 'update_post_metadata', array( Plugin::class, 'protect_role_meta' ), 11 );
@@ -1751,6 +1794,23 @@ final class TaskDashboard {
 	 */
 	private static function may_copy( int $offering_id ): bool {
 		return Roles::current_user_can_scoped_action( 'copy-forward', 'lps_offering', $offering_id ) || Roles::current_user_can_action( 'create', 'teaching' );
+	}
+
+	/**
+	 * Returns the display name of the delegate that prepared one record.
+	 *
+	 * @param int $user_id Delegate account ID (0 when unmarked).
+	 */
+	private static function prepared_name( int $user_id ): string {
+		if ( 0 >= $user_id ) {
+			return '';
+		}
+		$account = get_userdata( $user_id );
+		if ( ! $account instanceof WP_User ) {
+			return '';
+		}
+		$name = Policy::scalar_string( $account->display_name );
+		return '' !== $name ? $name : Policy::scalar_string( $account->user_login );
 	}
 
 	/**

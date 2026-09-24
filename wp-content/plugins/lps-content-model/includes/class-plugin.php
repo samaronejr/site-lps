@@ -568,6 +568,14 @@ final class Plugin {
 		update_post_meta( $post_id, '_lps_updated_at', $now );
 		$state = 'publish' === $post->post_status ? 'published' : Policy::scalar_string( get_post_meta( $post_id, '_lps_state', true ) );
 		update_post_meta( $post_id, '_lps_state', '' === $state ? 'draft' : $state );
+		if ( ! $update && in_array( $post->post_type, TeachingPolicy::SCOPED_POST_TYPES, true ) && 'delegate' === Roles::policy_role() ) {
+			// A record created inside a delegate's grant keeps provenance of who
+			// drafted it: the scoped lane (professor, editor) adopts the draft
+			// under its own authority, and the workspace surfaces it with the
+			// prepared-by badge. The key sits outside every scoped field
+			// allowlist, so it is stamped here with the lifted system guard.
+			update_post_meta( $post_id, '_lps_prepared_by', get_current_user_id() );
+		}
 		if ( 'publish' === $post->post_status && '' === Policy::scalar_string( get_post_meta( $post_id, '_lps_published_slug', true ) ) ) {
 			update_post_meta( $post_id, '_lps_published_slug', $post->post_name );
 		}

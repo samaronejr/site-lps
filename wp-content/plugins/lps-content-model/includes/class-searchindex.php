@@ -58,6 +58,7 @@ final class SearchIndex {
 		'_lps_version_id',
 		'_lps_storage_key',
 		'_lps_uploader_user_id',
+		'_lps_prepared_by',
 	);
 
 	/**

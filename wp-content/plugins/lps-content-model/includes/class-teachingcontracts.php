@@ -69,6 +69,7 @@ final class TeachingContracts {
 		'_lps_reviewed_source_hash'    => 'system',
 		'_lps_translation_reviewed_at' => 'system',
 		'_lps_translation_reviewer_id' => 'shared',
+		'_lps_prepared_by'             => 'system',
 		'_lps_import_source_id'        => 'system',
 		'_lps_import_source_url'       => 'system',
 		'_lps_import_captured_at'      => 'system',
@@ -300,7 +301,7 @@ final class TeachingContracts {
 	 * @return array<int, string>
 	 */
 	public static function private_meta_keys(): array {
-		return array( '_lps_version_id', '_lps_storage_key', '_lps_uploader_user_id' );
+		return array( '_lps_version_id', '_lps_storage_key', '_lps_uploader_user_id', '_lps_prepared_by' );
 	}
 
 	/**
