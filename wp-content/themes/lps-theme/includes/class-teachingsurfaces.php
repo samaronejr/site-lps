@@ -29,6 +29,7 @@ declare(strict_types=1);
 namespace LPS\Theme;
 
 use LPS\ContentModel\Relationships;
+use LPS\ContentModel\TeachingContracts;
 use LPS\ContentModel\Translations;
 use WP_Post;
 
@@ -202,6 +203,8 @@ final class TeachingSurfaces {
 				break;
 			}
 		}
+		$course['current_offering'] = $current_offering;
+		$course['latest_offering']  = self::record( $offerings[0] ?? null );
 
 		$facts         = '';
 		$professors    = self::teaching_team_names( $course, $locale );
@@ -902,6 +905,10 @@ final class TeachingSurfaces {
 		self::collect_team_names( $record, $locale, $named );
 		$current = self::record( $record['current_offering'] ?? null );
 		self::collect_team_names( $current, $locale, $named );
+		if ( array() === $named ) {
+			$latest = self::record( $record['latest_offering'] ?? null );
+			self::collect_team_names( $latest, $locale, $named );
+		}
 		return array_values( $named );
 	}
 
@@ -1116,13 +1123,9 @@ final class TeachingSurfaces {
 	 * @param string $locale Supported locale slug.
 	 */
 	private static function team_role_label( string $role, string $locale ): string {
-		$english = 'en' === $locale;
-		$labels  = array(
-			'lead'       => $english ? 'lead' : 'responsável',
-			'co-teacher' => $english ? 'co-teacher' : 'co-docente',
-			'assistant'  => $english ? 'assistant' : 'assistente',
-		);
-		return $labels[ $role ] ?? $role;
+		return class_exists( TeachingContracts::class )
+			? TeachingContracts::team_role_label( $role, $locale )
+			: $role;
 	}
 
 	/**

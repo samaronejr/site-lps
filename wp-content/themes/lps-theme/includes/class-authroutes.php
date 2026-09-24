@@ -224,7 +224,7 @@ final class AuthRoutes {
 			self::serve_post( $route['locale'] );
 			return;
 		}
-		self::render( $route['locale'], self::state() );
+		self::render( $route['locale'], self::state( $route['locale'] ) );
 	}
 
 	/**
@@ -263,7 +263,7 @@ final class AuthRoutes {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized as a scalar on the next line before verification.
 		$raw_nonce = isset( $_POST['_lps_signin_nonce'] ) ? wp_unslash( $_POST['_lps_signin_nonce'] ) : '';
 		$nonce     = is_string( $raw_nonce ) ? sanitize_text_field( $raw_nonce ) : '';
-		$state     = self::state();
+		$state     = self::state( $locale );
 		if ( ! function_exists( 'wp_verify_nonce' ) || ! wp_verify_nonce( $nonce, 'lps_signin' ) ) {
 			$state['error'] = 'credentials';
 			self::render( $locale, $state );
@@ -342,9 +342,10 @@ final class AuthRoutes {
 	/**
 	 * Builds the surface state for the current request.
 	 *
+	 * @param string $locale Supported locale slug.
 	 * @return array<string, mixed>
 	 */
-	private static function state(): array {
+	private static function state( string $locale ): array {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- A read-only destination parameter needs no nonce (same contract as core's redirect_to) and is sanitized on the next line.
 		$raw_redirect = isset( $_GET['redirect_to'] ) ? wp_unslash( $_GET['redirect_to'] ) : '';
 		$redirect     = is_string( $raw_redirect ) ? sanitize_url( $raw_redirect ) : '';
@@ -365,12 +366,47 @@ final class AuthRoutes {
 			return $state;
 		}
 		$user               = wp_get_current_user();
-		$roles              = array_map( 'translate_user_role', $user->roles );
+		$roles              = array_map( fn( string $role ): string => self::role_label( $role, $locale ), $user->roles );
 		$state['signed_in'] = true;
 		$state['user_name'] = $user->display_name;
-		$state['user_role'] = implode( ', ', array_filter( array_map( 'strval', $roles ) ) );
+		$state['user_role'] = implode( ', ', array_unique( array_filter( array_map( 'strval', $roles ) ) ) );
 		$state['can_admin'] = function_exists( 'current_user_can' ) && current_user_can( 'manage_options' );
 		return $state;
+	}
+
+	/**
+	 * Returns the display label for one WordPress role slug, localized for
+	 * the sign-in surface. The `lps_*` policy roles carry no core
+	 * translation, so they map to the site's own labels; native roles keep
+	 * core's `translate_user_role` and a last resort humanizes the slug.
+	 *
+	 * @param string $role   WordPress role slug.
+	 * @param string $locale Supported locale slug.
+	 */
+	private static function role_label( string $role, string $locale ): string {
+		$english = 'en' === $locale;
+		$labels  = array(
+			'administrator'      => $english ? 'Administrator' : 'Administrador(a)',
+			'editor'             => $english ? 'Editor' : 'Editor(a)',
+			'lps_administrator'  => $english ? 'Administrator' : 'Administrador(a)',
+			'lps_editor'         => $english ? 'Editor' : 'Editor(a)',
+			'lps_publisher'      => $english ? 'Publisher' : 'Editor(a) chefe',
+			'lps_section_editor' => $english ? 'Section editor' : 'Editor(a) de seção',
+			'lps_contributor'    => $english ? 'Contributor' : 'Colaborador(a)',
+			'lps_translator'     => $english ? 'Translator' : 'Tradutor(a)',
+			'lps_professor'      => $english ? 'Professor' : 'Docente',
+			'lps_delegate'       => $english ? 'Delegate' : 'Delegado(a)',
+			'subscriber'         => $english ? 'Member' : 'Membro',
+		);
+		if ( isset( $labels[ $role ] ) ) {
+			return $labels[ $role ];
+		}
+		$translated = function_exists( 'translate_user_role' ) ? translate_user_role( $role ) : '';
+		if ( '' !== $translated && $translated !== $role ) {
+			return $translated;
+		}
+		$bare = str_starts_with( $role, 'lps_' ) ? substr( $role, 4 ) : $role;
+		return ucwords( str_replace( array( '_', '-' ), ' ', $bare ) );
 	}
 
 	/**

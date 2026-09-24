@@ -51,7 +51,16 @@ final class DashboardSurfaces {
 		$english = 'en' === $locale;
 		$title   = self::view_title( $view, $locale );
 		$body    = self::view( $view, $model, $locale, $id );
-		$header  = Shell::header_markup( $locale, DashboardRoutes::dashboard_path( $locale ) );
+		$header  = Shell::header_markup(
+			$locale,
+			DashboardRoutes::dashboard_path( $locale ),
+			array_filter(
+				array(
+					'pt-br' => DashboardRoutes::view_path( $view, 'pt-br', $id ),
+					'en'    => DashboardRoutes::view_path( $view, 'en', $id ),
+				)
+			)
+		);
 		$footer  = Shell::footer_markup( $locale );
 		$css     = function_exists( 'get_theme_file_uri' ) ? get_theme_file_uri( 'assets/css/theme.css' ) : '';
 		$version = function_exists( 'wp_get_theme' ) ? (string) wp_get_theme()->get( 'Version' ) : '';
@@ -1232,7 +1241,7 @@ final class DashboardSurfaces {
 		foreach ( TeachingContracts::TEAM_ROLES as $role ) {
 			$roles[] = array(
 				'id'    => $role,
-				'title' => $role,
+				'title' => TeachingContracts::team_role_label( $role, $locale ),
 			);
 		}
 		// One spare row beyond the selected team — two at minimum — so any
@@ -1420,7 +1429,7 @@ final class DashboardSurfaces {
 		$names = array();
 		foreach ( $team as $member ) {
 			$member  = self::record( $member );
-			$names[] = self::text( $member['name'] ?? '' ) . ' (' . self::text( $member['role'] ?? '' ) . ')';
+			$names[] = self::text( $member['name'] ?? '' ) . ' (' . TeachingContracts::team_role_label( self::text( $member['role'] ?? '' ), $locale ) . ')';
 		}
 		return '<p class="lps-meta">' . self::esc( TaskDashboard::field_label( 'team', $locale ) . ': ' . implode( ', ', $names ) ) . '</p>';
 	}
