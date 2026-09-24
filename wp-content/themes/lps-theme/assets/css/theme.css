@@ -2524,6 +2524,11 @@ textarea:focus-visible {
   color: var(--color-success);
 }
 
+.lps-status-delegate {
+  background: var(--color-teal-wash);
+  color: var(--color-teal-ink);
+}
+
 .lps-tenure,
 .lps-deadline,
 .lps-doi,

@@ -72,6 +72,7 @@ final class Contracts {
 			'_lps_reviewed_source_hash'    => self::field( 'string', 'Last reviewer-approved Portuguese source hash', 'text' ),
 			'_lps_translation_reviewed_at' => self::field( 'string', 'Translation review timestamp', 'datetime' ),
 			'_lps_translation_reviewer_id' => self::field( 'integer', 'Translation reviewer user ID', 'integer' ),
+			'_lps_prepared_by'             => self::field( 'integer', 'Delegate account that drafted the record', 'integer' ),
 		);
 		$common = array_merge( $common, ImportContracts::fields( array( self::class, 'field' ) ) );
 
@@ -224,7 +225,7 @@ final class Contracts {
 		$result = array();
 		foreach ( array_keys( self::post_types() ) as $post_type ) {
 			$result[ $post_type ] = array_merge( $common, $specific[ $post_type ] );
-			foreach ( array( '_lps_owner_user_id', '_lps_translation_reviewer_id' ) as $private_key ) {
+			foreach ( array( '_lps_owner_user_id', '_lps_translation_reviewer_id', '_lps_prepared_by' ) as $private_key ) {
 				$result[ $post_type ][ $private_key ]['show_in_rest'] = false;
 			}
 		}
