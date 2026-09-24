@@ -788,14 +788,14 @@ final class TrustSurfaces {
 				$year  = $entry_year;
 				$list .= '<li class="lps-timeline-year"><h3>' . self::esc( $year ) . '</h3><ol>';
 			}
-			$month = (int) substr( $entry['stamp'], 5, 2 );
+			$month  = (int) substr( $entry['stamp'], 5, 2 );
 			$months = $english
 				? array( 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' )
 				: array( 'jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez' );
-			$day   = 1 <= $month && 12 >= $month
+			$day    = 1 <= $month && 12 >= $month
 				? ( $english ? $months[ $month - 1 ] . ' ' . (int) substr( $entry['stamp'], 8, 2 ) : (int) substr( $entry['stamp'], 8, 2 ) . ' ' . $months[ $month - 1 ] )
 				: $entry['stamp'];
-			$list .= '<li class="lps-timeline-item"><time datetime="' . self::esc( $entry['stamp'] ) . '">' . self::esc( $day ) . '</time>'
+			$list  .= '<li class="lps-timeline-item"><time datetime="' . self::esc( $entry['stamp'] ) . '">' . self::esc( $day ) . '</time>'
 				. '<span class="lps-timeline-kind">' . self::esc( $entry['kind'] ) . '</span>'
 				. '<a href="' . self::esc( $entry['url'] ) . '">' . self::esc( $entry['title'] ) . '</a></li>';
 		}
