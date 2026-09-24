@@ -415,6 +415,7 @@ final class TaskDashboard {
 			'lps_course_team_creator_missing'         => $english ? 'Include yourself in the teaching team — professors can only create subjects they teach.' : 'Inclua você na equipe docente — professores só criam disciplinas que lecionam.',
 			'lps_copy_forward_calendar_mismatch'      => $english ? 'The target term belongs to a different calendar.' : 'O período de destino pertence a outro calendário.',
 			'lps_offering_identity_conflict'          => $english ? 'This term and section already exist for the course.' : 'Este período e turma já existem para a disciplina.',
+			'lps_offering_course_unpublished'         => $english ? 'The linked course must be published first.' : 'A disciplina vinculada precisa ser publicada primeiro.',
 			'lps_teaching_scope_required'             => $english ? 'This record is outside your assigned scope.' : 'Este registro está fora do seu escopo atribuído.',
 			'lps_teaching_grant_revoked'              => $english ? 'Your grant on this offering was revoked.' : 'Sua permissão nesta oferta foi revogada.',
 			'lps_teaching_grant_expired'              => $english ? 'Your grant on this offering expired.' : 'Sua permissão nesta oferta expirou.',
@@ -1151,15 +1152,21 @@ final class TaskDashboard {
 		if ( ! self::may( 'publish', $post->post_type, $offering_id ) ) {
 			self::fail( 'lps_dashboard_scope' );
 		}
+		$lifted_course_id = 0;
 		if ( 'lps_offering' === $post->post_type ) {
-			// A professor-created course has no scoped edit lane of its own, so
-			// it publishes through this same trusted boundary — BEFORE the
-			// offering. A course still missing its contract fails the whole
-			// publish here instead of leaving the offering's public route
+			// A course minted through the create lane has no scoped edit lane of
+			// its own, so it publishes through this same trusted boundary —
+			// BEFORE the offering. A course still missing its contract fails the
+			// whole publish here instead of leaving the offering's public route
 			// pointing at a draft (the route resolves through the course).
+			// Courses the editorial lane owns stay editor-published: a scoped
+			// offering grant carries no authority over them.
 			$course_rows = Relationships::for_source( $post_id, 'offering_course' );
 			$course_id   = isset( $course_rows[0]['target_post_id'] ) ? (int) $course_rows[0]['target_post_id'] : 0;
 			if ( 0 < $course_id && 'publish' !== get_post_status( $course_id ) ) {
+				if ( '1' !== Policy::scalar_string( get_post_meta( $course_id, '_lps_pt_first', true ) ) ) {
+					self::fail( 'lps_offering_course_unpublished', 'course' );
+				}
 				Roles::begin_course_create();
 				try {
 					$course_result = self::call_guarded( static fn() => TeachingRecords::publish_record( $course_id ) );
@@ -1169,10 +1176,27 @@ final class TaskDashboard {
 				if ( $course_result instanceof WP_Error ) {
 					self::fail( (string) $course_result->get_error_code(), self::error_field( $course_result ) );
 				}
+				$lifted_course_id = $course_id;
 			}
 		}
 		$result = TeachingRecords::publish_record( $post_id );
 		if ( $result instanceof WP_Error ) {
+			if ( 0 < $lifted_course_id ) {
+				// The offering stayed a draft, so its course returns to draft as
+				// well — the pair only ever goes public together.
+				Roles::begin_course_create();
+				try {
+					wp_update_post(
+						array(
+							'ID'          => $lifted_course_id,
+							'post_status' => 'draft',
+						),
+						true
+					);
+				} finally {
+					Roles::end_course_create();
+				}
+			}
 			self::fail( (string) $result->get_error_code(), self::error_field( $result ) );
 		}
 		self::succeed( 'published' );
@@ -1444,7 +1468,7 @@ final class TaskDashboard {
 		// exempt — they curate offerings on other people's behalf already.
 		$role = Roles::policy_role( $user );
 		if ( TeachingPolicy::is_scoped_role( $role ) ) {
-			$person_id = Policy::sanitize_integer( get_user_meta( $user->ID, '_lps_person_id', true ) );
+			$person_id = self::person_for_user( $user->ID );
 			$on_team   = false;
 			foreach ( $team as $member ) {
 				if ( $member['person_id'] === $person_id ) {

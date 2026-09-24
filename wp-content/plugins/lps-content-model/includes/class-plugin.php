@@ -211,7 +211,8 @@ final class Plugin {
 		$raw_post_id = $postarr['ID'] ?? 0;
 		$post_id     = is_numeric( $raw_post_id ) ? (int) $raw_post_id : 0;
 		$role        = Roles::policy_role();
-		if ( TeachingPolicy::is_scoped_role( $role ) && ! Roles::in_course_create() ) {
+		if ( TeachingPolicy::is_scoped_role( $role )
+			&& ! ( Roles::in_course_create() && in_array( Policy::scalar_string( $data['post_type'] ?? '' ), array( 'lps_course', 'lps_offering' ), true ) ) ) {
 			$stored_post = 0 < $post_id ? get_post( $post_id ) : null;
 			if ( $stored_post instanceof WP_Post ) {
 				$scoped_error = Roles::scoped_post_error( get_current_user_id(), 'edit', $stored_post );
