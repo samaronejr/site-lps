@@ -1162,7 +1162,7 @@ final class TaskDashboard {
 			if ( ! $unit instanceof WP_Post || 'lps_unit' !== $unit->post_type || 'trash' === $unit->post_status ) {
 				continue;
 			}
-			$unit_prepared = self::prepared_marker_for( $unit_id );
+			$unit_prepared = self::prepared_display_marker_for( $unit_id );
 			$units[]       = array(
 				'id'               => $unit_id,
 				'title'            => $unit->post_title,
@@ -1190,7 +1190,7 @@ final class TaskDashboard {
 				continue;
 			}
 			$unit_rows         = Relationships::for_source( $resource_id, 'resource_unit' );
-			$resource_prepared = self::prepared_marker_for( $resource_id );
+			$resource_prepared = self::prepared_display_marker_for( $resource_id );
 			$resources[]       = array(
 				'id'                   => $resource_id,
 				'title'                => $resource->post_title,
@@ -1328,7 +1328,8 @@ final class TaskDashboard {
 			$variants    = Translations::variants( (int) $post_id );
 			$en_id       = Policy::sanitize_integer( $variants[ TranslationPolicy::TARGET_LOCALE ] ?? 0 );
 			$english     = 0 < $en_id ? get_post( $en_id ) : null;
-			$prepared_by = self::prepared_marker_for( (int) $post_id );
+			$prepared_by = self::prepared_display_marker_for( (int) $post_id );
+			$adoptable   = self::prepared_marker_for( (int) $post_id );
 			$items[]     = array(
 				'id'                => (int) $post_id,
 				'title'             => Policy::scalar_string( get_post_field( 'post_title', $post_id ) ),
@@ -1344,7 +1345,7 @@ final class TaskDashboard {
 				'note'              => Policy::scalar_string( get_post_meta( $post_id, self::REVIEW_NOTE_META, true ) ),
 				'prepared_by'       => $prepared_by,
 				'prepared_by_name'  => self::prepared_name( $prepared_by ),
-				'can_resubmit'      => (int) get_post_field( 'post_author', $post_id ) === $user_id || ( 0 < $prepared_by && self::may( 'publish', 'lps_news', 0 ) ),
+				'can_resubmit'      => (int) get_post_field( 'post_author', $post_id ) === $user_id || ( 0 < $adoptable && self::may( 'publish', 'lps_news', 0 ) ),
 				'public_url'        => 'publish' === get_post_status( $post_id ) ? (string) get_permalink( $post_id ) : '',
 				'edit_url'          => get_edit_post_link( $post_id, 'raw' ),
 				'translation_state' => 0 === $en_id ? 'missing' : ( Translations::is_stale( $en_id ) ? 'stale' : 'reviewed' ),
@@ -1691,7 +1692,12 @@ final class TaskDashboard {
 			$course_rows = Relationships::for_source( $post_id, 'offering_course' );
 			$course_id   = isset( $course_rows[0]['target_post_id'] ) ? (int) $course_rows[0]['target_post_id'] : 0;
 			if ( 0 < $course_id && 'publish' !== get_post_status( $course_id ) ) {
-				if ( '1' !== Policy::scalar_string( get_post_meta( $course_id, '_lps_pt_first', true ) ) ) {
+				// The marker records which account minted the course through the
+				// create lane: the lift runs only for that minter or for a member
+				// of the offering's teaching team — a bare grant on the offering
+				// must never publish an unrelated professor's course.
+				$minter = Policy::sanitize_integer( get_post_meta( $course_id, '_lps_pt_first', true ) );
+				if ( 0 >= $minter || ( get_current_user_id() !== $minter && ! self::on_offering_team( get_current_user_id(), $post_id ) ) ) {
 					self::fail( 'lps_offering_course_unpublished', 'course' );
 				}
 				Roles::begin_course_create();
@@ -2085,12 +2091,16 @@ final class TaskDashboard {
 		if ( '' !== $external_url && '' !== $version_id ) {
 			$errors['external_url'] = 'lps_resource_version_and_url_conflict';
 		}
-		$released = 'released' === TeachingResources::effective_release_state(
-			Policy::scalar_string( get_post_meta( $resource_id, '_lps_release_state', true ) ),
-			Policy::scalar_string( get_post_meta( $resource_id, '_lps_release_at', true ) ),
-			gmdate( 'c' )
+		$public_or_scheduled = in_array(
+			TeachingResources::effective_release_state(
+				Policy::scalar_string( get_post_meta( $resource_id, '_lps_release_state', true ) ),
+				Policy::scalar_string( get_post_meta( $resource_id, '_lps_release_at', true ) ),
+				gmdate( 'c' )
+			),
+			array( 'released', 'scheduled' ),
+			true
 		);
-		if ( '' === $external_url && '' === $version_id && $released ) {
+		if ( '' === $external_url && '' === $version_id && $public_or_scheduled ) {
 			$errors['external_url'] = 'lps_resource_version_or_url_required';
 		}
 		if ( array() !== $errors ) {
@@ -2534,8 +2544,10 @@ final class TaskDashboard {
 		}
 		// The first offering must sit on the same calendar the course declares:
 		// copy-forward enforces that equality, so the create enforces it here.
+		// A term that declares no calendar has nothing to pair against, so it
+		// cannot host a lane-minted offering either.
 		$term_calendar = TeachingContracts::normalize_calendar_key( get_post_meta( $input['term_id'], '_lps_calendar_key', true ) );
-		if ( '' !== $term_calendar && TeachingContracts::normalize_calendar_key( $input['calendar_key'] ) !== $term_calendar ) {
+		if ( '' === $term_calendar || TeachingContracts::normalize_calendar_key( $input['calendar_key'] ) !== $term_calendar ) {
 			self::recall( 'course', $input );
 			self::fail( 'lps_copy_forward_calendar_mismatch', 'term_id' );
 		}
@@ -2570,8 +2582,10 @@ final class TaskDashboard {
 			// PT-first lane: records minted here may publish before their EN pair
 			// exists (the owner approved PT-only submit, EN via a later
 			// translation task). `Translations::validate_request` honors the
-			// marker for the required-English denials only.
-			add_post_meta( $course_id, '_lps_pt_first', '1', true );
+			// marker for the required-English denials only. Its value records the
+			// minting account, which binds the publish lift to that creator's
+			// lane — see handle_publish.
+			add_post_meta( $course_id, '_lps_pt_first', (string) $user->ID, true );
 			$term_label = Policy::scalar_string( get_post_meta( $input['term_id'], '_lps_period_label', true ) );
 			$offering   = self::call_guarded(
 				static fn() => TeachingRecords::create_offering(
@@ -2605,7 +2619,7 @@ final class TaskDashboard {
 			// The offering's scoped publish lane lifts it through this same
 			// boundary when the offering goes live — see handle_publish.
 			$offering_id = Policy::sanitize_integer( $offering['id'] ?? 0 );
-			add_post_meta( $offering_id, '_lps_pt_first', '1', true );
+			add_post_meta( $offering_id, '_lps_pt_first', (string) $user->ID, true );
 			if ( 'professor' === $role || 'delegate' === $role ) {
 				// The trusted lane hands the just-created offering back to its
 				// creator so the workspace opens on the very next request.
@@ -2829,6 +2843,11 @@ final class TaskDashboard {
 		if ( array() !== $errors ) {
 			self::fail( (string) reset( $errors ), (string) array_key_first( $errors ) );
 		}
+		// Metadata leads the post update so the index and purge hooks that fire
+		// on `transition_post_status` observe the final field values.
+		update_post_meta( $unit_id, '_lps_anchor', $anchor );
+		update_post_meta( $unit_id, '_lps_position', $position );
+		update_post_meta( $unit_id, '_lps_topic_date', TeachingContracts::normalize_iso_date( $date ) );
 		$updated = wp_update_post(
 			array(
 				'ID'           => $unit_id,
@@ -2841,9 +2860,6 @@ final class TaskDashboard {
 		if ( $updated instanceof WP_Error ) {
 			self::fail( 'lps_dashboard_forbidden' );
 		}
-		update_post_meta( $unit_id, '_lps_anchor', $anchor );
-		update_post_meta( $unit_id, '_lps_position', $position );
-		update_post_meta( $unit_id, '_lps_topic_date', TeachingContracts::normalize_iso_date( $date ) );
 		Audit::record(
 			'edit',
 			$unit_id,
@@ -2930,9 +2946,56 @@ final class TaskDashboard {
 	 * @param int $post_id Record to inspect.
 	 * @return int Delegate account ID, or 0 when the marker is absent or foreign.
 	 */
+	/**
+	 * Whether an account's person record sits on an offering's teaching team.
+	 *
+	 * @param int $user_id     Account to check.
+	 * @param int $offering_id Offering carrying the team.
+	 * @return bool True when the account's person is a team member.
+	 */
+	private static function on_offering_team( int $user_id, int $offering_id ): bool {
+		$person_id = self::person_for_user( $user_id );
+		if ( 0 >= $person_id ) {
+			return false;
+		}
+		foreach ( Relationships::for_source( $offering_id, 'teaching_team' ) as $member ) {
+			if ( $member['target_post_id'] === $person_id ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Returns the delegate-prepared marker only when it is adoptable.
+	 *
+	 * Adoption provenance requires the stamp to still name the draft's author:
+	 * the delegate who created it. A marker pointing anywhere else — forged by
+	 * hand, or left behind when an editor reassigned authorship — is ignored
+	 * here, so a reassigned draft can never be adopted away from its owner.
+	 *
+	 * @param int $post_id Record to inspect.
+	 * @return int Delegate account ID, or 0 when the marker is absent or stale.
+	 */
 	private static function prepared_marker_for( int $post_id ): int {
-		$marker = Policy::sanitize_integer( get_post_meta( $post_id, '_lps_prepared_by', true ) );
+		$marker = self::prepared_display_marker_for( $post_id );
 		return (int) get_post_field( 'post_author', $post_id ) === $marker ? $marker : 0;
+	}
+
+	/**
+	 * Returns the stored delegate-prepared marker for display.
+	 *
+	 * The stamp records who actually drafted the record at insert time, so it
+	 * stays true provenance even after an editor reassigns authorship — the
+	 * badge follows the raw marker wherever it is shown. Adoption decisions
+	 * keep the stricter `prepared_marker_for` instead: once authorship moved
+	 * on from the delegate the draft is owned work, not an adoptable one.
+	 *
+	 * @param int $post_id Record to inspect.
+	 * @return int Delegate account ID recorded at creation, or 0.
+	 */
+	private static function prepared_display_marker_for( int $post_id ): int {
+		return Policy::sanitize_integer( get_post_meta( $post_id, '_lps_prepared_by', true ) );
 	}
 
 	/**

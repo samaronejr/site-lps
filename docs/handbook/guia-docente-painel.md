@@ -66,7 +66,8 @@ erro de validação devolve o formulário com o campo indicado e os valores pres
 Disponível para professor e delegado com o escopo `news` concedido. Os envios entram em revisão como
 rascunhos; um rascunho salvo nunca é público. Um rascunho criado por um delegado aparece na lista
 do professor com o selo `Preparado por` seguido do nome do delegado: o professor abre
-`Editar e reenviar`, ajusta e envia sob a própria autoridade — a marca continua como procedência.
+`Editar e reenviar`, ajusta e envia sob a própria autoridade — a marca continua como
+procedência, mesmo se a autoria do rascunho for transferida depois.
 
 1. Abra `Enviar notícia` e preencha `Título`, `Resumo`, `Conteúdo` e `Data de publicação`.
    Opcionalmente escolha o `Tema` (Pessoas, Pesquisa, História, Ensino, Institucional ou
@@ -102,7 +103,10 @@ registro de pessoa vinculado; sem isso, a tela mostra o aviso de acesso em vez d
 2. Em `Disciplina`, preencha `Título`, `Código`, `Nível` e `Calendário` (obrigatórios) e,
    opcionalmente, `Programa`, `Pré-requisitos`, `Ementa`, `Resumo` e `Conteúdo`.
 3. Em `Primeira oferta`, escolha o `Período`, informe a `Turma` e, opcionalmente, `Horários`,
-   `Local` e a `Equipe docente`. A oferta precisa de uma equipe com responsável.
+   `Local` e a `Equipe docente`. A oferta precisa de uma equipe com responsável e, como
+   docente, você precisa constar nela — o formulário traz duas linhas de membro, para você
+   e para o responsável quando são pessoas diferentes. O `Período` precisa ter um
+   calendário declarado igual ao `Calendário` da disciplina.
 4. Clique em `Criar disciplina e primeira oferta`. O aviso "Disciplina e primeira
    oferta criadas como rascunho — publique a oferta pela área de trabalho e a
    disciplina entra no ar junto." confirma.
@@ -297,7 +301,7 @@ contato para divulgar, e nenhum endereço pessoal deve ser publicado como se fos
 | "Este campo não é editável pelo painel." | O campo pertence ao editor ou ao sistema. |
 | "Uma rejeição precisa de uma nota explicando a correção necessária." | Revisão: rejeitar exige nota. |
 | "Este período e turma já existem para a disciplina." | Escolha outra turma de destino. |
-| "O período de destino pertence a outro calendário." | A cópia só vale dentro do mesmo calendário. |
+| "O período de destino pertence a outro calendário." | A cópia — e a primeira oferta — só valem dentro do mesmo calendário, e o período precisa declarar um. |
 | "Pré-visualização gerada — confirme para enviar para revisão." | Confira o cartão e confirme; nada foi enviado ainda. |
 | "Pré-visualização descartada. Nada foi enviado." | A prévia foi descartada; o formulário continua disponível. |
 | "A pré-visualização expirou. Envie o formulário novamente." | Preencha e gere a pré-visualização de novo. |

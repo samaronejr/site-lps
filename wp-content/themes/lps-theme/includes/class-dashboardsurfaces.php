@@ -1044,7 +1044,11 @@ final class DashboardSurfaces {
 				'title' => $role,
 			);
 		}
-		$rows = max( 1, count( $selected ) );
+		// One spare row beyond the selected team — two at minimum — so any
+		// composition is expressible (a co-teacher submitting for a different
+		// lead needs one row for themselves plus one for the lead). Submitted
+		// empty rows are dropped by team_from_input.
+		$rows = max( 2, count( $selected ) + 1 );
 		$html = '<fieldset class="lps-fieldset" data-team-fields><legend>' . self::esc( TaskDashboard::field_label( 'team', $locale ) ) . '</legend>';
 		for ( $index = 0; $index < $rows; $index++ ) {
 			$member = self::record( $selected[ $index ] ?? array() );

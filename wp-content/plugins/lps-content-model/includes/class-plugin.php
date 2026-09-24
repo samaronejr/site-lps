@@ -264,7 +264,7 @@ final class Plugin {
 			// Editorial drafts may rename per the lps_redirect workflow, but a
 			// lane-minted record keeps its first slug at every status: its owner
 			// cannot register redirects, so a rename would orphan the live URLs.
-			$lane_owned = '1' === Policy::scalar_string( get_post_meta( $post_id, '_lps_pt_first', true ) );
+			$lane_owned = 0 < Policy::sanitize_integer( get_post_meta( $post_id, '_lps_pt_first', true ) );
 			if ( '' !== $stored_slug && ( 'publish' === get_post_status( $post_id ) || $lane_owned )
 				&& isset( $unsanitized['post_name'] ) && ! hash_equals( $stored_slug, sanitize_title( Policy::scalar_string( $unsanitized['post_name'] ) ) ) ) {
 				self::$pending_errors[ $post_id ]['post_name'] = 'lps_immutable_published_slug';
@@ -388,7 +388,7 @@ final class Plugin {
 		$requested_slug = $request->get_param( 'slug' );
 		if ( 0 < $post_id && is_string( $requested_slug ) ) {
 			$stored_slug = Policy::scalar_string( get_post_meta( $post_id, '_lps_published_slug', true ) );
-			$lane_owned  = '1' === Policy::scalar_string( get_post_meta( $post_id, '_lps_pt_first', true ) );
+			$lane_owned  = 0 < Policy::sanitize_integer( get_post_meta( $post_id, '_lps_pt_first', true ) );
 			if ( '' !== $stored_slug && ( 'publish' === get_post_status( $post_id ) || $lane_owned )
 				&& ! hash_equals( $stored_slug, sanitize_title( $requested_slug ) ) ) {
 				return self::error( 'lps_immutable_published_slug', 'A published slug is immutable.', 'slug' );
