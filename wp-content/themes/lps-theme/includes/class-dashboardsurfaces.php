@@ -1232,7 +1232,7 @@ final class DashboardSurfaces {
 		foreach ( TeachingContracts::TEAM_ROLES as $role ) {
 			$roles[] = array(
 				'id'    => $role,
-				'title' => $role,
+				'title' => TeachingContracts::team_role_label( $role, $locale ),
 			);
 		}
 		// One spare row beyond the selected team — two at minimum — so any
@@ -1420,7 +1420,7 @@ final class DashboardSurfaces {
 		$names = array();
 		foreach ( $team as $member ) {
 			$member  = self::record( $member );
-			$names[] = self::text( $member['name'] ?? '' ) . ' (' . self::text( $member['role'] ?? '' ) . ')';
+			$names[] = self::text( $member['name'] ?? '' ) . ' (' . TeachingContracts::team_role_label( self::text( $member['role'] ?? '' ), $locale ) . ')';
 		}
 		return '<p class="lps-meta">' . self::esc( TaskDashboard::field_label( 'team', $locale ) . ': ' . implode( ', ', $names ) ) . '</p>';
 	}

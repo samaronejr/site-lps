@@ -455,12 +455,16 @@ final class TeachingRoutes {
 				$record = self::course_record( $post, $locale );
 				// The landing row links straight into the live section so a
 				// student reaches current materials in one hop.
-				foreach ( self::course_offerings( $post, $locale ) as $offering ) {
+				$offerings = self::course_offerings( $post, $locale );
+				foreach ( $offerings as $offering ) {
 					if ( 'current' === self::text( $offering['temporal_status'] ?? '' ) ) {
 						$record['current_offering'] = $offering;
 						break;
 					}
 				}
+				// Sorted newest-first already — the landing's professor cell
+				// falls back to the latest offering when nothing is current.
+				$record['latest_offering'] = $offerings[0] ?? null;
 				$courses[] = $record;
 			}
 		}

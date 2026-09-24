@@ -204,6 +204,7 @@ final class SearchRoutes {
 		add_filter( 'redirect_canonical', array( self::class, 'keep_locale_route' ), 10, 2 );
 		add_filter( 'language_attributes', array( self::class, 'route_language_attributes' ), 220 );
 		add_filter( 'wp_robots', array( self::class, 'route_robots' ) );
+		add_action( 'parse_request', array( self::class, 'alias_core_search_param' ) );
 	}
 
 	/**
@@ -240,6 +241,32 @@ final class SearchRoutes {
 			return false;
 		}
 		return $redirect_url;
+	}
+
+	/**
+	 * Aliases the core `s` parameter onto the custom search state on search routes.
+	 *
+	 * The locale search surface speaks `q`; a bare `s` keeps the same meaning for
+	 * tools and visitors arriving through WordPress's native search convention.
+	 */
+	public static function alias_core_search_param(): void {
+		$route = self::match_path( self::request_path() );
+		if ( null === $route ) {
+			return;
+		}
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only public search alias.
+		$core = isset( $_GET['s'] ) && is_string( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+		if ( '' === $core ) {
+			return;
+		}
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only public search alias.
+		$query  = isset( $_GET['q'] ) && is_string( $_GET['q'] ) ? sanitize_text_field( wp_unslash( $_GET['q'] ) ) : '';
+		$state  = self::state_from_request( array( 'q' => '' === $query ? $core : $query ), $route['locale'] );
+		$target = home_url( self::canonical_url( self::search_path( $route['locale'] ), $state ) );
+		if ( function_exists( 'wp_safe_redirect' ) ) {
+			wp_safe_redirect( $target, 301 );
+			exit;
+		}
 	}
 
 	/**

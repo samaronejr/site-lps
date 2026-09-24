@@ -99,6 +99,22 @@ final class TeachingContracts {
 	}
 
 	/**
+	 * Returns the display label for one teaching-team role.
+	 *
+	 * @param string $role   Role key from self::TEAM_ROLES.
+	 * @param string $locale Supported locale slug.
+	 */
+	public static function team_role_label( string $role, string $locale ): string {
+		$english = 'en' === $locale;
+		return match ( $role ) {
+			'lead'       => $english ? 'lead' : 'responsável',
+			'co-teacher' => $english ? 'co-teacher' : 'co-docente',
+			'assistant'  => $english ? 'assistant' : 'assistente',
+			default      => $role,
+		};
+	}
+
+	/**
 	 * Returns teaching-specific metadata definitions keyed by record type.
 	 *
 	 * @param callable $field The Contracts::field factory.
