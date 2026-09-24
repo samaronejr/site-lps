@@ -259,12 +259,12 @@ final class Plugin {
 				return $data;
 			}
 		}
-		if ( true === $update && 'publish' === get_post_status( $post_id ) ) {
-			$stored_slug = Policy::scalar_string( get_post_meta( $post_id, '_lps_published_slug', true ) );
-			if ( '' !== $stored_slug && isset( $unsanitized['post_name'] ) && ! hash_equals( $stored_slug, sanitize_title( Policy::scalar_string( $unsanitized['post_name'] ) ) ) ) {
-				self::$pending_errors[ $post_id ]['post_name'] = 'lps_immutable_published_slug';
-				$data['post_name']                             = $stored_slug;
-			}
+		$stored_slug = $update ? Policy::scalar_string( get_post_meta( $post_id, '_lps_published_slug', true ) ) : '';
+		if ( '' !== $stored_slug && isset( $unsanitized['post_name'] ) && ! hash_equals( $stored_slug, sanitize_title( Policy::scalar_string( $unsanitized['post_name'] ) ) ) ) {
+			// A record that was ever public keeps its slug even while draft —
+			// a rolled-back course republishes under the URL it first claimed.
+			self::$pending_errors[ $post_id ]['post_name'] = 'lps_immutable_published_slug';
+			$data['post_name']                             = $stored_slug;
 		}
 		if ( 'publish' === ( $data['post_status'] ?? '' ) ) {
 			$translation_error = Translations::validate_request( $post_type, $post_id, 'publish', $incoming );
@@ -381,11 +381,9 @@ final class Plugin {
 		}
 
 		$requested_slug = $request->get_param( 'slug' );
-		if ( 0 < $post_id && 'publish' === get_post_status( $post_id ) && is_string( $requested_slug ) ) {
-			$stored_slug = Policy::scalar_string( get_post_meta( $post_id, '_lps_published_slug', true ) );
-			if ( '' !== $stored_slug && ! hash_equals( $stored_slug, sanitize_title( $requested_slug ) ) ) {
-				return self::error( 'lps_immutable_published_slug', 'A published slug is immutable.', 'slug' );
-			}
+		$stored_slug    = 0 < $post_id ? Policy::scalar_string( get_post_meta( $post_id, '_lps_published_slug', true ) ) : '';
+		if ( '' !== $stored_slug && is_string( $requested_slug ) && ! hash_equals( $stored_slug, sanitize_title( $requested_slug ) ) ) {
+			return self::error( 'lps_immutable_published_slug', 'A published slug is immutable.', 'slug' );
 		}
 
 		if ( isset( $incoming['_lps_origin'] ) ) {
