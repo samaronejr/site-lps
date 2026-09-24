@@ -1182,8 +1182,12 @@ final class TaskDashboard {
 		$result = TeachingRecords::publish_record( $post_id );
 		if ( $result instanceof WP_Error ) {
 			if ( 0 < $lifted_course_id ) {
-				// The offering stayed a draft, so its course returns to draft as
-				// well — the pair only ever goes public together.
+				// The offering stayed a draft, so its course returns to draft
+				// as well — the pair only ever goes public together. The save
+				// stamps _lps_state and _lps_published_slug through
+				// complete_record, so both are cleared after the write
+				// (update_post_meta on them is role-guarded; the delete path
+				// is not).
 				Roles::begin_course_create();
 				try {
 					wp_update_post(
@@ -1193,6 +1197,8 @@ final class TaskDashboard {
 						),
 						true
 					);
+					delete_post_meta( $lifted_course_id, '_lps_state' );
+					delete_post_meta( $lifted_course_id, '_lps_published_slug' );
 				} finally {
 					Roles::end_course_create();
 				}
