@@ -1184,10 +1184,11 @@ final class TaskDashboard {
 			if ( 0 < $lifted_course_id ) {
 				// The offering stayed a draft, so its course returns to draft
 				// as well — the pair only ever goes public together. The save
-				// stamps _lps_state and _lps_published_slug through
-				// complete_record, so both are cleared after the write
-				// (update_post_meta on them is role-guarded; the delete path
-				// is not).
+				// preserves _lps_state=published through complete_record, so
+				// the editorial state is written back to draft through the
+				// same system-owned meta boundary complete_record uses.
+				// _lps_published_slug stays: the course did reach public, and
+				// the slug keeps that immutable first-published identity.
 				Roles::begin_course_create();
 				try {
 					wp_update_post(
@@ -1197,11 +1198,12 @@ final class TaskDashboard {
 						),
 						true
 					);
-					delete_post_meta( $lifted_course_id, '_lps_state' );
-					delete_post_meta( $lifted_course_id, '_lps_published_slug' );
 				} finally {
 					Roles::end_course_create();
 				}
+				remove_filter( 'update_post_metadata', array( Plugin::class, 'protect_role_meta' ), 11 );
+				update_post_meta( $lifted_course_id, '_lps_state', 'draft' );
+				add_filter( 'update_post_metadata', array( Plugin::class, 'protect_role_meta' ), 11, 5 );
 			}
 			self::fail( (string) $result->get_error_code(), self::error_field( $result ) );
 		}
