@@ -65,6 +65,10 @@ final class DashboardRoutes {
 			'pt-br' => 'nova-oferta',
 			'en'    => 'new-offering',
 		),
+		'course'   => array(
+			'pt-br' => 'disciplinas',
+			'en'    => 'courses',
+		),
 	);
 
 	/**
