@@ -393,6 +393,7 @@ final class TeachingSurfaces {
 			unset( $materials_by_unit[ $anchor ] );
 		}
 		$render_materials_section = array() !== $ungrouped || array() === $materials;
+		$notices                  = self::record( $offering['notices'] ?? null );
 
 		$course_url   = self::safe_url( self::text( $course['url'] ?? '' ) );
 		$course_title = self::text( $course['title'] ?? '' );
@@ -462,6 +463,35 @@ final class TeachingSurfaces {
 			$html .= '</section>';
 		}
 
+		// The avisos stream is public and PT-first by design: it renders here
+		// the moment a professor posts, on both locale routes, newest first.
+		if ( array() !== $notices ) {
+			$items = '';
+			foreach ( $notices as $notice ) {
+				$notice = self::record( $notice );
+				$body   = self::text( $notice['body'] ?? '' );
+				if ( '' === $body ) {
+					continue;
+				}
+				$items  .= '<li class="lps-record">';
+				$created = substr( self::text( $notice['created_at'] ?? '' ), 0, 10 );
+				if ( '' !== $created ) {
+					$items .= '<p class="lps-meta"><time datetime="' . self::esc( $created ) . '">' . self::esc( self::format_date( $created, $locale ) ) . '</time></p>';
+				}
+				$items .= self::body( $body );
+				$items .= '</li>';
+			}
+			if ( '' !== $items ) {
+				$html .= '<section class="lps-section" aria-labelledby="avisos">';
+				$html .= '<div class="lps-section-head"><div>'
+					. '<p class="lps-kicker">' . self::esc( $english ? 'Latest' : 'Mural' ) . '</p>'
+					. '<h2 id="avisos">' . self::esc( $english ? 'Announcements' : 'Avisos' ) . '</h2>'
+					. '</div></div>';
+				$html .= '<ul class="lps-record-list">' . $items . '</ul>';
+				$html .= '</section>';
+			}
+		}
+
 		if ( array() !== $team ) {
 			$members = '';
 			foreach ( $team as $member ) {
@@ -497,10 +527,13 @@ final class TeachingSurfaces {
 
 		// Materials-first navigation: the contents strip links every unit anchor
 		// and the materials section so a long list stays reachable near the top.
-		if ( array() !== $units || $render_materials_section ) {
+		if ( array() !== $units || $render_materials_section || array() !== $notices ) {
 			$html .= '<nav class="lps-toc" aria-label="' . self::esc( $english ? 'Units and materials' : 'Unidades e materiais' ) . '">';
 			$html .= '<h2>' . self::esc( $english ? 'Contents' : 'Conteúdo' ) . '</h2>';
 			$html .= '<ul>';
+			if ( array() !== $notices ) {
+				$html .= '<li><a href="#avisos">' . self::esc( $english ? 'Announcements' : 'Avisos' ) . '</a></li>';
+			}
 			foreach ( $units as $unit ) {
 				$unit   = self::record( $unit );
 				$anchor = self::text( $unit['anchor'] ?? '' );

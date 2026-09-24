@@ -113,44 +113,43 @@ registro de pessoa vinculado; sem isso, a tela mostra o aviso de acesso em vez d
 Se a segunda etapa falhar, a disciplina recém-criada é removida automaticamente — tente de
 novo sem medo de duplicar cadastros.
 
-## Criar disciplina (`/pt-br/painel/disciplinas/`)
-
-Disponível para professor e administrador — o docente cadastra disciplinas diretamente, sem
-passar por revisão editorial. A conta precisa ter a verificação em duas etapas ativa e um
-registro de pessoa vinculado; sem isso, a tela mostra o aviso de acesso em vez do formulário.
-
-1. Abra `Criar disciplina`. O formulário tem dois blocos: `Disciplina` e `Primeira oferta`.
-2. Em `Disciplina`, preencha `Título`, `Código`, `Nível`, `Calendário`, `Resumo` e
-   `Conteúdo` (obrigatórios) e, opcionalmente, `Programa`, `Pré-requisitos` e `Ementa`.
-3. Em `Primeira oferta`, escolha o `Período`, informe a `Turma` e, opcionalmente, `Horários`,
-   `Local` e a `Equipe docente`. A oferta precisa de uma equipe com responsável e, como
-   docente, você precisa constar nela — disciplinas só podem ser criadas por quem leciona.
-4. Clique em `Criar disciplina e primeira oferta`. O aviso "Disciplina e primeira
-   oferta criadas como rascunho — publique a oferta pela área de trabalho e a
-   disciplina entra no ar junto." confirma.
-5. Os dois registros nascem como rascunho e a oferta já aparece na sua lista
-   `Minhas ofertas`: a permissão sobre ela é concedida automaticamente. Ao publicar a
-   oferta pela área de trabalho, a disciplina publica junto automaticamente. O envio
-   primeiro em português é permitido — a variante em inglês pode ser adicionada depois
-   pela tarefa de tradução.
-
-Se a segunda etapa falhar, a disciplina recém-criada é removida automaticamente — tente de
-novo sem medo de duplicar cadastros.
-
 ## Área da oferta (`/pt-br/painel/ofertas/`)
 
 Cada oferta atribuída abre uma área de trabalho com os links `Ver a página pública` e
-`Editar o registro da oferta`, as listas `Unidades` e `Materiais`, e os formulários descritos
-abaixo.
+`Editar o registro da oferta`, a seção `Dados da oferta`, a lista `Avisos`, as listas
+`Unidades` e `Materiais`, e os formulários descritos abaixo.
+
+### Dados da oferta
+
+1. Em `Dados da oferta`, ajuste `Horários`, `Local` e `Notas do período` e clique em
+   `Salvar dados da oferta`.
+2. `Horários` e `Local` aparecem na página pública da oferta nos dois idiomas. As
+   `Notas do período` são do registro em português — a versão em inglês é um campo
+   localizado da variante e atualiza pela tarefa de tradução.
+3. A edição exige permissão sobre a oferta; fora do seu escopo, o envio é recusado com
+   "Este registro está fora do seu escopo atribuído.".
+
+### Avisos
+
+1. Em `Avisos`, escreva o texto no campo `Aviso` e clique em `Publicar aviso`. O aviso aparece
+   na hora na seção `Avisos` da página pública da oferta, nas rotas em português e em inglês,
+   do mais recente ao mais antigo.
+2. Avisos são um fluxo próprio, leve e PT-first: não passam pela fila de publicação nem
+   exigem variante em inglês — a decisão é manter o mural da turma sem fricção editorial.
+3. `Remover` tira o aviso da página pública; a remoção é imediata e definitiva.
 
 ### Adicionar unidade
 
 1. Em `Adicionar unidade`, preencha `Título`, `Âncora` (o identificador estável da unidade),
-   `Posição` (número inteiro a partir de 1) e, se quiser, `Data do tópico` no formato
-   `AAAA-MM-DD`.
+   `Posição` (número inteiro a partir de 1) e, se quiser, `Resumo`, `Conteúdo` (o corpo da
+   aula, com parágrafos e HTML básico) e `Data do tópico` no formato `AAAA-MM-DD`.
 2. Clique em `Criar a unidade em rascunho`. A unidade entra na lista como `Rascunho`.
-3. Professor pode publicar a unidade com `Publicar unidade` ou abrir `Editar` para ajustá-la.
-   Unidade é conteúdo interno: ela organiza os materiais e não vira página pública própria.
+3. Para ajustar uma unidade existente, abra `Editar unidade` nela ou use o link `Editar` para
+   abri-la no editor: título, resumo, conteúdo, âncora, posição e data do tópico ficam
+   editáveis, e `Salvar unidade` grava tudo.
+4. Professor pode publicar a unidade com `Publicar unidade`. Unidade é conteúdo interno: ela
+   organiza os materiais e não vira página pública própria — mas seu `Conteúdo` renderiza na
+   página pública da oferta, dentro da unidade.
 
 Uma unidade preparada por um delegado aparece na lista com o selo `Preparado por` seguido do nome
 do delegado; o professor edita e publica normalmente sob a própria autoridade.
@@ -198,10 +197,14 @@ pela rota protegida. O arquivo nunca fica exposto como URL adivinhável.
 - Retirar da entrega pública: clique em `Retirar`. O estado muda para `Retirado`, o link de
   download deixa de funcionar e o material sai da busca, mas o registro e o histórico permanecem.
   Voltar a disponibilizar exige uma nova decisão de publicação.
-- Corrigir dados da oferta (horários, local, ementa publicada, link do LMS, cancelamento): edite o
-  registro da oferta. Quando a mesma correção vale para outras ofertas da mesma disciplina, a
-  propagação é uma operação do editor que grava uma revisão em cada oferta escolhida; nada muda em
-  oferta que não foi explicitamente selecionada.
+- Corrigir dados da oferta (horários, local, ementa publicada, link do LMS, cancelamento): use
+  `Dados da oferta` na área de trabalho para horários, local e notas do período — eles valem na
+  hora na página pública. Ementa publicada, link do LMS e cancelamento ficam no registro da
+  oferta. Quando a mesma correção vale para outras ofertas da mesma disciplina, a propagação é
+  uma operação do editor que grava uma revisão em cada oferta escolhida; nada muda em oferta
+  que não foi explicitamente selecionada.
+- Descrever e reordenar materiais: `Editar material` ajusta título, resumo (exibido na página
+  pública), tipo, idioma e URL externa; `Reordenar materiais` numera a ordem da lista pública.
 
 ## Copiar para o próximo período
 
