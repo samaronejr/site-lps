@@ -1339,6 +1339,7 @@ input[type="email"],
 input[type="url"],
 input[type="number"],
 input[type="tel"],
+input[type="file"],
 select,
 textarea {
   background: var(--color-surface);
@@ -1362,6 +1363,31 @@ input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
   border-color: var(--color-action);
+}
+
+input[type="file"] {
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding-inline: var(--space-2);
+}
+
+input[type="file"]::file-selector-button {
+  background: var(--color-surface-alt);
+  border: var(--line-thin) solid var(--color-boundary-strong);
+  border-radius: var(--radius-control);
+  color: var(--color-anchor);
+  cursor: pointer;
+  font-size: var(--type-small);
+  font-weight: 650;
+  margin-inline-end: var(--space-3);
+  min-block-size: var(--control-min);
+  padding-inline: var(--space-4);
+  transition: border-color var(--motion-fast) var(--ease-state);
+}
+
+input[type="file"]::file-selector-button:hover {
+  border-color: var(--color-action);
+  color: var(--color-action-hover);
 }
 
 .lps-locale ul {
@@ -3280,11 +3306,61 @@ th code {
  * ------------------------------------------------------------------------- */
 
 .lps-dashboard-section {
+  margin-block-start: var(--space-10);
+}
+
+.lps-dashboard-section > :is(h2, h3),
+section.lps-dashboard-form > :is(h2, h3) {
+  margin-block: 0 var(--space-4);
+  padding-block-start: var(--space-4);
+  position: relative;
+}
+
+.lps-dashboard-section > :is(h2, h3)::before,
+section.lps-dashboard-form > :is(h2, h3)::before {
+  background: var(--color-anchor);
+  block-size: var(--line-heavy);
+  content: "";
+  inline-size: 3.5rem;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  position: absolute;
+}
+
+section.lps-dashboard-form,
+section.lps-dashboard-create {
   background: var(--color-surface);
-  border: var(--rule-hairline);
-  border-block-start: var(--rule-heavy);
+  border: 1px solid var(--color-card-rule);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
   margin-block-start: var(--space-8);
   padding: clamp(var(--space-5), 2.4vw, var(--space-8));
+}
+
+section.lps-dashboard-create > form {
+  display: grid;
+  gap: var(--space-5);
+}
+
+details.lps-dashboard-edit {
+  border: var(--rule-hairline);
+  border-radius: var(--radius-md);
+  margin-block-start: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+}
+
+details.lps-dashboard-edit > summary {
+  color: var(--color-anchor);
+  cursor: pointer;
+  font-weight: 650;
+}
+
+details.lps-dashboard-edit > summary:hover {
+  color: var(--color-action-hover);
+}
+
+details.lps-dashboard-edit > form {
+  margin-block-start: var(--space-4);
 }
 
 .lps-dashboard-form,
@@ -3301,6 +3377,7 @@ th code {
 
 .lps-fieldset {
   border: var(--rule-hairline);
+  border-radius: var(--radius-md);
   padding: var(--space-5);
 }
 
@@ -3341,9 +3418,33 @@ th code {
   color: var(--color-action-hover);
 }
 
+.lps-dashboard-main .lps-record-list > li {
+  align-items: baseline;
+  column-gap: var(--space-4);
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: var(--space-2);
+}
+
+.lps-dashboard-main .lps-record-list > li > :is(time, span).lps-meta {
+  margin-inline-start: auto;
+}
+
+.lps-dashboard-main .lps-record-list > li > :is(p, form, dl, ol, ul, div) {
+  flex-basis: 100%;
+  margin-block: 0;
+}
+
+.lps-dashboard-main .lps-record-list > li > form {
+  border-block-start: var(--rule-hairline);
+  margin-block-start: var(--space-3);
+  padding-block-start: var(--space-4);
+}
+
 .lps-proposal-diff,
 .lps-migration-diff {
   background: var(--color-surface-alt);
+  border-radius: var(--radius-md);
   font-family: var(--font-mono);
   font-size: var(--type-small);
   padding: var(--space-5);
@@ -4211,24 +4312,67 @@ th code {
 
 .lps-dashboard-tasks .lps-task-list {
   display: grid;
-  gap: var(--space-3);
+  gap: var(--space-4);
   padding: 0;
   list-style: none;
   grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
 }
 
+.lps-dashboard-tasks .lps-task-list > li {
+  background: var(--color-surface);
+  border: 1px solid var(--color-card-rule);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-8) var(--space-5) var(--space-6);
+  position: relative;
+  transition:
+    border-color var(--motion-fast) var(--ease-state),
+    transform var(--motion-fast) var(--ease-state);
+}
+
+.lps-dashboard-tasks .lps-task-list > li::after {
+  block-size: 0.45rem;
+  border-block-start: var(--line-thin) solid var(--color-boundary-strong);
+  border-inline-end: var(--line-thin) solid var(--color-boundary-strong);
+  content: "";
+  inline-size: 0.45rem;
+  inset-block-start: var(--space-6);
+  inset-inline-end: var(--space-6);
+  position: absolute;
+  transform: rotate(45deg);
+  transition: border-color var(--motion-fast) var(--ease-state);
+}
+
+.lps-dashboard-tasks .lps-task-list > li:hover {
+  border-color: var(--color-action);
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px);
+}
+
+.lps-dashboard-tasks .lps-task-list > li:hover::after {
+  border-color: var(--color-action);
+}
+
 .lps-dashboard-tasks .lps-task-link {
   display: block;
-  padding: var(--space-4) var(--space-5);
-  border: var(--rule-boundary);
-  border-radius: var(--radius-xs);
+  border: 0;
+  border-radius: 0;
+  color: var(--color-anchor);
+  font-family: var(--font-display);
+  font-size: var(--type-lead, 1.125rem);
   font-weight: 700;
+  padding: 0;
   text-decoration: none;
 }
 
 .lps-dashboard-tasks .lps-task-link:hover {
-  border-color: var(--color-action);
   color: var(--color-action-hover);
+}
+
+.lps-dashboard-tasks .lps-field-hint {
+  margin: 0;
 }
 
 /* ----------------------------------------------------------------------------
@@ -4918,79 +5062,138 @@ a.lps-button-ghost {
   overflow: hidden;
 }
 
-.lps-timeline {
+/* Institutional timeline: sticky year in the gutter, entries ruled off a
+   continuous rail. */
+.lps-chrono {
   display: grid;
-  gap: 2rem;
+  gap: var(--space-12);
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.lps-timeline-year {
+.lps-chrono-year {
+  column-gap: var(--space-8);
   display: grid;
-  gap: 1rem;
-  grid-template-columns: 4.5rem 1fr;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
 }
 
-.lps-timeline-year > h3 {
+.lps-chrono-year > h3 {
   color: var(--color-accent);
-  font-size: 1.25rem;
+  font-size: var(--type-h3);
+  font-variant-numeric: tabular-nums;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
   margin: 0;
   position: sticky;
-  top: 1rem;
+  top: var(--space-4);
 }
 
-.lps-timeline-year > ol {
-  border-inline-start: var(--rule-hairline);
+.lps-chrono-year > ol {
+  border-block-start: var(--rule-hairline);
+  border-inline-start: var(--line-thin) solid var(--color-boundary-strong);
   display: grid;
-  gap: 0.75rem;
   list-style: none;
   margin: 0;
-  padding: 0 0 0 1.5rem;
+  padding: 0;
 }
 
-.lps-timeline-item {
+.lps-chrono-item {
   align-items: baseline;
+  border-block-end: var(--rule-hairline);
+  column-gap: var(--space-5);
   display: grid;
-  gap: 0.375rem 1rem;
-  grid-template-columns: 4.5rem 6.5rem 1fr;
+  grid-template-columns: 4.75rem minmax(0, 1fr);
+  padding: var(--space-4) var(--space-3) var(--space-4) var(--space-6);
   position: relative;
+  transition: background-color var(--motion-fast) var(--ease-state);
 }
 
-.lps-timeline-item::before {
+.lps-chrono-item::before {
   background: var(--color-accent);
   border-radius: var(--radius-pill);
-  block-size: 0.375rem;
+  block-size: 0.45rem;
   content: "";
-  inline-size: 0.375rem;
-  inset-inline-start: -1.6875rem;
+  inline-size: 0.45rem;
+  inset-block-start: calc(var(--space-4) + 0.4rem);
+  inset-inline-start: -0.26rem;
   position: absolute;
-  top: 0.5rem;
+  transition: transform var(--motion-fast) var(--ease-state);
 }
 
-.lps-timeline-item time {
+.lps-chrono-item:hover {
+  background-color: var(--color-surface);
+}
+
+.lps-chrono-item:hover::before {
+  transform: scale(1.4);
+}
+
+.lps-chrono-item:last-child {
+  border-block-end: none;
+}
+
+.lps-chrono-date {
   color: var(--color-anchor-soft);
-  font-size: 0.8125rem;
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
   font-variant-numeric: tabular-nums;
-}
-
-.lps-timeline-kind {
-  color: var(--color-anchor-soft);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
   text-transform: uppercase;
 }
 
-.lps-timeline-item a {
-  color: var(--color-anchor);
-  font-weight: 550;
-  transition: color var(--motion-standard) var(--ease-state);
+.lps-chrono-body {
+  font-size: var(--type-body);
+  line-height: 1.5;
+  min-inline-size: 0;
 }
 
-.lps-timeline-item a:hover {
+.lps-chrono-kind {
+  border-radius: var(--radius-pill);
+  display: inline-block;
+  font-size: var(--type-meta);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1.4;
+  margin-inline-end: var(--space-3);
+  padding: 0.0625rem 0.5rem;
+  text-transform: uppercase;
+}
+
+.lps-chrono-item[data-state="news"] .lps-chrono-kind {
+  background: var(--color-info-wash);
+  color: var(--color-anchor);
+}
+
+.lps-chrono-item[data-state="upcoming"] .lps-chrono-kind,
+.lps-chrono-item[data-state="ongoing"] .lps-chrono-kind {
+  background: var(--color-teal-wash);
+  color: var(--color-teal-ink);
+}
+
+.lps-chrono-item[data-state="past"] .lps-chrono-kind {
+  background: var(--color-accent-wash);
+  color: var(--color-anchor-soft);
+}
+
+.lps-chrono-item[data-state="cancelled"] .lps-chrono-kind,
+.lps-chrono-item[data-state="postponed"] .lps-chrono-kind {
+  background: var(--color-error-wash);
+  color: var(--color-error-ink);
+}
+
+.lps-chrono-body a {
+  color: var(--color-anchor);
+  font-weight: 550;
+  text-decoration-color: var(--color-rule-quiet);
+  text-underline-offset: 0.2em;
+  transition: color var(--motion-fast) var(--ease-state);
+}
+
+.lps-chrono-body a:hover {
   color: var(--color-action);
 }
 
@@ -5008,15 +5211,17 @@ a.lps-button-ghost {
     aspect-ratio: 16 / 9;
   }
 
-  .lps-timeline-year {
+  .lps-chrono-year {
     grid-template-columns: 1fr;
   }
 
-  .lps-timeline-year > h3 {
+  .lps-chrono-year > h3 {
     position: static;
   }
 
-  .lps-timeline-item {
-    grid-template-columns: 1fr;
+  .lps-chrono-item {
+    column-gap: var(--space-3);
+    grid-template-columns: 3.75rem minmax(0, 1fr);
+    padding-inline: var(--space-5) 0;
   }
 }

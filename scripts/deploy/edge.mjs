@@ -41,6 +41,7 @@ import path from "node:path";
 const ORIGIN = process.env.LPS_EDGE_ORIGIN ?? "http://127.0.0.1:8927";
 const HTTPS_PORT = Number(process.env.LPS_EDGE_HTTPS_PORT ?? 8443);
 const HTTP_PORT = Number(process.env.LPS_EDGE_HTTP_PORT ?? 8080);
+const HOST = process.env.LPS_EDGE_HOST ?? "127.0.0.1";
 const ROOT = process.env.LPS_EDGE_ROOT ?? ".omo/staging";
 const OPS = `${ROOT}/ops`;
 const LOGS = `${OPS}/logs`;
@@ -618,17 +619,18 @@ createHttpsServer(tls, (req, res) => {
       error: String(error?.stack ?? error),
     });
   });
-}).listen(HTTPS_PORT, "127.0.0.1", () => {
-  console.log(`edge https ready on 127.0.0.1:${HTTPS_PORT}`);
+}).listen(HTTPS_PORT, HOST, () => {
+  console.log(`edge https ready on ${HOST}:${HTTPS_PORT}`);
 });
 
 createHttpServer((req, res) => {
   const url = new URL(req.url, "http://edge");
+  const host = (req.headers.host ?? "127.0.0.1").replace(/:\d+$/, "");
   res.writeHead(301, {
-    location: `https://127.0.0.1:${HTTPS_PORT}${url.pathname}${url.search}`,
+    location: `https://${host}:${HTTPS_PORT}${url.pathname}${url.search}`,
     ...STATIC_HEADERS,
   });
   res.end();
-}).listen(HTTP_PORT, "127.0.0.1", () => {
-  console.log(`edge http->https redirect ready on 127.0.0.1:${HTTP_PORT}`);
+}).listen(HTTP_PORT, HOST, () => {
+  console.log(`edge http->https redirect ready on ${HOST}:${HTTP_PORT}`);
 });
