@@ -66,6 +66,7 @@ const HTTPS_PORT = Number(arg("https-port", process.env.LPS_EDGE_HTTPS_PORT ?? 8
 const HTTP_PORT = Number(arg("http-port", process.env.LPS_EDGE_HTTP_PORT ?? 8080));
 const ORIGIN_PORT = Number(arg("origin-port", process.env.LPS_ORIGIN_PORT ?? 8927));
 const SITE_URL = arg("site-url", process.env.LPS_SITE_URL ?? `https://127.0.0.1:${HTTPS_PORT}`);
+const EDGE_HOST = arg("edge-host", process.env.LPS_EDGE_HOST ?? "127.0.0.1");
 const ORIGIN_URL = `http://127.0.0.1:${ORIGIN_PORT}`;
 const WP_CLI_SHA256 = "ce34ddd838f7351d6759068d09793f26755463b4a4610a5a5c0a97b68220d85c";
 const WP_CLI_VERSION = "2.12.0";
@@ -825,6 +826,7 @@ async function serveEdge() {
       LPS_EDGE_ORIGIN: ORIGIN_URL,
       LPS_EDGE_HTTPS_PORT: String(HTTPS_PORT),
       LPS_EDGE_HTTP_PORT: String(HTTP_PORT),
+      LPS_EDGE_HOST: EDGE_HOST,
       LPS_EDGE_TLS_CERT: `${OPS}/tls/edge-cert.pem`,
       LPS_EDGE_TLS_KEY: `${OPS}/tls/edge-key.pem`,
       LPS_EDGE_ROOT: ROOT,
@@ -916,7 +918,7 @@ function ensureTls() {
     "-subj",
     "/CN=127.0.0.1",
     "-addext",
-    "subjectAltName=IP:127.0.0.1,DNS:localhost",
+    `subjectAltName=${["IP:127.0.0.1", "DNS:localhost", /^\d+\.\d+\.\d+\.\d+$/.test(new URL(SITE_URL).hostname) ? `IP:${new URL(SITE_URL).hostname}` : ""].filter(Boolean).join(",")}`,
   ]);
   chmodSync(key, 0o600);
   return { created: result.exit === 0, cert, exit: result.exit, stderr: result.stderr.slice(-500) };
