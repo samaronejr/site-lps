@@ -155,9 +155,11 @@ listas.
 - **Membros**: cada conta mostra nome, categoria, selo de suspensão e a marcação `(você)` na
   sua própria linha. `Gerenciar conta` abre duas ações: `Aplicar categoria` (troca o papel e as
   áreas de conteúdo da conta) e `Suspender`/`Reativar` (suspender reduz a conta ao papel de
-  membro sem apagar nada; reativar devolve o papel da categoria). Você não pode se suspender, e
+  membro sem apagar nada; reativar devolve o papel da categoria). Suspender duas vezes seguidas
+  ou reativar uma conta que não está suspensa é recusado — o papel original fica guardado na
+  primeira suspensão. Você não pode se suspender, e
   um docente não mexe em contas de administrador nem concede categorias com privilégio de
-  administrador.
+  administrador — a conta suspensa de um administrador continua protegida.
 - **Adicionar membro**: nome, e-mail e login (o login sai do e-mail quando fica em branco),
   categoria e senha inicial (mínimo de 8 caracteres, entregue ao membro por fora — ele a troca
   no primeiro acesso). A caixa `Criar também o registro público de pessoa` cria um rascunho de

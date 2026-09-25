@@ -181,7 +181,7 @@
       "id": "faculty-dashboard-labels",
       "kind": "source",
       "doc": "docs/handbook/guia-docente-painel.md",
-      "reviewedAt": "2026-09-24",
+      "reviewedAt": "2026-09-25",
       "maxAgeDays": 180,
       "sources": [
         {
@@ -190,7 +190,7 @@
         },
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-taskdashboard.php",
-          "sha256": "2514c17b047fb48c086404a7826bc7b323f8d4d77337edeec979c45dfaf8a1ad"
+          "sha256": "746d1784bcdc45379fb6f1cd241b5241b729a40cadee002c90f549086a333618"
         },
         {
           "path": "wp-content/themes/lps-theme/includes/class-dashboardroutes.php",
