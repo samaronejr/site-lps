@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace LPS\Theme;
 
 use LPS\ContentModel\Relationships;
+use LPS\ContentModel\TaskDashboard;
 use LPS\ContentModel\TeachingContracts;
 use LPS\ContentModel\TeachingRecords;
 use LPS\ContentModel\TeachingResources;
@@ -454,13 +455,17 @@ final class TeachingRoutes {
 				$record = self::course_record( $post, $locale );
 				// The landing row links straight into the live section so a
 				// student reaches current materials in one hop.
-				foreach ( self::course_offerings( $post, $locale ) as $offering ) {
+				$offerings = self::course_offerings( $post, $locale );
+				foreach ( $offerings as $offering ) {
 					if ( 'current' === self::text( $offering['temporal_status'] ?? '' ) ) {
 						$record['current_offering'] = $offering;
 						break;
 					}
 				}
-				$courses[] = $record;
+				// Sorted newest-first already — the landing's professor cell
+				// falls back to the latest offering when nothing is current.
+				$record['latest_offering'] = $offerings[0] ?? null;
+				$courses[]                 = $record;
 			}
 		}
 		return $courses;
@@ -600,6 +605,9 @@ final class TeachingRoutes {
 			'team'            => $team,
 			'units'           => $units,
 			'materials'       => $with_materials ? self::offering_materials( $authority ) : array(),
+			// The authority-side notice stream: one read serves both locale
+			// routes, and PT-first posts render without an EN variant.
+			'notices'         => class_exists( TaskDashboard::class ) ? TaskDashboard::notices_for_offering( $authority ) : array(),
 			'siblings'        => array(),
 		);
 	}

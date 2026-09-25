@@ -44,7 +44,9 @@ require_once __DIR__ . '/includes/class-contracts.php';
 require_once __DIR__ . '/includes/class-mfa.php';
 require_once __DIR__ . '/includes/class-teachingpolicy.php';
 require_once __DIR__ . '/includes/class-roles.php';
+require_once __DIR__ . '/includes/class-membercategories.php';
 require_once __DIR__ . '/includes/class-audit.php';
+require_once __DIR__ . '/includes/class-notifications.php';
 require_once __DIR__ . '/includes/class-reports.php';
 require_once __DIR__ . '/includes/class-translations.php';
 require_once __DIR__ . '/includes/class-media.php';
@@ -68,6 +70,7 @@ require_once __DIR__ . '/includes/class-taskdashboard.php';
 require_once __DIR__ . '/includes/class-plugin.php';
 
 LPS\ContentModel\Plugin::boot();
+LPS\ContentModel\MemberCategories::boot();
 LPS\ContentModel\TaskDashboard::boot();
 LPS\ContentModel\CommandRegistration::boot();
 register_activation_hook( __FILE__, array( LPS\ContentModel\Plugin::class, 'activate' ) );

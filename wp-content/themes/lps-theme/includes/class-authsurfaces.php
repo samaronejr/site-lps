@@ -43,12 +43,25 @@ final class AuthSurfaces {
 	 * @param array<string, mixed> $state  Surface state (`error`, `attempted`, `redirect_to`, `signed_in`, `user_name`, `user_role`, `can_admin`).
 	 */
 	public static function document( string $locale, array $state ): string {
-		$english = 'en' === $locale;
-		$title   = $english ? 'Sign in' : 'Entrar';
-		$header  = Shell::header_markup( $locale, Shell::signin_path( $locale ) );
-		$footer  = Shell::footer_markup( $locale );
-		$css     = function_exists( 'get_theme_file_uri' ) ? get_theme_file_uri( 'assets/css/theme.css' ) : '';
-		$version = function_exists( 'wp_get_theme' ) ? (string) wp_get_theme()->get( 'Version' ) : '';
+		$english      = 'en' === $locale;
+		$title        = $english ? 'Sign in' : 'Entrar';
+		$redirect     = self::text( $state['redirect_to'] ?? '' );
+		$redirect_arg = '' !== $redirect ? '?redirect_to=' . rawurlencode( $redirect ) : '';
+		$header       = Shell::header_markup(
+			$locale,
+			Shell::signin_path( $locale ),
+			array(
+				'pt-br' => Shell::signin_path( 'pt-br' ) . $redirect_arg,
+				'en'    => Shell::signin_path( 'en' ) . $redirect_arg,
+			)
+		);
+		$footer       = Shell::footer_markup( $locale );
+		$css          = function_exists( 'get_theme_file_uri' ) ? get_theme_file_uri( 'assets/css/theme.css' ) : '';
+		$version      = function_exists( 'wp_get_theme' ) ? (string) wp_get_theme()->get( 'Version' ) : '';
+		$file         = function_exists( 'get_theme_file_path' ) ? get_theme_file_path( 'assets/css/theme.css' ) : '';
+		if ( '' !== $file && is_file( $file ) ) {
+			$version .= '.' . (string) filemtime( $file );
+		}
 		$css_url = '' !== $css ? $css . ( '' !== $version ? '?ver=' . rawurlencode( $version ) : '' ) : '';
 		return '<!DOCTYPE html><html lang="' . self::esc( self::bcp47( $locale ) ) . '"><head>'
 			. '<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'

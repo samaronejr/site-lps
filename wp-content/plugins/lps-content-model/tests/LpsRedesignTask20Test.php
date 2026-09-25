@@ -337,8 +337,9 @@ final class LpsRedesignTask20Test extends TestCase {
 		// Actions outside the role matrix are denied before grant lookup.
 		self::assertSame( 'lps_teaching_action_forbidden', TeachingPolicy::scope_error( 'delegate', 'publish', 'lps_unit', 42, $grants, $now ) );
 		self::assertSame( 'lps_teaching_action_forbidden', TeachingPolicy::scope_error( 'professor', 'grant-scope', 'lps_unit', 42, $grants, $now ) );
-		// Publish is refused on non-publishable types even with a grant.
-		self::assertSame( 'lps_teaching_publish_type_forbidden', TeachingPolicy::scope_error( 'professor', 'publish', 'lps_offering', 42, $grants, $now ) );
+		// Offerings publish under the scoped grant that mints them; delegates still cannot.
+		self::assertNull( TeachingPolicy::scope_error( 'professor', 'publish', 'lps_offering', 42, $grants, $now ) );
+		self::assertSame( 'lps_teaching_action_forbidden', TeachingPolicy::scope_error( 'delegate', 'publish', 'lps_offering', 42, $grants, $now ) );
 		// Copy-forward is scoped to offerings only.
 		self::assertSame( 'lps_teaching_action_forbidden', TeachingPolicy::scope_error( 'professor', 'copy-forward', 'lps_unit', 42, $grants, $now ) );
 		// An offering scope never satisfies the news lane and vice versa.
@@ -351,7 +352,7 @@ final class LpsRedesignTask20Test extends TestCase {
 
 	/** The scoped field allowlist refuses system, scope and identity writes. */
 	public function test_scoped_field_allowlist_refuses_system_writes(): void {
-		foreach ( array( '_lps_owner_user_id', '_lps_state', '_lps_scan_verdict', '_lps_storage_key', '_lps_rights_review', '_lps_accessibility_review', '_lps_record_id', '_lps_locale', 'post_author', '_lps_privacy_reviewed' ) as $field ) {
+		foreach ( array( '_lps_owner_user_id', '_lps_prepared_by', '_lps_state', '_lps_scan_verdict', '_lps_storage_key', '_lps_rights_review', '_lps_accessibility_review', '_lps_record_id', '_lps_locale', 'post_author', '_lps_privacy_reviewed' ) as $field ) {
 			self::assertFalse( TeachingPolicy::field_write_allowed( 'professor', 'lps_resource', $field ), $field );
 			self::assertFalse( TeachingPolicy::field_write_allowed( 'delegate', 'lps_unit', $field ), $field );
 		}
@@ -396,7 +397,7 @@ final class LpsRedesignTask20Test extends TestCase {
 
 	/** Private fields stay out of the public REST shape. */
 	public function test_private_fields_never_enter_the_public_shape(): void {
-		foreach ( array( '_lps_owner_user_id', '_lps_translation_reviewer_id', 'actor_user_id', 'audit', 'entry_hash', 'previous_hash', 'capabilities', 'allcaps' ) as $field ) {
+		foreach ( array( '_lps_owner_user_id', '_lps_translation_reviewer_id', '_lps_prepared_by', 'actor_user_id', 'audit', 'entry_hash', 'previous_hash', 'capabilities', 'allcaps' ) as $field ) {
 			self::assertContains( $field, SecurityPolicy::private_fields() );
 			self::assertNotContains( $field, SecurityPolicy::public_fields() );
 		}

@@ -26,6 +26,21 @@ final class Roles {
 	 */
 	private static bool $grant_syncing = false;
 
+	/**
+	 * Whether the trusted course-create boundary is mid-flight.
+	 *
+	 * Set only inside `TaskDashboard::handle_course` after `may_course` has
+	 * authorized the account: the canonical `create_course`/`create_offering`
+	 * boundaries write editor-owned relationship rows (`offering_course`,
+	 * `offering_term`, `teaching_team`) that direct scoped writes must keep
+	 * denying. `scoped_relationship_error` consults this flag exactly like
+	 * `TeachingCopy::in_operation` — both flags mark an authorized boundary,
+	 * never a caller privilege.
+	 *
+	 * @var bool
+	 */
+	private static bool $course_create_syncing = false;
+
 	/** Registers runtime authorization hooks. */
 	public static function boot(): void {
 		add_filter( 'map_meta_cap', array( self::class, 'map_record_capability' ), 20, 4 );
@@ -198,10 +213,127 @@ final class Roles {
 				'expires_at'  => TeachingPolicy::normalize_datetime( $expires_at ),
 			)
 		);
+		Notifications::scope_granted(
+			$target_user_id,
+			array(
+				'scope'       => $scope,
+				'offering_id' => $offering_id,
+				'role'        => $role,
+				'expires_at'  => TeachingPolicy::normalize_datetime( $expires_at ),
+			)
+		);
 		return array(
 			'granted' => true,
 			'index'   => count( $grants ) - 1,
 		);
+	}
+
+	/**
+	 * Grants one scoped role without evaluating the actor's grant rights.
+	 *
+	 * System boundaries use this when a persisted workflow already decided the
+	 * grant belongs to the actor — e.g. the professor who just created an
+	 * offering through the trusted create lane receives scope on it back.
+	 * The candidate and target role are still validated the same way
+	 * `grant_scope` validates them — malformed shapes are rejected — and a
+	 * grant targeting a different account is only honored when the actor
+	 * already holds granter rights under the ordinary policy. What this
+	 * method skips is the self-grant case: a trusted boundary may hand the
+	 * acting account scope on the record it just minted. Callers must have
+	 * already enforced their own authorization for anything broader.
+	 *
+	 * @param int    $target_user_id Account receiving the grant.
+	 * @param string $scope          Grant scope (`offering` or `news`).
+	 * @param int    $offering_id    Offering record ID (0 for the news scope).
+	 * @param string $role           Scoped role the grant enables.
+	 * @param string $expires_at     Optional ISO-8601 expiry; empty means none.
+	 * @return array{granted: true, index: int}|WP_Error
+	 */
+	public static function grant_scope_trusted( int $target_user_id, string $scope, int $offering_id, string $role, string $expires_at = '' ): array|WP_Error {
+		if ( ! self::in_course_create() ) {
+			return new WP_Error( 'lps_teaching_grant_forbidden', 'Trusted grants run only inside the course-create boundary.' );
+		}
+		$actor       = wp_get_current_user();
+		$target      = get_user_by( 'id', $target_user_id );
+		$target_role = $target instanceof WP_User ? self::policy_role( $target ) : '';
+		if ( ! TeachingPolicy::is_scoped_role( $target_role ) ) {
+			return new WP_Error( 'lps_teaching_target_role_invalid', 'The grant target does not carry a scoped role.' );
+		}
+		$candidate = TeachingPolicy::normalize_grant(
+			array(
+				'scope'       => $scope,
+				'offering_id' => $offering_id,
+				'role'        => $role,
+				'granted_at'  => gmdate( 'c' ),
+				'expires_at'  => $expires_at,
+				'revoked_at'  => '',
+				'granted_by'  => $actor->ID,
+			)
+		);
+		if ( ! TeachingPolicy::grant_shape_valid( $candidate ) ) {
+			return new WP_Error( 'lps_teaching_grant_invalid', 'The grant shape is incomplete.' );
+		}
+		$grants = self::teaching_grants( $target_user_id );
+		if ( $target_user_id !== $actor->ID ) {
+			// Crossing to another account is not part of the trusted lane:
+			// that grant must survive the ordinary actor-authorization check.
+			$actor_error = TeachingPolicy::grant_error(
+				self::policy_role( $actor ),
+				self::assigned_collections( $actor->ID ),
+				$actor->ID,
+				$target_user_id,
+				$target_role,
+				$candidate,
+				$grants
+			);
+			if ( null !== $actor_error ) {
+				return self::scope_wp_error( $actor_error );
+			}
+		}
+		$grants[]            = $candidate;
+		self::$grant_syncing = true;
+		update_user_meta( $target_user_id, self::GRANTS_META, $grants );
+		self::$grant_syncing = false;
+		Audit::record(
+			'grant-scope',
+			$target_user_id,
+			0,
+			array(
+				'scope'       => $scope,
+				'offering_id' => $offering_id,
+				'role'        => $role,
+				'expires_at'  => TeachingPolicy::normalize_datetime( $expires_at ),
+				'via'         => 'trusted-boundary',
+			)
+		);
+		Notifications::scope_granted(
+			$target_user_id,
+			array(
+				'scope'       => $scope,
+				'offering_id' => $offering_id,
+				'role'        => $role,
+				'expires_at'  => TeachingPolicy::normalize_datetime( $expires_at ),
+			)
+		);
+		return array(
+			'granted' => true,
+			'index'   => count( $grants ) - 1,
+		);
+	}
+
+	/** Marks the trusted course-create boundary as mid-flight. */
+	public static function begin_course_create(): void {
+		self::$course_create_syncing = true;
+	}
+
+	/** Clears the trusted course-create flag; always pair with the begin. */
+	public static function end_course_create(): void {
+		self::$course_create_syncing = false;
+	}
+
+	/** Returns whether the trusted course-create boundary is mid-flight. */
+	public static function in_course_create(): bool {
+		return self::$course_create_syncing;
 	}
 
 	/**
@@ -319,6 +451,12 @@ final class Roles {
 			// offering's canonical rows inside its own operation; the REST
 			// permission check already proved the account's copy-forward scope
 			// on the source offering.
+			return null;
+		}
+		if ( self::$course_create_syncing ) {
+			// The trusted course-create boundary writes the new offering's
+			// canonical rows mid-flight; `may_course` already authorized the
+			// account for this lane before the flag was set.
 			return null;
 		}
 		if ( ! SecurityPolicy::privileged_session_allowed( $role, MFA::is_enrolled( $user->ID ) ) ) {
@@ -750,7 +888,9 @@ final class Roles {
 			if ( in_array( $role, array( 'section-editor', 'publisher', 'administrator' ), true ) || $scoped ) {
 				$capabilities[] = 'edit_others_' . $plural;
 			}
-			if ( SecurityPolicy::allows( $role, 'publish' ) && ( ! $scoped || in_array( $post_type, TeachingPolicy::PUBLISHABLE_POST_TYPES, true ) ) ) {
+			if ( SecurityPolicy::allows( $role, 'publish' ) ) {
+				// Every record type a scoped role reaches here is publishable, so
+				// the grant decision alone gates these primitives.
 				$capabilities[] = 'publish_' . $plural;
 				$capabilities[] = 'edit_published_' . $plural;
 			}

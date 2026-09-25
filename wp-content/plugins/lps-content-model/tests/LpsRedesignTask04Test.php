@@ -204,9 +204,9 @@ final class LpsRedesignTask04Test extends TestCase {
 			self::assertTrue( TeachingPolicy::scope_source_is_server_side( $source ) );
 		}
 		$forbidden = array(
-			'lps_offering' => array( '_lps_owner_user_id', '_lps_record_id', '_lps_locale', '_lps_state', '_lps_claim_verified', '_lps_section_key', '_lps_lms_url', '_lps_lms_url_approved', '_lps_cancelled', '_lps_temporal_status', '_lps_teaching_team_ids' ),
-			'lps_resource' => array( '_lps_version_id', '_lps_storage_key', '_lps_uploader_user_id', '_lps_sha256', '_lps_mime_type', '_lps_byte_size', '_lps_scan_state', '_lps_scan_version', '_lps_rights_review', '_lps_accessibility_review', '_lps_import_source_id' ),
-			'lps_news'     => array( '_lps_featured_until', '_lps_translation_reviewer_id', '_lps_owner_user_id' ),
+			'lps_offering' => array( '_lps_owner_user_id', '_lps_prepared_by', '_lps_record_id', '_lps_locale', '_lps_state', '_lps_claim_verified', '_lps_section_key', '_lps_lms_url', '_lps_lms_url_approved', '_lps_cancelled', '_lps_temporal_status', '_lps_teaching_team_ids' ),
+			'lps_resource' => array( '_lps_version_id', '_lps_storage_key', '_lps_uploader_user_id', '_lps_sha256', '_lps_mime_type', '_lps_byte_size', '_lps_scan_state', '_lps_scan_version', '_lps_rights_review', '_lps_accessibility_review', '_lps_import_source_id', '_lps_prepared_by' ),
+			'lps_news'     => array( '_lps_featured_until', '_lps_translation_reviewer_id', '_lps_owner_user_id', '_lps_prepared_by' ),
 		);
 		foreach ( $forbidden as $post_type => $fields ) {
 			foreach ( $fields as $field ) {
@@ -422,10 +422,9 @@ final class LpsRedesignTask04Test extends TestCase {
 				"professor edit on {$post_type} is outside every scope"
 			);
 		}
-		self::assertSame(
-			'lps_teaching_publish_type_forbidden',
+		self::assertNull(
 			TeachingPolicy::scope_error( 'professor', 'publish', 'lps_offering', 30, $grants, self::NOW ),
-			'offering publication stays with institutional editors'
+			'offering publication follows the scoped grant, matching the create lane'
 		);
 		foreach ( array( 'delete', 'unpublish', 'archive', 'review', 'import', 'redirect', 'settings', 'audit', 'grant-scope', 'revoke-scope' ) as $action ) {
 			self::assertSame(
@@ -531,7 +530,7 @@ final class LpsRedesignTask04Test extends TestCase {
 			TeachingPolicy::scope_error( '', 'edit', 'lps_offering', 30, array(), self::NOW ),
 			TeachingPolicy::scope_error( 'professor', 'delete', 'lps_offering', 30, array(), self::NOW ),
 			TeachingPolicy::scope_error( 'professor', 'edit', 'lps_person', 0, array(), self::NOW ),
-			TeachingPolicy::scope_error( 'professor', 'publish', 'lps_offering', 30, array( self::grant() ), self::NOW ),
+			TeachingPolicy::scope_error( 'professor', 'publish', 'lps_offering', 30, array( self::grant( array( 'expires_at' => '2026-02-01T00:00:00+00:00' ) ) ), self::NOW ),
 			TeachingPolicy::scope_error( 'professor', 'edit', 'lps_offering', 30, array(), self::NOW ),
 			TeachingPolicy::scope_error( 'professor', 'edit', 'lps_offering', 30, array( self::grant( array( 'revoked_at' => '2026-02-01T00:00:00+00:00' ) ) ), self::NOW ),
 			TeachingPolicy::scope_error( 'professor', 'edit', 'lps_offering', 30, array( self::grant( array( 'expires_at' => '2026-02-01T00:00:00+00:00' ) ) ), self::NOW ),

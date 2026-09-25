@@ -31,16 +31,21 @@ final class LpsRedesignTask16Test extends TestCase {
 	/** The task list mirrors the authorization boundary, never widens it. */
 	public function test_tasks_for_role_reflects_scope(): void {
 		// A professor with an offering, a person record and a news grant sees
-		// the full scoped task set but never the editor-only create task.
+		// the full scoped task set plus the trusted course and member lanes —
+		// but never the editor-only offering-create task.
 		self::assertSame(
-			array( 'profile', 'offerings', 'news' ),
+			array( 'profile', 'offerings', 'news', 'events', 'course', 'users' ),
 			TaskDashboard::tasks_for_role( 'professor', true, true, true, false )
 		);
-		// A professor with no offerings keeps the profile task only.
+		// A professor with no offerings keeps the profile, course and member
+		// tasks.
 		self::assertSame(
-			array( 'profile' ),
+			array( 'profile', 'course', 'users' ),
 			TaskDashboard::tasks_for_role( 'professor', false, false, true, false )
 		);
+		// An account whose role carries no resolvable task sees an empty
+		// task list.
+		self::assertSame( array(), TaskDashboard::tasks_for_role( 'translator', false, false, false, false ) );
 		// A delegate sees the same scoped tasks; publish is a per-record gate,
 		// not a task-list entry.
 		self::assertSame(
@@ -52,8 +57,8 @@ final class LpsRedesignTask16Test extends TestCase {
 			array( 'review', 'create-offering' ),
 			TaskDashboard::tasks_for_role( 'section-editor', false, false, false, true )
 		);
-		// An account with nothing resolvable sees an empty task list.
-		self::assertSame( array(), TaskDashboard::tasks_for_role( 'professor', false, false, false, false ) );
+		// A professor with nothing else resolvable still keeps the member lane.
+		self::assertSame( array( 'users' ), TaskDashboard::tasks_for_role( 'professor', false, false, false, false ) );
 	}
 
 	/** Lifecycle states map to distinct, honest keys. */
@@ -145,6 +150,43 @@ final class LpsRedesignTask16Test extends TestCase {
 		);
 	}
 
+	/** Notice normalization drops malformed rows and orders newest first. */
+	public function test_normalize_notices_filters_and_sorts(): void {
+		$notices = TaskDashboard::normalize_notices(
+			array(
+				array(
+					'id'         => 'a1',
+					'body'       => '<p>Primeiro aviso.</p>',
+					'created_at' => '2026-09-20T10:00:00+00:00',
+					'author_id'  => 5,
+					'extra'      => 'dropped',
+				),
+				array(
+					'id'         => 'a2',
+					'body'       => '<p>Aviso mais recente.</p>',
+					'created_at' => '2026-09-22T09:00:00+00:00',
+					'author_id'  => 5,
+				),
+				array(
+					'id'   => '',
+					'body' => '<p>sem id</p>',
+				),
+				array(
+					'id'         => 'a3',
+					'body'       => '',
+					'created_at' => '2026-09-23T09:00:00+00:00',
+				),
+				'not-an-array',
+			)
+		);
+		self::assertCount( 2, $notices );
+		self::assertSame( 'a2', $notices[0]['id'] );
+		self::assertSame( 'a1', $notices[1]['id'] );
+		self::assertSame( 5, $notices[0]['author_id'] );
+		self::assertArrayNotHasKey( 'extra', $notices[1] );
+		self::assertSame( array(), TaskDashboard::normalize_notices( 'junk' ) );
+	}
+
 	/** Copy-forward team input keeps only real person IDs and known roles. */
 	public function test_team_from_input_filters_rows(): void {
 		self::assertSame(
@@ -189,7 +231,7 @@ final class LpsRedesignTask16Test extends TestCase {
 			self::assertNotSame( $state, TaskDashboard::state_label( $state, 'pt-br' ) );
 			self::assertNotSame( $state, TaskDashboard::state_label( $state, 'en' ) );
 		}
-		foreach ( array( 'saved', 'created', 'published', 'submitted', 'proposal-sent', 'proposal-approved', 'proposal-rejected', 'reviewed', 'copied', 'copy-replayed', 'version-uploaded', 'version-selected', 'released', 'scheduled', 'withdrawn' ) as $code ) {
+		foreach ( array( 'saved', 'created', 'published', 'submitted', 'proposal-sent', 'proposal-approved', 'proposal-rejected', 'reviewed', 'copied', 'copy-replayed', 'version-uploaded', 'version-selected', 'released', 'scheduled', 'withdrawn', 'notice-posted', 'notice-removed', 'ordered' ) as $code ) {
 			self::assertNotSame( $code, TaskDashboard::notice_message( $code, 'pt-br' ) );
 			self::assertNotSame( $code, TaskDashboard::notice_message( $code, 'en' ) );
 		}

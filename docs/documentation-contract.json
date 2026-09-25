@@ -99,12 +99,12 @@
       "id": "content-model-contract",
       "kind": "source",
       "doc": "docs/content/data-dictionary.md",
-      "reviewedAt": "2026-09-22",
+      "reviewedAt": "2026-09-24",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-contracts.php",
-          "sha256": "07121dbeb15d527b4d8ff69695b3f6a7510ca9713cf9f929e4077ff238109fc4"
+          "sha256": "e0f5c61afae77e6068bd590ee61342ff77711cc39ec4d5f8d92b240956caddb9"
         }
       ]
     },
@@ -112,12 +112,12 @@
       "id": "role-policy-matrix",
       "kind": "source",
       "doc": "docs/handbook/role-workflows.md",
-      "reviewedAt": "2026-09-18",
+      "reviewedAt": "2026-09-24",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-securitypolicy.php",
-          "sha256": "165ed715c434d823da7108bcdcc282a67634c88b9cc8286f38c9070ce7fd1037"
+          "sha256": "3f97993b9c16c4aab559c5d627f7a574a89109c635650694720ceabd490b8189"
         }
       ]
     },
@@ -181,20 +181,20 @@
       "id": "faculty-dashboard-labels",
       "kind": "source",
       "doc": "docs/handbook/guia-docente-painel.md",
-      "reviewedAt": "2026-09-23",
+      "reviewedAt": "2026-09-25",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "wp-content/themes/lps-theme/includes/class-dashboardsurfaces.php",
-          "sha256": "44b3787a01a0bae28128b244626f4f73b7bb5d53e85ed8863a0118e4fdb1acc5"
+          "sha256": "5e1d97e15b8165adbe6fe1de6d5c04aeb719e3cc012395bdee4568f79408104c"
         },
         {
           "path": "wp-content/plugins/lps-content-model/includes/class-taskdashboard.php",
-          "sha256": "e25d5f1640d7e83ded98b6210dd9c3d7b24abd74f7df5e046a5128d4f4114926"
+          "sha256": "746d1784bcdc45379fb6f1cd241b5241b729a40cadee002c90f549086a333618"
         },
         {
           "path": "wp-content/themes/lps-theme/includes/class-dashboardroutes.php",
-          "sha256": "c4739f4493fd7b43ac3ed948a724fb9901bdb50929369777e1730899e27b0ce4"
+          "sha256": "37376e11571de5369cfc9a69bf536f92275c042253a49c9f5527fb973f2bb0f3"
         }
       ]
     }

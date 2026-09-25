@@ -33,8 +33,8 @@ final class TeachingPolicy {
 	/** Record types a scoped role may ever touch. */
 	public const SCOPED_POST_TYPES = array( 'lps_offering', 'lps_unit', 'lps_resource', 'lps_news' );
 
-	/** Record types a scoped role may publish (materials and scoped news only). */
-	public const PUBLISHABLE_POST_TYPES = array( 'lps_unit', 'lps_resource', 'lps_news' );
+	/** Record types a scoped role may publish: their own offering plus materials and scoped news. */
+	public const PUBLISHABLE_POST_TYPES = array( 'lps_offering', 'lps_unit', 'lps_resource', 'lps_news' );
 
 	/** Canonical relationship that supplies the offering scope per record type. */
 	public const RELATIONSHIP_SCOPES = array(
@@ -51,6 +51,7 @@ final class TeachingPolicy {
 	/** User-controlled fields that must never be treated as a scope source. */
 	public const UNTRUSTED_SCOPE_INPUTS = array(
 		'_lps_owner_user_id',
+		'_lps_prepared_by',
 		'post_author',
 		'author',
 		'lps_parent_offering',
@@ -65,7 +66,7 @@ final class TeachingPolicy {
 	public const TRUSTED_SCOPE_SOURCES = array( 'persisted_grant', 'persisted_relationship' );
 
 	/** Account-reference fields that exist for accountability, never identity. */
-	public const ACCOUNT_LINKAGE_FIELDS = array( '_lps_owner_user_id', '_lps_translation_reviewer_id', '_lps_uploader_user_id' );
+	public const ACCOUNT_LINKAGE_FIELDS = array( '_lps_owner_user_id', '_lps_translation_reviewer_id', '_lps_uploader_user_id', '_lps_prepared_by' );
 
 	/**
 	 * Fields a scoped role may write, per record type.
@@ -280,9 +281,6 @@ final class TeachingPolicy {
 		}
 		if ( ! in_array( $post_type, self::SCOPED_POST_TYPES, true ) ) {
 			return 'lps_teaching_scope_post_type';
-		}
-		if ( 'publish' === $action && ! in_array( $post_type, self::PUBLISHABLE_POST_TYPES, true ) ) {
-			return 'lps_teaching_publish_type_forbidden';
 		}
 		if ( 'copy-forward' === $action && 'lps_offering' !== $post_type ) {
 			return 'lps_teaching_action_forbidden';

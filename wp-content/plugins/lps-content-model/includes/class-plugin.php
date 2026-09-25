@@ -211,7 +211,8 @@ final class Plugin {
 		$raw_post_id = $postarr['ID'] ?? 0;
 		$post_id     = is_numeric( $raw_post_id ) ? (int) $raw_post_id : 0;
 		$role        = Roles::policy_role();
-		if ( TeachingPolicy::is_scoped_role( $role ) ) {
+		if ( TeachingPolicy::is_scoped_role( $role )
+			&& ! ( Roles::in_course_create() && in_array( Policy::scalar_string( $data['post_type'] ?? '' ), array( 'lps_course', 'lps_offering' ), true ) ) ) {
 			$stored_post = 0 < $post_id ? get_post( $post_id ) : null;
 			if ( $stored_post instanceof WP_Post ) {
 				$scoped_error = Roles::scoped_post_error( get_current_user_id(), 'edit', $stored_post );
@@ -258,9 +259,14 @@ final class Plugin {
 				return $data;
 			}
 		}
-		if ( true === $update && 'publish' === get_post_status( $post_id ) ) {
+		if ( true === $update ) {
 			$stored_slug = Policy::scalar_string( get_post_meta( $post_id, '_lps_published_slug', true ) );
-			if ( '' !== $stored_slug && isset( $unsanitized['post_name'] ) && ! hash_equals( $stored_slug, sanitize_title( Policy::scalar_string( $unsanitized['post_name'] ) ) ) ) {
+			// Editorial drafts may rename per the lps_redirect workflow, but a
+			// lane-minted record keeps its first slug at every status: its owner
+			// cannot register redirects, so a rename would orphan the live URLs.
+			$lane_owned = 0 < Policy::sanitize_integer( get_post_meta( $post_id, '_lps_pt_first', true ) );
+			if ( '' !== $stored_slug && ( 'publish' === get_post_status( $post_id ) || $lane_owned )
+				&& isset( $unsanitized['post_name'] ) && ! hash_equals( $stored_slug, sanitize_title( Policy::scalar_string( $unsanitized['post_name'] ) ) ) ) {
 				self::$pending_errors[ $post_id ]['post_name'] = 'lps_immutable_published_slug';
 				$data['post_name']                             = $stored_slug;
 			}
@@ -380,9 +386,11 @@ final class Plugin {
 		}
 
 		$requested_slug = $request->get_param( 'slug' );
-		if ( 0 < $post_id && 'publish' === get_post_status( $post_id ) && is_string( $requested_slug ) ) {
+		if ( 0 < $post_id && is_string( $requested_slug ) ) {
 			$stored_slug = Policy::scalar_string( get_post_meta( $post_id, '_lps_published_slug', true ) );
-			if ( '' !== $stored_slug && ! hash_equals( $stored_slug, sanitize_title( $requested_slug ) ) ) {
+			$lane_owned  = 0 < Policy::sanitize_integer( get_post_meta( $post_id, '_lps_pt_first', true ) );
+			if ( '' !== $stored_slug && ( 'publish' === get_post_status( $post_id ) || $lane_owned )
+				&& ! hash_equals( $stored_slug, sanitize_title( $requested_slug ) ) ) {
 				return self::error( 'lps_immutable_published_slug', 'A published slug is immutable.', 'slug' );
 			}
 		}
@@ -567,6 +575,14 @@ final class Plugin {
 		update_post_meta( $post_id, '_lps_updated_at', $now );
 		$state = 'publish' === $post->post_status ? 'published' : Policy::scalar_string( get_post_meta( $post_id, '_lps_state', true ) );
 		update_post_meta( $post_id, '_lps_state', '' === $state ? 'draft' : $state );
+		if ( ! $update && in_array( $post->post_type, TeachingPolicy::SCOPED_POST_TYPES, true ) && 'delegate' === Roles::policy_role() ) {
+			// A record created inside a delegate's grant keeps provenance of who
+			// drafted it: the scoped lane (professor, editor) adopts the draft
+			// under its own authority, and the workspace surfaces it with the
+			// prepared-by badge. The key sits outside every scoped field
+			// allowlist, so it is stamped here with the lifted system guard.
+			update_post_meta( $post_id, '_lps_prepared_by', get_current_user_id() );
+		}
 		if ( 'publish' === $post->post_status && '' === Policy::scalar_string( get_post_meta( $post_id, '_lps_published_slug', true ) ) ) {
 			update_post_meta( $post_id, '_lps_published_slug', $post->post_name );
 		}

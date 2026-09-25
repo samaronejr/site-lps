@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace LPS\Theme;
 
 use DateTimeImmutable;
+use LPS\ContentModel\MediaPolicy;
 use LPS\ContentModel\TrustSurfacePolicy;
 
 require_once dirname( __DIR__, 3 ) . '/plugins/lps-content-model/includes/class-trustsurfacepolicy.php';
@@ -485,6 +486,7 @@ final class TrustSurfaces {
 		}
 		$html .= self::translation_notice( $record, $locale );
 		$html .= '</div></div>';
+		$html .= self::news_media_html( $record, $locale );
 		$body  = self::text( $record['body'] ?? '' );
 		if ( '' !== $body ) {
 			$rendered = function_exists( 'do_blocks' ) ? (string) do_blocks( $body ) : $body;
@@ -494,7 +496,40 @@ final class TrustSurfaces {
 	}
 
 	/**
-	 * Renders the news listing: dated records, then the events agenda, then the
+	 * Renders the news featured image when the stored media pair satisfies the
+	 * public contract.
+	 *
+	 * The pair comes from `Media::record_image`, which resolves the thumbnail
+	 * on the Portuguese authority — an English variant renders its source's
+	 * image rather than owning one. Media that fails the usage contract (missing
+	 * provenance, missing locale/placement) renders nothing rather than a
+	 * broken figure.
+	 *
+	 * @param array<string, mixed> $record News record.
+	 * @param string               $locale Supported locale slug.
+	 */
+	private static function news_media_html( array $record, string $locale ): string {
+		$media = $record['media'] ?? null;
+		if ( ! is_array( $media ) || ! class_exists( MediaPolicy::class ) ) {
+			return '';
+		}
+		$usage = self::string_keyed( $media['usage'] ?? null );
+		$asset = self::string_keyed( $media['asset'] ?? null );
+		if ( array() === $usage ) {
+			return '';
+		}
+		$usage['locale']    = $locale;
+		$usage['placement'] = 'content';
+		$usage['block']     = 'image';
+		if ( array() !== MediaPolicy::usage_errors( $usage, $asset ) ) {
+			return '';
+		}
+		return MediaPolicy::render_image( $usage, $asset );
+	}
+
+	/**
+	 * Renders the news listing: a news slider first, then the events section
+	 * with left thumbnails, then the institutional timeline and the
 	 * legacy-records band.
 	 *
 	 * @param array<int, mixed>      $records News records.
@@ -513,7 +548,7 @@ final class TrustSurfaces {
 				return self::canonical_date_rank( $right_date ) <=> self::canonical_date_rank( $left_date );
 			}
 		);
-		$items = '';
+		$slides = '';
 		foreach ( $records as $record ) {
 			if ( ! is_array( $record ) ) {
 				continue;
@@ -528,38 +563,44 @@ final class TrustSurfaces {
 			$override = self::text( $record['date_label'] ?? '' );
 			$label    = '' !== $override ? $override : self::agenda_date_label( $date );
 			$category = self::news_category_label( self::text( $record['category'] ?? '' ), $locale );
-			$items   .= '<li>';
-			$items   .= '<div class="lps-event-date"><strong>' . self::esc( '' !== $label ? $label : '—' ) . '</strong><span>' . self::esc( '' !== $category ? $category : ( $english ? 'News' : 'Notícia' ) ) . '</span></div>';
-			$items   .= '<div><h3><a href="' . self::esc( $url ) . '">' . self::esc( $title ) . '</a></h3>';
 			$summary  = self::text( $record['summary'] ?? '' );
+			$slides  .= '<li class="lps-slide">';
+			$slides  .= '<a class="lps-slide-link" href="' . self::esc( $url ) . '">';
+			$slides  .= self::record_thumb( $record, 'lps-slide-media', $locale );
+			$slides  .= '<span class="lps-slide-body"><span class="lps-slide-meta">'
+				. '<time datetime="' . self::esc( substr( $date, 0, 10 ) ) . '">' . self::esc( '' !== $label ? $label : '—' ) . '</time>'
+				. '<span class="lps-slide-sep" aria-hidden="true"></span>'
+				. '<span>' . self::esc( '' !== $category ? $category : ( $english ? 'News' : 'Notícia' ) ) . '</span></span>';
+			$slides  .= '<span class="lps-slide-title">' . self::esc( $title ) . '</span>';
 			if ( '' !== $summary ) {
-				$items .= '<p>' . self::esc( $summary ) . '</p>';
+				$slides .= '<span class="lps-slide-summary">' . self::esc( $summary ) . '</span>';
 			}
-			$meta         = '';
-			$source_label = self::news_source_label( self::text( $record['source_label'] ?? '' ), $locale );
-			if ( '' !== $source_label ) {
-				$meta .= self::esc( $english ? 'Source: ' : 'Fonte: ' ) . '<span class="lps-meta">' . self::esc( $source_label ) . '</span>';
-			}
-			$meta .= self::translation_chip( $record, $locale );
-			if ( '' !== $meta ) {
-				$items .= '<p class="lps-meta lps-mt-4">' . $meta . '</p>';
-			}
-			$items .= '</div>';
-			$items .= '<span class="lps-meta">' . self::esc( '' !== $label ? $label : '—' ) . '</span>';
-			$items .= '</li>';
+			$slides .= '<span class="lps-slide-flags">' . self::translation_chip( $record, $locale ) . '</span>';
+			$slides .= '</span></a></li>';
 		}
-		$html  = '<section class="lps-section lps-section--flush" aria-labelledby="lps-news-list">';
-		$html .= '<div class="lps-section-head"><div><p class="lps-kicker">' . self::esc( $english ? 'Records' : 'Registros' ) . '</p><h2 id="lps-news-list">' . self::esc( $english ? 'Institutional timeline' : 'Linha do tempo institucional' ) . '</h2></div></div>';
-		$html .= '' !== $items
-			? '<ol class="lps-agenda">' . $items . '</ol>'
+		$prev_svg = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>';
+		$next_svg = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
+		$html     = '<section class="lps-section lps-section--flush lps-slider-section" aria-labelledby="lps-news-slider">';
+		$html    .= '<div class="lps-section-head"><div><p class="lps-kicker">' . self::esc( $english ? 'Newsroom' : 'Sala de imprensa' ) . '</p><h2 id="lps-news-slider">' . self::esc( $english ? 'Latest news' : 'Últimas notícias' ) . '</h2></div>';
+		if ( '' !== $slides ) {
+			$html .= '<div class="lps-slider-nav">'
+				. '<button class="lps-slider-btn" type="button" data-slider-prev aria-controls="lps-news-slider-track" aria-label="' . self::esc( $english ? 'Previous news' : 'Notícias anteriores' ) . '">' . $prev_svg . '</button>'
+				. '<button class="lps-slider-btn" type="button" data-slider-next aria-controls="lps-news-slider-track" aria-label="' . self::esc( $english ? 'Next news' : 'Próximas notícias' ) . '">' . $next_svg . '</button>'
+				. '</div>';
+		}
+		$html .= '</div>';
+		$html .= '' !== $slides
+			? '<ul class="lps-slider-track" id="lps-news-slider-track" data-lps-slider>' . $slides . '</ul>'
 			: '<p class="lps-empty">' . self::esc( $english ? 'No published news' : 'Nenhuma notícia publicada' ) . '</p>';
 		$html .= '</section>';
 
-		$event_items = self::event_agenda_items( $events, $locale, $now, array( 'upcoming', 'ongoing', 'postponed' ) );
+		$event_items = self::event_row_items( $events, $locale, $now );
 		$html       .= '<section class="lps-section" id="agenda" aria-labelledby="lps-news-agenda">';
-		$html       .= '<div class="lps-section-head"><div><p class="lps-kicker">' . self::esc( 'Agenda' ) . '</p><h2 id="lps-news-agenda">' . self::esc( $english ? 'Upcoming events' : 'Próximos eventos' ) . '</h2></div></div>';
-		$html       .= '' !== $event_items ? '<ol class="lps-agenda">' . $event_items . '</ol>' : self::events_empty_state( $locale );
+		$html       .= '<div class="lps-section-head"><div><p class="lps-kicker">' . self::esc( 'Agenda' ) . '</p><h2 id="lps-news-agenda">' . self::esc( $english ? 'Events' : 'Eventos' ) . '</h2></div></div>';
+		$html       .= '' !== $event_items ? '<ol class="lps-event-rows">' . $event_items . '</ol>' : self::events_empty_state( $locale );
 		$html       .= '</section>';
+
+		$html .= self::timeline_section( $records, $events, $locale, $now );
 
 		$html .= self::editorial_section(
 			'lps-news-legacy',
@@ -584,6 +625,206 @@ final class TrustSurfaces {
 	}
 
 	/**
+	 * Renders the record's first governed image as a bare thumbnail figure.
+	 *
+	 * The usage/asset pair still goes through `MediaPolicy::usage_errors` so a
+	 * rights or privacy lapse fails closed; when no usable image exists the
+	 * figure is omitted and the caller's typography carries the card.
+	 *
+	 * @param array<mixed> $record       Record carrying a `media` pair.
+	 * @param string       $figure_class Figure class for the caller's layout.
+	 * @param string       $locale       Supported locale slug.
+	 */
+	private static function record_thumb( array $record, string $figure_class, string $locale ): string {
+		if ( ! class_exists( MediaPolicy::class ) ) {
+			return '';
+		}
+		$media = self::string_keyed( $record['media'] ?? array() );
+		$usage = self::string_keyed( $media['usage'] ?? array() );
+		$asset = self::string_keyed( $media['asset'] ?? array() );
+		if ( array() === $usage || array() === $asset ) {
+			return '';
+		}
+		$usage['locale']    = $locale;
+		$usage['placement'] = 'content';
+		$usage['block']     = 'image';
+		if ( array() !== MediaPolicy::usage_errors( $usage, $asset ) ) {
+			return '';
+		}
+		$url    = self::safe_url( MediaPolicy::string_value( $asset['url'] ?? '' ) );
+		$alt    = MediaPolicy::string_value( $usage['alt'] ?? '' );
+		$srcset = MediaPolicy::string_value( $asset['srcset'] ?? '' );
+		if ( '' === $url ) {
+			return '';
+		}
+		return '<figure class="' . self::esc( $figure_class ) . '"><img src="' . self::esc( $url ) . '"'
+			. ( '' !== $srcset ? ' srcset="' . self::esc( $srcset ) . '"' : '' )
+			. ' alt="' . self::esc( $alt ) . '" loading="lazy"></figure>';
+	}
+
+	/**
+	 * Builds one event row per record: a thumbnail on the left beside the
+	 * event information.
+	 *
+	 * @param array<int, mixed>  $records Event records.
+	 * @param string             $locale  Supported locale slug.
+	 * @param DateTimeImmutable  $now     Evaluation instant.
+	 * @param array<int, string> $states  When non-empty, only these states are listed.
+	 */
+	private static function event_row_items( array $records, string $locale, DateTimeImmutable $now, array $states = array( 'upcoming', 'ongoing', 'postponed' ) ): string {
+		$english = 'en' === $locale;
+		$items   = '';
+		foreach ( $records as $record ) {
+			if ( ! is_array( $record ) ) {
+				continue;
+			}
+			$title = self::text( $record['title'] ?? '' );
+			$slug  = self::text( $record['slug'] ?? '' );
+			if ( '' === $title || '' === $slug ) {
+				continue;
+			}
+			$state = TrustSurfacePolicy::event_state(
+				self::text( $record['status'] ?? '' ),
+				self::text( $record['starts_at'] ?? '' ),
+				self::text( $record['ends_at'] ?? '' ),
+				$now
+			);
+			if ( array() !== $states && ! in_array( $state, $states, true ) ) {
+				continue;
+			}
+			$starts  = self::text( $record['starts_at'] ?? '' );
+			$ends    = self::text( $record['ends_at'] ?? '' );
+			$venue   = self::text( $record['venue'] ?? '' );
+			$summary = self::text( $record['summary'] ?? '' );
+			$url     = self::single_path( 'lps_event', $locale, $slug );
+			$when    = substr( $starts, 0, 10 );
+			if ( '' !== $ends && substr( $ends, 0, 10 ) !== $when ) {
+				$when .= ' – ' . substr( $ends, 0, 10 );
+			}
+			$thumb = self::record_thumb( $record, 'lps-event-thumb', $locale );
+			if ( '' === $thumb ) {
+				$thumb = '<div class="lps-event-thumb lps-event-thumb--empty" aria-hidden="true"><span class="lps-event-thumb-date">'
+					. self::esc( '' !== $when ? substr( $when, 8, 2 ) : '—' ) . '</span><span class="lps-event-thumb-month">'
+					. self::esc( '' !== $when ? substr( $when, 5, 2 ) : '' ) . '</span></div>';
+			}
+			$items .= '<li class="lps-event-row" data-state="' . self::esc( $state ) . '">';
+			$items .= '<a class="lps-event-thumb-link" href="' . self::esc( $url ) . '" tabindex="-1" aria-hidden="true">' . $thumb . '</a>';
+			$items .= '<div class="lps-event-info">';
+			$items .= '<p class="lps-event-rowmeta"><span class="lps-event-state">' . self::esc( self::EVENT_LABELS[ $state ][ $locale ] ?? '' ) . '</span>';
+			if ( '' !== $when ) {
+				$items .= ' <time datetime="' . self::esc( substr( $starts, 0, 10 ) ) . '">' . self::esc( $when ) . '</time>';
+			}
+			if ( '' !== $venue ) {
+				$items .= ' <span class="lps-event-venue">' . self::esc( $venue ) . '</span>';
+			}
+			$items .= self::translation_chip( $record, $locale ) . '</p>';
+			$items .= '<h3><a href="' . self::esc( $url ) . '">' . self::esc( $title ) . '</a></h3>';
+			if ( '' !== $summary ) {
+				$items .= '<p class="lps-event-summary">' . self::esc( $summary ) . '</p>';
+			}
+			$items .= '</div>';
+			$items .= '<a class="lps-more" href="' . self::esc( $url ) . '">' . self::esc( $english ? 'Know more' : 'Saiba mais' ) . '</a>';
+			$items .= '</li>';
+		}
+		return $items;
+	}
+
+	/**
+	 * Renders the institutional timeline: news and events merged into one
+	 * descending, year-grouped list.
+	 *
+	 * @param array<int, mixed> $records News records.
+	 * @param array<int, mixed> $events  Event records.
+	 * @param string            $locale  Supported locale slug.
+	 * @param DateTimeImmutable $now     Evaluation instant.
+	 */
+	private static function timeline_section( array $records, array $events, string $locale, DateTimeImmutable $now ): string {
+		$english = 'en' === $locale;
+		$entries = array();
+		foreach ( $records as $record ) {
+			if ( ! is_array( $record ) ) {
+				continue;
+			}
+			$title = self::text( $record['title'] ?? '' );
+			$slug  = self::text( $record['slug'] ?? '' );
+			$date  = self::text( $record['date'] ?? '' );
+			if ( '' === $title || '' === $slug || '' === $date ) {
+				continue;
+			}
+			$entries[] = array(
+				'rank'  => self::canonical_date_rank( $date ),
+				'stamp' => substr( $date, 0, 10 ),
+				'label' => self::text( $record['date_label'] ?? '' ),
+				'kind'  => $english ? 'News' : 'Notícia',
+				'state' => 'news',
+				'title' => $title,
+				'url'   => self::single_path( 'lps_news', $locale, $slug ),
+			);
+		}
+		foreach ( $events as $record ) {
+			if ( ! is_array( $record ) ) {
+				continue;
+			}
+			$title  = self::text( $record['title'] ?? '' );
+			$slug   = self::text( $record['slug'] ?? '' );
+			$starts = self::text( $record['starts_at'] ?? '' );
+			if ( '' === $title || '' === $slug || '' === $starts ) {
+				continue;
+			}
+			$state     = TrustSurfacePolicy::event_state( self::text( $record['status'] ?? '' ), $starts, self::text( $record['ends_at'] ?? '' ), $now );
+			$entries[] = array(
+				'rank'  => self::canonical_date_rank( $starts ),
+				'stamp' => substr( $starts, 0, 10 ),
+				'label' => '',
+				'kind'  => self::EVENT_LABELS[ $state ][ $locale ] ?? ( $english ? 'Event' : 'Evento' ),
+				'state' => $state,
+				'title' => $title,
+				'url'   => self::single_path( 'lps_event', $locale, $slug ),
+			);
+		}
+		usort(
+			$entries,
+			static function ( array $left, array $right ): int {
+				return $right['rank'] <=> $left['rank'];
+			}
+		);
+		$list = '';
+		$year = '';
+		foreach ( $entries as $entry ) {
+			$entry_year = substr( $entry['stamp'], 0, 4 );
+			if ( $entry_year !== $year ) {
+				if ( '' !== $year ) {
+					$list .= '</ol></li>';
+				}
+				$year  = $entry_year;
+				$list .= '<li class="lps-chrono-year"><h3>' . self::esc( $year ) . '</h3><ol>';
+			}
+			$month  = (int) substr( $entry['stamp'], 5, 2 );
+			$months = $english
+				? array( 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' )
+				: array( 'jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez' );
+			$day    = 1 <= $month && 12 >= $month
+				? ( $english ? $months[ $month - 1 ] . ' ' . (int) substr( $entry['stamp'], 8, 2 ) : (int) substr( $entry['stamp'], 8, 2 ) . ' ' . $months[ $month - 1 ] )
+				: $entry['stamp'];
+			if ( '' !== $entry['label'] ) {
+				$day = $entry['label'];
+			}
+			$list .= '<li class="lps-chrono-item" data-state="' . self::esc( $entry['state'] ) . '"><time class="lps-chrono-date" datetime="' . self::esc( $entry['stamp'] ) . '">' . self::esc( $day ) . '</time>'
+				. '<div class="lps-chrono-body"><span class="lps-chrono-kind">' . self::esc( $entry['kind'] ) . '</span>'
+				. '<a href="' . self::esc( $entry['url'] ) . '">' . self::esc( $entry['title'] ) . '</a></div></li>';
+		}
+		if ( '' !== $list ) {
+			$list .= '</ol></li>';
+		}
+		$html  = '<section class="lps-section" aria-labelledby="lps-news-timeline">';
+		$html .= '<div class="lps-section-head"><div><p class="lps-kicker">' . self::esc( $english ? 'Records' : 'Registros' ) . '</p><h2 id="lps-news-timeline">' . self::esc( $english ? 'Institutional timeline' : 'Linha do tempo institucional' ) . '</h2></div></div>';
+		$html .= '' !== $list
+			? '<ol class="lps-chrono">' . $list . '</ol>'
+			: '<p class="lps-empty">' . self::esc( $english ? 'No recorded entry' : 'Nenhum registro publicado' ) . '</p>';
+		return $html . '</section>';
+	}
+
+	/**
 	 * Returns the localized label for a stored news-category key.
 	 *
 	 * @param string $key    Stored category key.
@@ -599,20 +840,6 @@ final class TrustSurfaces {
 			'parceria'      => 'en' === $locale ? 'Partnership' : 'Parceria',
 		);
 		return $labels[ $key ] ?? '';
-	}
-
-	/**
-	 * Returns the localized label for a stored source key; unrecognized keys
-	 * render verbatim so free-text provenance still works.
-	 *
-	 * @param string $key    Stored source key or literal label.
-	 * @param string $locale Supported locale slug.
-	 */
-	private static function news_source_label( string $key, string $locale ): string {
-		$map = array(
-			'site-anterior' => 'en' === $locale ? 'Previous site' : 'Site anterior',
-		);
-		return $map[ $key ] ?? $key;
 	}
 
 	/**
@@ -1570,6 +1797,25 @@ final class TrustSurfaces {
 	 */
 	private static function is_email( string $value ): bool {
 		return false !== filter_var( $value, FILTER_VALIDATE_EMAIL );
+	}
+
+	/**
+	 * Narrows a boundary value to a string-keyed map.
+	 *
+	 * @param mixed $value Boundary input.
+	 * @return array<string, mixed>
+	 */
+	private static function string_keyed( mixed $value ): array {
+		if ( ! is_array( $value ) ) {
+			return array();
+		}
+		$map = array();
+		foreach ( $value as $key => $item ) {
+			if ( is_string( $key ) ) {
+				$map[ $key ] = $item;
+			}
+		}
+		return $map;
 	}
 
 	/**
