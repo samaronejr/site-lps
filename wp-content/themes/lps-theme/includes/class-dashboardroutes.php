@@ -73,6 +73,10 @@ final class DashboardRoutes {
 			'pt-br' => 'disciplinas',
 			'en'    => 'courses',
 		),
+		'users'    => array(
+			'pt-br' => 'usuarios',
+			'en'    => 'users',
+		),
 	);
 
 	/**

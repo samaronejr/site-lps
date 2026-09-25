@@ -31,17 +31,21 @@ final class LpsRedesignTask16Test extends TestCase {
 	/** The task list mirrors the authorization boundary, never widens it. */
 	public function test_tasks_for_role_reflects_scope(): void {
 		// A professor with an offering, a person record and a news grant sees
-		// the full scoped task set plus the trusted course lane — but never
-		// the editor-only offering-create task.
+		// the full scoped task set plus the trusted course and member lanes —
+		// but never the editor-only offering-create task.
 		self::assertSame(
-			array( 'profile', 'offerings', 'news', 'events', 'course' ),
+			array( 'profile', 'offerings', 'news', 'events', 'course', 'users' ),
 			TaskDashboard::tasks_for_role( 'professor', true, true, true, false )
 		);
-		// A professor with no offerings keeps the profile and course tasks.
+		// A professor with no offerings keeps the profile, course and member
+		// tasks.
 		self::assertSame(
-			array( 'profile', 'course' ),
+			array( 'profile', 'course', 'users' ),
 			TaskDashboard::tasks_for_role( 'professor', false, false, true, false )
 		);
+		// An account whose role carries no resolvable task sees an empty
+		// task list.
+		self::assertSame( array(), TaskDashboard::tasks_for_role( 'translator', false, false, false, false ) );
 		// A delegate sees the same scoped tasks; publish is a per-record gate,
 		// not a task-list entry.
 		self::assertSame(
@@ -53,8 +57,8 @@ final class LpsRedesignTask16Test extends TestCase {
 			array( 'review', 'create-offering' ),
 			TaskDashboard::tasks_for_role( 'section-editor', false, false, false, true )
 		);
-		// An account with nothing resolvable sees an empty task list.
-		self::assertSame( array(), TaskDashboard::tasks_for_role( 'professor', false, false, false, false ) );
+		// A professor with nothing else resolvable still keeps the member lane.
+		self::assertSame( array( 'users' ), TaskDashboard::tasks_for_role( 'professor', false, false, false, false ) );
 	}
 
 	/** Lifecycle states map to distinct, honest keys. */

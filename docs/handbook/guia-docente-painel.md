@@ -40,6 +40,7 @@ A página inicial lista apenas as tarefas que o seu escopo cobre:
 | `Fila de revisão` | editor de seção, publicador | Aprovar ou rejeitar envios e propostas pendentes. |
 | `Criar oferta` | editor de seção, publicador | Criar uma oferta em rascunho ligando disciplina, período e turma. |
 | `Criar disciplina` | professor, administrador | Cadastrar uma disciplina e abrir a primeira oferta em um único envio, sem revisão. |
+| `Gerenciar usuários` | professor, administrador | Criar contas de membro, aplicar categorias e definir novas categorias de acesso. |
 
 Se você é docente e não vê `Fila de revisão` nem `Criar oferta`, está certo: essas tarefas são
 editoriais. Uma conta de docente nunca edita ofertas fora do seu escopo, equipes docentes, campos
@@ -144,6 +145,33 @@ registro de pessoa vinculado; sem isso, a tela mostra o aviso de acesso em vez d
 
 Se a segunda etapa falhar, a disciplina recém-criada é removida automaticamente — tente de
 novo sem medo de duplicar cadastros.
+
+## Gerenciar usuários (`/pt-br/painel/usuarios/`)
+
+A tela lista três blocos: `Membros`, `Adicionar membro` e `Categorias de membro`. Para docentes,
+a tarefa exige o segundo fator ativo — sem ele, a tela mostra o aviso de exigência em vez das
+listas.
+
+- **Membros**: cada conta mostra nome, categoria, selo de suspensão e a marcação `(você)` na
+  sua própria linha. `Gerenciar conta` abre duas ações: `Aplicar categoria` (troca o papel e as
+  áreas de conteúdo da conta) e `Suspender`/`Reativar` (suspender reduz a conta ao papel de
+  membro sem apagar nada; reativar devolve o papel da categoria). Suspender duas vezes seguidas
+  ou reativar uma conta que não está suspensa é recusado — o papel original fica guardado na
+  primeira suspensão. Você não pode se suspender, e
+  um docente não mexe em contas de administrador nem concede categorias com privilégio de
+  administrador — a conta suspensa de um administrador continua protegida.
+- **Adicionar membro**: nome, e-mail e login (o login sai do e-mail quando fica em branco),
+  categoria e senha inicial (mínimo de 8 caracteres, entregue ao membro por fora — ele a troca
+  no primeiro acesso). A caixa `Criar também o registro público de pessoa` cria um rascunho de
+  pessoa ligado à conta, com os papéis públicos definidos na categoria — é assim que a nova
+  conta passa a aparecer nas equipes docentes das ofertas.
+- **Categorias de membro**: as cinco internas — `Professor`, `Doutorado`, `Mestrado`,
+  `Graduação` e `Secretaria de laboratório` — não podem ser removidas. `Criar nova categoria`
+  abre um formulário com chave, rótulos em português e inglês, privilégio (as opções sobem até
+  `editor(a) publicador(a)`; `administrador` só aparece para administradores), as áreas de
+  conteúdo que a categoria alcança (para contribuinte, tradutor e editor de seção) e os papéis
+  públicos que o registro de pessoa recebe. Categorias em uso por alguma conta não podem ser
+  removidas.
 
 ## Área da oferta (`/pt-br/painel/ofertas/`)
 

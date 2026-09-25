@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace LPS\Theme;
 
+use LPS\ContentModel\MemberCategories;
 use LPS\ContentModel\Policy;
 use LPS\ContentModel\TaskDashboard;
 use LPS\ContentModel\TeachingContracts;
@@ -30,6 +31,10 @@ use WP_User;
 
 if ( ! class_exists( TaskDashboard::class ) ) {
 	require_once dirname( __DIR__, 3 ) . '/plugins/lps-content-model/includes/class-taskdashboard.php';
+}
+
+if ( ! class_exists( MemberCategories::class ) ) {
+	require_once dirname( __DIR__, 3 ) . '/plugins/lps-content-model/includes/class-membercategories.php';
 }
 
 if ( ! class_exists( SeoSurfaces::class ) ) {
@@ -115,6 +120,7 @@ final class DashboardSurfaces {
 			'review'   => self::review_view( $model, $locale ),
 			'create'   => self::create_view( $model, $locale ),
 			'course'   => self::course_view( $model, $locale ),
+			'users'    => self::users_view( $model, $locale ),
 			default    => self::home_view( $model, $locale ),
 		};
 	}
@@ -929,6 +935,177 @@ final class DashboardSurfaces {
 	}
 
 	/**
+	 * Renders the user-management lane: member list, add-member form and the
+	 * member-category registry.
+	 *
+	 * The lane is one Operate-mode page: members first with per-account
+	 * controls, then the invite form, then the category registry where a new
+	 * category's role and content areas are the definition of what its
+	 * accounts can access, edit and post.
+	 *
+	 * @param array<string, mixed> $model  Dashboard model.
+	 * @param string               $locale Supported locale slug.
+	 */
+	public static function users_view( array $model, string $locale ): string {
+		$english = 'en' === $locale;
+		if ( empty( $model['may_users'] ) ) {
+			$message = ! empty( $model['mfa_needed'] )
+				? ( $english ? 'Enroll the second factor on your sign-in before managing users.' : 'Ative a verificação em duas etapas na sua conta antes de gerenciar usuários.' )
+				: ( $english ? 'Managing users is a professor and administrator task.' : 'Gerenciar usuários é uma tarefa de professores e administradores.' );
+			return '<div class="lps-alert lps-alert-error" data-dashboard-view="users-denied"><p>'
+				. self::esc( $message ) . '</p></div>';
+		}
+		$members    = self::records( $model['members'] ?? null );
+		$categories = array();
+		foreach ( is_array( $model['categories'] ?? null ) ? $model['categories'] : array() as $key => $definition ) {
+			if ( ! is_string( $key ) || ! is_array( $definition ) ) {
+				continue;
+			}
+			$clean = array();
+			foreach ( $definition as $def_key => $def_value ) {
+				if ( is_string( $def_key ) ) {
+					$clean[ $def_key ] = $def_value;
+				}
+			}
+			$categories[ $key ] = $clean;
+		}
+		$areas     = self::records( $model['collections'] ?? null );
+		$role_keys = is_array( $model['user_roles'] ?? null ) ? $model['user_roles'] : array();
+		$cat_opts  = array();
+		$role_opts = array();
+		foreach ( $categories as $key => $definition ) {
+			$cat_opts[] = array(
+				'id'    => $key,
+				'title' => MemberCategories::label( $definition, $locale ),
+				'code'  => MemberCategories::role_label( self::text( $definition['role'] ?? '' ), $locale ),
+			);
+		}
+		foreach ( $role_keys as $role_key ) {
+			$role_key    = is_string( $role_key ) ? $role_key : '';
+			$role_opts[] = array(
+				'id'    => $role_key,
+				'title' => MemberCategories::role_label( $role_key, $locale ),
+			);
+		}
+		$html  = '<section class="lps-dashboard-users" data-dashboard-view="users">';
+		$html .= '<p class="lps-summary">' . self::esc(
+			$english
+			? 'Members sign in with the account minted here; the category decides what the account can access, edit and post. Categories bundle a privilege level plus the content areas it reaches.'
+			: 'Membros entram com a conta criada aqui; a categoria decide o que a conta pode acessar, editar e publicar. Categorias combinam um nível de privilégio com as áreas de conteúdo que ele alcança.'
+		) . '</p>';
+
+		$html .= '<section class="lps-dashboard-section" aria-labelledby="lps-members"><h2 id="lps-members">'
+			. self::esc( $english ? 'Members' : 'Membros' ) . '</h2>';
+		if ( array() === $members ) {
+			$html .= '<p class="lps-field-hint">' . self::esc( $english ? 'No member accounts yet; mint the first one below.' : 'Nenhuma conta de membro ainda; crie a primeira abaixo.' ) . '</p>';
+		} else {
+			$html .= '<ul class="lps-record-list">';
+			foreach ( $members as $member ) {
+				$user_id    = Policy::sanitize_integer( $member['id'] ?? 0 );
+				$category   = $categories[ self::text( $member['category'] ?? '' ) ] ?? null;
+				$cat_label  = null !== $category ? MemberCategories::label( $category, $locale ) : '';
+				$role_label = MemberCategories::role_label( self::text( $member['role'] ?? '' ), $locale );
+				$html      .= '<li class="lps-record" data-user-id="' . $user_id . '"><strong>' . self::esc( self::text( $member['name'] ?? '' ) ) . '</strong>'
+					. ( '' !== $cat_label ? ' <span class="lps-status lps-status-info">' . self::esc( $cat_label ) . '</span>' : '' )
+					. ( ! empty( $member['suspended'] ) ? ' <span class="lps-status lps-status-error">' . self::esc( $english ? 'Suspended' : 'Suspenso' ) . '</span>' : '' )
+					. ( ! empty( $member['is_self'] ) ? ' <span class="lps-meta">' . self::esc( $english ? '(you)' : '(você)' ) . '</span>' : '' )
+					. '<p class="lps-meta">' . self::esc( '@' . self::text( $member['login'] ?? '' ) . ' · ' . self::text( $member['email'] ?? '' ) )
+					. ( '' !== $role_label ? ' · ' . self::esc( $role_label ) : '' ) . '</p>';
+				if ( ! empty( $member['editable'] ) ) {
+					$html .= '<details class="lps-dashboard-edit"><summary>' . self::esc( $english ? 'Manage account' : 'Gerenciar conta' ) . '</summary>'
+						. self::form_open( 'lps_dashboard_user_category' )
+						. self::hidden( 'user_id', (string) $user_id )
+						. self::select( 'category', TaskDashboard::field_label( 'category', $locale ), $cat_opts, self::text( $member['category'] ?? '' ), $locale, true )
+						. self::submit( $english ? 'Apply category' : 'Aplicar categoria' )
+						. '</form>'
+						. self::action_form(
+							'lps_dashboard_user_status',
+							array(
+								'user_id'       => $user_id,
+								'member_action' => ! empty( $member['suspended'] ) ? 'reactivate' : 'suspend',
+							),
+							! empty( $member['suspended'] )
+								? ( $english ? 'Reactivate member' : 'Reativar membro' )
+								: ( $english ? 'Suspend member' : 'Suspender membro' ),
+							'member-status'
+						)
+						. '</details>';
+				}
+				$html .= '</li>';
+			}
+			$html .= '</ul>';
+		}
+		$html .= '</section>';
+
+		$recall = self::recall( 'user' );
+		$html  .= '<section class="lps-dashboard-section lps-dashboard-create" aria-labelledby="lps-add-member"><h2 id="lps-add-member">'
+			. self::esc( $english ? 'Add member' : 'Adicionar membro' ) . '</h2>'
+			. self::form_open( 'lps_dashboard_user' )
+			. '<fieldset class="lps-fieldset"><legend>' . self::esc( $english ? 'New account' : 'Nova conta' ) . '</legend>'
+			. self::field( 'name', TaskDashboard::field_label( 'name', $locale ), 'text', self::text( $recall['name'] ?? '' ), $locale, true )
+			. self::field( 'email', TaskDashboard::field_label( 'email', $locale ), 'email', self::text( $recall['email'] ?? '' ), $locale, true )
+			. self::field( 'login', TaskDashboard::field_label( 'login', $locale ), 'text', self::text( $recall['login'] ?? '' ), $locale, false )
+			. '<p class="lps-field-hint">' . self::esc( $english ? 'Blank derives the login from the e-mail.' : 'Em branco, o usuário deriva do e-mail.' ) . '</p>'
+			. self::select( 'category', TaskDashboard::field_label( 'category', $locale ), $cat_opts, self::text( $recall['category'] ?? '' ), $locale, true )
+			. self::field( 'password', TaskDashboard::field_label( 'password', $locale ), 'password', '', $locale, true )
+			. '<p class="lps-field-hint">' . self::esc( $english ? 'Hand it to the member; they rotate it on first sign-in.' : 'Entregue ao membro; ele a troca no primeiro acesso.' ) . '</p>'
+			. self::checkbox(
+				'create_person',
+				$english ? 'Also create the public person record (draft)' : 'Criar também o registro público de pessoa (rascunho)',
+				! isset( $recall['create_person'] ) || 0 !== Policy::sanitize_integer( $recall['create_person'] )
+			)
+			. '</fieldset>'
+			. self::submit( $english ? 'Create member account' : 'Criar conta de membro' )
+			. '</form></section>';
+
+		$cat_recall = self::recall( 'category' );
+		$html      .= '<section class="lps-dashboard-section" aria-labelledby="lps-categories"><h2 id="lps-categories">'
+			. self::esc( $english ? 'Member categories' : 'Categorias de membro' ) . '</h2>';
+		$html      .= '<ul class="lps-record-list">';
+		foreach ( $categories as $key => $definition ) {
+			$area_names = array();
+			foreach ( is_array( $definition['collections'] ?? null ) ? $definition['collections'] : array() as $area ) {
+				$area_names[] = ucwords( str_replace( '-', ' ', is_string( $area ) ? $area : '' ) );
+			}
+			$html .= '<li class="lps-record"><strong>' . self::esc( MemberCategories::label( $definition, $locale ) ) . '</strong>'
+				. ' <span class="lps-status lps-status-info">' . self::esc( MemberCategories::role_label( self::text( $definition['role'] ?? '' ), $locale ) ) . '</span>'
+				. '<p class="lps-meta">' . self::esc( (string) $key )
+				. ( array() !== $area_names ? ' · ' . self::esc( implode( ', ', $area_names ) ) : ' · ' . self::esc( $english ? 'no content areas' : 'sem áreas de conteúdo' ) )
+				. ( ! empty( $definition['builtin'] ) ? ' · ' . self::esc( $english ? 'built-in' : 'interna' ) : '' )
+				. '</p>';
+			if ( empty( $definition['builtin'] ) ) {
+				$html .= self::action_form(
+					'lps_dashboard_category_remove',
+					array( 'category' => (string) $key ),
+					$english ? 'Remove category' : 'Remover categoria',
+					'category-remove'
+				);
+			}
+			$html .= '</li>';
+		}
+		$html .= '</ul>'
+			. '<details class="lps-dashboard-edit lps-dashboard-new-category"><summary>' . self::esc( $english ? 'Create a new category' : 'Criar nova categoria' ) . '</summary>'
+			. self::form_open( 'lps_dashboard_category' )
+			. '<fieldset class="lps-fieldset"><legend>' . self::esc( $english ? 'Category definition' : 'Definição da categoria' ) . '</legend>'
+			. self::field( 'key', TaskDashboard::field_label( 'key', $locale ), 'text', self::text( $cat_recall['key'] ?? '' ), $locale, false )
+			. '<p class="lps-field-hint">' . self::esc( $english ? 'Lowercase letters and digits, e.g. visiting-researcher. Blank derives it from the Portuguese name.' : 'Letras minúsculas e dígitos, ex.: pesquisador-visitante. Em branco, deriva do nome em português.' ) . '</p>'
+			. self::field( 'label_pt', TaskDashboard::field_label( 'label_pt', $locale ), 'text', self::text( $cat_recall['label_pt'] ?? '' ), $locale, true )
+			. self::field( 'label_en', TaskDashboard::field_label( 'label_en', $locale ), 'text', self::text( $cat_recall['label_en'] ?? '' ), $locale, false )
+			. self::select( 'role', TaskDashboard::field_label( 'role', $locale ), $role_opts, self::text( $cat_recall['role'] ?? '' ), $locale, true )
+			. self::checkbox_group(
+				'collections',
+				TaskDashboard::field_label( 'collections', $locale ),
+				$areas,
+				is_array( $cat_recall['collections'] ?? null ) ? array_values( array_filter( $cat_recall['collections'], 'is_string' ) ) : array()
+			)
+			. self::field( 'person_roles', TaskDashboard::field_label( 'person_roles', $locale ), 'text', self::text( $cat_recall['person_roles'] ?? '' ), $locale, false )
+			. '</fieldset>'
+			. self::submit( $english ? 'Create category' : 'Criar categoria' )
+			. '</form></details>';
+		return $html . '</section>';
+	}
+
+	/**
 	 * Renders the units list with per-unit publish controls.
 	 *
 	 * @param array<string, mixed> $offering Offering workspace model.
@@ -1514,6 +1691,11 @@ final class DashboardSurfaces {
 				'hint'  => $english ? 'Register a course and open its first offering.' : 'Cadastre uma disciplina e abra a primeira oferta.',
 				'view'  => 'course',
 			),
+			'users'           => array(
+				'label' => $english ? 'Manage users' : 'Gerenciar usuários',
+				'hint'  => $english ? 'Add members and define what each category can do.' : 'Adicione membros e defina o que cada categoria pode fazer.',
+				'view'  => 'users',
+			),
 		);
 		$links   = array();
 		foreach ( $tasks as $task ) {
@@ -1546,6 +1728,7 @@ final class DashboardSurfaces {
 			'review'   => $english ? 'Review queue' : 'Fila de revisão',
 			'create'   => $english ? 'Create offering' : 'Criar oferta',
 			'course'   => $english ? 'Create subject' : 'Criar disciplina',
+			'users'    => $english ? 'Users and categories' : 'Usuários e categorias',
 			default    => $english ? 'Dashboard' : 'Painel',
 		};
 	}
@@ -1600,6 +1783,48 @@ final class DashboardSurfaces {
 			$html .= '<span class="lps-field-hint">' . self::esc( ( 'en' === $locale ? 'Current: ' : 'Atual: ' ) . $hint ) . '</span>';
 		}
 		return $html . '</p>';
+	}
+
+	/**
+	 * Renders one checkbox control with its label.
+	 *
+	 * @param string $name    Field name.
+	 * @param string $label   Field label.
+	 * @param bool   $checked Whether the box starts checked.
+	 */
+	private static function checkbox( string $name, string $label, bool $checked ): string {
+		$id = 'lps-f-' . sanitize_key( str_replace( array( '[', ']' ), array( '-', '' ), $name ) );
+		return '<p class="lps-field"><label class="lps-checkbox" for="' . self::esc( $id ) . '">'
+			. '<input id="' . self::esc( $id ) . '" name="' . self::esc( $name ) . '" type="checkbox" value="1"' . ( $checked ? ' checked' : '' ) . '> '
+			. self::esc( $label ) . '</label></p>';
+	}
+
+	/**
+	 * Renders one checkbox group for a multi-value field (`name[]`).
+	 *
+	 * @param string                           $name     Field name.
+	 * @param string                           $label    Group label.
+	 * @param array<int, array<string, mixed>> $options  Option rows (`key`, `label`).
+	 * @param array<int, string>               $selected Values the recall restores.
+	 */
+	private static function checkbox_group( string $name, string $label, array $options, array $selected = array() ): string {
+		if ( array() === $options ) {
+			return '';
+		}
+		$selected = array_map( 'strval', $selected );
+		$html     = '<fieldset class="lps-fieldset lps-check-group"><legend>' . self::esc( $label ) . '</legend>';
+		foreach ( $options as $option ) {
+			$value = self::text( $option['key'] ?? ( $option['id'] ?? '' ) );
+			$text  = self::text( $option['label'] ?? ( $option['title'] ?? '' ) );
+			if ( '' === $value ) {
+				continue;
+			}
+			$id      = 'lps-f-' . sanitize_key( $name ) . '-' . sanitize_key( $value );
+			$checked = in_array( $value, $selected, true ) ? ' checked' : '';
+			$html   .= '<label class="lps-checkbox" for="' . self::esc( $id ) . '"><input id="' . self::esc( $id ) . '" name="' . self::esc( $name ) . '[]" type="checkbox" value="' . self::esc( $value ) . '"' . $checked . '> '
+				. self::esc( '' !== $text ? $text : $value ) . '</label>';
+		}
+		return $html . '</fieldset>';
 	}
 
 	/**
