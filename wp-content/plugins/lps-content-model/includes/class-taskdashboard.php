@@ -144,6 +144,9 @@ final class TaskDashboard {
 		if ( 'administrator' === $role || ( 'professor' === $role && $has_person ) ) {
 			$tasks[] = 'course';
 		}
+		if ( in_array( $role, array( 'administrator', 'professor' ), true ) ) {
+			$tasks[] = 'users';
+		}
 		return $tasks;
 	}
 
@@ -385,6 +388,18 @@ final class TaskDashboard {
 			'en_title'               => $english ? 'English title' : 'Título em inglês',
 			'en_excerpt'             => $english ? 'English summary' : 'Resumo em inglês',
 			'en_content'             => $english ? 'English body' : 'Conteúdo em inglês',
+			'name'                   => $english ? 'Full name' : 'Nome completo',
+			'email'                  => $english ? 'E-mail' : 'E-mail',
+			'login'                  => $english ? 'Login name' : 'Nome de usuário',
+			'password'               => $english ? 'Initial password' : 'Senha inicial',
+			'category'               => $english ? 'Member category' : 'Categoria de membro',
+			'role'                   => $english ? 'Privilege level' : 'Nível de privilégio',
+			'collections'            => $english ? 'Content areas the category may touch' : 'Áreas de conteúdo que a categoria pode tocar',
+			'person_roles'           => $english ? 'People-page roles (comma separated)' : 'Papéis na página de pessoas (separados por vírgula)',
+			'label_pt'               => $english ? 'Category name (Portuguese)' : 'Nome da categoria (português)',
+			'label_en'               => $english ? 'Category name (English)' : 'Nome da categoria (inglês)',
+			'key'                    => $english ? 'Category key' : 'Chave da categoria',
+			'user_id'                => $english ? 'Member' : 'Membro',
 		);
 		return $labels[ $field ] ?? $field;
 	}
@@ -425,6 +440,12 @@ final class TaskDashboard {
 			'previewed'         => $english ? 'Preview generated — confirm to send the item for review.' : 'Pré-visualização gerada — confirme para enviar para revisão.',
 			'preview-cancelled' => $english ? 'Preview discarded. Nothing was submitted.' : 'Pré-visualização descartada. Nada foi enviado.',
 			'translated'        => $english ? 'English translation recorded and submitted for review.' : 'Tradução em inglês registrada e enviada para revisão.',
+			'user-created'      => $english ? 'Member account created. Hand the initial password to the new member.' : 'Conta de membro criada. Entregue a senha inicial ao novo membro.',
+			'user-updated'      => $english ? 'Member category updated.' : 'Categoria do membro atualizada.',
+			'user-suspended'    => $english ? 'Member suspended — the account keeps its data but signs in with no privileges.' : 'Membro suspenso — a conta mantém os dados, mas entra sem privilégios.',
+			'user-reactivated'  => $english ? 'Member reactivated with the stamped category privileges.' : 'Membro reativado com os privilégios da categoria registrada.',
+			'category-created'  => $english ? 'Member category created; it now appears on the add-member form.' : 'Categoria de membro criada; ela já aparece no formulário de novo membro.',
+			'category-removed'  => $english ? 'Member category removed.' : 'Categoria de membro removida.',
 		);
 		return $messages[ $code ] ?? $code;
 	}
@@ -515,6 +536,22 @@ final class TaskDashboard {
 			'lps_english_variant_required'            => $english ? 'Only an associated English variant can be reviewed.' : 'Somente uma variante em inglês associada pode ser revisada.',
 			'lps_translation_review_forbidden'        => $english ? 'Your account cannot review this English variant.' : 'Sua conta não pode revisar esta variante em inglês.',
 			'lps_portuguese_source_missing'           => $english ? 'The Portuguese source record is missing; contact an administrator.' : 'O registro de origem em português está ausente; contate um administrador.',
+			'lps_required_name'                       => $english ? 'The member name is required.' : 'O nome do membro é obrigatório.',
+			'lps_required_login'                      => $english ? 'A login name is required.' : 'Um nome de usuário é obrigatório.',
+			'lps_required_category_key'               => $english ? 'The category needs a short key (letters and digits).' : 'A categoria precisa de uma chave curta (letras e dígitos).',
+			'lps_invalid_category'                    => $english ? 'The category needs a Portuguese label and a valid role.' : 'A categoria precisa de rótulo em português e um papel válido.',
+			'lps_category_exists'                     => $english ? 'A category with this key already exists.' : 'Já existe uma categoria com esta chave.',
+			'lps_category_missing'                    => $english ? 'Choose a member category.' : 'Escolha uma categoria de membro.',
+			'lps_category_builtin'                    => $english ? 'Built-in categories cannot be removed.' : 'Categorias internas não podem ser removidas.',
+			'lps_category_in_use'                     => $english ? 'Members still use this category; reassign them first.' : 'Membros ainda usam esta categoria; reatribua-os primeiro.',
+			'lps_category_role_forbidden'             => $english ? 'Your account cannot grant this privilege level.' : 'Sua conta não pode conceder este nível de privilégio.',
+			'lps_email_in_use'                        => $english ? 'This e-mail already belongs to an account.' : 'Este e-mail já pertence a uma conta.',
+			'lps_login_in_use'                        => $english ? 'This login name is already taken.' : 'Este nome de usuário já está em uso.',
+			'lps_login_shared'                        => $english ? 'This login names a shared account and cannot be used.' : 'Este nome identifica uma conta compartilhada e não pode ser usado.',
+			'lps_password_short'                      => $english ? 'The initial password needs at least 8 characters.' : 'A senha inicial precisa de ao menos 8 caracteres.',
+			'lps_user_create_failed'                  => $english ? 'The account could not be created; try again.' : 'A conta não pôde ser criada; tente novamente.',
+			'lps_user_missing'                        => $english ? 'The member account does not exist.' : 'A conta de membro não existe.',
+			'lps_user_self'                           => $english ? 'You cannot suspend your own account.' : 'Você não pode suspender a própria conta.',
 		);
 		return $messages[ $code ] ?? ( $english ? 'The action was denied (' . $code . ').' : 'A ação foi negada (' . $code . ').' );
 	}
@@ -539,6 +576,11 @@ final class TaskDashboard {
 		add_action( 'admin_post_lps_dashboard_notice', array( self::class, 'handle_notice' ) );
 		add_action( 'admin_post_lps_dashboard_material', array( self::class, 'handle_material' ) );
 		add_action( 'admin_post_lps_dashboard_order', array( self::class, 'handle_order' ) );
+		add_action( 'admin_post_lps_dashboard_user', array( self::class, 'handle_user' ) );
+		add_action( 'admin_post_lps_dashboard_user_category', array( self::class, 'handle_user_category' ) );
+		add_action( 'admin_post_lps_dashboard_user_status', array( self::class, 'handle_user_status' ) );
+		add_action( 'admin_post_lps_dashboard_category', array( self::class, 'handle_category' ) );
+		add_action( 'admin_post_lps_dashboard_category_remove', array( self::class, 'handle_category_remove' ) );
 	}
 
 	/**
@@ -1158,27 +1200,38 @@ final class TaskDashboard {
 			&& ( SecurityPolicy::allows( $role, 'review' ) || SecurityPolicy::allows( $role, 'publish' ) );
 		$tasks      = self::tasks_for_role( $role, array() !== $offerings, $news_scope, 0 < $person_id, $may_review, $may_events, $may_news );
 		return array(
-			'role'       => $role,
-			'user'       => $user,
-			'tasks'      => $tasks,
-			'offerings'  => $offerings,
-			'news'       => $may_news ? self::news_for_user( $user->ID ) : array(),
-			'events'     => $may_events ? self::events_for_user( $user->ID ) : array(),
-			'person_id'  => $person_id,
-			'proposals'  => 0 < $person_id ? self::proposals_for_person( $person_id ) : array(),
-			'review'     => $may_review ? self::review_queue( $user->ID ) : array(
+			'role'        => $role,
+			'user'        => $user,
+			'tasks'       => $tasks,
+			'offerings'   => $offerings,
+			'news'        => $may_news ? self::news_for_user( $user->ID ) : array(),
+			'events'      => $may_events ? self::events_for_user( $user->ID ) : array(),
+			'person_id'   => $person_id,
+			'proposals'   => 0 < $person_id ? self::proposals_for_person( $person_id ) : array(),
+			'review'      => $may_review ? self::review_queue( $user->ID ) : array(
 				'news'      => array(),
 				'proposals' => array(),
 			),
-			'terms'      => self::published_terms(),
-			'courses'    => self::published_courses(),
-			'people'     => self::people_options(),
-			'news_scope' => $news_scope,
-			'activity'   => self::activity_for_user( $user->ID, $locale ),
-			'may_review' => $may_review,
-			'may_course' => self::may_course( $user ),
-			'mfa'        => MFA::is_enrolled( $user->ID ),
-			'mfa_needed' => SecurityPolicy::requires_mfa( $role ) && ! MFA::is_enrolled( $user->ID ),
+			'terms'       => self::published_terms(),
+			'courses'     => self::published_courses(),
+			'people'      => self::people_options(),
+			'news_scope'  => $news_scope,
+			'activity'    => self::activity_for_user( $user->ID, $locale ),
+			'may_review'  => $may_review,
+			'may_course'  => self::may_course( $user ),
+			'mfa'         => MFA::is_enrolled( $user->ID ),
+			'mfa_needed'  => SecurityPolicy::requires_mfa( $role ) && ! MFA::is_enrolled( $user->ID ),
+			'may_users'   => self::may_manage_users( $user ),
+			'members'     => self::may_manage_users( $user ) ? self::members_model( $user ) : array(),
+			'categories'  => self::may_manage_users( $user ) ? MemberCategories::categories() : array(),
+			'user_roles'  => MemberCategories::role_options( $role ),
+			'collections' => array_map(
+				static fn( string $collection ): array => array(
+					'key'   => $collection,
+					'label' => ucwords( str_replace( '-', ' ', $collection ) ),
+				),
+				Roles::collections()
+			),
 		);
 	}
 
@@ -2688,6 +2741,376 @@ final class TaskDashboard {
 		}
 		Audit::record( 'edit', $offering_id, 0, array( 'decision' => 'material-order' ) );
 		self::succeed( 'ordered' );
+	}
+
+	/**
+	 * Handles the add-member form in the user-management lane.
+	 *
+	 * One submit mints the account under the chosen member category: the
+	 * category's policy role maps to the WordPress role and any collection
+	 * assignments, the category key is stamped for the member list, and an
+	 * optional linked person record arrives as a draft for the public
+	 * People page. The initial password is the invite — the creator hands
+	 * it to the member, who rotates it on first sign-in.
+	 */
+	public static function handle_user(): void {
+		$actor = wp_get_current_user();
+		if ( ! self::verify_nonce( 'lps_dashboard_user' ) ) {
+			self::fail( 'lps_dashboard_nonce' );
+		}
+		if ( ! self::may_manage_users( $actor ) ) {
+			self::fail( 'lps_dashboard_forbidden' );
+		}
+		$actor_role = Roles::policy_role( $actor );
+		$input      = array(
+			'name'          => self::post_text( 'name' ),
+			'email'         => self::post_text( 'email' ),
+			'login'         => self::post_text( 'login' ),
+			'category'      => sanitize_key( self::post_text( 'category' ) ),
+			'create_person' => '1' === self::post_text( 'create_person' ),
+		);
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing -- A password keeps its characters verbatim; it is only ever handed to wp_insert_user.
+		$password = isset( $_POST['password'] ) && is_string( $_POST['password'] ) ? wp_unslash( $_POST['password'] ) : '';
+		$errors   = array();
+		$category = MemberCategories::category( $input['category'] );
+		if ( '' === $input['name'] ) {
+			$errors['name'] = 'lps_required_name';
+		}
+		if ( ! is_email( $input['email'] ) ) {
+			$errors['email'] = 'lps_invalid_email';
+		} elseif ( email_exists( $input['email'] ) ) {
+			$errors['email'] = 'lps_email_in_use';
+		}
+		$at    = strpos( $input['email'], '@' );
+		$login = '' !== $input['login'] ? $input['login'] : ( false === $at ? '' : substr( $input['email'], 0, $at ) );
+		$login = sanitize_user( $login, true );
+		if ( '' === $login ) {
+			$errors['login'] = 'lps_required_login';
+		} elseif ( SecurityPolicy::shared_account_name_forbidden( $login ) ) {
+			$errors['login'] = 'lps_login_shared';
+		} elseif ( username_exists( $login ) ) {
+			$errors['login'] = 'lps_login_in_use';
+		}
+		if ( null === $category ) {
+			$errors['category'] = 'lps_category_missing';
+		} elseif ( ! in_array( $category['role'], MemberCategories::role_options( $actor_role ), true ) ) {
+			$errors['category'] = 'lps_category_role_forbidden';
+		}
+		if ( 8 > strlen( $password ) ) {
+			$errors['password'] = 'lps_password_short';
+		}
+		if ( array() !== $errors ) {
+			self::recall( 'user', $input );
+			self::fail( (string) reset( $errors ), (string) array_key_first( $errors ) );
+		}
+		if ( null === $category ) {
+			self::fail( 'lps_category_missing', 'category' );
+		}
+		$user_id = wp_insert_user(
+			array(
+				'user_login'   => $login,
+				'user_email'   => $input['email'],
+				'user_pass'    => $password,
+				'display_name' => $input['name'],
+				'first_name'   => $input['name'],
+				'role'         => MemberCategories::wp_role( $category ),
+			)
+		);
+		if ( $user_id instanceof WP_Error ) {
+			self::recall( 'user', $input );
+			self::fail( 'lps_user_create_failed' );
+		}
+		$user_id = (int) $user_id;
+		self::stamp_member( $user_id, $input['category'], $category );
+		if ( $input['create_person'] ) {
+			self::mint_person_for_member( $user_id, $input['name'], $category );
+		}
+		Audit::record(
+			'settings',
+			$user_id,
+			0,
+			array(
+				'decision' => 'member-created',
+				'category' => $input['category'],
+			)
+		);
+		self::succeed( 'user-created' );
+	}
+
+	/**
+	 * Handles a member-category reassignment on one account.
+	 *
+	 * The new category re-maps the WordPress role and collection assignment;
+	 * the stamped category key keeps the member list honest. Administrators
+	 * touch every account; other managers may only retarget non-administrator
+	 * accounts to non-administrator categories.
+	 */
+	public static function handle_user_category(): void {
+		$actor = wp_get_current_user();
+		if ( ! self::verify_nonce( 'lps_dashboard_user_category' ) ) {
+			self::fail( 'lps_dashboard_nonce' );
+		}
+		if ( ! self::may_manage_users( $actor ) ) {
+			self::fail( 'lps_dashboard_forbidden' );
+		}
+		$actor_role = Roles::policy_role( $actor );
+		$target_id  = self::post_int( 'user_id' );
+		$category   = MemberCategories::category( sanitize_key( self::post_text( 'category' ) ) );
+		$target     = 0 < $target_id ? get_user_by( 'id', $target_id ) : null;
+		if ( ! $target instanceof WP_User ) {
+			self::fail( 'lps_user_missing' );
+		}
+		if ( null === $category ) {
+			self::fail( 'lps_category_missing', 'category' );
+		}
+		if ( 'administrator' === Roles::policy_role( $target ) && 'administrator' !== $actor_role ) {
+			self::fail( 'lps_dashboard_forbidden' );
+		}
+		if ( ! in_array( $category['role'], MemberCategories::role_options( $actor_role ), true ) ) {
+			self::fail( 'lps_category_role_forbidden', 'category' );
+		}
+		self::assign_category_to_user( $target, $category, sanitize_key( self::post_text( 'category' ) ) );
+		Audit::record(
+			'settings',
+			$target_id,
+			0,
+			array(
+				'decision' => 'member-recategorized',
+				'category' => Policy::scalar_string( $category['key'] ?? '' ),
+			)
+		);
+		self::succeed( 'user-updated' );
+	}
+
+	/**
+	 * Handles member suspension and reactivation.
+	 *
+	 * Suspension drops the account to the member-only role so nothing
+	 * privileged remains reachable; reactivation restores the stamped
+	 * category's role and collections.
+	 */
+	public static function handle_user_status(): void {
+		$actor = wp_get_current_user();
+		if ( ! self::verify_nonce( 'lps_dashboard_user_status' ) ) {
+			self::fail( 'lps_dashboard_nonce' );
+		}
+		if ( ! self::may_manage_users( $actor ) ) {
+			self::fail( 'lps_dashboard_forbidden' );
+		}
+		$target_id = self::post_int( 'user_id' );
+		$action    = self::post_text( 'member_action' );
+		$target    = 0 < $target_id ? get_user_by( 'id', $target_id ) : null;
+		if ( ! $target instanceof WP_User ) {
+			self::fail( 'lps_user_missing' );
+		}
+		if ( $target->ID === $actor->ID ) {
+			self::fail( 'lps_user_self' );
+		}
+		if ( 'administrator' === Roles::policy_role( $target ) && 'administrator' !== Roles::policy_role( $actor ) ) {
+			self::fail( 'lps_dashboard_forbidden' );
+		}
+		if ( 'suspend' === $action ) {
+			$target->set_role( 'subscriber' );
+			update_user_meta( $target->ID, MemberCategories::SUSPENDED_META, '1' );
+			Audit::record( 'settings', $target->ID, 0, array( 'decision' => 'member-suspended' ) );
+			self::succeed( 'user-suspended' );
+		}
+		if ( 'reactivate' === $action ) {
+			$category = MemberCategories::category( MemberCategories::category_for_user( $target->ID ) );
+			$target->set_role( null !== $category ? MemberCategories::wp_role( $category ) : 'subscriber' );
+			delete_user_meta( $target->ID, MemberCategories::SUSPENDED_META );
+			Audit::record( 'settings', $target->ID, 0, array( 'decision' => 'member-reactivated' ) );
+			self::succeed( 'user-reactivated' );
+		}
+		self::fail( 'lps_dashboard_forbidden' );
+	}
+
+	/**
+	 * Handles custom member-category creation.
+	 *
+	 * The definition names the role profile and, for collection-scoped
+	 * roles, the collections the category may touch — that pair is exactly
+	 * what its accounts can access, edit and post.
+	 */
+	public static function handle_category(): void {
+		$actor = wp_get_current_user();
+		if ( ! self::verify_nonce( 'lps_dashboard_category' ) ) {
+			self::fail( 'lps_dashboard_nonce' );
+		}
+		if ( ! self::may_manage_users( $actor ) ) {
+			self::fail( 'lps_dashboard_forbidden' );
+		}
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing -- Every value is sanitized inside normalize_definition.
+		$raw_collections  = isset( $_POST['collections'] ) && is_array( $_POST['collections'] ) ? wp_unslash( $_POST['collections'] ) : array();
+		$person_roles_raw = self::post_text( 'person_roles' );
+		$input            = array(
+			'key'          => self::post_text( 'key' ),
+			'label_pt'     => self::post_text( 'label_pt' ),
+			'label_en'     => self::post_text( 'label_en' ),
+			'role'         => self::post_text( 'role' ),
+			'collections'  => $raw_collections,
+			'person_roles' => array_filter( array_map( 'trim', explode( ',', $person_roles_raw ) ) ),
+		);
+		$result           = MemberCategories::create( $input, Roles::policy_role( $actor ) );
+		if ( $result instanceof WP_Error ) {
+			self::recall( 'category', array_merge( $input, array( 'person_roles' => $person_roles_raw ) ) );
+			self::fail( (string) $result->get_error_code(), 'key' );
+		}
+		Audit::record(
+			'settings',
+			0,
+			0,
+			array(
+				'decision' => 'member-category-created',
+				'category' => Policy::scalar_string( $result['key'] ?? '' ),
+			)
+		);
+		self::succeed( 'category-created' );
+	}
+
+	/**
+	 * Handles custom category removal; in-use categories refuse to drop.
+	 */
+	public static function handle_category_remove(): void {
+		$actor = wp_get_current_user();
+		if ( ! self::verify_nonce( 'lps_dashboard_category_remove' ) ) {
+			self::fail( 'lps_dashboard_nonce' );
+		}
+		if ( ! self::may_manage_users( $actor ) ) {
+			self::fail( 'lps_dashboard_forbidden' );
+		}
+		$result = MemberCategories::remove( sanitize_key( self::post_text( 'category' ) ) );
+		if ( $result instanceof WP_Error ) {
+			self::fail( (string) $result->get_error_code(), 'category' );
+		}
+		Audit::record( 'settings', 0, 0, array( 'decision' => 'member-category-removed' ) );
+		self::succeed( 'category-removed' );
+	}
+
+	/**
+	 * Returns whether the account may run the user-management lane.
+	 *
+	 * Administrators always manage members; professors manage them once the
+	 * privileged-session bar (enrolled second factor) is met — the same gate
+	 * as every other public-affecting lane.
+	 *
+	 * @param WP_User $user Signed-in account.
+	 */
+	private static function may_manage_users( WP_User $user ): bool {
+		$role = Roles::policy_role( $user );
+		if ( 'administrator' === $role ) {
+			return true;
+		}
+		return 'professor' === $role && SecurityPolicy::privileged_session_allowed( $role, MFA::is_enrolled( $user->ID ) );
+	}
+
+	/**
+	 * Assembles the member rows for the management view.
+	 *
+	 * @param WP_User $actor Signed-in account.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private static function members_model( WP_User $actor ): array {
+		$actor_role = Roles::policy_role( $actor );
+		$members    = array();
+		foreach ( MemberCategories::member_users() as $member ) {
+			$target_role  = Roles::policy_role( $member );
+			$category_key = MemberCategories::category_for_user( $member->ID );
+			$members[]    = array(
+				'id'        => $member->ID,
+				'login'     => $member->user_login,
+				'name'      => $member->display_name,
+				'email'     => $member->user_email,
+				'category'  => $category_key,
+				'role'      => $target_role,
+				'person_id' => Policy::sanitize_integer( get_user_meta( $member->ID, Roles::PERSON_META, true ) ),
+				'suspended' => MemberCategories::is_suspended( $member->ID ),
+				'is_self'   => $member->ID === $actor->ID,
+				'editable'  => $member->ID !== $actor->ID && ( 'administrator' === $actor_role || 'administrator' !== $target_role ),
+			);
+		}
+		usort(
+			$members,
+			static fn( array $left, array $right ): int => strcasecmp( (string) $left['name'], (string) $right['name'] )
+		);
+		return $members;
+	}
+
+	/**
+	 * Applies a category to one account: WordPress role, category stamp,
+	 * collection assignment.
+	 *
+	 * @param WP_User              $target       Target account.
+	 * @param array<string, mixed> $category     Category definition.
+	 * @param string               $category_key Category key.
+	 */
+	private static function assign_category_to_user( WP_User $target, array $category, string $category_key ): void {
+		$target->set_role( MemberCategories::wp_role( $category ) );
+		update_user_meta( $target->ID, MemberCategories::CATEGORY_META, $category_key );
+		$collections = is_array( $category['collections'] ?? null ) ? array_values( $category['collections'] ) : array();
+		update_user_meta( $target->ID, Roles::COLLECTIONS_META, $collections );
+		delete_user_meta( $target->ID, MemberCategories::SUSPENDED_META );
+	}
+
+	/**
+	 * Stamps the member-category assignment on a freshly minted account.
+	 *
+	 * @param int                  $user_id      New account ID.
+	 * @param string               $category_key Category key.
+	 * @param array<string, mixed> $category     Category definition.
+	 */
+	private static function stamp_member( int $user_id, string $category_key, array $category ): void {
+		update_user_meta( $user_id, MemberCategories::CATEGORY_META, $category_key );
+		$collections = is_array( $category['collections'] ?? null ) ? array_values( $category['collections'] ) : array();
+		if ( array() !== $collections ) {
+			update_user_meta( $user_id, Roles::COLLECTIONS_META, $collections );
+		}
+	}
+
+	/**
+	 * Mints the linked draft person record for a new member.
+	 *
+	 * The record arrives unpublished — public listing still waits on the
+	 * editorial path — with the category's person roles and the account
+	 * link that offering teams and course creation resolve through.
+	 *
+	 * @param int                  $user_id  New account ID.
+	 * @param string               $name     Display name.
+	 * @param array<string, mixed> $category Category definition.
+	 * @return int Person record ID, 0 on failure.
+	 */
+	private static function mint_person_for_member( int $user_id, string $name, array $category ): int {
+		$person_roles = is_array( $category['person_roles'] ?? null ) ? array_values( $category['person_roles'] ) : array();
+		$created      = self::call_guarded(
+			static function () use ( $name, $user_id, $person_roles ): array|WP_Error {
+				$post_id = wp_insert_post(
+					array(
+						'post_type'   => 'lps_person',
+						'post_status' => 'draft',
+						'post_title'  => $name,
+						'post_author' => $user_id,
+						'meta_input'  => array(
+							'_lps_canonical_name'   => $name,
+							'_lps_sort_name'        => $name,
+							'_lps_person_status'    => 'active',
+							'_lps_roles'            => $person_roles,
+							'_lps_privacy_reviewed' => false,
+						),
+					),
+					true
+				);
+				return $post_id instanceof WP_Error ? $post_id : array( 'post_id' => $post_id );
+			}
+		);
+		if ( $created instanceof WP_Error ) {
+			return 0;
+		}
+		$post_id = Policy::sanitize_integer( $created['post_id'] ?? 0 );
+		if ( 0 >= $post_id ) {
+			return 0;
+		}
+		update_user_meta( $user_id, Roles::PERSON_META, $post_id );
+		return $post_id;
 	}
 
 	/**
