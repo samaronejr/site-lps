@@ -70,6 +70,7 @@ require_once __DIR__ . '/includes/class-taskdashboard.php';
 require_once __DIR__ . '/includes/class-plugin.php';
 
 LPS\ContentModel\Plugin::boot();
+LPS\ContentModel\MemberCategories::boot();
 LPS\ContentModel\TaskDashboard::boot();
 LPS\ContentModel\CommandRegistration::boot();
 register_activation_hook( __FILE__, array( LPS\ContentModel\Plugin::class, 'activate' ) );

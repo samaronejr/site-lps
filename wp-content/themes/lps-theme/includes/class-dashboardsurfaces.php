@@ -1092,7 +1092,12 @@ final class DashboardSurfaces {
 			. self::field( 'label_pt', TaskDashboard::field_label( 'label_pt', $locale ), 'text', self::text( $cat_recall['label_pt'] ?? '' ), $locale, true )
 			. self::field( 'label_en', TaskDashboard::field_label( 'label_en', $locale ), 'text', self::text( $cat_recall['label_en'] ?? '' ), $locale, false )
 			. self::select( 'role', TaskDashboard::field_label( 'role', $locale ), $role_opts, self::text( $cat_recall['role'] ?? '' ), $locale, true )
-			. self::checkbox_group( 'collections', TaskDashboard::field_label( 'collections', $locale ), $areas )
+			. self::checkbox_group(
+				'collections',
+				TaskDashboard::field_label( 'collections', $locale ),
+				$areas,
+				is_array( $cat_recall['collections'] ?? null ) ? array_values( array_filter( $cat_recall['collections'], 'is_string' ) ) : array()
+			)
 			. self::field( 'person_roles', TaskDashboard::field_label( 'person_roles', $locale ), 'text', self::text( $cat_recall['person_roles'] ?? '' ), $locale, false )
 			. '</fieldset>'
 			. self::submit( $english ? 'Create category' : 'Criar categoria' )
@@ -1797,23 +1802,26 @@ final class DashboardSurfaces {
 	/**
 	 * Renders one checkbox group for a multi-value field (`name[]`).
 	 *
-	 * @param string                           $name    Field name.
-	 * @param string                           $label   Group label.
-	 * @param array<int, array<string, mixed>> $options Option rows (`key`, `label`).
+	 * @param string                           $name     Field name.
+	 * @param string                           $label    Group label.
+	 * @param array<int, array<string, mixed>> $options  Option rows (`key`, `label`).
+	 * @param array<int, string>               $selected Values the recall restores.
 	 */
-	private static function checkbox_group( string $name, string $label, array $options ): string {
+	private static function checkbox_group( string $name, string $label, array $options, array $selected = array() ): string {
 		if ( array() === $options ) {
 			return '';
 		}
-		$html = '<fieldset class="lps-fieldset lps-check-group"><legend>' . self::esc( $label ) . '</legend>';
+		$selected = array_map( 'strval', $selected );
+		$html     = '<fieldset class="lps-fieldset lps-check-group"><legend>' . self::esc( $label ) . '</legend>';
 		foreach ( $options as $option ) {
 			$value = self::text( $option['key'] ?? ( $option['id'] ?? '' ) );
 			$text  = self::text( $option['label'] ?? ( $option['title'] ?? '' ) );
 			if ( '' === $value ) {
 				continue;
 			}
-			$id    = 'lps-f-' . sanitize_key( $name ) . '-' . sanitize_key( $value );
-			$html .= '<label class="lps-checkbox" for="' . self::esc( $id ) . '"><input id="' . self::esc( $id ) . '" name="' . self::esc( $name ) . '[]" type="checkbox" value="' . self::esc( $value ) . '"> '
+			$id      = 'lps-f-' . sanitize_key( $name ) . '-' . sanitize_key( $value );
+			$checked = in_array( $value, $selected, true ) ? ' checked' : '';
+			$html   .= '<label class="lps-checkbox" for="' . self::esc( $id ) . '"><input id="' . self::esc( $id ) . '" name="' . self::esc( $name ) . '[]" type="checkbox" value="' . self::esc( $value ) . '"' . $checked . '> '
 				. self::esc( '' !== $text ? $text : $value ) . '</label>';
 		}
 		return $html . '</fieldset>';

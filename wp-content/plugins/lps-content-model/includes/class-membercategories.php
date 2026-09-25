@@ -32,8 +32,80 @@ final class MemberCategories {
 	/** User meta recording a suspended member account. */
 	public const SUSPENDED_META = '_lps_member_suspended';
 
+	/** User meta preserving the role a suspended account held. */
+	public const SUSPENDED_ROLE_META = '_lps_member_suspended_role';
+
+	/** User meta forcing an invite-password rotation on next request. */
+	public const FORCE_RESET_META = '_lps_member_force_reset';
+
 	/** Pseudo-role for member-only accounts (the stock `subscriber` role). */
 	public const MEMBER_ROLE = 'member';
+
+	/**
+	 * Registers the invite-password rotation hooks.
+	 *
+	 * A lane-minted account carries an initial password the creator hands
+	 * over; until the member replaces it through the core reset screen the
+	 * flag keeps every signed-in request routed back to that screen.
+	 */
+	public static function boot(): void {
+		add_action( 'init', array( self::class, 'enforce_password_rotation' ) );
+		add_action( 'password_reset', array( self::class, 'clear_password_rotation' ) );
+	}
+
+	/** Redirects a flagged member to the password-reset screen.
+	 *
+	 * Login pages, AJAX and CLI contexts are exempt — the reset form itself
+	 * lives under `wp-login.php`, and machine contexts never browse.
+	 */
+	public static function enforce_password_rotation(): void {
+		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+			return;
+		}
+		if ( ! function_exists( 'is_user_logged_in' ) || ! is_user_logged_in() ) {
+			return;
+		}
+		$user = wp_get_current_user();
+		if ( '1' !== get_user_meta( $user->ID, self::FORCE_RESET_META, true ) ) {
+			return;
+		}
+		if ( ( defined( 'DOING_AJAX' ) && DOING_AJAX ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+			return;
+		}
+		$script = '';
+		if ( isset( $_SERVER['SCRIPT_NAME'] ) && is_string( $_SERVER['SCRIPT_NAME'] ) ) {
+			$script = sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_NAME'] ) );
+		}
+		if ( false !== strpos( $script, 'wp-login.php' ) ) {
+			return;
+		}
+		$key = get_password_reset_key( $user );
+		if ( $key instanceof WP_Error ) {
+			return;
+		}
+		// Core's reset screen lives on `wp-login.php`; the theme rewrites
+		// `wp_login_url()` to the branded sign-in page, which would drop the
+		// reset action and strand the member on a plain login form.
+		wp_safe_redirect(
+			add_query_arg(
+				array(
+					'action' => 'rp',
+					'key'    => $key,
+					'login'  => rawurlencode( $user->user_login ),
+				),
+				home_url( 'wp-login.php' )
+			)
+		);
+		exit;
+	}
+
+	/** Clears the rotation flag once the member sets a new password.
+	 *
+	 * @param WP_User $user Account whose password was just reset.
+	 */
+	public static function clear_password_rotation( WP_User $user ): void {
+		delete_user_meta( $user->ID, self::FORCE_RESET_META );
+	}
 
 	/** Policy roles a member category may carry, least to most privilege. */
 	private const ASSIGNABLE_ROLES = array(
@@ -258,10 +330,21 @@ final class MemberCategories {
 		if ( ! empty( $category['builtin'] ) ) {
 			return new WP_Error( 'lps_category_builtin' );
 		}
-		foreach ( self::member_users() as $user ) {
-			if ( self::category_for_user( $user->ID ) === $key ) {
-				return new WP_Error( 'lps_category_in_use' );
-			}
+		$holders = get_users(
+			array(
+				'fields'     => 'ids',
+				'number'     => 1,
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Exact-key lookup on the usermeta index; the member list's own query is capped and cannot serve as the in-use guard.
+				'meta_query' => array(
+					array(
+						'key'   => self::CATEGORY_META,
+						'value' => $key,
+					),
+				),
+			)
+		);
+		if ( array() !== $holders ) {
+			return new WP_Error( 'lps_category_in_use' );
 		}
 		$stored = get_option( self::OPTION, array() );
 		if ( is_array( $stored ) && isset( $stored[ $key ] ) ) {

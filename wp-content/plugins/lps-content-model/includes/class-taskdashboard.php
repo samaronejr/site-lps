@@ -1606,7 +1606,20 @@ final class TaskDashboard {
 		foreach ( $include_ids as $extra_id ) {
 			$extra_id = Policy::sanitize_integer( $extra_id );
 			if ( 0 < $extra_id && ! isset( $seen[ $extra_id ] ) ) {
-				$posts[] = $extra_id;
+				$posts[]           = $extra_id;
+				$seen[ $extra_id ] = true;
+			}
+		}
+		// Member accounts mint their person record as a draft; the account
+		// link is what makes the member joinable to a team before editorial
+		// publishes the record publicly.
+		if ( class_exists( MemberCategories::class ) ) {
+			foreach ( MemberCategories::member_users() as $member ) {
+				$person_id = Policy::sanitize_integer( get_user_meta( $member->ID, Roles::PERSON_META, true ) );
+				if ( 0 < $person_id && ! isset( $seen[ $person_id ] ) && 'draft' === get_post_status( $person_id ) ) {
+					$posts[]            = $person_id;
+					$seen[ $person_id ] = true;
+				}
 			}
 		}
 		$people = array();
@@ -2823,7 +2836,15 @@ final class TaskDashboard {
 		$user_id = (int) $user_id;
 		self::stamp_member( $user_id, $input['category'], $category );
 		if ( $input['create_person'] ) {
-			self::mint_person_for_member( $user_id, $input['name'], $category );
+			$person_id = self::mint_person_for_member( $user_id, $input['name'], $category );
+			if ( 0 >= $person_id ) {
+				// The requested account/person pair stays atomic: without the
+				// record the account rolls back rather than report a half-done
+				// create as success.
+				require_once dirname( __DIR__, 4 ) . '/wp-admin/includes/user.php';
+				wp_delete_user( $user_id );
+				self::fail( 'lps_user_create_failed' );
+			}
 		}
 		Audit::record(
 			'settings',
@@ -2910,6 +2931,7 @@ final class TaskDashboard {
 			self::fail( 'lps_dashboard_forbidden' );
 		}
 		if ( 'suspend' === $action ) {
+			update_user_meta( $target->ID, MemberCategories::SUSPENDED_ROLE_META, $target->roles );
 			$target->set_role( 'subscriber' );
 			update_user_meta( $target->ID, MemberCategories::SUSPENDED_META, '1' );
 			Audit::record( 'settings', $target->ID, 0, array( 'decision' => 'member-suspended' ) );
@@ -2917,8 +2939,20 @@ final class TaskDashboard {
 		}
 		if ( 'reactivate' === $action ) {
 			$category = MemberCategories::category( MemberCategories::category_for_user( $target->ID ) );
-			$target->set_role( null !== $category ? MemberCategories::wp_role( $category ) : 'subscriber' );
+			if ( null !== $category ) {
+				if ( ! in_array( $category['role'], MemberCategories::role_options( Roles::policy_role( $actor ) ), true ) ) {
+					self::fail( 'lps_category_role_forbidden' );
+				}
+				$target->set_role( MemberCategories::wp_role( $category ) );
+			} else {
+				// Pre-lane accounts carry no category stamp; the suspension
+				// record restores the role they held instead of stranding them.
+				$prior_roles = get_user_meta( $target->ID, MemberCategories::SUSPENDED_ROLE_META, true );
+				$prior_roles = is_array( $prior_roles ) ? array_values( array_filter( $prior_roles, 'is_string' ) ) : array();
+				$target->set_role( array() !== $prior_roles ? $prior_roles[0] : 'subscriber' );
+			}
 			delete_user_meta( $target->ID, MemberCategories::SUSPENDED_META );
+			delete_user_meta( $target->ID, MemberCategories::SUSPENDED_ROLE_META );
 			Audit::record( 'settings', $target->ID, 0, array( 'decision' => 'member-reactivated' ) );
 			self::succeed( 'user-reactivated' );
 		}
@@ -3050,6 +3084,7 @@ final class TaskDashboard {
 		$collections = is_array( $category['collections'] ?? null ) ? array_values( $category['collections'] ) : array();
 		update_user_meta( $target->ID, Roles::COLLECTIONS_META, $collections );
 		delete_user_meta( $target->ID, MemberCategories::SUSPENDED_META );
+		delete_user_meta( $target->ID, MemberCategories::SUSPENDED_ROLE_META );
 	}
 
 	/**
@@ -3061,6 +3096,7 @@ final class TaskDashboard {
 	 */
 	private static function stamp_member( int $user_id, string $category_key, array $category ): void {
 		update_user_meta( $user_id, MemberCategories::CATEGORY_META, $category_key );
+		update_user_meta( $user_id, MemberCategories::FORCE_RESET_META, '1' );
 		$collections = is_array( $category['collections'] ?? null ) ? array_values( $category['collections'] ) : array();
 		if ( array() !== $collections ) {
 			update_user_meta( $user_id, Roles::COLLECTIONS_META, $collections );
