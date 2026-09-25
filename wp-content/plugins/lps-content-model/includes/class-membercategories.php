@@ -92,9 +92,13 @@ final class MemberCategories {
 		if ( $key instanceof WP_Error ) {
 			return;
 		}
-		if ( ! defined( 'COOKIEHASH' ) || ! is_string( COOKIEHASH ) || ! defined( 'COOKIE_DOMAIN' ) || ! is_string( COOKIE_DOMAIN ) ) {
+		if ( ! defined( 'COOKIEHASH' ) || ! is_string( COOKIEHASH ) ) {
 			return;
 		}
+		// `COOKIE_DOMAIN` defaults to `false` in WordPress — "the current
+		// host" — which maps to an empty domain attribute on `setcookie`.
+		// Only a configured string domain is copied over.
+		$domain = defined( 'COOKIE_DOMAIN' ) && is_string( COOKIE_DOMAIN ) ? COOKIE_DOMAIN : '';
 		// Seed the `wp-resetpass` cookie exactly as core does for the
 		// key+login URL: the bare `action=rp` request then reads the
 		// credential from the cookie, so a live reset key never travels
@@ -102,7 +106,7 @@ final class MemberCategories {
 		// avoided because the branded-login filter would drop the action.
 		$path = wp_parse_url( home_url( 'wp-login.php' ), PHP_URL_PATH );
 		$path = is_string( $path ) && '' !== $path ? $path : '/wp-login.php';
-		setcookie( 'wp-resetpass-' . COOKIEHASH, $user->user_login . ':' . $key, 0, $path, COOKIE_DOMAIN, is_ssl(), true );
+		setcookie( 'wp-resetpass-' . COOKIEHASH, $user->user_login . ':' . $key, 0, $path, $domain, is_ssl(), true );
 		nocache_headers();
 		wp_safe_redirect( home_url( 'wp-login.php?action=rp' ) );
 		exit;
