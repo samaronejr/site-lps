@@ -69,8 +69,17 @@ final class MemberCategories {
 		if ( '1' !== get_user_meta( $user->ID, self::FORCE_RESET_META, true ) ) {
 			return;
 		}
-		if ( ( defined( 'DOING_AJAX' ) && DOING_AJAX ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
-			return;
+		$request_uri = isset( $_SERVER['REQUEST_URI'] ) && is_string( $_SERVER['REQUEST_URI'] )
+			? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) )
+			: '';
+		$rest_prefix = wp_parse_url( rest_url(), PHP_URL_PATH );
+		// `REST_REQUEST` is only defined once the request parses, which is
+		// after `init` — a REST call is recognized here by its URL prefix.
+		$is_rest = is_string( $rest_prefix ) && '' !== $request_uri && 0 === strpos( $request_uri, $rest_prefix );
+		if ( ( defined( 'DOING_AJAX' ) && DOING_AJAX ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) || $is_rest ) {
+			// A flagged account holds a shareable invite credential — denying
+			// the request keeps privileged API writes from bypassing rotation.
+			wp_die( 'Password rotation required.', 'Forbidden', array( 'response' => 403 ) );
 		}
 		$script = '';
 		if ( isset( $_SERVER['SCRIPT_NAME'] ) && is_string( $_SERVER['SCRIPT_NAME'] ) ) {
@@ -83,19 +92,19 @@ final class MemberCategories {
 		if ( $key instanceof WP_Error ) {
 			return;
 		}
-		// Core's reset screen lives on `wp-login.php`; the theme rewrites
-		// `wp_login_url()` to the branded sign-in page, which would drop the
-		// reset action and strand the member on a plain login form.
-		wp_safe_redirect(
-			add_query_arg(
-				array(
-					'action' => 'rp',
-					'key'    => $key,
-					'login'  => rawurlencode( $user->user_login ),
-				),
-				home_url( 'wp-login.php' )
-			)
-		);
+		if ( ! defined( 'COOKIEHASH' ) || ! is_string( COOKIEHASH ) || ! defined( 'COOKIE_DOMAIN' ) || ! is_string( COOKIE_DOMAIN ) ) {
+			return;
+		}
+		// Seed the `wp-resetpass` cookie exactly as core does for the
+		// key+login URL: the bare `action=rp` request then reads the
+		// credential from the cookie, so a live reset key never travels
+		// through request logs or browser history. `wp_login_url()` is
+		// avoided because the branded-login filter would drop the action.
+		$path = wp_parse_url( home_url( 'wp-login.php' ), PHP_URL_PATH );
+		$path = is_string( $path ) && '' !== $path ? $path : '/wp-login.php';
+		setcookie( 'wp-resetpass-' . COOKIEHASH, $user->user_login . ':' . $key, 0, $path, COOKIE_DOMAIN, is_ssl(), true );
+		nocache_headers();
+		wp_safe_redirect( home_url( 'wp-login.php?action=rp' ) );
 		exit;
 	}
 
@@ -363,17 +372,33 @@ final class MemberCategories {
 		if ( ! function_exists( 'get_users' ) ) {
 			return array();
 		}
-		$users = get_users( array( 'number' => 500 ) );
-		$out   = array();
-		foreach ( $users as $user ) {
-			if ( ! $user instanceof WP_User ) {
-				continue;
+		$out    = array();
+		$offset = 0;
+		$batch  = array();
+		$size   = 0;
+		// The member filter (category stamp or policy role) has no
+		// query-level equivalent, so the account table is paged through in
+		// full — a plain `number` cap would silently drop every member past
+		// the first page.
+		do {
+			$batch   = get_users(
+				array(
+					'number' => 500,
+					'offset' => $offset,
+				)
+			);
+			$size    = count( $batch );
+			$offset += $size;
+			foreach ( $batch as $user ) {
+				if ( ! $user instanceof WP_User ) {
+					continue;
+				}
+				$category_meta = get_user_meta( $user->ID, self::CATEGORY_META, true );
+				if ( '' !== $category_meta || '' !== Roles::policy_role( $user ) ) {
+					$out[] = $user;
+				}
 			}
-			$category_meta = get_user_meta( $user->ID, self::CATEGORY_META, true );
-			if ( '' !== $category_meta || '' !== Roles::policy_role( $user ) ) {
-				$out[] = $user;
-			}
-		}
+		} while ( 500 === $size );
 		return $out;
 	}
 

@@ -552,6 +552,8 @@ final class TaskDashboard {
 			'lps_user_create_failed'                  => $english ? 'The account could not be created; try again.' : 'A conta não pôde ser criada; tente novamente.',
 			'lps_user_missing'                        => $english ? 'The member account does not exist.' : 'A conta de membro não existe.',
 			'lps_user_self'                           => $english ? 'You cannot suspend your own account.' : 'Você não pode suspender a própria conta.',
+			'lps_user_already_suspended'              => $english ? 'The member account is already suspended.' : 'A conta de membro já está suspensa.',
+			'lps_user_not_suspended'                  => $english ? 'The member account is not suspended.' : 'A conta de membro não está suspensa.',
 		);
 		return $messages[ $code ] ?? ( $english ? 'The action was denied (' . $code . ').' : 'A ação foi negada (' . $code . ').' );
 	}
@@ -2884,7 +2886,7 @@ final class TaskDashboard {
 		if ( null === $category ) {
 			self::fail( 'lps_category_missing', 'category' );
 		}
-		if ( 'administrator' === Roles::policy_role( $target ) && 'administrator' !== $actor_role ) {
+		if ( self::is_admin_target( $target ) && 'administrator' !== $actor_role ) {
 			self::fail( 'lps_dashboard_forbidden' );
 		}
 		if ( ! in_array( $category['role'], MemberCategories::role_options( $actor_role ), true ) ) {
@@ -2927,10 +2929,15 @@ final class TaskDashboard {
 		if ( $target->ID === $actor->ID ) {
 			self::fail( 'lps_user_self' );
 		}
-		if ( 'administrator' === Roles::policy_role( $target ) && 'administrator' !== Roles::policy_role( $actor ) ) {
+		if ( self::is_admin_target( $target ) && 'administrator' !== Roles::policy_role( $actor ) ) {
 			self::fail( 'lps_dashboard_forbidden' );
 		}
 		if ( 'suspend' === $action ) {
+			// A repeated suspend must not overwrite the stash with the
+			// demoted role — the original roles would be unrecoverable.
+			if ( '1' === get_user_meta( $target->ID, MemberCategories::SUSPENDED_META, true ) ) {
+				self::fail( 'lps_user_already_suspended' );
+			}
 			update_user_meta( $target->ID, MemberCategories::SUSPENDED_ROLE_META, $target->roles );
 			$target->set_role( 'subscriber' );
 			update_user_meta( $target->ID, MemberCategories::SUSPENDED_META, '1' );
@@ -2938,6 +2945,9 @@ final class TaskDashboard {
 			self::succeed( 'user-suspended' );
 		}
 		if ( 'reactivate' === $action ) {
+			if ( '1' !== get_user_meta( $target->ID, MemberCategories::SUSPENDED_META, true ) ) {
+				self::fail( 'lps_user_not_suspended' );
+			}
 			$category = MemberCategories::category( MemberCategories::category_for_user( $target->ID ) );
 			if ( null !== $category ) {
 				if ( ! in_array( $category['role'], MemberCategories::role_options( Roles::policy_role( $actor ) ), true ) ) {
@@ -3036,6 +3046,24 @@ final class TaskDashboard {
 			return true;
 		}
 		return 'professor' === $role && SecurityPolicy::privileged_session_allowed( $role, MFA::is_enrolled( $user->ID ) );
+	}
+
+	/**
+	 * Whether the target counts as an administrator account for management gates.
+	 *
+	 * A suspended administrator's live role already reads `subscriber`, so the
+	 * check also inspects the suspension stash — otherwise a non-administrator
+	 * could recategorize or reactivate the account while it sits demoted.
+	 *
+	 * @param WP_User $target Account under review.
+	 */
+	private static function is_admin_target( WP_User $target ): bool {
+		if ( 'administrator' === Roles::policy_role( $target ) ) {
+			return true;
+		}
+		$stashed = get_user_meta( $target->ID, MemberCategories::SUSPENDED_ROLE_META, true );
+		return is_array( $stashed )
+			&& ( in_array( 'administrator', $stashed, true ) || in_array( Roles::slug( 'administrator' ), $stashed, true ) );
 	}
 
 	/**
