@@ -423,7 +423,7 @@ final class Homepage {
 		);
 		$strata   = array(
 			'projects'       => array( 'Featured projects', 'Projetos em destaque' ),
-			'evidence'       => array( 'Evidence and outputs', 'Evidências e resultados' ),
+			'evidence'       => array( 'Publications and records', 'Publicações e registros' ),
 			'infrastructure' => array( 'Infrastructure and capabilities', 'Infraestrutura e capacidades' ),
 			'contact'        => array( 'Collaboration and contact', 'Colaboração e contato' ),
 		);
@@ -1213,12 +1213,12 @@ final class Homepage {
 			'projects'       => array(
 				'kicker' => $english ? 'Projects' : 'Projetos',
 				'title'  => $english ? 'Research in partnership' : 'Pesquisa em parceria',
-				'lead'   => $english ? 'Selected projects registered in the laboratory\'s public material, with their partners.' : 'Projetos selecionados registrados no material público do laboratório, com seus parceiros.',
+				'lead'   => $english ? 'Selected laboratory projects, with their partners.' : 'Projetos selecionados do laboratório, com seus parceiros.',
 				'more'   => $english ? '/en/projects/' : '/pt-br/projetos/',
 			),
 			'evidence'       => array(
 				'kicker' => $english ? 'Outputs' : 'Produção',
-				'title'  => $english ? 'Outputs and evidence' : 'Produção e evidências',
+				'title'  => $english ? 'Laboratory output' : 'Produção do laboratório',
 				'lead'   => $english ? 'Publications and institutional records produced by the laboratory.' : 'Publicações e registros institucionais produzidos pelo laboratório.',
 				'more'   => $english ? '/en/publications/' : '/pt-br/publicacoes/',
 			),
@@ -1243,8 +1243,8 @@ final class Homepage {
 			),
 			'latest'         => array(
 				'kicker' => $english ? 'News and events' : 'Notícias e eventos',
-				'title'  => $english ? 'Latest institutional records' : 'Últimos registros institucionais',
-				'lead'   => $english ? 'Every entry is dated and traceable to its public source.' : 'Cada entrada é datada e rastreável à fonte pública de origem.',
+				'title'  => $english ? 'Latest updates' : 'Últimas atualizações',
+				'lead'   => $english ? 'Recent publications, news and events from the laboratory.' : 'Publicações, notícias e eventos recentes do laboratório.',
 				'more'   => $english ? '/en/news/' : '/pt-br/noticias/',
 			),
 			'partners'       => array(
@@ -1270,8 +1270,8 @@ final class Homepage {
 	 */
 	private static function empty_notice( string $section, string $locale ): string {
 		$message = 'en' === $locale
-			? 'Reviewed information has not been published for this section.'
-			: 'Informações revisadas ainda não foram publicadas nesta seção.';
+			? 'Information has not yet been published in this section.'
+			: 'Informações ainda não foram publicadas nesta seção.';
 		return '<p data-home-empty="' . $section . '">' . $message . '</p>';
 	}
 

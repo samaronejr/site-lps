@@ -206,8 +206,8 @@ ${sectionHead({
   kicker: en ? "Projects" : "Projetos",
   title: en ? "Research in partnership" : "Pesquisa em parceria",
   lead: en
-    ? "Selected projects recorded in the laboratory public material, with their partners."
-    : "Projetos selecionados registrados no material público do laboratório, com seus parceiros.",
+    ? "Selected laboratory projects, with their partners."
+    : "Projetos selecionados do laboratório, com seus parceiros.",
   id: "home-projects",
   action: { href: link(locale, "/projetos/", "/en/projects/"), label: `${u.seeAll} →` },
 })}
@@ -278,10 +278,10 @@ ${people.map((person) => personCard(locale, person)).join("")}
     inner: `<div class="lps-page-grid">
 ${sectionHead({
   kicker: en ? "News and events" : "Notícias e eventos",
-  title: en ? "Latest institutional records" : "Últimos registros institucionais",
+  title: en ? "Latest updates" : "Últimas atualizações",
   lead: en
-    ? "Each entry is dated and traceable to the public source it came from."
-    : "Cada entrada é datada e rastreável à fonte pública de origem.",
+    ? "Recent publications, news and events from the laboratory."
+    : "Publicações, notícias e eventos recentes do laboratório.",
   id: "home-news",
   action: { href: link(locale, "/noticias/", "/en/news/"), label: `${u.seeAll} →` },
 })}
@@ -1077,12 +1077,12 @@ function newsPage(locale) {
     kicker: en ? "News and events" : "Notícias e eventos",
     title: en ? "News and events" : "Notícias e eventos",
     lead: en
-      ? "Dated institutional records about the laboratory, each traceable to the public source it came from."
-      : "Registros institucionais datados sobre o laboratório, cada um rastreável à fonte pública de origem.",
+      ? "News, events and public records of the laboratory."
+      : "Notícias, eventos e registros públicos do laboratório.",
   })}
 <div class="lps-page-grid">
 <section class="lps-section lps-section--flush" aria-labelledby="news-list">
-${sectionHead({ kicker: en ? "Records" : "Registros", title: en ? "Institutional timeline" : "Linha do tempo institucional", id: "news-list" })}
+${sectionHead({ kicker: en ? "Records" : "Registros", title: en ? "Timeline" : "Linha do tempo", id: "news-list" })}
 <ol class="lps-agenda">
 ${news
   .map(
@@ -1122,10 +1122,10 @@ ${card({
   action: null,
 })}
 ${card({
-  title: en ? "Lossless redirects are planned" : "Redirecionamentos sem perda estão planejados",
+  title: en ? "Old site addresses" : "Endereços do site anterior",
   body: en
-    ? "Every legacy URL inventoried for migration keeps a recorded disposition, so no published address is silently dropped."
-    : "Cada URL legada inventariada para migração mantém uma destinação registrada, de modo que nenhum endereço publicado é descartado em silêncio.",
+    ? "The addresses of the previous site will redirect to the matching pages on this site."
+    : "Os endereços do site anterior serão redirecionados para as páginas correspondentes deste site.",
 })}
 </div>
 </section>
@@ -1155,7 +1155,7 @@ function publicationsPage(locale) {
   })}
 <div class="lps-page-grid">
 <section class="lps-section lps-section--flush" aria-labelledby="pub-note">
-${sectionHead({ kicker: en ? "Status" : "Situação", title: en ? "No consolidated feed yet" : "Ainda sem feed consolidado", id: "pub-note" })}
+${sectionHead({ kicker: en ? "Status" : "Situação", title: en ? "The publications list is being consolidated" : "A lista de publicações está em consolidação", id: "pub-note" })}
 ${alert({ tone: "info", body: t(publications.note, locale) })}
 </section>
 <section class="lps-section" aria-labelledby="pub-channels">
@@ -1174,12 +1174,10 @@ ${publications.channels
 </section>
 <section class="lps-section">
 ${ctaBand({
-  title: en
-    ? "A publication feed requires institutional ownership"
-    : "Um feed de publicações exige responsável institucional",
+  title: en ? "Questions about publications" : "Dúvidas sobre publicações",
   body: en
-    ? "Reconciling publication metadata against authoritative sources is migration work, not a design decision. Until then, the laboratory does not publish a list it cannot verify."
-    : "Reconciliar metadados de publicações com fontes autoritativas é trabalho de migração, não uma decisão de design. Até lá, o laboratório não publica uma lista que não pode verificar.",
+    ? "For information about the laboratory scientific output, contact the laboratory office."
+    : "Para informações sobre a produção científica do laboratório, contate a secretaria do laboratório.",
   actions: [
     {
       href: link(locale, "/contato/", "/en/contact/"),
@@ -1549,8 +1547,8 @@ function searchPage(locale) {
     kicker: en ? "Search" : "Busca",
     title: en ? "Search the site" : "Buscar no site",
     lead: en
-      ? "Search runs on the server and works without JavaScript. Facets narrow the result set by collection, area and year."
-      : "A busca roda no servidor e funciona sem JavaScript. Os filtros restringem o resultado por coleção, área e ano.",
+      ? "Filters narrow results by collection, area and year."
+      : "Os filtros restringem o resultado por coleção, área e ano.",
   })}
 <div class="lps-page-grid">
 <section class="lps-section lps-section--flush">

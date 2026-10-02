@@ -693,13 +693,13 @@ final class DiscoverySurfaces {
 		$html      .= TrustSurfaces::editorial_section(
 			'research-outputs',
 			$english ? 'Outputs' : 'Produção',
-			$english ? 'Evidence of the work' : 'Evidências do trabalho',
+			$english ? 'Scientific output' : 'Produção científica',
 			TrustSurfaces::alert_band(
 				'info',
 				$english
-					? 'LPS does not currently maintain a public publications feed under the laboratory responsibility. The scientific output associated with the laboratory is recorded in the professors Lattes CVs and in the publications of the international collaborations the laboratory takes part in.'
-					: 'O LPS não mantém, hoje, um feed público de publicações sob responsabilidade do laboratório. A produção científica associada ao laboratório está registrada nos currículos Lattes dos professores e nas publicações das colaborações internacionais de que o laboratório participa.',
-				$english ? 'No authoritative publications feed exists yet' : 'Ainda não existe um feed público consolidado de publicações'
+					? 'The laboratory is consolidating its publications list. Meanwhile, the scientific output can be consulted in the professors Lattes CVs and in the publications of its international collaborations.'
+					: 'O laboratório está consolidando sua lista de publicações. Enquanto isso, a produção científica pode ser consultada nos currículos Lattes dos professores e nas publicações das colaborações internacionais.',
+				$english ? 'The publications list is being consolidated' : 'A lista de publicações está em consolidação'
 			)
 				. '<p class="lps-mt-6"><a class="lps-more" href="' . self::esc( self::text( $paths['publications'] ?? '' ) ) . '">' . self::esc( $english ? 'How to consult the output' : 'Como consultar a produção' ) . '</a></p>',
 			false,
@@ -797,9 +797,9 @@ final class DiscoverySurfaces {
 		$html .= TrustSurfaces::alert_band(
 			'info',
 			$english
-				? 'The public project index names the initiatives documented in the laboratory public material. A complete, current portfolio requires laboratory review.'
-				: 'O índice público de projetos nomeia as iniciativas documentadas no material público do laboratório. Um portfólio completo e atual exige revisão do laboratório.',
-			$english ? 'What this list is, and what it is not' : 'O que esta lista é, e o que ela não é'
+				? 'This list gathers laboratory projects and may not be complete.'
+				: 'Esta lista reúne projetos do laboratório e pode não estar completa.',
+			$english ? 'About this list' : 'Sobre esta lista'
 		);
 		$html .= '<div class="lps-grid lps-grid--2 lps-mt-8">' . $cards . '</div>';
 		$html .= '<div class="lps-mt-10">' . TrustSurfaces::cta_band(
@@ -834,12 +834,12 @@ final class DiscoverySurfaces {
 		$html    = TrustSurfaces::editorial_section(
 			'pub-note',
 			$english ? 'Status' : 'Situação',
-			$english ? 'No consolidated feed yet' : 'Ainda sem feed consolidado',
+			$english ? 'The publications list is being consolidated' : 'A lista de publicações está em consolidação',
 			TrustSurfaces::alert_band(
 				'info',
 				$english
-					? 'LPS does not currently maintain a public publications feed under the laboratory responsibility. The scientific output associated with the laboratory is recorded in the professors Lattes CVs and in the publications of the international collaborations the laboratory takes part in.'
-					: 'O LPS não mantém, hoje, um feed público de publicações sob responsabilidade do laboratório. A produção científica associada ao laboratório está registrada nos currículos Lattes dos professores e nas publicações das colaborações internacionais de que o laboratório participa.'
+					? 'The laboratory is consolidating its publications list. Meanwhile, the scientific output can be consulted in the professors Lattes CVs and in the publications of its international collaborations.'
+					: 'O laboratório está consolidando sua lista de publicações. Enquanto isso, a produção científica pode ser consultada nos currículos Lattes dos professores e nas publicações das colaborações internacionais.'
 			),
 			true
 		);
@@ -894,8 +894,8 @@ final class DiscoverySurfaces {
 			array(
 				'title'     => $english ? 'Code and open data' : 'Código e dados abertos',
 				'body'      => $english
-					? 'Public repositories of the LPS GitHub organisation. Externally maintained, with no declared licence — linked, not copied.'
-					: 'Repositórios públicos da organização LPS no GitHub. Mantidos externamente, sem licença declarada — link, não cópia.',
+					? 'Public repositories of the LPS GitHub organisation.'
+					: 'Repositórios públicos da organização LPS no GitHub.',
 				'foot_html' => '<ul class="lps-source-list"><li><a class="lps-meta" href="https://github.com/lps-ufrj-br" rel="external">github.com/lps-ufrj-br</a></li></ul>',
 			),
 		);
@@ -910,10 +910,10 @@ final class DiscoverySurfaces {
 			'<div class="lps-grid lps-grid--3">' . $cards . '</div>'
 		);
 		$html .= '<section class="lps-section">' . TrustSurfaces::cta_band(
-			$english ? 'A publication feed requires institutional ownership' : 'Um feed de publicações exige responsável institucional',
+			$english ? 'Questions about publications' : 'Dúvidas sobre publicações',
 			$english
-				? 'Reconciling publication metadata against authoritative sources is migration work, not a design decision. Until then, the laboratory does not publish a list it cannot verify.'
-				: 'Reconciliar metadados de publicações com fontes autoritativas é trabalho de migração, não uma decisão de design. Até lá, o laboratório não publica uma lista que não pode verificar.',
+				? 'For information about the laboratory scientific output, contact the laboratory office.'
+				: 'Para informações sobre a produção científica do laboratório, contate a secretaria do laboratório.',
 			array(
 				array(
 					'href'  => self::text( $paths['contact'] ?? '' ),
