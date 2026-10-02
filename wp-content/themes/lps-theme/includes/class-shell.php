@@ -857,7 +857,7 @@ final class Shell {
 	public static function render_empty_state(): string {
 		$path    = self::request_path();
 		$english = 'en' === self::current_locale( $path );
-		return '<section class="lps-empty-state" aria-labelledby="lps-empty-title"><p class="lps-kicker">' . ( $english ? 'NO RECORDS' : 'SEM REGISTROS' ) . '</p><h2 id="lps-empty-title">' . ( $english ? 'Nothing matched this view' : 'Nenhum conteúdo corresponde a esta vista' ) . '</h2><p>' . ( $english ? 'Review the search terms or return to the locale home page.' : 'Revise os termos de busca ou volte ao início deste idioma.' ) . '</p></section>';
+		return '<section class="lps-empty-state" aria-labelledby="lps-empty-title"><p class="lps-kicker">' . ( $english ? 'NO RECORDS' : 'SEM REGISTROS' ) . '</p><h2 id="lps-empty-title">' . ( $english ? 'No results found' : 'Nenhum resultado encontrado' ) . '</h2><p>' . ( $english ? 'Check the search terms or return to the home page.' : 'Revise os termos de busca ou volte à página inicial.' ) . '</p></section>';
 	}
 
 	/**
@@ -976,8 +976,8 @@ final class Shell {
 				'kicker' => $english ? 'Research' : 'Pesquisa',
 				'title'  => $english ? 'Projects' : 'Projetos',
 				'lead'   => $english
-					? 'Research and development projects recorded in the laboratory public material, with the partner institutions they were built with.'
-					: 'Projetos de pesquisa e desenvolvimento registrados no material público do laboratório, com as instituições parceiras com que foram construídos.',
+					? 'Research and development projects of the laboratory and the partner institutions involved.'
+					: 'Projetos de pesquisa e desenvolvimento do laboratório e as instituições parceiras envolvidas.',
 				'meta'   => $english
 					? 'Source: the laboratory public pages, January 2025.'
 					: 'Fonte: páginas públicas do laboratório, janeiro de 2025.',
@@ -986,8 +986,8 @@ final class Shell {
 				'kicker' => $english ? 'Research' : 'Pesquisa',
 				'title'  => $english ? 'Publications' : 'Publicações',
 				'lead'   => $english
-					? 'The scientific output associated with the laboratory, and how to consult it today.'
-					: 'A produção científica associada ao laboratório, e como consultá-la hoje.',
+					? 'The laboratory\'s scientific output.'
+					: 'A produção científica do laboratório.',
 			),
 			'lps_person'        => array(
 				'kicker' => $english ? 'People' : 'Pessoas',
@@ -1000,14 +1000,14 @@ final class Shell {
 				'kicker' => $english ? 'News and events' : 'Notícias e eventos',
 				'title'  => $english ? 'News and events' : 'Notícias e eventos',
 				'lead'   => $english
-					? 'Dated institutional records about the laboratory, each traceable to the public source it came from.'
-					: 'Registros institucionais datados sobre o laboratório, cada um rastreável à fonte pública de origem.',
+					? 'News and institutional records of the laboratory.'
+					: 'Notícias e registros institucionais do laboratório.',
 			),
 			'lps_opportunity'   => array(
 				'kicker' => $english ? 'Take part' : 'Participe',
 				'title'  => $english ? 'Opportunities' : 'Oportunidades',
 				'lead'   => $english
-					? 'Research initiation, master and doctoral places, post-doctorate and project collaboration at the Signal Processing Laboratory.'
+					? 'Research initiation, master\'s and doctoral places, post-doctoral positions and project collaboration at the Signal Processing Laboratory.'
 					: 'Iniciação científica, vagas de mestrado e doutorado, pós-doutorado e colaboração em projetos no Laboratório de Processamento de Sinais.',
 			),
 			'lps_organization'  => array(
@@ -1117,15 +1117,15 @@ final class Shell {
 				'kicker' => $english ? 'Contact' : 'Contato',
 				'title'  => $english ? 'Contact the laboratory' : 'Fale com o laboratório',
 				'lead'   => $english
-					? 'The laboratory office is the first stop for administrative matters, projects, technical visits and press requests.'
-					: 'A secretaria do laboratório é o primeiro caminho para assuntos administrativos, projetos, visitas técnicas e pedidos de imprensa.',
+					? 'The laboratory office handles administrative matters, projects, technical visits and press requests.'
+					: 'A secretaria do laboratório atende assuntos administrativos, projetos, visitas técnicas e pedidos de imprensa.',
 			),
 			'privacy'         => array(
 				'kicker' => $english ? 'Privacy' : 'Privacidade',
 				'title'  => $english ? 'Privacy on this site' : 'Privacidade neste site',
 				'lead'   => $english
-					? 'This site is built to collect as little as possible: no cookies for anonymous visitors, no third-party requests and no public forms.'
-					: 'Este site é construído para coletar o mínimo possível: nenhum cookie para visitantes anônimos, nenhuma requisição a terceiros e nenhum formulário público.',
+					? 'This site collects as little as possible: no cookies for anonymous visitors, no third-party requests and no public forms.'
+					: 'Este site coleta o mínimo possível: nenhum cookie para visitantes anônimos, nenhuma requisição a terceiros e nenhum formulário público.',
 			),
 			'accessibility'   => array(
 				'kicker' => $english ? 'Accessibility' : 'Acessibilidade',

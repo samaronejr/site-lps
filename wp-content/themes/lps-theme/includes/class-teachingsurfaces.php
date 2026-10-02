@@ -53,7 +53,7 @@ final class TeachingSurfaces {
 		$html   .= '<div class="lps-page-header"><div class="lps-page-header-inner lps-page-grid">';
 		$html   .= '<p class="lps-kicker">' . self::esc( $english ? 'Teaching' : 'Ensino' ) . '</p>';
 		$html   .= '<h1 class="lps-page-title">' . self::esc( $english ? 'Courses and materials' : 'Disciplinas e materiais' ) . '</h1>';
-		$html   .= '<p class="lps-lead">' . self::esc( $english ? 'Courses taught by laboratory professors in the Electrical Engineering Program at COPPE and at the Polytechnic School of UFRJ, from instrumentation to deep learning and quantum machine learning.' : 'Disciplinas ministradas pelos professores do laboratório no Programa de Engenharia Elétrica da COPPE e na Escola Politécnica da UFRJ, da instrumentação ao aprendizado profundo e ao aprendizado de máquina quântico.' ) . '</p>';
+		$html   .= '<p class="lps-lead">' . self::esc( $english ? 'Graduate and undergraduate courses taught by laboratory professors in the Electrical Engineering Program at COPPE and at the Polytechnic School of UFRJ.' : 'Disciplinas de pós-graduação e graduação ministradas pelos professores do laboratório no Programa de Engenharia Elétrica da COPPE e na Escola Politécnica da UFRJ.' ) . '</p>';
 		$html   .= '</div></div>';
 		if ( array() === $courses ) {
 			$html .= '<p class="lps-empty">' . self::esc( $english ? 'No courses are published yet.' : 'Nenhuma disciplina publicada ainda.' ) . '</p>';
@@ -111,7 +111,7 @@ final class TeachingSurfaces {
 			}
 			$html .= '</tbody></table></div>';
 			if ( $missing ) {
-				$html .= '<p class="lps-meta lps-mt-4">' . self::esc( $english ? 'Courses marked with “—” have no official code in the public source.' : 'Os códigos marcados com “—” são disciplinas cujo código oficial não consta na fonte pública.' ) . '</p>';
+				$html .= '<p class="lps-meta lps-mt-4">' . self::esc( $english ? 'Courses marked with “—” have no official code on record.' : 'Disciplinas marcadas com “—” não têm código oficial registrado.' ) . '</p>';
 			}
 			$html .= '</section>';
 		}
@@ -120,8 +120,8 @@ final class TeachingSurfaces {
 			array(
 				'title'  => $english ? 'Course pages' : 'Páginas das disciplinas',
 				'body'   => $english
-					? 'Syllabi, problem sets and supporting material for the laboratory\'s documented courses are published on this domain, organized into per-offering units.'
-					: 'Planos de aula, ementas, listas e material de apoio das disciplinas documentadas do laboratório são publicados neste domínio, organizados em unidades por oferta.',
+					? 'Syllabi, problem sets and supporting material for the laboratory\'s courses, organized by offering.'
+					: 'Planos de aula, ementas, listas de exercícios e material de apoio das disciplinas do laboratório, organizados por oferta.',
 				'action' => array(
 					'href'  => $course_path,
 					'label' => $english ? 'Example: CPE-886' : 'Exemplo: CPE-886',
@@ -132,7 +132,7 @@ final class TeachingSurfaces {
 			array(
 				'title' => $english ? 'Continuing education' : 'Formação continuada',
 				'body'  => $english
-					? 'The laboratory works from junior research initiation with secondary and technical students, through undergraduate teaching at Poli/UFRJ, to post-doctoral supervision.'
+					? 'The laboratory\'s teaching covers junior research initiation for secondary and technical students, undergraduate teaching at Poli/UFRJ, and post-doctoral supervision.'
 					: 'A atuação do laboratório abrange a iniciação científica júnior com estudantes do ensino médio e técnico, a graduação na Poli/UFRJ e o pós-doutorado.',
 			)
 		);
