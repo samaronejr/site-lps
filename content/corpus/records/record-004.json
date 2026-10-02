@@ -39,11 +39,36 @@
       }
     },
     "relationships": [
-      { "type": "related_record", "target": "record-008", "role": "related", "order": 1 },
-      { "type": "related_record", "target": "record-010", "role": "related", "order": 2 },
-      { "type": "related_record", "target": "record-011", "role": "related", "order": 3 },
-      { "type": "related_record", "target": "record-009", "role": "related", "order": 4 },
-      { "type": "related_record", "target": "record-007", "role": "related", "order": 5 }
+      {
+        "type": "related_record",
+        "target": "record-008",
+        "role": "related",
+        "order": 1
+      },
+      {
+        "type": "related_record",
+        "target": "record-010",
+        "role": "related",
+        "order": 2
+      },
+      {
+        "type": "related_record",
+        "target": "record-011",
+        "role": "related",
+        "order": 3
+      },
+      {
+        "type": "related_record",
+        "target": "record-009",
+        "role": "related",
+        "order": 4
+      },
+      {
+        "type": "related_record",
+        "target": "record-007",
+        "role": "related",
+        "order": 5
+      }
     ]
   },
   "meta": {
@@ -53,21 +78,19 @@
     "pt-br": {
       "title": "Professores",
       "slug": "professores",
-      "excerpt": "Índice do corpo docente do LPS conforme registrado na página institucional atual.",
+      "excerpt": "Corpo docente do LPS.",
       "content": [
-        "A página institucional atual do LPS lista o seguinte corpo docente: Prof. Luiz Pereira Calôba, Prof. José Manoel de Seixas, Prof. Natanael de Moura Junior, Prof. João Victor da Fonseca Pinto e Prof. Antônio Carlos Moreirão de Queiroz (in memoriam).",
-        "Cada docente listado tem um registro individual migrado a partir da sua própria página pública, com fonte, data de captura e estado de revisão próprios.",
-        "As fotografias associadas a este índice na fonte original não foram copiadas. Elas constam do inventário como material de acesso público sem licença de reuso documentada e dependem de revisão de direitos e de privacidade antes de qualquer publicação."
+        "O corpo docente do LPS é composto pelo Prof. Luiz Pereira Calôba, Prof. José Manoel de Seixas, Prof. Natanael de Moura Junior, Prof. João Victor da Fonseca Pinto e Prof. Antônio Carlos Moreirão de Queiroz (in memoriam).",
+        "Cada docente tem um registro individual com sua formação e áreas de pesquisa."
       ]
     },
     "en": {
       "title": "Faculty",
       "slug": "people",
-      "excerpt": "Index of the LPS faculty as recorded on the current institutional page.",
+      "excerpt": "LPS faculty.",
       "content": [
-        "The current LPS institutional page lists the following faculty: Prof. Luiz Pereira Calôba, Prof. José Manoel de Seixas, Prof. Natanael de Moura Junior, Prof. João Victor da Fonseca Pinto and Prof. Antônio Carlos Moreirão de Queiroz (in memoriam).",
-        "Each listed member has an individual migrated record derived from their own public page, with its own source, capture date and review state.",
-        "The portrait photographs attached to this index in the original source were not copied. They are inventoried as publicly reachable material without a documented reuse licence and require rights and privacy review before any publication."
+        "The LPS faculty consists of Prof. Luiz Pereira Calôba, Prof. José Manoel de Seixas, Prof. Natanael de Moura Junior, Prof. João Victor da Fonseca Pinto and Prof. Antônio Carlos Moreirão de Queiroz (in memoriam).",
+        "Each member has an individual record with their education and research areas."
       ],
       "translation": {
         "authoritativeLocale": "pt-br",

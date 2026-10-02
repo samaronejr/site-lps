@@ -39,7 +39,12 @@
       }
     },
     "relationships": [
-      { "type": "related_record", "target": "record-002", "role": "context", "order": 1 }
+      {
+        "type": "related_record",
+        "target": "record-002",
+        "role": "context",
+        "order": 1
+      }
     ]
   },
   "meta": {
@@ -49,21 +54,19 @@
     "pt-br": {
       "title": "Identidade visual",
       "slug": "identidade-visual",
-      "excerpt": "Registro da identidade visual do LPS conforme publicado na página institucional atual; os arquivos de marca ainda não têm licença e formato acessível documentados.",
+      "excerpt": "Identidade visual do LPS. Os arquivos da marca ainda não têm licença e formato acessível documentados.",
       "content": [
-        "A página institucional atual do LPS publica um conjunto de arquivos de identidade visual: o sinal isolado em branco e em azul, a marca completa em branco e em azul, e um pacote completo da marca. Os formatos oferecidos na fonte são PDF e PNG.",
-        "Esses arquivos não foram migrados nesta etapa. A fonte pública não documenta titular de direitos, licença de uso, condições de reprodução nem alternativa acessível equivalente, e a política editorial do projeto não permite republicar material cujo estado de direitos seja desconhecido.",
-        "Enquanto o titular dos direitos e as condições de uso não forem confirmados por evidência documental, esta página permanece em rascunho e o material de marca é tratado como pendência de lançamento, e não como conteúdo público."
+        "A página institucional do LPS publica um conjunto de arquivos de identidade visual: o sinal isolado em branco e em azul, a marca completa em branco e em azul, e um pacote completo da marca, em formato PDF e PNG.",
+        "Os arquivos da marca ainda não têm licença de uso e formato acessível documentados. Enquanto isso, o material permanece pendente de publicação."
       ]
     },
     "en": {
       "title": "Visual identity",
       "slug": "visual-identity",
-      "excerpt": "Record of the LPS visual identity as published on the current institutional page; the brand files still lack a documented licence and accessible format.",
+      "excerpt": "LPS visual identity. The brand files still lack a documented licence and accessible format.",
       "content": [
-        "The current LPS institutional page publishes a set of visual identity files: the mark alone in white and in blue, the full logotype in white and in blue, and a complete brand package. The formats offered by the source are PDF and PNG.",
-        "Those files were not migrated at this stage. The public source documents no rights holder, licence, reproduction conditions or equivalent accessible alternative, and the project's editorial policy does not allow republishing material whose rights status is unknown.",
-        "Until the rights holder and the conditions of use are confirmed by documentary evidence, this page remains a draft and the brand material is treated as a launch blocker rather than as public content."
+        "The LPS institutional page publishes a set of visual identity files: the mark alone in white and in blue, the full logotype in white and in blue, and a complete brand package, in PDF and PNG formats.",
+        "The brand files still lack a documented usage licence and accessible format. Until then, the material remains pending publication."
       ],
       "translation": {
         "authoritativeLocale": "pt-br",
