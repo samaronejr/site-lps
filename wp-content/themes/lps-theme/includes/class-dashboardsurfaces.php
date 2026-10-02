@@ -147,8 +147,8 @@ final class DashboardSurfaces {
 			$html .= '<div class="lps-alert lps-alert-info" data-dashboard-empty="offerings"><p>'
 				. self::esc(
 					$english
-					? 'No offering is assigned to your account yet. When an editor assigns one, it appears here with its units, materials and copy-forward task.'
-					: 'Nenhuma oferta está atribuída à sua conta ainda. Quando um editor atribuir uma, ela aparece aqui com suas unidades, materiais e a tarefa de cópia.'
+					? 'No offering is assigned to your account yet. When an editor assigns one, it appears here with its units, materials and the copy-to-next-term task.'
+					: 'Nenhuma oferta está atribuída à sua conta ainda. Quando um editor atribuir uma, ela aparece aqui com suas unidades, materiais e a tarefa de cópia para o próximo período.'
 				)
 				. '</p></div>';
 		} else {
@@ -266,7 +266,7 @@ final class DashboardSurfaces {
 		$content     = array_key_exists( 'content', $recall ) ? self::text( $recall['content'] ) : self::text( $offering['content'] ?? '' );
 		return '<section class="lps-dashboard-form" aria-labelledby="lps-offering-form"><h3 id="lps-offering-form">'
 			. self::esc( $english ? 'Offering details' : 'Dados da oferta' ) . '</h3>'
-			. '<p class="lps-field-hint">' . self::esc( $english ? 'Schedule and venue appear on both locale pages; the term notes are Portuguese-first — the English variant updates through the translation task.' : 'Horários e local aparecem nas duas páginas; as notas do período são em português primeiro — a variante em inglês atualiza pela tarefa de tradução.' ) . '</p>'
+			. '<p class="lps-field-hint">' . self::esc( $english ? 'Schedule and venue appear on both language versions. The term notes are published in Portuguese first; the English text is updated through the translation task.' : 'Horários e local aparecem nas duas versões do site. As notas do período são publicadas primeiro em português; o texto em inglês é atualizado pela tarefa de tradução.' ) . '</p>'
 			. self::form_open( 'lps_dashboard_offering_edit' )
 			. self::hidden( 'offering_id', (string) $offering_id )
 			. self::textarea( 'schedule', TaskDashboard::field_label( '_lps_schedule', $locale ), $schedule, $locale, false )
@@ -394,7 +394,7 @@ final class DashboardSurfaces {
 			. self::esc( $english ? 'Submit a news item' : 'Enviar uma notícia' ) . '</h2>'
 			. '<p class="lps-field-hint">' . self::esc(
 				$english
-				? 'Before the item is submitted you see the card exactly as it will appear publicly; the submit happens on the confirmation step.'
+				? 'Before submission you see the card exactly as it will appear publicly; the submission happens on the confirmation step.'
 				: 'Antes do envio você vê o cartão exatamente como aparecerá publicamente; a submissão acontece na etapa de confirmação.'
 			) . '</p>'
 			. self::form_open( 'lps_dashboard_news', true )
@@ -563,7 +563,7 @@ final class DashboardSurfaces {
 			. self::esc( $english ? 'Submit an event' : 'Enviar um evento' ) . '</h2>'
 			. '<p class="lps-field-hint">' . self::esc(
 				$english
-				? 'Before the item is submitted you see the card exactly as it will appear publicly; the submit happens on the confirmation step.'
+				? 'Before submission you see the card exactly as it will appear publicly; the submission happens on the confirmation step.'
 				: 'Antes do envio você vê o cartão exatamente como aparecerá publicamente; a submissão acontece na etapa de confirmação.'
 			) . '</p>'
 			. self::form_open( 'lps_dashboard_event', true )
@@ -696,8 +696,8 @@ final class DashboardSurfaces {
 			return '<div class="lps-alert lps-alert-info" data-dashboard-view="profile-unresolved"><p>'
 				. self::esc(
 					$english
-					? 'Your account is not linked to one person record yet. When a teaching team names exactly one person across your offerings, the profile proposal form appears here.'
-					: 'Sua conta ainda não está ligada a um único registro de pessoa. Quando uma equipe docente nomear exatamente uma pessoa nas suas ofertas, o formulário de proposta de perfil aparece aqui.'
+					? 'Your account is not linked to a person record yet. The profile proposal form appears here when a teaching team names exactly one person across your offerings.'
+					: 'Sua conta ainda não está ligada a um registro de pessoa. O formulário de proposta de perfil aparece aqui quando uma equipe docente nomear exatamente uma pessoa nas suas ofertas.'
 				)
 				. '</p></div>';
 		}
@@ -888,8 +888,8 @@ final class DashboardSurfaces {
 		$english = 'en' === $locale;
 		if ( empty( $model['may_course'] ) ) {
 			$message = ! empty( $model['mfa_needed'] )
-				? ( $english ? 'Enroll the second factor on your sign-in before creating subjects.' : 'Ative a verificação em duas etapas na sua conta antes de criar disciplinas.' )
-				: ( $english ? 'Creating subjects is a professor task.' : 'Criar disciplinas é uma tarefa de professor.' );
+				? ( $english ? 'Turn on two-factor sign-in on your account before creating courses.' : 'Ative a verificação em duas etapas na sua conta antes de criar disciplinas.' )
+				: ( $english ? 'Creating courses is a professor task.' : 'Criar disciplinas é uma tarefa de professor.' );
 			return '<div class="lps-alert lps-alert-error" data-dashboard-view="course-denied"><p>'
 				. self::esc( $message ) . '</p></div>';
 		}
@@ -907,7 +907,7 @@ final class DashboardSurfaces {
 		$html        = '<section class="lps-dashboard-create" data-dashboard-view="course">';
 		$html       .= '<p class="lps-summary">' . self::esc(
 			$english
-			? 'One submit registers the course and opens its first offering bound to a term and section. Both records start as drafts and the offering workspace opens right away.'
+			? 'One submission registers the course and opens its first offering, bound to a term and section. Both records start as drafts and the offering workspace opens right away.'
 			: 'Um único envio cadastra a disciplina e abre a primeira oferta ligada a um período e turma. Ambos os registros começam como rascunho e a área da oferta abre em seguida.'
 		) . '</p>';
 		$html       .= self::form_open( 'lps_dashboard_course' )
@@ -929,7 +929,7 @@ final class DashboardSurfaces {
 			. self::field( 'venue', TaskDashboard::field_label( '_lps_venue', $locale ), 'text', self::text( $recall['venue'] ?? '' ), $locale, false )
 			. self::team_fields( $people, $recall_team, $locale )
 			. '</fieldset>'
-			. self::submit( $english ? 'Create subject and first offering' : 'Criar disciplina e primeira oferta' )
+			. self::submit( $english ? 'Create course and first offering' : 'Criar disciplina e primeira oferta' )
 			. '</form>';
 		return $html . '</section>';
 	}
@@ -950,7 +950,7 @@ final class DashboardSurfaces {
 		$english = 'en' === $locale;
 		if ( empty( $model['may_users'] ) ) {
 			$message = ! empty( $model['mfa_needed'] )
-				? ( $english ? 'Enroll the second factor on your sign-in before managing users.' : 'Ative a verificação em duas etapas na sua conta antes de gerenciar usuários.' )
+				? ( $english ? 'Turn on two-factor sign-in on your account before managing users.' : 'Ative a verificação em duas etapas na sua conta antes de gerenciar usuários.' )
 				: ( $english ? 'Managing users is a professor and administrator task.' : 'Gerenciar usuários é uma tarefa de professores e administradores.' );
 			return '<div class="lps-alert lps-alert-error" data-dashboard-view="users-denied"><p>'
 				. self::esc( $message ) . '</p></div>';
@@ -990,14 +990,14 @@ final class DashboardSurfaces {
 		$html  = '<section class="lps-dashboard-users" data-dashboard-view="users">';
 		$html .= '<p class="lps-summary">' . self::esc(
 			$english
-			? 'Members sign in with the account minted here; the category decides what the account can access, edit and post. Categories bundle a privilege level plus the content areas it reaches.'
+			? 'Members sign in with the account created here; the category decides what the account can access, edit and post. A category combines a privilege level with the content areas it reaches.'
 			: 'Membros entram com a conta criada aqui; a categoria decide o que a conta pode acessar, editar e publicar. Categorias combinam um nível de privilégio com as áreas de conteúdo que ele alcança.'
 		) . '</p>';
 
 		$html .= '<section class="lps-dashboard-section" aria-labelledby="lps-members"><h2 id="lps-members">'
 			. self::esc( $english ? 'Members' : 'Membros' ) . '</h2>';
 		if ( array() === $members ) {
-			$html .= '<p class="lps-field-hint">' . self::esc( $english ? 'No member accounts yet; mint the first one below.' : 'Nenhuma conta de membro ainda; crie a primeira abaixo.' ) . '</p>';
+			$html .= '<p class="lps-field-hint">' . self::esc( $english ? 'No member accounts yet; create the first one below.' : 'Nenhuma conta de membro ainda; crie a primeira abaixo.' ) . '</p>';
 		} else {
 			$html .= '<ul class="lps-record-list">';
 			foreach ( $members as $member ) {
@@ -1048,7 +1048,7 @@ final class DashboardSurfaces {
 			. '<p class="lps-field-hint">' . self::esc( $english ? 'Blank derives the login from the e-mail.' : 'Em branco, o usuário deriva do e-mail.' ) . '</p>'
 			. self::select( 'category', TaskDashboard::field_label( 'category', $locale ), $cat_opts, self::text( $recall['category'] ?? '' ), $locale, true )
 			. self::field( 'password', TaskDashboard::field_label( 'password', $locale ), 'password', '', $locale, true )
-			. '<p class="lps-field-hint">' . self::esc( $english ? 'Hand it to the member; they rotate it on first sign-in.' : 'Entregue ao membro; ele a troca no primeiro acesso.' ) . '</p>'
+			. '<p class="lps-field-hint">' . self::esc( $english ? 'Give it to the member; they change it on first sign-in.' : 'Entregue ao membro; ele a troca no primeiro acesso.' ) . '</p>'
 			. self::checkbox(
 				'create_person',
 				$english ? 'Also create the public person record (draft)' : 'Criar também o registro público de pessoa (rascunho)',
@@ -1663,7 +1663,7 @@ final class DashboardSurfaces {
 			),
 			'offerings'       => array(
 				'label' => $english ? 'My offerings' : 'Minhas ofertas',
-				'hint'  => $english ? 'Units, materials and the next-term copy.' : 'Unidades, materiais e a cópia do próximo período.',
+				'hint'  => $english ? 'Units, materials and the copy to the next term.' : 'Unidades, materiais e a cópia para o próximo período.',
 				'view'  => 'home',
 			),
 			'news'            => array(
@@ -1687,7 +1687,7 @@ final class DashboardSurfaces {
 				'view'  => 'create',
 			),
 			'course'          => array(
-				'label' => $english ? 'Create subject' : 'Criar disciplina',
+				'label' => $english ? 'Create course' : 'Criar disciplina',
 				'hint'  => $english ? 'Register a course and open its first offering.' : 'Cadastre uma disciplina e abra a primeira oferta.',
 				'view'  => 'course',
 			),
@@ -1727,7 +1727,7 @@ final class DashboardSurfaces {
 			'profile'  => $english ? 'My profile' : 'Meu perfil',
 			'review'   => $english ? 'Review queue' : 'Fila de revisão',
 			'create'   => $english ? 'Create offering' : 'Criar oferta',
-			'course'   => $english ? 'Create subject' : 'Criar disciplina',
+			'course'   => $english ? 'Create course' : 'Criar disciplina',
 			'users'    => $english ? 'Users and categories' : 'Usuários e categorias',
 			default    => $english ? 'Dashboard' : 'Painel',
 		};

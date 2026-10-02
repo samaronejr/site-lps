@@ -240,8 +240,8 @@ ${projects
 <h2 id="home-teaching">${esc(en ? "Courses, materials and supervision" : "Disciplinas, materiais e orientação")}</h2>
 <p class="lps-lead">${esc(
       en
-        ? "The laboratory teaches at the Polytechnic School and in the Electrical Engineering Program at COPPE, from instrumentation to deep learning."
-        : "O laboratório atua na Escola Politécnica e no Programa de Engenharia Elétrica da COPPE, da instrumentação ao aprendizado profundo.",
+        ? "The laboratory teaches at the Polytechnic School and in the Electrical Engineering Program at COPPE."
+        : "O laboratório ministra disciplinas na Escola Politécnica e no Programa de Engenharia Elétrica da COPPE.",
     )}</p>
 <p><a class="lps-more" href="${link(locale, "/ensino/", "/en/teaching/")}">${esc(en ? "All courses" : "Todas as disciplinas")}</a></p>
 </div>
@@ -683,16 +683,18 @@ ${card({
 ${card({
   title: en ? "Graduate and undergraduate students" : "Estudantes de pós-graduação e graduação",
   body: en
-    ? "Master and doctoral students at PEE/COPPE and undergraduate students at Poli/UFRJ develop their research inside the laboratory."
+    ? "Master's and doctoral students at PEE/COPPE and undergraduate students at Poli/UFRJ develop their research in the laboratory."
     : "Estudantes de mestrado e doutorado do PEE/COPPE e estudantes de graduação da Poli/UFRJ desenvolvem sua pesquisa dentro do laboratório.",
 })}
 </div>
 ${alert({
   tone: "warning",
-  title: en ? "The full team list is pending review" : "A lista completa da equipe aguarda revisão",
+  title: en
+    ? "The full team list is not published yet"
+    : "A lista completa da equipe ainda não está publicada",
   body: en
-    ? "The public source does not publish a current list of post-doctoral researchers and students, and personal data cannot be published without a documented legal basis and each person's agreement."
-    : "A fonte pública não publica uma lista atual de pesquisadores de pós-doutorado e estudantes, e dados pessoais não podem ser publicados sem base legal documentada e concordância de cada pessoa.",
+    ? "There is no up-to-date public list of post-doctoral researchers and students yet."
+    : "Ainda não há uma lista pública atualizada de pesquisadores de pós-doutorado e estudantes.",
 }).replace(
   '<div class="lps-alert lps-alert-warning">',
   '<div class="lps-alert lps-alert-warning lps-mt-8">',
@@ -743,8 +745,8 @@ function teachingPage(locale) {
     kicker: en ? "Teaching" : "Ensino",
     title: en ? "Courses and materials" : "Disciplinas e materiais",
     lead: en
-      ? "Courses taught by laboratory professors in the Electrical Engineering Program at COPPE and at the Polytechnic School of UFRJ, from instrumentation to deep learning and quantum machine learning."
-      : "Disciplinas ministradas pelos professores do laboratório no Programa de Engenharia Elétrica da COPPE e na Escola Politécnica da UFRJ, da instrumentação ao aprendizado profundo e ao aprendizado de máquina quântico.",
+      ? "Graduate and undergraduate courses taught by laboratory professors in the Electrical Engineering Program at COPPE and at the Polytechnic School of UFRJ."
+      : "Disciplinas de pós-graduação e graduação ministradas pelos professores do laboratório no Programa de Engenharia Elétrica da COPPE e na Escola Politécnica da UFRJ.",
   })}
 <div class="lps-page-grid">
 <section class="lps-section lps-section--flush" id="pos-graduacao" aria-labelledby="teaching-graduate">
@@ -754,7 +756,7 @@ ${courseTable(locale, teaching.graduate, en ? "Graduate courses offered by the l
 <section class="lps-section" id="graduacao" aria-labelledby="teaching-undergraduate">
 ${sectionHead({ kicker: en ? "Poli/UFRJ" : "Poli/UFRJ", title: en ? "Undergraduate courses" : "Disciplinas de graduação", id: "teaching-undergraduate" })}
 ${courseTable(locale, teaching.undergraduate, en ? "Undergraduate courses taught by laboratory professors" : "Disciplinas de graduação ministradas por professores do laboratório")}
-<p class="lps-meta lps-mt-4">${esc(en ? "Codes marked “—” are courses whose official code is not recorded in the public source." : "Os códigos marcados com “—” são disciplinas cujo código oficial não consta na fonte pública.")}</p>
+<p class="lps-meta lps-mt-4">${esc(en ? "Courses marked “—” have no official code on record." : "Disciplinas marcadas com “—” não têm código oficial registrado.")}</p>
 </section>
 <section class="lps-section" id="materiais" aria-labelledby="teaching-materials">
 ${sectionHead({ kicker: en ? "Materials" : "Materiais", title: en ? "Course material and support" : "Material didático e apoio", id: "teaching-materials" })}
@@ -1911,8 +1913,8 @@ ${card({
 ${ctaBand({
   title: t(copy.owner, locale),
   body: en
-    ? "Editing this page uses the same account as the laboratory's editorial system; nothing here is editable without signing in."
-    : "A edição desta página usa a mesma conta do sistema editorial do laboratório; nada aqui é editável sem autenticação.",
+    ? "Professors edit this page in the member area."
+    : "O professor edita esta página na Minha área.",
   actions: [{ href: en ? "/en/sign-in/" : "/entrar/", label: t(member.signIn.title, locale) }],
 })}
 </section>
