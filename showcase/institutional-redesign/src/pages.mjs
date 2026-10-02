@@ -523,12 +523,12 @@ ${projects
 </div>
 </section>
 <section class="lps-section" id="evidencias" aria-labelledby="research-outputs">
-${sectionHead({ kicker: en ? "Outputs" : "Produção", title: en ? "Evidence of the work" : "Evidências do trabalho", id: "research-outputs" })}
+${sectionHead({ kicker: en ? "Outputs" : "Produção", title: en ? "Scientific output" : "Produção científica", id: "research-outputs" })}
 ${alert({
   tone: "info",
   title: en
-    ? "No authoritative publications feed exists yet"
-    : "Ainda não existe um feed público consolidado de publicações",
+    ? "The publications list is being consolidated"
+    : "A lista de publicações está em consolidação",
   body: t(publications.note, locale),
 })}
 <p class="lps-mt-6"><a class="lps-more" href="${link(locale, "/publicacoes/", "/en/publications/")}">${esc(en ? "How to consult the output" : "Como consultar a produção")}</a></p>
@@ -597,8 +597,8 @@ function projectsPage(locale) {
     kicker: en ? "Research" : "Pesquisa",
     title: en ? "Projects" : "Projetos",
     lead: en
-      ? "Research and development projects recorded in the laboratory public material, with the partner institutions they were built with."
-      : "Projetos de pesquisa e desenvolvimento registrados no material público do laboratório, com as instituições parceiras com que foram construídos.",
+      ? "Laboratory research and development projects and the partner institutions involved."
+      : "Projetos de pesquisa e desenvolvimento do laboratório e as instituições parceiras envolvidas.",
     meta: en
       ? "Source: the laboratory public pages, January 2025."
       : "Fonte: páginas públicas do laboratório, janeiro de 2025.",
@@ -607,10 +607,10 @@ function projectsPage(locale) {
 <div class="lps-section lps-section--flush">
 ${alert({
   tone: "info",
-  title: en ? "What this list is, and what it is not" : "O que esta lista é, e o que ela não é",
+  title: en ? "About this list" : "Sobre esta lista",
   body: en
-    ? "The public project index names two initiatives (HEP event simulation and the ATLAS online filtering system) and the faculty pages describe the applied projects below. A complete, current portfolio requires laboratory review."
-    : "O índice público de projetos nomeia duas iniciativas (simulação de eventos em HEP e o sistema de filtragem online do ATLAS) e as páginas dos professores descrevem os projetos aplicados abaixo. Um portfólio completo e atual exige revisão do laboratório.",
+    ? "This list gathers laboratory projects and may not be complete."
+    : "Esta lista reúne projetos do laboratório e pode não estar completa.",
 })}
 <div class="lps-grid lps-grid--2 lps-mt-8">
 ${projects

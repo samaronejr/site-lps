@@ -63,8 +63,8 @@ const ui = (locale) => {
     officeLabel: en ? "Office hours" : "Atendimento",
     agendaEmptyTitle: en ? "No event is currently scheduled" : "Nenhum evento agendado no momento",
     agendaEmptyBody: en
-      ? "The public source does not record a calendar of future events. When a call, seminar or defence is scheduled, it is published here."
-      : "A fonte pública não registra uma agenda de eventos futuros. Quando houver chamada, seminário ou defesa agendada, ela é publicada aqui.",
+      ? "When a call, seminar or defence is scheduled, it is published on this page."
+      : "Quando houver chamada, seminário ou defesa agendada, ela é publicada nesta página.",
   };
 };
 
