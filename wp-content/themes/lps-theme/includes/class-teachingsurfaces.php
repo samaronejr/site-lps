@@ -74,16 +74,19 @@ final class TeachingSurfaces {
 			if ( 'pos-graduacao' === $group['anchor'] ) {
 				$html .= '<div><p class="lps-mt-4"><a class="lps-more" href="https://www.pee.ufrj.br/" rel="external">PEE/COPPE →</a></p></div>';
 			}
-			$html   .= '</div>';
-			$html   .= '<div class="lps-table-scroll"><table>';
-			$html   .= '<caption>' . self::esc( $group['caption'] ) . '</caption>';
-			$html   .= '<thead><tr>'
-				. '<th scope="col">' . self::esc( $english ? 'Code' : 'Código' ) . '</th>'
+			$html       .= '</div>';
+			$code_label  = self::esc( $english ? 'Code' : 'Código' );
+			$prof_label  = self::esc( $english ? 'Professor' : 'Professor' );
+			$level_label = self::esc( $english ? 'Level' : 'Nível' );
+			$html       .= '<div class="lps-table-scroll"><table class="lps-table--stackable">';
+			$html       .= '<caption>' . self::esc( $group['caption'] ) . '</caption>';
+			$html       .= '<thead><tr>'
+				. '<th scope="col">' . $code_label . '</th>'
 				. '<th scope="col">' . self::esc( $english ? 'Course' : 'Disciplina' ) . '</th>'
-				. '<th scope="col">' . self::esc( $english ? 'Professor' : 'Professor' ) . '</th>'
-				. '<th scope="col">' . self::esc( $english ? 'Level' : 'Nível' ) . '</th>'
+				. '<th scope="col">' . $prof_label . '</th>'
+				. '<th scope="col">' . $level_label . '</th>'
 				. '</tr></thead><tbody>';
-			$missing = false;
+			$missing     = false;
 			foreach ( $group['courses'] as $course ) {
 				$course = self::record( $course );
 				$title  = self::text( $course['title'] ?? '' );
@@ -94,10 +97,10 @@ final class TeachingSurfaces {
 				$level = self::text( $course['level'] ?? '' );
 				$html .= '<tr>';
 				if ( '' !== $code ) {
-					$html .= '<td><span class="lps-course-code">' . self::esc( $code ) . '</span></td>';
+					$html .= '<td data-th="' . $code_label . '"><span class="lps-course-code">' . self::esc( $code ) . '</span></td>';
 				} else {
 					$missing = true;
-					$html   .= '<td>—</td>';
+					$html   .= '<td data-th="' . $code_label . '">—</td>';
 				}
 				$html .= '<th scope="row">';
 				$url   = self::safe_url( self::text( $course['url'] ?? '' ) );
@@ -105,8 +108,8 @@ final class TeachingSurfaces {
 				$html .= self::translation_chip( $course, $locale );
 				$html .= '</th>';
 				$team  = self::teaching_team_names( $course, $locale );
-				$html .= '<td>' . ( array() !== $team ? implode( ' · ', $team ) : '—' ) . '</td>';
-				$html .= '<td><span class="lps-level ' . self::level_variant( $level ) . '">' . self::esc( self::level_label( $level, $locale ) ) . '</span></td>';
+				$html .= '<td data-th="' . $prof_label . '">' . ( array() !== $team ? implode( ' · ', $team ) : '—' ) . '</td>';
+				$html .= '<td data-th="' . $level_label . '"><span class="lps-level ' . self::level_variant( $level ) . '">' . self::esc( self::level_label( $level, $locale ) ) . '</span></td>';
 				$html .= '</tr>';
 			}
 			$html .= '</tbody></table></div>';
