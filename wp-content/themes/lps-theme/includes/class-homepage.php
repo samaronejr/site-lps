@@ -939,9 +939,16 @@ final class Homepage {
 		foreach ( $items as $record ) {
 			$cards .= self::person_card_markup( $record, $locale );
 		}
+		$english  = 'en' === $locale;
+		$prev_svg = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>';
+		$next_svg = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
+		$nav      = '<div class="lps-slider-nav">'
+			. '<button class="lps-slider-btn" type="button" data-slider-prev aria-controls="lps-people-track" aria-label="' . self::escape( $english ? 'Previous people' : 'Pessoas anteriores' ) . '">' . $prev_svg . '</button>'
+			. '<button class="lps-slider-btn" type="button" data-slider-next aria-controls="lps-people-track" aria-label="' . self::escape( $english ? 'Next people' : 'Próximas pessoas' ) . '">' . $next_svg . '</button>'
+			. '</div>';
 		return '<section id="pessoas" class="lps-section" data-home-section="people" aria-labelledby="home-people"><div class="lps-page-grid">'
-			. self::section_head_markup( 'people', 'home-people', $locale )
-			. '<div class="lps-people-grid">' . $cards . '</div></div></section>';
+			. self::section_head_markup( 'people', 'home-people', $locale, $nav )
+			. '<div class="lps-people-grid" id="lps-people-track" data-lps-slider>' . $cards . '</div></div></section>';
 	}
 
 	/**
@@ -1166,8 +1173,10 @@ final class Homepage {
 	 * @param string $key        Section copy key.
 	 * @param string $heading_id ID carried by the rendered h2.
 	 * @param string $locale     Supported locale.
+	 * @param string $trail      Optional markup appended inside the head's
+	 *                           second cell (slider controls, for instance).
 	 */
-	private static function section_head_markup( string $key, string $heading_id, string $locale ): string {
+	private static function section_head_markup( string $key, string $heading_id, string $locale, string $trail = '' ): string {
 		$copy       = self::home_section_copy( $key, $locale );
 		$lead       = trim( self::text( $copy['lead'] ?? '' ) );
 		$more       = trim( self::text( $copy['more'] ?? '' ) );
@@ -1182,7 +1191,7 @@ final class Homepage {
 		if ( '' !== $more ) {
 			$html .= '<p class="lps-mt-4"><a class="lps-more" href="' . self::escape( $more ) . '">' . self::escape( $more_label ) . '</a></p>';
 		}
-		return $html . '</div></div>';
+		return $html . $trail . '</div></div>';
 	}
 
 	/**

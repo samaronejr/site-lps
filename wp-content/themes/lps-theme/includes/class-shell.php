@@ -294,13 +294,16 @@ final class Shell {
 		$affiliation   = $english ? 'Signal Processing Laboratory · UFRJ · COPPE' : 'Laboratório de Processamento de Sinais · UFRJ · COPPE';
 		return '<a class="lps-skip-link" href="#lps-main">' . self::escape( $skip ) . '</a>'
 			. '<header class="lps-site-header">'
-			. '<div class="lps-utility-bar"><div class="lps-utility-inner lps-page-grid"><p>' . self::escape( $affiliation ) . '</p><nav aria-label="' . self::escape( $quick_label ) . '"><ul class="lps-utility-links">' . $utility_items . '</ul></nav>' . $locale_switch . $search_toggle . self::session_link( $locale ) . '</div></div>'
+			. '<div class="lps-utility-bar"><div class="lps-utility-inner lps-page-grid"><p>' . self::escape( $affiliation ) . '</p><nav class="lps-utility-quicknav" aria-label="' . self::escape( $quick_label ) . '"><ul class="lps-utility-links">' . $utility_items . '</ul></nav>' . $locale_switch . $search_toggle . self::session_link( $locale ) . '</div></div>'
 			// The masthead pairs the artwork with the primary navigation on one
 			// row; the collaborate entrance and a second search stay inside the
 			// touch disclosure panel.
 			. '<div class="lps-masthead lps-page-grid"><a class="lps-brand" href="' . $home . '" aria-label="LPS — ' . ( $english ? 'home' : 'início' ) . '">' . $mark . '</a><nav class="lps-primary-nav lps-masthead-nav" aria-label="' . self::escape( $nav_label ) . '">' . $items . '</nav></div>'
 			. '<details class="lps-shell-disclosure"><summary>' . self::escape( $menu ) . '</summary><div class="lps-nav-panel lps-page-grid">'
 			. '<nav class="lps-primary-nav" aria-label="' . self::escape( $nav_label ) . '">' . $items . '</nav>'
+			// Below the nav breakpoint the band's quick links live here instead,
+			// so the narrow utility row keeps only the tools and the session link.
+			. '<nav class="lps-panel-utility" aria-label="' . self::escape( $quick_label ) . '"><ul class="lps-utility-links">' . $utility_items . '</ul></nav>'
 			. '<div class="lps-shell-tools">' . $search_tools( 'lps-search-input-2' ) . $collaborate_cta . '</div></div></details></header>';
 	}
 
