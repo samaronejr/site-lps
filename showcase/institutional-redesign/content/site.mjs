@@ -2134,8 +2134,7 @@ export const publications = {
     {
       title: { "pt-BR": "Código e dados abertos", en: "Code and open data" },
       body: {
-        "pt-BR":
-          "Repositórios públicos da organização LPS no GitHub.",
+        "pt-BR": "Repositórios públicos da organização LPS no GitHub.",
         en: "Public repositories of the LPS GitHub organisation.",
       },
       links: [{ label: "github.com/lps-ufrj-br", href: "https://github.com/lps-ufrj-br" }],
