@@ -49,21 +49,17 @@
     "pt-br": {
       "title": "Oportunidades de bolsa",
       "slug": "oportunidades-de-bolsa",
-      "excerpt": "Registro da página de oportunidades de bolsa do LPS; na captura, nenhuma chamada aberta estava publicada.",
+      "excerpt": "Oportunidades de bolsa do LPS. Não há chamada aberta no momento.",
       "content": [
-        "Esta é a página institucional do LPS destinada a oportunidades de bolsa.",
-        "Na captura da fonte pública, a página não publicava nenhuma chamada aberta: o único conteúdo editorial exibido era o aviso de que novas oportunidades seriam divulgadas em breve. Nenhum edital, prazo, valor de bolsa, número de vagas, requisito de elegibilidade ou canal de inscrição estava disponível.",
-        "Por isso este registro não afirma existir bolsa aberta. Ele permanece em rascunho até que o responsável pela coleção forneça o edital, as datas de abertura e encerramento, os requisitos e um canal público de inscrição verificado."
+        "Não há chamada de bolsas aberta no momento. Novas chamadas são publicadas nesta página com edital, prazos, requisitos e canal de inscrição."
       ]
     },
     "en": {
       "title": "Scholarship opportunities",
       "slug": "scholarship-opportunities",
-      "excerpt": "Record of the LPS scholarship opportunities page; no open call was published at the time of capture.",
+      "excerpt": "LPS scholarship opportunities. No open call at the moment.",
       "content": [
-        "This is the LPS institutional page dedicated to scholarship opportunities.",
-        "At the time the public source was captured, the page published no open call: the only editorial content shown was a notice that further opportunities were coming soon. No call document, deadline, stipend value, number of positions, eligibility requirement or application channel was available.",
-        "This record therefore asserts no open scholarship. It stays in draft until the collection owner supplies the call document, opening and closing dates, requirements and a verified public application channel."
+        "There is no open scholarship call at the moment. New calls are published on this page with the call document, deadlines, requirements and application channel."
       ],
       "translation": {
         "authoritativeLocale": "pt-br",
