@@ -1209,8 +1209,8 @@ function contactPage(locale) {
     kicker: en ? "Contact" : "Contato",
     title: en ? "Contact the laboratory" : "Fale com o laboratório",
     lead: en
-      ? "The laboratory office is the first stop for administrative matters, projects, technical visits and press requests."
-      : "A secretaria do laboratório é o primeiro caminho para assuntos administrativos, projetos, visitas técnicas e pedidos de imprensa.",
+      ? "The laboratory office handles administrative matters, projects, technical visits and press requests."
+      : "A secretaria do laboratório atende assuntos administrativos, projetos, visitas técnicas e pedidos de imprensa.",
   })}
 <div class="lps-page-grid">
 <section class="lps-section lps-section--flush" aria-labelledby="contact-channels">
@@ -1250,14 +1250,14 @@ ${sectionHead({ kicker: en ? "Pending" : "Pendências", title: en ? "Contacts st
 ${card({
   title: en ? "Accessibility reporting" : "Relato de acessibilidade",
   body: en
-    ? "No formal accessibility reporting channel has been named. Until it is, the office receives accessibility reports and forwards them to the responsible team."
-    : "Nenhum canal formal de relato de acessibilidade foi nomeado. Até que exista, a secretaria recebe os relatos e os encaminha à equipe responsável.",
+    ? "No formal accessibility reporting channel exists yet. Reports can be sent to the laboratory office."
+    : "Ainda não há um canal formal para relatos de acessibilidade. Relatos podem ser enviados à secretaria do laboratório.",
 })}
 ${card({
   title: en ? "Privacy and personal data" : "Privacidade e dados pessoais",
   body: en
-    ? "No privacy contact and no documented legal basis for processing personal data exist yet. Both are launch blockers recorded in the migration material, not oversights hidden by this redesign."
-    : "Ainda não existem contato de privacidade nem base legal documentada para tratamento de dados pessoais. Ambos são bloqueios de lançamento registrados no material de migração, não omissões escondidas por este redesenho.",
+    ? "No privacy contact and no documented legal basis for processing personal data exist yet. Questions about personal data can be sent to the laboratory office."
+    : "Ainda não existem contato de privacidade nem base legal documentada para o tratamento de dados pessoais. Dúvidas podem ser enviadas à secretaria do laboratório.",
 })}
 </div>
 </section>
@@ -1280,8 +1280,8 @@ function accessibilityPage(locale) {
   const en = locale === "en";
   const checklist = [
     en
-      ? "Text contrast of at least 4.5:1, verified by a computed audit rather than by eye."
-      : "Contraste de texto de ao menos 4,5:1, verificado por auditoria computada e não a olho.",
+      ? "Text contrast of at least 4.5:1, verified by automated audit."
+      : "Contraste de texto de ao menos 4,5:1, verificado por auditoria automatizada.",
     en
       ? "Visible focus on every interactive element, with a 3:1 focus indicator."
       : "Foco visível em todos os elementos interativos, com indicador de 3:1.",
@@ -1317,7 +1317,7 @@ ${checklist.map((item) => `<li>${esc(item)}</li>`).join("")}
 <section class="lps-section" aria-labelledby="a11y-report">
 ${sectionHead({ kicker: en ? "Reporting" : "Relato", title: en ? "Found a barrier?" : "Encontrou uma barreira?", id: "a11y-report" })}
 ${alert({ tone: "warning", body: `${t(accessibility.contact, locale)} ${site.emails.office}.` })}
-<p class="lps-mt-6">${esc(en ? "Reports are answered by the laboratory office while a named channel is pending institutional decision." : "Os relatos são respondidos pela secretaria do laboratório enquanto o canal nomeado aguarda decisão institucional.")}</p>
+<p class="lps-mt-6">${esc(en ? "Until a formal channel is named, the laboratory office answers the reports." : "Enquanto o canal formal não existir, os relatos são respondidos pela secretaria do laboratório.")}</p>
 </section>
 <section class="lps-section">
 ${ctaBand({
@@ -1325,8 +1325,8 @@ ${ctaBand({
     ? "Accessibility is verified on every release"
     : "A acessibilidade é verificada a cada publicação",
   body: en
-    ? "Contrast, keyboard operation, reflow and reduced motion are part of the release checks, together with link and schema validation."
-    : "Contraste, operação por teclado, refluxo e movimento reduzido fazem parte das checagens de publicação, junto com validação de links e de esquema.",
+    ? "Contrast, keyboard operation, reflow and reduced motion are checked before every publication."
+    : "Contraste, operação por teclado, refluxo e movimento reduzido são verificados antes de cada publicação.",
   actions: [
     { href: link(locale, "/privacidade/", "/en/privacy/"), label: en ? "Privacy" : "Privacidade" },
   ],
@@ -1492,8 +1492,8 @@ ${sectionHead({ kicker: en ? "Usage" : "Uso", title: en ? "Rules that keep the m
 <div>${card({
     title: en ? "Brand package" : "Pacote da marca",
     body: en
-      ? "The laboratory keeps the official files — blue and white signal, blue and white full mark, and the complete brand package — in its own drive, available through the administrative office."
-      : "O laboratório mantém os arquivos oficiais — sinal azul e branco, marca completa azul e branca, e o pacote completo da marca — em seu próprio drive, disponibilizado pela secretaria administrativa.",
+      ? "The official mark files are available on request from the laboratory office."
+      : "Os arquivos oficiais da marca estão disponíveis mediante solicitação à secretaria do laboratório.",
     action: {
       href: `mailto:${site.emails.office}`,
       label: en ? "Request the files" : "Solicitar os arquivos",
