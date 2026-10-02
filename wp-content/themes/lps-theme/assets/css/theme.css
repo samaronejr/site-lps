@@ -1639,6 +1639,45 @@ input[type="file"]::file-selector-button:hover {
   .lps-masthead-nav {
     display: none;
   }
+
+  /* The band's quick-access links move into the disclosure panel on narrow
+     screens: the utility row keeps only affiliation, tools and the session
+     link instead of wrapping four links across two lines. */
+  .lps-utility-quicknav {
+    display: none;
+  }
+}
+
+/* The quick links' panel copy: light-surface styling, rendered only under
+   the nav breakpoint where the bar's own copy is hidden. */
+.lps-panel-utility {
+  display: none;
+}
+
+@media (max-width: 59.999rem) {
+  .lps-panel-utility {
+    display: block;
+  }
+
+  .lps-panel-utility a {
+    align-items: center;
+    color: var(--color-anchor-soft);
+    display: inline-flex;
+    font-family: var(--font-mono);
+    font-size: var(--type-meta);
+    letter-spacing: 0.06em;
+    min-block-size: 2.5rem;
+    text-transform: uppercase;
+  }
+
+  .lps-panel-utility a:hover,
+  .lps-panel-utility a[aria-current="page"] {
+    color: var(--color-anchor);
+    text-decoration: underline;
+    text-decoration-color: var(--color-accent);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.3em;
+  }
 }
 
 @media (min-width: 60rem) {
@@ -2929,6 +2968,51 @@ th code {
   line-height: 1.5;
   padding: 0.125rem 0.625rem;
   white-space: nowrap;
+}
+
+/* On narrow screens a stackable table stops being a table: the header row
+   goes away and each record row lays out as a labeled card so no column can
+   fall outside the viewport. */
+@media (max-width: 40rem) {
+  .lps-table--stackable {
+    min-inline-size: 0;
+  }
+
+  .lps-table--stackable thead {
+    display: none;
+  }
+
+  .lps-table--stackable tbody tr {
+    border-block-end: var(--rule-hairline);
+    display: grid;
+    gap: var(--space-3);
+    grid-template-columns: minmax(0, 1fr);
+    padding: var(--space-4) var(--space-5);
+  }
+
+  .lps-table--stackable tbody tr:last-child {
+    border-block-end: 0;
+  }
+
+  .lps-table--stackable tbody th,
+  .lps-table--stackable tbody td,
+  .lps-table--stackable tbody td:last-child {
+    border-block-end: 0;
+    display: block;
+    padding: 0;
+    text-align: start;
+  }
+
+  .lps-table--stackable td[data-th]::before {
+    color: var(--color-anchor-soft);
+    content: attr(data-th);
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--type-meta);
+    letter-spacing: 0.08em;
+    margin-block-end: 0.125rem;
+    text-transform: uppercase;
+  }
 }
 
 .lps-level-grad {

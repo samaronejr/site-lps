@@ -206,8 +206,8 @@ ${sectionHead({
   kicker: en ? "Projects" : "Projetos",
   title: en ? "Research in partnership" : "Pesquisa em parceria",
   lead: en
-    ? "Selected projects recorded in the laboratory public material, with their partners."
-    : "Projetos selecionados registrados no material público do laboratório, com seus parceiros.",
+    ? "Selected laboratory projects, with their partners."
+    : "Projetos selecionados do laboratório, com seus parceiros.",
   id: "home-projects",
   action: { href: link(locale, "/projetos/", "/en/projects/"), label: `${u.seeAll} →` },
 })}
@@ -240,8 +240,8 @@ ${projects
 <h2 id="home-teaching">${esc(en ? "Courses, materials and supervision" : "Disciplinas, materiais e orientação")}</h2>
 <p class="lps-lead">${esc(
       en
-        ? "The laboratory teaches at the Polytechnic School and in the Electrical Engineering Program at COPPE, from instrumentation to deep learning."
-        : "O laboratório atua na Escola Politécnica e no Programa de Engenharia Elétrica da COPPE, da instrumentação ao aprendizado profundo.",
+        ? "The laboratory teaches at the Polytechnic School and in the Electrical Engineering Program at COPPE."
+        : "O laboratório ministra disciplinas na Escola Politécnica e no Programa de Engenharia Elétrica da COPPE.",
     )}</p>
 <p><a class="lps-more" href="${link(locale, "/ensino/", "/en/teaching/")}">${esc(en ? "All courses" : "Todas as disciplinas")}</a></p>
 </div>
@@ -278,10 +278,10 @@ ${people.map((person) => personCard(locale, person)).join("")}
     inner: `<div class="lps-page-grid">
 ${sectionHead({
   kicker: en ? "News and events" : "Notícias e eventos",
-  title: en ? "Latest institutional records" : "Últimos registros institucionais",
+  title: en ? "Latest updates" : "Últimas atualizações",
   lead: en
-    ? "Each entry is dated and traceable to the public source it came from."
-    : "Cada entrada é datada e rastreável à fonte pública de origem.",
+    ? "Recent publications, news and events from the laboratory."
+    : "Publicações, notícias e eventos recentes do laboratório.",
   id: "home-news",
   action: { href: link(locale, "/noticias/", "/en/news/"), label: `${u.seeAll} →` },
 })}
@@ -523,12 +523,12 @@ ${projects
 </div>
 </section>
 <section class="lps-section" id="evidencias" aria-labelledby="research-outputs">
-${sectionHead({ kicker: en ? "Outputs" : "Produção", title: en ? "Evidence of the work" : "Evidências do trabalho", id: "research-outputs" })}
+${sectionHead({ kicker: en ? "Outputs" : "Produção", title: en ? "Scientific output" : "Produção científica", id: "research-outputs" })}
 ${alert({
   tone: "info",
   title: en
-    ? "No authoritative publications feed exists yet"
-    : "Ainda não existe um feed público consolidado de publicações",
+    ? "The publications list is being consolidated"
+    : "A lista de publicações está em consolidação",
   body: t(publications.note, locale),
 })}
 <p class="lps-mt-6"><a class="lps-more" href="${link(locale, "/publicacoes/", "/en/publications/")}">${esc(en ? "How to consult the output" : "Como consultar a produção")}</a></p>
@@ -597,8 +597,8 @@ function projectsPage(locale) {
     kicker: en ? "Research" : "Pesquisa",
     title: en ? "Projects" : "Projetos",
     lead: en
-      ? "Research and development projects recorded in the laboratory public material, with the partner institutions they were built with."
-      : "Projetos de pesquisa e desenvolvimento registrados no material público do laboratório, com as instituições parceiras com que foram construídos.",
+      ? "Laboratory research and development projects and the partner institutions involved."
+      : "Projetos de pesquisa e desenvolvimento do laboratório e as instituições parceiras envolvidas.",
     meta: en
       ? "Source: the laboratory public pages, January 2025."
       : "Fonte: páginas públicas do laboratório, janeiro de 2025.",
@@ -607,10 +607,10 @@ function projectsPage(locale) {
 <div class="lps-section lps-section--flush">
 ${alert({
   tone: "info",
-  title: en ? "What this list is, and what it is not" : "O que esta lista é, e o que ela não é",
+  title: en ? "About this list" : "Sobre esta lista",
   body: en
-    ? "The public project index names two initiatives (HEP event simulation and the ATLAS online filtering system) and the faculty pages describe the applied projects below. A complete, current portfolio requires laboratory review."
-    : "O índice público de projetos nomeia duas iniciativas (simulação de eventos em HEP e o sistema de filtragem online do ATLAS) e as páginas dos professores descrevem os projetos aplicados abaixo. Um portfólio completo e atual exige revisão do laboratório.",
+    ? "This list gathers laboratory projects and may not be complete."
+    : "Esta lista reúne projetos do laboratório e pode não estar completa.",
 })}
 <div class="lps-grid lps-grid--2 lps-mt-8">
 ${projects
@@ -683,16 +683,18 @@ ${card({
 ${card({
   title: en ? "Graduate and undergraduate students" : "Estudantes de pós-graduação e graduação",
   body: en
-    ? "Master and doctoral students at PEE/COPPE and undergraduate students at Poli/UFRJ develop their research inside the laboratory."
+    ? "Master's and doctoral students at PEE/COPPE and undergraduate students at Poli/UFRJ develop their research in the laboratory."
     : "Estudantes de mestrado e doutorado do PEE/COPPE e estudantes de graduação da Poli/UFRJ desenvolvem sua pesquisa dentro do laboratório.",
 })}
 </div>
 ${alert({
   tone: "warning",
-  title: en ? "The full team list is pending review" : "A lista completa da equipe aguarda revisão",
+  title: en
+    ? "The full team list is not published yet"
+    : "A lista completa da equipe ainda não está publicada",
   body: en
-    ? "The public source does not publish a current list of post-doctoral researchers and students, and personal data cannot be published without a documented legal basis and each person's agreement."
-    : "A fonte pública não publica uma lista atual de pesquisadores de pós-doutorado e estudantes, e dados pessoais não podem ser publicados sem base legal documentada e concordância de cada pessoa.",
+    ? "There is no up-to-date public list of post-doctoral researchers and students yet."
+    : "Ainda não há uma lista pública atualizada de pesquisadores de pós-doutorado e estudantes.",
 }).replace(
   '<div class="lps-alert lps-alert-warning">',
   '<div class="lps-alert lps-alert-warning lps-mt-8">',
@@ -743,8 +745,8 @@ function teachingPage(locale) {
     kicker: en ? "Teaching" : "Ensino",
     title: en ? "Courses and materials" : "Disciplinas e materiais",
     lead: en
-      ? "Courses taught by laboratory professors in the Electrical Engineering Program at COPPE and at the Polytechnic School of UFRJ, from instrumentation to deep learning and quantum machine learning."
-      : "Disciplinas ministradas pelos professores do laboratório no Programa de Engenharia Elétrica da COPPE e na Escola Politécnica da UFRJ, da instrumentação ao aprendizado profundo e ao aprendizado de máquina quântico.",
+      ? "Graduate and undergraduate courses taught by laboratory professors in the Electrical Engineering Program at COPPE and at the Polytechnic School of UFRJ."
+      : "Disciplinas de pós-graduação e graduação ministradas pelos professores do laboratório no Programa de Engenharia Elétrica da COPPE e na Escola Politécnica da UFRJ.",
   })}
 <div class="lps-page-grid">
 <section class="lps-section lps-section--flush" id="pos-graduacao" aria-labelledby="teaching-graduate">
@@ -754,7 +756,7 @@ ${courseTable(locale, teaching.graduate, en ? "Graduate courses offered by the l
 <section class="lps-section" id="graduacao" aria-labelledby="teaching-undergraduate">
 ${sectionHead({ kicker: en ? "Poli/UFRJ" : "Poli/UFRJ", title: en ? "Undergraduate courses" : "Disciplinas de graduação", id: "teaching-undergraduate" })}
 ${courseTable(locale, teaching.undergraduate, en ? "Undergraduate courses taught by laboratory professors" : "Disciplinas de graduação ministradas por professores do laboratório")}
-<p class="lps-meta lps-mt-4">${esc(en ? "Codes marked “—” are courses whose official code is not recorded in the public source." : "Os códigos marcados com “—” são disciplinas cujo código oficial não consta na fonte pública.")}</p>
+<p class="lps-meta lps-mt-4">${esc(en ? "Courses marked “—” have no official code on record." : "Disciplinas marcadas com “—” não têm código oficial registrado.")}</p>
 </section>
 <section class="lps-section" id="materiais" aria-labelledby="teaching-materials">
 ${sectionHead({ kicker: en ? "Materials" : "Materiais", title: en ? "Course material and support" : "Material didático e apoio", id: "teaching-materials" })}
@@ -1077,12 +1079,12 @@ function newsPage(locale) {
     kicker: en ? "News and events" : "Notícias e eventos",
     title: en ? "News and events" : "Notícias e eventos",
     lead: en
-      ? "Dated institutional records about the laboratory, each traceable to the public source it came from."
-      : "Registros institucionais datados sobre o laboratório, cada um rastreável à fonte pública de origem.",
+      ? "News, events and public records of the laboratory."
+      : "Notícias, eventos e registros públicos do laboratório.",
   })}
 <div class="lps-page-grid">
 <section class="lps-section lps-section--flush" aria-labelledby="news-list">
-${sectionHead({ kicker: en ? "Records" : "Registros", title: en ? "Institutional timeline" : "Linha do tempo institucional", id: "news-list" })}
+${sectionHead({ kicker: en ? "Records" : "Registros", title: en ? "Timeline" : "Linha do tempo", id: "news-list" })}
 <ol class="lps-agenda">
 ${news
   .map(
@@ -1122,10 +1124,10 @@ ${card({
   action: null,
 })}
 ${card({
-  title: en ? "Lossless redirects are planned" : "Redirecionamentos sem perda estão planejados",
+  title: en ? "Old site addresses" : "Endereços do site anterior",
   body: en
-    ? "Every legacy URL inventoried for migration keeps a recorded disposition, so no published address is silently dropped."
-    : "Cada URL legada inventariada para migração mantém uma destinação registrada, de modo que nenhum endereço publicado é descartado em silêncio.",
+    ? "The addresses of the previous site will redirect to the matching pages on this site."
+    : "Os endereços do site anterior serão redirecionados para as páginas correspondentes deste site.",
 })}
 </div>
 </section>
@@ -1155,7 +1157,7 @@ function publicationsPage(locale) {
   })}
 <div class="lps-page-grid">
 <section class="lps-section lps-section--flush" aria-labelledby="pub-note">
-${sectionHead({ kicker: en ? "Status" : "Situação", title: en ? "No consolidated feed yet" : "Ainda sem feed consolidado", id: "pub-note" })}
+${sectionHead({ kicker: en ? "Status" : "Situação", title: en ? "The publications list is being consolidated" : "A lista de publicações está em consolidação", id: "pub-note" })}
 ${alert({ tone: "info", body: t(publications.note, locale) })}
 </section>
 <section class="lps-section" aria-labelledby="pub-channels">
@@ -1174,12 +1176,10 @@ ${publications.channels
 </section>
 <section class="lps-section">
 ${ctaBand({
-  title: en
-    ? "A publication feed requires institutional ownership"
-    : "Um feed de publicações exige responsável institucional",
+  title: en ? "Questions about publications" : "Dúvidas sobre publicações",
   body: en
-    ? "Reconciling publication metadata against authoritative sources is migration work, not a design decision. Until then, the laboratory does not publish a list it cannot verify."
-    : "Reconciliar metadados de publicações com fontes autoritativas é trabalho de migração, não uma decisão de design. Até lá, o laboratório não publica uma lista que não pode verificar.",
+    ? "For information about the laboratory scientific output, contact the laboratory office."
+    : "Para informações sobre a produção científica do laboratório, contate a secretaria do laboratório.",
   actions: [
     {
       href: link(locale, "/contato/", "/en/contact/"),
@@ -1209,8 +1209,8 @@ function contactPage(locale) {
     kicker: en ? "Contact" : "Contato",
     title: en ? "Contact the laboratory" : "Fale com o laboratório",
     lead: en
-      ? "The laboratory office is the first stop for administrative matters, projects, technical visits and press requests."
-      : "A secretaria do laboratório é o primeiro caminho para assuntos administrativos, projetos, visitas técnicas e pedidos de imprensa.",
+      ? "The laboratory office handles administrative matters, projects, technical visits and press requests."
+      : "A secretaria do laboratório atende assuntos administrativos, projetos, visitas técnicas e pedidos de imprensa.",
   })}
 <div class="lps-page-grid">
 <section class="lps-section lps-section--flush" aria-labelledby="contact-channels">
@@ -1250,14 +1250,14 @@ ${sectionHead({ kicker: en ? "Pending" : "Pendências", title: en ? "Contacts st
 ${card({
   title: en ? "Accessibility reporting" : "Relato de acessibilidade",
   body: en
-    ? "No formal accessibility reporting channel has been named. Until it is, the office receives accessibility reports and forwards them to the responsible team."
-    : "Nenhum canal formal de relato de acessibilidade foi nomeado. Até que exista, a secretaria recebe os relatos e os encaminha à equipe responsável.",
+    ? "No formal accessibility reporting channel exists yet. Reports can be sent to the laboratory office."
+    : "Ainda não há um canal formal para relatos de acessibilidade. Relatos podem ser enviados à secretaria do laboratório.",
 })}
 ${card({
   title: en ? "Privacy and personal data" : "Privacidade e dados pessoais",
   body: en
-    ? "No privacy contact and no documented legal basis for processing personal data exist yet. Both are launch blockers recorded in the migration material, not oversights hidden by this redesign."
-    : "Ainda não existem contato de privacidade nem base legal documentada para tratamento de dados pessoais. Ambos são bloqueios de lançamento registrados no material de migração, não omissões escondidas por este redesenho.",
+    ? "No privacy contact and no documented legal basis for processing personal data exist yet. Questions about personal data can be sent to the laboratory office."
+    : "Ainda não existem contato de privacidade nem base legal documentada para o tratamento de dados pessoais. Dúvidas podem ser enviadas à secretaria do laboratório.",
 })}
 </div>
 </section>
@@ -1280,8 +1280,8 @@ function accessibilityPage(locale) {
   const en = locale === "en";
   const checklist = [
     en
-      ? "Text contrast of at least 4.5:1, verified by a computed audit rather than by eye."
-      : "Contraste de texto de ao menos 4,5:1, verificado por auditoria computada e não a olho.",
+      ? "Text contrast of at least 4.5:1, verified by automated audit."
+      : "Contraste de texto de ao menos 4,5:1, verificado por auditoria automatizada.",
     en
       ? "Visible focus on every interactive element, with a 3:1 focus indicator."
       : "Foco visível em todos os elementos interativos, com indicador de 3:1.",
@@ -1317,7 +1317,7 @@ ${checklist.map((item) => `<li>${esc(item)}</li>`).join("")}
 <section class="lps-section" aria-labelledby="a11y-report">
 ${sectionHead({ kicker: en ? "Reporting" : "Relato", title: en ? "Found a barrier?" : "Encontrou uma barreira?", id: "a11y-report" })}
 ${alert({ tone: "warning", body: `${t(accessibility.contact, locale)} ${site.emails.office}.` })}
-<p class="lps-mt-6">${esc(en ? "Reports are answered by the laboratory office while a named channel is pending institutional decision." : "Os relatos são respondidos pela secretaria do laboratório enquanto o canal nomeado aguarda decisão institucional.")}</p>
+<p class="lps-mt-6">${esc(en ? "Until a formal channel is named, the laboratory office answers the reports." : "Enquanto o canal formal não existir, os relatos são respondidos pela secretaria do laboratório.")}</p>
 </section>
 <section class="lps-section">
 ${ctaBand({
@@ -1325,8 +1325,8 @@ ${ctaBand({
     ? "Accessibility is verified on every release"
     : "A acessibilidade é verificada a cada publicação",
   body: en
-    ? "Contrast, keyboard operation, reflow and reduced motion are part of the release checks, together with link and schema validation."
-    : "Contraste, operação por teclado, refluxo e movimento reduzido fazem parte das checagens de publicação, junto com validação de links e de esquema.",
+    ? "Contrast, keyboard operation, reflow and reduced motion are checked before every publication."
+    : "Contraste, operação por teclado, refluxo e movimento reduzido são verificados antes de cada publicação.",
   actions: [
     { href: link(locale, "/privacidade/", "/en/privacy/"), label: en ? "Privacy" : "Privacidade" },
   ],
@@ -1492,8 +1492,8 @@ ${sectionHead({ kicker: en ? "Usage" : "Uso", title: en ? "Rules that keep the m
 <div>${card({
     title: en ? "Brand package" : "Pacote da marca",
     body: en
-      ? "The laboratory keeps the official files — blue and white signal, blue and white full mark, and the complete brand package — in its own drive, available through the administrative office."
-      : "O laboratório mantém os arquivos oficiais — sinal azul e branco, marca completa azul e branca, e o pacote completo da marca — em seu próprio drive, disponibilizado pela secretaria administrativa.",
+      ? "The official mark files are available on request from the laboratory office."
+      : "Os arquivos oficiais da marca estão disponíveis mediante solicitação à secretaria do laboratório.",
     action: {
       href: `mailto:${site.emails.office}`,
       label: en ? "Request the files" : "Solicitar os arquivos",
@@ -1549,8 +1549,8 @@ function searchPage(locale) {
     kicker: en ? "Search" : "Busca",
     title: en ? "Search the site" : "Buscar no site",
     lead: en
-      ? "Search runs on the server and works without JavaScript. Facets narrow the result set by collection, area and year."
-      : "A busca roda no servidor e funciona sem JavaScript. Os filtros restringem o resultado por coleção, área e ano.",
+      ? "Filters narrow results by collection, area and year."
+      : "Os filtros restringem o resultado por coleção, área e ano.",
   })}
 <div class="lps-page-grid">
 <section class="lps-section lps-section--flush">
@@ -1911,8 +1911,8 @@ ${card({
 ${ctaBand({
   title: t(copy.owner, locale),
   body: en
-    ? "Editing this page uses the same account as the laboratory's editorial system; nothing here is editable without signing in."
-    : "A edição desta página usa a mesma conta do sistema editorial do laboratório; nada aqui é editável sem autenticação.",
+    ? "Professors edit this page in the member area."
+    : "O professor edita esta página na Minha área.",
   actions: [{ href: en ? "/en/sign-in/" : "/entrar/", label: t(member.signIn.title, locale) }],
 })}
 </section>

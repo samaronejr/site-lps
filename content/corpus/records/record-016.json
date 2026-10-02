@@ -40,7 +40,12 @@
       }
     },
     "relationships": [
-      { "type": "related_record", "target": "record-001", "role": "context", "order": 1 }
+      {
+        "type": "related_record",
+        "target": "record-001",
+        "role": "context",
+        "order": 1
+      }
     ]
   },
   "meta": {
@@ -51,23 +56,23 @@
     "pt-br": {
       "title": "Infraestrutura",
       "slug": "infraestrutura",
-      "excerpt": "Descrição da infraestrutura do LPS registrada no perfil público EMBRAPII/COPPE, pendente de confirmação pelo responsável do laboratório.",
+      "excerpt": "Infraestrutura do LPS segundo o perfil público EMBRAPII/COPPE.",
       "content": [
         "Segundo o perfil público de laboratórios da EMBRAPII/COPPE, as principais áreas de atuação do LPS, vinculado ao Programa de Engenharia Elétrica, são instrumentação eletrônica, processamento analógico e digital de sinais, engenharia de software e inteligência computacional.",
         "O mesmo perfil registra que empresas de base tecnológica foram criadas no âmbito do laboratório e que o LPS mantém contato com empresas em projetos de alta relevância; entre as organizações citadas estão Petrobras, Eletrobras, Embraer, Inmetro, Empresa de Pesquisa Energética, OLX, National Instruments, Samsung e Murabei.",
         "Quanto às instalações, o perfil descreve uma ocupação de 310 m², com sala para apresentação de palestras e reuniões virtuais, sala acústica, cerca de 40 computadores pessoais interconectados no domínio LPS, software para desenvolvimento de dispositivos programáveis e equipamentos de instrumentação para desenvolvimento e análise de sistemas.",
-        "Estas informações são atribuídas ao perfil de terceiros e mantidas com atribuição explícita. A fonte não indica data de atualização, por isso os números permanecem sujeitos à confirmação do responsável pela infraestrutura do LPS antes de qualquer publicação. Os dados de contato exibidos naquele perfil não foram migrados."
+        "Os números e a lista de organizações acima são do perfil público EMBRAPII/COPPE, que não informa data de atualização."
       ]
     },
     "en": {
       "title": "Infrastructure",
       "slug": "infrastructure",
-      "excerpt": "Description of the LPS infrastructure recorded on the public EMBRAPII/COPPE profile, pending confirmation by the laboratory owner.",
+      "excerpt": "LPS infrastructure as recorded on the public EMBRAPII/COPPE profile.",
       "content": [
         "According to the public EMBRAPII/COPPE laboratory directory, the main areas of activity of LPS, which is attached to the Electrical Engineering Programme, are electronic instrumentation, analogue and digital signal processing, software engineering and computational intelligence.",
         "The same profile records that technology-based companies have been created within the laboratory and that LPS maintains contact with industry on high-relevance projects; the organisations it names include Petrobras, Eletrobras, Embraer, Inmetro, Empresa de Pesquisa Energética, OLX, National Instruments, Samsung and Murabei.",
         "On facilities, the profile describes 310 m² of space with a room for talks and virtual meetings, an acoustic room, around 40 personal computers interconnected in the LPS domain, software for programmable device development and instrumentation equipment for system development and analysis.",
-        "This information is attributed to the third-party profile and is kept with that attribution. The source carries no update date, so the figures remain subject to confirmation by the LPS infrastructure owner before any publication. The contact details shown on that profile were not migrated."
+        "The figures and the list of organisations above come from the public EMBRAPII/COPPE profile, which carries no update date."
       ],
       "translation": {
         "authoritativeLocale": "pt-br",

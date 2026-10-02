@@ -62,7 +62,7 @@
         "João Victor da Fonseca Pinto é graduado (2016) em Engenharia Eletrônica e de Computação pela Universidade Federal do Rio de Janeiro e doutor (2022) em Inteligência Computacional pelo Programa de Engenharia Elétrica da COPPE. É membro da RENAFAE desde 2015.",
         "Desde 2018 é autor de publicações do experimento ATLAS (CERN, Genebra), no qual colabora por meio do Laboratório de Processamento de Sinais da COPPE, nas áreas de inteligência computacional, filtragem online de eventos em física de partículas e simulação de eventos. Participou do esforço colaborativo que atualizou a classificação online de elétrons baseada em redes neurais artificiais no experimento.",
         "Foi coordenador (2021-2022) do grupo internacional de pesquisa de filtragem online para elétrons e fótons do ATLAS. Atualmente atua como pesquisador associado no experimento ATLAS, professor adjunto do Departamento de Engenharia Eletrônica e de Computação da UFRJ (2025) e professor/pesquisador permanente no LPS.",
-        "Áreas de interesse registradas na fonte: simulação e reconstrução de eventos em física de altas energias, orquestração de cargas de trabalho, inteligência artificial (redes neurais rasas e profundas, IA generativa) e computação quântica."
+        "Áreas de interesse: simulação e reconstrução de eventos em física de altas energias, orquestração de cargas de trabalho, inteligência artificial (redes neurais rasas e profundas, IA generativa) e computação quântica."
       ]
     },
     "en": {
@@ -73,7 +73,7 @@
         "João Victor da Fonseca Pinto graduated in Electronic and Computer Engineering from the Federal University of Rio de Janeiro in 2016 and received a doctorate in Computational Intelligence from the COPPE Electrical Engineering Programme in 2022. He has been a member of RENAFAE since 2015.",
         "Since 2018 he has been an author on publications of the ATLAS experiment (CERN, Geneva), collaborating through the Signal Processing Laboratory at COPPE in computational intelligence, online event filtering for particle physics and event simulation. He took part in the collaborative effort that updated the neural-network-based online electron classification used by the experiment.",
         "He coordinated the ATLAS international research group for electron and photon online filtering in 2021-2022. He currently works as an associate researcher on the ATLAS experiment, as an adjunct professor in the Department of Electronic and Computer Engineering at UFRJ (2025) and as a permanent professor and researcher at LPS.",
-        "Research interests recorded in the source: simulation and reconstruction of high-energy physics events, workload orchestration, artificial intelligence (shallow and deep neural networks, generative AI) and quantum computing."
+        "Research interests: simulation and reconstruction of high-energy physics events, workload orchestration, artificial intelligence (shallow and deep neural networks, generative AI) and quantum computing."
       ],
       "translation": {
         "authoritativeLocale": "pt-br",

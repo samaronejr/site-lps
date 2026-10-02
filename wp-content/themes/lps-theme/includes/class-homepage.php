@@ -423,7 +423,7 @@ final class Homepage {
 		);
 		$strata   = array(
 			'projects'       => array( 'Featured projects', 'Projetos em destaque' ),
-			'evidence'       => array( 'Evidence and outputs', 'Evidências e resultados' ),
+			'evidence'       => array( 'Publications and records', 'Publicações e registros' ),
 			'infrastructure' => array( 'Infrastructure and capabilities', 'Infraestrutura e capacidades' ),
 			'contact'        => array( 'Collaboration and contact', 'Colaboração e contato' ),
 		);
@@ -939,9 +939,16 @@ final class Homepage {
 		foreach ( $items as $record ) {
 			$cards .= self::person_card_markup( $record, $locale );
 		}
+		$english  = 'en' === $locale;
+		$prev_svg = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>';
+		$next_svg = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
+		$nav      = '<div class="lps-slider-nav">'
+			. '<button class="lps-slider-btn" type="button" data-slider-prev aria-controls="lps-people-track" aria-label="' . self::escape( $english ? 'Previous people' : 'Pessoas anteriores' ) . '">' . $prev_svg . '</button>'
+			. '<button class="lps-slider-btn" type="button" data-slider-next aria-controls="lps-people-track" aria-label="' . self::escape( $english ? 'Next people' : 'Próximas pessoas' ) . '">' . $next_svg . '</button>'
+			. '</div>';
 		return '<section id="pessoas" class="lps-section" data-home-section="people" aria-labelledby="home-people"><div class="lps-page-grid">'
-			. self::section_head_markup( 'people', 'home-people', $locale )
-			. '<div class="lps-people-grid">' . $cards . '</div></div></section>';
+			. self::section_head_markup( 'people', 'home-people', $locale, $nav )
+			. '<div class="lps-people-grid" id="lps-people-track" data-lps-slider>' . $cards . '</div></div></section>';
 	}
 
 	/**
@@ -1166,8 +1173,10 @@ final class Homepage {
 	 * @param string $key        Section copy key.
 	 * @param string $heading_id ID carried by the rendered h2.
 	 * @param string $locale     Supported locale.
+	 * @param string $trail      Optional markup appended inside the head's
+	 *                           second cell (slider controls, for instance).
 	 */
-	private static function section_head_markup( string $key, string $heading_id, string $locale ): string {
+	private static function section_head_markup( string $key, string $heading_id, string $locale, string $trail = '' ): string {
 		$copy       = self::home_section_copy( $key, $locale );
 		$lead       = trim( self::text( $copy['lead'] ?? '' ) );
 		$more       = trim( self::text( $copy['more'] ?? '' ) );
@@ -1182,7 +1191,7 @@ final class Homepage {
 		if ( '' !== $more ) {
 			$html .= '<p class="lps-mt-4"><a class="lps-more" href="' . self::escape( $more ) . '">' . self::escape( $more_label ) . '</a></p>';
 		}
-		return $html . '</div></div>';
+		return $html . $trail . '</div></div>';
 	}
 
 	/**
@@ -1213,12 +1222,12 @@ final class Homepage {
 			'projects'       => array(
 				'kicker' => $english ? 'Projects' : 'Projetos',
 				'title'  => $english ? 'Research in partnership' : 'Pesquisa em parceria',
-				'lead'   => $english ? 'Selected projects registered in the laboratory\'s public material, with their partners.' : 'Projetos selecionados registrados no material público do laboratório, com seus parceiros.',
+				'lead'   => $english ? 'Selected laboratory projects, with their partners.' : 'Projetos selecionados do laboratório, com seus parceiros.',
 				'more'   => $english ? '/en/projects/' : '/pt-br/projetos/',
 			),
 			'evidence'       => array(
 				'kicker' => $english ? 'Outputs' : 'Produção',
-				'title'  => $english ? 'Outputs and evidence' : 'Produção e evidências',
+				'title'  => $english ? 'Laboratory output' : 'Produção do laboratório',
 				'lead'   => $english ? 'Publications and institutional records produced by the laboratory.' : 'Publicações e registros institucionais produzidos pelo laboratório.',
 				'more'   => $english ? '/en/publications/' : '/pt-br/publicacoes/',
 			),
@@ -1243,8 +1252,8 @@ final class Homepage {
 			),
 			'latest'         => array(
 				'kicker' => $english ? 'News and events' : 'Notícias e eventos',
-				'title'  => $english ? 'Latest institutional records' : 'Últimos registros institucionais',
-				'lead'   => $english ? 'Every entry is dated and traceable to its public source.' : 'Cada entrada é datada e rastreável à fonte pública de origem.',
+				'title'  => $english ? 'Latest updates' : 'Últimas atualizações',
+				'lead'   => $english ? 'Recent publications, news and events from the laboratory.' : 'Publicações, notícias e eventos recentes do laboratório.',
 				'more'   => $english ? '/en/news/' : '/pt-br/noticias/',
 			),
 			'partners'       => array(
@@ -1270,8 +1279,8 @@ final class Homepage {
 	 */
 	private static function empty_notice( string $section, string $locale ): string {
 		$message = 'en' === $locale
-			? 'Reviewed information has not been published for this section.'
-			: 'Informações revisadas ainda não foram publicadas nesta seção.';
+			? 'Information has not yet been published in this section.'
+			: 'Informações ainda não foram publicadas nesta seção.';
 		return '<p data-home-empty="' . $section . '">' . $message . '</p>';
 	}
 

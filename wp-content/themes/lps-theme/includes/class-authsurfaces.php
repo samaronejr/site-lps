@@ -185,7 +185,7 @@ final class AuthSurfaces {
 		return '<a class="lps-button lps-button-ghost lps-sso-google" href="'
 			. self::esc( GoogleOauth::start_url( $locale, $redirect ) )
 			. '" aria-label="'
-			. self::esc( $english ? 'Sign in with Google Workspace — @lps.ufrj.br accounts that already exist here' : 'Entrar com Google Workspace — contas @lps.ufrj.br que já existam aqui' )
+			. self::esc( $english ? 'Sign in with Google Workspace (@lps.ufrj.br accounts already registered)' : 'Entrar com Google Workspace (contas @lps.ufrj.br já cadastradas)' )
 			. '"><svg class="lps-sso-icon" viewBox="0 0 18 18" aria-hidden="true" focusable="false">'
 			. '<path d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z" fill="#4285F4"/>'
 			. '<path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z" fill="#34A853"/>'
@@ -201,8 +201,7 @@ final class AuthSurfaces {
 	 *
 	 * The message is deliberately the same for an unknown account and a wrong
 	 * password: a differentiated message would turn the form into an account
-	 * enumeration oracle. The hint below it says so, so the shared wording reads
-	 * as policy rather than as a vague error.
+	 * enumeration oracle.
 	 *
 	 * @param string $locale Supported locale slug.
 	 * @param string $error  Error key from the route (`credentials` or `empty`).
@@ -219,8 +218,8 @@ final class AuthSurfaces {
 			? ( $english ? 'Enter your username and password' : 'Informe usuário e senha' )
 			: ( $english ? 'It was not possible to sign in' : 'Não foi possível entrar' );
 		$body  = $english
-			? 'The username or the password does not match an account. For privacy, an unknown account and a wrong password return the same message.'
-			: 'O usuário ou a senha não correspondem a uma conta. Por privacidade, usuário inexistente e senha incorreta retornam a mesma mensagem.';
+			? 'The username or the password does not match an account on this site.'
+			: 'O usuário ou a senha não correspondem a uma conta deste site.';
 		return '<div class="lps-alert lps-alert-error" id="lps-signin-error" role="alert"><p><strong>'
 			. self::esc( $title ) . '</strong> ' . self::esc( $body ) . '</p></div>';
 	}

@@ -48,3 +48,36 @@
     true,
   );
 })();
+
+/*
+ * News slider: the ‹ › buttons page the track by one slide and keep their
+ * disabled state honest — a control that cannot move stays visibly off.
+ * The track itself is a scroll-snap region, so touch swipes need no code.
+ */
+(() => {
+  document.querySelectorAll("[data-lps-slider]").forEach((track) => {
+    const prev = document.querySelector(`[data-slider-prev][aria-controls="${track.id}"]`);
+    const next = document.querySelector(`[data-slider-next][aria-controls="${track.id}"]`);
+    if (!prev || !next) {
+      return;
+    }
+    const step = () => {
+      const slide = track.querySelector(".lps-slide");
+      if (!slide) {
+        return track.clientWidth;
+      }
+      const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+      return slide.getBoundingClientRect().width + gap;
+    };
+    const sync = () => {
+      const max = track.scrollWidth - track.clientWidth;
+      prev.disabled = track.scrollLeft <= 1;
+      next.disabled = track.scrollLeft >= max - 1;
+    };
+    prev.addEventListener("click", () => track.scrollBy({ left: -step(), behavior: "smooth" }));
+    next.addEventListener("click", () => track.scrollBy({ left: step(), behavior: "smooth" }));
+    track.addEventListener("scroll", sync, { passive: true });
+    window.addEventListener("resize", sync);
+    sync();
+  });
+})();

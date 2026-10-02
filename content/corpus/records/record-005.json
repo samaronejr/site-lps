@@ -39,7 +39,12 @@
       }
     },
     "relationships": [
-      { "type": "related_record", "target": "record-001", "role": "context", "order": 1 }
+      {
+        "type": "related_record",
+        "target": "record-001",
+        "role": "context",
+        "order": 1
+      }
     ]
   },
   "meta": {
@@ -49,21 +54,19 @@
     "pt-br": {
       "title": "Projetos",
       "slug": "projetos",
-      "excerpt": "Índice de projetos do LPS conforme registrado na página institucional atual.",
+      "excerpt": "Projetos do LPS.",
       "content": [
-        "A página institucional atual do LPS apresenta dois projetos em seu índice: \"Simulação de eventos em HEP\" e \"Sistema de Filtragem Online do ATLAS\".",
-        "A fonte pública consultada não publica escopo, período de execução, equipe, financiadores nem situação atual desses projetos. Por isso, esta página migra o índice como registro de origem e não afirma estado corrente, resultados ou métricas.",
-        "Os registros individuais de projeto só serão criados quando o responsável pela coleção fornecer fonte documental para escopo, datas, equipe e financiamento. Até lá, a lacuna é registrada como pendência de lançamento."
+        "O LPS desenvolve projetos de pesquisa e desenvolvimento em parceria com instituições nacionais e internacionais. A página institucional lista os projetos \"Simulação de eventos em HEP\" e \"Sistema de Filtragem Online do ATLAS\".",
+        "Escopo, período de execução, equipe e situação atual dos projetos não estão publicados. Para informações, contate a secretaria do laboratório."
       ]
     },
     "en": {
       "title": "Projects",
       "slug": "projects",
-      "excerpt": "Index of LPS projects as recorded on the current institutional page.",
+      "excerpt": "LPS projects.",
       "content": [
-        "The current LPS institutional page lists two projects in its index: event simulation in high-energy physics (\"Simulação de eventos em HEP\") and the ATLAS online filtering system (\"Sistema de Filtragem Online do ATLAS\").",
-        "The public source consulted publishes no scope, running period, team, funders or current status for these projects. This page therefore migrates the index as a source record and asserts no current status, outcome or metric.",
-        "Individual project records will only be created once the collection owner supplies documentary sources for scope, dates, team and funding. Until then the gap is recorded as a launch blocker."
+        "LPS develops research and development projects in partnership with Brazilian and international institutions. The institutional page lists the projects \"Simulação de eventos em HEP\" (event simulation in high-energy physics) and \"Sistema de Filtragem Online do ATLAS\" (ATLAS online filtering system).",
+        "The scope, running period, team and current status of these projects are not published. For information, contact the laboratory office."
       ],
       "translation": {
         "authoritativeLocale": "pt-br",
