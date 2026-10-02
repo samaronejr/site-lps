@@ -2105,8 +2105,8 @@ export const events = [];
 export const publications = {
   note: {
     "pt-BR":
-      "O LPS não mantém, hoje, um feed público de publicações sob responsabilidade do laboratório. A produção científica associada ao laboratório está registrada nos currículos Lattes dos professores e nas publicações das colaborações internacionais de que o laboratório participa.",
-    en: "LPS does not currently maintain a public publications feed under the laboratory's responsibility. The scientific output associated with the laboratory is recorded in the professors' Lattes CVs and in the publications of the international collaborations the laboratory takes part in.",
+      "O laboratório está consolidando sua lista de publicações. Enquanto isso, a produção científica pode ser consultada nos currículos Lattes dos professores e nas publicações das colaborações internacionais.",
+    en: "The laboratory is consolidating its publications list. Meanwhile, the scientific output can be consulted in the professors' Lattes CVs and in the publications of its international collaborations.",
   },
   channels: [
     {
@@ -2135,8 +2135,8 @@ export const publications = {
       title: { "pt-BR": "Código e dados abertos", en: "Code and open data" },
       body: {
         "pt-BR":
-          "Repositórios públicos da organização LPS no GitHub. Mantidos externamente, sem licença declarada — link, não cópia.",
-        en: "Public repositories of the LPS GitHub organisation. Externally maintained, with no declared licence — linked, not copied.",
+          "Repositórios públicos da organização LPS no GitHub.",
+        en: "Public repositories of the LPS GitHub organisation.",
       },
       links: [{ label: "github.com/lps-ufrj-br", href: "https://github.com/lps-ufrj-br" }],
     },
@@ -2147,8 +2147,8 @@ export const publications = {
 export const opportunities = {
   notice: {
     "pt-BR":
-      'Não há chamada aberta publicada no momento. A página de oportunidades do laboratório no site institucional anterior registra "em breve".',
-    en: 'No call is open at the moment. The laboratory\'s opportunities page on the previous institutional site reads "coming soon".',
+      "Não há chamada aberta publicada no momento. Novas chamadas são publicadas nesta página.",
+    en: "No call is open at the moment. New calls are published on this page.",
   },
   tracks: [
     {
@@ -2419,8 +2419,8 @@ export const privacy = {
   ],
   note: {
     "pt-BR":
-      "Esta página descreve o comportamento técnico do site. A base legal para o tratamento de dados pessoais em outros contextos institucionais é de responsabilidade da universidade.",
-    en: "This page describes the technical behaviour of the site. The legal basis for personal-data processing in other institutional contexts is the university's responsibility.",
+      "A base legal para o tratamento de dados pessoais em outros contextos institucionais é de responsabilidade da universidade.",
+    en: "The legal basis for personal-data processing in other institutional contexts is the university's responsibility.",
   },
 };
 
