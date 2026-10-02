@@ -225,8 +225,8 @@ final class TrustSurfaces {
 			$calls = self::alert_band(
 				'warning',
 				$english
-					? 'No call is open at the moment. The opportunities page of the previous institutional site reads "coming soon".'
-					: 'Não há chamada aberta publicada no momento. A página de oportunidades do site institucional anterior registra "em breve".',
+					? 'No call is open at the moment. New calls are published on this page.'
+					: 'Não há chamada aberta no momento. Novas chamadas são publicadas nesta página.',
 				$english ? 'No open call right now' : 'Nenhuma chamada aberta no momento'
 			);
 		}
@@ -459,8 +459,8 @@ final class TrustSurfaces {
 			. '<h2 id="lps-agenda-empty">' . self::esc( $english ? 'No event is currently scheduled' : 'Nenhum evento agendado no momento' ) . '</h2>'
 			. '<p>' . self::esc(
 				$english
-					? 'The public source does not record a calendar of future events. When a call, seminar or defence is scheduled, it is published here.'
-					: 'A fonte pública não registra uma agenda de eventos futuros. Quando houver chamada, seminário ou defesa agendada, ela é publicada aqui.'
+					? 'When a call, seminar or defence is scheduled, it is published on this page.'
+					: 'Quando uma chamada, um seminário ou uma defesa for agendada, ela será publicada nesta página.'
 			) . '</p></div>';
 	}
 
@@ -610,14 +610,14 @@ final class TrustSurfaces {
 				. self::editorial_card(
 					$english ? 'The previous institutional site' : 'Site institucional anterior',
 					$english
-						? 'The laboratory site hosted on Google Sites remains the record for older material, including opportunities announcements and professor pages.'
-						: 'O site do laboratório hospedado no Google Sites permanece como registro do material antigo, incluindo avisos de oportunidades e páginas de professores.'
+						? "The laboratory's previous site, hosted on Google Sites, still holds the older material, including opportunity announcements and professor pages."
+						: 'O site anterior do laboratório, hospedado no Google Sites, continua disponível com o material mais antigo, incluindo avisos de oportunidades e páginas de professores.'
 				)
 				. self::editorial_card(
-					$english ? 'Lossless redirects are planned' : 'Redirecionamentos sem perda estão planejados',
+					$english ? 'Redirects from the previous site' : 'Redirecionamento do site anterior',
 					$english
-						? 'Every legacy URL inventoried for migration keeps a recorded disposition, so no published address is silently dropped.'
-						: 'Cada URL legada inventariada para migração mantém uma destinação registrada, de modo que nenhum endereço publicado é descartado em silêncio.'
+						? 'The public addresses of the previous site will redirect to the matching pages on this site.'
+						: 'Os endereços públicos do site anterior serão redirecionados para as páginas correspondentes deste site.'
 				)
 				. '</div>'
 		);
@@ -1196,12 +1196,12 @@ final class TrustSurfaces {
 			? array(
 				'The laboratory mark is made of a signal (the waveform) and the LPS lettering, accompanied by the full name and the Computational Intelligence descriptor.',
 				"The signal represents the laboratory's object of work: reading, treating and interpreting signals. Blue is the institutional colour inherited from the original identity; the gradient follows the amplitude variation of the waveform.",
-				'The official applications — blue and white signal, blue and white full mark, plus the complete brand package — are maintained by those responsible for laboratory communications.',
+				'The official mark files, including the approved variants and the complete brand package, are available from the laboratory office.',
 			)
 			: array(
 				'A marca do laboratório é composta por um sinal (a forma de onda) e pela sigla LPS, acompanhadas do nome por extenso e do descritor Inteligência Computacional.',
 				'O sinal representa o objeto de trabalho do laboratório: a leitura, o tratamento e a interpretação de sinais. O azul é a cor institucional herdada da identidade original; o degradê acompanha a variação de amplitude da forma de onda.',
-				'As aplicações oficiais — sinal em azul e branco, marca completa em azul e branco, além do pacote completo da marca — são mantidas pelos responsáveis pela comunicação do laboratório.',
+				'Os arquivos oficiais da marca, incluindo as variantes aprovadas e o pacote completo, estão disponíveis na secretaria do laboratório.',
 			);
 		$flow       = '<div class="lps-flow">';
 		foreach ( $paragraphs as $paragraph ) {
@@ -1260,8 +1260,8 @@ final class TrustSurfaces {
 			true
 		);
 		$note   = $english
-			? "This page describes the technical behaviour of the site. The legal basis for personal-data processing in other institutional contexts is the university's responsibility."
-			: 'Esta página descreve o comportamento técnico do site. A base legal para o tratamento de dados pessoais em outros contextos institucionais é de responsabilidade da universidade.';
+			? "Personal-data processing in other institutional contexts is the university's responsibility."
+			: 'O tratamento de dados pessoais em outros contextos institucionais é de responsabilidade da universidade.';
 		$html  .= self::editorial_section(
 			'privacy-note',
 			$english ? 'Scope' : 'Escopo',
@@ -1281,7 +1281,7 @@ final class TrustSurfaces {
 		$english   = 'en' === $locale;
 		$checklist = $english
 			? array(
-				'Text contrast of at least 4.5:1, verified by a computed audit rather than by eye.',
+				'Text contrast of at least 4.5:1, verified by automated audit.',
 				'Visible focus on every interactive element, with a 3:1 focus indicator.',
 				'Full keyboard operation, including navigation, search and the mobile menu.',
 				'Reduced-motion preference switches every transition off.',
@@ -1291,7 +1291,7 @@ final class TrustSurfaces {
 				'The site works without JavaScript: navigation and search are native form and disclosure elements.',
 			)
 			: array(
-				'Contraste de texto de ao menos 4,5:1, verificado por auditoria computada e não a olho.',
+				'Contraste de texto de ao menos 4,5:1, verificado por auditoria automatizada.',
 				'Foco visível em todos os elementos interativos, com indicador de 3:1.',
 				'Operação completa por teclado, incluindo navegação, busca e menu móvel.',
 				'A preferência de movimento reduzido desliga todas as transições.',
@@ -1316,8 +1316,8 @@ final class TrustSurfaces {
 			? 'A formal channel for reporting accessibility problems has not yet been named by the institution. Until it exists, the laboratory office receives reports at secretaria@lps.ufrj.br.'
 			: 'Um canal formal de relato de problemas de acessibilidade ainda não foi nomeado pela instituição. Até que exista, a secretaria do laboratório recebe relatos pelo e-mail secretaria@lps.ufrj.br.';
 		$note   = $english
-			? 'Reports are answered by the laboratory office while a named channel is pending institutional decision.'
-			: 'Os relatos são respondidos pela secretaria do laboratório enquanto o canal nomeado aguarda decisão institucional.';
+			? 'Until a formal channel is named, the laboratory office answers the reports.'
+			: 'Enquanto o canal formal não existir, os relatos são respondidos pela secretaria do laboratório.';
 		$html  .= self::editorial_section(
 			'a11y-report',
 			$english ? 'Reporting' : 'Relato',
@@ -1328,7 +1328,7 @@ final class TrustSurfaces {
 		$cta    = '<div class="lps-cta-band lps-cta-band--split"><div><h2>'
 			. self::esc( $english ? 'Accessibility is verified on every release' : 'A acessibilidade é verificada a cada publicação' )
 			. '</h2><p>'
-			. self::esc( $english ? 'Contrast, keyboard operation, reflow and reduced motion are part of the release checks, together with link and schema validation.' : 'Contraste, operação por teclado, refluxo e movimento reduzido fazem parte das checagens de publicação, junto com validação de links e de esquema.' )
+			. self::esc( $english ? 'Contrast, keyboard operation, reflow and reduced motion are checked before every publication.' : 'Contraste, operação por teclado, refluxo e movimento reduzido são verificados antes de cada publicação.' )
 			. '</p></div><div class="lps-button-row">'
 			. '<a class="lps-button lps-button-primary" href="' . self::esc( TrustRoutes::page_path( 'privacy', $locale ) ) . '">' . self::esc( $english ? 'Privacy' : 'Privacidade' ) . '</a>'
 			. '</div></div>';
@@ -1348,12 +1348,12 @@ final class TrustSurfaces {
 			? array(
 				'The laboratory mark is made of a signal (the waveform) and the LPS lettering, accompanied by the full name and the Computational Intelligence descriptor.',
 				"The signal represents the laboratory's object of work: reading, treating and interpreting signals. Blue is the institutional colour inherited from the original identity; the gradient follows the amplitude variation of the waveform.",
-				'The official applications — blue and white signal, blue and white full mark, plus the complete brand package — are maintained by those responsible for laboratory communications.',
+				'The official mark files, including the approved variants and the complete brand package, are available from the laboratory office.',
 			)
 			: array(
 				'A marca do laboratório é composta por um sinal (a forma de onda) e pela sigla LPS, acompanhadas do nome por extenso e do descritor Inteligência Computacional.',
 				'O sinal representa o objeto de trabalho do laboratório: a leitura, o tratamento e a interpretação de sinais. O azul é a cor institucional herdada da identidade original; o degradê acompanha a variação de amplitude da forma de onda.',
-				'As aplicações oficiais — sinal em azul e branco, marca completa em azul e branco, além do pacote completo da marca — são mantidas pelos responsáveis pela comunicação do laboratório.',
+				'Os arquivos oficiais da marca, incluindo as variantes aprovadas e o pacote completo, estão disponíveis na secretaria do laboratório.',
 			);
 		$flow       = '<div class="lps-flow lps-reading">';
 		foreach ( $paragraphs as $paragraph ) {
@@ -1408,8 +1408,8 @@ final class TrustSurfaces {
 		$split .= '</div><div>' . self::editorial_card(
 			$english ? 'Brand package' : 'Pacote da marca',
 			$english
-				? 'The laboratory keeps the official files — blue and white signal, blue and white full mark, and the complete brand package — in its own drive, available through the administrative office.'
-				: 'O laboratório mantém os arquivos oficiais — sinal azul e branco, marca completa azul e branca, e o pacote completo da marca — em seu próprio drive, disponibilizado pela secretaria administrativa.',
+				? 'The official mark files are available on request from the laboratory office.'
+				: 'Os arquivos oficiais da marca estão disponíveis mediante solicitação à secretaria do laboratório.',
 			false,
 			array( 'mailto:secretaria@lps.ufrj.br', $english ? 'Request the files' : 'Solicitar os arquivos' )
 		) . '</div></div>';
@@ -1662,14 +1662,14 @@ final class TrustSurfaces {
 				. self::editorial_card(
 					$english ? 'Accessibility reporting' : 'Relato de acessibilidade',
 					$english
-						? 'No formal accessibility reporting channel has been named. Until it is, the office receives accessibility reports and forwards them to the responsible team.'
-						: 'Nenhum canal formal de relato de acessibilidade foi nomeado. Até que exista, a secretaria recebe os relatos e os encaminha à equipe responsável.'
+						? 'No formal accessibility reporting channel exists yet. Reports can be sent to the laboratory office.'
+						: 'Ainda não há um canal formal para relatos de acessibilidade. Relatos podem ser enviados à secretaria do laboratório.'
 				)
 				. self::editorial_card(
 					$english ? 'Privacy and personal data' : 'Privacidade e dados pessoais',
 					$english
-						? 'No privacy contact and no documented legal basis for processing personal data exist yet. Both are launch blockers recorded in the migration material, not oversights hidden by this redesign.'
-						: 'Ainda não existem contato de privacidade nem base legal documentada para tratamento de dados pessoais. Ambos são bloqueios de lançamento registrados no material de migração, não omissões escondidas por este redesenho.'
+						? 'No privacy contact and no documented legal basis for processing personal data exist yet. Questions about personal data can be sent to the laboratory office.'
+						: 'Ainda não existem contato de privacidade nem base legal documentada para o tratamento de dados pessoais. Dúvidas podem ser enviadas à secretaria do laboratório.'
 				)
 				. '</div>'
 		);
@@ -1705,7 +1705,7 @@ final class TrustSurfaces {
 			$items .= '</li>';
 		}
 		if ( '' === $items ) {
-			return '<p class="lps-empty">' . self::esc( $english ? 'No collaboration route is published yet' : 'Nenhuma rota de colaboração publicada' ) . '</p>';
+			return '<p class="lps-empty">' . self::esc( $english ? 'No collaboration option is published yet' : 'Nenhuma opção de colaboração publicada ainda' ) . '</p>';
 		}
 		// The section heading reuses the homepage journeys label so the same
 		// participation intent carries one name across both surfaces.
@@ -1729,7 +1729,7 @@ final class TrustSurfaces {
 			return '';
 		}
 		if ( ! TrustSurfacePolicy::has_public_handoff( $contact, $contact_is_role, $url, $url_approved ) ) {
-			return '<p class="lps-contact-unavailable">' . self::esc( $english ? 'No public contact is published for this route yet' : 'Nenhum contato público publicado para esta rota' ) . '</p>';
+			return '<p class="lps-contact-unavailable">' . self::esc( $english ? 'No public contact is available yet' : 'Nenhum contato público disponível no momento' ) . '</p>';
 		}
 		if ( $contact_is_role && self::is_email( $contact ) ) {
 			return '<p class="lps-handoff"><a class="lps-breakable" href="mailto:' . self::esc( $contact ) . '">' . self::esc( $contact ) . '</a></p>';
