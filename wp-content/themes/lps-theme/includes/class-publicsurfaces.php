@@ -74,9 +74,9 @@ final class PublicSurfaces {
 				. '<div class="lps-mt-8">' . TrustSurfaces::alert_band(
 					'warning',
 					$english
-						? 'The public source does not publish a current list of post-doctoral researchers and students, and personal data cannot be published without a documented legal basis and each person\'s agreement.'
-						: 'A fonte pública não publica uma lista atual de pesquisadores de pós-doutorado e estudantes, e dados pessoais não podem ser publicados sem base legal documentada e concordância de cada pessoa.',
-					$english ? 'The full team list is pending review' : 'A lista completa da equipe aguarda revisão'
+						? 'The list of post-doctoral researchers and students is not yet published on this page.'
+						: 'A lista de pesquisadores de pós-doutorado e estudantes ainda não está publicada nesta página.',
+					$english ? 'The team list is incomplete' : 'A lista da equipe está incompleta'
 				) . '</div>'
 		);
 		$tracks  = array(
@@ -396,7 +396,7 @@ final class PublicSurfaces {
 		}
 
 		$sign_in = $english ? '/en/sign-in/' : '/pt-br/entrar/';
-		$html   .= '<section class="lps-section"><div class="lps-cta-band lps-cta-band--split"><div><h2>' . self::esc( $english ? 'Are you this professor? Sign in to edit this page.' : 'É este professor? Entre para editar esta página.' ) . '</h2><p>' . self::esc( $english ? 'Editing this page uses the same account as the laboratory editorial system; nothing here is editable without authentication.' : 'A edição desta página usa a mesma conta do sistema editorial do laboratório; nada aqui é editável sem autenticação.' ) . '</p></div><div class="lps-button-row"><a class="lps-button lps-button-primary" href="' . self::esc( $sign_in ) . '">' . self::esc( $english ? 'Sign in' : 'Entrar no site' ) . '</a></div></div></section>';
+		$html   .= '<section class="lps-section"><div class="lps-cta-band lps-cta-band--split"><div><h2>' . self::esc( $english ? 'Are you this professor? Sign in to edit this page.' : 'É este professor? Entre para editar esta página.' ) . '</h2><p>' . self::esc( $english ? 'Editing this page uses the same account as the laboratory editorial system.' : 'A edição desta página usa a mesma conta do sistema editorial do laboratório.' ) . '</p></div><div class="lps-button-row"><a class="lps-button lps-button-primary" href="' . self::esc( $sign_in ) . '">' . self::esc( $english ? 'Sign in' : 'Entrar no site' ) . '</a></div></div></section>';
 
 		$html .= '</div></div></div></article>';
 		return $html;
@@ -585,8 +585,8 @@ final class PublicSurfaces {
 			array(
 				'title'     => $english ? 'Computing' : 'Computação',
 				'body'      => $english
-					? 'The Caloba cluster — SLURM-managed multi-node compute with CPU and GPU partitions, Singularity containers and Proxmox virtualization — plus Maestro, the laboratory\'s workload-orchestration stack used for high-energy physics jobs.'
-					: 'O cluster Caloba — computação multi-nó gerenciada por SLURM com partições CPU e GPU, contêineres Singularity e virtualização Proxmox — além do Maestro, a pilha de orquestração de workloads do laboratório usada em tarefas de física de altas energias.',
+					? 'The Caloba cluster is SLURM-managed multi-node compute with CPU and GPU partitions, Singularity containers and Proxmox virtualization. Maestro, the laboratory workload-orchestration stack, runs high-energy physics jobs.'
+					: 'O cluster Caloba é uma infraestrutura multi-nó gerenciada por SLURM, com partições CPU e GPU, contêineres Singularity e virtualização Proxmox. O Maestro, pilha de orquestração de workloads do laboratório, executa tarefas de física de altas energias.',
 				'foot_html' => '<ul class="lps-source-list"><li><a class="lps-meta" href="https://lps-ufrj-br.github.io/datacenter/" rel="external">' . self::esc( $english ? 'Datacenter documentation' : 'Documentação do datacenter' ) . '</a></li><li><a class="lps-meta" href="https://lps-ufrj-br.github.io/maestro-lightning/" rel="external">Maestro</a></li></ul>',
 			)
 		);
@@ -701,8 +701,8 @@ final class PublicSurfaces {
 			false,
 			null,
 			$english
-				? 'Companies, funding agencies and international collaborations documented on the laboratory\'s public pages.'
-				: 'Empresas, agências de fomento e colaborações internacionais documentadas nas páginas públicas do laboratório.'
+				? 'Companies, funding agencies and international collaborations of the laboratory.'
+				: 'Empresas, agências de fomento e colaborações internacionais do laboratório.'
 		);
 	}
 
@@ -717,14 +717,14 @@ final class PublicSurfaces {
 			array(
 				$english ? 'Contract research and R&D' : 'Pesquisa contratada e P&D',
 				$english
-					? 'High-relevance projects with companies, advancing the innovation capacity of national industry.'
-					: 'Projetos de alta relevância com empresas, avançando a capacidade de produção da indústria nacional com inovação.',
+					? 'Research and development projects with companies and public bodies.'
+					: 'Projetos de pesquisa e desenvolvimento com empresas e órgãos públicos.',
 			),
 			array(
 				$english ? 'Talent development' : 'Formação de pessoal',
 				$english
-					? 'LPS graduates meet labour-market demands with high qualification; technology-based companies have been created within the laboratory.'
-					: 'Egressos do LPS atendem às demandas do mercado de trabalho com alta qualificação; empresas de base tecnológica foram criadas no âmbito do laboratório.',
+					? 'Technology-based companies have been founded by laboratory graduates.'
+					: 'Empresas de base tecnológica foram fundadas por egressos do laboratório.',
 			),
 			array(
 				$english ? 'International cooperation' : 'Cooperação internacional',
