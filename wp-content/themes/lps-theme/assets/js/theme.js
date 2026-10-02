@@ -62,7 +62,7 @@
       return;
     }
     const step = () => {
-      const slide = track.querySelector(".lps-slide");
+      const slide = track.querySelector(".lps-slide") ?? track.firstElementChild;
       if (!slide) {
         return track.clientWidth;
       }

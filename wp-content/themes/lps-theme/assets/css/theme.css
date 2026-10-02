@@ -2995,7 +2995,8 @@ th code {
   }
 
   .lps-table--stackable tbody th,
-  .lps-table--stackable tbody td {
+  .lps-table--stackable tbody td,
+  .lps-table--stackable tbody td:last-child {
     border-block-end: 0;
     display: block;
     padding: 0;
