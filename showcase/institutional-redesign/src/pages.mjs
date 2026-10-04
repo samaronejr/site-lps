@@ -1860,9 +1860,18 @@ function personPageFor(person) {
 <div class="lps-stack">
 <section class="lps-section lps-section--flush" aria-labelledby="person-about">
 ${sectionHead({ kicker: en ? "Background" : "Trajetória", title: t(copy.about, locale), id: "person-about" })}
-<div class="lps-reading">${t(person.bio, locale)
-      .map((paragraph) => `<p>${esc(paragraph)}</p>`)
-      .join("")}</div>
+${
+  person.photo
+    ? `<div class="lps-split"><div><img class="lps-person-photo" src="${esc(person.photo)}" alt="${esc(person.name)}"></div><div><div class="lps-reading">${t(
+        person.bio,
+        locale,
+      )
+        .map((paragraph) => `<p>${esc(paragraph)}</p>`)
+        .join("")}</div></div></div>`
+    : `<div class="lps-reading">${t(person.bio, locale)
+        .map((paragraph) => `<p>${esc(paragraph)}</p>`)
+        .join("")}</div>`
+}
 ${person.inMemoriam ? alert({ tone: "info", body: t(copy.memoriam, locale) }) : ""}
 </section>
 <section class="lps-section" aria-labelledby="person-areas">

@@ -197,7 +197,7 @@ final class PublicSurfaces {
 		}
 
 		$photo_url = self::text( $person['photo_url'] ?? '' );
-		$media     = '' !== $photo_url
+		$media     = '' !== $photo_url && self::local_file_exists( $photo_url )
 			? '<img class="lps-person-card-photo" src="' . self::esc( $photo_url ) . '" alt="" loading="lazy" decoding="async">'
 			: '<span class="lps-monogram' . ( 'in-memoriam' === $status ? ' lps-monogram--memoriam' : '' ) . '">' . self::esc( self::monogram( $name ) ) . '</span>';
 
