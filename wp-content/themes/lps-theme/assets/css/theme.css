@@ -4725,8 +4725,13 @@ details.lps-dashboard-edit > form {
     pointer-events: auto;
   }
 
+  /* On the narrowest phones the lockup scales down inside its box (same
+     proportions) so it never runs under the Menu control. */
   .lps-masthead .lps-logo {
     block-size: clamp(1.875rem, 7.4vw, 2.5rem);
+    max-inline-size: calc(100vw - var(--grid-gutter) - 7.5rem);
+    object-fit: contain;
+    object-position: left center;
   }
 
   .lps-shell-disclosure {
