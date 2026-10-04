@@ -2698,23 +2698,21 @@ input[type="file"]::file-selector-button:hover {
   object-fit: cover;
 }
 
-@media (hover: hover) {
-  .lps-people-grid--gallery > .lps-person-card:hover,
-  .lps-people-grid--gallery > .lps-person-card:focus-within {
-    flex-grow: 2.4;
-  }
+.lps-people-grid--gallery > .lps-person-card:hover,
+.lps-people-grid--gallery > .lps-person-card:focus-within {
+  flex-grow: 2.4;
+}
 
-  .lps-people-grid--gallery .lps-person-card:hover .lps-person-media,
-  .lps-people-grid--gallery .lps-person-card:focus-within .lps-person-media {
-    grid-template-rows: 1fr;
-    margin-block-end: 0;
-  }
+.lps-people-grid--gallery .lps-person-card:hover .lps-person-media,
+.lps-people-grid--gallery .lps-person-card:focus-within .lps-person-media {
+  grid-template-rows: 1fr;
+  margin-block-end: 0;
+}
 
-  .lps-people-grid--gallery .lps-person-card:hover .lps-person-media-frame,
-  .lps-people-grid--gallery .lps-person-card:focus-within .lps-person-media-frame {
-    opacity: 1;
-    transform: none;
-  }
+.lps-people-grid--gallery .lps-person-card:hover .lps-person-media-frame,
+.lps-people-grid--gallery .lps-person-card:focus-within .lps-person-media-frame {
+  opacity: 1;
+  transform: none;
 }
 
 .lps-person-card {
