@@ -643,6 +643,7 @@ export const people = [
     name: "José Manoel de Seixas",
     initials: "JS",
     inMemoriam: true,
+    photo: "/assets/img/people/jose-seixas.jpg",
     role: { "pt-BR": "In memoriam · Professor Titular", en: "In memoriam · Full professor" },
     affiliation: {
       "pt-BR":
@@ -874,6 +875,7 @@ export const people = [
     name: "Antônio Carlos Moreirão de Queiroz",
     initials: "AQ",
     inMemoriam: true,
+    photo: "/assets/img/people/antonio-moreirao.jpg",
     role: { "pt-BR": "In memoriam · Professor Titular", en: "In memoriam · Full professor" },
     affiliation: {
       "pt-BR":

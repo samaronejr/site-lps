@@ -42,7 +42,7 @@ final class PublicSurfaces {
 			. '<p class="lps-kicker">' . self::esc( $english ? 'Faculty' : 'Corpo docente' ) . '</p>'
 			. '<h2 id="people-faculty">' . self::esc( $english ? 'Faculty' : 'Professores' ) . '</h2>'
 			. '</div></div>';
-		$html .= '<div class="lps-people-grid">';
+		$html .= '<div class="lps-people-grid lps-people-grid--gallery">';
 		foreach ( $active as $person ) {
 			$html .= self::person_card( $person, self::text( $person['status'] ?? '' ), $collisions, $status_opts, $role_opts, $locale );
 		}
@@ -75,7 +75,7 @@ final class PublicSurfaces {
 					? 'The laboratory honors the professors who helped build its history.'
 					: 'O laboratório homenageia os professores que ajudaram a construir sua história.'
 			) . '</p></div></div>';
-		$html   .= '<div class="lps-people-grid">';
+		$html   .= '<div class="lps-people-grid lps-people-grid--gallery">';
 		foreach ( $memoriam as $person ) {
 			$html .= self::person_card( $person, self::text( $person['status'] ?? '' ), $collisions, $status_opts, $role_opts, $locale );
 		}
@@ -196,7 +196,13 @@ final class PublicSurfaces {
 			array_unshift( $role_line, $status_opts[ $status ] );
 		}
 
+		$photo_url = self::text( $person['photo_url'] ?? '' );
+		$media     = '' !== $photo_url
+			? '<img class="lps-person-card-photo" src="' . self::esc( $photo_url ) . '" alt="" loading="lazy" decoding="async">'
+			: '<span class="lps-monogram' . ( 'in-memoriam' === $status ? ' lps-monogram--memoriam' : '' ) . '">' . self::esc( self::monogram( $name ) ) . '</span>';
+
 		$html  = '<article class="lps-person-card" id="' . self::esc( $slug ) . '">';
+		$html .= '<div class="lps-person-media" aria-hidden="true"><div class="lps-person-media-frame">' . $media . '</div></div>';
 		$html .= '<div class="lps-person-header">';
 		$html .= '<span class="lps-monogram' . ( 'in-memoriam' === $status ? ' lps-monogram--memoriam' : '' ) . '" aria-hidden="true">' . self::esc( self::monogram( $name ) ) . '</span>';
 		$html .= '<div><h3>' . self::esc( $name ) . '</h3>';

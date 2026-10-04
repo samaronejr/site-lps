@@ -2648,6 +2648,75 @@ input[type="file"]::file-selector-button:hover {
   }
 }
 
+/* Directory variant: cards reflow into rows and the card under the pointer
+   widens while a large centred media zone opens above its name — the record
+   photo when published, the monogram otherwise. */
+.lps-people-grid--gallery {
+  align-items: start;
+  display: flex;
+  flex-wrap: wrap;
+  overflow-x: visible;
+  padding-block-end: 0;
+}
+
+.lps-people-grid--gallery > .lps-person-card {
+  flex: 1 1 min(16.5rem, 100%);
+}
+
+.lps-person-media {
+  display: grid;
+  grid-template-rows: 0fr;
+  margin-block-end: calc(-1 * var(--space-4));
+}
+
+.lps-person-media-frame {
+  border-radius: var(--radius-card);
+  min-block-size: 0;
+  opacity: 0;
+  overflow: clip;
+  transform: translateY(-0.5rem);
+  transition:
+    opacity var(--motion-standard) var(--ease-state),
+    transform var(--motion-standard) var(--ease-state);
+}
+
+.lps-person-media-frame .lps-monogram {
+  aspect-ratio: 3 / 2;
+  block-size: auto;
+  border-radius: var(--radius-card);
+  font-size: 4rem;
+  inline-size: 100%;
+  max-block-size: 15rem;
+}
+
+.lps-person-card-photo {
+  aspect-ratio: 3 / 2;
+  block-size: auto;
+  display: block;
+  inline-size: 100%;
+  max-block-size: 15rem;
+  object-fit: cover;
+}
+
+@media (hover: hover) {
+  .lps-people-grid--gallery > .lps-person-card:hover,
+  .lps-people-grid--gallery > .lps-person-card:focus-within {
+    flex-grow: 2.4;
+  }
+
+  .lps-people-grid--gallery .lps-person-card:hover .lps-person-media,
+  .lps-people-grid--gallery .lps-person-card:focus-within .lps-person-media {
+    grid-template-rows: 1fr;
+    margin-block-end: 0;
+  }
+
+  .lps-people-grid--gallery .lps-person-card:hover .lps-person-media-frame,
+  .lps-people-grid--gallery .lps-person-card:focus-within .lps-person-media-frame {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 .lps-person-card {
   background: var(--color-surface);
   border: 1px solid var(--color-card-rule);

@@ -669,7 +669,7 @@ function peoplePage(locale) {
 <div class="lps-page-grid">
 <section class="lps-section lps-section--flush" aria-labelledby="people-faculty">
 ${sectionHead({ kicker: en ? "Faculty" : "Corpo docente", title: en ? "Professors" : "Professores", id: "people-faculty" })}
-<div class="lps-people-grid">
+<div class="lps-people-grid lps-people-grid--gallery">
 ${active.map((person) => personCard(locale, person)).join("")}
 </div>
 </section>
@@ -684,7 +684,7 @@ ${sectionHead({
     : "O laboratório homenageia os professores que ajudaram a construir sua história.",
   id: "people-memoriam",
 })}
-<div class="lps-people-grid">
+<div class="lps-people-grid lps-people-grid--gallery">
 ${memoriam.map((person) => personCard(locale, person)).join("")}
 </div>
 </section>`
