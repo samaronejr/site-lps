@@ -188,7 +188,7 @@ export const hero = {
   ],
   stats: [
     { value: "1996", label: { "pt-BR": "Ano de fundação", en: "Founded" } },
-    { value: "4", label: { "pt-BR": "Professores em tempo integral", en: "Full-time professors" } },
+    { value: "3", label: { "pt-BR": "Professores", en: "Professors" } },
     {
       value: "310 m²",
       label: { "pt-BR": "Instalações no Bloco H", en: "Facilities in Building H" },
@@ -642,10 +642,9 @@ export const people = [
     slug: "jose-manoel-de-seixas",
     name: "José Manoel de Seixas",
     initials: "JS",
-    role: {
-      "pt-BR": "Professor Titular · Coordenador (EMBRAPII)",
-      en: "Full Professor · Coordinator (EMBRAPII)",
-    },
+    inMemoriam: true,
+    photo: "/assets/img/people/jose-seixas.jpg",
+    role: { "pt-BR": "In memoriam · Professor Titular", en: "In memoriam · Full professor" },
     affiliation: {
       "pt-BR":
         "Professor Titular da UFRJ · Programa de Engenharia Elétrica da COPPE · Escola Politécnica",
@@ -667,19 +666,19 @@ export const people = [
     },
     bio: {
       "pt-BR": [
-        "Graduado em Matemática (1979) e em Engenharia Elétrica (1979) pela PUC-Rio, com mestrado (1983) e doutorado (1994) em Engenharia Elétrica pela UFRJ. É Professor Titular da UFRJ.",
-        "Atua em circuitos elétricos, magnéticos e eletrônicos, com ênfase em inteligência computacional, calorimetria de altas energias, tecnologia sonar, processamento de sinais e instrumentação eletrônica.",
-        "É coordenador do LPS no perfil institucional do laboratório junto à COPPE EMBRAPII.",
+        "Graduado em Matemática (1979) e em Engenharia Elétrica (1979) pela PUC-Rio, com mestrado (1983) e doutorado (1994) em Engenharia Elétrica pela UFRJ. Foi Professor Titular da UFRJ.",
+        "Atuou em circuitos elétricos, magnéticos e eletrônicos, com ênfase em inteligência computacional, calorimetria de altas energias, tecnologia sonar, processamento de sinais e instrumentação eletrônica.",
+        "Foi coordenador do LPS no perfil institucional do laboratório junto à COPPE EMBRAPII.",
       ],
       en: [
-        "Degrees in Mathematics (1979) and Electrical Engineering (1979) from PUC-Rio, with a master (1983) and doctorate (1994) in Electrical Engineering from UFRJ. He is a full professor at UFRJ.",
-        "He works on electrical, magnetic and electronic circuits, with emphasis on computational intelligence, high-energy calorimetry, sonar technology, signal processing and electronic instrumentation.",
-        "He is the LPS coordinator in the laboratory institutional profile at COPPE EMBRAPII.",
+        "Degrees in Mathematics (1979) and Electrical Engineering (1979) from PUC-Rio, with a master (1983) and doctorate (1994) in Electrical Engineering from UFRJ. He was a full professor at UFRJ.",
+        "He worked on electrical, magnetic and electronic circuits, with emphasis on computational intelligence, high-energy calorimetry, sonar technology, signal processing and electronic instrumentation.",
+        "He was the LPS coordinator in the laboratory institutional profile at COPPE EMBRAPII.",
       ],
     },
     teaching: null,
     links: [{ label: "Lattes", href: "http://lattes.cnpq.br/1404632471755241" }],
-    email: "seixas@lps.ufrj.br",
+    email: null,
     notes: [],
   },
   {
@@ -876,6 +875,7 @@ export const people = [
     name: "Antônio Carlos Moreirão de Queiroz",
     initials: "AQ",
     inMemoriam: true,
+    photo: "/assets/img/people/antonio-moreirao.jpg",
     role: { "pt-BR": "In memoriam · Professor Titular", en: "In memoriam · Full professor" },
     affiliation: {
       "pt-BR":

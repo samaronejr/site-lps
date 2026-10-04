@@ -266,6 +266,8 @@
   --motion-fast: 120ms;
   --motion-standard: 200ms;
   --motion-slow: 340ms;
+  --motion-reveal: 680ms;
+  --ease-reveal: cubic-bezier(0.32, 0.72, 0, 1);
   --ease-state: cubic-bezier(0.2, 0, 0, 1);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --signal-line: url("../img/mark/lps-mark-mono-symbol.svg");
@@ -2648,6 +2650,102 @@ input[type="file"]::file-selector-button:hover {
   }
 }
 
+/* Directory variant: cards reflow into rows and the card under the pointer
+   opens a square media zone, as wide as the card, above its name — the record
+   photo when published, the monogram otherwise. */
+.lps-people-grid--gallery {
+  grid-auto-flow: row;
+  grid-template-columns: repeat(auto-fill, minmax(min(17rem, 100%), 1fr));
+  overflow-x: visible;
+  padding-block-end: 0;
+}
+
+.lps-people-grid--gallery > .lps-person-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.lps-people-grid--gallery .lps-person-header {
+  align-items: start;
+}
+
+.lps-person-media {
+  display: grid;
+  grid-template-rows: 0fr;
+  margin-block-end: calc(-1 * var(--space-4));
+}
+
+.lps-person-media-frame {
+  border-radius: var(--radius-card);
+  min-block-size: 0;
+  opacity: 0;
+  overflow: clip;
+  transform: translateY(-1.25rem) scale(0.96);
+  transition:
+    opacity var(--motion-reveal) var(--ease-reveal),
+    transform var(--motion-reveal) var(--ease-reveal);
+}
+
+.lps-person-media-frame .lps-monogram {
+  aspect-ratio: 1;
+  block-size: auto;
+  border-radius: var(--radius-card);
+  font-size: 4rem;
+  inline-size: 100%;
+}
+
+.lps-person-card-photo {
+  aspect-ratio: 1;
+  block-size: auto;
+  display: block;
+  inline-size: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+  transform: scale(1.08);
+  transition: transform calc(var(--motion-reveal) * 1.4) var(--ease-reveal);
+}
+
+.lps-people-grid--gallery .lps-person-card:hover .lps-person-media,
+.lps-people-grid--gallery .lps-person-card:focus-within .lps-person-media {
+  grid-template-rows: 1fr;
+  margin-block-end: 0;
+}
+
+.lps-people-grid--gallery .lps-person-card:hover .lps-person-media-frame,
+.lps-people-grid--gallery .lps-person-card:focus-within .lps-person-media-frame {
+  opacity: 1;
+  transform: none;
+}
+
+.lps-people-grid--gallery .lps-person-card:hover .lps-person-card-photo,
+.lps-people-grid--gallery .lps-person-card:focus-within .lps-person-card-photo {
+  transform: none;
+}
+
+/* Once the large media opens, the thumbnail yields: it fades and shrinks while
+   the name slides into the freed slot — one visual block, never two. */
+.lps-people-grid--gallery .lps-person-header > .lps-monogram {
+  transform-origin: left center;
+  transition:
+    opacity var(--motion-standard) var(--ease-state),
+    scale var(--motion-reveal) var(--ease-reveal);
+}
+
+.lps-people-grid--gallery .lps-person-header > div {
+  transition: transform var(--motion-reveal) var(--ease-reveal);
+}
+
+.lps-people-grid--gallery .lps-person-card:hover .lps-person-header > .lps-monogram,
+.lps-people-grid--gallery .lps-person-card:focus-within .lps-person-header > .lps-monogram {
+  opacity: 0;
+  scale: 0.35;
+}
+
+.lps-people-grid--gallery .lps-person-card:hover .lps-person-header > div,
+.lps-people-grid--gallery .lps-person-card:focus-within .lps-person-header > div {
+  transform: translateX(-4.5rem);
+}
+
 .lps-person-card {
   background: var(--color-surface);
   border: 1px solid var(--color-card-rule);
@@ -4517,6 +4615,7 @@ details.lps-dashboard-edit > form {
     --motion-fast: 0.01ms;
     --motion-standard: 0.01ms;
     --motion-slow: 0.01ms;
+    --motion-reveal: 0.01ms;
   }
 
   html {

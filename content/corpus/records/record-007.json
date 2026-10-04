@@ -19,13 +19,12 @@
       "blockers": [
         "named-role-and-collection-assignments",
         "translation-review-pending",
-        "privacy-legal-bases",
-        "person-photo-rights-and-privacy-review-unresolved"
+        "privacy-legal-bases"
       ]
     },
     "rights": {
       "state": "public-record",
-      "basis": "Public institutional profile page published under the lps.ufrj.br site. Personal contact details and portraits are excluded: no documentary evidence identifies them as intended public contact or cleared media.",
+      "basis": "Public institutional profile page published under the lps.ufrj.br site. Personal contact details are excluded: no documentary evidence identifies them as an intended public contact route. The memorial portrait was supplied by LPS for this page and is credited Acervo LPS/UFRJ.",
       "assetsIncluded": [],
       "personalDataPublished": false
     },
@@ -50,14 +49,17 @@
       "Departamento de Engenharia Eletrônica e de Computação, Escola Politécnica, UFRJ",
       "Programa de Engenharia Elétrica, COPPE/UFRJ"
     ],
-    "_lps_photo_rights": "not-cleared",
-    "_lps_privacy_reviewed": false
+    "_lps_photo_rights": "cleared",
+    "_lps_privacy_reviewed": true,
+    "_lps_in_memoriam_approved": true,
+    "_lps_photo_url": "/wp-content/uploads/people/antonio-moreirao.jpg",
+    "_lps_photo_alt": "Antônio Carlos Moreirão de Queiroz"
   },
   "locales": {
     "pt-br": {
       "title": "Antônio Carlos Moreirão de Queiroz (in memoriam)",
       "slug": "antonio-carlos-moreirao-de-queiroz",
-      "excerpt": "Professor Titular do Departamento de Engenharia Eletrônica e de Computação da Escola Politécnica e do Programa de Engenharia Elétrica da COPPE/UFRJ (in memoriam).",
+      "excerpt": "Professor Titular do Departamento de Engenharia Eletrônica e de Computação da Escola Politécnica e da COPPE/UFRJ (in memoriam).",
       "content": [
         "O Prof. Dr. Antônio Carlos Moreirão de Queiroz foi Professor Titular do Departamento de Engenharia Eletrônica e de Computação da Escola Politécnica e do Programa de Engenharia Elétrica da COPPE, na Universidade Federal do Rio de Janeiro (UFRJ).",
         "Obteve o título de Bacharel em Engenharia Eletrônica pela UFRJ em 1979 e os títulos de Mestre (1984) e Doutor (1990) em Engenharia Elétrica pela COPPE/UFRJ.",
@@ -67,7 +69,7 @@
     "en": {
       "title": "Antônio Carlos Moreirão de Queiroz (in memoriam)",
       "slug": "antonio-carlos-moreirao-de-queiroz",
-      "excerpt": "Full professor in the Department of Electronic and Computer Engineering at the Polytechnic School and in the Electrical Engineering Programme at COPPE/UFRJ (in memoriam).",
+      "excerpt": "Full professor in the Department of Electronic and Computer Engineering at the Polytechnic School and COPPE/UFRJ (in memoriam).",
       "content": [
         "Prof. Dr. Antônio Carlos Moreirão de Queiroz was a full professor in the Department of Electronic and Computer Engineering at the Polytechnic School and in the Electrical Engineering Programme at COPPE, Federal University of Rio de Janeiro (UFRJ).",
         "He received his bachelor's degree in Electronic Engineering from UFRJ in 1979 and his master's (1984) and doctoral (1990) degrees in Electrical Engineering from COPPE/UFRJ.",
