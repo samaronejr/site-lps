@@ -266,6 +266,8 @@
   --motion-fast: 120ms;
   --motion-standard: 200ms;
   --motion-slow: 340ms;
+  --motion-reveal: 680ms;
+  --ease-reveal: cubic-bezier(0.32, 0.72, 0, 1);
   --ease-state: cubic-bezier(0.2, 0, 0, 1);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --signal-line: url("../img/mark/lps-mark-mono-symbol.svg");
@@ -2671,33 +2673,34 @@ input[type="file"]::file-selector-button:hover {
 
 .lps-person-media-frame {
   border-radius: var(--radius-card);
+  inline-size: min(100%, 11.25rem);
+  justify-self: center;
   min-block-size: 0;
   opacity: 0;
   overflow: clip;
-  transform: translateY(-1rem);
+  transform: translateY(-1.25rem) scale(0.96);
   transition:
-    opacity var(--motion-slow) var(--ease-out),
-    transform var(--motion-slow) var(--ease-out);
+    opacity var(--motion-reveal) var(--ease-reveal),
+    transform var(--motion-reveal) var(--ease-reveal);
 }
 
 .lps-person-media-frame .lps-monogram {
-  aspect-ratio: 3 / 2;
+  aspect-ratio: 3 / 4;
   block-size: auto;
   border-radius: var(--radius-card);
-  font-size: 4rem;
+  font-size: 3.5rem;
   inline-size: 100%;
-  max-block-size: 15rem;
 }
 
 .lps-person-card-photo {
-  aspect-ratio: 3 / 2;
+  aspect-ratio: 3 / 4;
   block-size: auto;
   display: block;
   inline-size: 100%;
-  max-block-size: 15rem;
   object-fit: cover;
-  transform: scale(1.05);
-  transition: transform var(--motion-slow) var(--ease-out);
+  object-position: center 30%;
+  transform: scale(1.08);
+  transition: transform calc(var(--motion-reveal) * 1.4) var(--ease-reveal);
 }
 
 .lps-people-grid--gallery > .lps-person-card:hover,
@@ -2727,12 +2730,12 @@ input[type="file"]::file-selector-button:hover {
 .lps-people-grid--gallery .lps-person-header > .lps-monogram {
   transform-origin: left center;
   transition:
-    opacity var(--motion-standard) var(--ease-state),
-    scale var(--motion-standard) var(--ease-state);
+    opacity var(--motion-reveal) var(--ease-reveal),
+    scale var(--motion-reveal) var(--ease-reveal);
 }
 
 .lps-people-grid--gallery .lps-person-header > div {
-  transition: transform var(--motion-standard) var(--ease-state);
+  transition: transform var(--motion-reveal) var(--ease-reveal);
 }
 
 .lps-people-grid--gallery .lps-person-card:hover .lps-person-header > .lps-monogram,
@@ -4615,6 +4618,7 @@ details.lps-dashboard-edit > form {
     --motion-fast: 0.01ms;
     --motion-standard: 0.01ms;
     --motion-slow: 0.01ms;
+    --motion-reveal: 0.01ms;
   }
 
   html {
