@@ -1388,48 +1388,54 @@ function identityPage(locale) {
   const en = locale === "en";
   const applications = [
     {
-      src: "/assets/img/mark/lps-mark-full.svg",
-      title: en ? "Full mark, colour" : "Marca completa, colorida",
+      src: "/assets/brand/preview/lps-sinal-azul.webp",
+      title: en ? "Signal only, blue" : "Apenas o sinal, em azul",
       body: en
-        ? "Light surfaces only. Minimum 240px wide in the masthead."
-        : "Somente sobre superfícies claras. Mínimo de 240px de largura no cabeçalho.",
+        ? "Light surfaces where the waveform appears alone."
+        : "Superfícies claras onde a forma de onda aparece sozinha.",
       surface: "light",
+      w: 1000,
+      h: 457,
+      links: [
+        ["/assets/brand/downloads/lps-sinal-azul.pdf", "PDF"],
+        ["/assets/brand/downloads/lps-sinal-azul.png", "PNG"],
+      ],
     },
     {
-      src: "/assets/brand/lps_logo_compact.svg",
-      title: en ? "Compact mark, colour" : "Marca compacta, colorida",
+      src: "/assets/brand/preview/lps-sinal-branco.webp",
+      title: en ? "Signal only, white" : "Apenas o sinal, em branco",
       body: en
-        ? "Constrained places: mobile masthead, cards, e-mail signatures."
-        : "Locais restritos: cabeçalho móvel, cartões, assinaturas de e-mail.",
-      surface: "light",
-    },
-    {
-      src: "/assets/brand/lps_coppe_reversed_lockup.svg",
-      title: en ? "Full mark, reversed" : "Marca completa, reversa",
-      body: en
-        ? "Dark navy surfaces: footer, covers, presentation closing slides."
-        : "Superfícies azul-escuras: rodapé, capas, slides de encerramento.",
+        ? "Dark navy surfaces where the waveform appears alone."
+        : "Superfícies azul-escuras onde a forma de onda aparece sozinha.",
       surface: "dark",
+      w: 2558,
+      h: 731,
+      links: [["/assets/brand/downloads/lps-sinal-branco.pdf", "PDF"]],
     },
     {
-      src: "/assets/img/mark/lps-mark-favicon.svg",
-      title: en ? "Signal only, mono" : "Somente o sinal, monocromático",
+      src: "/assets/brand/preview/lps-marca-azul.webp",
+      title: en ? "Full mark, blue" : "Marca completa, em azul",
       body: en
-        ? "Decorative or ruled contexts where colour cannot be printed."
-        : "Contextos decorativos ou impressos sem cor.",
+        ? "The LPS/COPPE lockup for light surfaces."
+        : "A marca conjunta LPS/COPPE sobre superfícies claras.",
       surface: "light",
-      w: 1040,
-      h: 520,
+      w: 1000,
+      h: 707,
+      links: [
+        ["/assets/brand/downloads/lps-marca-completa-azul.pdf", "PDF"],
+        ["/assets/brand/downloads/lps-marca-completa-azul.png", "PNG"],
+      ],
     },
     {
-      src: "/assets/brand/lps_coppe_blue.svg",
-      title: en ? "COPPE/Poli/UFRJ lockup" : "Marca conjunta COPPE/Poli/UFRJ",
+      src: "/assets/brand/preview/lps-marca-branca.webp",
+      title: en ? "Full mark, white" : "Marca completa, em branco",
       body: en
-        ? "Official institutional artwork pairing the LPS mark with COPPE, Poli and UFRJ lettering."
-        : "Arte institucional oficial que une a marca LPS ao letreiro COPPE, Poli e UFRJ.",
-      surface: "light",
-      w: 2047,
-      h: 1448,
+        ? "The LPS/COPPE lockup for dark navy surfaces."
+        : "A marca conjunta LPS/COPPE sobre superfícies azul-escuras.",
+      surface: "dark",
+      w: 1000,
+      h: 707,
+      links: [["/assets/brand/downloads/lps-marca-completa-branca.pdf", "PDF"]],
     },
   ];
 
@@ -1453,7 +1459,7 @@ ${t(about.identity, locale)
 </div>
 </section>
 <section class="lps-section" aria-labelledby="identity-applications">
-${sectionHead({ kicker: en ? "Applications" : "Aplicações", title: en ? "Approved variants" : "Variantes aprovadas", id: "identity-applications" })}
+${sectionHead({ kicker: en ? "Applications" : "Aplicações", title: en ? "Approved variants" : "Variantes aprovadas", id: "identity-applications", action: { href: "/assets/brand/downloads/lps-pacote-completo.zip", label: en ? "Complete brand package (ZIP)" : "Pacote completo da marca (ZIP)" } })}
 <div class="lps-grid lps-grid--2">
 ${applications
   .map(
@@ -1464,6 +1470,7 @@ ${applications
 <div class="lps-card-body" style="padding:var(--space-6)">
 <h3 class="lps-card-title">${esc(item.title)}</h3>
 <p>${esc(item.body)}</p>
+<p>${item.links.map(([href, label], i) => `${i ? " &middot; " : ""}<a href="${href}" download>${esc(label)}</a>`).join("")}</p>
 </div>
 </article>`,
   )
@@ -1492,11 +1499,11 @@ ${sectionHead({ kicker: en ? "Usage" : "Uso", title: en ? "Rules that keep the m
 <div>${card({
     title: en ? "Brand package" : "Pacote da marca",
     body: en
-      ? "The official mark files are available on request from the laboratory office."
-      : "Os arquivos oficiais da marca estão disponíveis mediante solicitação à secretaria do laboratório.",
+      ? "All official mark files (PDF, PNG and EPS) in a single package."
+      : "Todos os arquivos oficiais da marca (PDF, PNG e EPS) em um único pacote.",
     action: {
-      href: `mailto:${site.emails.office}`,
-      label: en ? "Request the files" : "Solicitar os arquivos",
+      href: "/assets/brand/downloads/lps-pacote-completo.zip",
+      label: en ? "Download the package" : "Baixar o pacote",
     },
   })}</div>
 </div>
