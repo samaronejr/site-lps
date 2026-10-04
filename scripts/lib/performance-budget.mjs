@@ -84,6 +84,7 @@ const walk = (dir, out = []) => {
 export function collectThemeAssets(themeRoot) {
   const assetsRoot = join(themeRoot, "assets");
   return walk(assetsRoot)
+    .filter((file) => !relative(assetsRoot, file).split("/").includes("downloads"))
     .map((file) => {
       const kind = classifyAsset(file);
       return { path: relative(themeRoot, file), kind, transferBytes: transferBytes(file, kind) };

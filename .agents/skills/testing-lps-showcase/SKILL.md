@@ -46,3 +46,9 @@ node /home/ubuntu/repos/site-lps/scripts/deploy/staging.mjs serve   # (re)starts
 - Post-login landing is stock `/wp-admin/`; the themed member area is `/pt-br/painel/` (+ `/en/dashboard/`, `/pt-br/painel/revisao/`, `/pt-br/painel/nova-oferta/`). `/pt-br/area-do-professor/` 302s into painel.
 - Desktop header renders the disclosure nav panel permanently open (vertical nav column + tools) — `.lps-masthead-nav` is never emitted by the shell; check whether that's still intended vs DESIGN.md's "navigation row".
 - `scripts/check-theme.mjs` exists as a static gate (CSS-referenced fonts exist).
+
+## Notes from the identity-variants verification (2026-10)
+
+- **Staging restart after a machine restart**: processes die on restart but the filesystem survives — if `127.0.0.1:8443` doesn't answer at all (connection refused, not 502), relaunch with `node scripts/deploy/staging.mjs serve` and node on PATH from `~/.nvm/versions/node/v24.19.0/bin` (the `/tmp/node-v24.20.0` path above is stale — verify with `ls`). Wait for the `{"origin":{"ok":true...},"edge":{"ok":true...}}` receipt, then `curl -sk https://127.0.0.1:8443/` should return 200.
+- **Live VM parity**: public deployment serves the same tree at `https://157.151.14.113:8443` — verify fixed routes/assets there too (self-signed cert, same `-k`).
+- **Brand assets**: downloadable brand files live under `wp-content/themes/lps-theme/assets/brand/downloads/` (PDF/PNG/ZIP) and card previews under `assets/brand/preview/` (webp). Downloads paths are deliberately excluded from `performance-budget.mjs` payload accounting — don't "fix" that filter back.
