@@ -251,7 +251,8 @@ final class Shell {
 	public static function header_markup( string $locale, string $path, ?array $variants = null ): string {
 		$english         = 'en' === $locale;
 		$skip            = $english ? 'Skip to content' : 'Pular para o conteúdo';
-		$menu            = $english ? 'Menu and site tools' : 'Menu e ferramentas do site';
+		$menu            = 'Menu';
+		$menu_detail     = $english ? ' and site tools' : ' e ferramentas do site';
 		$nav_label       = $english ? 'Primary navigation' : 'Navegação principal';
 		$search_label    = $english ? 'Search the LPS website' : 'Buscar no site do LPS';
 		$search_button   = $english ? 'Search' : 'Buscar';
@@ -299,7 +300,7 @@ final class Shell {
 			// row; the collaborate entrance and a second search stay inside the
 			// touch disclosure panel.
 			. '<div class="lps-masthead lps-page-grid"><a class="lps-brand" href="' . $home . '" aria-label="LPS — ' . ( $english ? 'home' : 'início' ) . '">' . $mark . '</a><nav class="lps-primary-nav lps-masthead-nav" aria-label="' . self::escape( $nav_label ) . '">' . $items . '</nav></div>'
-			. '<details class="lps-shell-disclosure"><summary>' . self::escape( $menu ) . '</summary><div class="lps-nav-panel lps-page-grid">'
+			. '<details class="lps-shell-disclosure"><summary>' . self::escape( $menu ) . '<span class="lps-visually-hidden">' . self::escape( $menu_detail ) . '</span></summary><div class="lps-nav-panel lps-page-grid">'
 			. '<nav class="lps-primary-nav" aria-label="' . self::escape( $nav_label ) . '">' . $items . '</nav>'
 			// Below the nav breakpoint the band's quick links live here instead,
 			// so the narrow utility row keeps only the tools and the session link.

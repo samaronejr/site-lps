@@ -134,18 +134,14 @@
   --overlay-light-50: rgba(255, 255, 255, 0.5);
   --overlay-ink-22: rgba(9, 33, 58, 0.22);
   --gradient-hero: linear-gradient(180deg, var(--color-anchor) 0%, var(--color-anchor-deep) 100%);
-  --gradient-signal-bar: linear-gradient(90deg, var(--color-action) 0%, var(--color-accent) 100%);
+  --gradient-signal-bar: var(--color-teal-deep);
   --gradient-signal-bar-soft: linear-gradient(
     90deg,
     var(--color-accent-soft) 0%,
     var(--color-action-light) 100%
   );
-  --gradient-monogram: linear-gradient(160deg, var(--color-anchor-soft), var(--color-action-hover));
-  --gradient-event-date: linear-gradient(
-    160deg,
-    var(--color-anchor-soft),
-    var(--color-anchor-deep)
-  );
+  --gradient-monogram: var(--color-anchor-soft);
+  --gradient-event-date: var(--color-anchor);
   --gradient-partner-fade: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
   --gradient-scroll-cover-left: linear-gradient(90deg, var(--color-surface) 30%, transparent);
   --gradient-scroll-cover-right: linear-gradient(90deg, transparent, var(--color-surface) 70%);
@@ -159,17 +155,13 @@
     var(--overlay-ink-22),
     transparent
   );
-  --gradient-monogram-memoriam: linear-gradient(
-    160deg,
-    var(--color-text-muted),
-    var(--color-text-soft)
-  );
+  --gradient-monogram-memoriam: var(--color-text-muted);
   --gradient-page-header: linear-gradient(
     180deg,
     var(--color-surface) 0%,
     var(--color-canvas) 100%
   );
-  --gradient-timeline: linear-gradient(180deg, var(--color-action), var(--color-accent));
+  --gradient-timeline: var(--color-teal-deep);
   --gradient-rule-grid:
     repeating-linear-gradient(
       90deg,
@@ -181,14 +173,9 @@
       transparent 0 calc(100% - 1px),
       color-mix(in srgb, var(--color-on-dark) 9%, transparent) calc(100% - 1px) 100%
     );
-  --gradient-cta: linear-gradient(100deg, #0f766e 0%, #0f3d6b 100%);
-  --gradient-band: linear-gradient(
-    115deg,
-    var(--color-anchor-deep) 0%,
-    #0d3460 58%,
-    var(--color-navy-bright) 100%
-  );
-  --gradient-topbar: linear-gradient(90deg, #14b8a6 0%, var(--color-navy-bright) 100%);
+  --gradient-cta: var(--color-anchor);
+  --gradient-band: var(--color-anchor);
+  --gradient-topbar: var(--color-teal);
   --font-display: "Space Grotesk", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-interface: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono:
@@ -231,9 +218,9 @@
   --radius-lg: 4px;
   --radius-xl: 4px;
   --radius-pill: 999px;
-  --radius-card: 1.25rem;
-  --radius-monogram: 0.875rem;
-  --radius-dish: 1.75rem;
+  --radius-card: var(--radius-sm);
+  --radius-monogram: var(--radius-sm);
+  --radius-dish: var(--radius-sm);
   --radius-control: var(--radius-sm);
   --radius-image: var(--radius-sm);
   --line-thin: 1px;
@@ -250,11 +237,11 @@
   --shadow-md: 4px 4px 0 var(--color-rule-quiet);
   --shadow-lg: 6px 6px 0 var(--color-anchor-soft);
   --shadow-ring: 0 0 0 1px var(--color-rule-quiet);
-  --shadow-card: 0 10px 30px rgba(10, 42, 72, 0.08);
-  --shadow-card-hover: 0 22px 44px rgba(10, 42, 72, 0.16);
-  --shadow-stat: 0 14px 34px rgba(10, 42, 72, 0.12);
-  --shadow-cta: 0 10px 24px rgba(15, 61, 107, 0.26);
-  --shadow-cta-hover: 0 14px 30px rgba(15, 61, 107, 0.32);
+  --shadow-card: none;
+  --shadow-card-hover: none;
+  --shadow-stat: none;
+  --shadow-cta: none;
+  --shadow-cta-hover: none;
   --shadow-nav-current: inset 0 -4px 0 0 var(--color-teal-deep);
   --shadow-none: none;
   --rule-hairline: var(--line-thin) solid var(--color-rule-quiet);
@@ -2509,6 +2496,7 @@ input[type="file"]::file-selector-button:hover {
   .lps-utility-links a,
   .lps-more,
   .lps-meta a,
+  a.lps-meta,
   .lps-breadcrumbs a,
   .lps-site-footer a {
     align-items: center;
@@ -4675,56 +4663,143 @@ details.lps-dashboard-edit > form {
 }
 
 /* ----------------------------------------------------------------------------
- * 22. FEEC-direction reskin — navy + teal, pill CTAs, rounded navy dishes,
- *     soft card shadows, node-web motif (reference: fee.unicamp.br).
+ * 22. Editorial direction — a technical-journal grammar on the navy anchor.
+ *     Flat bands, hairline rules, squared geometry, teal as the single
+ *     on-dark accent; numbers, codes and labels in the mono face.
  * ------------------------------------------------------------------------- */
 
-/* Signature hairline across the very top of the page. */
-.lps-site-header {
-  border-block-start: var(--line-heavy) solid transparent;
-  border-image: var(--gradient-topbar) 1;
+/* Shell: one teal rule separates the dark utility band from the masthead. */
+.lps-utility-bar {
+  background: var(--color-anchor-deep);
+  border-block-end: var(--line-medium) solid var(--color-teal);
 }
 
-/* The Colabore pill must share the input row, not the whole search form. */
-.lps-shell-tools > .lps-button {
-  align-self: flex-end;
+.lps-utility-bar .lps-utility-links a:hover,
+.lps-utility-bar .lps-utility-links a[aria-current="page"] {
+  text-decoration-color: var(--color-teal);
 }
 
-/* Nav reads like FEEC's: display weight, teal underline for hover/current. */
-.lps-nav-link,
-.lps-primary-nav a {
-  font-family: var(--font-display);
-  font-weight: 700;
+.lps-masthead {
+  padding-block: var(--space-4);
 }
 
-.lps-nav-link:hover,
-.lps-primary-nav a:hover {
-  color: var(--color-navy-bright);
+.lps-nav-menu,
+.lps-locale-menu {
+  border-block-start-color: var(--color-teal-deep);
 }
 
-.lps-nav-link[aria-current="page"],
-.lps-primary-nav a[aria-current="page"] {
-  box-shadow: var(--shadow-nav-current);
+/* Compact viewports: the menu control joins the artwork row, the affiliation
+   line (restated by the lockup) leaves the band, and the chrome above the
+   hero drops from three tiers to two. */
+@media (max-width: 59.999rem) {
+  .lps-site-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .lps-utility-bar,
+  .lps-masthead,
+  .lps-shell-disclosure {
+    grid-column: 1;
+  }
+
+  .lps-utility-inner > p {
+    display: none;
+  }
+
+  .lps-utility-inner {
+    justify-content: flex-end;
+  }
+
+  .lps-masthead {
+    align-self: start;
+    grid-row: 2;
+    min-block-size: 4.25rem;
+    padding-block: 0;
+    pointer-events: none;
+    position: relative;
+    z-index: 1;
+  }
+
+  .lps-masthead .lps-brand {
+    pointer-events: auto;
+  }
+
+  .lps-masthead .lps-logo {
+    block-size: clamp(1.875rem, 7.4vw, 2.5rem);
+  }
+
+  .lps-shell-disclosure {
+    border-block-start: 0;
+    grid-row: 2;
+  }
+
+  .lps-shell-disclosure > summary {
+    border-inline-start: var(--rule-hairline);
+    color: var(--color-anchor);
+    gap: var(--space-3);
+    inline-size: max-content;
+    letter-spacing: 0.08em;
+    margin-inline-start: auto;
+    min-block-size: 4.25rem;
+    padding-block: 0;
+    padding-inline: var(--space-4) var(--grid-gutter);
+  }
+
+  .lps-shell-disclosure[open] > summary {
+    background: var(--color-canvas);
+  }
+
+  .lps-nav-panel {
+    background: var(--color-surface);
+    border-block-start: var(--rule-hairline);
+    padding-block: var(--space-4) var(--space-8);
+  }
+
+  .lps-nav-panel .lps-primary-nav > ul > li + li {
+    border-block-start: var(--rule-hairline);
+  }
+
+  .lps-nav-panel .lps-nav-link {
+    font-size: var(--type-body);
+    inline-size: 100%;
+    min-block-size: 3rem;
+    padding-inline: 0;
+  }
+
+  .lps-nav-panel .lps-nav-caret {
+    display: none;
+  }
+
+  .lps-nav-menu {
+    border-inline-start: var(--line-medium) solid var(--color-rule-quiet);
+    margin-block: 0 var(--space-3);
+    margin-inline-start: 0;
+    padding-inline-start: var(--space-4);
+  }
+
+  .lps-nav-panel .lps-nav-menu a {
+    color: var(--color-text-muted);
+    font-weight: 400;
+    min-block-size: var(--control-min);
+    padding-inline: 0;
+  }
 }
 
-/* Hero: navy band with a node-web motif and a duotone headline. */
+/* Hero: a flat anchor band on the measured rule grid, the supplied waveform
+   as the only figure, and the facts strip ruled into the same band. */
 .lps-hero {
-  background: var(--gradient-band);
+  background: var(--color-anchor);
 }
 
-.lps-hero::before {
-  background-image: none;
+.lps-hero-inner {
+  align-items: end;
+  padding-block: clamp(var(--space-10), 6vw, var(--space-20))
+    clamp(var(--space-8), 4vw, var(--space-12));
 }
 
-.lps-hero::after {
-  background-image: url("../img/decor/lps-node-web.svg");
-  background-position: right -10rem bottom -4rem;
-  background-repeat: no-repeat;
-  background-size: 72rem auto;
-  opacity: 0.55;
-}
-
-.lps-hero .lps-kicker {
+.lps-hero .lps-kicker,
+.lps-hero-accent {
   color: var(--color-teal);
 }
 
@@ -4733,137 +4808,256 @@ details.lps-dashboard-edit > form {
 }
 
 .lps-hero-title {
-  font-weight: 700;
-}
-
-.lps-hero-accent {
-  color: var(--color-teal);
+  font-size: clamp(2.25rem, 4.9vw, 4.25rem);
+  letter-spacing: -0.04em;
+  max-inline-size: 21ch;
 }
 
 .lps-hero-lead {
-  color: var(--color-on-dark-lead);
+  max-inline-size: 54ch;
 }
 
 .lps-hero-support {
-  border: var(--line-thin) solid var(--overlay-light-18);
-  border-block-start: var(--line-heavy) solid var(--color-teal);
-  border-radius: var(--radius-card);
+  border: 0;
+  border-block-start: var(--line-thin) solid var(--overlay-light-18);
+  padding: var(--space-6) 0 0;
+}
+
+@media (min-width: 64rem) {
+  .lps-hero-support {
+    border-block-start: 0;
+    border-inline-start: var(--line-thin) solid var(--overlay-light-18);
+    padding: 0 0 0 var(--space-8);
+  }
+}
+
+.lps-hero-support h2 {
+  color: var(--color-on-dark-meta);
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  font-weight: 400;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.lps-hero-support ul {
+  counter-reset: lps-remit;
+  gap: 0;
+}
+
+.lps-hero-support li {
+  border-block-start: var(--line-thin) solid var(--overlay-light-12);
+  counter-increment: lps-remit;
+  font-size: var(--type-body);
+  padding-block: var(--space-3);
 }
 
 .lps-hero-support li::before {
-  background: var(--color-teal);
-  border-radius: var(--radius-pill);
+  background: none;
+  block-size: auto;
+  color: var(--color-teal);
+  content: counter(lps-remit, decimal-leading-zero) / "";
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  inline-size: 1.75rem;
+  margin-block-start: 0.2rem;
 }
 
-/* Buttons become FEEC pills: teal→navy gradient primary, outlined ghost. */
-.lps-button,
-a.lps-button,
-button.lps-button,
-input[type="submit"].lps-button,
-.wp-block-button__link {
-  border-radius: var(--radius-pill);
-  font-family: var(--font-display);
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  padding: var(--space-3) var(--space-6);
-}
-
-.lps-button-primary,
-a.lps-button-primary {
-  background: var(--gradient-cta);
-  border-color: transparent;
-  box-shadow: var(--shadow-cta);
-}
-
-.lps-button-primary:hover,
-a.lps-button-primary:hover {
-  background: var(--gradient-cta);
-  border-color: transparent;
-  box-shadow: var(--shadow-cta-hover);
-  filter: brightness(1.08);
-  transform: translateY(-1px);
-}
-
-.lps-button-ghost,
-a.lps-button-ghost {
-  border-radius: var(--radius-pill);
-}
-
-/* Stat band: the numbers strip becomes a navy dish overlapping the hero. */
 .lps-stat-band {
-  background: transparent;
+  background: var(--color-anchor);
   border-block-end: 0;
+  color: var(--color-on-dark);
 }
 
-.lps-stat-band ul {
-  background: var(--gradient-band);
-  border-radius: var(--radius-dish);
-  box-shadow: var(--shadow-stat);
-  margin-block: var(--space-4) var(--space-10);
-  padding: var(--space-8) var(--space-8);
-  position: relative;
-  z-index: 1;
-}
-
-/* Only the home band overlaps: it sits directly under the navy hero. */
-.lps-hero + .lps-stat-band ul {
-  margin-block-start: -3.5rem;
-}
-
-.lps-stat {
-  border-block-start: 0;
+.lps-stat-band .lps-stat {
+  border-block-start: var(--line-thin) solid var(--overlay-light-18);
+  padding-block: var(--space-5) var(--space-8);
 }
 
 @media (min-width: 56rem) {
-  .lps-stat + .lps-stat {
+  .lps-stat-band .lps-stat + .lps-stat:not(:nth-child(4n + 1)) {
     border-inline-start: var(--line-thin) solid var(--overlay-light-18);
   }
 }
 
 .lps-stat-band .lps-stat strong {
-  color: var(--color-teal);
-  font-weight: 700;
+  color: var(--color-surface);
+  font-size: clamp(1.625rem, 2.8vw, 2.5rem);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
 }
 
 .lps-stat-band .lps-stat span {
-  color: var(--color-on-dark);
+  color: var(--color-on-dark-meta);
+  max-inline-size: none;
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  letter-spacing: 0.04em;
 }
 
-/* Section heads: navy tick becomes a teal one. */
-.lps-section-head::before {
+/* Buttons on the anchor substrate: teal fill, anchor ink. */
+.lps-hero .lps-button-primary,
+.lps-cta-band .lps-button-primary,
+.lps-on-dark .lps-button-primary {
+  background: var(--color-teal);
+  border-color: var(--color-teal);
+  color: var(--color-anchor-deep);
+}
+
+.lps-hero .lps-button-primary:hover,
+.lps-cta-band .lps-button-primary:hover,
+.lps-on-dark .lps-button-primary:hover {
+  background: var(--color-surface);
+  border-color: var(--color-surface);
+  box-shadow: var(--shadow-none);
+  color: var(--color-anchor-deep);
+}
+
+.lps-cta-band .lps-button-ghost {
+  background: transparent;
+  border-color: var(--color-surface);
+  color: var(--color-surface);
+}
+
+.lps-cta-band .lps-button-ghost:hover {
+  background: var(--color-surface);
+  border-color: var(--color-surface);
+  color: var(--color-anchor);
+}
+
+/* Labels: the mono field label in teal ink, no chip. */
+.lps-kicker {
+  color: var(--color-teal-ink);
+}
+
+.lps-kicker::before {
   background: var(--color-teal-deep);
-  border-radius: var(--radius-pill);
-  inline-size: 3.5rem;
 }
 
-/* Cards: rounded corners and soft navy shadows. */
+.lps-section-head {
+  align-items: start;
+  padding-block-start: 0;
+}
+
+.lps-section-head::before {
+  display: none;
+}
+
+.lps-section-head h2 {
+  font-size: clamp(1.75rem, 3.2vw, 2.5rem);
+}
+
+/* Inner page headers: the supplied waveform sits in the margin, small and
+   faint, so it never runs through the title. */
+.lps-page-header::after {
+  background-position: right -6rem center;
+  background-size: auto 70%;
+  opacity: 0.05;
+}
+
+@media (max-width: 47.999rem) {
+  .lps-page-header::after {
+    display: none;
+  }
+}
+
+/* A page grid nested in another keeps the outer measure; it never insets
+   the content a second time. */
+.lps-page-grid .lps-page-grid {
+  max-inline-size: none;
+  padding-inline: 0;
+}
+
+@media (min-width: 56rem) {
+  .lps-stat:nth-child(4n + 1) {
+    border-inline-start: 0;
+    padding-inline-start: 0;
+  }
+}
+
+/* An unpublished hero record keeps the anchor band continuous instead of
+   cutting a white strip between the hero and the facts row. */
+.lps-page-grid:has(> [data-home-empty="mission"]) {
+  background: var(--color-anchor);
+  max-inline-size: none;
+  padding-inline: max(var(--grid-gutter), calc((100% - var(--grid-max)) / 2 + var(--grid-gutter)));
+}
+
+[data-home-empty] {
+  color: var(--color-text-soft);
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  letter-spacing: 0.04em;
+}
+
+[data-home-empty="mission"] {
+  color: var(--color-on-dark-meta);
+  margin: 0;
+  padding-block: var(--space-3);
+}
+
+.lps-term-token {
+  align-items: center;
+  align-self: start;
+}
+
+/* Cards: hairline frames that answer hover with the anchor rule, no lift. */
 .lps-card {
-  border: var(--line-thin) solid var(--color-card-rule);
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-card);
+  border-block-start: var(--rule-hairline);
 }
 
 .lps-card:hover {
-  box-shadow: var(--shadow-card-hover);
+  border-color: var(--color-boundary-strong);
+  box-shadow: var(--shadow-none);
+  transform: none;
 }
 
 .lps-card-title,
 .lps-card-title a {
-  font-family: var(--font-display);
-  font-weight: 700;
+  font-weight: 600;
 }
 
-/* Journey tiles: navy dishes with teal labels, like FEEC's course cards.
-   The home list renders items as real cards rather than a flat index. */
+/* Research lines: a numbered, ruled index instead of a third box grid. */
+.lps-grid:has(> .lps-card--accent) {
+  column-gap: clamp(var(--space-6), 3vw, var(--space-12));
+  counter-reset: lps-line;
+  row-gap: 0;
+}
+
+.lps-card--accent {
+  background: transparent;
+  border: 0;
+  border-block-start: var(--rule-hairline);
+  counter-increment: lps-line;
+  padding: var(--space-5) 0 var(--space-8);
+}
+
+.lps-card--accent:hover {
+  border-block-start-color: var(--color-anchor);
+}
+
+.lps-card--accent .lps-card-body::before {
+  background: none;
+  block-size: auto;
+  border-radius: 0;
+  color: var(--color-teal-ink);
+  content: counter(lps-line, decimal-leading-zero) / "";
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  inline-size: auto;
+  letter-spacing: var(--tracking-label);
+}
+
+/* Journeys: three ruled entrances on the page, not three navy tiles. */
 .lps-home-journeys > li.lps-journey {
   display: grid;
 }
 
 .lps-journey {
-  background: var(--gradient-band);
+  background: transparent;
   border: 0;
-  border-radius: var(--radius-dish);
-  box-shadow: var(--shadow-card);
+  border-block-start: var(--rule-heavy);
+  padding: var(--space-5) 0 0;
 }
 
 .lps-journey::before {
@@ -4871,86 +5065,45 @@ a.lps-button-ghost {
 }
 
 .lps-journey:hover {
-  box-shadow: var(--shadow-card-hover);
+  border-block-start-color: var(--color-teal-deep);
+  box-shadow: var(--shadow-none);
+  transform: none;
 }
 
-.lps-journey .lps-journey-label,
-.lps-journey .lps-meta {
-  color: var(--color-teal);
+.lps-journey h3 {
+  font-size: var(--type-h3);
 }
 
-.lps-journey h3,
-.lps-journey h3 a {
-  color: var(--color-surface);
+.lps-journey > [aria-disabled="true"] {
+  align-self: end;
+  color: var(--color-text-soft);
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  letter-spacing: 0.04em;
 }
 
-.lps-journey p {
-  color: var(--color-on-dark-lead);
+/* Agenda and people: flat frames; the event date reads as a ruled stamp. */
+.lps-agenda > li:hover {
+  border-color: var(--color-boundary-strong);
+  transform: none;
 }
 
-.lps-journey .lps-more {
-  color: var(--color-teal);
+.lps-event-date {
+  background: var(--color-anchor);
+  border-block-end: var(--line-heavy) solid var(--color-teal);
 }
 
-/* Inline more-links take the teal-deeper hue that survives on white. */
-.lps-more {
-  color: var(--color-teal-deep);
-  font-weight: 700;
+.lps-person-card:hover {
+  border-color: var(--color-boundary-strong);
 }
 
-/* Kicker on light surfaces becomes a teal-wash pill. */
-.lps-kicker {
-  background: var(--color-teal-wash);
-  border-radius: var(--radius-pill);
-  color: var(--color-teal-ink);
-  display: inline-flex;
-  font-weight: 600;
-  padding: 0.4rem 1rem;
-}
-
-.lps-kicker::before {
-  background: var(--color-teal-deep);
-  border-radius: var(--radius-pill);
-  block-size: 0.5rem;
-  inline-size: 0.5rem;
-}
-
-/* Hero keeps its own flat kicker treatment. */
-.lps-hero .lps-kicker {
-  background: transparent;
-  color: var(--color-teal);
-  padding: 0;
-}
-
-.lps-hero .lps-kicker::before {
-  background: var(--color-teal);
-  border-radius: 0;
-  block-size: 0.75rem;
-  inline-size: 0.75rem;
-}
-
-/* CTA band: teal→navy gradient dish with the node-web echo. */
+/* Closing band: flat anchor, teal rule, the supplied waveform behind it. */
 .lps-cta-band {
-  background: var(--gradient-cta);
-  border-block-start: 0;
-  border-radius: var(--radius-dish);
-  margin-block: var(--space-10);
-  margin-inline: var(--grid-gutter);
+  background: var(--color-anchor);
+  border-block-start: var(--line-heavy) solid var(--color-teal);
 }
 
-.lps-cta-band::after {
-  background-image: url("../img/decor/lps-node-web.svg");
-  opacity: 0.22;
-}
-
-.lps-cta-band .lps-button-ghost,
-.lps-cta-band .lps-button-ghost:hover {
-  background: var(--color-surface);
-  border-color: var(--color-surface);
-  color: var(--color-anchor);
-}
-
-/* Footer: teal replaces cyan as the dark accent. */
+/* Footer: teal is the dark accent. */
 .lps-site-footer {
   border-block-start-color: var(--color-teal);
 }
@@ -4964,17 +5117,32 @@ a.lps-button-ghost {
   border-block-end-color: var(--overlay-light-14);
 }
 
-/* Page headers on inner pages keep the light field but gain the teal tick. */
-.lps-page-header {
-  border-block-end: 0;
+/* Profiles: the academic CV layout — section labels in a side column,
+   content in the reading column, on wide viewports. */
+@media (min-width: 64rem) {
+  .lps-person .lps-with-aside--single > .lps-stack > .lps-section:not(:has(.lps-cta-band)) {
+    column-gap: clamp(var(--space-8), 4vw, var(--space-16));
+    display: grid;
+    grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
+  }
+
+  .lps-person .lps-with-aside--single > .lps-stack > .lps-section > .lps-section-head {
+    align-self: start;
+    display: block;
+    margin-block-end: 0;
+  }
+
+  .lps-person .lps-with-aside--single > .lps-stack > .lps-section > .lps-section-head h2 {
+    font-size: var(--type-h3);
+  }
+
+  .lps-person .lps-with-aside--single > .lps-stack > .lps-section > :not(.lps-section-head) {
+    align-self: start;
+    grid-column: 2;
+    min-inline-size: 0;
+  }
 }
 
-.lps-page-header::after {
-  background: var(--gradient-topbar);
-  block-size: var(--line-heavy);
-  inset: auto 0 0 0;
-  opacity: 1;
-}
 /* News slider, event rows and institutional timeline. */
 .lps-slider-nav {
   display: flex;
@@ -5411,4 +5579,18 @@ a.lps-button-ghost {
     grid-template-columns: 3.75rem minmax(0, 1fr);
     padding-inline: var(--space-5) 0;
   }
+}
+
+/* Contact links set inside the footer address read as links without colour. */
+.lps-site-footer address a {
+  text-decoration-line: underline;
+  text-decoration-thickness: var(--line-thin);
+  text-underline-offset: 0.2em;
+}
+
+/* Checkboxes keep a 24px target on touch screens. */
+.lps-form input[type="checkbox"],
+form input[type="checkbox"] {
+  block-size: 1.5rem;
+  inline-size: 1.5rem;
 }
