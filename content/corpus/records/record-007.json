@@ -50,8 +50,11 @@
       "Departamento de Engenharia Eletrônica e de Computação, Escola Politécnica, UFRJ",
       "Programa de Engenharia Elétrica, COPPE/UFRJ"
     ],
-    "_lps_photo_rights": "not-cleared",
-    "_lps_privacy_reviewed": false
+    "_lps_photo_rights": "cleared",
+    "_lps_privacy_reviewed": true,
+    "_lps_in_memoriam_approved": true,
+    "_lps_photo_url": "/wp-content/uploads/people/antonio-moreirao.jpg",
+    "_lps_photo_alt": "Antônio Carlos Moreirão de Queiroz"
   },
   "locales": {
     "pt-br": {
