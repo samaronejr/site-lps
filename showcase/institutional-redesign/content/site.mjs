@@ -2296,12 +2296,12 @@ export const about = {
     "pt-BR": [
       "A marca do laboratório é composta por um sinal (a forma de onda) e pela sigla LPS, acompanhadas do nome por extenso e do descritor Inteligência Computacional.",
       "O sinal representa o objeto de trabalho do laboratório: a leitura, o tratamento e a interpretação de sinais. O azul é a cor institucional herdada da identidade original; o degradê acompanha a variação de amplitude da forma de onda.",
-      "As aplicações oficiais — sinal em azul e branco, marca completa em azul e branco, além do pacote completo da marca — são mantidas pelos responsáveis pela comunicação do laboratório.",
+      "As aplicações oficiais — sinal em azul e em branco, marca completa em azul e em branco, além do pacote completo da marca — podem ser baixadas nesta página.",
     ],
     en: [
       "The laboratory mark is made of a signal (the waveform) and the LPS lettering, accompanied by the full name and the Computational Intelligence descriptor.",
       "The signal represents the laboratory's object of work: reading, treating and interpreting signals. Blue is the institutional colour inherited from the original identity; the gradient follows the amplitude variation of the waveform.",
-      "The official applications — blue and white signal, blue and white full mark, plus the complete brand package — are maintained by those responsible for laboratory communications.",
+      "The official applications — blue and white signal, blue and white full mark, plus the complete brand package — can be downloaded on this page.",
     ],
   },
 };

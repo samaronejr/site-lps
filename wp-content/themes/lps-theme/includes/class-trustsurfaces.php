@@ -1196,12 +1196,12 @@ final class TrustSurfaces {
 			? array(
 				'The laboratory mark is made of a signal (the waveform) and the LPS lettering, accompanied by the full name and the Computational Intelligence descriptor.',
 				"The signal represents the laboratory's object of work: reading, treating and interpreting signals. Blue is the institutional colour inherited from the original identity; the gradient follows the amplitude variation of the waveform.",
-				'The official mark files, including the approved variants and the complete brand package, are available from the laboratory office.',
+				'The official mark files, including the approved variants and the complete brand package, are available on the visual identity page.',
 			)
 			: array(
 				'A marca do laboratório é composta por um sinal (a forma de onda) e pela sigla LPS, acompanhadas do nome por extenso e do descritor Inteligência Computacional.',
 				'O sinal representa o objeto de trabalho do laboratório: a leitura, o tratamento e a interpretação de sinais. O azul é a cor institucional herdada da identidade original; o degradê acompanha a variação de amplitude da forma de onda.',
-				'Os arquivos oficiais da marca, incluindo as variantes aprovadas e o pacote completo, estão disponíveis na secretaria do laboratório.',
+				'Os arquivos oficiais da marca, incluindo as variantes aprovadas e o pacote completo, estão disponíveis na página de identidade visual.',
 			);
 		$flow       = '<div class="lps-flow">';
 		foreach ( $paragraphs as $paragraph ) {
@@ -1348,12 +1348,12 @@ final class TrustSurfaces {
 			? array(
 				'The laboratory mark is made of a signal (the waveform) and the LPS lettering, accompanied by the full name and the Computational Intelligence descriptor.',
 				"The signal represents the laboratory's object of work: reading, treating and interpreting signals. Blue is the institutional colour inherited from the original identity; the gradient follows the amplitude variation of the waveform.",
-				'The official mark files, including the approved variants and the complete brand package, are available from the laboratory office.',
+				'The official mark files, including the approved variants and the complete brand package, are available on this page.',
 			)
 			: array(
 				'A marca do laboratório é composta por um sinal (a forma de onda) e pela sigla LPS, acompanhadas do nome por extenso e do descritor Inteligência Computacional.',
 				'O sinal representa o objeto de trabalho do laboratório: a leitura, o tratamento e a interpretação de sinais. O azul é a cor institucional herdada da identidade original; o degradê acompanha a variação de amplitude da forma de onda.',
-				'Os arquivos oficiais da marca, incluindo as variantes aprovadas e o pacote completo, estão disponíveis na secretaria do laboratório.',
+				'Os arquivos oficiais da marca, incluindo as variantes aprovadas e o pacote completo, estão disponíveis nesta página.',
 			);
 		$flow       = '<div class="lps-flow lps-reading">';
 		foreach ( $paragraphs as $paragraph ) {
@@ -1368,25 +1368,75 @@ final class TrustSurfaces {
 			true
 		);
 		$marks = array(
-			array( 'assets/img/mark/lps-mark-full.svg', $english ? 'Full mark, colour' : 'Marca completa, colorida', $english ? 'Light surfaces only. Minimum 240px wide in the masthead.' : 'Somente sobre superfícies claras. Mínimo de 240px de largura no cabeçalho.', false, 2052, 301 ),
-			array( 'assets/brand/lps_logo_compact.svg', $english ? 'Compact mark, colour' : 'Marca compacta, colorida', $english ? 'Constrained places: mobile masthead, cards, e-mail signatures.' : 'Locais restritos: cabeçalho móvel, cartões, assinaturas de e-mail.', false, 2052, 301 ),
-			array( 'assets/brand/lps_coppe_reversed_lockup.svg', $english ? 'Full mark, reversed' : 'Marca completa, reversa', $english ? 'Dark navy surfaces: footer, covers, presentation closing slides.' : 'Superfícies azul-escuras: rodapé, capas, slides de encerramento.', true, 2052, 301 ),
-			array( 'assets/img/mark/lps-mark-favicon.svg', $english ? 'Signal only, mono' : 'Somente o sinal, monocromático', $english ? 'Decorative or ruled contexts where colour cannot be printed.' : 'Contextos decorativos ou impressos sem cor.', false, 1040, 520 ),
-			array( 'assets/brand/lps_coppe_blue.svg', $english ? 'COPPE/Poli/UFRJ lockup' : 'Marca conjunta COPPE/Poli/UFRJ', $english ? 'Official institutional artwork pairing the LPS mark with COPPE, Poli and UFRJ lettering.' : 'Arte institucional oficial que une a marca LPS ao letreiro COPPE, Poli e UFRJ.', false, 2047, 1448 ),
+			array(
+				'assets/brand/preview/lps-sinal-azul.webp',
+				$english ? 'Signal only, blue' : 'Apenas o sinal, em azul',
+				$english ? 'Light surfaces where the waveform appears alone.' : 'Superfícies claras onde a forma de onda aparece sozinha.',
+				false,
+				1600,
+				457,
+				array(
+					array( 'assets/brand/downloads/lps-sinal-azul.pdf', 'PDF' ),
+					array( 'assets/brand/downloads/lps-sinal-azul.png', 'PNG' ),
+				),
+			),
+			array(
+				'assets/brand/preview/lps-sinal-branco.webp',
+				$english ? 'Signal only, white' : 'Apenas o sinal, em branco',
+				$english ? 'Dark navy surfaces where the waveform appears alone.' : 'Superfícies azul-escuras onde a forma de onda aparece sozinha.',
+				true,
+				2558,
+				731,
+				array(
+					array( 'assets/brand/downloads/lps-sinal-branco.pdf', 'PDF' ),
+				),
+			),
+			array(
+				'assets/brand/preview/lps-marca-azul.webp',
+				$english ? 'Full mark, blue' : 'Marca completa, em azul',
+				$english ? 'The LPS/COPPE lockup for light surfaces.' : 'A marca conjunta LPS/COPPE sobre superfícies claras.',
+				false,
+				1000,
+				707,
+				array(
+					array( 'assets/brand/downloads/lps-marca-completa-azul.pdf', 'PDF' ),
+					array( 'assets/brand/downloads/lps-marca-completa-azul.png', 'PNG' ),
+				),
+			),
+			array(
+				'assets/brand/preview/lps-marca-branca.webp',
+				$english ? 'Full mark, white' : 'Marca completa, em branco',
+				$english ? 'The LPS/COPPE lockup for dark navy surfaces.' : 'A marca conjunta LPS/COPPE sobre superfícies azul-escuras.',
+				true,
+				1000,
+				707,
+				array(
+					array( 'assets/brand/downloads/lps-marca-completa-branca.pdf', 'PDF' ),
+				),
+			),
 		);
 		$cards = '<div class="lps-grid lps-grid--2">';
 		foreach ( $marks as $mark ) {
 			$surface = $mark[3] ? 'var(--color-anchor)' : 'var(--color-surface)';
-			$cards  .= '<article class="lps-card lps-card--flush"><div class="lps-card-media lps-card-media--plain" style="min-block-size:11rem;background:' . $surface . '" aria-hidden="true">'
+			$links   = '';
+			foreach ( $mark[6] as $download ) {
+				$links .= ( '' !== $links ? ' &middot; ' : '' ) . '<a href="' . self::esc( self::theme_uri( $download[0] ) ) . '" download>' . self::esc( $download[1] ) . '</a>';
+			}
+			$cards .= '<article class="lps-card lps-card--flush"><div class="lps-card-media lps-card-media--plain" style="min-block-size:11rem;background:' . $surface . '" aria-hidden="true">'
 				. '<img src="' . self::esc( self::theme_uri( $mark[0] ) ) . '" alt="" width="' . self::esc( (string) $mark[4] ) . '" height="' . self::esc( (string) $mark[5] ) . '" loading="lazy" decoding="async" style="object-fit:contain;padding:1.5rem;background:transparent">'
-				. '</div><div class="lps-card-body" style="padding:var(--space-6)"><h3 class="lps-card-title">' . self::esc( $mark[1] ) . '</h3><p>' . self::esc( $mark[2] ) . '</p></div></article>';
+				. '</div><div class="lps-card-body" style="padding:var(--space-6)"><h3 class="lps-card-title">' . self::esc( $mark[1] ) . '</h3><p>' . self::esc( $mark[2] ) . '</p><p>' . $links . '</p></div></article>';
 		}
 		$cards .= '</div>';
 		$html  .= self::editorial_section(
 			'identity-applications',
 			$english ? 'Applications' : 'Aplicações',
 			$english ? 'Approved variants' : 'Variantes aprovadas',
-			$cards
+			$cards,
+			false,
+			array(
+				'href'  => self::theme_uri( 'assets/brand/downloads/lps-pacote-completo.zip' ),
+				'label' => $english ? 'Complete brand package (ZIP)' : 'Pacote completo da marca (ZIP)',
+			)
 		);
 		$rules  = $english
 			? array(
@@ -1408,10 +1458,10 @@ final class TrustSurfaces {
 		$split .= '</div><div>' . self::editorial_card(
 			$english ? 'Brand package' : 'Pacote da marca',
 			$english
-				? 'The official mark files are available on request from the laboratory office.'
-				: 'Os arquivos oficiais da marca estão disponíveis mediante solicitação à secretaria do laboratório.',
+				? 'All official mark files (PDF, PNG and EPS) in a single package.'
+				: 'Todos os arquivos oficiais da marca (PDF, PNG e EPS) em um único pacote.',
 			false,
-			array( 'mailto:secretaria@lps.ufrj.br', $english ? 'Request the files' : 'Solicitar os arquivos' )
+			array( self::theme_uri( 'assets/brand/downloads/lps-pacote-completo.zip' ), $english ? 'Download the package' : 'Baixar o pacote' )
 		) . '</div></div>';
 		$html  .= self::editorial_section(
 			'identity-rules',
