@@ -2674,10 +2674,10 @@ input[type="file"]::file-selector-button:hover {
   min-block-size: 0;
   opacity: 0;
   overflow: clip;
-  transform: translateY(-0.5rem);
+  transform: translateY(-1rem);
   transition:
-    opacity var(--motion-standard) var(--ease-state),
-    transform var(--motion-standard) var(--ease-state);
+    opacity var(--motion-slow) var(--ease-out),
+    transform var(--motion-slow) var(--ease-out);
 }
 
 .lps-person-media-frame .lps-monogram {
@@ -2696,6 +2696,8 @@ input[type="file"]::file-selector-button:hover {
   inline-size: 100%;
   max-block-size: 15rem;
   object-fit: cover;
+  transform: scale(1.05);
+  transition: transform var(--motion-slow) var(--ease-out);
 }
 
 .lps-people-grid--gallery > .lps-person-card:hover,
@@ -2713,6 +2715,35 @@ input[type="file"]::file-selector-button:hover {
 .lps-people-grid--gallery .lps-person-card:focus-within .lps-person-media-frame {
   opacity: 1;
   transform: none;
+}
+
+.lps-people-grid--gallery .lps-person-card:hover .lps-person-card-photo,
+.lps-people-grid--gallery .lps-person-card:focus-within .lps-person-card-photo {
+  transform: none;
+}
+
+/* Once the large media opens, the thumbnail yields: it fades and shrinks while
+   the name slides into the freed slot — one visual block, never two. */
+.lps-people-grid--gallery .lps-person-header > .lps-monogram {
+  transform-origin: left center;
+  transition:
+    opacity var(--motion-standard) var(--ease-state),
+    scale var(--motion-standard) var(--ease-state);
+}
+
+.lps-people-grid--gallery .lps-person-header > div {
+  transition: transform var(--motion-standard) var(--ease-state);
+}
+
+.lps-people-grid--gallery .lps-person-card:hover .lps-person-header > .lps-monogram,
+.lps-people-grid--gallery .lps-person-card:focus-within .lps-person-header > .lps-monogram {
+  opacity: 0;
+  scale: 0.35;
+}
+
+.lps-people-grid--gallery .lps-person-card:hover .lps-person-header > div,
+.lps-people-grid--gallery .lps-person-card:focus-within .lps-person-header > div {
+  transform: translateX(-4.5rem);
 }
 
 .lps-person-card {
