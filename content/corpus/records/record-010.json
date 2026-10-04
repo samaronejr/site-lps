@@ -45,31 +45,40 @@
   "meta": {
     "_lps_canonical_name": "José Manoel de Seixas",
     "_lps_sort_name": "Seixas, José Manoel de",
-    "_lps_person_status": "active",
-    "_lps_roles": ["professor-titular"],
-    "_lps_affiliations": ["Universidade Federal do Rio de Janeiro"],
-    "_lps_photo_rights": "not-cleared",
-    "_lps_privacy_reviewed": false
+    "_lps_person_status": "in-memoriam",
+    "_lps_roles": [
+      "professor-titular"
+    ],
+    "_lps_affiliations": [
+      "Professor Titular da UFRJ",
+      "Programa de Engenharia Elétrica da COPPE",
+      "Escola Politécnica"
+    ],
+    "_lps_photo_rights": "cleared",
+    "_lps_privacy_reviewed": true,
+    "_lps_in_memoriam_approved": true,
+    "_lps_photo_url": "/wp-content/uploads/people/jose-seixas.jpg",
+    "_lps_photo_alt": "José Manoel de Seixas"
   },
   "locales": {
     "pt-br": {
       "title": "José Manoel de Seixas",
       "slug": "jose-manoel-de-seixas",
-      "excerpt": "Professor Titular da UFRJ, com atuação em inteligência computacional, calorimetria de altas energias, tecnologia sonar, processamento de sinais e instrumentação eletrônica.",
+      "excerpt": "In memoriam · Professor Titular",
       "content": [
-        "José Manoel de Seixas é graduado em Matemática (1979) e em Engenharia Elétrica (1979) pela Pontifícia Universidade Católica do Rio de Janeiro, mestre em Engenharia Elétrica (1983) e doutor em Engenharia Elétrica (1994) pela Universidade Federal do Rio de Janeiro.",
-        "Atualmente é Professor Titular da Universidade Federal do Rio de Janeiro.",
-        "Tem experiência na área de Engenharia Elétrica, com ênfase em circuitos elétricos, magnéticos e eletrônicos, atuando principalmente em inteligência computacional, calorimetria de altas energias, tecnologia sonar, processamento de sinais e instrumentação eletrônica."
+        "Graduado em Matemática (1979) e em Engenharia Elétrica (1979) pela PUC-Rio, com mestrado (1983) e doutorado (1994) em Engenharia Elétrica pela UFRJ. Foi Professor Titular da UFRJ.",
+        "Atuou em circuitos elétricos, magnéticos e eletrônicos, com ênfase em inteligência computacional, calorimetria de altas energias, tecnologia sonar, processamento de sinais e instrumentação eletrônica.",
+        "Foi coordenador do LPS no perfil institucional do laboratório junto à COPPE EMBRAPII."
       ]
     },
     "en": {
       "title": "José Manoel de Seixas",
       "slug": "jose-manoel-de-seixas",
-      "excerpt": "Full professor at UFRJ working on computational intelligence, high-energy calorimetry, sonar technology, signal processing and electronic instrumentation.",
+      "excerpt": "In memoriam · Full professor",
       "content": [
-        "José Manoel de Seixas holds undergraduate degrees in Mathematics (1979) and Electrical Engineering (1979) from the Pontifical Catholic University of Rio de Janeiro, a master's degree in Electrical Engineering (1983) and a doctorate in Electrical Engineering (1994) from the Federal University of Rio de Janeiro.",
-        "He is currently a full professor at the Federal University of Rio de Janeiro.",
-        "His experience is in Electrical Engineering, with emphasis on electrical, magnetic and electronic circuits, working mainly on computational intelligence, high-energy calorimetry, sonar technology, signal processing and electronic instrumentation."
+        "Degrees in Mathematics (1979) and Electrical Engineering (1979) from PUC-Rio, with a master (1983) and doctorate (1994) in Electrical Engineering from UFRJ. He was a full professor at UFRJ.",
+        "He worked on electrical, magnetic and electronic circuits, with emphasis on computational intelligence, high-energy calorimetry, sonar technology, signal processing and electronic instrumentation.",
+        "He was the LPS coordinator in the laboratory institutional profile at COPPE EMBRAPII."
       ],
       "translation": {
         "authoritativeLocale": "pt-br",

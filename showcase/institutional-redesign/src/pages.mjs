@@ -1896,10 +1896,13 @@ ${
               .map((area) => `<li>${esc(area)}</li>`)
               .join("")}</ul>`
           : ""
-      }${alert({ tone: "info", title: t(copy.subjectsEmptyTitle ?? copy.subjects, locale), body: t(copy.subjectsEmpty, locale) })}`
+      }${person.inMemoriam ? "" : alert({ tone: "info", title: t(copy.subjectsEmptyTitle ?? copy.subjects, locale), body: t(copy.subjectsEmpty, locale) })}`
 }
 </section>
-<section class="lps-section" aria-labelledby="person-notes">
+${
+  person.inMemoriam
+    ? ""
+    : `<section class="lps-section" aria-labelledby="person-notes">
 ${sectionHead({ kicker: en ? "Lessons" : "Aulas", title: t(copy.notes, locale), id: "person-notes" })}
 ${
   person.notes?.length
@@ -1911,7 +1914,8 @@ ${
         .join("")}</ul>`
     : alert({ tone: "info", body: t(copy.notesEmpty, locale) })
 }
-</section>
+</section>`
+}
 <section class="lps-section" aria-labelledby="person-where">
 ${sectionHead({ kicker: en ? "Links" : "Links", title: t(copy.where, locale), id: "person-where" })}
 <div class="lps-grid lps-grid--2">
@@ -1933,7 +1937,10 @@ ${card({
 })}
 </div>
 </section>
-<section class="lps-section">
+${
+  person.inMemoriam
+    ? ""
+    : `<section class="lps-section">
 ${ctaBand({
   title: t(copy.owner, locale),
   body: en
@@ -1941,7 +1948,8 @@ ${ctaBand({
     : "O professor edita esta página na Minha área.",
   actions: [{ href: en ? "/en/sign-in/" : "/entrar/", label: t(member.signIn.title, locale) }],
 })}
-</section>
+</section>`
+}
 </div>
 </div>
 </div>`;
