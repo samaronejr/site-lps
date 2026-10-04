@@ -5594,3 +5594,9 @@ form input[type="checkbox"] {
   block-size: 1.5rem;
   inline-size: 1.5rem;
 }
+
+/* The partner band is a focus stop (focus pauses it); the ring sits inside
+   the overflow clip. */
+.lps-partner-marquee:focus-visible {
+  outline-offset: calc(var(--line-medium) * -2);
+}
