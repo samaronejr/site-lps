@@ -528,13 +528,13 @@ final class Homepage {
 		$stats = 'en' === $locale
 			? array(
 				array( '1996', 'Founded' ),
-				array( '4', 'Full-time professors' ),
+				array( '3', 'Professors' ),
 				array( '310 m²', 'Facilities in Building H' ),
 				array( '1988', 'UFRJ–CERN collaboration' ),
 			)
 			: array(
 				array( '1996', 'Ano de fundação' ),
-				array( '4', 'Professores em tempo integral' ),
+				array( '3', 'Professores' ),
 				array( '310 m²', 'Instalações no Bloco H' ),
 				array( '1988', 'Colaboração UFRJ–CERN' ),
 			);
@@ -931,7 +931,17 @@ final class Homepage {
 	 * @param string                           $locale Supported locale.
 	 */
 	private static function people_module( array $items, string $locale ): string {
-		$items = array_slice( array_values( array_filter( $items, static fn( array $record ): bool => ( $record['section'] ?? '' ) === 'people' ) ), 0, 5 );
+		$items = array_slice(
+			array_values(
+				array_filter(
+					$items,
+					static fn( array $record ): bool => ( $record['section'] ?? '' ) === 'people'
+						&& 'in-memoriam' !== self::person_status( $record )
+				)
+			),
+			0,
+			5
+		);
 		if ( array() === $items ) {
 			return '';
 		}
@@ -952,6 +962,16 @@ final class Homepage {
 	}
 
 	/**
+	 * Returns the governed person status stored on the record's post.
+	 *
+	 * @param array<string, mixed> $record CMS record.
+	 */
+	private static function person_status( array $record ): string {
+		$post_id = self::num( $record['post_id'] ?? 0 );
+		return 0 < $post_id ? self::text( get_post_meta( $post_id, '_lps_person_status', true ) ) : '';
+	}
+
+	/**
 	 * Renders one person record as a people card.
 	 *
 	 * The monogram replaces the photo slot when the person's image rights are
@@ -964,7 +984,7 @@ final class Homepage {
 	private static function person_card_markup( array $record, string $locale ): string {
 		$english  = 'en' === $locale;
 		$post_id  = self::num( $record['post_id'] ?? 0 );
-		$status   = 0 < $post_id ? self::text( get_post_meta( $post_id, '_lps_person_status', true ) ) : '';
+		$status   = self::person_status( $record );
 		$memoriam = 'in-memoriam' === $status;
 		$roles    = 0 < $post_id ? get_post_meta( $post_id, '_lps_roles', true ) : array();
 		$email    = 0 < $post_id ? trim( self::text( get_post_meta( $post_id, '_lps_public_email', true ) ) ) : '';
@@ -1247,7 +1267,7 @@ final class Homepage {
 			'people'         => array(
 				'kicker' => $english ? 'People' : 'Pessoas',
 				'title'  => $english ? 'Who works here' : 'Quem trabalha aqui',
-				'lead'   => $english ? 'Four full-time professors, two of them tenured, plus post-doctoral researchers and graduate and undergraduate students.' : 'Quatro professores em tempo integral, dos quais dois são titulares, além de pesquisadores de pós-doutorado e estudantes de pós-graduação e graduação.',
+				'lead'   => $english ? 'The laboratory\'s professors, plus post-doctoral researchers and graduate and undergraduate students.' : 'Os professores do laboratório, além de pesquisadores de pós-doutorado e estudantes de pós-graduação e graduação.',
 				'more'   => $english ? '/en/people/' : '/pt-br/pessoas/',
 			),
 			'latest'         => array(
