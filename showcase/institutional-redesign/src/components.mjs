@@ -315,7 +315,11 @@ ${action || meta || foot ? `<div class="lps-card-foot">${meta ? `<span class="lp
 
 export function personCard(locale, person) {
   const role = pick(person.role, locale);
+  const media = person.photo
+    ? `<img class="lps-person-card-photo" src="${esc(person.photo)}" alt="" loading="lazy" decoding="async">`
+    : `<span class="lps-monogram${person.inMemoriam ? " lps-monogram--memoriam" : ""}">${esc(person.initials)}</span>`;
   return `<article class="lps-person-card" id="${esc(person.slug)}">
+<div class="lps-person-media" aria-hidden="true"><div class="lps-person-media-frame">${media}</div></div>
 <div class="lps-person-header">
 <span class="lps-monogram${person.inMemoriam ? " lps-monogram--memoriam" : ""}" aria-hidden="true">${esc(person.initials)}</span>
 <div>

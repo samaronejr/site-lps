@@ -528,13 +528,13 @@ final class Homepage {
 		$stats = 'en' === $locale
 			? array(
 				array( '1996', 'Founded' ),
-				array( '4', 'Full-time professors' ),
+				array( '3', 'Professors' ),
 				array( '310 m²', 'Facilities in Building H' ),
 				array( '1988', 'UFRJ–CERN collaboration' ),
 			)
 			: array(
 				array( '1996', 'Ano de fundação' ),
-				array( '4', 'Professores em tempo integral' ),
+				array( '3', 'Professores' ),
 				array( '310 m²', 'Instalações no Bloco H' ),
 				array( '1988', 'Colaboração UFRJ–CERN' ),
 			);
@@ -1247,7 +1247,7 @@ final class Homepage {
 			'people'         => array(
 				'kicker' => $english ? 'People' : 'Pessoas',
 				'title'  => $english ? 'Who works here' : 'Quem trabalha aqui',
-				'lead'   => $english ? 'Four full-time professors, two of them tenured, plus post-doctoral researchers and graduate and undergraduate students.' : 'Quatro professores em tempo integral, dos quais dois são titulares, além de pesquisadores de pós-doutorado e estudantes de pós-graduação e graduação.',
+				'lead'   => $english ? 'The laboratory\'s professors, plus post-doctoral researchers and graduate and undergraduate students.' : 'Os professores do laboratório, além de pesquisadores de pós-doutorado e estudantes de pós-graduação e graduação.',
 				'more'   => $english ? '/en/people/' : '/pt-br/pessoas/',
 			),
 			'latest'         => array(

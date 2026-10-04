@@ -18,14 +18,20 @@ final class PublicSurfaces {
 	 * @param array<mixed,mixed> $people People rows.
 	 */
 	public static function people_listing( string $locale, array $people ): string {
-		$english = 'en' === $locale;
-		$listed  = array();
+		$english  = 'en' === $locale;
+		$active   = array();
+		$memoriam = array();
 		foreach ( $people as $person ) {
 			if ( ! is_array( $person ) || ! self::is_published( $person ) ) {
 				continue;
 			}
-			$listed[] = $person;
+			if ( 'in-memoriam' === self::text( $person['status'] ?? '' ) ) {
+				$memoriam[] = $person;
+			} else {
+				$active[] = $person;
+			}
 		}
+		$listed      = array_merge( $active, $memoriam );
 		$collisions  = self::colliding_names( $listed );
 		$status_opts = self::status_options( $locale );
 		$role_opts   = self::role_options( $locale );
@@ -36,13 +42,44 @@ final class PublicSurfaces {
 			. '<p class="lps-kicker">' . self::esc( $english ? 'Faculty' : 'Corpo docente' ) . '</p>'
 			. '<h2 id="people-faculty">' . self::esc( $english ? 'Faculty' : 'Professores' ) . '</h2>'
 			. '</div></div>';
-		$html .= '<div class="lps-people-grid">';
-		foreach ( $listed as $person ) {
+		$html .= '<div class="lps-people-grid lps-people-grid--gallery">';
+		foreach ( $active as $person ) {
 			$html .= self::person_card( $person, self::text( $person['status'] ?? '' ), $collisions, $status_opts, $role_opts, $locale );
 		}
 		$html .= '</div></section>';
+		if ( array() !== $memoriam ) {
+			$html .= self::people_memoriam_section( $locale, $memoriam, $collisions, $status_opts, $role_opts );
+		}
 		$html .= self::people_epilogue( $locale );
 		$html .= '</div>';
+		return $html;
+	}
+
+	/**
+	 * Renders the memorial band that honors the laboratory's deceased professors.
+	 *
+	 * @param string                         $locale      Supported locale slug.
+	 * @param array<int, array<mixed,mixed>> $memoriam    Persons whose status is in-memoriam.
+	 * @param array<int, string>             $collisions  Normalized names present more than once.
+	 * @param array<string, string>          $status_opts Localized status labels.
+	 * @param array<string, string>          $role_opts   Localized role labels.
+	 */
+	private static function people_memoriam_section( string $locale, array $memoriam, array $collisions, array $status_opts, array $role_opts ): string {
+		$english = 'en' === $locale;
+		$html    = '<section class="lps-section lps-memoriam" aria-labelledby="people-memoriam">';
+		$html   .= '<div class="lps-section-head"><div>'
+			. '<p class="lps-kicker">' . self::esc( $english ? 'Tribute' : 'Homenagem' ) . '</p>'
+			. '<h2 id="people-memoriam">' . self::esc( $english ? 'In memoriam' : 'Em memória' ) . '</h2>'
+			. '</div><div><p class="lps-lead">' . self::esc(
+				$english
+					? 'The laboratory honors the professors who helped build its history.'
+					: 'O laboratório homenageia os professores que ajudaram a construir sua história.'
+			) . '</p></div></div>';
+		$html   .= '<div class="lps-people-grid lps-people-grid--gallery">';
+		foreach ( $memoriam as $person ) {
+			$html .= self::person_card( $person, self::text( $person['status'] ?? '' ), $collisions, $status_opts, $role_opts, $locale );
+		}
+		$html .= '</div></section>';
 		return $html;
 	}
 
@@ -159,7 +196,13 @@ final class PublicSurfaces {
 			array_unshift( $role_line, $status_opts[ $status ] );
 		}
 
+		$photo_url = self::text( $person['photo_url'] ?? '' );
+		$media     = '' !== $photo_url && self::local_file_exists( $photo_url )
+			? '<img class="lps-person-card-photo" src="' . self::esc( $photo_url ) . '" alt="" loading="lazy" decoding="async">'
+			: '<span class="lps-monogram' . ( 'in-memoriam' === $status ? ' lps-monogram--memoriam' : '' ) . '">' . self::esc( self::monogram( $name ) ) . '</span>';
+
 		$html  = '<article class="lps-person-card" id="' . self::esc( $slug ) . '">';
+		$html .= '<div class="lps-person-media" aria-hidden="true"><div class="lps-person-media-frame">' . $media . '</div></div>';
 		$html .= '<div class="lps-person-header">';
 		$html .= '<span class="lps-monogram' . ( 'in-memoriam' === $status ? ' lps-monogram--memoriam' : '' ) . '" aria-hidden="true">' . self::esc( self::monogram( $name ) ) . '</span>';
 		$html .= '<div><h3>' . self::esc( $name ) . '</h3>';
@@ -276,6 +319,11 @@ final class PublicSurfaces {
 
 		$html .= '<div class="lps-page-grid"><div class="lps-with-aside lps-with-aside--single"><div class="lps-stack">';
 
+		$memoriam = 'in-memoriam' === $status;
+		if ( $memoriam ) {
+			$html .= '<div class="lps-alert lps-alert-info"><p>' . self::esc( $english ? 'Page kept in memoriam. The professor\'s archive remains available at the laboratory.' : 'Página mantida em memória. O acervo do professor continua disponível no laboratório.' ) . '</p></div>';
+		}
+
 		$reviewed  = (bool) ( $person['privacy_reviewed'] ?? false );
 		$photo_url = self::text( $person['photo_url'] ?? '' );
 		$rights    = self::text( $person['photo_rights'] ?? '' );
@@ -350,9 +398,11 @@ final class PublicSurfaces {
 			}
 		}
 
-		$html .= '<section class="lps-section" aria-labelledby="lps-person-notes">';
-		$html .= '<div class="lps-section-head"><div><p class="lps-kicker">' . self::esc( $english ? 'Classes' : 'Aulas' ) . '</p><h2 id="lps-person-notes">' . self::esc( $english ? 'Classes and notes' : 'Aulas e notas' ) . '</h2></div></div>';
-		$html .= '<div class="lps-alert lps-alert-info"><p>' . self::esc( $english ? 'Class material is published by the professor in the restricted area. When this professor publishes material, it appears here.' : 'O material de aula é publicado pelo professor na área restrita. Quando houver material deste professor, ele aparece aqui.' ) . '</p></div></section>';
+		if ( ! $memoriam ) {
+			$html .= '<section class="lps-section" aria-labelledby="lps-person-notes">';
+			$html .= '<div class="lps-section-head"><div><p class="lps-kicker">' . self::esc( $english ? 'Classes' : 'Aulas' ) . '</p><h2 id="lps-person-notes">' . self::esc( $english ? 'Classes and notes' : 'Aulas e notas' ) . '</h2></div></div>';
+			$html .= '<div class="lps-alert lps-alert-info"><p>' . self::esc( $english ? 'Class material is published by the professor in the restricted area. When this professor publishes material, it appears here.' : 'O material de aula é publicado pelo professor na área restrita. Quando houver material deste professor, ele aparece aqui.' ) . '</p></div></section>';
+		}
 
 		$email = $reviewed ? trim( self::text( $person['public_email'] ?? '' ) ) : '';
 		$orcid = trim( self::text( $person['orcid'] ?? '' ) );
@@ -395,8 +445,10 @@ final class PublicSurfaces {
 			$html .= '<div class="lps-grid lps-grid--2">' . $cards . '</div></section>';
 		}
 
-		$sign_in = $english ? '/en/sign-in/' : '/pt-br/entrar/';
-		$html   .= '<section class="lps-section"><div class="lps-cta-band lps-cta-band--split"><div><h2>' . self::esc( $english ? 'Are you this professor? Sign in to edit this page.' : 'É este professor? Entre para editar esta página.' ) . '</h2><p>' . self::esc( $english ? 'Editing this page uses the same account as the laboratory editorial system.' : 'A edição desta página usa a mesma conta do sistema editorial do laboratório.' ) . '</p></div><div class="lps-button-row"><a class="lps-button lps-button-primary" href="' . self::esc( $sign_in ) . '">' . self::esc( $english ? 'Sign in' : 'Entrar no site' ) . '</a></div></div></section>';
+		if ( ! $memoriam ) {
+			$sign_in = $english ? '/en/sign-in/' : '/pt-br/entrar/';
+			$html   .= '<section class="lps-section"><div class="lps-cta-band lps-cta-band--split"><div><h2>' . self::esc( $english ? 'Are you this professor? Sign in to edit this page.' : 'É este professor? Entre para editar esta página.' ) . '</h2><p>' . self::esc( $english ? 'Editing this page uses the same account as the laboratory editorial system.' : 'A edição desta página usa a mesma conta do sistema editorial do laboratório.' ) . '</p></div><div class="lps-button-row"><a class="lps-button lps-button-primary" href="' . self::esc( $sign_in ) . '">' . self::esc( $english ? 'Sign in' : 'Entrar no site' ) . '</a></div></div></section>';
+		}
 
 		$html .= '</div></div></div></article>';
 		return $html;

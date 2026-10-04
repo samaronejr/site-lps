@@ -64,6 +64,15 @@ async function copyAssets() {
     join(outRoot, "assets", "img", "partners"),
     { recursive: true },
   );
+
+  // Published record photos (the same files WP serves from uploads/).
+  await cp(
+    join(previewRoot, "content", "media", "people"),
+    join(outRoot, "assets", "img", "people"),
+    {
+      recursive: true,
+    },
+  );
 }
 
 async function writePage(route, locale) {
