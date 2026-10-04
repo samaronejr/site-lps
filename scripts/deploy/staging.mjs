@@ -353,6 +353,14 @@ function phpScript(script, options = {}) {
 
 // --- provision --------------------------------------------------------------
 
+function seedUploads() {
+  const src = `${REPO}/content/media/uploads`;
+  if (existsSync(src)) {
+    // Tracked content media seeds the shared uploads volume without overwriting runtime uploads.
+    cpSync(src, `${OPS}/uploads`, { recursive: true, force: false, errorOnExist: false });
+  }
+}
+
 function provision(id) {
   const steps = [];
   const fail = (why) => {
@@ -424,6 +432,9 @@ function provision(id) {
   rmSync(`${dest}/wp-content/database`, { recursive: true, force: true });
   rmSync(`${dest}/wp-content/debug.log`, { force: true });
   steps.push({ check: "copy-artifacts", ok: true });
+
+  seedUploads();
+  steps.push({ check: "seed-uploads", ok: true });
 
   // Deployed bytes must equal the pinned artifacts exactly (no content drift).
   const drift = [];
@@ -1604,6 +1615,9 @@ async function deploy(id) {
   } else {
     steps.push({ name: "provision", ok: true, note: "release exists" });
   }
+
+  seedUploads();
+  steps.push({ name: "seed-uploads", ok: true });
 
   const boot = bootCheck(id);
   steps.push({ name: "boot-check", ok: boot.ok, reason: boot.reason });

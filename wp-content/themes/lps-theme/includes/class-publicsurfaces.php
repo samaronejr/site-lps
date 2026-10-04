@@ -375,7 +375,7 @@ final class PublicSurfaces {
 			$html .= '</ul></section>';
 		}
 
-		$html .= self::teaching_section( $person, $locale );
+		$html .= self::teaching_section( $person, $locale, $memoriam );
 
 		$history = isset( $person['history'] ) && is_array( $person['history'] ) ? $person['history'] : array();
 		if ( array() !== $history ) {
@@ -463,8 +463,9 @@ final class PublicSurfaces {
 	 *
 	 * @param array<mixed,mixed> $person Person row.
 	 * @param string             $locale Supported locale slug.
+	 * @param bool               $memoriam Whether the person is in memoriam.
 	 */
-	private static function teaching_section( array $person, string $locale ): string {
+	private static function teaching_section( array $person, string $locale, bool $memoriam = false ): string {
 		$english = 'en' === $locale;
 		$entries = isset( $person['teaching'] ) && is_array( $person['teaching'] ) ? $person['teaching'] : array();
 		$courses = array();
@@ -479,6 +480,9 @@ final class PublicSurfaces {
 				continue;
 			}
 			$courses[ $slug ] = $course;
+		}
+		if ( $memoriam && array() === $courses ) {
+			return '';
 		}
 		$html  = '<section class="lps-section lps-person-teaching" aria-labelledby="lps-person-subjects">';
 		$html .= '<div class="lps-section-head"><div><p class="lps-kicker">' . self::esc( $english ? 'Teaching' : 'Docência' ) . '</p><h2 id="lps-person-subjects">' . self::esc( $english ? 'Courses' : 'Disciplinas' ) . '</h2></div></div>';

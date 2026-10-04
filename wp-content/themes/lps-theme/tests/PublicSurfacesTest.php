@@ -91,6 +91,41 @@ final class PublicSurfacesTest extends \PHPUnit\Framework\TestCase {
 		self::assertStringContainsString( '<img class="lps-person-photo" src="/wp-content/uploads/present-portrait.jpg" alt="Retrato.">', $html );
 	}
 
+	/** An in-memoriam profile without courses omits the empty teaching section. */
+	public function test_memorial_profile_omits_empty_teaching_section(): void {
+		$html = PublicSurfaces::person_profile(
+			'pt-br',
+			array(
+				'slug'      => 'jose-manoel-de-seixas',
+				'name'      => 'José Manoel de Seixas',
+				'roles'     => array( 'professor-titular' ),
+				'status'    => 'in-memoriam',
+				'published' => true,
+				'teaching'  => array(),
+			)
+		);
+
+		self::assertStringNotContainsString( 'lps-person-teaching', $html );
+		self::assertStringNotContainsString( 'Nenhuma oferta publicada', $html );
+	}
+
+	/** An active profile without courses keeps the published-offerings notice. */
+	public function test_active_profile_keeps_empty_teaching_notice(): void {
+		$html = PublicSurfaces::person_profile(
+			'pt-br',
+			array(
+				'slug'      => 'professor',
+				'name'      => 'Professor Ativo',
+				'roles'     => array( 'professor' ),
+				'status'    => 'active',
+				'published' => true,
+				'teaching'  => array(),
+			)
+		);
+
+		self::assertStringContainsString( 'Nenhuma oferta publicada', $html );
+	}
+
 	/** A record heading is an H1 only where the record owns the page. */
 	public function test_organization_heading_level_follows_its_context(): void {
 		$public = array(

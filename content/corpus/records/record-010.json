@@ -20,13 +20,12 @@
         "named-role-and-collection-assignments",
         "translation-review-pending",
         "privacy-legal-bases",
-        "person-photo-rights-and-privacy-review-unresolved",
         "third-party-listed-email-not-approved-for-publication"
       ]
     },
     "rights": {
       "state": "public-record",
-      "basis": "Public institutional profile page published under the lps.ufrj.br site. An email address and telephone number appear on a third-party EMBRAPII/COPPE directory listing; a directory listing is not evidence of an intended public contact route, so neither was migrated.",
+      "basis": "Public institutional profile page published under the lps.ufrj.br site. An email address and telephone number appear on a third-party EMBRAPII/COPPE directory listing; a directory listing is not evidence of an intended public contact route, so neither was migrated. The memorial portrait was supplied by LPS for this page and is credited Acervo LPS/UFRJ.",
       "assetsIncluded": [],
       "personalDataPublished": false
     },
