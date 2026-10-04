@@ -2651,7 +2651,7 @@ input[type="file"]::file-selector-button:hover {
 }
 
 /* Directory variant: cards reflow into rows and the card under the pointer
-   widens while a large centred media zone opens above its name — the record
+   opens a square media zone, as wide as the card, above its name — the record
    photo when published, the monogram otherwise. */
 .lps-people-grid--gallery {
   align-items: start;
@@ -2662,7 +2662,7 @@ input[type="file"]::file-selector-button:hover {
 }
 
 .lps-people-grid--gallery > .lps-person-card {
-  flex: 1 1 min(16.5rem, 100%);
+  flex: 0 1 min(18rem, 100%);
 }
 
 .lps-person-media {
@@ -2673,8 +2673,6 @@ input[type="file"]::file-selector-button:hover {
 
 .lps-person-media-frame {
   border-radius: var(--radius-card);
-  inline-size: min(100%, 11.25rem);
-  justify-self: center;
   min-block-size: 0;
   opacity: 0;
   overflow: clip;
@@ -2685,15 +2683,15 @@ input[type="file"]::file-selector-button:hover {
 }
 
 .lps-person-media-frame .lps-monogram {
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 1;
   block-size: auto;
   border-radius: var(--radius-card);
-  font-size: 3.5rem;
+  font-size: 4rem;
   inline-size: 100%;
 }
 
 .lps-person-card-photo {
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 1;
   block-size: auto;
   display: block;
   inline-size: 100%;
@@ -2701,11 +2699,6 @@ input[type="file"]::file-selector-button:hover {
   object-position: center 30%;
   transform: scale(1.08);
   transition: transform calc(var(--motion-reveal) * 1.4) var(--ease-reveal);
-}
-
-.lps-people-grid--gallery > .lps-person-card:hover,
-.lps-people-grid--gallery > .lps-person-card:focus-within {
-  flex-grow: 2.4;
 }
 
 .lps-people-grid--gallery .lps-person-card:hover .lps-person-media,
