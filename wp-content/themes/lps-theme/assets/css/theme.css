@@ -2665,6 +2665,12 @@ input[type="file"]::file-selector-button:hover {
   flex: 0 1 min(18rem, 100%);
 }
 
+@media (max-width: 36rem) {
+  .lps-people-grid--gallery > .lps-person-card {
+    flex-basis: 100%;
+  }
+}
+
 .lps-person-media {
   display: grid;
   grid-template-rows: 0fr;
@@ -2723,7 +2729,7 @@ input[type="file"]::file-selector-button:hover {
 .lps-people-grid--gallery .lps-person-header > .lps-monogram {
   transform-origin: left center;
   transition:
-    opacity var(--motion-reveal) var(--ease-reveal),
+    opacity var(--motion-standard) var(--ease-state),
     scale var(--motion-reveal) var(--ease-reveal);
 }
 
