@@ -260,8 +260,8 @@ ${sectionHead({
   kicker: en ? "People" : "Pessoas",
   title: en ? "Who works here" : "Quem trabalha aqui",
   lead: en
-    ? "Four full-time professors, two of them full professors, plus post-doctoral researchers and graduate and undergraduate students."
-    : "Quatro professores em tempo integral, dos quais dois são titulares, além de pesquisadores de pós-doutorado e estudantes de pós-graduação e graduação.",
+    ? "The laboratory's professors, plus post-doctoral researchers and graduate and undergraduate students."
+    : "Os professores do laboratório, além de pesquisadores de pós-doutorado e estudantes de pós-graduação e graduação.",
   id: "home-people",
   action: { href: link(locale, "/pessoas/", "/en/people/"), label: `${u.seeAll} →` },
 })}
@@ -657,20 +657,39 @@ ${projects
 
 function peoplePage(locale) {
   const en = locale === "en";
+  const active = people.filter((person) => !person.inMemoriam);
+  const memoriam = people.filter((person) => person.inMemoriam);
   const body = `${pageHeader({
     kicker: en ? "People" : "Pessoas",
     title: en ? "The laboratory team" : "A equipe do laboratório",
     lead: en
-      ? "Four full-time professors — two of them full professors — coordinate the laboratory together with post-doctoral researchers and graduate and undergraduate students."
-      : "Quatro professores em tempo integral — dois deles titulares — coordenam o laboratório junto com pesquisadores de pós-doutorado e estudantes de pós-graduação e graduação.",
+      ? "The laboratory's professors coordinate it together with post-doctoral researchers and graduate and undergraduate students."
+      : "Os professores do laboratório o coordenam junto com pesquisadores de pós-doutorado e estudantes de pós-graduação e graduação.",
   })}
 <div class="lps-page-grid">
 <section class="lps-section lps-section--flush" aria-labelledby="people-faculty">
 ${sectionHead({ kicker: en ? "Faculty" : "Corpo docente", title: en ? "Professors" : "Professores", id: "people-faculty" })}
 <div class="lps-people-grid">
-${people.map((person) => personCard(locale, person)).join("")}
+${active.map((person) => personCard(locale, person)).join("")}
 </div>
 </section>
+${
+  memoriam.length
+    ? `<section class="lps-section lps-memoriam" aria-labelledby="people-memoriam">
+${sectionHead({
+  kicker: en ? "Tribute" : "Homenagem",
+  title: en ? "In memoriam" : "Em memória",
+  lead: en
+    ? "The laboratory honors the professors who helped build its history."
+    : "O laboratório homenageia os professores que ajudaram a construir sua história.",
+  id: "people-memoriam",
+})}
+<div class="lps-people-grid">
+${memoriam.map((person) => personCard(locale, person)).join("")}
+</div>
+</section>`
+    : ""
+}
 <section class="lps-section" id="equipe" aria-labelledby="people-team">
 ${sectionHead({ kicker: en ? "Team" : "Equipe", title: en ? "Researchers and students" : "Pesquisadores e estudantes", id: "people-team" })}
 <div class="lps-grid lps-grid--2">

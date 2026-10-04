@@ -996,8 +996,8 @@ final class Shell {
 				'kicker' => $english ? 'People' : 'Pessoas',
 				'title'  => $english ? 'The laboratory team' : 'A equipe do laboratório',
 				'lead'   => $english
-					? 'Four full-time professors — two of them full professors — coordinate the laboratory together with post-doctoral researchers and graduate and undergraduate students.'
-					: 'Quatro professores em tempo integral — dois deles titulares — coordenam o laboratório junto com pesquisadores de pós-doutorado e estudantes de pós-graduação e graduação.',
+					? 'The laboratory\'s professors coordinate it together with post-doctoral researchers and graduate and undergraduate students.'
+					: 'Os professores do laboratório o coordenam junto com pesquisadores de pós-doutorado e estudantes de pós-graduação e graduação.',
 			),
 			'lps_news'          => array(
 				'kicker' => $english ? 'News and events' : 'Notícias e eventos',
