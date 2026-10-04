@@ -1,104 +1,106 @@
 {
-  "schemaVersion": 1,
-  "inventoryRecord": "record-010",
-  "collection": "person",
-  "postType": "lps_person",
-  "recordKey": "jose-manoel-de-seixas",
-  "disposition": "migrate",
-  "governance": {
-    "ownerRole": "section-editor",
-    "namedOwner": null,
-    "ownerCandidate": "Person or LPS academic leadership",
-    "reviewCadence": "P90D",
-    "lastReviewedAt": "2026-09-06",
-    "nextReviewDate": "2026-12-05",
-    "reviewState": "candidate",
-    "editorialState": "draft",
-    "publishGate": {
-      "state": "draft",
-      "blockers": [
-        "named-role-and-collection-assignments",
-        "translation-review-pending",
-        "privacy-legal-bases",
-        "person-photo-rights-and-privacy-review-unresolved",
-        "third-party-listed-email-not-approved-for-publication"
-      ]
-    },
-    "rights": {
-      "state": "public-record",
-      "basis": "Public institutional profile page published under the lps.ufrj.br site. An email address and telephone number appear on a third-party EMBRAPII/COPPE directory listing; a directory listing is not evidence of an intended public contact route, so neither was migrated.",
-      "assetsIncluded": [],
-      "personalDataPublished": false
-    },
-    "provenance": {
-      "sourceUrl": "https://sites.google.com/lps.ufrj.br/seixas/in%C3%ADcio",
-      "inventoryProvenance": "live-http",
-      "inventoryCapturedAt": "2026-08-30T23:03:43Z",
-      "inventoryChecksum": "sha256:fa3adb8a8fa2030d63c21f76b60cae9c5ff754466175d4bf947f1c532c9fae09",
-      "reverification": {
-        "method": "anonymous public HTTP GET",
-        "evidenceFile": "content/corpus/evidence/record-010.txt"
-      }
-    },
-    "relationships": []
+ "schemaVersion": 1,
+ "inventoryRecord": "record-010",
+ "collection": "person",
+ "postType": "lps_person",
+ "recordKey": "jose-manoel-de-seixas",
+ "disposition": "migrate",
+ "governance": {
+  "ownerRole": "section-editor",
+  "namedOwner": null,
+  "ownerCandidate": "Person or LPS academic leadership",
+  "reviewCadence": "P90D",
+  "lastReviewedAt": "2026-09-06",
+  "nextReviewDate": "2026-12-05",
+  "reviewState": "candidate",
+  "editorialState": "draft",
+  "publishGate": {
+   "state": "draft",
+   "blockers": [
+    "named-role-and-collection-assignments",
+    "translation-review-pending",
+    "privacy-legal-bases",
+    "person-photo-rights-and-privacy-review-unresolved",
+    "third-party-listed-email-not-approved-for-publication"
+   ]
   },
-  "meta": {
-    "_lps_canonical_name": "José Manoel de Seixas",
-    "_lps_sort_name": "Seixas, José Manoel de",
-    "_lps_person_status": "in-memoriam",
-    "_lps_roles": ["professor-titular"],
-    "_lps_affiliations": [
-      "Professor Titular da UFRJ",
-      "Programa de Engenharia Elétrica da COPPE",
-      "Escola Politécnica"
-    ],
-    "_lps_photo_rights": "cleared",
-    "_lps_privacy_reviewed": true,
-    "_lps_in_memoriam_approved": true,
-    "_lps_photo_url": "/wp-content/uploads/people/jose-seixas.jpg",
-    "_lps_photo_alt": "José Manoel de Seixas"
+  "rights": {
+   "state": "public-record",
+   "basis": "Public institutional profile page published under the lps.ufrj.br site. An email address and telephone number appear on a third-party EMBRAPII/COPPE directory listing; a directory listing is not evidence of an intended public contact route, so neither was migrated.",
+   "assetsIncluded": [],
+   "personalDataPublished": false
   },
-  "locales": {
-    "pt-br": {
-      "title": "José Manoel de Seixas",
-      "slug": "jose-manoel-de-seixas",
-      "excerpt": "In memoriam · Professor Titular",
-      "content": [
-        "Graduado em Matemática (1979) e em Engenharia Elétrica (1979) pela PUC-Rio, com mestrado (1983) e doutorado (1994) em Engenharia Elétrica pela UFRJ. Foi Professor Titular da UFRJ.",
-        "Atuou em circuitos elétricos, magnéticos e eletrônicos, com ênfase em inteligência computacional, calorimetria de altas energias, tecnologia sonar, processamento de sinais e instrumentação eletrônica.",
-        "Foi coordenador do LPS no perfil institucional do laboratório junto à COPPE EMBRAPII."
-      ]
-    },
-    "en": {
-      "title": "José Manoel de Seixas",
-      "slug": "jose-manoel-de-seixas",
-      "excerpt": "In memoriam · Full professor",
-      "content": [
-        "Degrees in Mathematics (1979) and Electrical Engineering (1979) from PUC-Rio, with a master (1983) and doctorate (1994) in Electrical Engineering from UFRJ. He was a full professor at UFRJ.",
-        "He worked on electrical, magnetic and electronic circuits, with emphasis on computational intelligence, high-energy calorimetry, sonar technology, signal processing and electronic instrumentation.",
-        "He was the LPS coordinator in the laboratory institutional profile at COPPE EMBRAPII."
-      ],
-      "translation": {
-        "authoritativeLocale": "pt-br",
-        "method": "editorial-translation-by-migration-agent",
-        "machineTranslated": false,
-        "translatorRole": "translator",
-        "reviewerRole": "section-editor",
-        "reviewedBy": null,
-        "reviewState": "pending-independent-review"
-      }
-    }
+  "provenance": {
+   "sourceUrl": "https://sites.google.com/lps.ufrj.br/seixas/in%C3%ADcio",
+   "inventoryProvenance": "live-http",
+   "inventoryCapturedAt": "2026-08-30T23:03:43Z",
+   "inventoryChecksum": "sha256:fa3adb8a8fa2030d63c21f76b60cae9c5ff754466175d4bf947f1c532c9fae09",
+   "reverification": {
+    "method": "anonymous public HTTP GET",
+    "evidenceFile": "content/corpus/evidence/record-010.txt"
+   }
   },
-  "claims": [
-    {
-      "statement": "Degrees in Mathematics and Electrical Engineering (PUC-Rio, 1979), master's (1983) and doctorate (1994) at UFRJ.",
-      "evidenceQuote": "Possui graduação em Matemática pela Pontifícia Universidade Católica do Rio de Janeiro (1979), graduação em Engenharia Elétrica pela Pontifícia Universidade Católica do Rio de Janeiro (1979), mestrado em Engenharia Elétrica pela Universidade Federal do Rio de Janeiro (1983) e doutorado em Engenharia Elétrica pela Universidade Federal do Rio de Janeiro (1994).",
-      "sourceUrl": "https://sites.google.com/lps.ufrj.br/seixas/in%C3%ADcio"
-    },
-    {
-      "statement": "Currently a full professor at UFRJ with the listed research emphases.",
-      "evidenceQuote": "Atualmente é Professor Titular da Universidade Federal do Rio de Janeiro.",
-      "sourceUrl": "https://sites.google.com/lps.ufrj.br/seixas/in%C3%ADcio"
-    }
-  ]
+  "relationships": []
+ },
+ "meta": {
+  "_lps_canonical_name": "José Manoel de Seixas",
+  "_lps_sort_name": "Seixas, José Manoel de",
+  "_lps_person_status": "in-memoriam",
+  "_lps_roles": [
+   "professor-titular"
+  ],
+  "_lps_affiliations": [
+   "Professor Titular da UFRJ",
+   "Programa de Engenharia Elétrica da COPPE",
+   "Escola Politécnica"
+  ],
+  "_lps_photo_rights": "cleared",
+  "_lps_privacy_reviewed": true,
+  "_lps_in_memoriam_approved": true,
+  "_lps_photo_url": "/wp-content/uploads/people/jose-seixas.jpg",
+  "_lps_photo_alt": "José Manoel de Seixas"
+ },
+ "locales": {
+  "pt-br": {
+   "title": "José Manoel de Seixas",
+   "slug": "jose-manoel-de-seixas",
+   "excerpt": "Professor Titular da UFRJ, com atuação em inteligência computacional, calorimetria de altas energias, tecnologia sonar, processamento de sinais e instrumentação eletrônica (in memoriam).",
+   "content": [
+    "Graduado em Matemática (1979) e em Engenharia Elétrica (1979) pela PUC-Rio, com mestrado (1983) e doutorado (1994) em Engenharia Elétrica pela UFRJ. Foi Professor Titular da UFRJ.",
+    "Atuou em circuitos elétricos, magnéticos e eletrônicos, com ênfase em inteligência computacional, calorimetria de altas energias, tecnologia sonar, processamento de sinais e instrumentação eletrônica.",
+    "Foi coordenador do LPS no perfil institucional do laboratório junto à COPPE EMBRAPII."
+   ]
+  },
+  "en": {
+   "title": "José Manoel de Seixas",
+   "slug": "jose-manoel-de-seixas",
+   "excerpt": "Full professor at UFRJ working on computational intelligence, high-energy calorimetry, sonar technology, signal processing and electronic instrumentation (in memoriam).",
+   "content": [
+    "Degrees in Mathematics (1979) and Electrical Engineering (1979) from PUC-Rio, with a master (1983) and doctorate (1994) in Electrical Engineering from UFRJ. He was a full professor at UFRJ.",
+    "He worked on electrical, magnetic and electronic circuits, with emphasis on computational intelligence, high-energy calorimetry, sonar technology, signal processing and electronic instrumentation.",
+    "He was the LPS coordinator in the laboratory institutional profile at COPPE EMBRAPII."
+   ],
+   "translation": {
+    "authoritativeLocale": "pt-br",
+    "method": "editorial-translation-by-migration-agent",
+    "machineTranslated": false,
+    "translatorRole": "translator",
+    "reviewerRole": "section-editor",
+    "reviewedBy": null,
+    "reviewState": "pending-independent-review"
+   }
+  }
+ },
+ "claims": [
+  {
+   "statement": "Degrees in Mathematics and Electrical Engineering (PUC-Rio, 1979), master's (1983) and doctorate (1994) at UFRJ.",
+   "evidenceQuote": "Possui graduação em Matemática pela Pontifícia Universidade Católica do Rio de Janeiro (1979), graduação em Engenharia Elétrica pela Pontifícia Universidade Católica do Rio de Janeiro (1979), mestrado em Engenharia Elétrica pela Universidade Federal do Rio de Janeiro (1983) e doutorado em Engenharia Elétrica pela Universidade Federal do Rio de Janeiro (1994).",
+   "sourceUrl": "https://sites.google.com/lps.ufrj.br/seixas/in%C3%ADcio"
+  },
+  {
+   "statement": "Currently a full professor at UFRJ with the listed research emphases.",
+   "evidenceQuote": "Atualmente é Professor Titular da Universidade Federal do Rio de Janeiro.",
+   "sourceUrl": "https://sites.google.com/lps.ufrj.br/seixas/in%C3%ADcio"
+  }
+ ]
 }
