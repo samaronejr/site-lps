@@ -266,7 +266,10 @@ ${sectionHead({
   action: { href: link(locale, "/pessoas/", "/en/people/"), label: `${u.seeAll} →` },
 })}
 <div class="lps-people-grid">
-${people.map((person) => personCard(locale, person)).join("")}
+${people
+  .filter((person) => !person.inMemoriam)
+  .map((person) => personCard(locale, person))
+  .join("")}
 </div>
 </div>`,
   });
