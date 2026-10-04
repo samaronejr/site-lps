@@ -2654,21 +2654,19 @@ input[type="file"]::file-selector-button:hover {
    opens a square media zone, as wide as the card, above its name — the record
    photo when published, the monogram otherwise. */
 .lps-people-grid--gallery {
-  align-items: start;
-  display: flex;
-  flex-wrap: wrap;
+  grid-auto-flow: row;
+  grid-template-columns: repeat(auto-fill, minmax(min(17rem, 100%), 1fr));
   overflow-x: visible;
   padding-block-end: 0;
 }
 
 .lps-people-grid--gallery > .lps-person-card {
-  flex: 0 1 min(18rem, 100%);
+  display: flex;
+  flex-direction: column;
 }
 
-@media (max-width: 36rem) {
-  .lps-people-grid--gallery > .lps-person-card {
-    flex-basis: 100%;
-  }
+.lps-people-grid--gallery .lps-person-header {
+  align-items: start;
 }
 
 .lps-person-media {
