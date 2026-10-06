@@ -1691,12 +1691,20 @@ input[type="file"]::file-selector-button:hover {
   }
 
   /* The logo can never run under the Menu control: the 7.5rem reserve covers
-     the control plus the page gutter down to 320px viewports. */
-  .lps-masthead .lps-logo {
+     the control plus the page gutter down to 320px viewports. The slot cap
+     also bounds a supplied lps_masthead_mark, which bypasses the .lps-logo
+     rules — its paint and tap area stay left of the control. */
+  .lps-masthead .lps-logo,
+  .lps-masthead .lps-logo-slot > :is(img, svg) {
     block-size: clamp(1.875rem, 7.4vw, 2.5rem);
     max-inline-size: calc(100vw - var(--grid-gutter) - 7.5rem);
     object-fit: contain;
     object-position: left center;
+  }
+
+  .lps-masthead .lps-logo-slot {
+    max-inline-size: calc(100vw - var(--grid-gutter) - 7.5rem);
+    overflow: clip;
   }
 
   .lps-shell-disclosure {
@@ -2034,12 +2042,9 @@ input[type="file"]::file-selector-button:hover {
   position: absolute;
 }
 
-/* The decorative mark behind inner-page titles is noise at phone widths. */
-@media (max-width: 47.999rem) {
-  .lps-page-header::after {
-    display: none;
-  }
-}
+/* The decorative mark behind inner-page titles is noise at phone widths;
+   the suppression lives after the teal-accent override below so the same
+   pseudo-element's bottom-rule repaint keeps the band's border intact. */
 
 .lps-page-header-inner {
   padding-block: clamp(var(--space-10), 5vw, var(--space-16))
@@ -5097,6 +5102,18 @@ a.lps-button-ghost {
   block-size: var(--line-heavy);
   inset: auto 0 0 0;
   opacity: 1;
+}
+
+/* Phones hide the pseudo-element entirely, so the band's bottom rule must
+   come back through the element's own border rather than the painted bar. */
+@media (max-width: 47.999rem) {
+  .lps-page-header {
+    border-block-end: var(--rule-heavy);
+  }
+
+  .lps-page-header::after {
+    display: none;
+  }
 }
 /* News slider, event rows and institutional timeline. */
 .lps-slider-nav {
