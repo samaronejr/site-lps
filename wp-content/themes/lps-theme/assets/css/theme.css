@@ -993,8 +993,7 @@ a.lps-button-quiet:hover {
 }
 
 .lps-utility-bar {
-  background: var(--color-anchor);
-  border-block-end: var(--line-heavy) solid var(--color-accent);
+  background: var(--color-anchor-deep);
   color: var(--color-on-dark);
   font-size: var(--type-small);
 }
