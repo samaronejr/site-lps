@@ -1078,7 +1078,7 @@ final class Homepage {
 		if ( array() !== $logos ) {
 			$html .= '<section id="parceiros" class="lps-section" data-home-section="partners" aria-labelledby="home-partners"><div class="lps-page-grid">'
 				. self::section_head_markup( 'partners', 'home-partners', $locale )
-				. self::partner_marquee_markup( $logos )
+				. self::partner_marquee_markup( $logos, $locale )
 				. '</div></section>';
 		}
 		return $html . self::cta_band_markup( $contact, $locale );
@@ -1143,11 +1143,14 @@ final class Homepage {
 	 *
 	 * The track lists every mark once and then repeats it aria-hidden so the
 	 * loop reads as a continuous band; the animation is defined inline so the
-	 * marquee keeps working when only this fragment renders.
+	 * marquee keeps working when only this fragment renders. The wrapper is a
+	 * labelled keyboard stop: the track holds no controls, so the region itself
+	 * takes focus and the pause-on-focus rule still applies.
 	 *
-	 * @param array<int, array{src: string, alt: string}> $logos Logo pairs.
+	 * @param array<int, array{src: string, alt: string}> $logos  Logo pairs.
+	 * @param string                                      $locale Supported locale.
 	 */
-	public static function partner_marquee_markup( array $logos ): string {
+	public static function partner_marquee_markup( array $logos, string $locale ): string {
 		$items = '';
 		foreach ( $logos as $logo ) {
 			$items .= '<li><img src="' . self::escape( $logo['src'] ) . '" alt="' . self::escape( $logo['alt'] ) . '" decoding="async" /></li>';
@@ -1155,7 +1158,8 @@ final class Homepage {
 		foreach ( $logos as $logo ) {
 			$items .= '<li aria-hidden="true"><img src="' . self::escape( $logo['src'] ) . '" alt="" decoding="async" /></li>';
 		}
-		return '<div class="lps-partner-marquee"><style>@keyframes lps-partner-drift{from{transform:translateX(-50%)}to{transform:translateX(0)}}.lps-partner-track{animation:lps-partner-drift 60s linear infinite}.lps-partner-track--roomy{animation-duration:90s}.lps-partner-marquee:hover .lps-partner-track,.lps-partner-marquee:focus-within .lps-partner-track{animation-play-state:paused}@media (prefers-reduced-motion:reduce){.lps-partner-track{animation:none}}</style><ul class="lps-partner-track lps-partner-track--roomy">' . $items . '</ul></div>';
+		$label = 'en' === $locale ? 'Partners and funders' : 'Parceiros e financiadores';
+		return '<div class="lps-partner-marquee" role="region" tabindex="0" aria-label="' . self::escape( $label ) . '"><style>@keyframes lps-partner-drift{from{transform:translateX(-50%)}to{transform:translateX(0)}}.lps-partner-track{animation:lps-partner-drift 60s linear infinite}.lps-partner-track--roomy{animation-duration:90s}.lps-partner-marquee:hover .lps-partner-track,.lps-partner-marquee:focus-within .lps-partner-track{animation-play-state:paused}@media (prefers-reduced-motion:reduce){.lps-partner-track{animation:none}}</style><ul class="lps-partner-track lps-partner-track--roomy">' . $items . '</ul></div>';
 	}
 
 	/**
