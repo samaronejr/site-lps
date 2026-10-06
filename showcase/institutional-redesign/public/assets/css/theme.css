@@ -993,8 +993,7 @@ a.lps-button-quiet:hover {
 }
 
 .lps-utility-bar {
-  background: var(--color-anchor);
-  border-block-end: var(--line-heavy) solid var(--color-accent);
+  background: var(--color-anchor-deep);
   color: var(--color-on-dark);
   font-size: var(--type-small);
 }
@@ -1650,6 +1649,123 @@ input[type="file"]::file-selector-button:hover {
   }
 }
 
+/* Compact mobile header: the menu control rides the masthead row instead of a
+   third chrome tier, so the hero lands above the fold. Both grid items share
+   row 2 — the disclosure passes pointer events through the logo's side while
+   the brand stays clickable, and the affiliation line drops because the logo
+   lockup already restates it. */
+@media (max-width: 59.999rem) {
+  .lps-site-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .lps-utility-bar {
+    grid-row: 1;
+  }
+
+  .lps-utility-inner {
+    justify-content: flex-end;
+  }
+
+  .lps-utility-inner > p {
+    display: none;
+  }
+
+  .lps-masthead,
+  .lps-shell-disclosure {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .lps-masthead {
+    align-self: start;
+    pointer-events: none;
+    position: relative;
+    z-index: 1;
+  }
+
+  .lps-masthead .lps-brand {
+    pointer-events: auto;
+  }
+
+  /* The logo can never run under the Menu control: the 7.5rem reserve covers
+     the control plus the page gutter down to 320px viewports. The slot cap
+     also bounds a supplied lps_masthead_mark, which bypasses the .lps-logo
+     rules — its paint and tap area stay left of the control. */
+  .lps-masthead .lps-logo,
+  .lps-masthead .lps-logo-slot > :is(img, svg) {
+    block-size: clamp(1.875rem, 7.4vw, 2.5rem);
+    max-inline-size: calc(100vw - var(--grid-gutter) - 7.5rem);
+    object-fit: contain;
+    object-position: left center;
+  }
+
+  .lps-masthead .lps-logo-slot {
+    max-inline-size: calc(100vw - var(--grid-gutter) - 7.5rem);
+    overflow: clip;
+  }
+
+  .lps-shell-disclosure {
+    align-self: center;
+    border-block-start: 0;
+  }
+
+  .lps-shell-disclosure > summary {
+    border-inline-start: var(--rule-hairline);
+    inline-size: max-content;
+    margin-inline-start: auto;
+    min-block-size: 4.25rem;
+  }
+
+  /* The open panel keeps the ruled grammar: one hairline on top, separators
+     between destinations, and 48px full-width tap targets. */
+  .lps-nav-panel {
+    border-block-start: var(--rule-hairline);
+  }
+
+  .lps-nav-panel .lps-primary-nav > ul > .lps-nav-item + .lps-nav-item {
+    border-block-start: var(--rule-hairline);
+  }
+
+  .lps-nav-panel .lps-primary-nav a {
+    display: flex;
+    min-block-size: 3rem;
+  }
+
+  /* Submenu indicators are noise at this width — the nested rail already
+     reads as a second level. */
+  .lps-nav-panel .lps-nav-caret {
+    display: none;
+  }
+
+  /* Scoped through .lps-nav-panel so the ≤40rem .lps-utility-links 2.5rem
+     floor cannot undercut the 44px target inside the disclosure. */
+  .lps-nav-panel .lps-panel-utility a {
+    min-block-size: var(--control-min);
+  }
+
+  /* Touch targets and affordances that only matter on compact screens. */
+  input[type="checkbox"] {
+    block-size: 1.5rem;
+    flex-shrink: 0;
+    inline-size: 1.5rem;
+  }
+
+  a.lps-meta {
+    align-items: center;
+    display: inline-flex;
+    min-block-size: var(--control-min);
+  }
+
+  /* Footer contact links take an underline: on the dark band the link colour
+     alone reads as plain address text. */
+  .lps-site-footer address a {
+    text-decoration-line: underline;
+    text-underline-offset: 0.2em;
+  }
+}
+
 /* The quick links' panel copy: light-surface styling, rendered only under
    the nav breakpoint where the bar's own copy is hidden. */
 .lps-panel-utility {
@@ -1668,7 +1784,7 @@ input[type="file"]::file-selector-button:hover {
     font-family: var(--font-mono);
     font-size: var(--type-meta);
     letter-spacing: 0.06em;
-    min-block-size: 2.5rem;
+    min-block-size: var(--control-min);
     text-transform: uppercase;
   }
 
@@ -1925,6 +2041,10 @@ input[type="file"]::file-selector-button:hover {
   position: absolute;
 }
 
+/* The decorative mark behind inner-page titles is noise at phone widths;
+   the suppression lives after the teal-accent override below so the same
+   pseudo-element's bottom-rule repaint keeps the band's border intact. */
+
 .lps-page-header-inner {
   padding-block: clamp(var(--space-10), 5vw, var(--space-16))
     clamp(var(--space-10), 5vw, var(--space-12));
@@ -2140,7 +2260,8 @@ input[type="file"]::file-selector-button:hover {
   display: grid;
   gap: var(--space-3);
   grid-template-rows: auto 1fr auto;
-  overflow: clip;
+  /* Visible so focus rings on the card's links are never cut at the edge. */
+  overflow: visible;
   padding: var(--space-6);
   position: relative;
   transition: transform var(--motion-standard) var(--ease-out);
@@ -2660,12 +2781,15 @@ input[type="file"]::file-selector-button:hover {
   padding-block-end: 0;
 }
 
-.lps-people-grid--gallery > .lps-person-card {
+/* The card-under-pointer reveal is shared by the directory (--gallery) and
+   the homepage strip (--reveal); only the row reflow above stays
+   gallery-only. The cards stack as flex columns so the collapsed media zone
+   cancels its gap with a negative margin, the same in both variants. */
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal) > .lps-person-card {
   display: flex;
   flex-direction: column;
 }
-
-.lps-people-grid--gallery .lps-person-header {
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal) .lps-person-header {
   align-items: start;
 }
 
@@ -2705,44 +2829,66 @@ input[type="file"]::file-selector-button:hover {
   transition: transform calc(var(--motion-reveal) * 1.4) var(--ease-reveal);
 }
 
-.lps-people-grid--gallery .lps-person-card:hover .lps-person-media,
-.lps-people-grid--gallery .lps-person-card:focus-within .lps-person-media {
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal) .lps-person-card:hover .lps-person-media,
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal)
+  .lps-person-card:focus-within
+  .lps-person-media {
   grid-template-rows: 1fr;
   margin-block-end: 0;
 }
 
-.lps-people-grid--gallery .lps-person-card:hover .lps-person-media-frame,
-.lps-people-grid--gallery .lps-person-card:focus-within .lps-person-media-frame {
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal)
+  .lps-person-card:hover
+  .lps-person-media-frame,
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal)
+  .lps-person-card:focus-within
+  .lps-person-media-frame {
   opacity: 1;
   transform: none;
 }
 
-.lps-people-grid--gallery .lps-person-card:hover .lps-person-card-photo,
-.lps-people-grid--gallery .lps-person-card:focus-within .lps-person-card-photo {
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal)
+  .lps-person-card:hover
+  .lps-person-card-photo,
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal)
+  .lps-person-card:focus-within
+  .lps-person-card-photo {
   transform: none;
 }
 
 /* Once the large media opens, the thumbnail yields: it fades and shrinks while
    the name slides into the freed slot — one visual block, never two. */
-.lps-people-grid--gallery .lps-person-header > .lps-monogram {
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal) .lps-person-header > .lps-monogram {
   transform-origin: left center;
   transition:
     opacity var(--motion-standard) var(--ease-state),
     scale var(--motion-reveal) var(--ease-reveal);
 }
 
-.lps-people-grid--gallery .lps-person-header > div {
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal) .lps-person-header > div {
   transition: transform var(--motion-reveal) var(--ease-reveal);
 }
 
-.lps-people-grid--gallery .lps-person-card:hover .lps-person-header > .lps-monogram,
-.lps-people-grid--gallery .lps-person-card:focus-within .lps-person-header > .lps-monogram {
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal)
+  .lps-person-card:hover
+  .lps-person-header
+  > .lps-monogram,
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal)
+  .lps-person-card:focus-within
+  .lps-person-header
+  > .lps-monogram {
   opacity: 0;
   scale: 0.35;
 }
 
-.lps-people-grid--gallery .lps-person-card:hover .lps-person-header > div,
-.lps-people-grid--gallery .lps-person-card:focus-within .lps-person-header > div {
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal)
+  .lps-person-card:hover
+  .lps-person-header
+  > div,
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal)
+  .lps-person-card:focus-within
+  .lps-person-header
+  > div {
   transform: translateX(-4.5rem);
 }
 
@@ -2789,6 +2935,15 @@ input[type="file"]::file-selector-button:hover {
 
 .lps-monogram--memoriam {
   background: var(--gradient-monogram-memoriam);
+}
+
+/* A cleared portrait takes the monogram's slot: same 3.5rem tile, the photo
+   cropped to fill it instead of initials on the gradient. */
+.lps-monogram--photo {
+  background: none;
+  display: block;
+  object-fit: cover;
+  object-position: center 30%;
 }
 
 .lps-person-card h3 {
@@ -2860,6 +3015,12 @@ input[type="file"]::file-selector-button:hover {
   mask-image: var(--gradient-partner-fade);
   overflow: hidden;
   padding-block: var(--space-4);
+}
+
+/* The region is a keyboard focus stop: the mask and hidden overflow would
+   clip a positive outline offset, so the ring draws inward instead. */
+.lps-partner-marquee:focus-visible {
+  outline-offset: calc(var(--line-medium) * -2);
 }
 
 .lps-partner-track {
@@ -3713,7 +3874,6 @@ details.lps-dashboard-edit > form {
 
 .lps-site-footer {
   background: var(--color-anchor-deep);
-  border-block-start: var(--line-heavy) solid var(--color-accent);
   color: var(--color-on-dark-body);
   margin-block-start: var(--space-16);
   overflow: clip;
@@ -4679,11 +4839,8 @@ details.lps-dashboard-edit > form {
  *     soft card shadows, node-web motif (reference: fee.unicamp.br).
  * ------------------------------------------------------------------------- */
 
-/* Signature hairline across the very top of the page. */
-.lps-site-header {
-  border-block-start: var(--line-heavy) solid transparent;
-  border-image: var(--gradient-topbar) 1;
-}
+/* The signature gradient hairline across the very top of the page is
+   removed: the header now starts straight into the deep utility band. */
 
 /* The Colabore pill must share the input row, not the whole search form. */
 .lps-shell-tools > .lps-button {
@@ -4950,10 +5107,8 @@ a.lps-button-ghost {
   color: var(--color-anchor);
 }
 
-/* Footer: teal replaces cyan as the dark accent. */
-.lps-site-footer {
-  border-block-start-color: var(--color-teal);
-}
+/* Footer: the accent top rule is removed — the deep band now meets the
+   page content directly. */
 
 .lps-site-footer a:hover {
   text-decoration-color: var(--color-teal);
@@ -4974,6 +5129,18 @@ a.lps-button-ghost {
   block-size: var(--line-heavy);
   inset: auto 0 0 0;
   opacity: 1;
+}
+
+/* Phones hide the pseudo-element entirely, so the band's bottom rule must
+   come back through the element's own border rather than the painted bar. */
+@media (max-width: 47.999rem) {
+  .lps-page-header {
+    border-block-end: var(--rule-heavy);
+  }
+
+  .lps-page-header::after {
+    display: none;
+  }
 }
 /* News slider, event rows and institutional timeline. */
 .lps-slider-nav {
