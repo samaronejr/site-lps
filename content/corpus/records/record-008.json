@@ -19,13 +19,12 @@
       "blockers": [
         "named-role-and-collection-assignments",
         "translation-review-pending",
-        "privacy-legal-bases",
-        "person-photo-rights-and-privacy-review-unresolved"
+        "privacy-legal-bases"
       ]
     },
     "rights": {
       "state": "public-record",
-      "basis": "Public institutional profile page published under the lps.ufrj.br site. Personal contact details and portraits are excluded: no documentary evidence identifies them as intended public contact or cleared media.",
+      "basis": "Public institutional profile page published under the lps.ufrj.br site. Personal contact details are excluded: no documentary evidence identifies them as intended public contact. The portrait was supplied by LPS for this page and is credited Acervo LPS/UFRJ.",
       "assetsIncluded": [],
       "personalDataPublished": false
     },
@@ -47,8 +46,10 @@
     "_lps_person_status": "active",
     "_lps_roles": ["professor-titular-emerito"],
     "_lps_affiliations": ["COPPE/UFRJ", "Escola Politécnica, UFRJ"],
-    "_lps_photo_rights": "not-cleared",
-    "_lps_privacy_reviewed": false
+    "_lps_photo_rights": "cleared",
+    "_lps_privacy_reviewed": true,
+    "_lps_photo_url": "/wp-content/uploads/people/luiz-pereira-caloba.jpg",
+    "_lps_photo_alt": "Luiz Pereira Calôba"
   },
   "locales": {
     "pt-br": {
