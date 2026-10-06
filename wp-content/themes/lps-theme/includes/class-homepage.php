@@ -1032,6 +1032,12 @@ final class Homepage {
 		if ( 0 >= $post_id ) {
 			return '';
 		}
+		// Photo clearance lives on the Portuguese authority record; an English
+		// variant only carries shared copies, so the fields are read upstream.
+		$source = class_exists( Translations::class ) ? Translations::source_id( $post_id ) : null;
+		if ( is_int( $source ) && 0 < $source ) {
+			$post_id = $source;
+		}
 		$url = self::text( get_post_meta( $post_id, '_lps_photo_url', true ) );
 		if ( '' === $url
 			|| ! get_post_meta( $post_id, '_lps_privacy_reviewed', true )
