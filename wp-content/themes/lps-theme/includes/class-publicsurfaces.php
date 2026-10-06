@@ -197,14 +197,18 @@ final class PublicSurfaces {
 		}
 
 		$photo_url = self::text( $person['photo_url'] ?? '' );
-		$media     = '' !== $photo_url && self::local_file_exists( $photo_url )
+		$has_photo = '' !== $photo_url && self::local_file_exists( $photo_url );
+		$media     = $has_photo
 			? '<img class="lps-person-card-photo" src="' . self::esc( $photo_url ) . '" alt="" loading="lazy" decoding="async">'
 			: '<span class="lps-monogram' . ( 'in-memoriam' === $status ? ' lps-monogram--memoriam' : '' ) . '">' . self::esc( self::monogram( $name ) ) . '</span>';
+		$badge     = $has_photo
+			? '<img class="lps-monogram lps-monogram--photo" src="' . self::esc( $photo_url ) . '" alt="" loading="lazy" decoding="async">'
+			: '<span class="lps-monogram' . ( 'in-memoriam' === $status ? ' lps-monogram--memoriam' : '' ) . '" aria-hidden="true">' . self::esc( self::monogram( $name ) ) . '</span>';
 
 		$html  = '<article class="lps-person-card" id="' . self::esc( $slug ) . '">';
 		$html .= '<div class="lps-person-media" aria-hidden="true"><div class="lps-person-media-frame">' . $media . '</div></div>';
 		$html .= '<div class="lps-person-header">';
-		$html .= '<span class="lps-monogram' . ( 'in-memoriam' === $status ? ' lps-monogram--memoriam' : '' ) . '" aria-hidden="true">' . self::esc( self::monogram( $name ) ) . '</span>';
+		$html .= $badge;
 		$html .= '<div><h3>' . self::esc( $name ) . '</h3>';
 		if ( array() !== $role_line ) {
 			$html .= '<p class="lps-role">' . self::esc( implode( ' · ', $role_line ) ) . '</p>';

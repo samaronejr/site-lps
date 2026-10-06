@@ -989,8 +989,12 @@ final class Homepage {
 		$roles    = 0 < $post_id ? get_post_meta( $post_id, '_lps_roles', true ) : array();
 		$email    = 0 < $post_id ? trim( self::text( get_post_meta( $post_id, '_lps_public_email', true ) ) ) : '';
 		$slug     = 0 < $post_id ? self::text( get_post_field( 'post_name', $post_id ) ) : '';
+		$photo    = self::person_photo_url( $post_id );
+		$badge    = '' !== $photo
+			? '<img class="lps-monogram lps-monogram--photo" src="' . self::escape( $photo ) . '" alt="" loading="lazy" decoding="async">'
+			: '<span class="lps-monogram' . ( $memoriam ? ' lps-monogram--memoriam' : '' ) . '" aria-hidden="true">' . self::escape( self::person_initials( self::text( $record['title'] ) ) ) . '</span>';
 		$html     = '<article class="lps-person-card"' . ( '' !== $slug ? ' id="' . self::escape( $slug ) . '"' : '' ) . ' data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '" data-record-id="' . self::escape( self::text( $record['record_id'] ?? '' ) ) . '">';
-		$html    .= '<div class="lps-person-header"><span class="lps-monogram' . ( $memoriam ? ' lps-monogram--memoriam' : '' ) . '" aria-hidden="true">' . self::escape( self::person_initials( self::text( $record['title'] ) ) ) . '</span><div>';
+		$html    .= '<div class="lps-person-header">' . $badge . '<div>';
 		$html    .= '<h3>' . self::escape( self::text( $record['title'] ) ) . '</h3>';
 		$role     = self::person_role_labels( array_values( is_array( $roles ) ? $roles : array() ), $locale );
 		if ( '' !== $role ) {
@@ -1015,6 +1019,26 @@ final class Homepage {
 			$html .= '<a class="lps-meta" href="mailto:' . self::escape( $email ) . '">' . self::escape( $email ) . '</a>';
 		}
 		return $html . '</div></article>';
+	}
+
+	/**
+	 * Returns the card's publishable photo URL, or an empty string when the
+	 * person's image rights are not cleared — matching the people-gallery gate
+	 * (privacy reviewed, rights cleared, local path that exists on disk).
+	 *
+	 * @param int $post_id Person record ID.
+	 */
+	private static function person_photo_url( int $post_id ): string {
+		if ( 0 >= $post_id ) {
+			return '';
+		}
+		$url = self::text( get_post_meta( $post_id, '_lps_photo_url', true ) );
+		if ( '' === $url
+			|| ! get_post_meta( $post_id, '_lps_privacy_reviewed', true )
+			|| 'cleared' !== self::text( get_post_meta( $post_id, '_lps_photo_rights', true ) ) ) {
+			return '';
+		}
+		return defined( 'ABSPATH' ) && is_string( ABSPATH ) && is_file( rtrim( ABSPATH, '/' ) . $url ) ? $url : '';
 	}
 
 	/**
