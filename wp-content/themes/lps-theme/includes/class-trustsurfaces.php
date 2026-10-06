@@ -1148,7 +1148,7 @@ final class TrustSurfaces {
 		$html   .= self::about_identity_section( $locale );
 		$marquee = '';
 		if ( class_exists( Homepage::class ) ) {
-			$marquee = Homepage::partner_marquee_markup( Homepage::partner_logos( $locale ) );
+			$marquee = Homepage::partner_marquee_markup( Homepage::partner_logos( $locale ), $locale );
 		}
 		if ( '' !== $marquee ) {
 			$html .= self::editorial_section(

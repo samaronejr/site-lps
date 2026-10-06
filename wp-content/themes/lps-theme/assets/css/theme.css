@@ -1650,6 +1650,115 @@ input[type="file"]::file-selector-button:hover {
   }
 }
 
+/* Compact mobile header: the menu control rides the masthead row instead of a
+   third chrome tier, so the hero lands above the fold. Both grid items share
+   row 2 — the disclosure passes pointer events through the logo's side while
+   the brand stays clickable, and the affiliation line drops because the logo
+   lockup already restates it. */
+@media (max-width: 59.999rem) {
+  .lps-site-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .lps-utility-bar {
+    grid-row: 1;
+  }
+
+  .lps-utility-inner {
+    justify-content: flex-end;
+  }
+
+  .lps-utility-inner > p {
+    display: none;
+  }
+
+  .lps-masthead,
+  .lps-shell-disclosure {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .lps-masthead {
+    align-self: start;
+    pointer-events: none;
+    position: relative;
+    z-index: 1;
+  }
+
+  .lps-masthead .lps-brand {
+    pointer-events: auto;
+  }
+
+  /* The logo can never run under the Menu control: the 7.5rem reserve covers
+     the control plus the page gutter down to 320px viewports. */
+  .lps-masthead .lps-logo {
+    block-size: clamp(1.875rem, 7.4vw, 2.5rem);
+    max-inline-size: calc(100vw - var(--grid-gutter) - 7.5rem);
+    object-fit: contain;
+    object-position: left center;
+  }
+
+  .lps-shell-disclosure {
+    align-self: center;
+    border-block-start: 0;
+  }
+
+  .lps-shell-disclosure > summary {
+    border-inline-start: var(--rule-hairline);
+    inline-size: max-content;
+    margin-inline-start: auto;
+    min-block-size: 4.25rem;
+  }
+
+  /* The open panel keeps the ruled grammar: one hairline on top, separators
+     between destinations, and 48px full-width tap targets. */
+  .lps-nav-panel {
+    border-block-start: var(--rule-hairline);
+  }
+
+  .lps-nav-panel .lps-primary-nav > ul > .lps-nav-item + .lps-nav-item {
+    border-block-start: var(--rule-hairline);
+  }
+
+  .lps-nav-panel .lps-primary-nav a {
+    display: flex;
+    min-block-size: 3rem;
+  }
+
+  /* Submenu indicators are noise at this width — the nested rail already
+     reads as a second level. */
+  .lps-nav-panel .lps-nav-caret {
+    display: none;
+  }
+
+  /* Scoped through .lps-nav-panel so the ≤40rem .lps-utility-links 2.5rem
+     floor cannot undercut the 44px target inside the disclosure. */
+  .lps-nav-panel .lps-panel-utility a {
+    min-block-size: var(--control-min);
+  }
+
+  /* Touch targets and affordances that only matter on compact screens. */
+  input[type="checkbox"] {
+    block-size: 1.5rem;
+    flex-shrink: 0;
+    inline-size: 1.5rem;
+  }
+
+  a.lps-meta {
+    align-items: center;
+    display: inline-flex;
+    min-block-size: var(--control-min);
+  }
+
+  /* Footer contact links take an underline: on the dark band the link colour
+     alone reads as plain address text. */
+  .lps-site-footer address a {
+    text-decoration-line: underline;
+    text-underline-offset: 0.2em;
+  }
+}
+
 /* The quick links' panel copy: light-surface styling, rendered only under
    the nav breakpoint where the bar's own copy is hidden. */
 .lps-panel-utility {
@@ -1668,7 +1777,7 @@ input[type="file"]::file-selector-button:hover {
     font-family: var(--font-mono);
     font-size: var(--type-meta);
     letter-spacing: 0.06em;
-    min-block-size: 2.5rem;
+    min-block-size: var(--control-min);
     text-transform: uppercase;
   }
 
@@ -1925,6 +2034,13 @@ input[type="file"]::file-selector-button:hover {
   position: absolute;
 }
 
+/* The decorative mark behind inner-page titles is noise at phone widths. */
+@media (max-width: 47.999rem) {
+  .lps-page-header::after {
+    display: none;
+  }
+}
+
 .lps-page-header-inner {
   padding-block: clamp(var(--space-10), 5vw, var(--space-16))
     clamp(var(--space-10), 5vw, var(--space-12));
@@ -2140,7 +2256,8 @@ input[type="file"]::file-selector-button:hover {
   display: grid;
   gap: var(--space-3);
   grid-template-rows: auto 1fr auto;
-  overflow: clip;
+  /* Visible so focus rings on the card's links are never cut at the edge. */
+  overflow: visible;
   padding: var(--space-6);
   position: relative;
   transition: transform var(--motion-standard) var(--ease-out);
@@ -2860,6 +2977,12 @@ input[type="file"]::file-selector-button:hover {
   mask-image: var(--gradient-partner-fade);
   overflow: hidden;
   padding-block: var(--space-4);
+}
+
+/* The region is a keyboard focus stop: the mask and hidden overflow would
+   clip a positive outline offset, so the ring draws inward instead. */
+.lps-partner-marquee:focus-visible {
+  outline-offset: calc(var(--line-medium) * -2);
 }
 
 .lps-partner-track {
