@@ -3840,7 +3840,6 @@ details.lps-dashboard-edit > form {
 
 .lps-site-footer {
   background: var(--color-anchor-deep);
-  border-block-start: var(--line-heavy) solid var(--color-accent);
   color: var(--color-on-dark-body);
   margin-block-start: var(--space-16);
   overflow: clip;
@@ -5074,10 +5073,8 @@ a.lps-button-ghost {
   color: var(--color-anchor);
 }
 
-/* Footer: teal replaces cyan as the dark accent. */
-.lps-site-footer {
-  border-block-start-color: var(--color-teal);
-}
+/* Footer: the accent top rule is removed — the deep band now meets the
+   page content directly. */
 
 .lps-site-footer a:hover {
   text-decoration-color: var(--color-teal);
