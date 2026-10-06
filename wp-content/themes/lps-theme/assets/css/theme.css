@@ -2781,12 +2781,15 @@ input[type="file"]::file-selector-button:hover {
   padding-block-end: 0;
 }
 
-.lps-people-grid--gallery > .lps-person-card {
+/* The card-under-pointer reveal is shared by the directory (--gallery) and
+   the homepage strip (--reveal); only the row reflow above stays
+   gallery-only. The cards stack as flex columns so the collapsed media zone
+   cancels its gap with a negative margin, the same in both variants. */
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal) > .lps-person-card {
   display: flex;
   flex-direction: column;
 }
-
-.lps-people-grid--gallery .lps-person-header {
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal) .lps-person-header {
   align-items: start;
 }
 
@@ -2826,44 +2829,44 @@ input[type="file"]::file-selector-button:hover {
   transition: transform calc(var(--motion-reveal) * 1.4) var(--ease-reveal);
 }
 
-.lps-people-grid--gallery .lps-person-card:hover .lps-person-media,
-.lps-people-grid--gallery .lps-person-card:focus-within .lps-person-media {
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal) .lps-person-card:hover .lps-person-media,
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal) .lps-person-card:focus-within .lps-person-media {
   grid-template-rows: 1fr;
   margin-block-end: 0;
 }
 
-.lps-people-grid--gallery .lps-person-card:hover .lps-person-media-frame,
-.lps-people-grid--gallery .lps-person-card:focus-within .lps-person-media-frame {
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal) .lps-person-card:hover .lps-person-media-frame,
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal) .lps-person-card:focus-within .lps-person-media-frame {
   opacity: 1;
   transform: none;
 }
 
-.lps-people-grid--gallery .lps-person-card:hover .lps-person-card-photo,
-.lps-people-grid--gallery .lps-person-card:focus-within .lps-person-card-photo {
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal) .lps-person-card:hover .lps-person-card-photo,
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal) .lps-person-card:focus-within .lps-person-card-photo {
   transform: none;
 }
 
 /* Once the large media opens, the thumbnail yields: it fades and shrinks while
    the name slides into the freed slot — one visual block, never two. */
-.lps-people-grid--gallery .lps-person-header > .lps-monogram {
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal) .lps-person-header > .lps-monogram {
   transform-origin: left center;
   transition:
     opacity var(--motion-standard) var(--ease-state),
     scale var(--motion-reveal) var(--ease-reveal);
 }
 
-.lps-people-grid--gallery .lps-person-header > div {
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal) .lps-person-header > div {
   transition: transform var(--motion-reveal) var(--ease-reveal);
 }
 
-.lps-people-grid--gallery .lps-person-card:hover .lps-person-header > .lps-monogram,
-.lps-people-grid--gallery .lps-person-card:focus-within .lps-person-header > .lps-monogram {
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal) .lps-person-card:hover .lps-person-header > .lps-monogram,
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal) .lps-person-card:focus-within .lps-person-header > .lps-monogram {
   opacity: 0;
   scale: 0.35;
 }
 
-.lps-people-grid--gallery .lps-person-card:hover .lps-person-header > div,
-.lps-people-grid--gallery .lps-person-card:focus-within .lps-person-header > div {
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal) .lps-person-card:hover .lps-person-header > div,
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal) .lps-person-card:focus-within .lps-person-header > div {
   transform: translateX(-4.5rem);
 }
 
