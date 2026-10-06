@@ -225,7 +225,7 @@ final class LpsRedesignTask17Test extends TestCase {
 		self::assertFileExists( self::LAUNCH_PACKAGE );
 		$package = ImportPackage::from_file( self::LAUNCH_PACKAGE );
 		self::assertSame( array(), ImportPackage::errors( $package ), 'the reviewed launch package must carry no boundary errors' );
-		self::assertSame( 24, count( $package['records'] ), '12 migrate records x 2 locales' );
+		self::assertSame( 26, count( $package['records'] ), '13 migrate records x 2 locales' );
 		self::assertSame( array(), $package['media'], 'no media is staged while rights are undocumented' );
 		foreach ( $package['records'] as $record ) {
 			self::assertNull( MigrationPolicy::source_error( $record ), Policy::scalar_string( $record['source_id'] ?? null ) );
