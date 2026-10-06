@@ -2830,19 +2830,29 @@ input[type="file"]::file-selector-button:hover {
 }
 
 :is(.lps-people-grid--gallery, .lps-people-grid--reveal) .lps-person-card:hover .lps-person-media,
-:is(.lps-people-grid--gallery, .lps-people-grid--reveal) .lps-person-card:focus-within .lps-person-media {
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal)
+  .lps-person-card:focus-within
+  .lps-person-media {
   grid-template-rows: 1fr;
   margin-block-end: 0;
 }
 
-:is(.lps-people-grid--gallery, .lps-people-grid--reveal) .lps-person-card:hover .lps-person-media-frame,
-:is(.lps-people-grid--gallery, .lps-people-grid--reveal) .lps-person-card:focus-within .lps-person-media-frame {
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal)
+  .lps-person-card:hover
+  .lps-person-media-frame,
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal)
+  .lps-person-card:focus-within
+  .lps-person-media-frame {
   opacity: 1;
   transform: none;
 }
 
-:is(.lps-people-grid--gallery, .lps-people-grid--reveal) .lps-person-card:hover .lps-person-card-photo,
-:is(.lps-people-grid--gallery, .lps-people-grid--reveal) .lps-person-card:focus-within .lps-person-card-photo {
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal)
+  .lps-person-card:hover
+  .lps-person-card-photo,
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal)
+  .lps-person-card:focus-within
+  .lps-person-card-photo {
   transform: none;
 }
 
@@ -2859,14 +2869,26 @@ input[type="file"]::file-selector-button:hover {
   transition: transform var(--motion-reveal) var(--ease-reveal);
 }
 
-:is(.lps-people-grid--gallery, .lps-people-grid--reveal) .lps-person-card:hover .lps-person-header > .lps-monogram,
-:is(.lps-people-grid--gallery, .lps-people-grid--reveal) .lps-person-card:focus-within .lps-person-header > .lps-monogram {
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal)
+  .lps-person-card:hover
+  .lps-person-header
+  > .lps-monogram,
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal)
+  .lps-person-card:focus-within
+  .lps-person-header
+  > .lps-monogram {
   opacity: 0;
   scale: 0.35;
 }
 
-:is(.lps-people-grid--gallery, .lps-people-grid--reveal) .lps-person-card:hover .lps-person-header > div,
-:is(.lps-people-grid--gallery, .lps-people-grid--reveal) .lps-person-card:focus-within .lps-person-header > div {
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal)
+  .lps-person-card:hover
+  .lps-person-header
+  > div,
+:is(.lps-people-grid--gallery, .lps-people-grid--reveal)
+  .lps-person-card:focus-within
+  .lps-person-header
+  > div {
   transform: translateX(-4.5rem);
 }
 
