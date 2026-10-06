@@ -2912,6 +2912,15 @@ input[type="file"]::file-selector-button:hover {
   background: var(--gradient-monogram-memoriam);
 }
 
+/* A cleared portrait takes the monogram's slot: same 3.5rem tile, the photo
+   cropped to fill it instead of initials on the gradient. */
+.lps-monogram--photo {
+  background: none;
+  display: block;
+  object-fit: cover;
+  object-position: center 30%;
+}
+
 .lps-person-card h3 {
   font-size: var(--type-h4);
   margin: 0;
