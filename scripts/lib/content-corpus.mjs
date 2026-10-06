@@ -1027,6 +1027,7 @@ export function buildImportPackage(corpus) {
           .join("\n\n"),
         meta: {
           ...record.meta,
+          ...(variant.meta ?? {}),
           _lps_review_date: record.governance.nextReviewDate,
           _lps_claim_verified: false,
           _lps_claim_source_url: row.source_url,

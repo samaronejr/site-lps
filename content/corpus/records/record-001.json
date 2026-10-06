@@ -64,6 +64,30 @@
         "target": "record-016",
         "role": "context",
         "order": 5
+      },
+      {
+        "type": "related_record",
+        "target": "record-011",
+        "role": "featured",
+        "order": 6
+      },
+      {
+        "type": "related_record",
+        "target": "record-008",
+        "role": "featured",
+        "order": 7
+      },
+      {
+        "type": "related_record",
+        "target": "record-009",
+        "role": "featured",
+        "order": 8
+      },
+      {
+        "type": "related_record",
+        "target": "record-017",
+        "role": "featured",
+        "order": 9
       }
     ]
   },

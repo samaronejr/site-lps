@@ -68,6 +68,12 @@
         "target": "record-007",
         "role": "related",
         "order": 5
+      },
+      {
+        "type": "related_record",
+        "target": "record-017",
+        "role": "related",
+        "order": 6
       }
     ]
   },

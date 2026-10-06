@@ -140,7 +140,7 @@ describe("todo22 corpus fixture", () => {
 
   it("derives every target from the versioned corpus", () => {
     expect(() => assertCorpusTargetsContract(built.targets)).not.toThrow();
-    expect(built.targets.targets).toHaveLength(12);
+    expect(built.targets.targets).toHaveLength(13);
     for (const record of CORPUS_SPOT_CHECK_RECORDS) {
       expect(built.targets.targets.some((target) => target.record === record)).toBe(true);
     }
@@ -154,7 +154,7 @@ describe("todo22 corpus fixture", () => {
       target.pt_br_post_id,
       target.en_post_id,
     ]);
-    expect(ids).toEqual(Array.from({ length: 24 }, (_, index) => DEFAULT_POST_ID_BASE + index));
+    expect(ids).toEqual(Array.from({ length: 26 }, (_, index) => DEFAULT_POST_ID_BASE + index));
     expect(new Set(ids).size).toBe(ids.length);
     expect(built.php).toContain("but WordPress assigned");
     expect(built.php).toContain("import package digest mismatch");

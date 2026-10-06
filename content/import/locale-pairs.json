@@ -60,6 +60,11 @@
       "record": "record-016",
       "pt-br": "lps:page:4e691edc-a238-4f11-88cf-e93447191b33",
       "en": "lps:page:41360937-d74c-4299-8030-d8e1ba4e96a1"
+    },
+    {
+      "record": "record-017",
+      "pt-br": "lps:person:c593adcc-fffe-406b-8d4e-689ca10399e1",
+      "en": "lps:person:2d5ad0e6-171c-4233-88d8-4e20f7e5ca21"
     }
   ]
 }

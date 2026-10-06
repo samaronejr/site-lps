@@ -26,12 +26,12 @@ describe("launch corpus publish gate", () => {
     const report = validateCorpus(corpus);
     expect(report.status).toBe("passed");
     expect(report.errors).toEqual([]);
-    expect(report.counts.inventoryMigrate).toBe(12);
-    expect(report.counts.corpusRecords).toBe(12);
-    expect(report.counts.localeVariants).toBe(24);
+    expect(report.counts.inventoryMigrate).toBe(13);
+    expect(report.counts.corpusRecords).toBe(13);
+    expect(report.counts.localeVariants).toBe(26);
     expect(report.counts.inventoryArchiveOnly).toBe(2);
     expect(report.reconciliation.balanced).toBe(true);
-    expect(report.reconciliation.target.totalTargetRecords).toBe(26);
+    expect(report.reconciliation.target.totalTargetRecords).toBe(28);
     expect(report.localePairs.complete).toBe(true);
   });
 
@@ -47,12 +47,12 @@ describe("launch corpus publish gate", () => {
     const first = buildImportPackage(corpus);
     const second = buildImportPackage(corpus);
     expect(JSON.stringify(first)).toBe(JSON.stringify(second));
-    expect(first.records).toHaveLength(24);
-    expect(first.relationships).toHaveLength(16);
+    expect(first.records).toHaveLength(26);
+    expect(first.relationships).toHaveLength(21);
     expect(first.redirects).toHaveLength(2);
     expect(first.media).toHaveLength(0);
-    expect(new Set(first.records.map((entry) => entry.record_id)).size).toBe(24);
-    expect(new Set(first.records.map((entry) => entry.source_id)).size).toBe(24);
+    expect(new Set(first.records.map((entry) => entry.record_id)).size).toBe(26);
+    expect(new Set(first.records.map((entry) => entry.source_id)).size).toBe(26);
     expect(first.records.every((entry) => entry.state === "draft")).toBe(true);
   });
 

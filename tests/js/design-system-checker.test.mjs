@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
@@ -87,19 +87,25 @@ describe("LPS theme checker", () => {
   });
 
   test("still reports a font asset the stylesheet references but the theme does not ship", async () => {
-    // Given: a stylesheet that references a font file that is absent from the theme.
-    const cssPath = "wp-content/themes/lps-theme/assets/css/theme.css";
-    const original = readFileSync(cssPath, "utf8");
+    // Given: a theme copy whose stylesheet references a font file that is
+    // absent from the theme. The mutation runs on a temp copy so parallel test
+    // files never observe the real stylesheet mid-edit.
+    const themeCopy = mkdtempSync(join(tmpdir(), "lps-theme-"));
     try {
-      writeFileSync(cssPath, original.replace("inter-regular.woff2", "inter-missing.woff2"));
+      cpSync("wp-content/themes/lps-theme", themeCopy, { recursive: true });
+      const cssPath = join(themeCopy, "assets/css/theme.css");
+      writeFileSync(
+        cssPath,
+        readFileSync(cssPath, "utf8").replace("inter-regular.woff2", "inter-missing.woff2"),
+      );
 
       // When: the checker runs against that stylesheet.
-      const report = await checkTheme();
+      const report = await checkTheme(themeCopy);
 
       // Then: the missing local font asset is still a finding.
       expect(report.findings.map(({ code }) => code)).toContain("MISSING_FONT_ASSET");
     } finally {
-      writeFileSync(cssPath, original);
+      rmSync(themeCopy, { recursive: true, force: true });
     }
   });
 });
