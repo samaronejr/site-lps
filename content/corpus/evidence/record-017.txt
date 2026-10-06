@@ -1,0 +1,19 @@
+# Source evidence capture
+# inventory_record: record-017
+# source_url: supplied directly by LPS site owner (Samarone Lima) for the new person card
+# captured_at: 2026-10-06T00:00:00Z
+# capture_method: owner-supplied content and portrait for the institutional people directory
+# note: retained only as editorial evidence for the migrated person record.
+
+Otto Tavares Nascimento
+Professor Assistente e colaborador do LPS
+
+Professor Assistente do Departamento de Métodos Estatísticos do Instituto de Matemática da UFRJ e pesquisador/colaborador do LPS.
+
+Topics:
+Aprendizado de Máquina
+Aprendizado de Máquina aplicado à saúde
+Modelos Generativos para produção sintética de dados
+Avaliação estatística de dados sintéticos
+
+otto.tavares@lps.ufrj.br

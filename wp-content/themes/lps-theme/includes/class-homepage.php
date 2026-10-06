@@ -1080,6 +1080,8 @@ final class Homepage {
 			'professor-titular'          => $english ? 'Full Professor' : 'Professor Titular',
 			'professor-titular-emerito'  => $english ? 'Emeritus Full Professor' : 'Professor Titular Emérito',
 			'professor-adjunto'          => $english ? 'Associate Professor' : 'Professor Adjunto',
+			'professor-assistente'       => $english ? 'Assistant Professor' : 'Professor Assistente',
+			'colaborador-lps'            => $english ? 'LPS Collaborator' : 'Colaborador do LPS',
 			'coordenador-lps'            => $english ? 'LPS Coordinator' : 'Coordenador do LPS',
 			'pesquisador-permanente-lps' => $english ? 'Permanent LPS Researcher' : 'Pesquisador Permanente do LPS',
 			'pesquisador'                => $english ? 'Researcher' : 'Pesquisador',

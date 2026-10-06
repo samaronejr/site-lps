@@ -884,12 +884,14 @@ final class PublicSurfaces {
 				'professor-titular'          => 'Full Professor',
 				'professor-titular-emerito'  => 'Full Professor (Emeritus)',
 				'professor-adjunto'          => 'Adjunct Professor',
+				'professor-assistente'       => 'Assistant Professor',
 				'coordenador-lps'            => 'LPS Coordinator',
 				'coordenador-embrapii'       => 'Coordinator (EMBRAPII)',
 				'pesquisador-permanente-lps' => 'Permanent LPS researcher',
 				'pesquisador-atlas'          => 'ATLAS researcher',
 				'technical-staff'            => 'Technical staff',
 				'external-collaborator'      => 'External collaborator',
+				'colaborador-lps'            => 'LPS collaborator',
 				'alumni'                     => 'Alumni',
 			);
 		}
@@ -900,12 +902,14 @@ final class PublicSurfaces {
 			'professor-titular'          => 'Professor Titular',
 			'professor-titular-emerito'  => 'Professor Titular (Emérito)',
 			'professor-adjunto'          => 'Professor Adjunto',
+			'professor-assistente'       => 'Professor Assistente',
 			'coordenador-lps'            => 'Coordenador do LPS',
 			'coordenador-embrapii'       => 'Coordenador (EMBRAPII)',
 			'pesquisador-permanente-lps' => 'Pesquisador permanente do LPS',
 			'pesquisador-atlas'          => 'Pesquisador ATLAS',
 			'technical-staff'            => 'Equipe técnica',
 			'external-collaborator'      => 'Colaboração externa',
+			'colaborador-lps'            => 'Colaborador do LPS',
 			'alumni'                     => 'Egresso',
 		);
 	}

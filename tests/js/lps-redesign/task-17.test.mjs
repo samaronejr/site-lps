@@ -45,7 +45,7 @@ describe("task-17: launch corpus admission", () => {
     const report = validateCorpus(corpus);
     expect(report.status).toBe("passed");
     expect(report.errors).toEqual([]);
-    expect(report.counts.corpusRecords).toBe(12);
+    expect(report.counts.corpusRecords).toBe(13);
     expect(report.counts.migratedAssets).toBe(0);
   });
 

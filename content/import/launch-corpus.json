@@ -732,6 +732,96 @@
         "_lps_claim_source_url": "https://www.embrapii.coppe.ufrj.br/laboratorios/1228/lps-laboratorio-de-processamento-de-sinais",
         "_lps_claim_reviewed_at": "2026-09-06"
       }
+    },
+    {
+      "source_id": "record-017",
+      "type": "lps_person",
+      "record_id": "lps:person:c593adcc-fffe-406b-8d4e-689ca10399e1",
+      "title": "Otto Tavares Nascimento",
+      "slug": "otto-tavares-nascimento",
+      "locale": "pt-br",
+      "state": "draft",
+      "source_url": "",
+      "captured_at": "2026-10-06T00:00:00Z",
+      "checksum": "sha256:c2f0544bcfbcdc91c02200df3812ebf0f5dce927b13c13811ad7c58f855c8855",
+      "rights": "public-record",
+      "review_state": "candidate",
+      "reviewed_fields": [],
+      "excerpt": "Professor Assistente do Departamento de Métodos Estatísticos do Instituto de Matemática da UFRJ e pesquisador/colaborador do LPS.",
+      "content": "<!-- wp:paragraph -->\n<p>Otto Tavares Nascimento é professor assistente do Departamento de Métodos Estatísticos do Instituto de Matemática da Universidade Federal do Rio de Janeiro (UFRJ) e pesquisador/colaborador do Laboratório de Processamento de Sinais (LPS).</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>Áreas de interesse: aprendizado de máquina, aprendizado de máquina aplicado à saúde, modelos generativos para produção sintética de dados e avaliação estatística de dados sintéticos.</p>\n<!-- /wp:paragraph -->",
+      "meta": {
+        "_lps_canonical_name": "Otto Tavares Nascimento",
+        "_lps_sort_name": "Nascimento, Otto Tavares",
+        "_lps_person_status": "active",
+        "_lps_roles": [
+          "professor-assistente",
+          "colaborador-lps"
+        ],
+        "_lps_affiliations": [
+          "Departamento de Métodos Estatísticos, Instituto de Matemática, UFRJ",
+          "Laboratório de Processamento de Sinais, COPPE/UFRJ"
+        ],
+        "_lps_photo_rights": "cleared",
+        "_lps_privacy_reviewed": true,
+        "_lps_photo_url": "/wp-content/uploads/people/otto-tavares-nascimento.jpg",
+        "_lps_photo_alt": "Otto Tavares Nascimento",
+        "_lps_public_email": "otto.tavares@lps.ufrj.br",
+        "_lps_topics": [
+          "Aprendizado de Máquina",
+          "Aprendizado de Máquina aplicado à saúde",
+          "Modelos Generativos para produção sintética de dados",
+          "Avaliação estatística de dados sintéticos"
+        ],
+        "_lps_review_date": "2027-01-04",
+        "_lps_claim_verified": false,
+        "_lps_claim_source_url": "",
+        "_lps_claim_reviewed_at": "2026-10-06"
+      }
+    },
+    {
+      "source_id": "record-017#en",
+      "type": "lps_person",
+      "record_id": "lps:person:2d5ad0e6-171c-4233-88d8-4e20f7e5ca21",
+      "title": "Otto Tavares Nascimento",
+      "slug": "otto-tavares-nascimento",
+      "locale": "en",
+      "state": "draft",
+      "source_url": "",
+      "captured_at": "2026-10-06T00:00:00Z",
+      "checksum": "sha256:c2f0544bcfbcdc91c02200df3812ebf0f5dce927b13c13811ad7c58f855c8855",
+      "rights": "public-record",
+      "review_state": "candidate",
+      "reviewed_fields": [],
+      "excerpt": "Assistant Professor in the Department of Statistical Methods at the UFRJ Institute of Mathematics and LPS researcher/collaborator.",
+      "content": "<!-- wp:paragraph -->\n<p>Otto Tavares Nascimento is an assistant professor in the Department of Statistical Methods at the Institute of Mathematics of the Federal University of Rio de Janeiro (UFRJ) and a researcher/collaborator at the Signal Processing Laboratory (LPS).</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>Research interests: machine learning, machine learning applied to health, generative models for synthetic data production and statistical evaluation of synthetic data.</p>\n<!-- /wp:paragraph -->",
+      "meta": {
+        "_lps_canonical_name": "Otto Tavares Nascimento",
+        "_lps_sort_name": "Nascimento, Otto Tavares",
+        "_lps_person_status": "active",
+        "_lps_roles": [
+          "professor-assistente",
+          "colaborador-lps"
+        ],
+        "_lps_affiliations": [
+          "Departamento de Métodos Estatísticos, Instituto de Matemática, UFRJ",
+          "Laboratório de Processamento de Sinais, COPPE/UFRJ"
+        ],
+        "_lps_photo_rights": "cleared",
+        "_lps_privacy_reviewed": true,
+        "_lps_photo_url": "/wp-content/uploads/people/otto-tavares-nascimento.jpg",
+        "_lps_photo_alt": "Otto Tavares Nascimento",
+        "_lps_public_email": "otto.tavares@lps.ufrj.br",
+        "_lps_topics": [
+          "Aprendizado de Máquina",
+          "Aprendizado de Máquina aplicado à saúde",
+          "Modelos Generativos para produção sintética de dados",
+          "Avaliação estatística de dados sintéticos"
+        ],
+        "_lps_review_date": "2027-01-04",
+        "_lps_claim_verified": false,
+        "_lps_claim_source_url": "",
+        "_lps_claim_reviewed_at": "2026-10-06"
+      }
     }
   ],
   "relationships": [
