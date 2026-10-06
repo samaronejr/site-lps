@@ -528,13 +528,13 @@ final class Homepage {
 		$stats = 'en' === $locale
 			? array(
 				array( '1996', 'Founded' ),
-				array( '3', 'Professors' ),
+				array( '4', 'Professors' ),
 				array( '310 m²', 'Facilities in Building H' ),
 				array( '1988', 'UFRJ–CERN collaboration' ),
 			)
 			: array(
 				array( '1996', 'Ano de fundação' ),
-				array( '3', 'Professores' ),
+				array( '4', 'Professores' ),
 				array( '310 m²', 'Instalações no Bloco H' ),
 				array( '1988', 'Colaboração UFRJ–CERN' ),
 			);

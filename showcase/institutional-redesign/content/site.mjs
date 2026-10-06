@@ -188,7 +188,7 @@ export const hero = {
   ],
   stats: [
     { value: "1996", label: { "pt-BR": "Ano de fundação", en: "Founded" } },
-    { value: "3", label: { "pt-BR": "Professores", en: "Professors" } },
+    { value: "4", label: { "pt-BR": "Professores", en: "Professors" } },
     {
       value: "310 m²",
       label: { "pt-BR": "Instalações no Bloco H", en: "Facilities in Building H" },
