@@ -44,10 +44,7 @@
     "_lps_canonical_name": "Otto Tavares Nascimento",
     "_lps_sort_name": "Nascimento, Otto Tavares",
     "_lps_person_status": "active",
-    "_lps_roles": [
-      "professor-assistente",
-      "colaborador-lps"
-    ],
+    "_lps_roles": ["professor-assistente", "colaborador-lps"],
     "_lps_affiliations": [
       "Departamento de Métodos Estatísticos, Instituto de Matemática, UFRJ",
       "Laboratório de Processamento de Sinais, COPPE/UFRJ"
