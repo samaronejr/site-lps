@@ -968,7 +968,13 @@ final class Homepage {
 	 */
 	private static function person_status( array $record ): string {
 		$post_id = self::num( $record['post_id'] ?? 0 );
-		return 0 < $post_id ? self::text( get_post_meta( $post_id, '_lps_person_status', true ) ) : '';
+		if ( 0 >= $post_id ) {
+			return '';
+		}
+		// `_lps_person_status` is a shared field: variants store it on the
+		// Portuguese authority only, so locale variants must resolve it there.
+		$authority_id = class_exists( Translations::class ) ? Translations::source_id( $post_id ) : null;
+		return self::text( get_post_meta( null !== $authority_id ? $authority_id : $post_id, '_lps_person_status', true ) );
 	}
 
 	/**
