@@ -4806,11 +4806,8 @@ details.lps-dashboard-edit > form {
  *     soft card shadows, node-web motif (reference: fee.unicamp.br).
  * ------------------------------------------------------------------------- */
 
-/* Signature hairline across the very top of the page. */
-.lps-site-header {
-  border-block-start: var(--line-heavy) solid transparent;
-  border-image: var(--gradient-topbar) 1;
-}
+/* The signature gradient hairline across the very top of the page is
+   removed: the header now starts straight into the deep utility band. */
 
 /* The Colabore pill must share the input row, not the whole search form. */
 .lps-shell-tools > .lps-button {
