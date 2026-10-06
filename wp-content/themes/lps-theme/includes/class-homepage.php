@@ -958,7 +958,7 @@ final class Homepage {
 			. '</div>';
 		return '<section id="pessoas" class="lps-section" data-home-section="people" aria-labelledby="home-people"><div class="lps-page-grid">'
 			. self::section_head_markup( 'people', 'home-people', $locale, $nav )
-			. '<div class="lps-people-grid" id="lps-people-track" data-lps-slider>' . $cards . '</div></div></section>';
+			. '<div class="lps-people-grid lps-people-grid--reveal" id="lps-people-track" data-lps-slider>' . $cards . '</div></div></section>';
 	}
 
 	/**
@@ -990,10 +990,14 @@ final class Homepage {
 		$email    = 0 < $post_id ? trim( self::text( get_post_meta( $post_id, '_lps_public_email', true ) ) ) : '';
 		$slug     = 0 < $post_id ? self::text( get_post_field( 'post_name', $post_id ) ) : '';
 		$photo    = self::person_photo_url( $post_id );
+		$media    = '' !== $photo
+			? '<img class="lps-person-card-photo" src="' . self::escape( $photo ) . '" alt="" loading="lazy" decoding="async">'
+			: '<span class="lps-monogram' . ( $memoriam ? ' lps-monogram--memoriam' : '' ) . '">' . self::escape( self::person_initials( self::text( $record['title'] ) ) ) . '</span>';
 		$badge    = '' !== $photo
 			? '<img class="lps-monogram lps-monogram--photo" src="' . self::escape( $photo ) . '" alt="" loading="lazy" decoding="async">'
 			: '<span class="lps-monogram' . ( $memoriam ? ' lps-monogram--memoriam' : '' ) . '" aria-hidden="true">' . self::escape( self::person_initials( self::text( $record['title'] ) ) ) . '</span>';
 		$html     = '<article class="lps-person-card"' . ( '' !== $slug ? ' id="' . self::escape( $slug ) . '"' : '' ) . ' data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '" data-record-id="' . self::escape( self::text( $record['record_id'] ?? '' ) ) . '">';
+		$html    .= '<div class="lps-person-media" aria-hidden="true"><div class="lps-person-media-frame">' . $media . '</div></div>';
 		$html    .= '<div class="lps-person-header">' . $badge . '<div>';
 		$html    .= '<h3>' . self::escape( self::text( $record['title'] ) ) . '</h3>';
 		$role     = self::person_role_labels( array_values( is_array( $roles ) ? $roles : array() ), $locale );
