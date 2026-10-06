@@ -812,10 +812,10 @@
         "_lps_photo_alt": "Otto Tavares Nascimento",
         "_lps_public_email": "otto.tavares@lps.ufrj.br",
         "_lps_topics": [
-          "Aprendizado de Máquina",
-          "Aprendizado de Máquina aplicado à saúde",
-          "Modelos Generativos para produção sintética de dados",
-          "Avaliação estatística de dados sintéticos"
+          "Machine Learning",
+          "Machine Learning applied to health",
+          "Generative models for synthetic data production",
+          "Statistical evaluation of synthetic data"
         ],
         "_lps_review_date": "2027-01-04",
         "_lps_claim_verified": false,
@@ -859,6 +859,34 @@
       "target": "lps:page:4e691edc-a238-4f11-88cf-e93447191b33",
       "role": "context",
       "order": 5
+    },
+    {
+      "source": "lps:page:bc5c6a60-da88-4cda-8271-f84cfa452de2",
+      "type": "related_record",
+      "target": "lps:person:b8dd423a-311e-490a-8b83-2a16177dd8e4",
+      "role": "featured",
+      "order": 6
+    },
+    {
+      "source": "lps:page:bc5c6a60-da88-4cda-8271-f84cfa452de2",
+      "type": "related_record",
+      "target": "lps:person:78f4ddb3-f5eb-4bee-80b6-5bf5ca95a1d0",
+      "role": "featured",
+      "order": 7
+    },
+    {
+      "source": "lps:page:bc5c6a60-da88-4cda-8271-f84cfa452de2",
+      "type": "related_record",
+      "target": "lps:person:72eef29d-328e-4e8b-8885-6f8153194583",
+      "role": "featured",
+      "order": 8
+    },
+    {
+      "source": "lps:page:bc5c6a60-da88-4cda-8271-f84cfa452de2",
+      "type": "related_record",
+      "target": "lps:person:c593adcc-fffe-406b-8d4e-689ca10399e1",
+      "role": "featured",
+      "order": 9
     },
     {
       "source": "lps:page:71cbda57-b067-4c3d-8aad-c9235216e1f1",
@@ -922,6 +950,13 @@
       "target": "lps:person:1390d8d6-4e03-4833-8d0b-c65c1e04abfd",
       "role": "related",
       "order": 5
+    },
+    {
+      "source": "lps:page:38c4774c-bce1-4aca-84dc-af4a58e75b33",
+      "type": "related_record",
+      "target": "lps:person:c593adcc-fffe-406b-8d4e-689ca10399e1",
+      "role": "related",
+      "order": 6
     },
     {
       "source": "lps:page:334107af-a9d2-44aa-8a44-4bd9d0f50eb9",

@@ -87,6 +87,14 @@
         "reviewerRole": "section-editor",
         "reviewedBy": null,
         "reviewState": "pending-independent-review"
+      },
+      "meta": {
+        "_lps_topics": [
+          "Machine Learning",
+          "Machine Learning applied to health",
+          "Generative models for synthetic data production",
+          "Statistical evaluation of synthetic data"
+        ]
       }
     }
   },

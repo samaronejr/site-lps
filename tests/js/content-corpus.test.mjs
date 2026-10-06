@@ -48,7 +48,7 @@ describe("launch corpus publish gate", () => {
     const second = buildImportPackage(corpus);
     expect(JSON.stringify(first)).toBe(JSON.stringify(second));
     expect(first.records).toHaveLength(26);
-    expect(first.relationships).toHaveLength(16);
+    expect(first.relationships).toHaveLength(21);
     expect(first.redirects).toHaveLength(2);
     expect(first.media).toHaveLength(0);
     expect(new Set(first.records.map((entry) => entry.record_id)).size).toBe(26);
