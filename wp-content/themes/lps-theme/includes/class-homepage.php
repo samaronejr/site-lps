@@ -992,21 +992,24 @@ final class Homepage {
 		$post_id  = self::num( $record['post_id'] ?? 0 );
 		$status   = self::person_status( $record );
 		$memoriam = 'in-memoriam' === $status;
-		$roles    = 0 < $post_id ? get_post_meta( $post_id, '_lps_roles', true ) : array();
-		$email    = 0 < $post_id ? trim( self::text( get_post_meta( $post_id, '_lps_public_email', true ) ) ) : '';
-		$slug     = 0 < $post_id ? self::text( get_post_field( 'post_name', $post_id ) ) : '';
-		$photo    = self::person_photo_url( $post_id );
-		$media    = '' !== $photo
+		// `_lps_roles` and `_lps_public_email` are shared fields: variants store
+		// them on the Portuguese authority only, so resolve them there.
+		$meta_id = 0 < $post_id && class_exists( Translations::class ) ? ( Translations::source_id( $post_id ) ?? $post_id ) : $post_id;
+		$roles   = 0 < $meta_id ? get_post_meta( $meta_id, '_lps_roles', true ) : array();
+		$email   = 0 < $meta_id ? trim( self::text( get_post_meta( $meta_id, '_lps_public_email', true ) ) ) : '';
+		$slug    = 0 < $post_id ? self::text( get_post_field( 'post_name', $post_id ) ) : '';
+		$photo   = self::person_photo_url( $post_id );
+		$media   = '' !== $photo
 			? '<img class="lps-person-card-photo" src="' . self::escape( $photo ) . '" alt="" loading="lazy" decoding="async">'
 			: '<span class="lps-monogram' . ( $memoriam ? ' lps-monogram--memoriam' : '' ) . '">' . self::escape( self::person_initials( self::text( $record['title'] ) ) ) . '</span>';
-		$badge    = '' !== $photo
+		$badge   = '' !== $photo
 			? '<img class="lps-monogram lps-monogram--photo" src="' . self::escape( $photo ) . '" alt="" loading="lazy" decoding="async">'
 			: '<span class="lps-monogram' . ( $memoriam ? ' lps-monogram--memoriam' : '' ) . '" aria-hidden="true">' . self::escape( self::person_initials( self::text( $record['title'] ) ) ) . '</span>';
-		$html     = '<article class="lps-person-card"' . ( '' !== $slug ? ' id="' . self::escape( $slug ) . '"' : '' ) . ' data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '" data-record-id="' . self::escape( self::text( $record['record_id'] ?? '' ) ) . '">';
-		$html    .= '<div class="lps-person-media" aria-hidden="true"><div class="lps-person-media-frame">' . $media . '</div></div>';
-		$html    .= '<div class="lps-person-header">' . $badge . '<div>';
-		$html    .= '<h3>' . self::escape( self::text( $record['title'] ) ) . '</h3>';
-		$role     = self::person_role_labels( array_values( is_array( $roles ) ? $roles : array() ), $locale );
+		$html    = '<article class="lps-person-card"' . ( '' !== $slug ? ' id="' . self::escape( $slug ) . '"' : '' ) . ' data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '" data-record-id="' . self::escape( self::text( $record['record_id'] ?? '' ) ) . '">';
+		$html   .= '<div class="lps-person-media" aria-hidden="true"><div class="lps-person-media-frame">' . $media . '</div></div>';
+		$html   .= '<div class="lps-person-header">' . $badge . '<div>';
+		$html   .= '<h3>' . self::escape( self::text( $record['title'] ) ) . '</h3>';
+		$role    = self::person_role_labels( array_values( is_array( $roles ) ? $roles : array() ), $locale );
 		if ( '' !== $role ) {
 			$html .= '<p class="lps-role">' . self::escape( $role ) . '</p>';
 		}
@@ -1087,9 +1090,10 @@ final class Homepage {
 			'professor-titular-emerito'  => $english ? 'Emeritus Full Professor' : 'Professor Titular Emérito',
 			'professor-adjunto'          => $english ? 'Associate Professor' : 'Professor Adjunto',
 			'professor-assistente'       => $english ? 'Assistant Professor' : 'Professor Assistente',
-			'colaborador-lps'            => $english ? 'LPS Collaborator' : 'Colaborador do LPS',
+			'colaborador-lps'            => $english ? 'LPS collaborator' : 'Colaborador do LPS',
 			'coordenador-lps'            => $english ? 'LPS Coordinator' : 'Coordenador do LPS',
-			'pesquisador-permanente-lps' => $english ? 'Permanent LPS Researcher' : 'Pesquisador Permanente do LPS',
+			'pesquisador-permanente-lps' => $english ? 'Permanent LPS researcher' : 'Pesquisador permanente do LPS',
+			'pesquisador-atlas'          => $english ? 'ATLAS researcher' : 'Pesquisador ATLAS',
 			'pesquisador'                => $english ? 'Researcher' : 'Pesquisador',
 			'researcher'                 => $english ? 'Researcher' : 'Pesquisador',
 			'student'                    => $english ? 'Student' : 'Estudante',
