@@ -48,11 +48,23 @@ final class IntranetRoutesTest extends \PHPUnit\Framework\TestCase {
 		$GLOBALS['lps_test_post_meta'] = $store;
 	}
 
+	private static function blank_post(): WP_Post {
+		// Works for every WP_Post shape the suites meet: the seed runtime's
+		// SeedPost alias (typed ctor), the local stand-in (no ctor) and real
+		// WordPress (ctor requires a payload).
+		return ( new \ReflectionClass( WP_Post::class ) )->newInstanceWithoutConstructor();
+	}
+
 	private static function section( int $id, string $access, int $project = 0 ): WP_Post {
-		$post             = new WP_Post( new \stdClass() );
-		$post->ID         = $id;
-		$post->post_name  = 'section-' . $id;
-		$post->post_title = 'Section ' . $id;
+		$post               = self::blank_post();
+		$post->ID           = $id;
+		$post->post_name    = 'section-' . $id;
+		$post->post_title   = 'Section ' . $id;
+		$post->post_type    = 'page';
+		$post->post_status  = 'private';
+		$post->post_parent  = 0;
+		$post->post_excerpt = '';
+		$post->post_content = '';
 		self::set_post_meta( $id, '_lps_intranet_access', $access );
 		self::set_post_meta( $id, '_lps_intranet_project', $project );
 		return $post;

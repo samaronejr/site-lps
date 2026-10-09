@@ -51,6 +51,20 @@ if ( ! class_exists( 'WP_Post' ) ) {
 		 * @var string
 		 */
 		public string $post_status = 'private';
+
+		/**
+		 * Post type.
+		 *
+		 * @var string
+		 */
+		public string $post_type = 'page';
+
+		/**
+		 * Parent post ID.
+		 *
+		 * @var int
+		 */
+		public int $post_parent = 0;
 	}
 }
 
