@@ -131,11 +131,7 @@ final class IntranetSurfaces {
 		foreach ( $sections as $post ) {
 			$access   = IntranetRoutes::section_access( $post );
 			$can_open = IntranetRoutes::user_can_open( $user, $post );
-			$badge    = 'project' === $access['level']
-				? ( $can_open
-					? ( $english ? 'Project members' : 'Membros do projeto' )
-					: ( $english ? 'Restricted' : 'Restrito' ) )
-				: ( $english ? 'All members' : 'Todos os membros' );
+			$badge    = self::access_badge( $access['level'], $can_open, $english );
 			$card     = '<li class="lps-card' . ( $can_open ? '' : ' lps-card--locked' ) . '">'
 				. '<span class="lps-meta">' . self::esc( $badge ) . '</span>'
 				. '<h2 class="lps-card-title">'
@@ -178,7 +174,123 @@ final class IntranetSurfaces {
 			$body = '';
 		}
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the_content returns filtered page markup, not raw text.
-		return '<div class="lps-page-grid"><div class="lps-body lps-intranet-body">' . $body . '</div></div>';
+		return '<div class="lps-page-grid">' . self::section_shortcuts( $post, $locale ) . '<div class="lps-body lps-intranet-body">' . $body . '</div></div>';
+	}
+
+	/**
+	 * Renders the hub-card badge naming a section's access contract.
+	 *
+	 * @param string $level    Resolved access level.
+	 * @param bool   $can_open Whether the viewer may open the section.
+	 * @param bool   $english  Whether to render English copy.
+	 */
+	private static function access_badge( string $level, bool $can_open, bool $english ): string {
+		if ( ! $can_open ) {
+			return $english ? 'Restricted' : 'Restrito';
+		}
+		return match ( $level ) {
+			'faculty' => $english ? 'Faculty & administrators' : 'Corpo docente e administradores',
+			'project' => $english ? 'Project members' : 'Membros do projeto',
+			default   => $english ? 'All members' : 'Todos os membros',
+		};
+	}
+
+	/**
+	 * Renders the shortcut bar of a section: grouped dropdown menus of useful
+	 * links, like the queue and storage shortcuts on the cluster area.
+	 *
+	 * The groups live in the section's `_lps_intranet_links` meta as a JSON
+	 * array — `[ { "label": "Queues", "items": [ { "label": "GPU", "url":
+	 * "https://…" } ] } ]` — so the laboratory edits the links from wp-admin
+	 * without a code change. A label may be a string or a `{"pt-br": …,
+	 * "en": …}` pair; items with no items array render as a plain shortcut
+	 * button when the group itself carries a url. Only http/https links
+	 * render; anything else is dropped.
+	 *
+	 * @param WP_Post $post   Private intranet page.
+	 * @param string  $locale Supported locale slug.
+	 */
+	private static function section_shortcuts( WP_Post $post, string $locale ): string {
+		$raw = get_post_meta( $post->ID, '_lps_intranet_links', true );
+		if ( ! is_string( $raw ) || '' === trim( $raw ) ) {
+			return '';
+		}
+		$groups = json_decode( $raw, true );
+		if ( ! is_array( $groups ) ) {
+			return '';
+		}
+		$bar = '';
+		foreach ( $groups as $group ) {
+			if ( ! is_array( $group ) ) {
+				continue;
+			}
+			$label = self::shortcut_label( $group['label'] ?? '', $locale );
+			if ( '' === $label ) {
+				continue;
+			}
+			$items = isset( $group['items'] ) && is_array( $group['items'] ) ? $group['items'] : array();
+			$links = '';
+			foreach ( $items as $item ) {
+				if ( ! is_array( $item ) ) {
+					continue;
+				}
+				$item_label = self::shortcut_label( $item['label'] ?? '', $locale );
+				$item_url   = self::shortcut_url( $item['url'] ?? '' );
+				if ( '' === $item_label || '' === $item_url ) {
+					continue;
+				}
+				$links .= '<li><a href="' . self::esc( $item_url ) . '">' . self::esc( $item_label ) . '</a></li>';
+			}
+			if ( '' !== $links ) {
+				$bar .= '<details class="lps-shortcut-group" name="lps-shortcut"><summary>' . self::esc( $label ) . '<span class="lps-nav-caret" aria-hidden="true"></span></summary>'
+					. '<ul class="lps-shortcut-menu">' . $links . '</ul></details>';
+				continue;
+			}
+			$group_url = self::shortcut_url( $group['url'] ?? '' );
+			if ( '' === $group_url ) {
+				continue;
+			}
+			$bar .= '<a class="lps-shortcut-link" href="' . self::esc( $group_url ) . '">' . self::esc( $label ) . '</a>';
+		}
+		if ( '' === $bar ) {
+			return '';
+		}
+		$english = 'en' === $locale;
+		return '<nav class="lps-shortcut-bar" aria-label="' . self::esc( $english ? 'Shortcuts' : 'Atalhos' ) . '">' . $bar . '</nav>';
+	}
+
+	/**
+	 * Resolves one shortcut label to the request locale.
+	 *
+	 * @param mixed  $label  Label string or `{"pt-br": …, "en": …}` map.
+	 * @param string $locale Supported locale slug.
+	 */
+	private static function shortcut_label( mixed $label, string $locale ): string {
+		if ( is_string( $label ) ) {
+			return trim( $label );
+		}
+		if ( is_array( $label ) ) {
+			$picked = $label[ $locale ] ?? $label['pt-br'] ?? reset( $label );
+			return is_string( $picked ) ? trim( $picked ) : '';
+		}
+		return '';
+	}
+
+	/**
+	 * Returns an http/https URL or empty string for anything else.
+	 *
+	 * @param mixed $url Candidate URL.
+	 */
+	private static function shortcut_url( mixed $url ): string {
+		if ( ! is_string( $url ) || '' === trim( $url ) ) {
+			return '';
+		}
+		$url    = trim( $url );
+		$scheme = wp_parse_url( $url, PHP_URL_SCHEME );
+		if ( ! in_array( $scheme, array( 'http', 'https' ), true ) ) {
+			return '';
+		}
+		return $url;
 	}
 
 	/**
@@ -196,13 +308,18 @@ final class IntranetSurfaces {
 				$project = (string) get_the_title( $access['project'] );
 			}
 		}
-		$note = '' !== $project
-			? sprintf(
+		$faculty = null !== $post && 'faculty' === IntranetRoutes::section_access( $post )['level'];
+		$note    = $faculty
+			? ( $english
+				? 'This area is restricted to the faculty and administrators. An administrator can grant your account the faculty role.'
+				: 'Esta área é restrita ao corpo docente e aos administradores. Um administrador pode atribuir o perfil de docente à sua conta.' )
+			: ( '' !== $project
+				? sprintf(
 				/* translators: %s is the project the area belongs to. */
-				$english ? 'This area is restricted to members of %s. An administrator can grant your account access to it.' : 'Esta área é restrita aos membros de %s. Um administrador pode conceder acesso à sua conta.',
-				$project
-			)
-			: ( $english ? 'This area is restricted. An administrator can grant your account access to it.' : 'Esta área é restrita. Um administrador pode conceder acesso à sua conta.' );
+					$english ? 'This area is restricted to members of %s. An administrator can grant your account access to it.' : 'Esta área é restrita aos membros de %s. Um administrador pode conceder acesso à sua conta.',
+					$project
+				)
+				: ( $english ? 'This area is restricted. An administrator can grant your account access to it.' : 'Esta área é restrita. Um administrador pode conceder acesso à sua conta.' ) );
 		return '<div class="lps-page-grid"><div class="lps-alert lps-alert-warning" role="status"><p>' . self::esc( $note ) . '</p></div></div>';
 	}
 

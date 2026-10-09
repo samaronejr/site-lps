@@ -3868,6 +3868,91 @@ details.lps-dashboard-edit > form {
   margin: 0;
 }
 
+/* Intranet shortcut bar: grouped link menus ride a ruled strip above the
+   section body. The groups reuse the shell's own disclosure grammar — a
+   `<details>` control that needs no script — so the bar works the same for
+   pointer, touch and keyboard members. */
+
+.lps-shortcut-bar {
+  align-items: center;
+  border-block: var(--rule-hairline);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-2);
+  margin-block-start: var(--space-6);
+  padding-block: var(--space-2);
+  position: relative;
+}
+
+.lps-shortcut-group {
+  position: relative;
+}
+
+.lps-shortcut-group > summary,
+a.lps-shortcut-link {
+  align-items: center;
+  border-radius: var(--radius-pill);
+  color: var(--color-anchor);
+  cursor: pointer;
+  display: inline-flex;
+  font-family: var(--font-interface);
+  font-size: var(--type-small);
+  font-weight: 600;
+  gap: var(--space-2);
+  letter-spacing: 0.01em;
+  list-style: none;
+  min-block-size: var(--control-min);
+  padding: var(--space-2) var(--space-4);
+  text-decoration: none;
+  transition:
+    background-color var(--motion-fast) var(--ease-state),
+    color var(--motion-fast) var(--ease-state);
+}
+
+.lps-shortcut-group > summary::-webkit-details-marker {
+  display: none;
+}
+
+.lps-shortcut-group > summary:hover,
+.lps-shortcut-group[open] > summary,
+a.lps-shortcut-link:hover {
+  background: var(--color-wash-action-subtle);
+  color: var(--color-action-hover);
+}
+
+.lps-shortcut-menu {
+  background: var(--color-surface);
+  border: var(--rule-hairline);
+  border-block-start: var(--line-heavy) solid var(--color-accent);
+  box-shadow: var(--shadow-md);
+  inset-block-start: 100%;
+  inset-inline-start: 0;
+  list-style: none;
+  margin: 0;
+  min-inline-size: 14rem;
+  padding: var(--space-2);
+  position: absolute;
+  z-index: 55;
+}
+
+.lps-shortcut-menu a {
+  color: var(--color-anchor);
+  display: block;
+  font-size: var(--type-small);
+  font-weight: 500;
+  min-block-size: 2.25rem;
+  padding: var(--space-2) var(--space-3);
+  text-decoration: none;
+  transition:
+    background-color var(--motion-fast) var(--ease-state),
+    color var(--motion-fast) var(--ease-state);
+}
+
+.lps-shortcut-menu a:hover {
+  background: var(--color-wash-action-subtle);
+  color: var(--color-action-hover);
+}
+
 /* ----------------------------------------------------------------------------
  * 18. Footer
  * ------------------------------------------------------------------------- */
