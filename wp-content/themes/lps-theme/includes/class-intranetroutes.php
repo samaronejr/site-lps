@@ -155,8 +155,7 @@ final class IntranetRoutes {
 	 * @param WP_User $user Signed-in account.
 	 */
 	public static function user_is_faculty( WP_User $user ): bool {
-		$roles = is_array( $user->roles ) ? $user->roles : array();
-		return 0 !== count( array_intersect( $roles, array( 'lps_professor', 'lps_administrator', 'administrator' ) ) );
+		return 0 !== count( array_intersect( $user->roles, array( 'lps_professor', 'lps_administrator', 'administrator' ) ) );
 	}
 
 	/**

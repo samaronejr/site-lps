@@ -9,8 +9,8 @@ declare(strict_types=1);
 
 namespace LPS\Theme\Tests;
 
-require_once __DIR__ . '/stubs-wp-classes.php';
-require_once __DIR__ . '/stubs-intranet.php';
+require_once dirname( __DIR__, 4 ) . '/tests/theme-unit/stubs-wp-classes.php';
+require_once dirname( __DIR__, 4 ) . '/tests/theme-unit/stubs-intranet.php';
 require_once dirname( __DIR__ ) . '/includes/class-intranetroutes.php';
 
 use LPS\Theme\IntranetRoutes;
@@ -25,13 +25,30 @@ final class IntranetRoutesTest extends \PHPUnit\Framework\TestCase {
 		unset( $GLOBALS['lps_test_post_meta'], $GLOBALS['lps_test_user_meta'], $GLOBALS['lps_test_caps'], $GLOBALS['lps_test_posts'] );
 	}
 
+	/**
+	 * Writes one entry into the test post-meta store.
+	 */
+	private static function set_post_meta( int $post_id, string $key, mixed $value ): void {
+		$store = $GLOBALS['lps_test_post_meta'] ?? array();
+		if ( ! is_array( $store ) ) {
+			$store = array();
+		}
+		$record = $store[ $post_id ] ?? array();
+		if ( ! is_array( $record ) ) {
+			$record = array();
+		}
+		$record[ $key ]                = $value;
+		$store[ $post_id ]             = $record;
+		$GLOBALS['lps_test_post_meta'] = $store;
+	}
+
 	private static function section( int $id, string $access, int $project = 0 ): WP_Post {
-		$post             = new WP_Post();
+		$post             = new WP_Post( new \stdClass() );
 		$post->ID         = $id;
 		$post->post_name  = 'section-' . $id;
 		$post->post_title = 'Section ' . $id;
-		$GLOBALS['lps_test_post_meta'][ $id ]['_lps_intranet_access']  = $access;
-		$GLOBALS['lps_test_post_meta'][ $id ]['_lps_intranet_project'] = $project;
+		self::set_post_meta( $id, '_lps_intranet_access', $access );
+		self::set_post_meta( $id, '_lps_intranet_project', $project );
 		return $post;
 	}
 
@@ -41,14 +58,27 @@ final class IntranetRoutesTest extends \PHPUnit\Framework\TestCase {
 	 * @param array<int, int>    $projects
 	 */
 	private static function user( int $id, array $roles, array $caps = array(), array $projects = array() ): WP_User {
-		$user                            = new WP_User();
-		$user->ID                        = $id;
-		$user->roles                     = $roles;
-		$GLOBALS['lps_test_caps'][ $id ] = $caps;
-		$GLOBALS['lps_test_user_meta'][ $id ]['_lps_intranet_projects'] = $projects;
+		$user        = new WP_User();
+		$user->ID    = $id;
+		$user->roles = $roles;
+		$caps_store  = $GLOBALS['lps_test_caps'] ?? array();
+		if ( is_array( $caps_store ) ) {
+			$caps_store[ $id ]        = $caps;
+			$GLOBALS['lps_test_caps'] = $caps_store;
+		}
+		$meta_store = $GLOBALS['lps_test_user_meta'] ?? array();
+		if ( is_array( $meta_store ) ) {
+			$meta_store[ $id ]             = array( '_lps_intranet_projects' => $projects );
+			$GLOBALS['lps_test_user_meta'] = $meta_store;
+		}
 		return $user;
 	}
 
+	/**
+	 * Stored access values and their resolved levels.
+	 *
+	 * @return array<string, array{string, string}>
+	 */
 	public static function access_levels(): array {
 		return array(
 			'members'       => array( 'members', 'members' ),
@@ -82,6 +112,11 @@ final class IntranetRoutesTest extends \PHPUnit\Framework\TestCase {
 		self::assertFalse( IntranetRoutes::user_can_open( $member, self::section( 31, 'faculty' ) ) );
 	}
 
+	/**
+	 * Role lists that pass the faculty gate.
+	 *
+	 * @return array<string, array{array<int, string>}>
+	 */
 	public static function faculty_roles(): array {
 		return array(
 			'professor'          => array( array( 'lps_professor' ) ),
@@ -98,6 +133,11 @@ final class IntranetRoutesTest extends \PHPUnit\Framework\TestCase {
 		self::assertTrue( IntranetRoutes::user_can_open( $user, self::section( 40, 'faculty' ) ) );
 	}
 
+	/**
+	 * Role lists the faculty gate locks out.
+	 *
+	 * @return array<string, array{array<int, string>}>
+	 */
 	public static function non_faculty_roles(): array {
 		return array(
 			'subscriber' => array( array( 'subscriber' ) ),
@@ -122,37 +162,41 @@ final class IntranetRoutesTest extends \PHPUnit\Framework\TestCase {
 
 	public function test_shortcut_bar_renders_groups_and_drops_bad_links(): void {
 		$post = self::section( 70, 'faculty' );
-		$GLOBALS['lps_test_post_meta'][70]['_lps_intranet_links'] = json_encode(
-			array(
+		self::set_post_meta(
+			70,
+			'_lps_intranet_links',
+			json_encode(
 				array(
-					'label' => 'Queues',
-					'items' => array(
-						array(
-							'label' => 'GPU',
-							'url'   => 'https://cluster.example/gpu',
-						),
-						array(
-							'label' => 'CPU',
-							'url'   => 'https://cluster.example/cpu',
-						),
-						array(
-							'label' => 'Bad',
-							'url'   => 'javascript:alert(1)',
-						),
-					),
-				),
-				array(
-					'label' => array(
-						'pt-br' => 'Serviços',
-						'en'    => 'Services',
-					),
-					'items' => array(
-						array(
-							'label' => 'Storage',
-							'url'   => 'https://storage.example',
+					array(
+						'label' => 'Queues',
+						'items' => array(
+							array(
+								'label' => 'GPU',
+								'url'   => 'https://cluster.example/gpu',
+							),
+							array(
+								'label' => 'CPU',
+								'url'   => 'https://cluster.example/cpu',
+							),
+							array(
+								'label' => 'Bad',
+								'url'   => 'javascript:alert(1)',
+							),
 						),
 					),
-				),
+					array(
+						'label' => array(
+							'pt-br' => 'Serviços',
+							'en'    => 'Services',
+						),
+						'items' => array(
+							array(
+								'label' => 'Storage',
+								'url'   => 'https://storage.example',
+							),
+						),
+					),
+				)
 			)
 		);
 		$user = self::user( 6, array( 'lps_professor' ) );
@@ -176,20 +220,24 @@ final class IntranetRoutesTest extends \PHPUnit\Framework\TestCase {
 
 	public function test_shortcut_bar_uses_english_group_labels(): void {
 		$post = self::section( 71, 'faculty' );
-		$GLOBALS['lps_test_post_meta'][71]['_lps_intranet_links'] = json_encode(
-			array(
+		self::set_post_meta(
+			71,
+			'_lps_intranet_links',
+			json_encode(
 				array(
-					'label' => array(
-						'pt-br' => 'Filas',
-						'en'    => 'Queues',
-					),
-					'items' => array(
-						array(
-							'label' => 'GPU',
-							'url'   => 'https://cluster.example/gpu',
+					array(
+						'label' => array(
+							'pt-br' => 'Filas',
+							'en'    => 'Queues',
+						),
+						'items' => array(
+							array(
+								'label' => 'GPU',
+								'url'   => 'https://cluster.example/gpu',
+							),
 						),
 					),
-				),
+				)
 			)
 		);
 		$user = self::user( 7, array( 'lps_professor' ) );
