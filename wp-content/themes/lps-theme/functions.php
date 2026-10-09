@@ -218,6 +218,7 @@ add_action(
 					. '<option value="">' . esc_html__( 'Not an intranet section', 'lps-theme' ) . '</option>'
 					. '<option value="members"' . selected( 'members', $access, false ) . '>' . esc_html__( 'All members', 'lps-theme' ) . '</option>'
 					. '<option value="project"' . selected( 'project', $access, false ) . '>' . esc_html__( 'Restricted to project', 'lps-theme' ) . '</option>'
+					. '<option value="faculty"' . selected( 'faculty', $access, false ) . '>' . esc_html__( 'Faculty & administrators', 'lps-theme' ) . '</option>'
 					. '</select></p>'
 					. '<p><label for="lps_intranet_project"><strong>' . esc_html__( 'Project', 'lps-theme' ) . '</strong></label><br />'
 					. '<select id="lps_intranet_project" name="lps_intranet_project"><option value="">—</option>';
@@ -251,7 +252,7 @@ add_action(
 		$raw    = isset( $_POST['lps_intranet_access'] ) && is_string( $_POST['lps_intranet_access'] )
 			? sanitize_key( wp_unslash( $_POST['lps_intranet_access'] ) )
 			: '';
-		$access = in_array( $raw, array( 'members', 'project' ), true ) ? $raw : '';
+		$access = in_array( $raw, array( 'members', 'project', 'faculty' ), true ) ? $raw : '';
 		if ( '' === $access ) {
 			delete_post_meta( $post_id, '_lps_intranet_access' );
 			delete_post_meta( $post_id, '_lps_intranet_project' );

@@ -14,10 +14,12 @@
  * meta. Private posts never resolve on the public site, so members-only
  * content cannot leak through a permalink, a feed or a sitemap; the gated
  * route below is the only renderer that sees them. A section's access level
- * is either `members` (any signed-in account — e.g. the cluster area) or
- * `project`, which additionally requires the project named in
- * `_lps_intranet_project` to appear in the account's `_lps_intranet_projects`
- * user meta (granted from the user's wp-admin profile).
+ * is either `members` (any signed-in account — e.g. the intranet hub),
+ * `faculty` (the faculty group: professor and administrator roles — e.g. the
+ * cluster area) or `project`, which additionally requires the project named
+ * in `_lps_intranet_project` to appear in the account's
+ * `_lps_intranet_projects` user meta (granted from the user's wp-admin
+ * profile).
  *
  * @package LPS\Theme
  */
@@ -136,9 +138,24 @@ final class IntranetRoutes {
 		$level   = get_post_meta( $post->ID, '_lps_intranet_access', true );
 		$project = get_post_meta( $post->ID, '_lps_intranet_project', true );
 		return array(
-			'level'   => is_string( $level ) && 'project' === $level ? 'project' : 'members',
+			'level'   => is_string( $level ) && in_array( $level, array( 'project', 'faculty' ), true ) ? $level : 'members',
 			'project' => is_numeric( $project ) ? (int) $project : 0,
 		);
+	}
+
+	/**
+	 * Checks whether an account belongs to the faculty group.
+	 *
+	 * Faculty access names the laboratory's teaching staff and the accounts
+	 * that administer the site: the `lps_professor` role covers professors,
+	 * while `lps_administrator` and the core `administrator` role cover the
+	 * staff that manage accounts and infrastructure. Students, delegates and
+	 * ordinary members stay outside.
+	 *
+	 * @param WP_User $user Signed-in account.
+	 */
+	public static function user_is_faculty( WP_User $user ): bool {
+		return 0 !== count( array_intersect( $user->roles, array( 'lps_professor', 'lps_administrator', 'administrator' ) ) );
 	}
 
 	/**
@@ -159,7 +176,8 @@ final class IntranetRoutes {
 	 * Checks whether an account may open a section.
 	 *
 	 * Administrators always pass; `members` sections accept any signed-in
-	 * account; `project` sections additionally require the grant.
+	 * account; `faculty` sections require the faculty group; `project`
+	 * sections additionally require the grant.
 	 *
 	 * @param WP_User $user Signed-in account.
 	 * @param WP_Post $post Private intranet page.
@@ -169,6 +187,9 @@ final class IntranetRoutes {
 			return true;
 		}
 		$access = self::section_access( $post );
+		if ( 'faculty' === $access['level'] ) {
+			return self::user_is_faculty( $user );
+		}
 		if ( 'project' !== $access['level'] ) {
 			return true;
 		}
