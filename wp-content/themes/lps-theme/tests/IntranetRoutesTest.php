@@ -9,10 +9,6 @@ declare(strict_types=1);
 
 namespace LPS\Theme\Tests;
 
-require_once dirname( __DIR__, 4 ) . '/tests/theme-unit/stubs-wp-classes.php';
-require_once dirname( __DIR__, 4 ) . '/tests/theme-unit/stubs-intranet.php';
-require_once dirname( __DIR__ ) . '/includes/class-intranetroutes.php';
-
 use LPS\Theme\IntranetRoutes;
 use LPS\Theme\IntranetSurfaces;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -21,6 +17,16 @@ use WP_User;
 
 /** Gate and shortcut contract tests for the intranet. */
 final class IntranetRoutesTest extends \PHPUnit\Framework\TestCase {
+	public static function setUpBeforeClass(): void {
+		// Loaded lazily so the WP_Post stand-in never reaches the foundation
+		// suite: PHPUnit includes every test file up front, and WpSeedRuntime
+		// relies on class_alias('WP_Post') while no real class exists yet.
+		$stubs = dirname( __DIR__, 4 ) . '/tests/theme-unit';
+		require_once $stubs . '/stubs-wp-classes.php';
+		require_once $stubs . '/stubs-intranet.php';
+		require_once dirname( __DIR__ ) . '/includes/class-intranetroutes.php';
+	}
+
 	protected function tearDown(): void {
 		unset( $GLOBALS['lps_test_post_meta'], $GLOBALS['lps_test_user_meta'], $GLOBALS['lps_test_caps'], $GLOBALS['lps_test_posts'] );
 	}
