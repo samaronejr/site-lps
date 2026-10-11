@@ -239,7 +239,7 @@ final class IntranetSurfaces {
 				if ( '' === $item_label || '' === $item_url ) {
 					continue;
 				}
-				$links .= '<li><a href="' . self::esc( $item_url ) . '">' . self::esc( $item_label ) . '</a></li>';
+				$links .= '<li><a href="' . self::esc( $item_url ) . '" target="_blank" rel="noopener noreferrer">' . self::esc( $item_label ) . '</a></li>';
 			}
 			if ( '' !== $links ) {
 				$bar .= '<details class="lps-shortcut-group" name="lps-shortcut"><summary>' . self::esc( $label ) . '<span class="lps-nav-caret" aria-hidden="true"></span></summary>'
@@ -250,7 +250,7 @@ final class IntranetSurfaces {
 			if ( '' === $group_url ) {
 				continue;
 			}
-			$bar .= '<a class="lps-shortcut-link" href="' . self::esc( $group_url ) . '">' . self::esc( $label ) . '</a>';
+			$bar .= '<a class="lps-shortcut-link" href="' . self::esc( $group_url ) . '" target="_blank" rel="noopener noreferrer">' . self::esc( $label ) . '</a>';
 		}
 		if ( '' === $bar ) {
 			return '';

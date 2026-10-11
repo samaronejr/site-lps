@@ -232,6 +232,7 @@ final class IntranetRoutesTest extends \PHPUnit\Framework\TestCase {
 		self::assertStringContainsString( 'Queues', $html );
 		self::assertStringContainsString( 'Serviços', $html );
 		self::assertStringContainsString( 'https://cluster.example/gpu', $html );
+		self::assertStringContainsString( 'target="_blank" rel="noopener noreferrer">GPU', $html );
 		self::assertStringNotContainsString( 'javascript:', $html );
 		self::assertStringNotContainsString( '>Bad<', $html );
 	}
