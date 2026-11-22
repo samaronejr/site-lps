@@ -228,7 +228,7 @@
         },
         {
           "path": "wp-content/themes/lps-theme/includes/class-publicsurfaces.php",
-          "sha256": "3a0ec2f4f368707834a53dd0d5b4feab25881c2613626b806860e45cf0a41f30"
+          "sha256": "ae725e47bd2a86f835790147f31a034d835e652edd6037a003c6f62067f4a430"
         },
         {
           "path": "wp-content/themes/lps-theme/includes/class-assetpolicy.php",

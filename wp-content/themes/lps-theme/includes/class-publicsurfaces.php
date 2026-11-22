@@ -44,9 +44,9 @@ final class PublicSurfaces {
 		if ( false === $dimensions ) {
 			return $legacy;
 		}
-		$profile     = 'lps-person-photo' === $image_class;
-		$badge       = str_contains( $image_class, 'lps-monogram' );
-		$sizes       = $badge ? '56px' : '(max-width: 600px) calc(100vw - 64px), 400px';
+		$profile = 'lps-person-photo' === $image_class;
+		$badge   = str_contains( $image_class, 'lps-monogram' );
+		$sizes   = $badge ? '56px' : '(max-width: 600px) calc(100vw - 64px), 400px';
 		if ( $profile ) {
 			$sizes = '(max-width: 959px) calc(100vw - 64px), 540px';
 		}
