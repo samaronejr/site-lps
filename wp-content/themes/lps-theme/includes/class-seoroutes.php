@@ -808,7 +808,7 @@ final class SeoRoutes {
 			return class_exists( TeachingRecords::class ) ? TeachingRecords::offering_url( $post->ID, $locale ) : '';
 		}
 		if ( 'page' === $post->post_type ) {
-			return TrustRoutes::page_path( self::text( get_post_meta( $post->ID, '_lps_page_key', true ) ), $locale );
+			return TrustRoutes::page_path( self::text( get_post_meta( self::source_id( $post ), '_lps_page_key', true ) ), $locale );
 		}
 		return '';
 	}
@@ -1084,7 +1084,7 @@ final class SeoRoutes {
 			}
 		}
 		$addressable = self::addressable_slugs( $locale );
-		foreach ( self::published_records( array_keys( self::SECTIONS ), $locale ) as $post ) {
+		foreach ( self::published_records( array_merge( array_keys( self::SECTIONS ), array( 'page' ) ), $locale ) as $post ) {
 			$path = self::record_path( $post, $locale );
 			if ( '' === $path || ! self::publicly_visible( $post, $locale ) ) {
 				continue;

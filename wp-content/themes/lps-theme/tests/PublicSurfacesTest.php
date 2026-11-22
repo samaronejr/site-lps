@@ -15,6 +15,40 @@ require_once dirname( __DIR__ ) . '/includes/class-publicsurfaces.php';
 
 /** People, organization, and infrastructure surface contracts. */
 final class PublicSurfacesTest extends \PHPUnit\Framework\TestCase {
+	/** Generated responsive portraits retain a conservative legacy fallback. */
+	public function test_portrait_falls_back_without_generated_files(): void {
+		self::assertSame( '<img class="lps-person-photo" src="/uploads/person.jpg" alt="Portrait.">', PublicSurfaces::portrait( '/uploads/person.jpg', 'lps-person-photo', 'Portrait.' ) );
+		self::assertStringNotContainsString( '<source', PublicSurfaces::portrait( '', 'lps-person-photo' ) );
+	}
+
+	/** Generated derivatives are selected only as a complete set. */
+	#[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
+	public function test_generated_portrait_has_webp_jpeg_sizes_and_dimensions(): void {
+		$root = sys_get_temp_dir() . '/lps-portrait-' . uniqid();
+		mkdir( $root . '/wp-content', 0777, true );
+		symlink( dirname( __DIR__, 4 ) . '/content/media/uploads', $root . '/wp-content/uploads' );
+		define( 'ABSPATH', $root . '/' );
+		try {
+			$html = PublicSurfaces::portrait( '/wp-content/uploads/people/luiz-pereira-caloba.jpg', 'lps-monogram lps-monogram--photo' );
+			self::assertStringContainsString( '<picture class="lps-monogram lps-monogram--photo">', $html );
+			self::assertStringContainsString( 'type="image/webp"', $html );
+			self::assertStringContainsString( '-112.webp 112w', $html );
+			self::assertStringContainsString( '-800.jpg 800w', $html );
+			self::assertStringContainsString( 'sizes="56px"', $html );
+			self::assertStringContainsString( 'width="400"', $html );
+			self::assertStringContainsString( 'height="547"', $html );
+			$profile = PublicSurfaces::portrait( '/wp-content/uploads/people/luiz-pereira-caloba.jpg', 'lps-person-photo', 'Portrait.' );
+			self::assertStringContainsString( 'sizes="(max-width: 959px) calc(100vw - 64px), 540px"', $profile );
+			self::assertStringNotContainsString( 'loading="lazy"', $profile );
+			$missing = PublicSurfaces::portrait( '/wp-content/uploads/people/missing.jpg', 'lps-person-photo' );
+			self::assertStringNotContainsString( '<picture', $missing );
+		} finally {
+			unlink( $root . '/wp-content/uploads' );
+			rmdir( $root . '/wp-content' );
+			rmdir( $root );
+		}
+	}
+
 	/**
 	 * Provides people.
 	 *

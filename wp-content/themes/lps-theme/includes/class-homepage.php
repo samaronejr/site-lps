@@ -1000,10 +1000,10 @@ final class Homepage {
 		$slug    = 0 < $post_id ? self::text( get_post_field( 'post_name', $post_id ) ) : '';
 		$photo   = self::person_photo_url( $post_id );
 		$media   = '' !== $photo
-			? '<img class="lps-person-card-photo" src="' . self::escape( $photo ) . '" alt="" loading="lazy" decoding="async">'
+			? PublicSurfaces::portrait( $photo, 'lps-person-card-photo' )
 			: '<span class="lps-monogram' . ( $memoriam ? ' lps-monogram--memoriam' : '' ) . '">' . self::escape( self::person_initials( self::text( $record['title'] ) ) ) . '</span>';
 		$badge   = '' !== $photo
-			? '<img class="lps-monogram lps-monogram--photo" src="' . self::escape( $photo ) . '" alt="" loading="lazy" decoding="async">'
+			? PublicSurfaces::portrait( $photo, 'lps-monogram lps-monogram--photo' )
 			: '<span class="lps-monogram' . ( $memoriam ? ' lps-monogram--memoriam' : '' ) . '" aria-hidden="true">' . self::escape( self::person_initials( self::text( $record['title'] ) ) ) . '</span>';
 		$html    = '<article class="lps-person-card"' . ( '' !== $slug ? ' id="' . self::escape( $slug ) . '"' : '' ) . ' data-source-id="' . self::escape( self::text( $record['source_id'] ) ) . '" data-record-id="' . self::escape( self::text( $record['record_id'] ?? '' ) ) . '">';
 		$html   .= '<div class="lps-person-media" aria-hidden="true"><div class="lps-person-media-frame">' . $media . '</div></div>';

@@ -12,6 +12,50 @@ namespace LPS\Theme;
 /** Owns privacy-aware public rendering. */
 final class PublicSurfaces {
 	/**
+	 * Renders reviewed local portraits with optional generated derivatives.
+	 *
+	 * @param string $url Local JPEG URL.
+	 * @param string $image_class Image class.
+	 * @param string $alt Alternative text.
+	 */
+	public static function portrait( string $url, string $image_class, string $alt = '' ): string {
+		$legacy = '<img class="' . self::esc( $image_class ) . '" src="' . self::esc( $url ) . '" alt="' . self::esc( $alt ) . '"' . ( 'lps-person-photo' === $image_class ? '' : ' loading="lazy" decoding="async"' ) . '>';
+		if ( ! defined( 'ABSPATH' ) || ! is_string( ABSPATH ) || 1 !== preg_match( '#^/wp-content/uploads/people/[a-z0-9-]+\.jpg$#', $url ) ) {
+			return $legacy;
+		}
+		$base = substr( $url, 0, -4 );
+		$root = rtrim( ABSPATH, '/' );
+		$jpeg = array();
+		$webp = array();
+		foreach ( array( 112, 400, 800 ) as $width ) {
+			foreach ( array( 'jpg', 'webp' ) as $format ) {
+				$variant = $base . '-' . $width . '.' . $format;
+				if ( ! is_file( $root . $variant ) ) {
+					return $legacy;
+				}
+				if ( 'jpg' === $format ) {
+					$jpeg[] = $variant . ' ' . $width . 'w';
+				} else {
+					$webp[] = $variant . ' ' . $width . 'w';
+				}
+			}
+		}
+		$dimensions = getimagesize( $root . $base . '-400.jpg' );
+		if ( false === $dimensions ) {
+			return $legacy;
+		}
+		$profile     = 'lps-person-photo' === $image_class;
+		$badge       = str_contains( $image_class, 'lps-monogram' );
+		$sizes       = $badge ? '56px' : '(max-width: 600px) calc(100vw - 64px), 400px';
+		if ( $profile ) {
+			$sizes = '(max-width: 959px) calc(100vw - 64px), 540px';
+		}
+		$wrapper     = $badge ? $image_class : 'lps-portrait';
+		$image_class = $badge ? 'lps-portrait-thumbnail' : $image_class;
+		return '<picture class="' . self::esc( $wrapper ) . '"><source type="image/webp" srcset="' . self::esc( implode( ', ', $webp ) ) . '" sizes="' . self::esc( $sizes ) . '">'
+			. '<img class="' . self::esc( $image_class ) . '" src="' . self::esc( $base . '-400.jpg' ) . '" srcset="' . self::esc( implode( ', ', $jpeg ) ) . '" sizes="' . self::esc( $sizes ) . '" width="' . $dimensions[0] . '" height="' . $dimensions[1] . '" alt="' . self::esc( $alt ) . '" decoding="async"' . ( $profile ? '' : ' loading="lazy"' ) . '></picture>';
+	}
+	/**
 	 * Renders the people directory as the showcase's single faculty section.
 	 *
 	 * @param string             $locale Supported locale slug.
@@ -199,10 +243,10 @@ final class PublicSurfaces {
 		$photo_url = self::text( $person['photo_url'] ?? '' );
 		$has_photo = '' !== $photo_url && self::local_file_exists( $photo_url );
 		$media     = $has_photo
-			? '<img class="lps-person-card-photo" src="' . self::esc( $photo_url ) . '" alt="" loading="lazy" decoding="async">'
+			? self::portrait( $photo_url, 'lps-person-card-photo' )
 			: '<span class="lps-monogram' . ( 'in-memoriam' === $status ? ' lps-monogram--memoriam' : '' ) . '">' . self::esc( self::monogram( $name ) ) . '</span>';
 		$badge     = $has_photo
-			? '<img class="lps-monogram lps-monogram--photo" src="' . self::esc( $photo_url ) . '" alt="" loading="lazy" decoding="async">'
+			? self::portrait( $photo_url, 'lps-monogram lps-monogram--photo' )
 			: '<span class="lps-monogram' . ( 'in-memoriam' === $status ? ' lps-monogram--memoriam' : '' ) . '" aria-hidden="true">' . self::esc( self::monogram( $name ) ) . '</span>';
 
 		$html  = '<article class="lps-person-card" id="' . self::esc( $slug ) . '">';
@@ -339,7 +383,7 @@ final class PublicSurfaces {
 		$photo         = '';
 		if ( $reviewed && $photo_present && 'cleared' === $rights && 0 === strpos( $photo_url, '/' ) && false === strpos( $photo_url, '://' ) ) {
 			$alt   = self::text( $person['photo_alt'] ?? $name );
-			$photo = '<img class="lps-person-photo" src="' . self::esc( $photo_url ) . '" alt="' . self::esc( $alt ) . '">';
+			$photo = self::portrait( $photo_url, 'lps-person-photo', $alt );
 		}
 
 		$start  = trim( self::text( $person['start_date'] ?? '' ) );
