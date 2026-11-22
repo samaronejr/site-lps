@@ -39,8 +39,10 @@
     "@biomejs/biome": "2.5.11",
     "@playwright/test": "1.62.1",
     "@wordpress/env": "11.14.0",
+    "lightningcss": "1.33.0",
     "pa11y": "^10.0.0",
     "parse5": "^8.0.0",
+    "postcss": "8.5.26",
     "vitest": "4.1.11"
   }
 }

@@ -5,6 +5,7 @@ import {
   evaluateBudget,
   formatBudgetReport,
 } from "./lib/performance-budget.mjs";
+import { compileThemeCss } from "./lib/theme-css.mjs";
 
 const artifacts = ["wp-content/plugins/lps-content-model", "wp-content/themes/lps-theme"];
 
@@ -22,6 +23,12 @@ for (const artifact of artifacts) {
   const bytes = await readFile(`${destination}/${entry}`);
   manifest[destination] = createHash("sha256").update(bytes).digest("hex");
 }
+
+const css = compileThemeCss(
+  await readFile("wp-content/themes/lps-theme/assets/css/theme.css", "utf8"),
+);
+await writeFile("dist/lps-theme/assets/css/theme.css", css.publicCss);
+await writeFile("dist/lps-theme/assets/css/theme-private.css", css.privateCss);
 
 await cp("wp-content/mu-plugins", "dist/mu-plugins", { recursive: true });
 manifest["dist/mu-plugins/lps-security.php"] = createHash("sha256")

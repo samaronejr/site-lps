@@ -61,7 +61,16 @@ add_action(
 		// Bust browser caches on content, not on the static theme version —
 		// otherwise every deployed change stays invisible until a hard reload.
 		$version = wp_get_theme()->get( 'Version' ) . '.' . filemtime( get_theme_file_path( 'assets/css/theme.css' ) );
-		wp_enqueue_style( 'lps-theme', get_theme_file_uri( 'assets/css/theme.css' ), array(), $version );
+		wp_register_style( 'lps-theme', false, array(), $version );
+		wp_enqueue_style( 'lps-theme' );
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local build artifact, never a remote URL.
+		$css = file_get_contents( get_theme_file_path( 'assets/css/theme.css' ) );
+		if ( is_string( $css ) ) {
+			wp_add_inline_style( 'lps-theme', AssetPolicy::inline_css( $css, get_theme_file_uri( 'assets' ) ) );
+		}
+		if ( is_user_logged_in() && is_file( get_theme_file_path( 'assets/css/theme-private.css' ) ) ) {
+			wp_enqueue_style( 'lps-theme-private', get_theme_file_uri( 'assets/css/theme-private.css' ), array( 'lps-theme' ), $version );
+		}
 		$version = wp_get_theme()->get( 'Version' ) . '.' . filemtime( get_theme_file_path( 'assets/js/theme.js' ) );
 		wp_enqueue_script( 'lps-theme', get_theme_file_uri( 'assets/js/theme.js' ), array(), $version, true );
 	}
@@ -78,6 +87,9 @@ add_action(
 	static function (): void {
 		$version = wp_get_theme()->get( 'Version' ) . '.' . filemtime( get_theme_file_path( 'assets/css/theme.css' ) );
 		wp_enqueue_style( 'lps-theme', get_theme_file_uri( 'assets/css/theme.css' ), array(), $version );
+		if ( is_file( get_theme_file_path( 'assets/css/theme-private.css' ) ) ) {
+			wp_enqueue_style( 'lps-theme-private', get_theme_file_uri( 'assets/css/theme-private.css' ), array( 'lps-theme' ), $version );
+		}
 
 		$mark = get_theme_file_uri( 'assets/brand/lps_coppe_blue_lockup.svg' );
 		wp_register_style( 'lps-login', false, array( 'lps-theme' ), $version );

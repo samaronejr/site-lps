@@ -18,7 +18,8 @@
     "docs/operations/plugin-update-policy.md",
     "docs/operations/release-runbook-index.md",
     "docs/operations/troubleshooting.md",
-    "docs/operations/evidence-retention.md"
+    "docs/operations/evidence-retention.md",
+    "docs/operations/performance-sitemap-release.md"
   ],
   "referenceDocuments": [
     "docs/content/governance.md",
@@ -195,6 +196,47 @@
         {
           "path": "wp-content/themes/lps-theme/includes/class-dashboardroutes.php",
           "sha256": "37376e11571de5369cfc9a69bf536f92275c042253a49c9f5527fb973f2bb0f3"
+        }
+      ]
+    },
+    {
+      "id": "sitemap-performance-release",
+      "kind": "source",
+      "doc": "docs/operations/performance-sitemap-release.md",
+      "reviewedAt": "2026-11-22",
+      "maxAgeDays": 180,
+      "sources": [
+        {
+          "path": "scripts/deploy/edge.mjs",
+          "sha256": "3648ac9d3efc60a525a3e334ebe84f82b247c3e48a12e99819f1098ea3d3b46d"
+        },
+        {
+          "path": "scripts/deploy/representation.mjs",
+          "sha256": "c37cd1932e74c99f0abdb2b945ded22aec1122cbc5f46491504c9bb89185f4ca"
+        },
+        {
+          "path": "scripts/lib/theme-css.mjs",
+          "sha256": "04f3dd1ee2e48a93826c7d0f7c9cd5c9b9c7de60c35b5b3eee7ad112657eff90"
+        },
+        {
+          "path": "scripts/build.mjs",
+          "sha256": "0f27134c3fc7b38ba31c9ef7ac4f7a37125c8bec2bc5e46073a762bce6f2b5b9"
+        },
+        {
+          "path": "wp-content/themes/lps-theme/functions.php",
+          "sha256": "6b1980c51a3e25c4dfc5e148051cdfd8d9791e96e3a3c462627e635ac631e069"
+        },
+        {
+          "path": "wp-content/themes/lps-theme/includes/class-publicsurfaces.php",
+          "sha256": "ae725e47bd2a86f835790147f31a034d835e652edd6037a003c6f62067f4a430"
+        },
+        {
+          "path": "wp-content/themes/lps-theme/includes/class-assetpolicy.php",
+          "sha256": "d2d246006113890d99d7abbbb9d977a7a375da020ffbbdef65fba93fd557b001"
+        },
+        {
+          "path": "wp-content/themes/lps-theme/includes/class-seoroutes.php",
+          "sha256": "999a4af6e7d57391caa28b6e6010dfdbcf1f2207059d420624b271486354573e"
         }
       ]
     }

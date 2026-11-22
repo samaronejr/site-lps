@@ -18,6 +18,18 @@ require_once dirname( __DIR__ ) . '/includes/class-cachepolicy.php';
 
 /** Todo 21 delivery policy tests: asset trimming and safe anonymous caching. */
 final class PerformancePolicyTest extends \PHPUnit\Framework\TestCase {
+	/** Inline styles keep fonts and decoration relative to the stylesheet, not the page. */
+	public function test_inline_css_preserves_asset_locations(): void {
+		$base = 'https://lps.test/custom/theme/assets/';
+		self::assertSame(
+			'a{src:url(' . $base . 'fonts/font.woff2)}b{background:url("' . $base . 'img/mark.svg")}c{background:url(\'' . $base . 'img/decor.svg\')}',
+			AssetPolicy::inline_css( 'a{src:url(../fonts/font.woff2)}b{background:url("../img/mark.svg")}c{background:url(\'../img/decor.svg\')}', $base )
+		);
+		self::assertSame( '', AssetPolicy::inline_css( '', $base ) );
+		self::assertSame( 'a{src:url(data:font/x)}', AssetPolicy::inline_css( 'a{src:url(data:font/x)}', $base ) );
+		self::assertSame( 'a{src:url(/fonts/x)}', AssetPolicy::inline_css( 'a{src:url(/fonts/x)}', $base ) );
+	}
+
 	/**
 	 * Builds a normalized anonymous public request.
 	 *

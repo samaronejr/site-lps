@@ -18,6 +18,21 @@ namespace LPS\Theme;
  * block depends on it.
  */
 final class AssetPolicy {
+	/**
+	 * Rebases stylesheet-relative assets when CSS is embedded in a document.
+	 *
+	 * @param string $css Stylesheet contents.
+	 * @param string $assets_uri Theme assets directory URL.
+	 */
+	public static function inline_css( string $css, string $assets_uri ): string {
+		$base = rtrim( $assets_uri, '/' ) . '/';
+		return str_replace(
+			array( 'url(../', 'url("../', "url('../" ),
+			array( 'url(' . $base, 'url("' . $base, "url('" . $base ),
+			$css
+		);
+	}
+
 	/** Core styles that only exist for payloads this theme does not use. */
 	private const ALWAYS_REMOVABLE_STYLES = array( 'wp-block-library-theme', 'classic-theme-styles' );
 

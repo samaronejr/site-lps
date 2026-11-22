@@ -35,8 +35,13 @@ import {
   writeFileSync,
 } from "node:fs";
 import { createServer as createHttpServer } from "node:http";
-import { createServer as createHttpsServer } from "node:https";
+import { createSecureServer } from "node:http2";
 import path from "node:path";
+import {
+  machineDocumentTarget,
+  originRequestHeaders,
+  sendRepresentation,
+} from "./representation.mjs";
 
 const ORIGIN = process.env.LPS_EDGE_ORIGIN ?? "http://127.0.0.1:8927";
 const HTTPS_PORT = Number(process.env.LPS_EDGE_HTTPS_PORT ?? 8443);
@@ -109,8 +114,8 @@ function accessLog(req, res, cacheStatus, ms) {
 
 function sendStatic(res, status, body, extra = {}) {
   const headers = { ...STATIC_HEADERS, "content-type": "text/plain; charset=utf-8", ...extra };
-  res.writeHead(status, headers);
-  res.end(body);
+  for (const [name, value] of Object.entries(headers)) res.setHeader(name, value);
+  sendRepresentation(res.req, res, status, Buffer.from(body));
 }
 
 function currentRelease() {
@@ -303,17 +308,17 @@ async function fetchOrigin(req, body) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 30_000);
   try {
-    const headers = { ...req.headers };
-    delete headers.host;
-    delete headers["accept-encoding"];
     // The body is re-serialized below; forwarding the client's framing
     // headers (content-length / transfer-encoding) desynchronizes the
     // origin's parser — a chunked POST would stall and 502.
-    delete headers["content-length"];
-    delete headers["transfer-encoding"];
+    const headers = originRequestHeaders(req.headers);
     headers["x-forwarded-proto"] = "https";
     headers["x-forwarded-for"] = req.socket.remoteAddress;
-    return await fetch(`${ORIGIN}${req.url}`, {
+    // Playground's injected MU plugin redirects sitemap.xml before the theme
+    // loads, although core sitemaps are disabled. Dispatch to the theme's query
+    // endpoint without exposing that internal URL to crawlers.
+    const target = machineDocumentTarget(new URL(req.url, ORIGIN));
+    return await fetch(`${ORIGIN}${target}`, {
       method: req.method,
       headers,
       body,
@@ -489,8 +494,7 @@ async function handle(req, res) {
         for (const [name, value] of Object.entries(hit.meta.headers)) res.setHeader(name, value);
         res.setHeader("x-lps-edge-cache", "HIT");
         res.setHeader("age", String(Math.floor(age)));
-        res.writeHead(hit.meta.status);
-        res.end(req.method === "HEAD" ? undefined : hit.body);
+        sendRepresentation(req, res, hit.meta.status, hit.body);
         accessLog(req, res, "HIT", Date.now() - started);
         return;
       }
@@ -499,8 +503,7 @@ async function handle(req, res) {
         for (const [name, value] of Object.entries(hit.meta.headers)) res.setHeader(name, value);
         res.setHeader("x-lps-edge-cache", "STALE");
         res.setHeader("age", String(Math.floor(age)));
-        res.writeHead(hit.meta.status);
-        res.end(req.method === "HEAD" ? undefined : hit.body);
+        sendRepresentation(req, res, hit.meta.status, hit.body);
         accessLog(req, res, "STALE", Date.now() - started);
         revalidate(req, key).catch(() => {});
         return;
@@ -566,8 +569,7 @@ async function handle(req, res) {
   }
 
   res.setHeader("x-lps-edge-cache", storable ? "MISS" : "BYPASS");
-  res.writeHead(originRes.status);
-  res.end(req.method === "HEAD" ? undefined : originBody);
+  sendRepresentation(req, res, originRes.status, originBody);
   accessLog(req, res, storable ? "MISS" : "BYPASS", Date.now() - started);
 }
 
@@ -611,7 +613,7 @@ const tls = {
   key: readFileSync(process.env.LPS_EDGE_TLS_KEY),
 };
 
-createHttpsServer(tls, (req, res) => {
+createSecureServer({ ...tls, allowHTTP1: true }, (req, res) => {
   handle(req, res).catch((error) => {
     sendStatic(res, 500, "edge error\n");
     logLine(`${LOGS}/edge-errors.jsonl`, {
