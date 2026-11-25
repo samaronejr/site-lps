@@ -290,6 +290,9 @@ final class SeoRoutes {
 	 */
 	public static function canonicalize_teaching_request(): void {
 		$path = SeoPolicy::canonical_path( self::request_path() );
+		if ( function_exists( 'is_preview' ) && is_preview() ) {
+			return;
+		}
 		if ( null !== TeachingRoutes::match_path( $path ) ) {
 			return;
 		}
