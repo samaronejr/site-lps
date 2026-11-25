@@ -32,7 +32,7 @@ export function effectiveCacheControl(originCacheControl, pathname) {
 export function cacheableQueryEntries(url, approvedKeys) {
   const staticAsset = isStaticAssetPath(url.pathname);
   return [...url.searchParams.entries()]
-    .filter(([key]) => approvedKeys.has(key) || (staticAsset && key === "ver"))
+    .filter(([key]) => approvedKeys.has(key))
     .sort(([a], [b]) => a.localeCompare(b));
 }
 

@@ -83,7 +83,7 @@ describe("edge representations", () => {
     expect(effectiveCacheControl("public, s-maxage=300", "/pt-br/")).toBe("public, s-maxage=300");
     expect(
       cacheableQueryEntries(new URL("/theme.js?ver=2&utm=x", "https://lps.test"), approved),
-    ).toEqual([["ver", "2"]]);
+    ).toEqual([]);
     expect(hasUnapprovedCacheQuery(new URL("/theme.js?ver=2", "https://lps.test"), approved)).toBe(
       false,
     );
