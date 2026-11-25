@@ -1,6 +1,6 @@
 ---
 name: testing-lps-showcase
-description: "How to run and adversarially test the institutional-redesign static showcase (server, routes, known-brittle areas: regenerated PNG assets and EN anchor links)."
+description: How to run and adversarially test the institutional-redesign static showcase (server, routes, known-brittle areas: regenerated PNG assets and EN anchor links).
 ---
 
 # Testing the LPS institutional-redesign showcase
