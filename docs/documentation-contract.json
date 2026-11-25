@@ -212,7 +212,7 @@
         },
         {
           "path": "scripts/deploy/representation.mjs",
-          "sha256": "23c5c9961369cfe3bf12234dac08e91ac07b87de266d58b10cc7f58d0ab57f49"
+          "sha256": "f3b7004228125dd3688cd7d3653f6eadcc0902357eaa4b2af258f334c8e8e6da"
         },
         {
           "path": "scripts/lib/theme-css.mjs",
