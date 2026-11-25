@@ -1168,6 +1168,11 @@ final class SeoRoutes {
 		}
 
 		$ids = array( $home->ID );
+		foreach ( $records as $post ) {
+			if ( 'lps_course' === $post->post_type ) {
+				$ids[] = $post->ID;
+			}
+		}
 		if ( class_exists( Translations::class ) ) {
 			foreach ( Translations::relationships_for( self::source_id( $home ), 'related_record' ) as $selection ) {
 				$target_id = self::integer( $selection['target_post_id'] ?? 0 );
