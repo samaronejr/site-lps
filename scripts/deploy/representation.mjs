@@ -15,6 +15,30 @@ export function machineDocumentTarget(url) {
   return `/index.php?lps_seo_document=sitemap-${match[1] ?? "index"}`;
 }
 
+const STATIC_ASSET_PATH = /\.(?:css|js|woff2?|png|jpe?g|webp|avif|ico|mp4|webm|mp3|ogg|oga)$/i;
+
+export function isStaticAssetPath(pathname) {
+  return STATIC_ASSET_PATH.test(pathname);
+}
+
+export function staticAssetCacheControl() {
+  return "public, max-age=31536000, s-maxage=31536000, immutable";
+}
+
+export function cacheableQueryEntries(url, approvedKeys) {
+  const staticAsset = isStaticAssetPath(url.pathname);
+  return [...url.searchParams.entries()]
+    .filter(([key]) => approvedKeys.has(key) || (staticAsset && key === "ver"))
+    .sort(([a], [b]) => a.localeCompare(b));
+}
+
+export function hasUnapprovedCacheQuery(url, approvedKeys) {
+  const staticAsset = isStaticAssetPath(url.pathname);
+  return [...url.searchParams.keys()].some(
+    (key) => !approvedKeys.has(key) && !(staticAsset && key === "ver"),
+  );
+}
+
 export function negotiateEncoding(header = "") {
   const preferences = new Map(
     header

@@ -321,7 +321,7 @@ final class Homepage {
 				'type'              => $post->post_type,
 				'title'             => $post->post_title,
 				'summary'           => $post->post_excerpt,
-				'url'               => self::local_path( (string) get_permalink( $post_id ) ),
+				'url'               => self::public_record_path( $post, $locale ),
 				'record_id'         => $meta['_lps_record_id'],
 				'source_id'         => class_exists( PublicationPolicy::class ) ? PublicationPolicy::provenance_id( array_merge( $meta, $decision ) ) : '',
 				'status'            => $post->post_status,
@@ -340,6 +340,23 @@ final class Homepage {
 				'media'             => Media::record_image( $post ),
 			)
 		);
+	}
+
+	/**
+	 * Returns the canonical public route for one record, falling back to the
+	 * same-site permalink only outside the routed theme runtime.
+	 *
+	 * @param WP_Post $post   Record being rendered.
+	 * @param string  $locale Supported locale slug.
+	 */
+	private static function public_record_path( WP_Post $post, string $locale ): string {
+		if ( class_exists( SeoRoutes::class ) ) {
+			$path = SeoRoutes::record_path( $post, $locale );
+			if ( '' !== $path ) {
+				return $path;
+			}
+		}
+		return self::local_path( (string) get_permalink( $post->ID ) );
 	}
 
 	/**
@@ -899,7 +916,7 @@ final class Homepage {
 			$rows[] = array(
 				'code'        => self::text( get_post_meta( $authority, '_lps_course_code', true ) ),
 				'title'       => $post->post_title,
-				'url'         => self::local_path( (string) get_permalink( $post->ID ) ),
+				'url'         => self::public_record_path( $post, $locale ),
 				'professor'   => implode( ' · ', $names ),
 				'level_label' => self::course_level_label( $level, $locale ),
 				'level_class' => 'graduate' === $level ? 'lps-level-grad' : 'lps-level-undergrad',

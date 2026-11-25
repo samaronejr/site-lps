@@ -33,7 +33,6 @@ const ASSET_POLICY = `${THEME_ROOT}/includes/class-assetpolicy.php`;
 const CACHE_POLICY = `${THEME_ROOT}/includes/class-cachepolicy.php`;
 const DELIVERY = `${THEME_ROOT}/includes/class-delivery.php`;
 const LIGHTHOUSE_RUNS = "scripts/perf/lighthouse-runs.mjs";
-const LIGHTHOUSE_AUDIT = "scripts/perf/lighthouse-audit.py";
 const PERF_DOC = "docs/operations/performance-measurement.md";
 const HOSTING_DOC = "docs/operations/performance-hosting.md";
 const PERF_PROBE = "tests/fixtures/wp/lps-perf-probe.php";

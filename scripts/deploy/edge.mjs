@@ -38,9 +38,13 @@ import { createServer as createHttpServer } from "node:http";
 import { createSecureServer } from "node:http2";
 import path from "node:path";
 import {
+  cacheableQueryEntries,
+  hasUnapprovedCacheQuery,
+  isStaticAssetPath,
   machineDocumentTarget,
   originRequestHeaders,
   sendRepresentation,
+  staticAssetCacheControl,
 } from "./representation.mjs";
 
 const ORIGIN = process.env.LPS_EDGE_ORIGIN ?? "http://127.0.0.1:8927";
@@ -79,7 +83,6 @@ const PRIVATE_COOKIE_PREFIXES = [
   "comment_author_",
   "wp-postpass_",
 ];
-const STATIC_ASSET = /\.(?:css|js|woff2?|png|jpe?g|webp|avif|ico|mp4|webm|mp3|ogg|oga)$/i;
 const UPLOADS_EXEC =
   /^\/wp-content\/uploads\/.*\.(?:php[0-9]*|phtml|phar|cgi|pl|py|sh|html?|svg|js)(?:\.|$)/i;
 const UPLOADS_DOC = /^\/wp-content\/uploads\/.*\.(?:pdf|vtt)$/i;
@@ -150,9 +153,7 @@ function rateLimited(ip) {
 // --- full-page cache honouring the application's contract ---
 function cacheKey(req) {
   const url = new URL(req.url, "https://edge");
-  const kept = [...url.searchParams.entries()]
-    .filter(([key]) => APPROVED_QUERY_KEYS.has(key))
-    .sort(([a], [b]) => a.localeCompare(b));
+  const kept = cacheableQueryEntries(url, APPROVED_QUERY_KEYS);
   const query = kept.map(([k, v]) => `${k}=${v}`).join("&");
   return createHash("sha256").update(`${req.method} ${url.pathname}?${query}`).digest("hex");
 }
@@ -358,8 +359,8 @@ function copyHeaders(originRes, res, pathname) {
     }
   }
   res.setHeader("strict-transport-security", "max-age=31536000");
-  if (STATIC_ASSET.test(pathname)) {
-    res.setHeader("cache-control", "public, max-age=31536000, immutable");
+  if (isStaticAssetPath(pathname)) {
+    res.setHeader("cache-control", staticAssetCacheControl());
   }
   if (UPLOADS_DOC.test(pathname)) {
     res.setHeader("content-type", "application/octet-stream");
@@ -479,9 +480,7 @@ async function handle(req, res) {
   // Unapproved query keys bypass the shared cache entirely: the application
   // marks them no-store, and the edge must not collapse them into the
   // approved-key entry for the same path.
-  const hasUnapprovedQuery = [...url.searchParams.keys()].some(
-    (key) => !APPROVED_QUERY_KEYS.has(key),
-  );
+  const hasUnapprovedQuery = hasUnapprovedCacheQuery(url, APPROVED_QUERY_KEYS);
   const cacheable =
     safeMethod && !isPrivatePath(pathname) && !hasPrivateCookie(req) && !hasUnapprovedQuery;
   const key = cacheable ? cacheKey(req) : null;

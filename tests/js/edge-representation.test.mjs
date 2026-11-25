@@ -1,10 +1,14 @@
 import { brotliDecompressSync, gunzipSync } from "node:zlib";
 import { describe, expect, it } from "vitest";
 import {
+  cacheableQueryEntries,
+  hasUnapprovedCacheQuery,
+  isStaticAssetPath,
   machineDocumentTarget,
   negotiateEncoding,
   originRequestHeaders,
   sendRepresentation,
+  staticAssetCacheControl,
 } from "../../scripts/deploy/representation.mjs";
 
 function response(headers = {}) {
@@ -59,6 +63,30 @@ describe("edge representations", () => {
     );
     expect(machineDocumentTarget(new URL("/other.xml?q=1", "https://lps.test"))).toBe(
       "/other.xml?q=1",
+    );
+  });
+
+  it("makes immutable static assets shared-cacheable without collapsing unapproved queries", () => {
+    const approved = new Set(["q"]);
+    expect(isStaticAssetPath("/wp-content/themes/lps-theme/assets/fonts/inter-regular.woff2")).toBe(
+      true,
+    );
+    expect(isStaticAssetPath("/wp-content/themes/lps-theme/assets/js/theme.js")).toBe(true);
+    expect(isStaticAssetPath("/pt-br/")).toBe(false);
+    expect(staticAssetCacheControl()).toBe(
+      "public, max-age=31536000, s-maxage=31536000, immutable",
+    );
+    expect(
+      cacheableQueryEntries(new URL("/theme.js?ver=2&utm=x", "https://lps.test"), approved),
+    ).toEqual([["ver", "2"]]);
+    expect(hasUnapprovedCacheQuery(new URL("/theme.js?ver=2", "https://lps.test"), approved)).toBe(
+      false,
+    );
+    expect(hasUnapprovedCacheQuery(new URL("/theme.js?utm=x", "https://lps.test"), approved)).toBe(
+      true,
+    );
+    expect(hasUnapprovedCacheQuery(new URL("/pt-br/?ver=2", "https://lps.test"), approved)).toBe(
+      true,
     );
   });
 

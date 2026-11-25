@@ -23,6 +23,17 @@ final class SeoRoutesTest extends \PHPUnit\Framework\TestCase {
 		require_once dirname( __DIR__ ) . '/includes/class-seoroutes.php';
 	}
 
+	/** Machine documents carry a bounded anonymous shared-cache contract. */
+	public function test_machine_documents_carry_a_bounded_anonymous_cache_contract(): void {
+		$headers = SeoRoutes::machine_document_cache_headers( 'sitemap-en' );
+
+		self::assertStringContainsString( 's-maxage=300', $headers['Cache-Control'] );
+		self::assertStringContainsString( 'stale-while-revalidate=60', $headers['Cache-Control'] );
+		self::assertSame( 'Accept-Encoding', $headers['Vary'] );
+		self::assertSame( 'lps-machine lps-locale-en', $headers['Surrogate-Key'] );
+		self::assertSame( 'anonymous-machine-document', $headers['X-LPS-Cache-Policy'] );
+	}
+
 	/** Valid PT/EN page keys produce public paths; missing and unknown keys do not. */
 	public function test_institutional_page_paths_use_the_shared_key(): void {
 		WpSeedRuntime::reset();
