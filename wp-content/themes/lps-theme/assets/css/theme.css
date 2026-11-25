@@ -2312,14 +2312,13 @@ input[type="file"]::file-selector-button:hover {
 }
 
 .lps-card-media::after {
-  background-image: url("../brand/lps_logo_compact.svg");
+  background-image: url("../brand/preview/lps-sinal-branco.webp");
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
   content: "";
-  inset: 10% 12%;
-  filter: brightness(0) invert(1);
-  opacity: 0.94;
+  inset: 14% 6%;
+  opacity: 0.88;
   position: absolute;
 }
 
