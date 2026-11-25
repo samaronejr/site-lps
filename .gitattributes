@@ -1,0 +1,4 @@
+# Vendored skill packages refreshed by `npx skills update`; review the lockfile
+# and project-owned skill edits rather than the upstream package contents.
+.agents/skills/design-taste-frontend/** linguist-generated
+.agents/skills/humanizer/** linguist-generated
