@@ -2312,11 +2312,14 @@ input[type="file"]::file-selector-button:hover {
 }
 
 .lps-card-media::after {
-  background: var(--gradient-signal-trace);
-  clip-path: var(--signal-trace-shape);
+  background-image: url("../brand/lps_logo_compact.svg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
   content: "";
-  inset: 18% 8%;
-  opacity: 0.72;
+  inset: 10% 12%;
+  filter: brightness(0) invert(1);
+  opacity: 0.94;
   position: absolute;
 }
 
@@ -2329,7 +2332,7 @@ input[type="file"]::file-selector-button:hover {
 }
 
 /* A plain well for artwork that must read clean — brand specimens, diagrams —
-   where the decorative signal line would ghost through transparent pixels. */
+   where the decorative grid and logo treatment would ghost through transparent pixels. */
 .lps-card-media--plain::before,
 .lps-card-media--plain::after {
   content: none;
