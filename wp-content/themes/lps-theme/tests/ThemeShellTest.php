@@ -120,6 +120,37 @@ final class ThemeShellTest extends \PHPUnit\Framework\TestCase {
 		self::assertSame( '<h1 class="lps-page-title">LPS posts</h1>', $english );
 	}
 
+	/** Empty results keep a useful composed recovery state in the page locale. */
+	public function test_empty_state_exposes_localized_recovery_routes(): void {
+		// Given: empty-result requests in both public locales.
+		$previous = null;
+		if ( isset( $_SERVER['REQUEST_URI'] ) && is_string( $_SERVER['REQUEST_URI'] ) ) {
+			$previous = sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) );
+		}
+		try {
+			$_SERVER['REQUEST_URI'] = '/pt-br/busca/?q=sem-resultado';
+			$portuguese             = Shell::render_empty_state();
+			$_SERVER['REQUEST_URI'] = '/en/search/?q=no-result';
+			$english                = Shell::render_empty_state();
+		} finally {
+			if ( null === $previous ) {
+				unset( $_SERVER['REQUEST_URI'] );
+			} else {
+				$_SERVER['REQUEST_URI'] = $previous;
+			}
+		}
+
+		// Then: the composed state gives readers direct home and search recovery
+		// routes without inventing replacement records.
+		self::assertStringContainsString( 'lps-empty-state-mark', $portuguese );
+		self::assertStringContainsString( 'href="/pt-br/"', $portuguese );
+		self::assertStringContainsString( 'href="/pt-br/busca/"', $portuguese );
+		self::assertStringContainsString( 'Voltar à página inicial', $portuguese );
+		self::assertStringContainsString( 'href="/en/"', $english );
+		self::assertStringContainsString( 'href="/en/search/"', $english );
+		self::assertStringContainsString( 'Return home', $english );
+	}
+
 	/** Locale variants that share the site origin must render as root-relative links. */
 	public function test_locale_control_renders_internal_variants_as_root_relative_paths(): void {
 		// Given: locale variants resolved from permalinks, which WordPress returns absolute.
@@ -171,6 +202,7 @@ final class ThemeShellTest extends \PHPUnit\Framework\TestCase {
 		self::assertStringContainsString( '<header', $header );
 		self::assertStringContainsString( '<details class="lps-shell-disclosure">', $header );
 		self::assertStringContainsString( '<summary>', $header );
+		self::assertStringContainsString( 'class="lps-menu-icon"', $header );
 		self::assertStringContainsString( '<nav', $header );
 		self::assertStringContainsString( 'aria-current="page"', $header );
 		self::assertStringContainsString( '<form', $header );

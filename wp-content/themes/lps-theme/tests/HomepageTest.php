@@ -641,6 +641,7 @@ final class HomepageTest extends \PHPUnit\Framework\TestCase {
 			self::assertStringContainsString( 'data-home-section="mission"', $page );
 			self::assertStringContainsString( 'data-home-section="journeys"', $page );
 			self::assertStringContainsString( 'data-home-section="teaching"', $page );
+			self::assertStringContainsString( 'lps-split lps-split--single', $page );
 			self::assertStringContainsString( 'data-home-section="contact"', $page );
 			foreach ( array( 'research', 'latest', 'people', 'projects', 'evidence', 'infrastructure', 'partners' ) as $omitted ) {
 				self::assertStringNotContainsString( 'data-home-section="' . $omitted . '"', $page );
