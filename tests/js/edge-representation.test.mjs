@@ -2,6 +2,7 @@ import { brotliDecompressSync, gunzipSync } from "node:zlib";
 import { describe, expect, it } from "vitest";
 import {
   cacheableQueryEntries,
+  effectiveCacheControl,
   hasUnapprovedCacheQuery,
   isStaticAssetPath,
   machineDocumentTarget,
@@ -76,6 +77,10 @@ describe("edge representations", () => {
     expect(staticAssetCacheControl()).toBe(
       "public, max-age=31536000, s-maxage=31536000, immutable",
     );
+    expect(effectiveCacheControl("public, max-age=31536000, immutable", "/x/theme.js")).toBe(
+      staticAssetCacheControl(),
+    );
+    expect(effectiveCacheControl("public, s-maxage=300", "/pt-br/")).toBe("public, s-maxage=300");
     expect(
       cacheableQueryEntries(new URL("/theme.js?ver=2&utm=x", "https://lps.test"), approved),
     ).toEqual([["ver", "2"]]);

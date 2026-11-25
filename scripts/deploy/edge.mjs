@@ -39,6 +39,7 @@ import { createSecureServer } from "node:http2";
 import path from "node:path";
 import {
   cacheableQueryEntries,
+  effectiveCacheControl,
   hasUnapprovedCacheQuery,
   isStaticAssetPath,
   machineDocumentTarget,
@@ -529,7 +530,7 @@ async function handle(req, res) {
   const originBody = Buffer.from(await originRes.arrayBuffer());
   copyHeaders(originRes, res, pathname);
 
-  const cacheControl = originRes.headers.get("cache-control") ?? "";
+  const cacheControl = effectiveCacheControl(originRes.headers.get("cache-control"), pathname);
   const ttl = parseSMaxage(cacheControl);
   const swr = parseSwr(cacheControl);
   const storable =
@@ -559,6 +560,7 @@ async function handle(req, res) {
     for (const [name, value] of Object.entries(STATIC_HEADERS)) {
       if (!headers[name]) headers[name] = value;
     }
+    headers["cache-control"] = cacheControl;
     headers["strict-transport-security"] = "max-age=31536000";
     cacheWrite(
       key,
@@ -575,7 +577,8 @@ async function handle(req, res) {
 async function revalidate(req, key) {
   const originRes = await fetchOrigin(req, null);
   const originBody = Buffer.from(await originRes.arrayBuffer());
-  const cacheControl = originRes.headers.get("cache-control") ?? "";
+  const pathname = new URL(req.url, "http://edge").pathname;
+  const cacheControl = effectiveCacheControl(originRes.headers.get("cache-control"), pathname);
   const ttl = parseSMaxage(cacheControl);
   if (ttl <= 0 || /private|no-store/.test(cacheControl)) return;
   const headers = {};
@@ -594,6 +597,7 @@ async function revalidate(req, key) {
     )
       headers[name] = value;
   }
+  headers["cache-control"] = cacheControl;
   cacheWrite(
     key,
     {

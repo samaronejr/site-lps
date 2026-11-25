@@ -25,6 +25,10 @@ export function staticAssetCacheControl() {
   return "public, max-age=31536000, s-maxage=31536000, immutable";
 }
 
+export function effectiveCacheControl(originCacheControl, pathname) {
+  return isStaticAssetPath(pathname) ? staticAssetCacheControl() : (originCacheControl ?? "");
+}
+
 export function cacheableQueryEntries(url, approvedKeys) {
   const staticAsset = isStaticAssetPath(url.pathname);
   return [...url.searchParams.entries()]
