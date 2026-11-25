@@ -129,7 +129,7 @@ Implemented and deployed to the live Oracle service as release `r81aae2e` (commi
 4. **Machine-document caching and `lastmod` (H2/M1):** sitemaps and locale feeds now carry a bounded anonymous shared-cache contract (`s-maxage=300`, stale-while-revalidate), locale surrogate keys, and publish-time purge coverage. Live verification: `/sitemap.xml` returns HTTP/2 200 with that cache contract. Home/archive `lastmod` values are now derived from underlying modified content instead of render time.
 5. **WCAG contrast/link affordance (H3):** numbered card indexes moved from the near-white surface token to the darker boundary token; chronology years use the darker accent-ink token; footer address email/telephone links are underlined at every viewport. The existing navy/teal system, section grammar, cards, spacing, and owner-approved typography were retained.
 6. **Hreflang corruption hardening (C1):** a corrupted translation group can no longer make an orphan duplicate advertise another record as its own address. Archived duplicate organization URLs resolve dynamically to their canonical translation record without hard-coding individual slugs.
-7. **Repository hygiene/documentation:** the unused performance-test constant and formatting error were fixed; the operation document review metadata was re-stamped after the edge/SEO source changes. Skill updates from `npx skills update` are committed separately.
+7. **Repository hygiene/documentation:** the unused performance-test constant and formatting error were fixed; the operation document review metadata was re-stamped after the edge/SEO source changes. Skill updates from `npx skills update` were split into a separate pull request so this remediation diff remains reviewable.
 
 Validation completed:
 
@@ -140,6 +140,8 @@ Validation completed:
 - `npm run lint`: exit 0; remaining output is non-blocking warnings in pre-existing e2e tests.
 - `npm run build`: passed all payload budgets (`total 757,820 B` versus the `768,000 B` limit).
 - Live smoke checks after deployment: homepage 200; canonical organization 200; duplicate organization 301; static asset and sitemap cache headers as specified; zero raw homepage project/course post-type links.
+- Browser matrix after deployment: 32 page audits (16 principal PT/EN routes × desktop/mobile). One desktop `/en/contact/` navigation timed out while the origin was being overloaded by an audit crawler; after restarting the service and re-testing without concurrent crawl load it returned 200 with zero console errors and zero failed/bad asset responses. Across the matrix there was no horizontal overflow.
+- Computed-style accessibility verification: footer contact links are underlined at both widths (contrast 16.03:1); chronology years measured 16.32:1; infrastructure card index numbers measured 3.6:1 and render as large text, passing the WCAG large-text 3:1 threshold.
 
 
 
