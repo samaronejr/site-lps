@@ -132,6 +132,7 @@
   --overlay-light-16: rgba(255, 255, 255, 0.16);
   --overlay-light-18: rgba(255, 255, 255, 0.18);
   --overlay-light-50: rgba(255, 255, 255, 0.5);
+  --overlay-accent-16: rgba(15, 181, 228, 0.16);
   --overlay-ink-22: rgba(9, 33, 58, 0.22);
   --gradient-hero: linear-gradient(180deg, var(--color-anchor) 0%, var(--color-anchor-deep) 100%);
   --gradient-signal-bar: linear-gradient(90deg, var(--color-action) 0%, var(--color-accent) 100%);
@@ -140,6 +141,19 @@
     var(--color-accent-soft) 0%,
     var(--color-action-light) 100%
   );
+  --gradient-signal-trace: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-accent) 24%,
+    var(--color-action-light) 76%,
+    transparent
+  );
+  --gradient-media-well:
+    radial-gradient(circle at 18% 18%, var(--overlay-accent-16), transparent 34%),
+    linear-gradient(135deg, var(--color-anchor-soft), var(--color-anchor-deep));
+  --gradient-media-grid:
+    linear-gradient(90deg, var(--overlay-light-06) 1px, transparent 1px),
+    linear-gradient(180deg, var(--overlay-light-06) 1px, transparent 1px);
   --gradient-monogram: linear-gradient(160deg, var(--color-anchor-soft), var(--color-action-hover));
   --gradient-event-date: linear-gradient(
     160deg,
@@ -256,6 +270,7 @@
   --shadow-cta: 0 10px 24px rgba(15, 61, 107, 0.26);
   --shadow-cta-hover: 0 14px 30px rgba(15, 61, 107, 0.32);
   --shadow-nav-current: inset 0 -4px 0 0 var(--color-teal-deep);
+  --shadow-nav-current-rail: inset var(--line-heavy) 0 0 0 var(--color-accent);
   --shadow-none: none;
   --rule-hairline: var(--line-thin) solid var(--color-rule-quiet);
   --rule-boundary: var(--line-medium) solid var(--color-boundary-strong);
@@ -272,6 +287,40 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --signal-line: url("../img/mark/lps-mark-mono-symbol.svg");
   --signal-line-dark: url("../img/mark/lps-mark-mono-symbol.svg");
+  --signal-trace-shape: polygon(
+    0 58%,
+    8% 58%,
+    12% 34%,
+    17% 76%,
+    22% 48%,
+    29% 62%,
+    36% 62%,
+    42% 28%,
+    48% 84%,
+    55% 42%,
+    62% 58%,
+    70% 58%,
+    76% 36%,
+    83% 70%,
+    90% 50%,
+    100% 50%,
+    100% 55%,
+    90% 55%,
+    83% 75%,
+    76% 41%,
+    70% 63%,
+    62% 63%,
+    55% 47%,
+    48% 89%,
+    42% 33%,
+    36% 67%,
+    29% 67%,
+    22% 53%,
+    17% 81%,
+    12% 39%,
+    8% 63%,
+    0 63%
+  );
 }
 
 /* ----------------------------------------------------------------------------
@@ -613,6 +662,12 @@ main > * + *,
   margin-block-start: var(--space-6);
 }
 
+/* Major sections already carry deliberate vertical padding and a hairline
+   boundary; an additional outer margin doubled their separation. */
+main > .lps-section + .lps-section {
+  margin-block-start: 0;
+}
+
 .lps-section {
   padding-block: var(--section-y);
 }
@@ -692,6 +747,11 @@ main > * + *,
 @media (min-width: 60rem) {
   .lps-split {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .lps-split--single {
+    grid-template-columns: minmax(0, 1fr);
+    max-inline-size: 64ch;
   }
 
   .lps-split--aside-left {
@@ -1265,25 +1325,49 @@ a.lps-button-quiet:hover {
   padding-inline: var(--grid-gutter);
   text-transform: uppercase;
   letter-spacing: 0.06em;
+  transition:
+    background-color var(--motion-fast) var(--ease-state),
+    color var(--motion-fast) var(--ease-state);
+}
+
+.lps-shell-disclosure[open] > summary {
+  background: var(--color-surface-alt);
 }
 
 .lps-shell-disclosure > summary::-webkit-details-marker {
   display: none;
 }
 
-.lps-shell-disclosure > summary::after {
-  block-size: 0.5rem;
-  border-block-end: 2px solid var(--color-action);
-  border-inline-end: 2px solid var(--color-action);
-  content: "";
-  inline-size: 0.5rem;
-  margin-inline-end: 4px;
-  transform: rotate(45deg);
+.lps-menu-icon {
+  block-size: 1.25rem;
+  flex: none;
+  inline-size: 1.25rem;
+  position: relative;
+}
+
+.lps-menu-icon span {
+  background: var(--color-action);
+  block-size: 2px;
+  inline-size: 1.125rem;
+  inset-inline-start: 0.0625rem;
+  position: absolute;
   transition: transform var(--motion-standard) var(--ease-state);
 }
 
-.lps-shell-disclosure[open] > summary::after {
-  transform: rotate(225deg);
+.lps-menu-icon span:first-child {
+  inset-block-start: 0.3125rem;
+}
+
+.lps-menu-icon span:last-child {
+  inset-block-end: 0.3125rem;
+}
+
+.lps-shell-disclosure[open] .lps-menu-icon span:first-child {
+  transform: translateY(0.25rem) rotate(45deg);
+}
+
+.lps-shell-disclosure[open] .lps-menu-icon span:last-child {
+  transform: translateY(-0.25rem) rotate(-45deg);
 }
 
 .lps-nav-panel {
@@ -1724,13 +1808,36 @@ input[type="file"]::file-selector-button:hover {
     border-block-start: var(--rule-hairline);
   }
 
+  .lps-nav-panel .lps-primary-nav {
+    padding-block: var(--space-2);
+  }
+
   .lps-nav-panel .lps-primary-nav > ul > .lps-nav-item + .lps-nav-item {
     border-block-start: var(--rule-hairline);
   }
 
   .lps-nav-panel .lps-primary-nav a {
     display: flex;
+    font-size: var(--type-body);
     min-block-size: 3rem;
+    padding-inline: 0;
+  }
+
+  .lps-nav-panel .lps-primary-nav a[aria-current="page"] {
+    box-shadow: var(--shadow-nav-current-rail);
+    padding-inline-start: var(--space-3);
+  }
+
+  .lps-nav-panel .lps-nav-menu a {
+    color: var(--color-text-muted);
+    font-size: var(--type-small);
+    font-weight: 500;
+    min-block-size: var(--control-min);
+  }
+
+  .lps-nav-panel .lps-nav-menu a:hover,
+  .lps-nav-panel .lps-nav-menu a[aria-current="page"] {
+    color: var(--color-anchor);
   }
 
   /* Submenu indicators are noise at this width — the nested rail already
@@ -1767,17 +1874,27 @@ input[type="file"]::file-selector-button:hover {
 
 @media (max-width: 59.999rem) {
   .lps-panel-utility {
+    border-block-start: var(--rule-hairline);
     display: block;
+    margin-block-start: var(--space-2);
+    padding-block: var(--space-2);
+  }
+
+  .lps-panel-utility .lps-utility-links {
+    align-items: stretch;
+    display: grid;
+    gap: 0;
   }
 
   .lps-panel-utility a {
     align-items: center;
     color: var(--color-anchor-soft);
-    display: inline-flex;
+    display: flex;
     font-family: var(--font-mono);
     font-size: var(--type-meta);
     letter-spacing: 0.06em;
     min-block-size: var(--control-min);
+    padding-inline: 0;
     text-transform: uppercase;
   }
 
@@ -1831,6 +1948,20 @@ input[type="file"]::file-selector-button:hover {
 
 .lps-nav-panel .lps-search {
   inline-size: 100%;
+}
+
+@media (max-width: 59.999rem) {
+  .lps-nav-panel .lps-shell-tools {
+    border-block-start: var(--rule-hairline);
+    display: grid;
+    justify-content: stretch;
+    margin-block-start: var(--space-2);
+    padding-block-start: var(--space-3);
+  }
+
+  .lps-nav-panel .lps-shell-tools > .lps-button {
+    inline-size: 100%;
+  }
 }
 
 /* ----------------------------------------------------------------------------
@@ -2159,23 +2290,35 @@ input[type="file"]::file-selector-button:hover {
 }
 
 .lps-card-media {
-  background: var(--color-anchor);
+  aspect-ratio: 16 / 8.5;
+  background: var(--gradient-media-well);
   color: var(--color-surface);
   display: grid;
-  min-block-size: 9rem;
+  min-block-size: 8.5rem;
   overflow: hidden;
   place-items: center;
   position: relative;
 }
 
-.lps-card-media::after {
-  background-image: var(--signal-line-dark);
-  background-position: right -2rem center;
-  background-repeat: no-repeat;
-  background-size: auto 90%;
+.lps-card-media::before {
+  background-image: var(--gradient-media-grid);
+  background-size:
+    25% 100%,
+    100% 25%;
   content: "";
   inset: 0;
-  opacity: 0.18;
+  opacity: 0.34;
+  position: absolute;
+}
+
+.lps-card-media::after {
+  background-image: url("../brand/preview/lps-sinal-branco.webp");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  content: "";
+  inset: 14% 6%;
+  opacity: 0.88;
   position: absolute;
 }
 
@@ -2188,7 +2331,8 @@ input[type="file"]::file-selector-button:hover {
 }
 
 /* A plain well for artwork that must read clean — brand specimens, diagrams —
-   where the decorative signal line would ghost through transparent pixels. */
+   where the decorative grid and logo treatment would ghost through transparent pixels. */
+.lps-card-media--plain::before,
 .lps-card-media--plain::after {
   content: none;
 }
@@ -3377,6 +3521,71 @@ th code {
 
 .lps-empty-state .lps-kicker::before {
   display: none;
+}
+
+.lps-empty-state {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: center;
+}
+
+.lps-empty-state h2,
+.lps-empty-state p {
+  margin: 0;
+}
+
+.lps-empty-state > p:not(.lps-kicker) {
+  max-inline-size: 52ch;
+}
+
+.lps-empty-state-mark {
+  background: var(--gradient-signal-trace);
+  block-size: 2.5rem;
+  clip-path: var(--signal-trace-shape);
+  display: block;
+  inline-size: min(11rem, 48vw);
+  margin-block-end: var(--space-1);
+}
+
+.lps-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: center;
+  margin-block-start: var(--space-2);
+}
+
+[data-home-empty] {
+  align-items: flex-start;
+  background: var(--color-info-wash);
+  border: var(--line-thin) solid var(--color-info-rule);
+  border-inline-start: var(--rule-accent);
+  color: var(--color-text-muted);
+  display: flex;
+  font-size: var(--type-small);
+  gap: var(--space-3);
+  margin-block: var(--space-4) 0;
+  padding: var(--space-3) var(--space-4);
+}
+
+[data-home-empty]::before {
+  background: var(--color-action);
+  border-radius: var(--radius-pill);
+  block-size: 0.5rem;
+  content: "";
+  flex: none;
+  inline-size: 0.5rem;
+  margin-block-start: 0.45rem;
+}
+
+.lps-cta-band [data-home-empty] {
+  background: var(--overlay-light-06);
+  border-color: var(--overlay-light-12);
+  color: var(--color-on-dark-body);
+}
+
+.lps-cta-band [data-home-empty]::before {
+  background: var(--color-accent);
 }
 
 .lps-field-hint {

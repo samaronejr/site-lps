@@ -302,7 +302,7 @@ final class Shell {
 			// row; the collaborate entrance and a second search stay inside the
 			// touch disclosure panel.
 			. '<div class="lps-masthead lps-page-grid"><a class="lps-brand" href="' . $home . '" aria-label="LPS — ' . ( $english ? 'home' : 'início' ) . '">' . $mark . '</a><nav class="lps-primary-nav lps-masthead-nav" aria-label="' . self::escape( $nav_label ) . '">' . $items . '</nav></div>'
-			. '<details class="lps-shell-disclosure"><summary>Menu' . $menu_suffix . '</summary><div class="lps-nav-panel lps-page-grid">'
+			. '<details class="lps-shell-disclosure"><summary><span class="lps-menu-label">Menu' . $menu_suffix . '</span><span class="lps-menu-icon" aria-hidden="true"><span></span><span></span></span></summary><div class="lps-nav-panel lps-page-grid">'
 			. '<nav class="lps-primary-nav" aria-label="' . self::escape( $nav_label ) . '">' . $items . '</nav>'
 			// Below the nav breakpoint the band's quick links live here instead,
 			// so the narrow utility row keeps only the tools and the session link.
@@ -863,7 +863,9 @@ final class Shell {
 	public static function render_empty_state(): string {
 		$path    = self::request_path();
 		$english = 'en' === self::current_locale( $path );
-		return '<section class="lps-empty-state" aria-labelledby="lps-empty-title"><p class="lps-kicker">' . ( $english ? 'NO RECORDS' : 'SEM REGISTROS' ) . '</p><h2 id="lps-empty-title">' . ( $english ? 'No results found' : 'Nenhum resultado encontrado' ) . '</h2><p>' . ( $english ? 'Check the search terms or return to the home page.' : 'Revise os termos de busca ou volte à página inicial.' ) . '</p></section>';
+		$home    = $english ? '/en/' : '/pt-br/';
+		$search  = $english ? '/en/search/' : '/pt-br/busca/';
+		return '<section class="lps-empty-state" aria-labelledby="lps-empty-title"><span class="lps-empty-state-mark" aria-hidden="true"></span><p class="lps-kicker">' . ( $english ? 'NO RECORDS' : 'SEM REGISTROS' ) . '</p><h2 id="lps-empty-title">' . ( $english ? 'No results found' : 'Nenhum resultado encontrado' ) . '</h2><p>' . ( $english ? 'Check the search terms or return to the home page.' : 'Revise os termos de busca ou volte à página inicial.' ) . '</p><div class="lps-empty-actions"><a class="lps-button lps-button-primary" href="' . $home . '">' . ( $english ? 'Return home' : 'Voltar à página inicial' ) . '</a><a class="lps-button lps-button-ghost" href="' . $search . '">' . ( $english ? 'Search again' : 'Buscar novamente' ) . '</a></div></section>';
 	}
 
 	/**

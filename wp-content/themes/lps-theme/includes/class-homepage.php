@@ -833,16 +833,18 @@ final class Homepage {
 	 * @param string $locale Supported locale.
 	 */
 	private static function teaching_module( string $locale ): string {
-		$english = 'en' === $locale;
-		$copy    = self::home_section_copy( 'teaching', $locale );
-		$more    = self::text( $copy['more'] ?? '' );
-		$html    = '<section id="ensino" class="lps-section lps-section--alt" data-home-section="teaching" aria-labelledby="home-teaching"><div class="lps-page-grid"><div class="lps-split"><div>'
+		$english     = 'en' === $locale;
+		$copy        = self::home_section_copy( 'teaching', $locale );
+		$more        = self::text( $copy['more'] ?? '' );
+		$courses     = self::home_courses( $locale );
+		$split_class = array() !== $courses ? 'lps-split' : 'lps-split lps-split--single';
+		$html        = '<section id="ensino" class="lps-section lps-section--alt" data-home-section="teaching" aria-labelledby="home-teaching"><div class="lps-page-grid"><div class="' . $split_class . '"><div>'
 			. '<p class="lps-kicker">' . self::escape( self::text( $copy['kicker'] ?? '' ) ) . '</p>'
 			. '<h2 id="home-teaching">' . self::escape( self::text( $copy['title'] ?? '' ) ) . '</h2>'
 			. '<p class="lps-lead">' . self::escape( self::text( $copy['lead'] ?? '' ) ) . '</p>'
-			. '<p><a class="lps-more" data-home-action="teaching" href="' . self::escape( $more ) . '">' . self::escape( self::text( $copy['more_label'] ?? '' ) ) . '</a></p></div><div>';
-		$courses = self::home_courses( $locale );
+			. '<p><a class="lps-more" data-home-action="teaching" href="' . self::escape( $more ) . '">' . self::escape( self::text( $copy['more_label'] ?? '' ) ) . '</a></p></div>';
 		if ( array() !== $courses ) {
+			$html   .= '<div>';
 			$caption = $english ? 'Courses currently taught by the laboratory' : 'Disciplinas atualmente ministradas pelo laboratório';
 			$head    = $english ? array( 'Code', 'Course', 'Professor', 'Level' ) : array( 'Código', 'Disciplina', 'Professor', 'Nível' );
 			$html   .= '<div class="lps-table-scroll" tabindex="0" role="region" aria-label="' . self::escape( $caption ) . '"><table><caption>' . self::escape( $caption ) . '</caption><thead><tr>';
@@ -856,9 +858,9 @@ final class Homepage {
 					. '<td>' . ( '' !== $course['professor'] ? self::escape( $course['professor'] ) : '—' ) . '</td>'
 					. '<td><span class="lps-level ' . $course['level_class'] . '">' . self::escape( $course['level_label'] ) . '</span></td></tr>';
 			}
-			$html .= '</tbody></table></div>';
+			$html .= '</tbody></table></div></div>';
 		}
-		return $html . '</div></div></div></section>';
+		return $html . '</div></div></section>';
 	}
 
 	/**
