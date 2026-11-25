@@ -241,7 +241,10 @@ const fileAt = f => { try { if (fs.statSync(f).isDirectory()) f = path.join(f, '
 // { url } or { file }, or null
 function findPage(proj, marker) {
   if (isUrl(positional)) return { url: positional };
-  if (positional) { const f = fileAt(path.resolve(base, positional)); if (f) return { file: f }; }
+  if (positional) {
+    const f = fileAt(path.resolve(base, positional));
+    return f ? { file: f } : null;
+  }
   if (isUrl(marker.url)) return { url: marker.url };
   for (const p of [marker.page, 'index.html']) { if (typeof p !== 'string' || !p) continue; const f = fileAt(path.resolve(proj, p)); if (f) return { file: f }; }
   let names = [];
