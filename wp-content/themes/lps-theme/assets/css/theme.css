@@ -1757,13 +1757,6 @@ input[type="file"]::file-selector-button:hover {
     display: inline-flex;
     min-block-size: var(--control-min);
   }
-
-  /* Footer contact links take an underline: on the dark band the link colour
-     alone reads as plain address text. */
-  .lps-site-footer address a {
-    text-decoration-line: underline;
-    text-underline-offset: 0.2em;
-  }
 }
 
 /* The quick links' panel copy: light-surface styling, rendered only under
@@ -2236,7 +2229,7 @@ input[type="file"]::file-selector-button:hover {
 }
 
 .lps-card-index {
-  color: var(--color-surface-alt);
+  color: var(--color-boundary-strong);
   font-family: var(--font-display);
   font-size: clamp(2.75rem, 5vw, 4rem);
   font-weight: 600;
@@ -4069,6 +4062,11 @@ a.lps-shortcut-link:hover {
   line-height: 1.6;
 }
 
+.lps-site-footer address a {
+  text-decoration-line: underline;
+  text-underline-offset: 0.2em;
+}
+
 .lps-site-footer ul {
   display: grid;
   gap: var(--space-3);
@@ -5530,7 +5528,7 @@ a.lps-button-ghost {
 }
 
 .lps-chrono-year > h3 {
-  color: var(--color-accent);
+  color: var(--color-accent-ink);
   font-size: var(--type-h3);
   font-variant-numeric: tabular-nums;
   font-weight: 700;

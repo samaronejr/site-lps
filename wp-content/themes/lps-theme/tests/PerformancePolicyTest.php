@@ -326,13 +326,19 @@ final class PerformancePolicyTest extends \PHPUnit\Framework\TestCase {
 		self::assertSame(
 			array(
 				'https://lps.example/en/',
+				'https://lps.example/en/events/feed/',
+				'https://lps.example/en/news/feed/',
 				'https://lps.example/en/news/signal-2026/',
 				'https://lps.example/en/search/',
 				'https://lps.example/pt-br/',
 				'https://lps.example/pt-br/busca/',
+				'https://lps.example/pt-br/eventos/feed/',
 				'https://lps.example/pt-br/noticias/',
 				'https://lps.example/pt-br/noticias/categoria/institucional/',
+				'https://lps.example/pt-br/noticias/feed/',
 				'https://lps.example/pt-br/noticias/sinal-2026/',
+				'https://lps.example/sitemap-en.xml',
+				'https://lps.example/sitemap-pt-br.xml',
 				'https://lps.example/sitemap.xml',
 			),
 			$targets

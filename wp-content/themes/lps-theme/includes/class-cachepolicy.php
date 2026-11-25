@@ -49,6 +49,12 @@ final class CachePolicy {
 		'en'    => 'search',
 	);
 
+	/** Locale-specific public feed paths purged with every publish. */
+	private const FEED_SEGMENTS = array(
+		'pt-br' => array( 'noticias', 'eventos' ),
+		'en'    => array( 'news', 'events' ),
+	);
+
 	/**
 	 * Evaluates one response for shared cacheability.
 	 *
@@ -125,6 +131,10 @@ final class CachePolicy {
 			}
 			$targets[] = $origin . '/' . $locale . '/';
 			$targets[] = $origin . '/' . $locale . '/' . self::SEARCH_ENTRY[ $locale ] . '/';
+			$targets[] = $origin . '/sitemap-' . $locale . '.xml';
+			foreach ( self::FEED_SEGMENTS[ $locale ] as $segment ) {
+				$targets[] = $origin . '/' . $locale . '/' . $segment . '/feed/';
+			}
 		}
 		$targets[] = $origin . '/sitemap.xml';
 

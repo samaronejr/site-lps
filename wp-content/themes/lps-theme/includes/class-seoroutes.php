@@ -22,6 +22,7 @@ use WP_Post;
 use WP_Query;
 
 require_once __DIR__ . '/class-seosurfaces.php';
+require_once __DIR__ . '/class-cachepolicy.php';
 require_once __DIR__ . '/class-discoveryroutes.php';
 require_once __DIR__ . '/class-publicroutes.php';
 require_once __DIR__ . '/class-searchroutes.php';
@@ -258,7 +259,12 @@ final class SeoRoutes {
 		if ( ! is_404() ) {
 			return;
 		}
-		$path     = SeoPolicy::canonical_path( self::request_path() );
+		$path      = SeoPolicy::canonical_path( self::request_path() );
+		$duplicate = self::archived_organization_duplicate_target( $path );
+		if ( '' !== $duplicate ) {
+			wp_safe_redirect( self::site_url() . $duplicate, 301 );
+			exit;
+		}
 		$resolved = SeoPolicy::resolve_redirect( self::redirect_graph(), $path );
 		if ( 410 === $resolved['status'] ) {
 			status_header( 410 );
@@ -275,33 +281,42 @@ final class SeoRoutes {
 	}
 
 	/**
-	 * Redirects a default teaching permalink to its canonical locale route.
+	 * Redirects a default post-type permalink to its canonical locale route.
 	 *
-	 * The registered `lps_course` and `lps_offering` permalinks stay
-	 * resolvable, but the published address is the locale route built from the
-	 * record's identity. A request that reaches a singular or archive response
-	 * under any other path answers with one 301 hop — never a second canonical
-	 * document and never a redirect chain.
+	 * Registered CPT permalinks stay resolvable for WordPress, but the published
+	 * address is the locale route built from the record's identity. A request
+	 * that reaches a singular or archive response under any other path answers
+	 * with one 301 hop — never a second canonical document and never a chain.
 	 */
 	public static function canonicalize_teaching_request(): void {
 		$path = SeoPolicy::canonical_path( self::request_path() );
+		if ( function_exists( 'is_preview' ) && is_preview() ) {
+			return;
+		}
 		if ( null !== TeachingRoutes::match_path( $path ) ) {
 			return;
 		}
-		// The default CPT archives have no public listing: the teaching landing
-		// is their canonical address. This runs before the 404 bail because a
-		// post type without `has_archive` answers its archive path with a 404.
-		if ( 1 === preg_match( '#^/(?:(pt-br|en)/)?lps_(?:course|offering)/?$#', $path, $archive ) ) {
-			$locale = isset( $archive[1] ) && 'en' === $archive[1] ? 'en' : 'pt-br';
-			wp_safe_redirect( self::site_url() . TeachingRoutes::landing_path( $locale ), 301 );
-			exit;
+		// The default CPT archives have no public listing: the localized public
+		// archive (or the teaching landing) is their canonical address. This runs
+		// before the 404 bail because a post type without `has_archive` can answer
+		// its archive path with a 404.
+		if ( 1 === preg_match( '#^/(?:(pt-br|en)/)?(lps_[a-z_]+)/?$#', $path, $archive ) && isset( self::SECTIONS[ $archive[2] ] ) ) {
+			$locale    = 'en' === $archive[1] ? 'en' : 'pt-br';
+			$post_type = $archive[2];
+			$target    = in_array( $post_type, self::TEACHING_TYPES, true )
+				? TeachingRoutes::landing_path( $locale )
+				: self::archive_path( $post_type, $locale );
+			if ( '' !== $target ) {
+				wp_safe_redirect( self::site_url() . $target, 301 );
+				exit;
+			}
 		}
 		if ( function_exists( 'is_404' ) && is_404() ) {
 			return;
 		}
 		if ( function_exists( 'is_singular' ) && is_singular() ) {
 			$post = get_queried_object();
-			if ( ! $post instanceof WP_Post || ! in_array( $post->post_type, self::TEACHING_TYPES, true ) ) {
+			if ( ! $post instanceof WP_Post || ! in_array( $post->post_type, array_merge( array_keys( self::SECTIONS ), array( 'page' ) ), true ) ) {
 				return;
 			}
 			$locale    = self::locale_for_post( $post );
@@ -339,12 +354,12 @@ final class SeoRoutes {
 		$site_url = self::site_url();
 		status_header( 200 );
 		if ( 'sitemap-index' === $document ) {
-			self::send_xml( SeoSurfaces::sitemap_index( $site_url, SeoPolicy::locales() ) );
+			self::send_xml( SeoSurfaces::sitemap_index( $site_url, SeoPolicy::locales() ), $document );
 		}
 		if ( str_starts_with( $document, 'sitemap-' ) ) {
 			$locale = substr( $document, strlen( 'sitemap-' ) );
 			if ( in_array( $locale, SeoPolicy::locales(), true ) ) {
-				self::send_xml( SeoSurfaces::locale_sitemap( $site_url, self::sitemap_entries( $locale ) ) );
+				self::send_xml( SeoSurfaces::locale_sitemap( $site_url, self::sitemap_entries( $locale ) ), $document );
 			}
 			return;
 		}
@@ -363,7 +378,8 @@ final class SeoRoutes {
 						'locale'   => $definition['locale'],
 					),
 					self::feed_items( $definition['post_type'], $definition['locale'] )
-				)
+				),
+				$document
 			);
 		}
 	}
@@ -771,7 +787,14 @@ final class SeoRoutes {
 			$locale = self::text( get_post_meta( $post->ID, '_lps_locale', true ) );
 			return '' === $locale ? array() : array( $locale => $post );
 		}
-		foreach ( pll_get_post_translations( $post->ID ) as $slug => $post_id ) {
+		$translations = pll_get_post_translations( $post->ID );
+		$locale       = self::locale_for_post( $post );
+		if ( isset( $translations[ $locale ] ) && (int) $translations[ $locale ] !== (int) $post->ID ) {
+			// A corrupted translation group must not let an orphan duplicate
+			// advertise another record as if it were this address.
+			return array( $locale => $post );
+		}
+		foreach ( $translations as $slug => $post_id ) {
 			if ( ! in_array( $slug, SeoPolicy::locales(), true ) ) {
 				continue;
 			}
@@ -1067,24 +1090,12 @@ final class SeoRoutes {
 	 * @return array<int, array<string, string>>
 	 */
 	public static function sitemap_entries( string $locale ): array {
-		$site_url = self::site_url();
-		$entries  = array(
-			array(
-				'path'     => '/' . $locale . '/',
-				'modified' => gmdate( 'c' ),
-			),
-		);
-		foreach ( array_keys( self::SECTIONS ) as $post_type ) {
-			$archive = self::archive_path( $post_type, $locale );
-			if ( '' !== $archive && self::archive_is_served( $post_type, $locale ) ) {
-				$entries[] = array(
-					'path'     => $archive,
-					'modified' => gmdate( 'c' ),
-				);
-			}
-		}
-		$addressable = self::addressable_slugs( $locale );
-		foreach ( self::published_records( array_merge( array_keys( self::SECTIONS ), array( 'page' ) ), $locale ) as $post ) {
+		$site_url         = self::site_url();
+		$addressable      = self::addressable_slugs( $locale );
+		$record_entries   = array();
+		$archive_modified = array();
+		$records          = self::published_records( array_merge( array_keys( self::SECTIONS ), array( 'page' ) ), $locale );
+		foreach ( $records as $post ) {
 			$path = self::record_path( $post, $locale );
 			if ( '' === $path || ! self::publicly_visible( $post, $locale ) ) {
 				continue;
@@ -1110,12 +1121,83 @@ final class SeoRoutes {
 			if ( ! SeoPolicy::in_sitemap( $site_url, $candidate ) ) {
 				continue;
 			}
-			$entries[] = array(
+			$modified         = (string) get_post_modified_time( 'c', true, $post );
+			$record_entries[] = array(
 				'path'     => $path,
-				'modified' => (string) get_post_modified_time( 'c', true, $post ),
+				'modified' => $modified,
 			);
+			if ( isset( self::SECTIONS[ $post->post_type ] ) && ( ! isset( $archive_modified[ $post->post_type ] ) || strcmp( $modified, $archive_modified[ $post->post_type ] ) > 0 ) ) {
+				$archive_modified[ $post->post_type ] = $modified;
+			}
 		}
-		return $entries;
+
+		$entries = array(
+			array(
+				'path'     => '/' . $locale . '/',
+				'modified' => self::homepage_modified( $records ),
+			),
+		);
+		foreach ( array_keys( self::SECTIONS ) as $post_type ) {
+			$archive = self::archive_path( $post_type, $locale );
+			if ( '' !== $archive && self::archive_is_served( $post_type, $locale ) ) {
+				$entries[] = array(
+					'path'     => $archive,
+					'modified' => $archive_modified[ $post_type ] ?? '',
+				);
+			}
+		}
+		return array_merge( $entries, $record_entries );
+	}
+
+	/**
+	 * Returns the newest modification among the homepage record and the records
+	 * explicitly selected into its governed modules.
+	 *
+	 * @param array<int, WP_Post> $records Published records already loaded for the sitemap.
+	 */
+	private static function homepage_modified( array $records ): string {
+		$home = null;
+		foreach ( $records as $post ) {
+			if ( 'page' === $post->post_type && 'home' === self::text( get_post_meta( self::source_id( $post ), '_lps_page_key', true ) ) ) {
+				$home = $post;
+				break;
+			}
+		}
+		if ( ! $home instanceof WP_Post ) {
+			return '';
+		}
+
+		$ids = array( $home->ID );
+		foreach ( $records as $post ) {
+			if ( 'lps_course' === $post->post_type ) {
+				$ids[] = $post->ID;
+			}
+		}
+		if ( class_exists( Translations::class ) ) {
+			foreach ( Translations::relationships_for( self::source_id( $home ), 'related_record' ) as $selection ) {
+				$target_id = self::integer( $selection['target_post_id'] ?? 0 );
+				if ( 0 === $target_id || empty( $selection['public_visibility'] ) ) {
+					continue;
+				}
+				$ids[] = $target_id;
+				foreach ( Translations::variants( $target_id ) as $variant_id ) {
+					$ids[] = self::integer( $variant_id );
+				}
+			}
+		}
+
+		$modified = '';
+		foreach ( array_unique( array_filter( $ids ) ) as $post_id ) {
+			$post = get_post( $post_id );
+			if ( ! $post instanceof WP_Post || 'publish' !== $post->post_status ) {
+				continue;
+			}
+			$candidate = (string) get_post_modified_time( 'c', true, $post );
+			if ( '' === $modified || strcmp( $candidate, $modified ) > 0 ) {
+				$modified = $candidate;
+			}
+		}
+		return $modified;
 	}
 
 	/**
@@ -1294,6 +1376,43 @@ final class SeoRoutes {
 			}
 			$offset += $batch;
 		} while ( 100 <= $batch );
+	}
+
+	/**
+	 * Resolves an archived duplicate organization copy to its canonical record.
+	 *
+	 * The migration once attached extra `-2`/`-3` English copies to a translation
+	 * group whose description names the canonical English record. Those copies are
+	 * archived rather than deleted, so their former public addresses redirect in
+	 * one hop instead of becoming an indexed duplicate or a hard loss.
+	 *
+	 * @param string $path Canonical request path.
+	 */
+	private static function archived_organization_duplicate_target( string $path ): string {
+		if ( 1 !== preg_match( '#^/(pt-br|en)/(?:organizacoes|organizations)/([^/]+)-([23])/$#', $path, $match ) ) {
+			return '';
+		}
+		$locale = $match[1];
+		$posts  = get_posts(
+			array(
+				'post_type'      => 'lps_organization',
+				'post_status'    => 'lps_archived',
+				'name'           => $match[2] . '-' . $match[3],
+				'posts_per_page' => 1,
+				'no_found_rows'  => true,
+			)
+		);
+		$post   = $posts[0] ?? null;
+		if ( ! $post instanceof WP_Post || ! function_exists( 'pll_get_post_translations' ) ) {
+			return '';
+		}
+		$translations = pll_get_post_translations( $post->ID );
+		$canonical_id = self::integer( $translations[ $locale ] ?? 0 );
+		$canonical    = 0 < $canonical_id ? get_post( $canonical_id ) : null;
+		if ( ! $canonical instanceof WP_Post || 'publish' !== $canonical->post_status ) {
+			return '';
+		}
+		return self::record_path( $canonical, $locale );
 	}
 
 	/**
@@ -1594,13 +1713,44 @@ final class SeoRoutes {
 	}
 
 	/**
+	 * Returns the anonymous shared-cache contract for one machine document.
+	 *
+	 * The browser TTL remains zero so validation clients revalidate, while the
+	 * edge may serve the anonymous XML for the HTML TTL window. Publish hooks
+	 * expire the exact sitemap and feed paths through `CachePolicy`.
+	 *
+	 * @param string $document Machine-document identifier.
+	 * @return array<string, string>
+	 */
+	public static function machine_document_cache_headers( string $document ): array {
+		$keys = array( 'lps-machine' );
+		foreach ( SeoPolicy::locales() as $locale ) {
+			if ( str_contains( $document, $locale ) ) {
+				$keys[] = 'lps-locale-' . $locale;
+			}
+		}
+
+		return array(
+			'Cache-Control'      => sprintf( 'public, max-age=0, s-maxage=%d, stale-while-revalidate=%d', CachePolicy::HTML_TTL, CachePolicy::STALE_WHILE_REVALIDATE ),
+			'Vary'               => 'Accept-Encoding',
+			'Surrogate-Key'      => implode( ' ', $keys ),
+			'Surrogate-Control'  => 'max-age=' . CachePolicy::HTML_TTL,
+			'X-LPS-Cache-Policy' => 'anonymous-machine-document',
+		);
+	}
+
+	/**
 	 * Sends one XML document and ends the request.
 	 *
-	 * @param string $body Rendered XML.
+	 * @param string $body     Rendered XML.
+	 * @param string $document Machine-document identifier.
 	 */
-	private static function send_xml( string $body ): void {
+	private static function send_xml( string $body, string $document ): void {
 		header( 'Content-Type: application/xml; charset=utf-8' );
 		header( 'X-Robots-Tag: noindex, follow' );
+		foreach ( self::machine_document_cache_headers( $document ) as $name => $value ) {
+			header( $name . ': ' . $value, true );
+		}
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- SeoSurfaces escapes every value it renders.
 		echo $body;
 		exit;

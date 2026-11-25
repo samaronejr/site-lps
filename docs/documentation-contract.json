@@ -203,16 +203,16 @@
       "id": "sitemap-performance-release",
       "kind": "source",
       "doc": "docs/operations/performance-sitemap-release.md",
-      "reviewedAt": "2026-11-22",
+      "reviewedAt": "2026-11-25",
       "maxAgeDays": 180,
       "sources": [
         {
           "path": "scripts/deploy/edge.mjs",
-          "sha256": "3648ac9d3efc60a525a3e334ebe84f82b247c3e48a12e99819f1098ea3d3b46d"
+          "sha256": "2c00486142572360073a210aad32228ae7ca5729783d9ea6d7c176956569c234"
         },
         {
           "path": "scripts/deploy/representation.mjs",
-          "sha256": "c37cd1932e74c99f0abdb2b945ded22aec1122cbc5f46491504c9bb89185f4ca"
+          "sha256": "f3b7004228125dd3688cd7d3653f6eadcc0902357eaa4b2af258f334c8e8e6da"
         },
         {
           "path": "scripts/lib/theme-css.mjs",
@@ -236,7 +236,7 @@
         },
         {
           "path": "wp-content/themes/lps-theme/includes/class-seoroutes.php",
-          "sha256": "999a4af6e7d57391caa28b6e6010dfdbcf1f2207059d420624b271486354573e"
+          "sha256": "f2430781ee2f21abd3752237e975cdbb47dad5e70a40b58378d332f208666ac7"
         }
       ]
     }
